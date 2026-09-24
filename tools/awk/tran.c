@@ -1,26 +1,38 @@
 /****************************************************************
-Copyright (C) Lucent Technologies 1997
-All Rights Reserved
+ * Copyright (C) Lucent Technologies 1997
+ * All Rights Reserved
+ *
+ * Permission to use, copy, modify, and distribute this software and
+ * its documentation for any purpose and without fee is hereby
+ * granted, provided that the above copyright notice appear in all
+ * copies and that both that the copyright notice and this
+ * permission notice and warranty disclaimer appear in supporting
+ * documentation, and that the name Lucent Technologies or any of
+ * its entities not be used in advertising or publicity pertaining
+ * to distribution of the software without specific, written prior
+ * permission.
+ *
+ * LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+ * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
+ * IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
+ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+ * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
+ ****************************************************************/
 
-Permission to use, copy, modify, and distribute this software and
-its documentation for any purpose and without fee is hereby
-granted, provided that the above copyright notice appear in all
-copies and that both that the copyright notice and this
-permission notice and warranty disclaimer appear in supporting
-documentation, and that the name Lucent Technologies or any of
-its entities not be used in advertising or publicity pertaining
-to distribution of the software without specific, written prior
-permission.
-
-LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
-IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
-SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
-ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-****************************************************************/
+/*!
+ *  @file tran.c
+ *  @brief Symbol table and value conversion for awk.
+ *
+ *  Implements the hash-table symbol table used for variables and
+ *  arrays, the built-in variables (FS, RS, NR, NF, ...) and the
+ *  conversions between the numeric and string representations of
+ *  a Cell.
+ *
+ *  @copyright Copyright (C) Lucent Technologies 1997.
+ */
 
 #define	DEBUG
 #include <stdio.h>
@@ -31,42 +43,54 @@ THIS SOFTWARE.
 #include "awk.h"
 #include "ytab.h"
 
-#define	FULLTAB	2	/* rehash when table gets this x full */
-#define	GROWTAB 4	/* grow table by this factor */
+/*!
+ *  @brief Rehash when the table gets this many times full.
+ *  @def FULLTAB
+ */
+#define	FULLTAB	2
 
-Array	*symtab;	/* main symbol table */
+/*!
+ *  @brief Growth factor used when rehashing.
+ *  @def GROWTAB
+ */
+#define	GROWTAB 4
 
-char	**FS;		/* initial field sep */
-char	**RS;		/* initial record sep */
-char	**OFS;		/* output field sep */
-char	**ORS;		/* output record sep */
-char	**OFMT;		/* output format for numbers */
-char	**CONVFMT;	/* format for conversions in getsval */
-Awkfloat *NF;		/* number of fields in current record */
-Awkfloat *NR;		/* number of current record */
-Awkfloat *FNR;		/* number of current record in current file */
-char	**FILENAME;	/* current filename argument */
-Awkfloat *ARGC;		/* number of arguments from command line */
-char	**SUBSEP;	/* subscript separator for a[i,j,k]; default \034 */
-Awkfloat *RSTART;	/* start of re matched with ~; origin 1 (!) */
-Awkfloat *RLENGTH;	/* length of same */
+Array	*symtab;             /*!< Main symbol table. */
 
-Cell	*nrloc;		/* NR */
-Cell	*nfloc;		/* NF */
-Cell	*fnrloc;	/* FNR */
-Array	*ARGVtab;	/* symbol table containing ARGV[...] */
-Array	*ENVtab;	/* symbol table containing ENVIRON[...] */
-Cell	*rstartloc;	/* RSTART */
-Cell	*rlengthloc;	/* RLENGTH */
-Cell	*symtabloc;	/* SYMTAB */
+char	**FS;                /*!< Initial field separator. */
+char	**RS;                /*!< Initial record separator. */
+char	**OFS;               /*!< Output field separator. */
+char	**ORS;               /*!< Output record separator. */
+char	**OFMT;              /*!< Output format for numbers. */
+char	**CONVFMT;           /*!< Format for conversions in getsval. */
+Awkfloat *NF;                /*!< Number of fields in the current record. */
+Awkfloat *NR;                /*!< Number of the current record. */
+Awkfloat *FNR;               /*!< Number of the current record in the current file. */
+char	**FILENAME;          /*!< Name of the current input file. */
+Awkfloat *ARGC;              /*!< Number of command-line arguments. */
+char	**SUBSEP;            /*!< Subscript separator for a[i,j,k]. */
+Awkfloat *RSTART;            /*!< Start of the last match, origin 1. */
+Awkfloat *RLENGTH;           /*!< Length of the last match. */
 
-Cell	*nullloc;	/* a guaranteed empty cell */
-Node	*nullnode;	/* zero&null, converted into a node for comparisons */
-Cell	*literal0;
+Cell	*nrloc;              /*!< Cell of the NR variable. */
+Cell	*nfloc;              /*!< Cell of the NF variable. */
+Cell	*fnrloc;             /*!< Cell of the FNR variable. */
+Array	*ARGVtab;            /*!< Symbol table backing ARGV. */
+Array	*ENVtab;             /*!< Symbol table backing ENVIRON. */
+Cell	*rstartloc;          /*!< Cell of the RSTART variable. */
+Cell	*rlengthloc;         /*!< Cell of the RLENGTH variable. */
+Cell	*symtabloc;          /*!< Cell of the SYMTAB variable. */
 
-extern Cell **fldtab;
+Cell	*nullloc;            /*!< Guaranteed empty cell. */
+Node	*nullnode;           /*!< Zero-and-null node used for comparisons. */
+Cell	*literal0;           /*!< Cell of the literal zero. */
 
-void syminit(void)	/* initialize symbol table with builtin vars */
+extern Cell **fldtab;        /*!< Table of fields $0..$NF defined in lib.c. */
+
+/*!
+ *  @brief Initializes the symbol table with the built-in variables.
+ */
+void syminit(void)
 {
 	literal0 = setsymtab("0", "0", 0.0, NUM|STR|CON|DONTFREE, symtab);
 	/* this is used for if(x)... tests: */
@@ -95,7 +119,13 @@ void syminit(void)	/* initialize symbol table with builtin vars */
 	symtabloc->sval = (char *) symtab;
 }
 
-void arginit(int ac, char **av)	/* set up ARGV and ARGC */
+/*!
+ *  @brief Sets up ARGV and ARGC.
+ *
+ *  @param[in] ac Argument count.
+ *  @param[in] av Argument vector.
+ */
+void arginit(int ac, char **av)
 {
 	Cell *cp;
 	int i;
@@ -115,7 +145,12 @@ void arginit(int ac, char **av)	/* set up ARGV and ARGC */
 	}
 }
 
-void envinit(char **envp)	/* set up ENVIRON variable */
+/*!
+ *  @brief Sets up the ENVIRON variable from the process environment.
+ *
+ *  @param[in] envp Environment vector.
+ */
+void envinit(char **envp)
 {
 	Cell *cp;
 	char *p;
@@ -137,7 +172,14 @@ void envinit(char **envp)	/* set up ENVIRON variable */
 	}
 }
 
-Array *makesymtab(int n)	/* make a new symbol table */
+/*!
+ *  @brief Allocates a new symbol table of size @p n.
+ *
+ *  @param[in] n Initial number of buckets.
+ *
+ *  @return Newly allocated symbol table.
+ */
+Array *makesymtab(int n)
 {
 	Array *ap;
 	Cell **tp;
@@ -152,7 +194,12 @@ Array *makesymtab(int n)	/* make a new symbol table */
 	return(ap);
 }
 
-void freesymtab(Cell *ap)	/* free a symbol table */
+/*!
+ *  @brief Frees a symbol table and all of its elements.
+ *
+ *  @param[in] ap Cell that holds the array.
+ */
+void freesymtab(Cell *ap)
 {
 	Cell *cp, *temp;
 	Array *tp;
@@ -180,7 +227,13 @@ void freesymtab(Cell *ap)	/* free a symbol table */
 	free(tp);
 }
 
-void freeelem(Cell *ap, const char *s)	/* free elem s from ap (i.e., ap["s"] */
+/*!
+ *  @brief Removes a single element from an array.
+ *
+ *  @param[in] ap Cell that holds the array.
+ *  @param[in] s  Subscript of the element to remove.
+ */
+void freeelem(Cell *ap, const char *s)
 {
 	Array *tp;
 	Cell *p, *prev = NULL;
@@ -203,6 +256,17 @@ void freeelem(Cell *ap, const char *s)	/* free elem s from ap (i.e., ap["s"] */
 		}
 }
 
+/*!
+ *  @brief Finds or creates an entry in a symbol table.
+ *
+ *  @param[in] n  Name of the entry.
+ *  @param[in] s  Initial string value.
+ *  @param[in] f  Initial numeric value.
+ *  @param[in] t  Type flags.
+ *  @param[in] tp Symbol table.
+ *
+ *  @return Cell of the found or created entry.
+ */
 Cell *setsymtab(const char *n, const char *s, Awkfloat f, unsigned t, Array *tp)
 {
 	int h;
@@ -233,7 +297,15 @@ Cell *setsymtab(const char *n, const char *s, Awkfloat f, unsigned t, Array *tp)
 	return(p);
 }
 
-int hash(const char *s, int n)	/* form hash value for string s */
+/*!
+ *  @brief Computes the hash value of a string.
+ *
+ *  @param[in] s String to hash.
+ *  @param[in] n Number of buckets.
+ *
+ *  @return Hash value in the range [0, n).
+ */
+int hash(const char *s, int n)
 {
 	unsigned hashval;
 
@@ -242,7 +314,12 @@ int hash(const char *s, int n)	/* form hash value for string s */
 	return hashval % n;
 }
 
-void rehash(Array *tp)	/* rehash items in small table into big one */
+/*!
+ *  @brief Grows and rehashes a symbol table.
+ *
+ *  @param[in] tp Symbol table to grow.
+ */
+void rehash(Array *tp)
 {
 	int i, nh, nsz;
 	Cell *cp, *op, **np;
@@ -264,7 +341,16 @@ void rehash(Array *tp)	/* rehash items in small table into big one */
 	tp->size = nsz;
 }
 
-Cell *lookup(const char *s, Array *tp)	/* look for s in tp */
+/*!
+ *  @brief Looks up a name in a symbol table.
+ *
+ *  @param[in] s  Name to look up.
+ *  @param[in] tp Symbol table.
+ *
+ *  @return Cell of the entry.
+ *  @retval NULL The name is not present in the table.
+ */
+Cell *lookup(const char *s, Array *tp)
 {
 	Cell *p;
 	int h;
@@ -276,7 +362,15 @@ Cell *lookup(const char *s, Array *tp)	/* look for s in tp */
 	return(NULL);			/* not found */
 }
 
-Awkfloat setfval(Cell *vp, Awkfloat f)	/* set float val of a Cell */
+/*!
+ *  @brief Sets the numeric value of a cell.
+ *
+ *  @param[in] vp Cell to modify.
+ *  @param[in] f  New numeric value.
+ *
+ *  @return The new numeric value.
+ */
+Awkfloat setfval(Cell *vp, Awkfloat f)
 {
 	int fldno;
 
@@ -300,6 +394,12 @@ Awkfloat setfval(Cell *vp, Awkfloat f)	/* set float val of a Cell */
 	return vp->fval = f;
 }
 
+/*!
+ *  @brief Reports an invalid use of a variable or function name.
+ *
+ *  @param[in] vp Cell being misused.
+ *  @param[in] rw Operation being attempted.
+ */
 void funnyvar(Cell *vp, const char *rw)
 {
 	if (isarr(vp))
@@ -310,7 +410,15 @@ void funnyvar(Cell *vp, const char *rw)
 		vp, vp->nval, vp->sval, vp->fval, vp->tval);
 }
 
-char *setsval(Cell *vp, const char *s)	/* set string val of a Cell */
+/*!
+ *  @brief Sets the string value of a cell.
+ *
+ *  @param[in] vp Cell to modify.
+ *  @param[in] s  New string value.
+ *
+ *  @return Pointer to the stored string.
+ */
+char *setsval(Cell *vp, const char *s)
 {
 	char *t;
 	int fldno;
@@ -338,7 +446,14 @@ char *setsval(Cell *vp, const char *s)	/* set string val of a Cell */
 	return(vp->sval = t);
 }
 
-Awkfloat getfval(Cell *vp)	/* get float val of a Cell */
+/*!
+ *  @brief Returns the numeric value of a cell.
+ *
+ *  @param[in] vp Cell to read.
+ *
+ *  @return Numeric value of the cell.
+ */
+Awkfloat getfval(Cell *vp)
 {
 	if ((vp->tval & (NUM | STR)) == 0)
 		funnyvar(vp, "read value of");
@@ -355,6 +470,14 @@ Awkfloat getfval(Cell *vp)	/* get float val of a Cell */
 	return(vp->fval);
 }
 
+/*!
+ *  @brief Returns the string value of a cell using a chosen format.
+ *
+ *  @param[in] vp  Cell to read.
+ *  @param[in] fmt Format used for non-integral numbers.
+ *
+ *  @return String value of the cell.
+ */
  static char *get_str_val(Cell *vp, char **fmt)        /* get string val of a Cell */
 
 {
@@ -382,17 +505,38 @@ Awkfloat getfval(Cell *vp)	/* get float val of a Cell */
 	return(vp->sval);
 }
 
+/*!
+ *  @brief Returns the string value of a cell using CONVFMT.
+ *
+ *  @param[in] vp Cell to read.
+ *
+ *  @return String value of the cell.
+ */
 char *getsval(Cell *vp)       /* get string val of a Cell */
 {
       return get_str_val(vp, CONVFMT);
 }
 
+/*!
+ *  @brief Returns the string value of a cell for print using OFMT.
+ *
+ *  @param[in] vp Cell to read.
+ *
+ *  @return String value of the cell.
+ */
 char *getpssval(Cell *vp)     /* get string val of a Cell for print */
 {
       return get_str_val(vp, OFMT);
 }
 
 
+/*!
+ *  @brief Copies a string into freshly allocated memory.
+ *
+ *  @param[in] s Source string.
+ *
+ *  @return Pointer to the newly allocated copy.
+ */
 char *tostring(const char *s)	/* make a copy of string s */
 {
 	char *p;
@@ -404,6 +548,14 @@ char *tostring(const char *s)	/* make a copy of string s */
 	return(p);
 }
 
+/*!
+ *  @brief Reads a string up to @p delim, decoding escape sequences.
+ *
+ *  @param[in] is    Source string.
+ *  @param[in] delim Terminating delimiter character.
+ *
+ *  @return Newly allocated decoded string.
+ */
 char *qstring(const char *is, int delim)	/* collect string up to next delim */
 {
 	const char *os = is;

@@ -1,27 +1,42 @@
 /****************************************************************
-Copyright (C) Lucent Technologies 1997
-All Rights Reserved
+ * Copyright (C) Lucent Technologies 1997
+ * All Rights Reserved
+ *
+ * Permission to use, copy, modify, and distribute this software and
+ * its documentation for any purpose and without fee is hereby
+ * granted, provided that the above copyright notice appear in all
+ * copies and that both that the copyright notice and this
+ * permission notice and warranty disclaimer appear in supporting
+ * documentation, and that the name Lucent Technologies or any of
+ * its entities not be used in advertising or publicity pertaining
+ * to distribution of the software without specific, written prior
+ * permission.
+ *
+ * LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+ * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
+ * IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
+ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+ * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
+ ****************************************************************/
 
-Permission to use, copy, modify, and distribute this software and
-its documentation for any purpose and without fee is hereby
-granted, provided that the above copyright notice appear in all
-copies and that both that the copyright notice and this
-permission notice and warranty disclaimer appear in supporting
-documentation, and that the name Lucent Technologies or any of
-its entities not be used in advertising or publicity pertaining
-to distribution of the software without specific, written prior
-permission.
+/*!
+ *  @file main.c
+ *  @brief Entry point of the awk interpreter.
+ *
+ *  Parses the command line, sets up the symbol table, initializes
+ *  the input machinery and runs the program: BEGIN, main loop over
+ *  records, END. The program text may come from the command line or
+ *  from one or more files given with -f.
+ *
+ *  @copyright Copyright (C) Lucent Technologies 1997.
+ */
 
-LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
-IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
-SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
-ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-****************************************************************/
-
+/*!
+ *  @brief Version string reported by -V and -d.
+ */
 const char      *version = "version 20040207";
 
 #define DEBUG
@@ -37,22 +52,32 @@ const char      *version = "version 20040207";
 #ifdef __GNUC__
 extern  char    **environ;
 #endif
-extern  int     nfields;
+extern  int     nfields;         /*!< Number of fields in the current record. */
 
-int     dbg     = 0;
-char    *cmdname;       /* gets argv[0] for error messages */
-extern  FILE    *yyin;  /* lex input file */
-char    *lexprog;       /* points to program argument if it exists */
-extern  int errorflag;  /* non-zero if any syntax errors; set by yyerror */
-int     compile_time = 2;       /* for error printing: */
-                                /* 2 = cmdline, 1 = compile, 0 = running */
+int     dbg     = 0;             /*!< Debug level, set by -d. */
+char    *cmdname;                /*!< Program name (argv[0]) used in error messages. */
+extern  FILE    *yyin;           /*!< Lexer input file. */
+char    *lexprog;                /*!< Points to the program text if it was given in the command line. */
+extern  int errorflag;           /*!< Non-zero if a syntax error has been reported. */
+int     compile_time = 2;        /*!< Error-printing phase: 2 = cmdline, 1 = compile, 0 = running. */
 
-char    *pfile[20];     /* program filenames from -f's */
-int     npfile = 0;     /* number of filenames */
-int     curpfile = 0;   /* current filename */
+char    *pfile[20];              /*!< Program file names collected from -f. */
+int     npfile = 0;              /*!< Number of collected program file names. */
+int     curpfile = 0;            /*!< Index of the program file currently being read. */
 
-int     safe    = 0;    /* 1 => "safe" mode */
+int     safe    = 0;             /*!< 1 if safe mode was requested with -safe. */
 
+/*!
+ *  @brief Entry point of the awk interpreter.
+ *
+ *  @param[in] argc Argument count.
+ *  @param[in] argv Argument vector.
+ *
+ *  @return Exit status of the program.
+ *  @retval 0 Successful completion.
+ *  @retval 1 Usage error (no arguments).
+ *  @retval 2 Fatal error reported by FATAL.
+ */
 int main(int argc, char *argv[])
 {
         const char *fs = NULL;
@@ -159,7 +184,13 @@ int main(int argc, char *argv[])
         return(errorflag);
 }
 
-int pgetc(void)         /* get 1 character from awk program */
+/*!
+ *  @brief Reads one character from the awk program source.
+ *
+ *  @return Next character of the program.
+ *  @retval EOF All program files have been exhausted.
+ */
+int pgetc(void)
 {
         int c;
 
@@ -182,7 +213,13 @@ int pgetc(void)         /* get 1 character from awk program */
         }
 }
 
-char *cursource(void)   /* current source file name */
+/*!
+ *  @brief Returns the name of the current source file of the program.
+ *
+ *  @return Source file name.
+ *  @retval NULL The program was given in the command line.
+ */
+char *cursource(void)
 {
         if (npfile > 0)
                 return pfile[curpfile];

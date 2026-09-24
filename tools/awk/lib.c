@@ -1,26 +1,37 @@
 /****************************************************************
-Copyright (C) Lucent Technologies 1997
-All Rights Reserved
+ * Copyright (C) Lucent Technologies 1997
+ * All Rights Reserved
+ *
+ * Permission to use, copy, modify, and distribute this software and
+ * its documentation for any purpose and without fee is hereby
+ * granted, provided that the above copyright notice appear in all
+ * copies and that both that the copyright notice and this
+ * permission notice and warranty disclaimer appear in supporting
+ * documentation, and that the name Lucent Technologies or any of
+ * its entities not be used in advertising or publicity pertaining
+ * to distribution of the software without specific, written prior
+ * permission.
+ *
+ * LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+ * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
+ * IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
+ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+ * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
+ ****************************************************************/
 
-Permission to use, copy, modify, and distribute this software and
-its documentation for any purpose and without fee is hereby
-granted, provided that the above copyright notice appear in all
-copies and that both that the copyright notice and this
-permission notice and warranty disclaimer appear in supporting
-documentation, and that the name Lucent Technologies or any of
-its entities not be used in advertising or publicity pertaining
-to distribution of the software without specific, written prior
-permission.
-
-LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
-IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
-SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
-ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-****************************************************************/
+/*!
+ *  @file lib.c
+ *  @brief Input, record splitting and diagnostics for awk.
+ *
+ *  Reads records from the current input, splits them into fields,
+ *  maintains the $0..$NF table, rebuilds $0 from fields, and
+ *  provides the diagnostic helpers used across the interpreter.
+ *
+ *  @copyright Copyright (C) Lucent Technologies 1997.
+ */
 
 #define DEBUG
 #include <stdio.h>
@@ -32,29 +43,39 @@ THIS SOFTWARE.
 #include "awk.h"
 #include "ytab.h"
 
-FILE	*infile	= NULL;
-char	*file	= "";
-char	*record;
-int	recsize	= RECSIZE;
-char	*fields;
-int	fieldssize = RECSIZE;
+FILE	*infile	= NULL;      /*!< Current input stream. */
+char	*file	= "";        /*!< Name of the current input file. */
+char	*record;             /*!< Current record ($0). */
+int	recsize	= RECSIZE;   /*!< Size of the record buffer. */
+char	*fields;             /*!< Field storage buffer. */
+int	fieldssize = RECSIZE; /*!< Size of the field storage buffer. */
 
-Cell	**fldtab;	/* pointers to Cells */
-char	inputFS[100] = " ";
+Cell	**fldtab;            /*!< Table of fields $0..$NF. */
+char	inputFS[100] = " ";  /*!< Field separator captured at input time. */
 
+/*!
+ *  @brief Initial number of field slots.
+ *  @def MAXFLD
+ */
 #define	MAXFLD	200
-int	nfields	= MAXFLD;	/* last allocated slot for $i */
 
-int	donefld;	/* 1 = implies rec broken into fields */
-int	donerec;	/* 1 = record is valid (no flds have changed) */
+int	nfields	= MAXFLD;    /*!< Last allocated field slot index. */
 
-int	lastfld	= 0;	/* last used field */
-int	argno	= 1;	/* current input argument number */
-extern	Awkfloat *ARGC;
+int	donefld;             /*!< 1 if the current record has been split into fields. */
+int	donerec;             /*!< 1 if the current record is valid (no field changed). */
 
-static Cell dollar0 = { OCELL, CFLD, NULL, "", 0.0, REC|STR|DONTFREE };
-static Cell dollar1 = { OCELL, CFLD, NULL, "", 0.0, FLD|STR|DONTFREE };
+int	lastfld	= 0;         /*!< Last field used in the current record. */
+int	argno	= 1;         /*!< Current input argument number. */
+extern	Awkfloat *ARGC;     /*!< Number of command-line arguments defined in tran.c. */
 
+static Cell dollar0 = { OCELL, CFLD, NULL, "", 0.0, REC|STR|DONTFREE }; /*!< Prototype cell for $0. */
+static Cell dollar1 = { OCELL, CFLD, NULL, "", 0.0, FLD|STR|DONTFREE }; /*!< Prototype cell for $1..$NF. */
+
+/*!
+ *  @brief Initializes the record and field buffers.
+ *
+ *  @param[in] n Initial buffer size.
+ */
 void recinit(unsigned int n)
 {
 	record = (char *) malloc(n);
@@ -70,7 +91,13 @@ void recinit(unsigned int n)
 	makefields(1, nfields);
 }
 
-void makefields(int n1, int n2)		/* create $n1..$n2 inclusive */
+/*!
+ *  @brief Creates the cells for fields $n1..$n2.
+ *
+ *  @param[in] n1 First field index.
+ *  @param[in] n2 Last field index.
+ */
+void makefields(int n1, int n2)
 {
 	char temp[50];
 	int i;
@@ -85,6 +112,9 @@ void makefields(int n1, int n2)		/* create $n1..$n2 inclusive */
 	}
 }
 
+/*!
+ *  @brief Initializes the first input source (file or stdin).
+ */
 void initgetrec(void)
 {
 	int i;
@@ -101,8 +131,19 @@ void initgetrec(void)
 	infile = stdin;		/* no filenames, so use stdin */
 }
 
-int getrec(char **pbuf, int *pbufsize, int isrecord)	/* get next input record */
-{			/* note: cares whether buf == record */
+/*!
+ *  @brief Reads the next input record.
+ *
+ *  @param[in,out] pbuf      Pointer to the record buffer.
+ *  @param[in,out] pbufsize  Pointer to the record buffer size.
+ *  @param[in]     isrecord  Non-zero if the buffer holds $0.
+ *
+ *  @return Whether a record was read.
+ *  @retval 0 End of input reached.
+ *  @retval 1 Record read successfully.
+ */
+int getrec(char **pbuf, int *pbufsize, int isrecord)
+{
 	int c;
 	static int firsttime = 1;
 	char *buf = *pbuf;
@@ -169,6 +210,9 @@ int getrec(char **pbuf, int *pbufsize, int isrecord)	/* get next input record */
 	return 0;	/* true end of file */
 }
 
+/*!
+ *  @brief Advances to the next input file.
+ */
 void nextfile(void)
 {
 	if (infile != stdin)
@@ -177,7 +221,18 @@ void nextfile(void)
 	argno++;
 }
 
-int readrec(char **pbuf, int *pbufsize, FILE *inf)	/* read one record into buf */
+/*!
+ *  @brief Reads one record from the given input stream.
+ *
+ *  @param[in,out] pbuf     Pointer to the record buffer.
+ *  @param[in,out] pbufsize Pointer to the record buffer size.
+ *  @param[in]     inf      Input stream.
+ *
+ *  @return Whether a record was read.
+ *  @retval 0 End of input reached.
+ *  @retval 1 Record read successfully.
+ */
+int readrec(char **pbuf, int *pbufsize, FILE *inf)
 {
 	int sep, c;
 	char *rr, *buf = *pbuf;
@@ -218,7 +273,14 @@ int readrec(char **pbuf, int *pbufsize, FILE *inf)	/* read one record into buf *
 	return c == EOF && rr == buf ? 0 : 1;
 }
 
-char *getargv(int n)	/* get ARGV[n] */
+/*!
+ *  @brief Returns ARGV[@p n ].
+ *
+ *  @param[in] n Argument index.
+ *
+ *  @return Argument string.
+ */
+char *getargv(int n)
 {
 	Cell *x;
 	char *s, temp[50];
@@ -231,7 +293,12 @@ char *getargv(int n)	/* get ARGV[n] */
 	return s;
 }
 
-void setclvar(char *s)	/* set var=value from s */
+/*!
+ *  @brief Sets a variable from a var=value command line argument.
+ *
+ *  @param[in] s Assignment string of the form "name=value".
+ */
+void setclvar(char *s)
 {
 	char *p;
 	Cell *q;
@@ -250,7 +317,10 @@ void setclvar(char *s)	/* set var=value from s */
 }
 
 
-void fldbld(void)	/* create fields from current record */
+/*!
+ *  @brief Splits the current record into fields $1..$NF.
+ */
+void fldbld(void)
 {
 	/* this relies on having fields[] the same length as $0 */
 	/* the fields are all stored in this one array with \0's */
@@ -352,8 +422,14 @@ void fldbld(void)	/* create fields from current record */
 	}
 }
 
-void cleanfld(int n1, int n2)	/* clean out fields n1 .. n2 inclusive */
-{				/* nvals remain intact */
+/*!
+ *  @brief Clears the fields @p n1 through @p n2.
+ *
+ *  @param[in] n1 First field index.
+ *  @param[in] n2 Last field index.
+ */
+void cleanfld(int n1, int n2)
+{
 	Cell *p;
 	int i;
 
@@ -366,7 +442,12 @@ void cleanfld(int n1, int n2)	/* clean out fields n1 .. n2 inclusive */
 	}
 }
 
-void newfld(int n)	/* add field n after end of existing lastfld */
+/*!
+ *  @brief Adds field @p n after the end of the existing last field.
+ *
+ *  @param[in] n Field index to add.
+ */
+void newfld(int n)
 {
 	if (n > nfields)
 		growfldtab(n);
@@ -375,7 +456,14 @@ void newfld(int n)	/* add field n after end of existing lastfld */
 	setfval(nfloc, (Awkfloat) n);
 }
 
-Cell *fieldadr(int n)	/* get nth field */
+/*!
+ *  @brief Returns the cell of the n-th field.
+ *
+ *  @param[in] n Field index.
+ *
+ *  @return Cell pointer for field @p n.
+ */
+Cell *fieldadr(int n)
 {
 	if (n < 0)
 		FATAL("trying to access field %d", n);
@@ -384,7 +472,12 @@ Cell *fieldadr(int n)	/* get nth field */
 	return(fldtab[n]);
 }
 
-void growfldtab(int n)	/* make new fields up to at least $n */
+/*!
+ *  @brief Grows the field table up to at least field @p n.
+ *
+ *  @param[in] n Minimum field index.
+ */
+void growfldtab(int n)
 {
 	int nf = 2 * nfields;
 
@@ -397,7 +490,16 @@ void growfldtab(int n)	/* make new fields up to at least $n */
 	nfields = nf;
 }
 
-int refldbld(const char *rec, const char *fs)	/* build fields from reg expr in FS */
+/*!
+ *  @brief Builds fields from a record using a regular expression FS.
+ *
+ *  @param[in] rec Record string.
+ *  @param[in] fs  Field separator regular expression.
+ *
+ *  @return Number of fields built.
+ *  @retval 0 Empty record; no fields produced.
+ */
+int refldbld(const char *rec, const char *fs)
 {
 	/* this relies on having fields[] the same length as $0 */
 	/* the fields are all stored in this one array with \0's */
@@ -444,7 +546,10 @@ int refldbld(const char *rec, const char *fs)	/* build fields from reg expr in F
 	return i;		
 }
 
-void recbld(void)	/* create $0 from $1..$NF if necessary */
+/*!
+ *  @brief Rebuilds $0 from $1..$NF when a field has been modified.
+ */
+void recbld(void)
 {
 	int i;
 	char *r, *p;
@@ -480,13 +585,24 @@ void recbld(void)	/* create $0 from $1..$NF if necessary */
 	donerec = 1;
 }
 
-int	errorflag	= 0;
+int	errorflag	= 0;  /*!< Non-zero if any syntax error has been reported. */
 
+/*!
+ *  @brief Reports a syntax error via the yacc error callback.
+ *
+ *  @param[in] s Error message.
+ */
 void yyerror(const char *s)
 {
 	SYNTAX(s);
 }
 
+/*!
+ *  @brief Reports a syntax error and dumps the error context.
+ *
+ *  @param[in] fmt printf-style format string.
+ *  @param[in] ... Additional format arguments.
+ */
 void SYNTAX(const char *fmt, ...)
 {
 	extern char *cmdname, *curfname;
@@ -509,13 +625,23 @@ void SYNTAX(const char *fmt, ...)
 	eprint();
 }
 
+/*!
+ *  @brief Signal handler for floating-point exceptions.
+ *
+ *  @param[in] n Signal number.
+ */
 void fpecatch(int n)
 {
 	FATAL("floating point exception %d", n);
 }
 
-extern int bracecnt, brackcnt, parencnt;
+extern int bracecnt;  /*!< Number of currently open braces defined in lex.c. */
+extern int brackcnt;  /*!< Number of currently open brackets defined in lex.c. */
+extern int parencnt;  /*!< Number of currently open parentheses defined in lex.c. */
 
+/*!
+ *  @brief Checks that all brackets in the program are balanced.
+ */
 void bracecheck(void)
 {
 	int c;
@@ -530,6 +656,13 @@ void bracecheck(void)
 	bcheck2(parencnt, '(', ')');
 }
 
+/*!
+ *  @brief Reports a bracket-count mismatch.
+ *
+ *  @param[in] n  Difference between opening and closing counts.
+ *  @param[in] c1 Opening bracket character.
+ *  @param[in] c2 Closing bracket character.
+ */
 void bcheck2(int n, int c1, int c2)
 {
 	if (n == 1)
@@ -542,6 +675,12 @@ void bcheck2(int n, int c1, int c2)
 		fprintf(stderr, "\t%d extra %c's\n", -n, c2);
 }
 
+/*!
+ *  @brief Reports a fatal error and exits the interpreter.
+ *
+ *  @param[in] fmt printf-style format string.
+ *  @param[in] ... Additional format arguments.
+ */
 void FATAL(const char *fmt, ...)
 {
 	extern char *cmdname;
@@ -558,6 +697,12 @@ void FATAL(const char *fmt, ...)
 	exit(2);
 }
 
+/*!
+ *  @brief Reports a warning.
+ *
+ *  @param[in] fmt printf-style format string.
+ *  @param[in] ... Additional format arguments.
+ */
 void WARNING(const char *fmt, ...)
 {
 	extern char *cmdname;
@@ -571,6 +716,9 @@ void WARNING(const char *fmt, ...)
 	error();
 }
 
+/*!
+ *  @brief Prints the location of the last error.
+ */
 void error()
 {
 	extern Node *curnode;
@@ -592,7 +740,10 @@ void error()
 	eprint();
 }
 
-void eprint(void)	/* try to print context around error */
+/*!
+ *  @brief Prints the context around the last error.
+ */
+void eprint(void)
 {
 	char *p, *q;
 	int c;
@@ -628,6 +779,11 @@ void eprint(void)	/* try to print context around error */
 	ep = ebuf;
 }
 
+/*!
+ *  @brief Tracks bracket nesting of a character.
+ *
+ *  @param[in] c Character to classify.
+ */
 void bclass(int c)
 {
 	switch (c) {
@@ -640,6 +796,14 @@ void bclass(int c)
 	}
 }
 
+/*!
+ *  @brief Checks errno after a math library call.
+ *
+ *  @param[in] x Result of the math call.
+ *  @param[in] s Name of the math function.
+ *
+ *  @return Adjusted result.
+ */
 double errcheck(double x, const char *s)
 {
 
@@ -655,7 +819,16 @@ double errcheck(double x, const char *s)
 	return x;
 }
 
-int isclvar(const char *s)	/* is s of form var=something ? */
+/*!
+ *  @brief Tests whether a string looks like var=value.
+ *
+ *  @param[in] s String to test.
+ *
+ *  @return Test result.
+ *  @retval 0 The string is not of the form var=value.
+ *  @retval 1 The string is a valid var=value assignment.
+ */
+int isclvar(const char *s)
 {
 	const char *os = s;
 
@@ -672,6 +845,16 @@ int isclvar(const char *s)	/* is s of form var=something ? */
 /* wrong: violates 4.10.1.4 of ansi C standard */
 
 #include <math.h>
+
+/*!
+ *  @brief Tests whether a string is a valid number.
+ *
+ *  @param[in] s String to test.
+ *
+ *  @return Test result.
+ *  @retval 0 The string is not a valid number.
+ *  @retval 1 The string is a valid number.
+ */
 int is_number(const char *s)
 {
 	double r;

@@ -1,26 +1,38 @@
 /****************************************************************
-Copyright (C) Lucent Technologies 1997
-All Rights Reserved
+ * Copyright (C) Lucent Technologies 1997
+ * All Rights Reserved
+ *
+ * Permission to use, copy, modify, and distribute this software and
+ * its documentation for any purpose and without fee is hereby
+ * granted, provided that the above copyright notice appear in all
+ * copies and that both that the copyright notice and this
+ * permission notice and warranty disclaimer appear in supporting
+ * documentation, and that the name Lucent Technologies or any of
+ * its entities not be used in advertising or publicity pertaining
+ * to distribution of the software without specific, written prior
+ * permission.
+ *
+ * LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+ * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
+ * IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
+ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+ * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
+ ****************************************************************/
 
-Permission to use, copy, modify, and distribute this software and
-its documentation for any purpose and without fee is hereby
-granted, provided that the above copyright notice appear in all
-copies and that both that the copyright notice and this
-permission notice and warranty disclaimer appear in supporting
-documentation, and that the name Lucent Technologies or any of
-its entities not be used in advertising or publicity pertaining
-to distribution of the software without specific, written prior
-permission.
-
-LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
-IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
-SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
-ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-****************************************************************/
+/*!
+ *  @file parse.c
+ *  @brief Parse tree construction helpers for awk.
+ *
+ *  Provides the node allocation primitives used by the yacc actions,
+ *  the value/expression/statement wrappers, array and pair-pattern
+ *  support, function definition bookkeeping and small pointer
+ *  conversion utilities.
+ *
+ *  @copyright Copyright (C) Lucent Technologies 1997.
+ */
 
 #define DEBUG
 #include <stdio.h>
@@ -29,6 +41,13 @@ THIS SOFTWARE.
 #include "awk.h"
 #include "ytab.h"
 
+/*!
+ *  @brief Allocates a parse tree node with @p n children.
+ *
+ *  @param[in] n Number of children of the node.
+ *
+ *  @return Pointer to the newly allocated node.
+ */
 Node *nodealloc(int n)
 {
 	Node *x;
@@ -41,12 +60,27 @@ Node *nodealloc(int n)
 	return(x);
 }
 
+/*!
+ *  @brief Marks a node as a statement.
+ *
+ *  @param[in] a Node to convert.
+ *
+ *  @return The same node with ntype set to NSTAT.
+ */
 Node *exptostat(Node *a)
 {
 	a->ntype = NSTAT;
 	return(a);
 }
 
+/*!
+ *  @brief Creates a node with one child.
+ *
+ *  @param[in] a Node operation kind.
+ *  @param[in] b First child.
+ *
+ *  @return New node.
+ */
 Node *node1(int a, Node *b)
 {
 	Node *x;
@@ -57,6 +91,15 @@ Node *node1(int a, Node *b)
 	return(x);
 }
 
+/*!
+ *  @brief Creates a node with two children.
+ *
+ *  @param[in] a Node operation kind.
+ *  @param[in] b First child.
+ *  @param[in] c Second child.
+ *
+ *  @return New node.
+ */
 Node *node2(int a, Node *b, Node *c)
 {
 	Node *x;
@@ -68,6 +111,16 @@ Node *node2(int a, Node *b, Node *c)
 	return(x);
 }
 
+/*!
+ *  @brief Creates a node with three children.
+ *
+ *  @param[in] a Node operation kind.
+ *  @param[in] b First child.
+ *  @param[in] c Second child.
+ *  @param[in] d Third child.
+ *
+ *  @return New node.
+ */
 Node *node3(int a, Node *b, Node *c, Node *d)
 {
 	Node *x;
@@ -80,6 +133,17 @@ Node *node3(int a, Node *b, Node *c, Node *d)
 	return(x);
 }
 
+/*!
+ *  @brief Creates a node with four children.
+ *
+ *  @param[in] a Node operation kind.
+ *  @param[in] b First child.
+ *  @param[in] c Second child.
+ *  @param[in] d Third child.
+ *  @param[in] e Fourth child.
+ *
+ *  @return New node.
+ */
 Node *node4(int a, Node *b, Node *c, Node *d, Node *e)
 {
 	Node *x;
@@ -93,6 +157,14 @@ Node *node4(int a, Node *b, Node *c, Node *d, Node *e)
 	return(x);
 }
 
+/*!
+ *  @brief Creates a statement node with one child.
+ *
+ *  @param[in] a Node operation kind.
+ *  @param[in] b First child.
+ *
+ *  @return New statement node.
+ */
 Node *stat1(int a, Node *b)
 {
 	Node *x;
@@ -102,6 +174,15 @@ Node *stat1(int a, Node *b)
 	return(x);
 }
 
+/*!
+ *  @brief Creates a statement node with two children.
+ *
+ *  @param[in] a Node operation kind.
+ *  @param[in] b First child.
+ *  @param[in] c Second child.
+ *
+ *  @return New statement node.
+ */
 Node *stat2(int a, Node *b, Node *c)
 {
 	Node *x;
@@ -111,6 +192,16 @@ Node *stat2(int a, Node *b, Node *c)
 	return(x);
 }
 
+/*!
+ *  @brief Creates a statement node with three children.
+ *
+ *  @param[in] a Node operation kind.
+ *  @param[in] b First child.
+ *  @param[in] c Second child.
+ *  @param[in] d Third child.
+ *
+ *  @return New statement node.
+ */
 Node *stat3(int a, Node *b, Node *c, Node *d)
 {
 	Node *x;
@@ -120,6 +211,17 @@ Node *stat3(int a, Node *b, Node *c, Node *d)
 	return(x);
 }
 
+/*!
+ *  @brief Creates a statement node with four children.
+ *
+ *  @param[in] a Node operation kind.
+ *  @param[in] b First child.
+ *  @param[in] c Second child.
+ *  @param[in] d Third child.
+ *  @param[in] e Fourth child.
+ *
+ *  @return New statement node.
+ */
 Node *stat4(int a, Node *b, Node *c, Node *d, Node *e)
 {
 	Node *x;
@@ -129,6 +231,14 @@ Node *stat4(int a, Node *b, Node *c, Node *d, Node *e)
 	return(x);
 }
 
+/*!
+ *  @brief Creates an expression node with one child.
+ *
+ *  @param[in] a Node operation kind.
+ *  @param[in] b First child.
+ *
+ *  @return New expression node.
+ */
 Node *op1(int a, Node *b)
 {
 	Node *x;
@@ -138,6 +248,15 @@ Node *op1(int a, Node *b)
 	return(x);
 }
 
+/*!
+ *  @brief Creates an expression node with two children.
+ *
+ *  @param[in] a Node operation kind.
+ *  @param[in] b First child.
+ *  @param[in] c Second child.
+ *
+ *  @return New expression node.
+ */
 Node *op2(int a, Node *b, Node *c)
 {
 	Node *x;
@@ -147,6 +266,16 @@ Node *op2(int a, Node *b, Node *c)
 	return(x);
 }
 
+/*!
+ *  @brief Creates an expression node with three children.
+ *
+ *  @param[in] a Node operation kind.
+ *  @param[in] b First child.
+ *  @param[in] c Second child.
+ *  @param[in] d Third child.
+ *
+ *  @return New expression node.
+ */
 Node *op3(int a, Node *b, Node *c, Node *d)
 {
 	Node *x;
@@ -156,6 +285,17 @@ Node *op3(int a, Node *b, Node *c, Node *d)
 	return(x);
 }
 
+/*!
+ *  @brief Creates an expression node with four children.
+ *
+ *  @param[in] a Node operation kind.
+ *  @param[in] b First child.
+ *  @param[in] c Second child.
+ *  @param[in] d Third child.
+ *  @param[in] e Fourth child.
+ *
+ *  @return New expression node.
+ */
 Node *op4(int a, Node *b, Node *c, Node *d, Node *e)
 {
 	Node *x;
@@ -165,6 +305,14 @@ Node *op4(int a, Node *b, Node *c, Node *d, Node *e)
 	return(x);
 }
 
+/*!
+ *  @brief Wraps a Cell pointer into a value node.
+ *
+ *  @param[in] a Cell to wrap.
+ *  @param[in] b Cell subtype (CUNK, CCON, CVAR, ...).
+ *
+ *  @return New value node.
+ */
 Node *celltonode(Cell *a, int b)
 {
 	Node *x;
@@ -176,12 +324,24 @@ Node *celltonode(Cell *a, int b)
 	return(x);
 }
 
-Node *rectonode(void)	/* make $0 into a Node */
+/*!
+ *  @brief Makes $0 into a Node.
+ *
+ *  @return Node representing the current record.
+ */
+Node *rectonode(void)
 {
 	extern Cell *literal0;
 	return op1(INDIRECT, celltonode(literal0, CUNK));
 }
 
+/*!
+ *  @brief Turns a value node into an array node.
+ *
+ *  @param[in] p Value node to convert.
+ *
+ *  @return The same node, now representing an array.
+ */
 Node *makearr(Node *p)
 {
 	Cell *cp;
@@ -199,11 +359,25 @@ Node *makearr(Node *p)
 	return p;
 }
 
-#define PA2NUM	50	/* max number of pat,pat patterns allowed */
-int	paircnt;		/* number of them in use */
-int	pairstack[PA2NUM];	/* state of each pat,pat */
+/*!
+ *  @brief Maximum number of pat,pat statements.
+ *  @def PA2NUM
+ */
+#define PA2NUM	50
 
-Node *pa2stat(Node *a, Node *b, Node *c)	/* pat, pat {...} */
+int	paircnt;         /*!< Number of pat,pat statements currently in use. */
+int	pairstack[PA2NUM]; /*!< State of each pat,pat statement. */
+
+/*!
+ *  @brief Creates a pat,pat pattern statement node.
+ *
+ *  @param[in] a First pattern.
+ *  @param[in] b Second pattern.
+ *  @param[in] c Statement body.
+ *
+ *  @return New statement node.
+ */
+Node *pa2stat(Node *a, Node *b, Node *c)
 {
 	Node *x;
 
@@ -214,6 +388,14 @@ Node *pa2stat(Node *a, Node *b, Node *c)	/* pat, pat {...} */
 	return(x);
 }
 
+/*!
+ *  @brief Concatenates two linked lists of nodes.
+ *
+ *  @param[in] a First list (may be NULL).
+ *  @param[in] b Second list (may be NULL).
+ *
+ *  @return Head of the concatenated list.
+ */
 Node *linkum(Node *a, Node *b)
 {
 	Node *c;
@@ -230,8 +412,15 @@ Node *linkum(Node *a, Node *b)
 	return(a);
 }
 
-void defn(Cell *v, Node *vl, Node *st)	/* turn on FCN bit in definition, */
-{					/*   body of function, arglist */
+/*!
+ *  @brief Turns on the FCN bit in a function definition.
+ *
+ *  @param[in] v  Cell of the function name.
+ *  @param[in] vl Argument list node.
+ *  @param[in] st Function body node.
+ */
+void defn(Cell *v, Node *vl, Node *st)
+{
 	Node *p;
 	int n;
 
@@ -253,8 +442,16 @@ void defn(Cell *v, Node *vl, Node *st)	/* turn on FCN bit in definition, */
 	dprintf( ("defining func %s (%d args)\n", v->nval, n) );
 }
 
-int isarg(const char *s)		/* is s in argument list for current function? */
-{			/* return -1 if not, otherwise arg # */
+/*!
+ *  @brief Tests whether @p s is an argument of the current function.
+ *
+ *  @param[in] s Name to test.
+ *
+ *  @return Argument number.
+ *  @retval -1 The name is not an argument.
+ */
+int isarg(const char *s)
+{
 	extern Node *arglist;
 	Node *p = arglist;
 	int n;
@@ -265,12 +462,26 @@ int isarg(const char *s)		/* is s in argument list for current function? */
 	return -1;
 }
 
-int ptoi(void *p)	/* convert pointer to integer */
+/*!
+ *  @brief Converts a pointer to an integer.
+ *
+ *  @param[in] p Pointer to convert.
+ *
+ *  @return Integer representation of the pointer.
+ */
+int ptoi(void *p)
 {
 	return (int) (long) p;	/* swearing that p fits, of course */
 }
 
-Node *itonp(int i)	/* and vice versa */
+/*!
+ *  @brief Converts an integer back to a pointer.
+ *
+ *  @param[in] i Integer to convert.
+ *
+ *  @return Node pointer corresponding to the integer.
+ */
+Node *itonp(int i)
 {
 	return (Node *) (long) i;
 }

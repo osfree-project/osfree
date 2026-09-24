@@ -1,26 +1,38 @@
 /****************************************************************
-Copyright (C) Lucent Technologies 1997
-All Rights Reserved
+ * Copyright (C) Lucent Technologies 1997
+ * All Rights Reserved
+ *
+ * Permission to use, copy, modify, and distribute this software and
+ * its documentation for any purpose and without fee is hereby
+ * granted, provided that the above copyright notice appear in all
+ * copies and that both that the copyright notice and this
+ * permission notice and warranty disclaimer appear in supporting
+ * documentation, and that the name Lucent Technologies or any of
+ * its entities not be used in advertising or publicity pertaining
+ * to distribution of the software without specific, written prior
+ * permission.
+ *
+ * LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+ * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
+ * IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
+ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+ * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
+ ****************************************************************/
 
-Permission to use, copy, modify, and distribute this software and
-its documentation for any purpose and without fee is hereby
-granted, provided that the above copyright notice appear in all
-copies and that both that the copyright notice and this
-permission notice and warranty disclaimer appear in supporting
-documentation, and that the name Lucent Technologies or any of
-its entities not be used in advertising or publicity pertaining
-to distribution of the software without specific, written prior
-permission.
-
-LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
-IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
-SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
-ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-****************************************************************/
+/*!
+ *  @file run.c
+ *  @brief Tree-walking interpreter for awk.
+ *
+ *  Executes the parse tree produced by the parser: statements,
+ *  expressions, function calls, I/O redirection, substitution and
+ *  the built-in functions. Also contains the printf-style formatting
+ *  machinery and the file table used for redirection.
+ *
+ *  @copyright Copyright (C) Lucent Technologies 1997.
+ */
 
 #define DEBUG
 #include <stdio.h>
@@ -33,73 +45,96 @@ THIS SOFTWARE.
 #include "awk.h"
 #include "ytab.h"
 
+/*!
+ *  @brief Releases a cell if it is a temporary.
+ *
+ *  @param[in] x Cell to inspect and possibly release.
+ *  @def tempfree
+ */
 #define tempfree(x)	if (istemp(x)) tfree(x); else
 
 /*
-#undef tempfree
-
-void tempfree(Cell *p) {
-	if (p->ctype == OCELL && (p->csub < CUNK || p->csub > CFREE)) {
-		WARNING("bad csub %d in Cell %d %s",
-			p->csub, p->ctype, p->sval);
-	}
-	if (istemp(p))
-		tfree(p);
-}
-*/
+ * #undef tempfree
+ *
+ * void tempfree(Cell *p) {
+ * 	if (p->ctype == OCELL && (p->csub < CUNK || p->csub > CFREE)) {
+ * 		WARNING("bad csub %d in Cell %d %s",
+ * 			p->csub, p->ctype, p->sval);
+ * 	}
+ * 	if (istemp(p))
+ * 		tfree(p);
+ * }
+ */
 
 #ifdef _NFILE
 #ifndef FOPEN_MAX
+/*!
+ *  @brief Fallback for the maximum number of open files.
+ *  @def FOPEN_MAX
+ */
 #define FOPEN_MAX _NFILE
 #endif
 #endif
 
 #ifndef	FOPEN_MAX
-#define	FOPEN_MAX	40	/* max number of open files */
+/*!
+ *  @brief Maximum number of open files.
+ *  @def FOPEN_MAX
+ */
+#define	FOPEN_MAX	40
 #endif
 
 #ifndef RAND_MAX
-#define RAND_MAX	32767	/* all that ansi guarantees */
+/*!
+ *  @brief Upper bound of rand() as guaranteed by ANSI.
+ *  @def RAND_MAX
+ */
+#define RAND_MAX	32767
 #endif
 
-jmp_buf env;
-extern	int	pairstack[];
+jmp_buf env;                        /*!< Jump buffer used by exit. */
+extern	int	pairstack[];        /*!< State of each pat,pat statement. */
 
-Node	*winner = NULL;	/* root of parse tree */
-Cell	*tmps;		/* free temporary cells for execution */
+Node	*winner = NULL;             /*!< Root of the parse tree. */
+Cell	*tmps;                      /*!< Free list of temporary cells. */
 
-static Cell	truecell	={ OBOOL, BTRUE, 0, 0, 1.0, NUM };
-Cell	*True	= &truecell;
-static Cell	falsecell	={ OBOOL, BFALSE, 0, 0, 0.0, NUM };
-Cell	*False	= &falsecell;
-static Cell	breakcell	={ OJUMP, JBREAK, 0, 0, 0.0, NUM };
-Cell	*jbreak	= &breakcell;
-static Cell	contcell	={ OJUMP, JCONT, 0, 0, 0.0, NUM };
-Cell	*jcont	= &contcell;
-static Cell	nextcell	={ OJUMP, JNEXT, 0, 0, 0.0, NUM };
-Cell	*jnext	= &nextcell;
-static Cell	nextfilecell	={ OJUMP, JNEXTFILE, 0, 0, 0.0, NUM };
-Cell	*jnextfile	= &nextfilecell;
-static Cell	exitcell	={ OJUMP, JEXIT, 0, 0, 0.0, NUM };
-Cell	*jexit	= &exitcell;
-static Cell	retcell		={ OJUMP, JRET, 0, 0, 0.0, NUM };
-Cell	*jret	= &retcell;
-static Cell	tempcell	={ OCELL, CTEMP, 0, "", 0.0, NUM|STR|DONTFREE };
+static Cell	truecell	={ OBOOL, BTRUE, 0, 0, 1.0, NUM };           /*!< Prototype cell for boolean true. */
+Cell	*True	= &truecell;                                                 /*!< The boolean true cell. */
+static Cell	falsecell	={ OBOOL, BFALSE, 0, 0, 0.0, NUM };          /*!< Prototype cell for boolean false. */
+Cell	*False	= &falsecell;                                                /*!< The boolean false cell. */
+static Cell	breakcell	={ OJUMP, JBREAK, 0, 0, 0.0, NUM };          /*!< Prototype cell for break. */
+Cell	*jbreak	= &breakcell;                                                /*!< The break cell. */
+static Cell	contcell	={ OJUMP, JCONT, 0, 0, 0.0, NUM };           /*!< Prototype cell for continue. */
+Cell	*jcont	= &contcell;                                                 /*!< The continue cell. */
+static Cell	nextcell	={ OJUMP, JNEXT, 0, 0, 0.0, NUM };           /*!< Prototype cell for next. */
+Cell	*jnext	= &nextcell;                                                 /*!< The next cell. */
+static Cell	nextfilecell	={ OJUMP, JNEXTFILE, 0, 0, 0.0, NUM };  /*!< Prototype cell for nextfile. */
+Cell	*jnextfile	= &nextfilecell;                                     /*!< The nextfile cell. */
+static Cell	exitcell	={ OJUMP, JEXIT, 0, 0, 0.0, NUM };           /*!< Prototype cell for exit. */
+Cell	*jexit	= &exitcell;                                                 /*!< The exit cell. */
+static Cell	retcell		={ OJUMP, JRET, 0, 0, 0.0, NUM };            /*!< Prototype cell for return. */
+Cell	*jret	= &retcell;                                                  /*!< The return cell. */
+static Cell	tempcell	={ OCELL, CTEMP, 0, "", 0.0, NUM|STR|DONTFREE }; /*!< Prototype temporary cell. */
 
-Node	*curnode = NULL;	/* the node being executed, for debugging */
+Node	*curnode = NULL;            /*!< Node currently being executed (for debugging). */
 
-/* buffer memory management */
+/*!
+ *  @brief Manages a dynamically sized buffer.
+ *
+ *  @param[in,out] pbuf    Address of the buffer pointer.
+ *  @param[in,out] psiz    Address of the buffer size variable.
+ *  @param[in]     minlen  Minimum required length.
+ *  @param[in]     quantum Buffer size quantum.
+ *  @param[in,out] pbptr   Address of a movable pointer into the buffer,
+ *                         or NULL if none.
+ *  @param[in]     whatrtn Caller name for failure diagnostics.
+ *
+ *  @return Whether the buffer is usable.
+ *  @retval 0 Reallocation failed.
+ *  @retval 1 Buffer is large enough.
+ */
 int adjbuf(char **pbuf, int *psiz, int minlen, int quantum, char **pbptr,
 	const char *whatrtn)
-/* pbuf:    address of pointer to buffer being managed
- * psiz:    address of buffer size variable
- * minlen:  minimum length of buffer needed
- * quantum: buffer size quantum
- * pbptr:   address of movable pointer into buffer, or 0 if none
- * whatrtn: name of the calling routine if failure should cause fatal error
- *
- * return   0 for realloc failure, !=0 for success
- */
 {
 	if (minlen > *psiz) {
 		char *tbuf;
@@ -122,7 +157,12 @@ int adjbuf(char **pbuf, int *psiz, int minlen, int quantum, char **pbptr,
 	return 1;
 }
 
-void run(Node *a)	/* execution of parse tree starts here */
+/*!
+ *  @brief Starts execution of the parse tree.
+ *
+ *  @param[in] a Root node of the program.
+ */
+void run(Node *a)
 {
 	extern void stdinit(void);
 
@@ -131,7 +171,14 @@ void run(Node *a)	/* execution of parse tree starts here */
 	closeall();
 }
 
-Cell *execute(Node *u)	/* execute a node of the parse tree */
+/*!
+ *  @brief Executes one node of the parse tree.
+ *
+ *  @param[in] u Node to execute.
+ *
+ *  @return Result cell.
+ */
+Cell *execute(Node *u)
 {
 	Cell *(*proc)(Node **, int);
 	Cell *x;
@@ -168,8 +215,16 @@ Cell *execute(Node *u)	/* execute a node of the parse tree */
 }
 
 
-Cell *program(Node **a, int n)	/* execute an awk program */
-{				/* a[0] = BEGIN, a[1] = body, a[2] = END */
+/*!
+ *  @brief Executes the top-level program.
+ *
+ *  @param[in] a Program children: BEGIN, main body, END.
+ *  @param[in] n Token number.
+ *
+ *  @return True cell.
+ */
+Cell *program(Node **a, int n)
+{
 	Cell *x;
 
 	if (setjmp(env) != 0)
@@ -202,20 +257,35 @@ Cell *program(Node **a, int n)	/* execute an awk program */
 	return(True);
 }
 
-struct Frame {	/* stack frame for awk function calls */
-	int nargs;	/* number of arguments in this call */
-	Cell *fcncell;	/* pointer to Cell for function */
-	Cell **args;	/* pointer to array of arguments after execute */
-	Cell *retval;	/* return value */
+/*!
+ *  @brief Stack frame used for awk function calls.
+ */
+struct Frame {
+	int nargs;      /*!< Number of arguments in this call. */
+	Cell *fcncell;  /*!< Cell of the function. */
+	Cell **args;    /*!< Array of evaluated arguments. */
+	Cell *retval;   /*!< Return value. */
 };
 
-#define	NARGS	50	/* max args in a call */
+/*!
+ *  @brief Maximum number of arguments in a call.
+ *  @def NARGS
+ */
+#define	NARGS	50
 
-struct Frame *frame = NULL;	/* base of stack frames; dynamically allocated */
-int	nframe = 0;		/* number of frames allocated */
-struct Frame *fp = NULL;	/* frame pointer. bottom level unused */
+struct Frame *frame = NULL;  /*!< Base of the stack frames; dynamically allocated. */
+int	nframe = 0;          /*!< Number of allocated frames. */
+struct Frame *fp = NULL;     /*!< Current frame pointer; the bottom level is unused. */
 
-Cell *call(Node **a, int n)	/* function call.  very kludgy and fragile */
+/*!
+ *  @brief Executes a function call.
+ *
+ *  @param[in] a Children of the call node.
+ *  @param[in] n Token number.
+ *
+ *  @return Return value cell.
+ */
+Cell *call(Node **a, int n)
 {
 	static Cell newcopycell = { OCELL, CCOPY, 0, "", 0.0, NUM|STR|DONTFREE };
 	int i, ncall, ndef;
@@ -315,7 +385,14 @@ Cell *call(Node **a, int n)	/* function call.  very kludgy and fragile */
 	return(z);
 }
 
-Cell *copycell(Cell *x)	/* make a copy of a cell in a temp */
+/*!
+ *  @brief Copies a cell into a temporary.
+ *
+ *  @param[in] x Cell to copy.
+ *
+ *  @return New temporary cell.
+ */
+Cell *copycell(Cell *x)
 {
 	Cell *y;
 
@@ -330,7 +407,15 @@ Cell *copycell(Cell *x)	/* make a copy of a cell in a temp */
 	return y;
 }
 
-Cell *arg(Node **a, int n)	/* nth argument of a function */
+/*!
+ *  @brief Returns the n-th argument of the current function.
+ *
+ *  @param[in] a Children of the argument node.
+ *  @param[in] n Token number.
+ *
+ *  @return Argument cell.
+ */
+Cell *arg(Node **a, int n)
 {
 
 	n = ptoi(a[0]);	/* argument number, counting from 0 */
@@ -341,7 +426,16 @@ Cell *arg(Node **a, int n)	/* nth argument of a function */
 	return fp->args[n];
 }
 
-Cell *jump(Node **a, int n)	/* break, continue, next, nextfile, return */
+/*!
+ *  @brief Executes break, continue, next, nextfile, return and exit.
+ *
+ *  @param[in] a Children of the jump node.
+ *  @param[in] n Token number.
+ *
+ *  @return Jump cell.
+ *  @retval 0 Internal error (unreachable, FATAL is called instead).
+ */
+Cell *jump(Node **a, int n)
 {
 	Cell *y;
 
@@ -385,8 +479,16 @@ Cell *jump(Node **a, int n)	/* break, continue, next, nextfile, return */
 	return 0;	/* not reached */
 }
 
-Cell *mygetline(Node **a, int n)	/* get next line from specific input */
-{		/* a[0] is variable, a[1] is operator, a[2] is filename */
+/*!
+ *  @brief Reads the next record from a specific input.
+ *
+ *  @param[in] a Children of the getline node.
+ *  @param[in] n Token number.
+ *
+ *  @return Result cell holding the number of records read.
+ */
+Cell *mygetline(Node **a, int n)
+{
 	Cell *r, *x;
 	extern Cell **fldtab;
 	FILE *fp;
@@ -438,14 +540,31 @@ Cell *mygetline(Node **a, int n)	/* get next line from specific input */
 	return r;
 }
 
-Cell *getnf(Node **a, int n)	/* get NF */
+/*!
+ *  @brief Returns the NF cell after ensuring fields are built.
+ *
+ *  @param[in] a Children of the NF node.
+ *  @param[in] n Token number.
+ *
+ *  @return Cell of NF.
+ */
+Cell *getnf(Node **a, int n)
 {
 	if (donefld == 0)
 		fldbld();
 	return (Cell *) a[0];
 }
 
-Cell *array(Node **a, int n)	/* a[0] is symtab, a[1] is list of subscripts */
+/*!
+ *  @brief Evaluates an array subscript expression.
+ *
+ *  @param[in] a Children: a[0] is the symbol table, a[1] is the list
+ *               of subscripts.
+ *  @param[in] n Token number.
+ *
+ *  @return Element cell.
+ */
+Cell *array(Node **a, int n)
 {
 	Cell *x, *y, *z;
 	char *s;
@@ -485,7 +604,16 @@ Cell *array(Node **a, int n)	/* a[0] is symtab, a[1] is list of subscripts */
 	return(z);
 }
 
-Cell *awkdelete(Node **a, int n)	/* a[0] is symtab, a[1] is list of subscripts */
+/*!
+ *  @brief Executes the delete statement.
+ *
+ *  @param[in] a Children: a[0] is the symbol table, a[1] the list of
+ *               subscripts.
+ *  @param[in] n Token number.
+ *
+ *  @return True cell.
+ */
+Cell *awkdelete(Node **a, int n)
 {
 	Cell *x, *y;
 	Node *np;
@@ -523,7 +651,15 @@ Cell *awkdelete(Node **a, int n)	/* a[0] is symtab, a[1] is list of subscripts *
 	return True;
 }
 
-Cell *intest(Node **a, int n)	/* a[0] is index (list), a[1] is symtab */
+/*!
+ *  @brief Executes the "in" test for array subscripts.
+ *
+ *  @param[in] a Children: a[0] is the index list, a[1] is the array.
+ *  @param[in] n Token number.
+ *
+ *  @return Boolean result cell.
+ */
+Cell *intest(Node **a, int n)
 {
 	Cell *x, *ap, *k;
 	Node *p;
@@ -565,7 +701,15 @@ Cell *intest(Node **a, int n)	/* a[0] is index (list), a[1] is symtab */
 }
 
 
-Cell *matchop(Node **a, int n)	/* ~ and match() */
+/*!
+ *  @brief Executes the ~ and !~ operators and match().
+ *
+ *  @param[in] a Children of the match node.
+ *  @param[in] n Token number.
+ *
+ *  @return Boolean result, or, for MATCHFCN, the start position.
+ */
+Cell *matchop(Node **a, int n)
 {
 	Cell *x, *y;
 	char *s, *t;
@@ -606,7 +750,16 @@ Cell *matchop(Node **a, int n)	/* ~ and match() */
 }
 
 
-Cell *boolop(Node **a, int n)	/* a[0] || a[1], a[0] && a[1], !a[0] */
+/*!
+ *  @brief Executes boolean operators ||, && and !.
+ *
+ *  @param[in] a Children of the boolean node.
+ *  @param[in] n Token number.
+ *
+ *  @return Boolean result cell.
+ *  @retval 0 Internal error (unreachable, FATAL is called instead).
+ */
+Cell *boolop(Node **a, int n)
 {
 	Cell *x, *y;
 	int i;
@@ -638,7 +791,16 @@ Cell *boolop(Node **a, int n)	/* a[0] || a[1], a[0] && a[1], !a[0] */
 	return 0;	/*NOTREACHED*/
 }
 
-Cell *relop(Node **a, int n)	/* a[0 < a[1], etc. */
+/*!
+ *  @brief Executes relational operators.
+ *
+ *  @param[in] a Children of the relational node.
+ *  @param[in] n Token number.
+ *
+ *  @return Boolean result cell.
+ *  @retval 0 Internal error (unreachable, FATAL is called instead).
+ */
+Cell *relop(Node **a, int n)
 {
 	int i;
 	Cell *x, *y;
@@ -673,7 +835,12 @@ Cell *relop(Node **a, int n)	/* a[0 < a[1], etc. */
 	return 0;	/*NOTREACHED*/
 }
 
-void tfree(Cell *a)	/* free a tempcell */
+/*!
+ *  @brief Releases a temporary cell.
+ *
+ *  @param[in] a Cell to release.
+ */
+void tfree(Cell *a)
 {
 	if (freeable(a)) {
 		   dprintf( ("freeing %s %s %o\n", NN(a->nval), NN(a->sval), a->tval) );
@@ -685,7 +852,12 @@ void tfree(Cell *a)	/* free a tempcell */
 	tmps = a;
 }
 
-Cell *gettemp(void)	/* get a tempcell */
+/*!
+ *  @brief Allocates a temporary cell from the free list.
+ *
+ *  @return New temporary cell.
+ */
+Cell *gettemp(void)
 {	int i;
 	Cell *x;
 
@@ -703,7 +875,15 @@ Cell *gettemp(void)	/* get a tempcell */
 	return(x);
 }
 
-Cell *indirect(Node **a, int n)	/* $( a[0] ) */
+/*!
+ *  @brief Executes the $(expr) operator.
+ *
+ *  @param[in] a Children of the indirect node.
+ *  @param[in] n Token number.
+ *
+ *  @return Field cell.
+ */
+Cell *indirect(Node **a, int n)
 {
 	Cell *x;
 	int m;
@@ -721,7 +901,15 @@ Cell *indirect(Node **a, int n)	/* $( a[0] ) */
 	return(x);
 }
 
-Cell *substr(Node **a, int nnn)		/* substr(a[0], a[1], a[2]) */
+/*!
+ *  @brief Executes substr(a[0], a[1], a[2]).
+ *
+ *  @param[in] a Children of the substr node.
+ *  @param[in] nnn Token number.
+ *
+ *  @return Result string cell.
+ */
+Cell *substr(Node **a, int nnn)
 {
 	int k, m, n;
 	char *s;
@@ -769,7 +957,15 @@ Cell *substr(Node **a, int nnn)		/* substr(a[0], a[1], a[2]) */
 	return(y);
 }
 
-Cell *sindex(Node **a, int nnn)		/* index(a[0], a[1]) */
+/*!
+ *  @brief Executes index(a[0], a[1]).
+ *
+ *  @param[in] a   Children of the index node.
+ *  @param[in] nnn Token number.
+ *
+ *  @return Result cell with the 1-based position, or 0.
+ */
+Cell *sindex(Node **a, int nnn)
 {
 	Cell *x, *y, *z;
 	char *s1, *s2, *p1, *p2, *q;
@@ -795,9 +991,23 @@ Cell *sindex(Node **a, int nnn)		/* index(a[0], a[1]) */
 	return(z);
 }
 
+/*!
+ *  @brief Maximum size of a numeric field when formatting.
+ *  @def MAXNUMSIZE
+ */
 #define	MAXNUMSIZE	50
 
-int format(char **pbuf, int *pbufsize, const char *s, Node *a)	/* printf-like conversions */
+/*!
+ *  @brief printf-style formatting routine.
+ *
+ *  @param[in,out] pbuf     Pointer to the output buffer.
+ *  @param[in,out] pbufsize Pointer to the output buffer size.
+ *  @param[in]     s        Format string.
+ *  @param[in]     a        Argument list.
+ *
+ *  @return Number of bytes written.
+ */
+int format(char **pbuf, int *pbufsize, const char *s, Node *a)
 {
 	char *fmt;
 	char *p, *t;
@@ -932,7 +1142,15 @@ int format(char **pbuf, int *pbufsize, const char *s, Node *a)	/* printf-like co
 	return p - buf;
 }
 
-Cell *awksprintf(Node **a, int n)		/* sprintf(a[0]) */
+/*!
+ *  @brief Executes sprintf(a[0]).
+ *
+ *  @param[in] a Children of the sprintf node.
+ *  @param[in] n Token number.
+ *
+ *  @return Result string cell.
+ */
+Cell *awksprintf(Node **a, int n)
 {
 	Cell *x;
 	Node *y;
@@ -952,9 +1170,16 @@ Cell *awksprintf(Node **a, int n)		/* sprintf(a[0]) */
 	return(x);
 }
 
-Cell *awkprintf(Node **a, int n)		/* printf */
-{	/* a[0] is list of args, starting with format string */
-	/* a[1] is redirection operator, a[2] is redirection file */
+/*!
+ *  @brief Executes printf.
+ *
+ *  @param[in] a Children: a[0] format args, a[1] redirection, a[2] file.
+ *  @param[in] n Token number.
+ *
+ *  @return True cell.
+ */
+Cell *awkprintf(Node **a, int n)
+{
 	FILE *fp;
 	Cell *x;
 	Node *y;
@@ -986,7 +1211,15 @@ Cell *awkprintf(Node **a, int n)		/* printf */
 	return(True);
 }
 
-Cell *arith(Node **a, int n)	/* a[0] + a[1], etc.  also -a[0] */
+/*!
+ *  @brief Executes arithmetic operators (+, -, *, /, %, unary -, **).
+ *
+ *  @param[in] a Children of the arithmetic node.
+ *  @param[in] n Token number.
+ *
+ *  @return Result cell.
+ */
+Cell *arith(Node **a, int n)
 {
 	Awkfloat i, j = 0;
 	double v;
@@ -1038,7 +1271,16 @@ Cell *arith(Node **a, int n)	/* a[0] + a[1], etc.  also -a[0] */
 	return(z);
 }
 
-double ipow(double x, int n)	/* x**n.  ought to be done by pow, but isn't always */
+/*!
+ *  @brief Raises a value to an integer power.
+ *
+ *  @param[in] x Base.
+ *  @param[in] n Exponent.
+ *
+ *  @return x to the power n.
+ *  @retval 1 Base case when the exponent is not positive.
+ */
+double ipow(double x, int n)
 {
 	double v;
 
@@ -1051,7 +1293,15 @@ double ipow(double x, int n)	/* x**n.  ought to be done by pow, but isn't always
 		return x * v * v;
 }
 
-Cell *incrdecr(Node **a, int n)		/* a[0]++, etc. */
+/*!
+ *  @brief Executes ++ and --.
+ *
+ *  @param[in] a Children of the increment node.
+ *  @param[in] n Token number.
+ *
+ *  @return Result cell.
+ */
+Cell *incrdecr(Node **a, int n)
 {
 	Cell *x, *z;
 	int k;
@@ -1071,8 +1321,16 @@ Cell *incrdecr(Node **a, int n)		/* a[0]++, etc. */
 	return(z);
 }
 
-Cell *assign(Node **a, int n)	/* a[0] = a[1], a[0] += a[1], etc. */
-{		/* this is subtle; don't muck with it. */
+/*!
+ *  @brief Executes assignment and compound assignment.
+ *
+ *  @param[in] a Children of the assignment node.
+ *  @param[in] n Token number.
+ *
+ *  @return Assigned cell.
+ */
+Cell *assign(Node **a, int n)
+{
 	Cell *x, *y;
 	Awkfloat xf, yf;
 	double v;
@@ -1134,7 +1392,15 @@ Cell *assign(Node **a, int n)	/* a[0] = a[1], a[0] += a[1], etc. */
 	return(x);
 }
 
-Cell *cat(Node **a, int q)	/* a[0] cat a[1] */
+/*!
+ *  @brief Executes string concatenation.
+ *
+ *  @param[in] a Children of the concatenation node.
+ *  @param[in] q Token number.
+ *
+ *  @return Result string cell.
+ */
+Cell *cat(Node **a, int q)
 {
 	Cell *x, *y, *z;
 	int n1, n2;
@@ -1160,7 +1426,15 @@ Cell *cat(Node **a, int q)	/* a[0] cat a[1] */
 	return(z);
 }
 
-Cell *pastat(Node **a, int n)	/* a[0] { a[1] } */
+/*!
+ *  @brief Executes a pattern-action statement.
+ *
+ *  @param[in] a Children: a[0] pattern, a[1] body.
+ *  @param[in] n Token number.
+ *
+ *  @return Result cell.
+ */
+Cell *pastat(Node **a, int n)
 {
 	Cell *x;
 
@@ -1176,7 +1450,15 @@ Cell *pastat(Node **a, int n)	/* a[0] { a[1] } */
 	return x;
 }
 
-Cell *dopa2(Node **a, int n)	/* a[0], a[1] { a[2] } */
+/*!
+ *  @brief Executes a pat,pat action statement.
+ *
+ *  @param[in] a Children: a[0], a[1] patterns, a[2] body, a[3] pair index.
+ *  @param[in] n Token number.
+ *
+ *  @return Result cell.
+ */
+Cell *dopa2(Node **a, int n)
 {
 	Cell *x;
 	int pair;
@@ -1199,7 +1481,15 @@ Cell *dopa2(Node **a, int n)	/* a[0], a[1] { a[2] } */
 	return(False);
 }
 
-Cell *split(Node **a, int nnn)	/* split(a[0], a[1], a[2]); a[3] is type */
+/*!
+ *  @brief Executes split(a[0], a[1], a[2]).
+ *
+ *  @param[in] a   Children of the split node; a[3] is the type.
+ *  @param[in] nnn Token number.
+ *
+ *  @return Result cell with the number of elements.
+ */
+Cell *split(Node **a, int nnn)
 {
 	Cell *x = 0, *y, *ap;
 	char *s;
@@ -1329,7 +1619,15 @@ Cell *split(Node **a, int nnn)	/* split(a[0], a[1], a[2]); a[3] is type */
 	return(x);
 }
 
-Cell *condexpr(Node **a, int n)	/* a[0] ? a[1] : a[2] */
+/*!
+ *  @brief Executes the ternary operator a[0] ? a[1] : a[2].
+ *
+ *  @param[in] a Children of the conditional node.
+ *  @param[in] n Token number.
+ *
+ *  @return Result cell of the chosen branch.
+ */
+Cell *condexpr(Node **a, int n)
 {
 	Cell *x;
 
@@ -1344,7 +1642,15 @@ Cell *condexpr(Node **a, int n)	/* a[0] ? a[1] : a[2] */
 	return(x);
 }
 
-Cell *ifstat(Node **a, int n)	/* if (a[0]) a[1]; else a[2] */
+/*!
+ *  @brief Executes if (a[0]) a[1]; else a[2].
+ *
+ *  @param[in] a Children of the if node.
+ *  @param[in] n Token number.
+ *
+ *  @return Result cell of the taken branch.
+ */
+Cell *ifstat(Node **a, int n)
 {
 	Cell *x;
 
@@ -1359,7 +1665,15 @@ Cell *ifstat(Node **a, int n)	/* if (a[0]) a[1]; else a[2] */
 	return(x);
 }
 
-Cell *whilestat(Node **a, int n)	/* while (a[0]) a[1] */
+/*!
+ *  @brief Executes while (a[0]) a[1].
+ *
+ *  @param[in] a Children of the while node.
+ *  @param[in] n Token number.
+ *
+ *  @return Result cell.
+ */
+Cell *whilestat(Node **a, int n)
 {
 	Cell *x;
 
@@ -1379,7 +1693,15 @@ Cell *whilestat(Node **a, int n)	/* while (a[0]) a[1] */
 	}
 }
 
-Cell *dostat(Node **a, int n)	/* do a[0]; while(a[1]) */
+/*!
+ *  @brief Executes do a[0]; while (a[1]).
+ *
+ *  @param[in] a Children of the do node.
+ *  @param[in] n Token number.
+ *
+ *  @return Result cell.
+ */
+Cell *dostat(Node **a, int n)
 {
 	Cell *x;
 
@@ -1397,7 +1719,15 @@ Cell *dostat(Node **a, int n)	/* do a[0]; while(a[1]) */
 	}
 }
 
-Cell *forstat(Node **a, int n)	/* for (a[0]; a[1]; a[2]) a[3] */
+/*!
+ *  @brief Executes for (a[0]; a[1]; a[2]) a[3].
+ *
+ *  @param[in] a Children of the for node.
+ *  @param[in] n Token number.
+ *
+ *  @return Result cell.
+ */
+Cell *forstat(Node **a, int n)
 {
 	Cell *x;
 
@@ -1420,7 +1750,15 @@ Cell *forstat(Node **a, int n)	/* for (a[0]; a[1]; a[2]) a[3] */
 	}
 }
 
-Cell *instat(Node **a, int n)	/* for (a[0] in a[1]) a[2] */
+/*!
+ *  @brief Executes for (a[0] in a[1]) a[2].
+ *
+ *  @param[in] a Children of the in-array node.
+ *  @param[in] n Token number.
+ *
+ *  @return Result cell.
+ */
+Cell *instat(Node **a, int n)
 {
 	Cell *x, *vp, *arrayp, *cp, *ncp;
 	Array *tp;
@@ -1452,7 +1790,15 @@ Cell *instat(Node **a, int n)	/* for (a[0] in a[1]) a[2] */
 	return True;
 }
 
-Cell *bltin(Node **a, int n)	/* builtin functions. a[0] is type, a[1] is arg list */
+/*!
+ *  @brief Executes a built-in function.
+ *
+ *  @param[in] a Children: a[0] function type, a[1] argument list.
+ *  @param[in] n Token number.
+ *
+ *  @return Result cell.
+ */
+Cell *bltin(Node **a, int n)
 {
 	Cell *x, *y;
 	Awkfloat u;
@@ -1551,7 +1897,16 @@ Cell *bltin(Node **a, int n)	/* builtin functions. a[0] is type, a[1] is arg lis
 	return(x);
 }
 
-Cell *printstat(Node **a, int n)	/* print a[0] */
+/*!
+ *  @brief Executes the print statement.
+ *
+ *  @param[in] a Children: a[0] argument list, a[1] redirection,
+ *               a[2] file.
+ *  @param[in] n Token number.
+ *
+ *  @return True cell.
+ */
+Cell *printstat(Node **a, int n)
 {
 	Node *x;
 	Cell *y;
@@ -1577,6 +1932,15 @@ Cell *printstat(Node **a, int n)	/* print a[0] */
 	return(True);
 }
 
+/*!
+ *  @brief Placeholder handler for tokens without an action.
+ *
+ *  @param[in] a Children of the node (unused).
+ *  @param[in] n Token number (unused).
+ *
+ *  @return Always NULL.
+ *  @retval 0 No action is performed.
+ */
 Cell *nullproc(Node **a, int n)
 {
 	n = n;
@@ -1585,7 +1949,15 @@ Cell *nullproc(Node **a, int n)
 }
 
 
-FILE *redirect(int a, Node *b)	/* set up all i/o redirections */
+/*!
+ *  @brief Sets up an output redirection.
+ *
+ *  @param[in] a Redirection kind.
+ *  @param[in] b File name expression.
+ *
+ *  @return Open stream.
+ */
+FILE *redirect(int a, Node *b)
 {
 	FILE *fp;
 	Cell *x;
@@ -1600,23 +1972,38 @@ FILE *redirect(int a, Node *b)	/* set up all i/o redirections */
 	return fp;
 }
 
+/*!
+ *  @brief One entry of the open-file table.
+ */
 struct files {
-	FILE	*fp;
-	const char	*fname;
-	int	mode;	/* '|', 'a', 'w' => LE/LT, GT */
+	FILE	*fp;        /*!< Stream pointer. */
+	const char	*fname; /*!< File name. */
+	int	mode;           /*!< '|', 'a', 'w' => LE/LT, GT. */
 } files[FOPEN_MAX] ={
 	{ NULL,  "/dev/stdin",  LT },	/* watch out: don't free this! */
 	{ NULL, "/dev/stdout", GT },
 	{ NULL, "/dev/stderr", GT }
 };
 
-void stdinit(void)	/* in case stdin, etc., are not constants */
+/*!
+ *  @brief Initializes the standard streams in the file table.
+ */
+void stdinit(void)
 {
 	files[0].fp = stdin;
 	files[1].fp = stdout;
 	files[2].fp = stderr;
 }
 
+/*!
+ *  @brief Opens a file or pipe for input or output.
+ *
+ *  @param[in] a Redirection kind.
+ *  @param[in] us File name.
+ *
+ *  @return Open stream.
+ *  @retval NULL The file is not open and FFLUSH was requested.
+ */
 FILE *openfile(int a, const char *us)
 {
 	const char *s = us;
@@ -1663,6 +2050,13 @@ FILE *openfile(int a, const char *us)
 	return fp;
 }
 
+/*!
+ *  @brief Returns the name of an open stream.
+ *
+ *  @param[in] fp Stream.
+ *
+ *  @return File name, or "???" if unknown.
+ */
 const char *filename(FILE *fp)
 {
 	int i;
@@ -1673,6 +2067,14 @@ const char *filename(FILE *fp)
 	return "???";
 }
 
+/*!
+ *  @brief Executes the close() statement.
+ *
+ *  @param[in] a Children of the close node.
+ *  @param[in] n Token number.
+ *
+ *  @return Result cell with the close status.
+ */
 Cell *closefile(Node **a, int n)
 {
 	Cell *x;
@@ -1704,6 +2106,9 @@ Cell *closefile(Node **a, int n)
 	return(x);
 }
 
+/*!
+ *  @brief Closes all open streams at shutdown.
+ */
 void closeall(void)
 {
 	int i, stat;
@@ -1722,6 +2127,9 @@ void closeall(void)
 	}
 }
 
+/*!
+ *  @brief Flushes all open streams.
+ */
 void flush_all(void)
 {
 	int i;
@@ -1731,9 +2139,23 @@ void flush_all(void)
 			fflush(files[i].fp);
 }
 
+/*!
+ *  @brief Handles \\& variations in sub/gsub replacement strings.
+ *
+ *  @param[in,out] pb_ptr   Pointer to the output position.
+ *  @param[in,out] sptr_ptr Pointer to the replacement position.
+ */
 void backsub(char **pb_ptr, char **sptr_ptr);
 
-Cell *sub(Node **a, int nnn)	/* substitute command */
+/*!
+ *  @brief Executes the sub() command.
+ *
+ *  @param[in] a   Children of the sub node.
+ *  @param[in] nnn Token number.
+ *
+ *  @return Boolean result cell.
+ */
+Cell *sub(Node **a, int nnn)
 {
 	char *sptr, *pb, *q;
 	Cell *x, *y, *result;
@@ -1793,7 +2215,15 @@ Cell *sub(Node **a, int nnn)	/* substitute command */
 	return result;
 }
 
-Cell *gsub(Node **a, int nnn)	/* global substitute */
+/*!
+ *  @brief Executes the gsub() command.
+ *
+ *  @param[in] a   Children of the gsub node.
+ *  @param[in] nnn Token number.
+ *
+ *  @return Result cell with the number of substitutions.
+ */
+Cell *gsub(Node **a, int nnn)
 {
 	Cell *x, *y;
 	char *rptr, *sptr, *t, *pb, *q;
@@ -1893,8 +2323,14 @@ Cell *gsub(Node **a, int nnn)	/* global substitute */
 	return(x);
 }
 
-void backsub(char **pb_ptr, char **sptr_ptr)	/* handle \\& variations */
-{						/* sptr[0] == '\\' */
+/*!
+ *  @brief Handles \\& variations in sub/gsub replacement strings.
+ *
+ *  @param[in,out] pb_ptr   Pointer to the output position.
+ *  @param[in,out] sptr_ptr Pointer to the replacement position.
+ */
+void backsub(char **pb_ptr, char **sptr_ptr)
+{
 	char *pb = *pb_ptr, *sptr = *sptr_ptr;
 
 	if (sptr[1] == '\\') {

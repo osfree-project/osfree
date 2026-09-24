@@ -1,26 +1,38 @@
 /****************************************************************
-Copyright (C) Lucent Technologies 1997
-All Rights Reserved
+ * Copyright (C) Lucent Technologies 1997
+ * All Rights Reserved
+ *
+ * Permission to use, copy, modify, and distribute this software and
+ * its documentation for any purpose and without fee is hereby
+ * granted, provided that the above copyright notice appear in all
+ * copies and that both that the copyright notice and this
+ * permission notice and warranty disclaimer appear in supporting
+ * documentation, and that the name Lucent Technologies or any of
+ * its entities not be used in advertising or publicity pertaining
+ * to distribution of the software without specific, written prior
+ * permission.
+ *
+ * LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+ * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
+ * IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
+ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+ * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
+ ****************************************************************/
 
-Permission to use, copy, modify, and distribute this software and
-its documentation for any purpose and without fee is hereby
-granted, provided that the above copyright notice appear in all
-copies and that both that the copyright notice and this
-permission notice and warranty disclaimer appear in supporting
-documentation, and that the name Lucent Technologies or any of
-its entities not be used in advertising or publicity pertaining
-to distribution of the software without specific, written prior
-permission.
-
-LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
-IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
-SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
-ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-****************************************************************/
+/*!
+ *  @file lex.c
+ *  @brief Lexical analyzer for the awk language.
+ *
+ *  Scans the awk program text and produces the token stream consumed
+ *  by the yacc-generated parser. Handles keywords, identifiers,
+ *  numbers, strings, regular expressions, comments and the
+ *  line-continuation rules of awk.
+ *
+ *  @copyright Copyright (C) Lucent Technologies 1997.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,20 +41,32 @@ THIS SOFTWARE.
 #include "awk.h"
 #include "ytab.h"
 
+/*!< Semantic value passed between the scanner and the parser. */
 extern YYSTYPE	yylval;
+/*!< Non-zero while a function body is being parsed. */
 extern int	infunc;
 
+/*!< Current source line number. */
 int	lineno	= 1;
+/*!< Number of currently open braces. */
 int	bracecnt = 0;
+/*!< Number of currently open square brackets. */
 int	brackcnt  = 0;
+/*!< Number of currently open parentheses. */
 int	parencnt = 0;
 
+/*!
+ *  @brief One entry of the keyword table.
+ */
 typedef struct Keyword {
-	const char *word;
-	int	sub;
-	int	type;
+	const char *word;   /*!< Keyword text. */
+	int	sub;            /*!< Subtype stored in yylval.i. */
+	int	type;           /*!< Token type returned to the parser. */
 } Keyword;
 
+/*!
+ *  @brief Keyword table; sorted for binary search.
+ */
 Keyword keywords[] ={	/* keep sorted: binary searched */
 	{ "BEGIN",	XBEGIN,		XBEGIN },
 	{ "END",	XEND,		XEND },
@@ -89,13 +113,28 @@ Keyword keywords[] ={	/* keep sorted: binary searched */
 	{ "while",	WHILE,		WHILE },
 };
 
+/*!
+ *  @brief Enables debug tracing of the scanner.
+ *  @def DEBUG
+ */
 #define DEBUG
 #ifdef	DEBUG
+/*!
+ *  @brief Returns a token, optionally logging its name in debug mode.
+ *
+ *  @param[in] x Token to return.
+ *  @def RET
+ */
 #define	RET(x)	{ if(dbg)printf("lex %s\n", tokname(x)); return(x); }
 #else
 #define	RET(x)	return(x)
 #endif
 
+/*!
+ *  @brief Returns the next input character without consuming it.
+ *
+ *  @return The next input character.
+ */
 int peek(void)
 {
 	int c = input();
@@ -103,7 +142,19 @@ int peek(void)
 	return c;
 }
 
-int gettok(char **pbuf, int *psz)	/* get next input token */
+/*!
+ *  @brief Reads the next input token.
+ *
+ *  @param[in,out] pbuf Pointer to the token buffer.
+ *  @param[in,out] psz  Pointer to the buffer size.
+ *
+ *  @return Token class.
+ *  @retval 0   End of input.
+ *  @retval 'a' Alphanumeric token (identifier or keyword).
+ *  @retval '0' Numeric token.
+ *  @retval c   Any other single character.
+ */
+int gettok(char **pbuf, int *psz)
 {
 	int c, retc;
 	char *buf = *pbuf;
@@ -165,12 +216,40 @@ int gettok(char **pbuf, int *psz)	/* get next input token */
 	return retc;
 }
 
+/*!
+ *  @brief Forward declaration of the identifier handler.
+ *
+ *  @param[in] w Identifier text.
+ *
+ *  @return Token identifying the word.
+ */
 int	word(char *);
-int	string(void);
-int	regexpr(void);
-int	sc	= 0;	/* 1 => return a } right now */
-int	reg	= 0;	/* 1 => return a REGEXPR now */
 
+/*!
+ *  @brief Forward declaration of the string-literal scanner.
+ *
+ *  @return STRING token.
+ */
+int	string(void);
+
+/*!
+ *  @brief Forward declaration of the regular-expression scanner.
+ *
+ *  @return REGEXPR token.
+ */
+int	regexpr(void);
+
+/*!< 1 => return a '}' immediately. */
+int	sc	= 0;
+/*!< 1 => return a REGEXPR immediately. */
+int	reg	= 0;
+
+/*!
+ *  @brief Main lexical analyzer of the awk parser.
+ *
+ *  @return Next token.
+ *  @retval 0 End of input.
+ */
 int yylex(void)
 {
 	int c;
@@ -358,6 +437,11 @@ int yylex(void)
 	}
 }
 
+/*!
+ *  @brief Scans a string literal.
+ *
+ *  @return STRING token.
+ */
 int string(void)
 {
 	int c, n;
@@ -438,6 +522,16 @@ int string(void)
 }
 
 
+/*!
+ *  @brief Binary search in the keyword table.
+ *
+ *  @param[in] w  Word to look up.
+ *  @param[in] kp Keyword table.
+ *  @param[in] n  Number of entries in the table.
+ *
+ *  @return Index of the found entry.
+ *  @retval -1 The word is not in the table.
+ */
 int binsearch(char *w, Keyword *kp, int n)
 {
 	int cond, low, mid, high;
@@ -456,6 +550,13 @@ int binsearch(char *w, Keyword *kp, int n)
 	return -1;
 }
 
+/*!
+ *  @brief Classifies an identifier: keyword, function call or variable.
+ *
+ *  @param[in] w Identifier text.
+ *
+ *  @return Token identifying the word.
+ */
 int word(char *w) 
 {
 	Keyword *kp;
@@ -499,11 +600,19 @@ int word(char *w)
 	}
 }
 
-void startreg(void)	/* next call to yylex will return a regular expression */
+/*!
+ *  @brief Requests the next call to yylex to return a regular expression.
+ */
+void startreg(void)
 {
 	reg = 1;
 }
 
+/*!
+ *  @brief Scans a regular expression between slashes.
+ *
+ *  @return REGEXPR token.
+ */
 int regexpr(void)
 {
 	int c;
@@ -538,13 +647,23 @@ int regexpr(void)
 
 /* low-level lexical stuff, sort of inherited from lex */
 
+/*!< Buffer for error reporting context. */
 char	ebuf[300];
+/*!< Current position in ebuf. */
 char	*ep = ebuf;
-char	yysbuf[100];	/* pushback buffer */
+/*!< Pushback buffer. */
+char	yysbuf[100];
+/*!< Current position in the pushback buffer. */
 char	*yysptr = yysbuf;
+/*!< Current input file of the lexical analyzer. */
 FILE	*yyin = 0;
 
-int input(void)	/* get next lexical input character */
+/*!
+ *  @brief Returns the next input character.
+ *
+ *  @return Next input character, or 0 at end of input.
+ */
+int input(void)
 {
 	int c;
 	extern char *lexprog;
@@ -565,7 +684,12 @@ int input(void)	/* get next lexical input character */
 	return *ep++ = c;
 }
 
-void unput(int c)	/* put lexical character back on input */
+/*!
+ *  @brief Pushes a character back onto the input.
+ *
+ *  @param[in] c Character to push back.
+ */
+void unput(int c)
 {
 	if (c == '\n')
 		lineno--;
@@ -576,7 +700,12 @@ void unput(int c)	/* put lexical character back on input */
 		ep = ebuf + sizeof(ebuf) - 1;
 }
 
-void unputstr(const char *s)	/* put a string back on input */
+/*!
+ *  @brief Pushes a whole string back onto the input.
+ *
+ *  @param[in] s String to push back.
+ */
+void unputstr(const char *s)
 {
 	int i;
 

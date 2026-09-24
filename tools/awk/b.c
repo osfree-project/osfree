@@ -1,28 +1,41 @@
 /****************************************************************
-Copyright (C) Lucent Technologies 1997
-All Rights Reserved
-
-Permission to use, copy, modify, and distribute this software and
-its documentation for any purpose and without fee is hereby
-granted, provided that the above copyright notice appear in all
-copies and that both that the copyright notice and this
-permission notice and warranty disclaimer appear in supporting
-documentation, and that the name Lucent Technologies or any of
-its entities not be used in advertising or publicity pertaining
-to distribution of the software without specific, written prior
-permission.
-
-LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
-IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
-SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
-ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-****************************************************************/
+ * Copyright (C) Lucent Technologies 1997
+ * All Rights Reserved
+ *
+ * Permission to use, copy, modify, and distribute this software and
+ * its documentation for any purpose and without fee is hereby
+ * granted, provided that the above copyright notice appear in all
+ * copies and that both that the copyright notice and this
+ * permission notice and warranty disclaimer appear in supporting
+ * documentation, and that the name Lucent Technologies or any of
+ * its entities not be used in advertising or publicity pertaining
+ * to distribution of the software without specific, written prior
+ * permission.
+ *
+ * LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+ * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
+ * IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
+ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+ * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
+ ****************************************************************/
 
 /* lasciate ogne speranza, voi ch'entrate. */
+
+/*!
+ *  @file b.c
+ *  @brief Regular expression compiler and DFA matcher for awk.
+ *
+ *  Builds a deterministic finite automaton (DFA) from a regular
+ *  expression and provides the matchers used by the interpreter:
+ *  match (shortest), pmatch (longest), nematch (non-empty).
+ *  Character classes, POSIX bracket expressions and escape
+ *  sequences are handled here.
+ *
+ *  @copyright Copyright (C) Lucent Technologies 1997.
+ */
 
 #define	DEBUG
 
@@ -33,49 +46,107 @@ THIS SOFTWARE.
 #include "awk.h"
 #include "ytab.h"
 
-#define	HAT	(NCHARS+2)	/* matches ^ in regular expr */
-				/* NCHARS is 2**n */
+/*!
+ *  @brief Pseudo-character matching @c ^ in a regular expression.
+ *  @def HAT
+ */
+#define	HAT	(NCHARS+2)
+
+/*!
+ *  @brief Initial size of the position set buffer.
+ *  @def MAXLIN
+ */
 #define MAXLIN 22
 
-#define type(v)		(v)->nobj	/* badly overloaded here */
-#define info(v)		(v)->ntype	/* badly overloaded here */
+/*!
+ *  @brief Overloaded accessor: node operation type.
+ *  @param[in] v Node pointer.
+ *  @def type
+ */
+#define type(v)		(v)->nobj
+
+/*!
+ *  @brief Overloaded accessor: node info field (leaf index).
+ *  @param[in] v Node pointer.
+ *  @def info
+ */
+#define info(v)		(v)->ntype
+
+/*!
+ *  @brief Left child of a regular-expression node.
+ *  @param[in] v Node pointer.
+ *  @def left
+ */
 #define left(v)		(v)->narg[0]
+
+/*!
+ *  @brief Right child of a regular-expression node.
+ *  @param[in] v Node pointer.
+ *  @def right
+ */
 #define right(v)	(v)->narg[1]
+
+/*!
+ *  @brief Parent pointer of a regular-expression node.
+ *  @param[in] v Node pointer.
+ *  @def parent
+ */
 #define parent(v)	(v)->nnext
 
+/*!
+ *  @brief Leaf node kinds of the regular expression tree.
+ *  @def LEAF
+ */
 #define LEAF	case CCL: case NCCL: case CHAR: case DOT: case FINAL: case ALL:
+
+/*!
+ *  @brief Unary postfix operators of a regular expression.
+ *  @def UNARY
+ */
 #define UNARY	case STAR: case PLUS: case QUEST:
 
 /* encoding in tree Nodes:
-	leaf (CCL, NCCL, CHAR, DOT, FINAL, ALL):
-		left is index, right contains value or pointer to value
-	unary (STAR, PLUS, QUEST): left is child, right is null
-	binary (CAT, OR): left and right are children
-	parent contains pointer to parent
-*/
+ *   leaf (CCL, NCCL, CHAR, DOT, FINAL, ALL):
+ *     left is index, right contains value or pointer to value
+ *   unary (STAR, PLUS, QUEST): left is child, right is null
+ *   binary (CAT, OR): left and right are children
+ *   parent contains pointer to parent
+ */
 
+int	*setvec;         /*!< Current position set (working buffer). */
+int	*tmpset;         /*!< Temporary position set. */
+int	maxsetvec = 0;   /*!< Current capacity of setvec and tmpset. */
 
-int	*setvec;
-int	*tmpset;
-int	maxsetvec = 0;
+int	rtok;            /*!< Next token of the current regular expression. */
+int	rlxval;          /*!< Value of the last scanned token. */
+static uschar	*rlxstr;         /*!< Text of the current regular expression token. */
+static uschar	*prestr;         /*!< Current position in the regular expression. */
+static uschar	*lastre;         /*!< Start of the last parsed regular expression. */
 
-int	rtok;		/* next token in current re */
-int	rlxval;
-static uschar	*rlxstr;
-static uschar	*prestr;	/* current position in current re */
-static uschar	*lastre;	/* origin of last re */
+static	int setcnt;       /*!< Current number of positions in the set. */
+static	int poscnt;       /*!< Current number of positions in the tree. */
 
-static	int setcnt;
-static	int poscnt;
+char	*patbeg;         /*!< Start of the matched text. */
+int	patlen;          /*!< Length of the matched text. */
 
-char	*patbeg;
-int	patlen;
+/*!
+ *  @brief Number of dynamically cached finite automata.
+ *  @def NFA
+ */
+#define	NFA	20
 
-#define	NFA	20	/* cache this many dynamic fa's */
-fa	*fatab[NFA];
-int	nfatab	= 0;	/* entries in fatab */
+fa	*fatab[NFA];     /*!< Cache of finite automata. */
+int	nfatab	= 0;     /*!< Number of entries in fatab. */
 
-fa *makedfa(const char *s, int anchor)	/* returns dfa for reg expr s */
+/*!
+ *  @brief Returns a DFA for the regular expression @p s.
+ *
+ *  @param[in] s      Regular expression.
+ *  @param[in] anchor Non-zero for anchored-at-start matching.
+ *
+ *  @return Pointer to the finite automaton.
+ */
+fa *makedfa(const char *s, int anchor)
 {
 	int i, use, nuse;
 	fa *pfa;
@@ -117,8 +188,15 @@ fa *makedfa(const char *s, int anchor)	/* returns dfa for reg expr s */
 	return pfa;
 }
 
-fa *mkdfa(const char *s, int anchor)	/* does the real work of making a dfa */
-				/* anchor = 1 for anchored matches, else 0 */
+/*!
+ *  @brief Does the real work of making a DFA for @p s.
+ *
+ *  @param[in] s      Regular expression.
+ *  @param[in] anchor Non-zero for anchored matching.
+ *
+ *  @return Pointer to the finite automaton.
+ */
+fa *mkdfa(const char *s, int anchor)
 {
 	Node *p, *p1;
 	fa *f;
@@ -147,6 +225,14 @@ fa *mkdfa(const char *s, int anchor)	/* does the real work of making a dfa */
 	return f;
 }
 
+/*!
+ *  @brief Initializes the initial state of the automaton @p f.
+ *
+ *  @param[in] f      Finite automaton.
+ *  @param[in] anchor Non-zero for anchored matching.
+ *
+ *  @return Number of the initial state.
+ */
 int makeinit(fa *f, int anchor)
 {
 	int i, k;
@@ -155,7 +241,7 @@ int makeinit(fa *f, int anchor)
 	f->out[2] = 0;
 	f->reset = 0;
 	k = *(f->re[0].lfollow);
-	xfree(f->posns[2]);			
+	xfree(f->posns[2]);
 	if ((f->posns[2] = (int *) calloc(1, (k+1)*sizeof(int))) == NULL)
 		overflo("out of space in makeinit");
 	for (i=0; i <= k; i++) {
@@ -179,7 +265,12 @@ int makeinit(fa *f, int anchor)
 	return f->curstat;
 }
 
-void penter(Node *p)	/* set up parent pointers and leaf indices */
+/*!
+ *  @brief Sets up parent pointers and leaf indices of the tree.
+ *
+ *  @param[in] p Root of the subtree.
+ */
+void penter(Node *p)
 {
 	switch (type(p)) {
 	LEAF
@@ -203,7 +294,12 @@ void penter(Node *p)	/* set up parent pointers and leaf indices */
 	}
 }
 
-void freetr(Node *p)	/* free parse tree */
+/*!
+ *  @brief Frees the parse tree of a regular expression.
+ *
+ *  @param[in] p Root of the subtree.
+ */
+void freetr(Node *p)
 {
 	switch (type(p)) {
 	LEAF
@@ -228,8 +324,17 @@ void freetr(Node *p)	/* free parse tree */
 /* in the parsing of regular expressions, metacharacters like . have */
 /* to be seen literally;  \056 is not a metacharacter. */
 
-int hexstr(char **pp)	/* find and eval hex string at pp, return new p */
-{			/* only pick up one 8-bit byte (2 chars) */
+/*!
+ *  @brief Reads and evaluates a hex byte at @p pp.
+ *
+ *  Only one 8-bit byte (two chars) is picked up.
+ *
+ *  @param[in,out] pp Pointer to the current parsing position.
+ *
+ *  @return Value of the byte read.
+ */
+int hexstr(char **pp)
+{
 	uschar *p;
 	int n = 0;
 	int i;
@@ -246,10 +351,21 @@ int hexstr(char **pp)	/* find and eval hex string at pp, return new p */
 	return n;
 }
 
-#define isoctdigit(c) ((c) >= '0' && (c) <= '7')	/* multiple use of arg */
+/*!
+ *  @brief Tests whether the argument is an octal digit.
+ *  @param[in] c Character to test.
+ *  @def isoctdigit
+ */
+#define isoctdigit(c) ((c) >= '0' && (c) <= '7')
 
-int quoted(char **pp)	/* pick up next thing after a \\ */
-			/* and increment *pp */
+/*!
+ *  @brief Picks up the next thing after a backslash and advances @p pp.
+ *
+ *  @param[in,out] pp Pointer to the current parsing position.
+ *
+ *  @return Value of the escaped character.
+ */
+int quoted(char **pp)
 {
 	char *p = *pp;
 	int c;
@@ -282,7 +398,14 @@ int quoted(char **pp)	/* pick up next thing after a \\ */
 	return c;
 }
 
-char *cclenter(const char *argp)	/* add a character class */
+/*!
+ *  @brief Expands a character class [..] into a string of characters.
+ *
+ *  @param[in] argp Input string with the class content.
+ *
+ *  @return Pointer to the expanded character string.
+ */
+char *cclenter(const char *argp)
 {
 	int i, c, c2;
 	uschar *p = (uschar *) argp;
@@ -328,12 +451,23 @@ char *cclenter(const char *argp)	/* add a character class */
 	return (char *) tostring((char *) buf);
 }
 
+/*!
+ *  @brief Reports a regular expression overflow.
+ *
+ *  @param[in] s Context of the error.
+ */
 void overflo(const char *s)
 {
 	FATAL("regular expression too big: %.30s...", s);
 }
 
-void cfoll(fa *f, Node *v)	/* enter follow set of each leaf of vertex v into lfollow[leaf] */
+/*!
+ *  @brief Enters the follow set of each leaf of vertex @p v.
+ *
+ *  @param[in] f Finite automaton.
+ *  @param[in] v Current node.
+ */
+void cfoll(fa *f, Node *v)
 {
 	int i;
 	int *p;
@@ -374,8 +508,17 @@ void cfoll(fa *f, Node *v)	/* enter follow set of each leaf of vertex v into lfo
 	}
 }
 
-int first(Node *p)	/* collects initially active leaves of p into setvec */
-			/* returns 1 if p matches empty string */
+/*!
+ *  @brief Collects initially active leaves of @p p into setvec.
+ *
+ *  @param[in] p Regular-expression node.
+ *
+ *  @return Whether the node matches the empty string.
+ *  @retval -1 Internal error (unreachable).
+ *  @retval  0 The node does not match the empty string.
+ *  @retval  1 The node matches the empty string.
+ */
+int first(Node *p)
 {
 	int b, lp;
 
@@ -415,7 +558,12 @@ int first(Node *p)	/* collects initially active leaves of p into setvec */
 	return(-1);
 }
 
-void follow(Node *v)	/* collects leaves that can follow v into setvec */
+/*!
+ *  @brief Collects leaves that can follow @p v into setvec.
+ *
+ *  @param[in] v Regular-expression node.
+ */
+void follow(Node *v)
 {
 	Node *p;
 
@@ -446,7 +594,17 @@ void follow(Node *v)	/* collects leaves that can follow v into setvec */
 	}
 }
 
-int member(int c, const char *sarg)	/* is c in s? */
+/*!
+ *  @brief Tests whether @p c is in @p sarg.
+ *
+ *  @param[in] c    Character to test.
+ *  @param[in] sarg Character string.
+ *
+ *  @return Test result.
+ *  @retval 0 The character is not in the string.
+ *  @retval 1 The character is in the string.
+ */
+int member(int c, const char *sarg)
 {
 	uschar *s = (uschar *) sarg;
 
@@ -456,7 +614,17 @@ int member(int c, const char *sarg)	/* is c in s? */
 	return(0);
 }
 
-int match(fa *f, const char *p0)	/* shortest match ? */
+/*!
+ *  @brief Shortest-match test of the automaton @p f on @p p0.
+ *
+ *  @param[in] f  Finite automaton.
+ *  @param[in] p0 Input string.
+ *
+ *  @return Match result.
+ *  @retval 0 No match.
+ *  @retval 1 Match found.
+ */
+int match(fa *f, const char *p0)
 {
 	int s, ns;
 	uschar *p = (uschar *) p0;
@@ -475,7 +643,19 @@ int match(fa *f, const char *p0)	/* shortest match ? */
 	return(0);
 }
 
-int pmatch(fa *f, const char *p0)	/* longest match, for sub */
+/*!
+ *  @brief Longest-match test of the automaton @p f on @p p0.
+ *
+ *  Used by the substitution routines.
+ *
+ *  @param[in] f  Finite automaton.
+ *  @param[in] p0 Input string.
+ *
+ *  @return Match result.
+ *  @retval 0 No match.
+ *  @retval 1 Match found.
+ */
+int pmatch(fa *f, const char *p0)
 {
 	int s, ns;
 	uschar *p = (uschar *) p0;
@@ -519,7 +699,7 @@ int pmatch(fa *f, const char *p0)	/* longest match, for sub */
 		if (f->reset) {
 			for (i = 2; i <= f->curstat; i++)
 				xfree(f->posns[i]);
-			k = *f->posns[0];			
+			k = *f->posns[0];
 			if ((f->posns[2] = (int *) calloc(1, (k+1)*sizeof(int))) == NULL)
 				overflo("out of space in pmatch");
 			for (i = 0; i <= k; i++)
@@ -533,7 +713,17 @@ int pmatch(fa *f, const char *p0)	/* longest match, for sub */
 	return (0);
 }
 
-int nematch(fa *f, const char *p0)	/* non-empty match, for sub */
+/*!
+ *  @brief Non-empty match test (used by sub, gsub, split).
+ *
+ *  @param[in] f  Finite automaton.
+ *  @param[in] p0 Input string.
+ *
+ *  @return Match result.
+ *  @retval 0 No match.
+ *  @retval 1 Match found.
+ */
+int nematch(fa *f, const char *p0)
 {
 	int s, ns;
 	uschar *p = (uschar *) p0;
@@ -575,7 +765,7 @@ int nematch(fa *f, const char *p0)	/* non-empty match, for sub */
 		if (f->reset) {
 			for (i = 2; i <= f->curstat; i++)
 				xfree(f->posns[i]);
-			k = *f->posns[0];			
+			k = *f->posns[0];
 			if ((f->posns[2] = (int *) calloc(1, (k+1)*sizeof(int))) == NULL)
 				overflo("out of state space");
 			for (i = 0; i <= k; i++)
@@ -590,8 +780,15 @@ int nematch(fa *f, const char *p0)	/* non-empty match, for sub */
 	return (0);
 }
 
-Node *reparse(const char *p)	/* parses regular expression pointed to by p */
-{			/* uses relex() to scan regular expression */
+/*!
+ *  @brief Parses a regular expression pointed to by @p p.
+ *
+ *  @param[in] p Regular expression string.
+ *
+ *  @return Root of the parse tree.
+ */
+Node *reparse(const char *p)
+{
 	Node *np;
 
 	dprintf( ("reparse <%s>\n", p) );
@@ -607,11 +804,22 @@ Node *reparse(const char *p)	/* parses regular expression pointed to by p */
 	return(np);
 }
 
-Node *regexp(void)	/* top-level parse of reg expr */
+/*!
+ *  @brief Top-level parser of a regular expression.
+ *
+ *  @return Root of the parse tree.
+ */
+Node *regexp(void)
 {
 	return (alt(concat(primary())));
 }
 
+/*!
+ *  @brief Parses a primary regular expression.
+ *
+ *  @return Parse tree node.
+ *  @retval 0 Internal error (unreachable, FATAL is called instead).
+ */
 Node *primary(void)
 {
 	Node *np;
@@ -660,6 +868,13 @@ Node *primary(void)
 	return 0;	/*NOTREACHED*/
 }
 
+/*!
+ *  @brief Parses a concatenation of regular expressions.
+ *
+ *  @param[in] np Left operand.
+ *
+ *  @return Parse tree node.
+ */
 Node *concat(Node *np)
 {
 	switch (rtok) {
@@ -669,6 +884,13 @@ Node *concat(Node *np)
 	return (np);
 }
 
+/*!
+ *  @brief Parses an alternation of regular expressions (|).
+ *
+ *  @param[in] np Left operand.
+ *
+ *  @return Parse tree node.
+ */
 Node *alt(Node *np)
 {
 	if (rtok == OR) {
@@ -678,6 +900,13 @@ Node *alt(Node *np)
 	return (np);
 }
 
+/*!
+ *  @brief Parses unary postfix operators (*, +, ?).
+ *
+ *  @param[in] np Operand.
+ *
+ *  @return Parse tree node.
+ */
 Node *unary(Node *np)
 {
 	switch (rtok) {
@@ -717,6 +946,13 @@ Node *unary(Node *np)
 
 #ifndef HAS_ISBLANK
 
+/*!
+ *  @brief Checks whether a character is blank (space or tab).
+ *
+ *  @param[in] c Character.
+ *
+ *  @return Non-zero if the character is blank.
+ */
 int (isblank)(int c)
 {
 	return c==' ' || c=='\t';
@@ -724,10 +960,13 @@ int (isblank)(int c)
 
 #endif
 
+/*!
+ *  @brief Descriptor of a POSIX character class for [::name::].
+ */
 struct charclass {
-	const char *cc_name;
-	int cc_namelen;
-	int (*cc_func)(int);
+	const char *cc_name;    /*!< Class name. */
+	int cc_namelen;         /*!< Length of the class name. */
+	int (*cc_func)(int);    /*!< Character predicate. */
 } charclasses[] = {
 	{ "alnum",	5,	isalnum },
 	{ "alpha",	5,	isalpha },
@@ -745,7 +984,20 @@ struct charclass {
 };
 
 
-int relex(void)		/* lexical analyzer for reparse */
+/*!
+ *  @brief Lexical analyzer for regular expressions.
+ *
+ *  @return Next token.
+ *  @retval OR    Alternation operator.
+ *  @retval STAR  Star operator.
+ *  @retval PLUS  Plus operator.
+ *  @retval QUEST Question operator.
+ *  @retval DOT   Dot operator.
+ *  @retval CCL   Character class.
+ *  @retval NCCL  Negated character class.
+ *  @retval CHAR  Single character.
+ */
+int relex(void)
 {
 	int c, n;
 	int cflag;
@@ -773,7 +1025,7 @@ int relex(void)		/* lexical analyzer for reparse */
 	default:
 		rlxval = c;
 		return CHAR;
-	case '[': 
+	case '[':
 		if (buf == 0 && (buf = (uschar *) malloc(bufsz)) == NULL)
 			FATAL("out of space in reg expr %.10s..", lastre);
 		bp = buf;
@@ -829,6 +1081,15 @@ int relex(void)		/* lexical analyzer for reparse */
 	}
 }
 
+/*!
+ *  @brief Computes the transition from state @p s on character @p c.
+ *
+ *  @param[in] f Finite automaton.
+ *  @param[in] s Current state.
+ *  @param[in] c Input character.
+ *
+ *  @return Number of the target state.
+ */
 int cgoto(fa *f, int s, int c)
 {
 	int i, j, k;
@@ -917,7 +1178,12 @@ int cgoto(fa *f, int s, int c)
 }
 
 
-void freefa(fa *f)	/* free a finite automaton */
+/*!
+ *  @brief Frees a finite automaton.
+ *
+ *  @param[in] f Pointer to the automaton (may be NULL).
+ */
+void freefa(fa *f)
 {
 	int i;
 

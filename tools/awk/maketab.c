@@ -1,31 +1,36 @@
 /****************************************************************
-Copyright (C) Lucent Technologies 1997
-All Rights Reserved
+ * Copyright (C) Lucent Technologies 1997
+ * All Rights Reserved
+ *
+ * Permission to use, copy, modify, and distribute this software and
+ * its documentation for any purpose and without fee is hereby
+ * granted, provided that the above copyright notice appear in all
+ * copies and that both that the copyright notice and this
+ * permission notice and warranty disclaimer appear in supporting
+ * documentation, and that the name Lucent Technologies or any of
+ * its entities not be used in advertising or publicity pertaining
+ * to distribution of the software without specific, written prior
+ * permission.
+ *
+ * LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+ * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
+ * IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
+ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+ * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ * THIS SOFTWARE.
+ ****************************************************************/
 
-Permission to use, copy, modify, and distribute this software and
-its documentation for any purpose and without fee is hereby
-granted, provided that the above copyright notice appear in all
-copies and that both that the copyright notice and this
-permission notice and warranty disclaimer appear in supporting
-documentation, and that the name Lucent Technologies or any of
-its entities not be used in advertising or publicity pertaining
-to distribution of the software without specific, written prior
-permission.
-
-LUCENT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
-IN NO EVENT SHALL LUCENT OR ANY OF ITS ENTITIES BE LIABLE FOR ANY
-SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
-IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
-ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-THIS SOFTWARE.
-****************************************************************/
-
-/*
- * this program makes the table to link function names
- * and type indices that is used by execute() in run.c.
- * it finds the indices in ytab.h, produced by yacc.
+/*!
+ *  @file maketab.c
+ *  @brief Generator of proctab.c for the awk interpreter.
+ *
+ *  This program makes the table that links function names and type
+ *  indices used by execute() in run.c. It finds the indices in
+ *  ytab.h, which is produced by yacc.
+ *
+ *  @copyright Copyright (C) Lucent Technologies 1997.
  */
 
 #include <stdio.h>
@@ -34,10 +39,14 @@ THIS SOFTWARE.
 #include "awk.h"
 #include "ytab.h"
 
+/*!
+ *  @brief One row of the procedure table.
+ */
 struct xx
-{	int token;
-	const char *name;
-	const char *pname;
+{
+	int token;          /*!< Token number from ytab.h. */
+	const char *name;   /*!< Name of the handler function in run.c. */
+	const char *pname;  /*!< Printable name used in debug output. */
 } proc[] = {
 	{ PROGRAM, "program", NULL },
 	{ BOR, "boolop", " || " },
@@ -106,10 +115,27 @@ struct xx
 	{ 0, "", "" },
 };
 
+/*!
+ *  @brief Size of the token-indexed tables.
+ *  @def SIZE
+ */
 #define SIZE	(LASTTOKEN - FIRSTTOKEN + 1)
+
+/*!< Handler function names by token index. */
 const char *table[SIZE];
+/*!< Token names by token index. */
 char *names[SIZE];
 
+/*!
+ *  @brief Generates proctab.c from ytab.h.
+ *
+ *  @param[in] argc Argument count.
+ *  @param[in] argv Argument vector.
+ *
+ *  @return Exit status.
+ *  @retval 0 Success.
+ *  @retval 1 Could not open ytab.h.
+ */
 int main(int argc, char *argv[])
 {
 	const struct xx *p;
