@@ -39,9 +39,12 @@
  *  tokens that begin with '-' are forwarded verbatim, quotes and all,
  *  so that a value such as -dVER_DATE="2026-08-27" keeps its quotes
  *  and the hyphens inside the value are not mistaken for separate
- *  options.  The same code path is used on Linux, Win32 and OS/2, so
- *  there is no per-platform quoting to get wrong.  Set
- *  DOXY_LINT_DEBUG=1 to print the command line before running it.
+ *  options.  On Linux system() runs /bin/sh, which would strip a
+ *  double quote as a grouping character before wcc386 sees it; each
+ *  double quote in the option text is therefore escaped with a
+ *  backslash on that target only.  On Win32 and OS/2 cmd.exe does not
+ *  use \ as an escape, so the option text is passed through unchanged.
+ *  Set DOXY_LINT_DEBUG=1 to print the command line before running it.
  *
  *  Before invoking the preprocessor, the current directory is changed
  *  to the directory of the source file, so that relative -i= options
@@ -158,9 +161,8 @@ static int wpp_warned = 0;
  *
  * Filled once in main() from getcmd().  Contains the tokens of the
  * original command line that begin with '-', copied verbatim, quotes
- * and all, separated by single spaces.  Forwarded as is to the
- * preprocessor, so that the characters the user typed reach Watcom
- * unchanged.
+ * and all, separated by single spaces.  Forwarded to the preprocessor
+ * so that the characters the user typed reach Watcom unchanged.
  */
 static char raw_opts[PRELINE];
 
@@ -228,6 +230,32 @@ static void extract_raw_opts(const char *raw, char *out, size_t outsize)
             out[outlen] = 0;
         }
     }
+}
+
+/*! @brief Escapes a raw option string for the target command processor.
+ *
+ * Linux: system() runs /bin/sh, which treats a double quote as a
+ * grouping character and strips it before the child process sees it.
+ * Every double quote in the option text is therefore rewritten as \"
+ * so that a literal quote reaches wcc386 or wpp386.  Win32 and OS/2:
+ * cmd.exe does not use backslash as an escape character, so the
+ * option text is passed through unchanged.
+ *
+ *  @param[in]  in      Raw option text.
+ *  @param[out] out     Receiver for the escaped text.
+ *  @param[in]  outsize Size of out in bytes.
+ */
+static void escape_raw_opts(const char *in, char *out, size_t outsize)
+{
+    size_t i, j = 0;
+
+    for (i = 0; in[i] != 0 && j + 2 < outsize; i++) {
+#if defined(__LINUX__)
+        if (in[i] == '"') out[j++] = '\\';
+#endif
+        out[j++] = in[i];
+    }
+    out[j] = 0;
 }
 
 /*! @brief Returns the platform temp directory, or 0 on failure.
@@ -1275,7 +1303,10 @@ static int check_defines_raw(const char *fname)
  * Builds a single command line for the preprocessor and runs it with
  * system().  The option text comes from raw_opts, which main() filled
  * from the raw command line of doxy-lint via getcmd(); it is inserted
- * verbatim, so the characters the user typed reach Watcom unchanged.
+ * after being escaped for the target command processor.  On Linux the
+ * double quotes inside the option text are escaped with a backslash,
+ * because system() runs /bin/sh and the shell would otherwise strip
+ * them; on Win32 and OS/2 the text is passed through unchanged.
  * Temporary output (.i) and error (.err) files live in the platform
  * temp directory and are always removed.  The current directory is
  * changed to the source file's directory first, so relative -i=
@@ -1298,7 +1329,8 @@ static char *preprocess_file(const char *fname, long *out_len)
     char dirpart[PATHBUF];
     char basepart[PATHBUF];
     char savedcwd[PATHBUF];
-    char cmd[PRELINE + PATHBUF * 4];
+    char esc_opts[PRELINE * 2];
+    char cmd[PRELINE * 2 + PATHBUF * 4];
     const char *slash1, *slash2, *slash;
     const char *cc;
     FILE *fp;
@@ -1350,10 +1382,11 @@ static char *preprocess_file(const char *fname, long *out_len)
             tmpabs, (int)getpid(), uniq);
 
     cc = preproc_compiler(fname);
+    escape_raw_opts(raw_opts, esc_opts, sizeof(esc_opts));
 
     snprintf(cmd, sizeof(cmd),
              "%s -pcl -fr=\"%s\" %s -fo=\"%s\" \"%s\"",
-             cc, tmperr, raw_opts, tmpout, basepart);
+             cc, tmperr, esc_opts, tmpout, basepart);
 
     if (getenv("DOXY_LINT_DEBUG") != NULL) {
         fprintf(stderr, "doxy-lint: %s\n", cmd);
