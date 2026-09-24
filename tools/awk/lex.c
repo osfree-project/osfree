@@ -41,19 +41,13 @@
 #include "awk.h"
 #include "ytab.h"
 
-/*!< Semantic value passed between the scanner and the parser. */
-extern YYSTYPE	yylval;
-/*!< Non-zero while a function body is being parsed. */
-extern int	infunc;
+extern YYSTYPE	yylval;       /*!< Semantic value passed between the scanner and the parser. */
+extern int	infunc;           /*!< Non-zero while a function body is being parsed. */
 
-/*!< Current source line number. */
-int	lineno	= 1;
-/*!< Number of currently open braces. */
-int	bracecnt = 0;
-/*!< Number of currently open square brackets. */
-int	brackcnt  = 0;
-/*!< Number of currently open parentheses. */
-int	parencnt = 0;
+int	lineno	= 1;              /*!< Current source line number. */
+int	bracecnt = 0;             /*!< Number of currently open braces. */
+int	brackcnt  = 0;            /*!< Number of currently open square brackets. */
+int	parencnt = 0;             /*!< Number of currently open parentheses. */
 
 /*!
  *  @brief One entry of the keyword table.
@@ -127,6 +121,12 @@ Keyword keywords[] ={	/* keep sorted: binary searched */
  */
 #define	RET(x)	{ if(dbg)printf("lex %s\n", tokname(x)); return(x); }
 #else
+/*!
+ *  @brief Returns a token without logging.
+ *
+ *  @param[in] x Token to return.
+ *  @def RET
+ */
 #define	RET(x)	return(x)
 #endif
 
@@ -239,10 +239,8 @@ int	string(void);
  */
 int	regexpr(void);
 
-/*!< 1 => return a '}' immediately. */
-int	sc	= 0;
-/*!< 1 => return a REGEXPR immediately. */
-int	reg	= 0;
+int	sc	= 0;              /*!< 1 => return a '}' immediately. */
+int	reg	= 0;              /*!< 1 => return a REGEXPR immediately. */
 
 /*!
  *  @brief Main lexical analyzer of the awk parser.
@@ -647,16 +645,11 @@ int regexpr(void)
 
 /* low-level lexical stuff, sort of inherited from lex */
 
-/*!< Buffer for error reporting context. */
-char	ebuf[300];
-/*!< Current position in ebuf. */
-char	*ep = ebuf;
-/*!< Pushback buffer. */
-char	yysbuf[100];
-/*!< Current position in the pushback buffer. */
-char	*yysptr = yysbuf;
-/*!< Current input file of the lexical analyzer. */
-FILE	*yyin = 0;
+char	ebuf[300];           /*!< Buffer for error reporting context. */
+char	*ep = ebuf;          /*!< Current position in ebuf. */
+char	yysbuf[100];         /*!< Pushback buffer. */
+char	*yysptr = yysbuf;    /*!< Current position in the pushback buffer. */
+FILE	*yyin = 0;           /*!< Current input file of the lexical analyzer. */
 
 /*!
  *  @brief Returns the next input character.
