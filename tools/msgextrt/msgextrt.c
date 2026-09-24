@@ -112,10 +112,13 @@ void displayinfo(MESSAGEINFO *messageinfo);
 #if __WATCOMC__ <= 1290
 /*!
  * @brief Read a line from a stream into a heap buffer.
+ *
  * @param[in,out] lineptr Pointer to the buffer pointer.
  * @param[in,out] n       Pointer to the buffer size.
  * @param[in]     stream  Input stream.
  * @return Number of characters read, or -1 on error or EOF.
+ *
+ * @retval -1  End of file, read error, or invalid argument.
  */
 int getline (char **lineptr, unsigned int *n, FILE *stream);
 
@@ -155,13 +158,12 @@ int getline (char **lineptr, unsigned int *n, FILE *stream);
 /*!
  * @brief Read a line from a stream into a heap buffer.
  *
- * Replacement for the GNU C library function getline() for
- * compilers that do not provide it.
- *
  * @param[in,out] lineptr Pointer to the buffer pointer.
  * @param[in,out] n       Pointer to the buffer size.
  * @param[in]     stream  Input stream.
  * @return Number of characters read, or -1 on error or EOF.
+ *
+ * @retval -1  End of file, read error, or invalid argument.
  */
 int
 getline (lineptr, n, stream)

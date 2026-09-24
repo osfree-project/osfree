@@ -322,7 +322,7 @@ static DLIST create_default(void) {
  *
  * @retval NULL  Allocation failed.
  */
-DLIST APIENTRY CreateList(CARDINAL32 InitialPoolSize,
+DLIST _System CreateList(CARDINAL32 InitialPoolSize,
                           CARDINAL32 MaximumPoolSize,
                           CARDINAL32 PoolIncrement)
 {
@@ -341,7 +341,7 @@ DLIST APIENTRY CreateList(CARDINAL32 InitialPoolSize,
  *
  * @retval NULL  Allocation failed.
  */
-DLIST APIENTRY CreateList(void)
+DLIST _System CreateList(void)
 {
     return create_default();
 }
@@ -360,7 +360,7 @@ DLIST APIENTRY CreateList(void)
  *                                DLIST_SUCCESS; on failure one of
  *                                DLIST_BAD, DLIST_NOT_INITIALIZED.
  */
-void APIENTRY DestroyList(DLIST * ListToDestroy,
+void _System DestroyList(DLIST * ListToDestroy,
                           BOOLEAN FreeItemMemory,
                           CARDINAL32 * Error)
 {
@@ -416,7 +416,7 @@ void APIENTRY DestroyList(DLIST * ListToDestroy,
  *
  * @retval NULL  On failure; see @p Error.
  */
-ADDRESS APIENTRY InsertItem(DLIST           ListToAddTo,
+ADDRESS _System  InsertItem(DLIST           ListToAddTo,
                             CARDINAL32      ItemSize,
                             ADDRESS         ItemLocation,
                             TAG             ItemTag,
@@ -457,7 +457,7 @@ ADDRESS APIENTRY InsertItem(DLIST           ListToAddTo,
  *
  * @retval NULL  On failure; see @p Error.
  */
-ADDRESS APIENTRY InsertObject(DLIST           ListToAddTo,
+ADDRESS _System InsertObject(DLIST           ListToAddTo,
                               CARDINAL32      ItemSize,
                               ADDRESS         ItemLocation,
                               TAG             ItemTag,
@@ -491,7 +491,7 @@ ADDRESS APIENTRY InsertObject(DLIST           ListToAddTo,
  *                                  DLIST_BAD, DLIST_NOT_INITIALIZED,
  *                                  DLIST_EMPTY, DLIST_BAD_HANDLE.
  */
-void APIENTRY DeleteItem(DLIST        ListToDeleteFrom,
+void _System DeleteItem(DLIST        ListToDeleteFrom,
                          BOOLEAN      FreeMemory,
                          ADDRESS      Handle,
                          CARDINAL32 * Error)
@@ -534,7 +534,7 @@ void APIENTRY DeleteItem(DLIST        ListToDeleteFrom,
  *                                  DLIST_BAD, DLIST_NOT_INITIALIZED,
  *                                  DLIST_EMPTY.
  */
-void APIENTRY DeleteAllItems(DLIST        ListToDeleteFrom,
+void _System DeleteAllItems(DLIST        ListToDeleteFrom,
                              BOOLEAN      FreeMemory,
                              CARDINAL32 * Error)
 {
@@ -584,7 +584,7 @@ void APIENTRY DeleteAllItems(DLIST        ListToDeleteFrom,
  *                                DLIST_BAD_ITEM_POINTER,
  *                                DLIST_BAD_HANDLE.
  */
-void APIENTRY GetItem(DLIST          ListToGetItemFrom,
+void _System GetItem(DLIST          ListToGetItemFrom,
                       CARDINAL32     ItemSize,
                       ADDRESS        ItemLocation,
                       TAG            ItemTag,
@@ -634,7 +634,7 @@ void APIENTRY GetItem(DLIST          ListToGetItemFrom,
  *                                DLIST_ITEM_TAG_WRONG,
  *                                DLIST_BAD_ITEM_POINTER.
  */
-void APIENTRY GetNextItem(DLIST          ListToGetItemFrom,
+void _System GetNextItem(DLIST          ListToGetItemFrom,
                           CARDINAL32     ItemSize,
                           ADDRESS        ItemLocation,
                           TAG            ItemTag,
@@ -683,7 +683,7 @@ void APIENTRY GetNextItem(DLIST          ListToGetItemFrom,
  *                                DLIST_ITEM_TAG_WRONG,
  *                                DLIST_BAD_ITEM_POINTER.
  */
-void APIENTRY GetPreviousItem(DLIST          ListToGetItemFrom,
+void _System GetPreviousItem(DLIST          ListToGetItemFrom,
                               CARDINAL32     ItemSize,
                               ADDRESS        ItemLocation,
                               TAG            ItemTag,
@@ -742,7 +742,7 @@ void APIENTRY GetPreviousItem(DLIST          ListToGetItemFrom,
  *
  * @retval NULL  On failure; see @p Error.
  */
-ADDRESS APIENTRY GetObject(DLIST          ListToGetItemFrom,
+ADDRESS _System GetObject(DLIST          ListToGetItemFrom,
                            CARDINAL32     ItemSize,
                            TAG            ItemTag,
                            ADDRESS        Handle,
@@ -792,7 +792,7 @@ ADDRESS APIENTRY GetObject(DLIST          ListToGetItemFrom,
  *
  * @retval NULL  On failure; see @p Error.
  */
-ADDRESS APIENTRY GetNextObject(DLIST          ListToGetItemFrom,
+ADDRESS _System GetNextObject(DLIST          ListToGetItemFrom,
                                CARDINAL32     ItemSize,
                                TAG            ItemTag,
                                CARDINAL32 *   Error)
@@ -841,7 +841,7 @@ ADDRESS APIENTRY GetNextObject(DLIST          ListToGetItemFrom,
  *
  * @retval NULL  On failure; see @p Error.
  */
-ADDRESS APIENTRY GetPreviousObject(DLIST          ListToGetItemFrom,
+ADDRESS _System GetPreviousObject(DLIST          ListToGetItemFrom,
                                    CARDINAL32     ItemSize,
                                    TAG            ItemTag,
                                    CARDINAL32 *   Error)
@@ -895,7 +895,7 @@ ADDRESS APIENTRY GetPreviousObject(DLIST          ListToGetItemFrom,
  *                                DLIST_BAD_ITEM_POINTER,
  *                                DLIST_BAD_HANDLE.
  */
-void APIENTRY ExtractItem(DLIST          ListToGetItemFrom,
+void _System ExtractItem(DLIST          ListToGetItemFrom,
                           CARDINAL32     ItemSize,
                           ADDRESS        ItemLocation,
                           TAG            ItemTag,
@@ -958,7 +958,7 @@ void APIENTRY ExtractItem(DLIST          ListToGetItemFrom,
  *
  * @retval NULL  On failure; see @p Error.
  */
-ADDRESS APIENTRY ExtractObject(DLIST          ListToGetItemFrom,
+ADDRESS _System ExtractObject(DLIST          ListToGetItemFrom,
                                CARDINAL32     ItemSize,
                                TAG            ItemTag,
                                ADDRESS        Handle,
@@ -1022,7 +1022,7 @@ ADDRESS APIENTRY ExtractObject(DLIST          ListToGetItemFrom,
  *                                  DLIST_BAD_HANDLE,
  *                                  DLIST_OUT_OF_MEMORY.
  */
-void APIENTRY ReplaceItem(DLIST         ListToReplaceItemIn,
+void _System ReplaceItem(DLIST         ListToReplaceItemIn,
                           CARDINAL32    ItemSize,
                           ADDRESS       ItemLocation,
                           TAG           ItemTag,
@@ -1087,7 +1087,7 @@ void APIENTRY ReplaceItem(DLIST         ListToReplaceItemIn,
  *
  * @retval NULL  On failure; see @p Error.
  */
-ADDRESS APIENTRY ReplaceObject(DLIST         ListToReplaceItemIn,
+ADDRESS _System ReplaceObject(DLIST         ListToReplaceItemIn,
                                CARDINAL32 *  ItemSize,
                                ADDRESS       ItemLocation,
                                TAG        *  ItemTag,
@@ -1152,7 +1152,7 @@ ADDRESS APIENTRY ReplaceObject(DLIST         ListToReplaceItemIn,
  *
  * @retval 0  On failure; see @p Error.
  */
-TAG APIENTRY GetTag(DLIST        ListToGetTagFrom,
+TAG _System GetTag(DLIST        ListToGetTagFrom,
                     ADDRESS      Handle,
                     CARDINAL32 * ItemSize,
                     CARDINAL32 * Error)
@@ -1189,7 +1189,7 @@ TAG APIENTRY GetTag(DLIST        ListToGetTagFrom,
  *
  * @retval NULL  On failure; see @p Error.
  */
-ADDRESS APIENTRY GetHandle(DLIST        ListToGetHandleFrom,
+ADDRESS _System GetHandle(DLIST        ListToGetHandleFrom,
                            CARDINAL32 * Error)
 {
     DLISTCTL *pCtl;
@@ -1218,7 +1218,7 @@ ADDRESS APIENTRY GetHandle(DLIST        ListToGetHandleFrom,
  *
  * @retval 0  On failure; see @p Error.
  */
-CARDINAL32 APIENTRY GetListSize(DLIST        ListToGetSizeOf,
+CARDINAL32 _System GetListSize(DLIST        ListToGetSizeOf,
                                 CARDINAL32 * Error)
 {
     DLISTCTL *pCtl;
@@ -1246,7 +1246,7 @@ CARDINAL32 APIENTRY GetListSize(DLIST        ListToGetSizeOf,
  * @retval TRUE   The list is empty, or an argument is invalid.
  * @retval FALSE  The list contains at least one item.
  */
-BOOLEAN APIENTRY ListEmpty(DLIST        ListToCheck,
+BOOLEAN _System ListEmpty(DLIST        ListToCheck,
                            CARDINAL32 * Error)
 {
     DLISTCTL *pCtl;
@@ -1275,7 +1275,7 @@ BOOLEAN APIENTRY ListEmpty(DLIST        ListToCheck,
  * @retval TRUE   The cursor is on the last item.
  * @retval FALSE  Otherwise, or on failure.
  */
-BOOLEAN APIENTRY AtEndOfList(DLIST        ListToCheck,
+BOOLEAN _System AtEndOfList(DLIST        ListToCheck,
                              CARDINAL32 * Error)
 {
     DLISTCTL *pCtl;
@@ -1305,7 +1305,7 @@ BOOLEAN APIENTRY AtEndOfList(DLIST        ListToCheck,
  * @retval TRUE   The cursor is on the first item.
  * @retval FALSE  Otherwise, or on failure.
  */
-BOOLEAN APIENTRY AtStartOfList(DLIST        ListToCheck,
+BOOLEAN _System AtStartOfList(DLIST        ListToCheck,
                                CARDINAL32 * Error)
 {
     DLISTCTL *pCtl;
@@ -1334,7 +1334,7 @@ BOOLEAN APIENTRY AtStartOfList(DLIST        ListToCheck,
  *                               DLIST_BAD, DLIST_NOT_INITIALIZED,
  *                               DLIST_EMPTY, DLIST_END_OF_LIST.
  */
-void APIENTRY NextItem(DLIST        ListToAdvance,
+void _System NextItem(DLIST        ListToAdvance,
                        CARDINAL32 * Error)
 {
     DLISTCTL *pCtl;
@@ -1363,7 +1363,7 @@ void APIENTRY NextItem(DLIST        ListToAdvance,
  *                              DLIST_EMPTY,
  *                              DLIST_ALREADY_AT_START.
  */
-void APIENTRY PreviousItem(DLIST        ListToChange,
+void _System PreviousItem(DLIST        ListToChange,
                            CARDINAL32 * Error)
 {
     DLISTCTL *pCtl;
@@ -1391,7 +1391,7 @@ void APIENTRY PreviousItem(DLIST        ListToChange,
  *                             DLIST_BAD, DLIST_NOT_INITIALIZED,
  *                             DLIST_EMPTY.
  */
-void APIENTRY GoToStartOfList(DLIST        ListToReset,
+void _System GoToStartOfList(DLIST        ListToReset,
                               CARDINAL32 * Error)
 {
     DLISTCTL *pCtl;
@@ -1416,7 +1416,7 @@ void APIENTRY GoToStartOfList(DLIST        ListToReset,
  *                           DLIST_BAD, DLIST_NOT_INITIALIZED,
  *                           DLIST_EMPTY.
  */
-void APIENTRY GoToEndOfList(DLIST        ListToSet,
+void _System GoToEndOfList(DLIST        ListToSet,
                             CARDINAL32 * Error)
 {
     DLISTCTL *pCtl;
@@ -1443,7 +1443,7 @@ void APIENTRY GoToEndOfList(DLIST        ListToSet,
  *                                  DLIST_BAD, DLIST_NOT_INITIALIZED,
  *                                  DLIST_BAD_HANDLE.
  */
-void APIENTRY GoToSpecifiedItem(DLIST        ListToReposition,
+void _System GoToSpecifiedItem(DLIST        ListToReposition,
                                 ADDRESS      Handle,
                                 CARDINAL32 * Error)
 {
@@ -1484,7 +1484,7 @@ void APIENTRY GoToSpecifiedItem(DLIST        ListToReposition,
  *                            DLIST_BAD, DLIST_NOT_INITIALIZED,
  *                            DLIST_OUT_OF_MEMORY.
  */
-void APIENTRY SortList(DLIST        ListToSort,
+void _System SortList(DLIST        ListToSort,
                        INTEGER32 (APIENTRY * Compare)(ADDRESS Object1,
                                                      TAG Object1Tag,
                                                      ADDRESS Object2,
@@ -1587,7 +1587,7 @@ void APIENTRY SortList(DLIST        ListToSort,
  *                            DLIST_SUCCESS; on failure one of
  *                            DLIST_BAD, DLIST_NOT_INITIALIZED.
  */
-void APIENTRY ForEachItem(DLIST        ListToProcess,
+void _System ForEachItem(DLIST        ListToProcess,
                           void (APIENTRY * ProcessItem)(ADDRESS Object,
                                                         TAG ObjectTag,
                                                         CARDINAL32 ObjectSize,
@@ -1656,7 +1656,7 @@ void APIENTRY ForEachItem(DLIST        ListToProcess,
  *                            DLIST_SUCCESS; on failure one of
  *                            DLIST_BAD, DLIST_NOT_INITIALIZED.
  */
-void APIENTRY PruneList(DLIST        ListToProcess,
+void _System PruneList(DLIST        ListToProcess,
                         BOOLEAN (APIENTRY * KillItem)(ADDRESS Object,
                                                       TAG ObjectTag,
                                                       CARDINAL32 ObjectSize,
@@ -1727,7 +1727,7 @@ void APIENTRY PruneList(DLIST        ListToProcess,
  *                            DLIST_SUCCESS; on failure one of
  *                            DLIST_BAD, DLIST_NOT_INITIALIZED.
  */
-void APIENTRY AppendList(DLIST        TargetList,
+void _System AppendList(DLIST        TargetList,
                          DLIST        SourceList,
                          CARDINAL32 * Error)
 {
@@ -1787,7 +1787,7 @@ void APIENTRY AppendList(DLIST        TargetList,
  *                              DLIST_INVALID_INSERTION_MODE,
  *                              DLIST_BAD_HANDLE.
  */
-void APIENTRY TransferItem(DLIST             SourceList,
+void _System TransferItem(DLIST             SourceList,
                            ADDRESS           SourceHandle,
                            DLIST             TargetList,
                            ADDRESS           TargetHandle,
@@ -1861,7 +1861,7 @@ void APIENTRY TransferItem(DLIST             SourceList,
  * @retval TRUE   The list is consistent.
  * @retval FALSE  The list is inconsistent or the handle is invalid.
  */
-BOOLEAN APIENTRY CheckListIntegrity(DLIST ListToCheck)
+BOOLEAN _System CheckListIntegrity(DLIST ListToCheck)
 {
     DLISTCTL    *pCtl;
     PLINKED_NODE pNode;

@@ -1,6 +1,6 @@
 
-DESCSRIPTION = Extract Messages
-SOURCES = msgextrt dlist
+DESCRIPTION = Extract Messages
+SOURCES = msgextrt
 
 !ifndef TARGETBLD
 SRC  = $(MYDIR)
@@ -28,9 +28,11 @@ defs = $(%WATCOM)$(SEP)lh
 TARGET_API = OS2
 !endif
 
+LIBS=tools_shared
+
 !include $(%ROOT)tools/mk/build.mk
 
 ADD_COPT += -dNDEBUG  -i=$(SRC) -i=$(defs) -i=$(%WATCOM)$(SEP)h$(SEP)os2 -za99
-ADD_LINKOPT = lib clib3r
+#ADD_LINKOPT = lib clib3r
 STACKSIZE = 0x20000
 C = r
