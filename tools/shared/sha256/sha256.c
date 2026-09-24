@@ -19,16 +19,19 @@
  * ================================================================== */
 
 /*!
+ * @def SHA256_BLOCK_SIZE
  * @brief SHA-256 block size in bytes.
  */
 #define SHA256_BLOCK_SIZE  64
 
 /*!
+ * @def SHA256_DIGEST_SIZE
  * @brief SHA-256 digest size in bytes.
  */
 #define SHA256_DIGEST_SIZE 32
 
 /*!
+ * @def SHA256_HEX_SIZE
  * @brief Hex representation length including NUL.
  */
 #define SHA256_HEX_SIZE    (SHA256_DIGEST_SIZE * 2 + 1)

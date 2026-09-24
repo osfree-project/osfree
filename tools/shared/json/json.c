@@ -29,16 +29,19 @@
  * ================================================================== */
 
 /*!
+ * @def JSON_MAX_DEPTH
  * @brief Maximum nesting depth accepted by the parser.
  */
 #define JSON_MAX_DEPTH 100
 
 /*!
+ * @def JSON_CHILD_INIT
  * @brief Initial capacity of a node's child list.
  */
 #define JSON_CHILD_INIT 4
 
 /*!
+ * @def JSON_NODE_INIT
  * @brief Initial capacity of a document's node list.
  */
 #define JSON_NODE_INIT 16

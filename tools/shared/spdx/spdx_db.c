@@ -29,11 +29,13 @@
 #include "spdx.h"
 
 /*!
+ * @def CACHE_MAGIC
  * @brief Cache file magic string.
  */
 #define CACHE_MAGIC   "SPDXDB06"
 
 /*!
+ * @def CACHE_VERSION
  * @brief Cache file format version.
  */
 #define CACHE_VERSION 7

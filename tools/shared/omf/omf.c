@@ -43,6 +43,7 @@
 #include "omf_private.h"
 
 /*!
+ * @def OMF_NAME_MAX
  * @brief Maximum length of a single extracted name.
  */
 #define OMF_NAME_MAX 512

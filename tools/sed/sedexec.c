@@ -29,19 +29,23 @@
 #include "sed.h"                        /* command structures & constants */
 
 /*!
+ * @def MAXHOLD
  * @brief Size of the hold space.
  */
 #define MAXHOLD         MAXBUF
 /*!
+ * @def GENSIZ
  * @brief Maximum genbuf size.
  */
 #define GENSIZ          MAXBUF
 
 /*!
+ * @def TRUE
  * @brief Boolean true value.
  */
 #define TRUE            1
 /*!
+ * @def FALSE
  * @brief Boolean false value.
  */
 #define FALSE           0
@@ -49,6 +53,12 @@
 #if 0
 /* LTLMSG was used when buffer overflow stopped sed */
 static char const       LTLMSG[] = "sed: line too long \"%.*s\"\n";
+/*!
+ * @def ABORTEX
+ * @brief Print a fatal buffer-overflow message and exit.
+ *
+ * @param msg Format string.
+ */
 #define ABORTEX(msg) fprintf( stderr, msg, sizeof genbuf, genbuf ), exit( 2 )
 #endif
 

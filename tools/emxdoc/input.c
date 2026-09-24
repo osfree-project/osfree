@@ -31,6 +31,7 @@
 #include "cond.h"
 
 /*!
+ * @def COND_STACK_SIZE
  * @brief Maximum nesting depth of conditionals.
  */
 #define COND_STACK_SIZE         8
@@ -228,24 +229,41 @@ static void choose_encoding (const uchar *s)
 }
 
 /*!
+ * @def ISARG
  * @brief Test whether a character starts a tag argument.
+ *
+ * @param C Character to test.
  */
 #define ISARG(C) ((C) == '{' || (C) == '[')
 /*!
+ * @def ISARGW
  * @brief Test whether a character can start a tag argument.
+ *
+ * @param C Character to test.
  */
 #define ISARGW(C) (isspace (C) || ISARG (C))
 /*!
+ * @def ISENDW
  * @brief Test whether a character can end a tag name.
+ *
+ * @param C Character to test.
  */
 #define ISENDW(C) (isspace (C) || (C) == 0)
 
 /*!
+ * @def SKIP1W
  * @brief Advance @p P by @p AT and skip one following space.
+ *
+ * @param P  Pointer to advance.
+ * @param AT Number of characters to advance.
  */
 #define SKIP1W(P,AT) do { (P) += (AT); if (isspace (*(P))) ++(P); } while (0)
 /*!
+ * @def SKIPW
  * @brief Advance @p P by @p AT and skip any following whitespace.
+ *
+ * @param P  Pointer to advance.
+ * @param AT Number of characters to advance.
  */
 #define SKIPW(P,AT) do { (P) += (AT); while (isspace (*(P))) ++(P); } while (0)
 

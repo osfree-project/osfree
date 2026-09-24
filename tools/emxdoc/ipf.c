@@ -32,10 +32,12 @@
 #include "xref.h"
 
 /*!
+ * @def HBAR
  * @brief Horizontal bar character in a table line.
  */
 #define HBAR   0xc4
 /*!
+ * @def VBAR
  * @brief Vertical bar character in a table line.
  */
 #define VBAR   0xb3

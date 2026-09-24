@@ -38,6 +38,10 @@
 
 #include <sys/param.h>
 #include <assert.h>
+/*!
+ * @def _MAX_FNAME
+ * @brief Maximum length of a base file name.
+ */
 #define _MAX_FNAME MAXPATHLEN
 
 /*!
@@ -192,10 +196,12 @@ struct word *use_reference (const uchar *p)
 /* Misuse the style field of struct word */
 
 /*!
+ * @def STYLE_UNUSED
  * @brief Style value marking a global entry as not yet used.
  */
 #define STYLE_UNUSED STYLE_NORMAL
 /*!
+ * @def STYLE_USED
  * @brief Style value marking a global entry as used.
  */
 #define STYLE_USED   STYLE_BOLD

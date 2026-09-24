@@ -29,49 +29,60 @@
 #include "lb.h"
 
 /*!
+ * @def FALSE
  * @brief Boolean false value.
  */
 #define FALSE   0
 /*!
+ * @def TRUE
  * @brief Boolean true value.
  */
 #define TRUE    1
 
 /*!
+ * @def NODE_WORD
  * @brief Word node type.
  */
 #define NODE_WORD       1
 /*!
+ * @def NODE_GLUE
  * @brief Glue node type.
  */
 #define NODE_GLUE       2
 /*!
+ * @def NODE_PENALTY
  * @brief Penalty node type.
  */
 #define NODE_PENALTY    3
 /*!
+ * @def NODE_DISCR
  * @brief Discretionary hyphen node type.
  */
 #define NODE_DISCR      4
 /*!
+ * @def NODE_PRE
  * @brief Pre-hyphen fragment node type.
  */
 #define NODE_PRE        5
 /*!
+ * @def NODE_POST
  * @brief Post-hyphen fragment node type.
  */
 #define NODE_POST       6
 /*!
+ * @def NODE_NEWLINE
  * @brief Newline node type.
  */
 #define NODE_NEWLINE    7
 
 /*!
+ * @def HASH_SIZE
  * @brief Hash table size for hyphenation words.
  */
 #define HASH_SIZE       997
 
 /*!
+ * @def HYPHEN_PENALTY
  * @brief Penalty added at a discretionary hyphen.
  */
 #define HYPHEN_PENALTY  18
@@ -589,7 +600,12 @@ static int cost_add (int c1, int c2)
 
 
 /*!
+ * @def DISTANCE
  * @brief Access the distance matrix.
+ *
+ * @param P  Line-breaking state pointer.
+ * @param B1 First break-point index.
+ * @param B2 Second break-point index.
  */
 #define DISTANCE(P,B1,B2) ((P)->distance[(B1) * (P)->brkp_count + (B2)])
 

@@ -33,11 +33,13 @@
 #include "sed.h"                        /* command type struct & name defines */
 
 /*!
+ * @def MAXCMDS
  * @brief Maximum number of compiled commands.
  */
 #define MAXCMDS         400
 
 /*!
+ * @def MAXLINES
  * @brief Maximum number of numeric addresses.
  */
 #define MAXLINES        256
@@ -77,45 +79,60 @@ char const      bits[] = { 1, 2, 4, 8, 16, 32, 64, 128 };
                                         /***** module common stuff *****/
 
 /*!
+ * @def POOLSIZE
  * @brief Size of string-pool space.
  */
 #define POOLSIZE        10000
 
 /*!
+ * @def WFILES
  * @brief Maximum number of w output files.
  */
 #define WFILES          10
 
 /*!
+ * @def RELIMIT
  * @brief Maximum number of characters in a compiled regular
  *        expression.
  */
 #define RELIMIT         256
 
 /*!
+ * @def MAXDEPTH
  * @brief Maximum {}-nesting level.
  */
 #define MAXDEPTH        20
 
 /*!
+ * @def MAXLABS
  * @brief Maximum number of labels.
  */
 #define MAXLABS         50
 
 /*!
+ * @def SKIPWS
  * @brief Advance the pointer @p pc past whitespace.
+ *
+ * @param pc Pointer to advance past whitespace.
  */
 #define SKIPWS(pc)      while( isspace( *pc ) ) pc++
 
 /*!
+ * @def ABORT
  * @brief Print @p msg with the current line buffer and exit with
  *        status 2.
+ *
+ * @param msg Format string printed before exiting.
  */
 #define ABORT(msg)      fprintf( stderr, msg, linebuf ), myexit( 2 )
 
 /*!
+ * @def IFEQ
  * @brief Consume one character @p v from @p x, leaving the cursor
  *        past it.
+ *
+ * @param x Pointer to the cursor.
+ * @param v Character to match and consume.
  */
 #define IFEQ(x, v)      if( *x == v ) x++ , /* do expression */
 
@@ -590,8 +607,16 @@ int main( int argc, char *argv[] )
  */
 static void compile( void )
 {
-    #define H       0x80        /* 128 bit, on if there's code for command */
-    #define LOWCMD  56          /* = '8', lowest char indexed in cmdmask */
+    /*!
+     * @def H
+     * @brief 128 bit, on if there's code for command.
+     */
+    #define H       0x80
+    /*!
+     * @def LOWCMD
+     * @brief = '8', lowest char indexed in cmdmask.
+     */
+    #define LOWCMD  56
 
     /* indirect through this to get command internal code, if it exists */
     static char const   cmdmask[] = {

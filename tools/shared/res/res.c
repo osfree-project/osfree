@@ -54,6 +54,7 @@
 #include "res.h"
 
 /*!
+ * @def DEP_LIST_TYPE
  * @brief Resource type carrying the dependency list.
  */
 #define DEP_LIST_TYPE 0x0079
@@ -64,6 +65,7 @@
 static const CHAR achDepListName[] = "EBWF_XFMMTUPPE";
 
 /*!
+ * @def RES_NAME_MAX
  * @brief Maximum length of a single extracted name.
  */
 #define RES_NAME_MAX 512

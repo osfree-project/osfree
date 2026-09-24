@@ -444,12 +444,16 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
 
 .c16.o16: .AUTODEPEND
  @$(SAY) CC16     $^. $(LOG)
+!ifndef __port_mk__
  $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $[@ $(COPT)
+!endif
  $(verbose)$(CC16) $(C16OPT) $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .c.obj: .AUTODEPEND
  @$(SAY) CC       $^. $(LOG)
+!ifndef __port_mk__
  $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $[@ $(COPT)
+!endif
  $(verbose)$(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .asm.obj: .AUTODEPEND
@@ -462,12 +466,16 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
 
 .cpp.obj: .AUTODEPEND
  @$(SAY) CXX      $^. $(LOG)
+!ifndef __port_mk__
  $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $[@ $(COPT)
+!endif
  $(verbose)$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .cc.obj: .AUTODEPEND
  @$(SAY) CXX      $^. $(LOG)
+!ifndef __port_mk__
  $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $[@ $(COPT)
+!endif
  $(verbose)$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .wmp.map:
@@ -563,10 +571,6 @@ prepall: .symbolic
 targets: prep subdirs prereq .symbolic
  @for %t in ($(TARGETS)) do @$(MAKE) -f $(mf) $(MAKEOPT) PLATFORM=$(PLATFORM) %t
 
-!ifdef PROJ
-#$(PATH)$(PROJ).lnk: $(OBJS) $(MYDIR)makefile
-!endif
-
 !ifeq  DEST $(PATH)
 
 FLG  =
@@ -636,20 +640,12 @@ install3: .symbolic
 !ifdef INSTALL
 
 $(DEST)$(SEP)install2: .symbolic
-#!ifdef PROJ
-# @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) PROJ=$(PROJ) file=%i install3
-#!else
  @for %i in ($(INSTALL)) do @$(MAKE) $(MAKEOPT) file=%i install3 PLATFORM=$(PLATFORM)
-#!endif
 
 !else
 
 $(DEST)$(SEP)$(FLG): .symbolic
-#!ifdef PROJ
-# @for %i in ($(FLG)) do @$(MAKE) $(MAKEOPT) PROJ=$(PROJ) file=%i install3
-#!else
  @for %i in ($(FLG)) do @$(MAKE) $(MAKEOPT) file=%i install3 PLATFORM=$(PLATFORM)
-#!endif
 
 !endif
 

@@ -35,6 +35,17 @@
 #include <sys/stat.h>
 #include <malloc.h>
 #define EXTERN
+/*!
+ * @def INIT
+ * @brief Assign-initializer form of the global-variable macro.
+ *
+ * When EXTERN is defined for the defining translation unit, this
+ * form expands to `= X`, supplying the initial value of the
+ * global variable; the declaration-only form defined in emxdoc.h
+ * expands to nothing.
+ *
+ * @param X Initial value.
+ */
 #define INIT(X) = X
 #include "emxdoc.h"
 #include "html.h"
@@ -48,6 +59,7 @@
 #include "cond.h"
 
 /*!
+ * @def VERSION
  * @brief Version string of emxdoc.
  */
 #define VERSION "0.9d"
@@ -1095,7 +1107,10 @@ void make_elements (const uchar *p)
 
 
 /*!
+ * @def ISSYNTAXARG
  * @brief Test whether a character is a syntax placeholder.
+ *
+ * @param C Character to test.
  */
 #define ISSYNTAXARG(C) ((C) == '*' || (C) == '#' \
                         || (syntax_style == SYNTAX_DVIDRV && (C) == '+'))
@@ -3407,16 +3422,17 @@ static int opt_number (void)
 /*!
  * @brief Parse an encoding option argument.
  *
- * @return The encoding enum value.
+ * @return The encoding enum value. Never returns on error: the
+ *         program is terminated by fatal().
  */
 static enum enc opt_encoding (void)
 {
   if (strcmp (optarg, "cp850") == 0)
     return ENC_CP850;
-  else if (strcmp (optarg, "iso8859-1") == 0)
+  if (strcmp (optarg, "iso8859-1") == 0)
     return ENC_ISO8859_1;
-  else
-    fatal ("Invalid encoding: %s", optarg);
+  fatal ("Invalid encoding: %s", optarg);
+  return ENC_DEFAULT;   /* not reached */
 }
 
 /*!

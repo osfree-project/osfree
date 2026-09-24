@@ -33,7 +33,10 @@
  * ================================================================== */
 
 /*!
+ * @def CCL_REUSELICREP_MAGIC
  * @brief Magic value identifying a valid report handle.
+ *
+ * The literal bytes are "RLCP".
  */
 #define CCL_REUSELICREP_MAGIC 0x524C4350UL  /* "RLCP" */
 

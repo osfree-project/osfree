@@ -25,6 +25,7 @@
 #include "omf.h"
 
 /*!
+ * @def LIB_RECORD_MAX
  * @brief Maximum size of an OMF record processed by the reader.
  */
 #define LIB_RECORD_MAX 512

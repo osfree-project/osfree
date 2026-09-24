@@ -4,9 +4,6 @@
 # valerius, 2006/10/30
 #
 
-#ADD_COPT = -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)..$(SEP)include
-#TARGETS  = $(PATH)$(PROJ).lib
-
 SOURCES  = adler32 crc32 deflate infback &
            inffast inflate inftrees trees zutil &
            compress uncompr gzclose gzlib gzread &

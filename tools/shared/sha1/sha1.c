@@ -19,16 +19,19 @@
  * ================================================================== */
 
 /*!
+ * @def SHA1_BLOCK_SIZE
  * @brief SHA-1 block size in bytes.
  */
 #define SHA1_BLOCK_SIZE  64
 
 /*!
+ * @def SHA1_DIGEST_SIZE
  * @brief SHA-1 digest size in bytes.
  */
 #define SHA1_DIGEST_SIZE 20
 
 /*!
+ * @def SHA1_HEX_SIZE
  * @brief Hex representation length including NUL.
  */
 #define SHA1_HEX_SIZE    (SHA1_DIGEST_SIZE * 2 + 1)

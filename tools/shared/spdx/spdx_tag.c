@@ -12,9 +12,8 @@
 #include "spdx_tag.h"
 
 /*!
+ * @def MAX_LINE
  * @brief Maximum line length accepted by the tag scanner.
- *
- * Raised from 4096 to avoid truncating long copyright expressions.
  */
 #define MAX_LINE 16384
 

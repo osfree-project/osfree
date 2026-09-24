@@ -1,3 +1,6 @@
+!ifndef __build_dispatcher_mk__
+!define __build_dispatcher_mk__
+
 # ============================================================
 # TARGET_API / TARGET_BITS matrix (top-level dispatch)
 # ============================================================
@@ -611,3 +614,5 @@ TARGET_MK=appsos2
 !endif
 
 !include $(%ROOT)tools/mk/$(TARGET_MK).mk
+
+!endif

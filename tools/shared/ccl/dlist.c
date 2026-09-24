@@ -42,7 +42,10 @@
  * ================================================================== */
 
 /*!
+ * @def CCL_DLIST_MAGIC
  * @brief Magic value identifying a valid Dlist control block.
+ *
+ * The literal bytes are "DLST".
  */
 #define CCL_DLIST_MAGIC 0x444C5354UL  /* "DLST" */
 

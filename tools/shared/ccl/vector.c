@@ -17,7 +17,10 @@
  * ================================================================== */
 
 /*!
+ * @def CCL_VECTOR_MAGIC
  * @brief Magic value identifying a valid vector control block.
+ *
+ * The literal bytes are "VECT".
  */
 #define CCL_VECTOR_MAGIC 0x56454354UL  /* "VECT" */
 

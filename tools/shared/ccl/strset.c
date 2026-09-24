@@ -22,12 +22,18 @@
  * ================================================================== */
 
 /*!
+ * @def CCL_STRSET_MAGIC
  * @brief Magic value identifying a valid string-set handle.
+ *
+ * The literal bytes are "SSTS".
  */
 #define CCL_STRSET_MAGIC       0x53535453UL  /* "SSTS" */
 
 /*!
+ * @def CCL_STRSETENUM_MAGIC
  * @brief Magic value identifying a valid enumeration cursor.
+ *
+ * The literal bytes are "SENU".
  */
 #define CCL_STRSETENUM_MAGIC   0x53454E55UL  /* "SENU" */
 
