@@ -98,7 +98,7 @@ gen_sources: .symbolic gen_sources_files
 MAKEOPT += PLATFORM=$(PLATFORM)
 !endif
 
-# If we don't have SOURCES, NOLIBS, but DIRS, then just use old all.mk
+# If we don't have SOURCES and LIBS, but DIRS, then just use old all.mk
 !ifeq SOURCES
 !ifndef LIBS
 !ifdef DIRS
@@ -111,6 +111,10 @@ NO_DISPATCHER=1
 !include $(%ROOT)tools/mk/all.mk
 !else
 !include $(%ROOT)tools/mk/build3.mk
+!endif
+
+!ifdef PORT_NAME
+!include $(%ROOT)tools/mk/port.mk
 !endif
 
 !endif

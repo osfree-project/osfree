@@ -25,8 +25,8 @@ defs = $(%WATCOM)$(SEP)h$(SEP)dos
 defs = $(%WATCOM)$(SEP)lh
 !endif
 
-!include $(%ROOT)tools/mk/build.mk
 !include $(MYDIR)jwasm.mk
+!include $(%ROOT)tools/mk/build.mk
 
 ADD_COPT = -dNDEBUG -i=$(PORT_BASE)src$(SEP)H -i=$(defs)
 ADD_LINKOPT = lib clib3r

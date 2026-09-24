@@ -2,7 +2,7 @@
 #
 # Makefile for common shared libs
 
-32_BITS  = 1
+#32_BITS  = 1
 
 DIRS = ccl toml omf exe lib
 

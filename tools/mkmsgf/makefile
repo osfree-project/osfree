@@ -30,8 +30,8 @@ defs = $(%WATCOM)$(SEP)lh
 TARGET_API = OS2
 !endif
 
-!include $(%ROOT)tools/mk/build.mk
 !include $(MYDIR)mkmsgf.mk
+!include $(%ROOT)tools/mk/build.mk
 
 ADD_COPT += -dNDEBUG -i=$(PORT_BASE)src -i=$(defs) -i=$(%WATCOM)$(SEP)h$(SEP)os2 -za99
 ADD_LINKOPT = lib clib3r

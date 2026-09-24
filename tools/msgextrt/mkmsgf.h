@@ -35,6 +35,11 @@
  *
  ***************************************************************************/
 
+/*!
+ * @file mkmsgf.h
+ * @brief Header containing message file structures.
+ */
+
 #ifndef MKMSGF_H
 #define MKMSGF_H
 
@@ -56,6 +61,9 @@
 
 #pragma pack(push, 1)
 
+/*!
+ * @brief Header of a message file.
+ */
 // Header of message file
 typedef struct _MSGHEADER
 {
@@ -71,6 +79,9 @@ typedef struct _MSGHEADER
     uint8_t reserved[5];   // Must be 0 (zero)
 } MSGHEADER, *PMSGHEADER;
 
+/*!
+ * @brief Country info block of a message file.
+ */
 // Country Info block of message file
 typedef struct _FILECOUNTRYINFO
 {
@@ -84,6 +95,9 @@ typedef struct _FILECOUNTRYINFO
     uint8_t filler;              // filler byte - not used
 } FILECOUNTRYINFO, *PFILECOUNTRYINFO;
 
+/*!
+ * @brief Extended header block.
+ */
 // extended header block
 typedef struct _EXTHDR
 {
@@ -91,6 +105,9 @@ typedef struct _EXTHDR
     uint16_t numblocks; // number of additional FILECOUNTRYINFO blocks
 } EXTHDR, *PEXTHDR;
 
+/*!
+ * @brief Language support information record.
+ */
 typedef struct suppinfo
 {
     char langcode[4];
@@ -100,6 +117,9 @@ typedef struct suppinfo
     char country[15];
 };
 
+/*!
+ * @brief Table of language support information records.
+ */
 struct suppinfo langinfo[] = {
     {"ARA", 1, 2, "Arabic", "Arab Countries"},
     {"BGR", 2, 1, "Bulgarian", "Bulgaria"},
@@ -152,6 +172,9 @@ struct suppinfo langinfo[] = {
 
 #pragma pack(pop)
 
+/*!
+ * @brief Aggregated information about one message file.
+ */
 // Header of message file
 typedef struct _MESSAGEINFO
 {
@@ -197,8 +220,14 @@ typedef struct _MESSAGEINFO
 
 // mkmsgf header signature - a valid MSG file alway starts with
 // these 8 bytes 0xFF MKMSGF 0x00
+/*!
+ * @brief Magic signature of a valid MSG file.
+ */
 char signature[] = {0xFF, 0x4D, 0x4B, 0x4D, 0x53, 0x47, 0x46, 0x00};
 
+/*!
+ * @brief Fake extended header payload.
+ */
 char extfake[] = {0x2E, 0x01, 0x00, 0x00};
 
 #endif

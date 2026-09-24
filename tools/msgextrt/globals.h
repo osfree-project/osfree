@@ -28,6 +28,11 @@
 *
 */
 
+/*!
+ * @file globals.h
+ * @brief Global types and macros used by the CHKDSK source code.
+ */
+
 #ifndef LVM_GLBS_H_INCLUDED
 
 #define LVM_GLBS_H_INCLUDED 1
@@ -35,16 +40,33 @@
 /* An INTEGER number is a whole number, either + or -.
 The number appended to the INTEGER key word indicates the number of bits
 used to represent an INTEGER of that type.                               */
+/*!
+ * @brief Signed 16-bit integer.
+ */
 typedef short int INTEGER16;
+/*!
+ * @brief Signed 32-bit integer.
+ */
 typedef long  int INTEGER32;
+/*!
+ * @brief Signed integer of compiler-default width.
+ */
 typedef int       INTEGER;    /* Use compiler default. */
 
 /* A CARDINAL number is a positive integer >= 0.
 The number appended to the CARDINAL key word indicates the number of bits
 used to represent a CARDINAL of that type.                               */
-
+/*!
+ * @brief Unsigned 16-bit integer.
+ */
 typedef unsigned short int CARDINAL16;
+/*!
+ * @brief Unsigned 32-bit integer.
+ */
 typedef unsigned long      CARDINAL32;
+/*!
+ * @brief Unsigned integer of compiler-default width.
+ */
 typedef unsigned int       CARDINAL;     /* Use compiler default. */
 
 #ifdef NEED_BYTE_DEFINED
@@ -63,15 +85,30 @@ typedef unsigned char BYTE;
 #endif
 
 /* A REAL number is a floating point number. */
+/*!
+ * @brief Single-precision floating point value.
+ */
 typedef float   REAL32;
+/*!
+ * @brief Double-precision floating point value.
+ */
 typedef double  REAL64;
 
 /* A BOOLEAN variable is one which is either TRUE or FALSE. */
+/*!
+ * @brief Boolean value: TRUE (1) or FALSE (0).
+ */
 typedef unsigned char  BOOLEAN;
 
 #ifndef TRUE
 
+/*!
+ * @brief Boolean true value.
+ */
 #define TRUE  1
+/*!
+ * @brief Boolean false value.
+ */
 #define FALSE 0
 
 #endif
@@ -79,6 +116,9 @@ typedef unsigned char  BOOLEAN;
 /* An ADDRESS variable is one which holds an address.  The address can contain
 anything, or even be invalid.  It is just an address which is presumed to
 hold some kind of data. */
+/*!
+ * @brief Generic pointer to data.
+ */
 
 #ifdef ADDRESS
 
@@ -88,7 +128,9 @@ hold some kind of data. */
 
 typedef void * ADDRESS;
 
+/*!
+ * @brief Pointer to a NUL-terminated string.
+ */
 typedef char * pSTRING;
 
 #endif
-

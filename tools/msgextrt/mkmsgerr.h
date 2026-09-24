@@ -29,6 +29,11 @@
  *
  ***************************************************************************/
 
+/*!
+ * @file mkmsgerr.h
+ * @brief MKMSGF and MKMSGD error codes.
+ */
+
 #ifndef MKMSGERR_H
 #define MKMSGERR_H
 

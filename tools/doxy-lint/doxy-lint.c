@@ -79,6 +79,13 @@
  *  A function is considered to return void when the keyword "void"
  *  occurs in the return type and is not followed by "*".
  *
+ *  K&R-style function definitions are recognized.  After the closing
+ *  ')' of the parameter name list, if the next meaningful token is
+ *  not ';', '=', '(', or a C++ trailing qualifier such as const or
+ *  noexcept, the tokens up to the '{' are treated as parameter
+ *  declarations, and the ';' inside them does not end the
+ *  declaration.
+ *
  *  Usage:
  *    doxy-lint <file>... [preprocessor options...]
  *
@@ -1088,6 +1095,12 @@ static const char *preproc_compiler(const char *fname)
  * parameter list itself is part of the interface.  Other directives
  * ('#include', '#ifdef', ...) also return 0.
  *
+ * Comments that follow the macro name are not part of the body.  A
+ * line comment ("//") ends the check; a block comment ("/* ... *\/")
+ * is skipped, and the scan continues after it.  Only a real token
+ * after whitespace and comments makes an object-like macro have a
+ * body.
+ *
  *  @param[in]  p       Preprocessor token text.
  *  @param[in]  len     Token length in bytes.
  *  @param[out] name    Buffer for the macro name.
@@ -1170,6 +1183,18 @@ static int preproc_define_name(const char *p, int len,
             while (k < len && (p[k] == ' ' || p[k] == '\t')) k++;
             if (k < len && p[k] == '\n') { j = k + 1; continue; }
             return 1;
+        }
+        if (c == '/' && j + 1 < len && p[j + 1] == '/') {
+            /* Line comment: nothing that follows on this line is body. */
+            break;
+        }
+        if (c == '/' && j + 1 < len && p[j + 1] == '*') {
+            /* Block comment: skip it and keep looking for a body. */
+            j += 2;
+            while (j + 1 < len && !(p[j] == '*' && p[j + 1] == '/')) j++;
+            if (j + 1 < len) j += 2;
+            else j = len;
+            continue;
         }
         return 1;
     }
@@ -1644,6 +1669,7 @@ static int check_file(const char *fname)
             int has_struct = 0, has_enum = 0;
             int last_ident = -1;
             int in_tag = 0;
+            int kr_mode = 0;
 
             while (toks[i].type != T_EOF) {
 
@@ -1672,8 +1698,30 @@ static int check_file(const char *fname)
                     }
                     pdepth++;
                 } else if (tok_punct(i, ")")) {
-                    if (pdepth == 1 && fn_paren >= 0 && close_paren < 0)
+                    if (pdepth == 1 && fn_paren >= 0 && close_paren < 0) {
                         close_paren = i;
+                        /* Look at the next meaningful token.  If it is
+                         * not a prototype terminator and not a C++
+                         * trailing qualifier, this is a K&R definition:
+                         * the tokens up to '{' are parameter
+                         * declarations, and the ';' inside them must
+                         * not end the declaration. */
+                        {
+                            int k = i + 1;
+                            while (toks[k].type == T_COMMENT ||
+                                   toks[k].type == T_PREPROC) k++;
+                            if (!(tok_punct(k, ";") ||
+                                  tok_punct(k, "=") ||
+                                  tok_punct(k, "(") ||
+                                  tok_is(k, "const") ||
+                                  tok_is(k, "volatile") ||
+                                  tok_is(k, "noexcept") ||
+                                  tok_is(k, "override") ||
+                                  tok_is(k, "final"))) {
+                                kr_mode = 1;
+                            }
+                        }
+                    }
                     if (pdepth > 0) pdepth--;
                 } else if (tok_punct(i, "{")) {
                     if (pdepth == 0 && bdepth == 0) {
@@ -1701,7 +1749,7 @@ static int check_file(const char *fname)
                 } else if (tok_punct(i, "}")) {
                     break;
                 } else if (tok_punct(i, ";")) {
-                    if (pdepth == 0 && bdepth == 0) {
+                    if (pdepth == 0 && bdepth == 0 && !kr_mode) {
                         dend = i;
                         i++;
                         break;

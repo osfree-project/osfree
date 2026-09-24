@@ -44,9 +44,8 @@ ADD_COPT += -dVER_REVISION="$(DOS2UNIX_VERSION)" -dVER_DATE="$(DOS2UNIX_DATE)" -
 ADD_COPT += -dD2U_UNICODE
 !endif
 
-!include $(%ROOT)tools/mk/build.mk
 !include $(MYDIR)dos2unix.mk
-
+!include $(%ROOT)tools/mk/build.mk
 
 WATCOMSRC = $(%WATCOM)$(SEP)src$(SEP)startup
 

@@ -5,4 +5,3 @@ PORT_TYPE    = git
 PORT_URL     = https://github.com/MikeyG/mkmsgf
 PORT_REV     = 1.1
 PORT_PATCHES = mkmsgf.diff
-!include $(%ROOT)tools/mk/port.mk

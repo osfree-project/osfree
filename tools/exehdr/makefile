@@ -28,8 +28,8 @@ defs = $(%WATCOM)$(SEP)h$(SEP)dos
 defs = $(%WATCOM)$(SEP)lh
 !endif
 
-!include $(%ROOT)tools/mk/build.mk
 !include $(MYDIR)exehdr.mk
+!include $(%ROOT)tools/mk/build.mk
 
 ADD_COPT += -dNDEBUG -i=$(PORT_BASE)src$(SEP)H -i=$(defs) -i=$(%WATCOM)$(SEP)h$(SEP)os2 -za99
 ADD_LINKOPT = lib clib3r

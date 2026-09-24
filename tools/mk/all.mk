@@ -444,14 +444,14 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
 
 .c16.o16: .AUTODEPEND
  @$(SAY) CC16     $^. $(LOG)
-!ifndef __port_mk__
+!ifndef PORT_NAME
  $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $[@ $(COPT)
 !endif
  $(verbose)$(CC16) $(C16OPT) $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .c.obj: .AUTODEPEND
  @$(SAY) CC       $^. $(LOG)
-!ifndef __port_mk__
+!ifndef PORT_NAME
  $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $[@ $(COPT)
 !endif
  $(verbose)$(CC)  $(COPT)   -fr=$^*.err -fo=$^@ $[@ $(LOG2)
@@ -466,14 +466,14 @@ SUF = $(SUF) .ico .sym .exe .com .dll .lib .res .rc .lnk .hlp .inf .o16 .obj .c1
 
 .cpp.obj: .AUTODEPEND
  @$(SAY) CXX      $^. $(LOG)
-!ifndef __port_mk__
+!ifndef PORT_NAME
  $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $[@ $(COPT)
 !endif
  $(verbose)$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG2)
 
 .cc.obj: .AUTODEPEND
  @$(SAY) CXX      $^. $(LOG)
-!ifndef __port_mk__
+!ifndef PORT_NAME
  $(verbose)if exist $(FILESDIR)$(SEP)host$(SEP)$(%HOST)$(SEP)bin$(SEP)doxy-lint.exe $(verbose)doxy-lint.exe $[@ $(COPT)
 !endif
  $(verbose)$(CPPC) $(COPT)  -fr=$^*.err -fo=$^@ $[@ $(LOG2)
@@ -682,7 +682,7 @@ gen_deps_wrapper: .symbolic
 
 !endif
 
-!ifndef __port_mk__
+!ifndef PORT_NAME
 prep: .symbolic
 !endif
 

@@ -14,6 +14,7 @@ DEST = host$(SEP)$(%HOST)$(SEP)os2tk45$(SEP)msg
 
 !include $(%ROOT)tools/mk/appsos2.mk
 !include $(MYDIR)..$(SEP)exehdr.mk
+!include $(%ROOT)tools/mk/port.mk
 
 TARGETS = $(PATH)$(TRGT)
 

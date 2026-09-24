@@ -1,3 +1,8 @@
+/*!
+ * @file msgextrt.c
+ * @brief Message File Extractor (MSGEXTRT).
+ */
+
 /****************************************************************************
  *
  *  msgextrt.c -- Message File Extracter (MSGEXTRT)
@@ -50,20 +55,68 @@
 #include "version.h"
 #include "dlist.h"
 
+/*!
+ * @brief Read the MSG header into the message info structure.
+ * @param[in,out] messageinfo Message info receiver.
+ * @return Error code, 0 on success.
+ */
 int readheader(MESSAGEINFO *messageinfo);
+/*!
+ * @brief Read and write the message records.
+ * @param[in,out] messageinfo Message info structure.
+ * @return Error code, 0 on success.
+ */
 int readmessages(MESSAGEINFO *messageinfo);
+/*!
+ * @brief Write the header comment block to the output file.
+ * @param[in] messageinfo Message info structure.
+ * @return Error code, 0 on success.
+ */
 int outputheader(MESSAGEINFO *messageinfo);
+/*!
+ * @brief Parse the extract control file.
+ * @param[in,out] messageinfo Message info structure.
+ * @return Error code, 0 on success.
+ */
 int readcontrol(MESSAGEINFO *messageinfo);
 
 // ouput display/helper functions
+/*!
+ * @brief Print the long usage text.
+ */
 void usagelong(void);
+/*!
+ * @brief Print the program heading.
+ */
 void prgheading(void);
+/*!
+ * @brief Print the short usage line.
+ */
 void helpshort(void);
+/*!
+ * @brief Print the long usage text.
+ */
 void helplong(void);
+/*!
+ * @brief Print a standard error message and exit.
+ * @param[in] exnum   Error number.
+ * @param[in] dispmsg Human-readable message.
+ */
 void ProgError(int exnum, char *dispmsg);
+/*!
+ * @brief Print the loaded MESSAGEINFO structure to the screen.
+ * @param[in] messageinfo Message info structure.
+ */
 void displayinfo(MESSAGEINFO *messageinfo);
 
 #if __WATCOMC__ <= 1290
+/*!
+ * @brief Read a line from a stream into a heap buffer.
+ * @param[in,out] lineptr Pointer to the buffer pointer.
+ * @param[in,out] n       Pointer to the buffer size.
+ * @param[in]     stream  Input stream.
+ * @return Number of characters read, or -1 on error or EOF.
+ */
 int getline (char **lineptr, unsigned int *n, FILE *stream);
 
 /* getline.c -- Replacement for GNU C library function getline ()
@@ -87,6 +140,10 @@ int getline (char **lineptr, unsigned int *n, FILE *stream);
 #ifdef  MAX_CANON
 #undef  MAX_CANON
 #endif
+/*!
+ * @def MAX_CANON
+ * @brief Minimum buffer increment used by the replacement getline().
+ */
 #define MAX_CANON 64
 
 /* Read up to (and including) a newline from STREAM into *LINEPTR
@@ -95,6 +152,17 @@ int getline (char **lineptr, unsigned int *n, FILE *stream);
    necessary.  Returns the number of characters read (not including the
    null terminator), or -1 on error or EOF.  */
 
+/*!
+ * @brief Read a line from a stream into a heap buffer.
+ *
+ * Replacement for the GNU C library function getline() for
+ * compilers that do not provide it.
+ *
+ * @param[in,out] lineptr Pointer to the buffer pointer.
+ * @param[in,out] n       Pointer to the buffer size.
+ * @param[in]     stream  Input stream.
+ * @return Number of characters read, or -1 on error or EOF.
+ */
 int
 getline (lineptr, n, stream)
   char **lineptr;
@@ -178,6 +246,13 @@ getline (lineptr, n, stream)
  *
  **********************************/
 
+/*!
+ * @brief Program entry point.
+ *
+ * @param[in] argc Argument count.
+ * @param[in] argv Argument vector.
+ * @return Process exit status.
+ */
 int main(int argc, char *argv[])
 {
     int rc = 0; // return code
@@ -288,6 +363,14 @@ int main(int argc, char *argv[])
 }
 
 
+/*!
+ * @brief Parse the extract control file.
+ *
+ * Reads the input file name and message IDs from the control file.
+ *
+ * @param[in,out] messageinfo Message info structure.
+ * @return Error code, 0 on success.
+ */
 int readcontrol(MESSAGEINFO *messageinfo)
 {
     FILE *fp = fopen(messageinfo->infile, "r");
@@ -357,6 +440,12 @@ int readcontrol(MESSAGEINFO *messageinfo)
  * Return:    returns error code or 0 for all good
  *************************************************************************/
 
+/*!
+ * @brief Read the MSG header into the message info structure.
+ *
+ * @param[in,out] messageinfo Message info receiver.
+ * @return Error code, 0 on success.
+ */
 int readheader(MESSAGEINFO *messageinfo)
 {
     MSGHEADER *msgheader = NULL;
@@ -529,6 +618,12 @@ int readheader(MESSAGEINFO *messageinfo)
  *
  *************************************************************************/
 
+/*!
+ * @brief Write the header comment block to the output file.
+ *
+ * @param[in] messageinfo Message info structure.
+ * @return Error code, 0 on success.
+ */
 int outputheader(MESSAGEINFO *messageinfo)
 {
     // write output file open for append
@@ -664,6 +759,9 @@ int outputheader(MESSAGEINFO *messageinfo)
  *
  *************************************************************************/
 
+/*!
+ * @brief Per-item callback parameter for readmessages().
+ */
 typedef
 struct tagParam
 {
@@ -673,6 +771,16 @@ struct tagParam
 	MESSAGEINFO *messageinfo;
 } Param;
 
+/*!
+ * @brief Callback that writes one message to the output file.
+ *
+ * @param[in] Object       Message text pointer.
+ * @param[in] ObjectTag    Message number.
+ * @param[in] ObjectSize   Message size in bytes.
+ * @param[in] ObjectHandle Item handle.
+ * @param[in] Parameters   Pointer to a Param structure.
+ * @param[in] Error        Error code receiver.
+ */
 void handleitem(ADDRESS Object, TAG ObjectTag, CARDINAL32 ObjectSize, ADDRESS ObjectHandle, ADDRESS Parameters, CARDINAL32 * Error)
 {
 	if (((Param *)Parameters)->num==ObjectTag)
@@ -685,6 +793,12 @@ void handleitem(ADDRESS Object, TAG ObjectTag, CARDINAL32 ObjectSize, ADDRESS Ob
 
 }
 
+/*!
+ * @brief Read and write the message records.
+ *
+ * @param[in,out] messageinfo Message info structure.
+ * @return Error code, 0 on success.
+ */
 int readmessages(MESSAGEINFO *messageinfo)
 {
     // index pointers
@@ -918,23 +1032,35 @@ int readmessages(MESSAGEINFO *messageinfo)
 /*
  * User message functions
  */
+/*!
+ * @brief Print the long usage text.
+ */
 void usagelong(void)
 {
     helpshort();
     helplong();
 }
 
+/*!
+ * @brief Print the short usage line.
+ */
 void helpshort(void)
 {
     printf("\r\nMSGEXTRT [-v] infile.msg [outfile.[txt] ]\r\n\r\n");
 }
 
+/*!
+ * @brief Print the long usage text.
+ */
 void helplong(void)
 {
     printf("\r\nUse MSGEXTRT as follows:\r\n");
     printf("        [-v] infile.msg [outfile.[txt] ]\r\n");
 }
 
+/*!
+ * @brief Print the program heading.
+ */
 void prgheading(void)
 {
     printf("\r\nOperating System/2 Make Message File Extractor (MSGEXTRT)\r\n");
@@ -949,6 +1075,11 @@ void prgheading(void)
  *
  *************************************************************************/
 
+/*!
+ * @brief Print the loaded MESSAGEINFO structure to the screen.
+ *
+ * @param[in] messageinfo Message info structure.
+ */
 void displayinfo(MESSAGEINFO *messageinfo)
 {
     printf("\r\n*********** Header Info ***********\r\n\r\n");
@@ -1010,6 +1141,12 @@ void displayinfo(MESSAGEINFO *messageinfo)
  *
  */
 
+/*!
+ * @brief Print a standard error message and exit.
+ *
+ * @param[in] exnum   Error number.
+ * @param[in] dispmsg Human-readable message.
+ */
 void ProgError(int exnum, char *dispmsg)
 {
     char buffer[80] = {0};

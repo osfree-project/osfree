@@ -29,6 +29,10 @@
  *
  ***************************************************************************/
 
+/*!
+ * @file version.h
+ * @brief Program version header.
+ */
 
 #ifndef VERSION_H
 #define VERSION_H
@@ -40,4 +44,3 @@
 #define OWMINOR         (__WATCOMC__ % 100) / 10
 
 #endif
-

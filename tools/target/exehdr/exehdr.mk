@@ -5,4 +5,3 @@ PORT_TYPE    = git
 PORT_URL     = https://greenenet.ddns.net/os2project/exehdr
 #PORT_REV     = 1.1
 PORT_PATCHES = exehdr.diff
-!include $(%ROOT)tools/mk/port.mk

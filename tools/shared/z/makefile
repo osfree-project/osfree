@@ -11,8 +11,8 @@ SOURCES  = adler32 crc32 deflate infback &
 
 TARGET_CLASS = LIBRARY
 
-!include $(%ROOT)tools/mk/build.mk
 !include $(MYDIR)zlib.mk
+!include $(%ROOT)tools/mk/build.mk
 
 .c: $(PORT_BASE)$(SEP)zlib-1.3.2
 

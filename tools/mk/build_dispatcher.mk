@@ -32,23 +32,27 @@
 # OS2            32             16, 32
 # HOST           not defined
 # BARE / BIOS    ERROR (reserved)
+
 !ifndef TARGET_BITS
-!ifeq TARGET_API DOS
-TARGET_BITS = 16
-!else ifeq TARGET_API DPMI
-TARGET_BITS = 16
-!else ifeq TARGET_API WIN
-TARGET_BITS = 16
-!else ifeq TARGET_API OS2
-TARGET_BITS = 32
-!else ifeq TARGET_API HOST
-!else ifeq TARGET_API BARE
-!error BARE target is reserved and not yet implemented
-!else ifeq TARGET_API BIOS
-!error BIOS target is reserved and not yet implemented
-!else
-!error Unknown TARGET_API: $(TARGET_API)
-!endif
+!  ifeq TARGET_API DOS
+!    define TARGET_BITS 16
+!  else ifeq TARGET_API DPMI
+!    define TARGET_BITS 16
+!  else ifeq TARGET_API WIN
+!    define TARGET_BITS 16
+!  else ifeq TARGET_API OS2
+!    define TARGET_BITS 32
+!  else ifeq TARGET_API HOST
+!    ifdef TARGET_BITS
+!      undef TARGET_BITS
+!    endif
+!  else ifeq TARGET_API BARE
+!    error BARE target is reserved and not yet implemented
+!  else ifeq TARGET_API BIOS
+!    error BIOS target is reserved and not yet implemented
+!  else
+!    error Unknown TARGET_API: $(TARGET_API)
+!  endif
 !endif
 
 # ============================================================
@@ -60,18 +64,21 @@ TARGET_BITS = 32
 # 32             1           0
 # 64             0           1
 !ifdef TARGET_BITS
-!ifeq TARGET_BITS 16
-32_BITS = 0
-64_BITS = 0
-!else ifeq TARGET_BITS 32
-32_BITS = 1
-64_BITS = 0
-!else ifeq TARGET_BITS 64
-32_BITS = 0
-64_BITS = 1
-!else
-!error Unsupported TARGET_BITS: $(TARGET_BITS) (expected 16, 32 or 64)
-!endif
+!  ifeq TARGET_BITS 16
+!    define 16_BITS 1
+!    define 32_BITS 0
+!    define 64_BITS 0
+!  else ifeq TARGET_BITS 32
+!    define 16_BITS 0
+!    define 32_BITS 1
+!    define 64_BITS 0
+!  else ifeq TARGET_BITS 64
+!    define 16_BITS 0
+!    define 32_BITS 0
+!    define 64_BITS 1
+!  else
+!    error Unsupported TARGET_BITS: $(TARGET_BITS) (expected 16, 32 or 64)
+!  endif
 !endif
 
 # ============================================================
