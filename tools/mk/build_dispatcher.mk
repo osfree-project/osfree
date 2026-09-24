@@ -58,11 +58,11 @@
 # ============================================================
 # Bitness validation and convenience flags
 # ============================================================
-# TARGET_BITS    32_BITS     64_BITS
-# -------------  ----------  ----------
-# 16             0           0
-# 32             1           0
-# 64             0           1
+# TARGET_BITS    16_BITS     32_BITS     64_BITS
+# -------------  ----------  ----------  -------
+# 16             1           0           0
+# 32             0           1           0
+# 64             0           0           1
 !ifdef TARGET_BITS
 !  ifeq TARGET_BITS 16
 !    define 16_BITS 1
@@ -89,6 +89,7 @@
 # APPLICATION     CONSOLE (WIN: GUI)
 # LIBRARY         DYNAMIC (DOS, HOST: STATIC)
 # DRIVER          (required except DOS: no subtype needed)
+
 !ifndef TARGET_CLASS
 !  define TARGET_CLASS APPLICATION
 !endif
@@ -131,38 +132,28 @@
 # Define TRGT with extension
 # -------------------------------------------------------------
 !ifdef TARGET_EXT
-TRGT = $(PROJ).$(TARGET_EXT)
+!  define TRGT $(PROJ).$(TARGET_EXT)
 !else
-
-!ifeq TARGET_CLASS APPLICATION
-
-!ifdef DLL
-TRGT = $(PROJ).dll
-!else
-TRGT = $(PROJ).exe
-!ifeq COM 1
-TRGT = $(PROJ).com
-!endif
-!endif
-
-!else ifeq TARGET_CLASS LIBRARY
-
-!ifeq TARGET_SUBCLASS STATIC
-TRGT = $(PROJ).lib
-!else
-TRGT = $(PROJ).dll
-!endif
-
-!else ifeq TARGET_CLASS DRIVER
-
-TRGT = $(PROJ).$(TARGET_EXT)
-
-!else
-
-!error Unknown TARGET_CLASS: $(TARGET_CLASS). Supported: APPLICATION, LIBRARY, DRIVER.
-
-!endif
-
+!  ifeq TARGET_CLASS APPLICATION
+!    ifdef DLL
+!      define TRGT $(PROJ).dll
+!    else
+!      define TRGT $(PROJ).exe
+!      ifeq COM 1
+!        define TRGT $(PROJ).com
+!      endif
+!    endif
+!  else ifeq TARGET_CLASS LIBRARY
+!    ifeq TARGET_SUBCLASS STATIC
+!      define TRGT $(PROJ).lib
+!    else
+!      define TRGT $(PROJ).dll
+!    endif
+!  else ifeq TARGET_CLASS DRIVER
+!    define TRGT $(PROJ).$(TARGET_EXT)
+!  else
+!    error Unknown TARGET_CLASS: $(TARGET_CLASS). Supported: APPLICATION, LIBRARY, DRIVER.
+!  endif
 !endif
 
 # -------------------------------------------------------------
@@ -182,24 +173,23 @@ TRGT = $(PROJ).$(TARGET_EXT)
 # DRIVER         (any)            ERROR (reserved)   Single DOS driver type, not yet implemented
 
 !ifeq TARGET_CLASS APPLICATION
-!ifneq TARGET_SUBCLASS CONSOLE
-!error TARGET_SUBCLASS=$(TARGET_SUBCLASS) is not valid for DOS APPLICATION. Only CONSOLE allowed.
-!endif
-TARGET_MK=appsdos
+!  ifneq TARGET_SUBCLASS CONSOLE
+!    error TARGET_SUBCLASS=$(TARGET_SUBCLASS) is not valid for DOS APPLICATION. Only CONSOLE allowed.
+!  endif
+!  define TARGET_MK appsdos
 !else ifeq TARGET_CLASS LIBRARY
-!ifeq TARGET_SUBCLASS STATIC
-TARGETS  = $(PATH)$(PROJ).lib
-TARGET_MK=libsdos
-
-!else ifeq TARGET_SUBCLASS DYNAMIC
-!error LIBRARY DYNAMIC is not supported on DOS
-!else
-!error Unknown TARGET_SUBCLASS for DOS LIBRARY: $(TARGET_SUBCLASS)
-!endif
+!  ifeq TARGET_SUBCLASS STATIC
+!    define TARGETS $(PATH)$(PROJ).lib
+!    define TARGET_MK libsdos
+!  else ifeq TARGET_SUBCLASS DYNAMIC
+!    error LIBRARY DYNAMIC is not supported on DOS
+!  else
+!    error Unknown TARGET_SUBCLASS for DOS LIBRARY: $(TARGET_SUBCLASS)
+!  endif
 !else ifeq TARGET_CLASS DRIVER
-!error DRIVER class is reserved and not yet implemented for DOS
+!  error DRIVER class is reserved and not yet implemented for DOS
 !else
-!error Unknown TARGET_CLASS for DOS: $(TARGET_CLASS)
+!  error Unknown TARGET_CLASS for DOS: $(TARGET_CLASS)
 !endif
 
 # --- DPMI ---
@@ -333,7 +323,11 @@ ADD_RCOPT = $(ADD_RCOPT) -bt=windows -i=. -i=$(WATCOM)$(SEP)h$(SEP)win
 !ifeq TARGET_CLASS APPLICATION
 
 ADD_COPT = $(ADD_COPT) -sg
+
 !ifeq TARGET_VERSION 310
+!endif
+
+!ifeq TARGET_VERSION 311
 !endif
 
 # LIBS -> ADD_LINKOPT
@@ -345,13 +339,13 @@ TARGET_MK=appsw16
 !else ifeq TARGET_SUBCLASS HYBRID
 TARGET_MK=appshybrid
 !else ifeq TARGET_SUBCLASS CONSOLE
-!error CONSOLE is not supported on 16-bit Windows
+!  error CONSOLE is not supported on 16-bit Windows
 !else ifeq TARGET_SUBCLASS FAMILY
-!error FAMILY is not supported on 16-bit Windows
+!  error FAMILY is not supported on 16-bit Windows
 !else ifeq TARGET_SUBCLASS DUAL
-!error DUAL is not supported on 16-bit Windows
+!  error DUAL is not supported on 16-bit Windows
 !else
-!error Unknown TARGET_SUBCLASS for 16-bit Windows APPLICATION: $(TARGET_SUBCLASS)
+!  error Unknown TARGET_SUBCLASS for 16-bit Windows APPLICATION: $(TARGET_SUBCLASS)
 !endif
 
 !else ifeq TARGET_CLASS LIBRARY
