@@ -1,22 +1,36 @@
-/* Compute look-ahead criteria for bison,
-   Copyright (C) 1984, 1986, 1989 Free Software Foundation, Inc.
+/****************************************************************
+ * Compute look-ahead criteria for bison,
+ * Copyright (C) 1984, 1986, 1989 Free Software Foundation, Inc.
+ *
+ * This file is part of Bison, the GNU Compiler Compiler.
+ *
+ * Bison is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Bison is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Bison; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ ****************************************************************/
 
-This file is part of Bison, the GNU Compiler Compiler.
-
-Bison is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-Bison is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Bison; see the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ *  @file lalr.c
+ *  @brief Computes look-ahead criteria for Bison.
+ *
+ *  Makes the finite state machine deterministic: finds which rules
+ *  need lookahead in each state, and which lookahead tokens they
+ *  accept. The entry point is lalr().
+ *
+ *  @copyright Copyright (C) 1984, 1986, 1989 Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
 
 /* Compute how to make the finite state machine deterministic;
@@ -57,56 +71,156 @@ If LA[l, i] and LA[l, j] are both 1 for i != j, it is a conflict.
 #include "gram.h"
 
 
-extern short **derives;
-extern char *nullable;
+extern short **derives;         /*!< Rules that can derive each nonterminal. */
+extern char *nullable;          /*!< Non-zero per nonterminal that can be empty. */
 
 
-int tokensetsize;
-short *lookaheads;
-short *LAruleno;
-unsigned *LA;
-short *accessing_symbol;
-char *consistent;
-core **state_table;
-shifts **shift_table;
-reductions **reduction_table;
-short *goto_map;
-short *from_state;
-short *to_state;
+int tokensetsize;               /*!< Number of words per token bit set. */
+short *lookaheads;              /*!< Per-state index into LAruleno. */
+short *LAruleno;                /*!< Rules that require lookahead. */
+unsigned *LA;                   /*!< Lookahead bit matrix. */
+short *accessing_symbol;        /*!< Accessing symbol of each state. */
+char *consistent;               /*!< Non-zero for states with no lookahead. */
+core **state_table;             /*!< State structures indexed by number. */
+shifts **shift_table;           /*!< Shift structures indexed by number. */
+reductions **reduction_table;   /*!< Reduction structures indexed by number. */
+short *goto_map;                /*!< Index into from_state/to_state per nonterminal. */
+short *from_state;              /*!< Source states of goto transitions. */
+short *to_state;                /*!< Target states of goto transitions. */
 
+/*!
+ *  @brief Builds the LALR lookahead sets.
+ */
 void lalr PARAMS((void));
+
+/*!
+ *  @brief Transposes a relation represented as a short-vector matrix.
+ *
+ *  @param[in] R Relation to transpose.
+ *  @param[in] n Number of rows/columns.
+ *
+ *  @return Transposed relation.
+ */
 short **transpose PARAMS((short **, int));
+
+/*!
+ *  @brief Fills state_table from the first_state chain.
+ */
 void set_state_table PARAMS((void));
+
+/*!
+ *  @brief Fills accessing_symbol from the first_state chain.
+ */
 void set_accessing_symbol PARAMS((void));
+
+/*!
+ *  @brief Fills shift_table from the first_shift chain.
+ */
 void set_shift_table PARAMS((void));
+
+/*!
+ *  @brief Fills reduction_table from the first_reduction chain.
+ */
 void set_reduction_table PARAMS((void));
+
+/*!
+ *  @brief Computes the maximum right-hand-side length.
+ */
 void set_maxrhs PARAMS((void));
+
+/*!
+ *  @brief Initializes the LA, LAruleno and lookahead tables.
+ */
 void initialize_LA PARAMS((void));
+
+/*!
+ *  @brief Builds the goto_map, from_state and to_state tables.
+ */
 void set_goto_map PARAMS((void));
+
+/*!
+ *  @brief Maps a state/symbol pair into its index in from_state.
+ *
+ *  @param[in] state  Source state.
+ *  @param[in] symbol Nonterminal symbol.
+ *
+ *  @return Index into from_state and to_state.
+ *  @retval 0 Internal error (unreachable, berror() is called instead).
+ */
 int map_goto PARAMS((int, int));
+
+/*!
+ *  @brief Initializes the F relation used to compute follows.
+ */
 void initialize_F PARAMS((void));
+
+/*!
+ *  @brief Builds the relations used to compute FOLLOWS.
+ */
 void build_relations PARAMS((void));
+
+/*!
+ *  @brief Records a lookback edge for a state and rule.
+ *
+ *  @param[in] stateno State number.
+ *  @param[in] ruleno  Rule number.
+ *  @param[in] gotono  Index of the goto transition.
+ */
 void add_lookback_edge PARAMS((int, int, int));
+
+/*!
+ *  @brief Computes the FOLLOWS relation.
+ */
 void compute_FOLLOWS PARAMS((void));
+
+/*!
+ *  @brief Propagates lookahead sets into LA.
+ */
 void compute_lookaheads PARAMS((void));
+
+/*!
+ *  @brief Computes the transitive closure of the given relation.
+ *
+ *  @param[in] relation Relation to close.
+ */
 void digraph PARAMS((short **));
+
+/*!
+ *  @brief DFS helper for digraph().
+ *
+ *  @param[in] i Starting vertex.
+ */
 void traverse PARAMS((register int));
 
+/*!
+ *  @brief Reports that too many of the given object were generated.
+ *
+ *  @param[in] s Description of the object kind.
+ */
 extern void toomany PARAMS((char *));
+
+/*!
+ *  @brief Reports an internal error.
+ *
+ *  @param[in] s Description of the error.
+ */
 extern void berror PARAMS((char *));
 
-static int infinity;
-static int maxrhs;
-static int ngotos;
-static unsigned *F;
-static short **includes;
-static shorts **lookback;
-static short **R;
-static short *INDEX;
-static short *VERTICES;
-static int top;
+static int infinity;            /*!< Sentinel used by the SCC computation. */
+static int maxrhs;              /*!< Longest right-hand side. */
+static int ngotos;              /*!< Number of goto transitions. */
+static unsigned *F;             /*!< Firsts relation between gotos. */
+static short **includes;        /*!< Includes relation between gotos. */
+static shorts **lookback;       /*!< Lookback chains per lookahead entry. */
+static short **R;               /*!< Relation being closed by digraph(). */
+static short *INDEX;            /*!< Tarjan index of each vertex. */
+static short *VERTICES;         /*!< Vertex stack used by traverse(). */
+static int top;                 /*!< Top of the vertex stack. */
 
 
+/*!
+ *  @brief Builds the LALR lookahead sets.
+ */
 void
 lalr (void)
 {
@@ -126,6 +240,9 @@ lalr (void)
 }
 
 
+/*!
+ *  @brief Fills state_table from the first_state chain.
+ */
 void
 set_state_table (void)
 {
@@ -138,6 +255,9 @@ set_state_table (void)
 }
 
 
+/*!
+ *  @brief Fills accessing_symbol from the first_state chain.
+ */
 void
 set_accessing_symbol (void)
 {
@@ -150,6 +270,9 @@ set_accessing_symbol (void)
 }
 
 
+/*!
+ *  @brief Fills shift_table from the first_shift chain.
+ */
 void
 set_shift_table (void)
 {
@@ -162,6 +285,9 @@ set_shift_table (void)
 }
 
 
+/*!
+ *  @brief Fills reduction_table from the first_reduction chain.
+ */
 void
 set_reduction_table (void)
 {
@@ -174,6 +300,9 @@ set_reduction_table (void)
 }
 
 
+/*!
+ *  @brief Computes the maximum right-hand-side length.
+ */
 void
 set_maxrhs (void)
 {
@@ -200,6 +329,9 @@ set_maxrhs (void)
 }
 
 
+/*!
+ *  @brief Initializes the LA, LAruleno and lookahead tables.
+ */
 void
 initialize_LA (void)
 {
@@ -267,6 +399,9 @@ initialize_LA (void)
 }
 
 
+/*!
+ *  @brief Builds the goto_map, from_state and to_state tables.
+ */
 void
 set_goto_map (void)
 {
@@ -335,8 +470,17 @@ set_goto_map (void)
 
 
 
-/*  Map_goto maps a state/symbol pair into its numeric representation.	*/
-
+/*!
+ *  @brief Maps a state/symbol pair into its index in from_state.
+ *
+ *  Map_goto maps a state/symbol pair into its numeric representation.
+ *
+ *  @param[in] state  Source state.
+ *  @param[in] symbol Nonterminal symbol.
+ *
+ *  @return Index into from_state and to_state.
+ *  @retval 0 Internal error (unreachable, berror() is called instead).
+ */
 int
 map_goto (int state, int symbol)
 {
@@ -366,6 +510,9 @@ map_goto (int state, int symbol)
 }
 
 
+/*!
+ *  @brief Initializes the F relation used to compute follows.
+ */
 void
 initialize_F (void)
 {
@@ -442,6 +589,9 @@ initialize_F (void)
 }
 
 
+/*!
+ *  @brief Builds the relations used to compute FOLLOWS.
+ */
 void
 build_relations (void)
 {
@@ -537,6 +687,13 @@ build_relations (void)
 }
 
 
+/*!
+ *  @brief Records a lookback edge for a state and rule.
+ *
+ *  @param[in] stateno State number.
+ *  @param[in] ruleno  Rule number.
+ *  @param[in] gotono  Index of the goto transition.
+ */
 void
 add_lookback_edge (int stateno, int ruleno, int gotono)
 {
@@ -567,6 +724,14 @@ add_lookback_edge (int stateno, int ruleno, int gotono)
 
 
 
+/*!
+ *  @brief Transposes a relation represented as a short-vector matrix.
+ *
+ *  @param[in] R_arg Relation to transpose.
+ *  @param[in] n     Number of rows/columns.
+ *
+ *  @return Transposed relation.
+ */
 short **
 transpose (short **R_arg, int n)
 {
@@ -622,6 +787,9 @@ transpose (short **R_arg, int n)
 }
 
 
+/*!
+ *  @brief Computes the FOLLOWS relation.
+ */
 void
 compute_FOLLOWS (void)
 {
@@ -638,6 +806,9 @@ compute_FOLLOWS (void)
 }
 
 
+/*!
+ *  @brief Propagates lookahead sets into LA.
+ */
 void
 compute_lookaheads (void)
 {
@@ -648,8 +819,6 @@ compute_lookaheads (void)
   register unsigned *fp3;
   register shorts *sp;
   register unsigned *rowp;
-/*   register short *rulep; JF unused */
-/*  register int count; JF unused */
   register shorts *sptmp;/* JF */
 
   rowp = LA;
@@ -681,6 +850,11 @@ compute_lookaheads (void)
 }
 
 
+/*!
+ *  @brief Computes the transitive closure of the given relation.
+ *
+ *  @param[in] relation Relation to close.
+ */
 void
 digraph (short **relation)
 {
@@ -707,6 +881,11 @@ digraph (short **relation)
 }
 
 
+/*!
+ *  @brief DFS helper for digraph().
+ *
+ *  @param[in] i Starting vertex.
+ */
 void
 traverse (register int i)
 {

@@ -1,22 +1,36 @@
-/* Match rules with nonterminals for bison,
-   Copyright (C) 1984, 1989 Free Software Foundation, Inc.
+/****************************************************************
+ * Match rules with nonterminals for bison,
+ * Copyright (C) 1984, 1989 Free Software Foundation, Inc.
+ *
+ * This file is part of Bison, the GNU Compiler Compiler.
+ *
+ * Bison is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Bison is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Bison; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ ****************************************************************/
 
-This file is part of Bison, the GNU Compiler Compiler.
-
-Bison is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-Bison is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Bison; see the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ *  @file derives.c
+ *  @brief Maps each nonterminal to the rules that can derive it.
+ *
+ *  Implements set_derives(), which builds the `derives' table: for
+ *  each variable (nonterminal), a vector of rule numbers that can
+ *  derive it, terminated with -1.
+ *
+ *  @copyright Copyright (C) 1984, 1989 Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
 
 /* set_derives finds, for each variable (nonterminal), which rules can derive it.
@@ -30,11 +44,27 @@ Boston, MA 02111-1307, USA.  */
 #include "types.h"
 #include "gram.h"
 
+/*!
+ *  @brief Builds the `derives' table from the current grammar.
+ */
 void set_derives PARAMS((void));
+
+/*!
+ *  @brief Releases the storage used by the `derives' table.
+ */
 void free_derives PARAMS((void));
 
+/*!
+ *  @brief For each nonterminal, the list of rules that derive it.
+ *
+ *  Indexed by symbol number minus ntokens; each element points to a
+ *  vector of rule numbers terminated by -1.
+ */
 short **derives;
 
+/*!
+ *  @brief Builds the `derives' table from the current grammar.
+ */
 void
 set_derives (void)
 {
@@ -84,6 +114,9 @@ set_derives (void)
   FREE(delts);
 }
 
+/*!
+ *  @brief Releases the storage used by the `derives' table.
+ */
 void
 free_derives (void)
 {
@@ -92,9 +125,11 @@ free_derives (void)
 }
 
 
-
 #ifdef	DEBUG
 
+/*!
+ *  @brief Prints the `derives' table to stdout for debugging.
+ */
 void
 print_derives (void)
 {

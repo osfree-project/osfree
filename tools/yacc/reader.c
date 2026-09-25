@@ -1,22 +1,39 @@
-/* Input parser for bison
-   Copyright (C) 1984, 1986, 1989, 1992, 1998 Free Software Foundation, Inc.
+/****************************************************************
+ * Input parser for bison
+ * Copyright (C) 1984, 1986, 1989, 1992, 1998 Free Software Foundation, Inc.
+ *
+ * This file is part of Bison, the GNU Compiler Compiler.
+ *
+ * Bison is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Bison is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Bison; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ ****************************************************************/
 
-This file is part of Bison, the GNU Compiler Compiler.
-
-Bison is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-Bison is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Bison; see the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ *  @file reader.c
+ *  @brief Input parser for Bison.
+ *
+ *  Reads the grammar specification and records it in the format
+ *  described in gram.h. All guards are copied into the fguard file
+ *  and all actions into faction, in each case forming the body of a C
+ *  function (yyguard or yyaction) which contains a switch statement to
+ *  decide which guard or action to execute. The entry point is
+ *  reader().
+ *
+ *  @copyright Copyright (C) 1984, 1986, 1989, 1992, 1998 Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
 
 /* read in the grammar specification and record it in the format described in gram.h.
@@ -35,108 +52,357 @@ The entry point is reader().  */
 #include "gram.h"
 #include "machine.h"
 
+/*!
+ *  @brief Definition of YYLTYPE emitted when the parser needs locations.
+ *  @def LTYPESTR
+ */
 #define	LTYPESTR	"\n#ifndef YYLTYPE\ntypedef\n  struct yyltype\n\
     {\n      int timestamp;\n      int first_line;\n      int first_column;\
 \n      int last_line;\n      int last_column;\n      char *text;\n   }\n\
   yyltype;\n\n#define YYLTYPE yyltype\n#endif\n\n"
 
 /* Number of slots allocated (but not necessarily used yet) in `rline'  */
-int rline_allocated;
+int rline_allocated;    /*!< Allocated size of the rline table. */
 
-extern char *program_name;
-extern int definesflag;
-extern int nolinesflag;
-extern int noparserflag;
-extern int rawtoknumflag;
-extern bucket *symval;
-extern int numval;
-extern int expected_conflicts;
-extern char *token_buffer;
-extern int maxtoken;
+extern char *program_name;      /*!< Name of the running program. */
+extern int definesflag;         /*!< Non-zero when -d was given. */
+extern int nolinesflag;         /*!< Non-zero when -l was given. */
+extern int noparserflag;        /*!< Non-zero when -n was given. */
+extern int rawtoknumflag;       /*!< Non-zero when -r was given. */
+extern bucket *symval;          /*!< Symbol table entry of the last identifier. */
+extern int numval;              /*!< Numeric value of the last NUMBER token. */
+extern int expected_conflicts;  /*!< Number of expected conflicts (%expect). */
+extern char *token_buffer;      /*!< Buffer holding the current token text. */
+extern int maxtoken;            /*!< Allocated size of token_buffer. */
 
+/*!
+ *  @brief Initializes the token buffer.
+ */
 extern void init_lex PARAMS((void));
+
+/*!
+ *  @brief Doubles the size of the token buffer.
+ *
+ *  @param[in] p Current position inside the buffer.
+ *
+ *  @return New position inside the reallocated buffer.
+ */
 extern char *grow_token_buffer PARAMS((char *));
+
+/*!
+ *  @brief Initializes the symbol table.
+ */
 extern void tabinit PARAMS((void));
+
+/*!
+ *  @brief Writes the constant preamble shared by all generated files.
+ */
 extern void output_headers PARAMS((void));
+
+/*!
+ *  @brief Writes the constant trailer shared by all generated files.
+ */
 extern void output_trailers PARAMS((void));
+
+/*!
+ *  @brief Releases the whole symbol table.
+ */
 extern void free_symtab PARAMS((void));
+
+/*!
+ *  @brief Opens the extra files needed by the semantic parser.
+ */
 extern void open_extra_files PARAMS((void));
+
+/*!
+ *  @brief Converts an integer to a printable string.
+ *
+ *  @param[in] i Integer to convert.
+ *
+ *  @return Pointer to a static buffer with the result.
+ */
 extern char *int_to_string PARAMS((int));
+
+/*!
+ *  @brief Returns a printable form of a character code.
+ *
+ *  @param[in] c Character code.
+ *
+ *  @return Pointer to a static buffer with the printable form.
+ */
 extern char *printable_version PARAMS((int));
+
+/*!
+ *  @brief Prints a fatal error and exits.
+ *
+ *  @param[in] s Message.
+ */
 extern void fatal PARAMS((char *));
+
+/*!
+ *  @brief Prints a fatal error with one argument.
+ *
+ *  @param[in] fmt Format string.
+ *  @param[in] x1  Argument for the format.
+ */
 extern void fatals PARAMS((char *, char *));
+
+/*!
+ *  @brief Prints a warning.
+ *
+ *  @param[in] s Message.
+ */
 extern void warn PARAMS((char *));
+
+/*!
+ *  @brief Prints a warning with an integer argument.
+ *
+ *  @param[in] fmt Format string.
+ *  @param[in] x1  Integer argument.
+ */
 extern void warni PARAMS((char *, int));
+
+/*!
+ *  @brief Prints a warning with one string argument.
+ *
+ *  @param[in] fmt Format string.
+ *  @param[in] x1  String argument.
+ */
 extern void warns PARAMS((char *, char *));
+
+/*!
+ *  @brief Prints a warning with two string arguments.
+ *
+ *  @param[in] fmt Format string.
+ *  @param[in] x1  First string argument.
+ *  @param[in] x2  Second string argument.
+ */
 extern void warnss PARAMS((char *, char *, char *));
+
+/*!
+ *  @brief Prints a warning with three string arguments.
+ *
+ *  @param[in] fmt Format string.
+ *  @param[in] x1  First string argument.
+ *  @param[in] x2  Second string argument.
+ *  @param[in] x3  Third string argument.
+ */
 extern void warnsss PARAMS((char *, char *, char *, char *));
+
+/*!
+ *  @brief Pushes a token back for the next call to lex().
+ *
+ *  @param[in] token Token to push back.
+ */
 extern void unlex PARAMS((int));
+
+/*!
+ *  @brief Closes files and exits the program.
+ *
+ *  @param[in] k Exit status.
+ */
 extern void done PARAMS((int));
 
+/*!
+ *  @brief Skips whitespace and comments on the input.
+ *
+ *  @return The first non-whitespace character.
+ */
 extern int skip_white_space PARAMS((void));
+
+/*!
+ *  @brief Parses a token that starts with a percent sign.
+ *
+ *  @return The token code corresponding to the directive.
+ */
 extern int parse_percent_token PARAMS((void));
+
+/*!
+ *  @brief Reads the next token from the input.
+ *
+ *  @return The next token code.
+ */
 extern int lex PARAMS((void));
 
+/*!
+ *  @brief One element of a linked list of grammar symbols.
+ */
 typedef
   struct symbol_list
     {
-      struct symbol_list *next;
-      bucket *sym;
-      bucket *ruleprec;
+      struct symbol_list *next; /*!< Next symbol in the rule, or NULL. */
+      bucket *sym;              /*!< Symbol table entry. */
+      bucket *ruleprec;         /*!< Symbol given via %prec, or NULL. */
     }
   symbol_list;
 
 
+/*!
+ *  @brief Reads the grammar from finput and fills the global tables.
+ */
 void reader PARAMS((void));
+
+/*!
+ *  @brief Writes the YYLTYPE definition when it is needed.
+ *
+ *  @param[in] f Output stream.
+ */
 void reader_output_yylsp PARAMS((FILE *));
+
+/*!
+ *  @brief Reads the declaration section of the input.
+ */
 void read_declarations PARAMS((void));
+
+/*!
+ *  @brief Copies a %{ ... %} block into the definitions file.
+ */
 void copy_definition PARAMS((void));
+
+/*!
+ *  @brief Parses a %token or %nterm declaration.
+ *
+ *  @param[in] what_is     Class to assign to the symbols.
+ *  @param[in] what_is_not Class that would be a redefinition.
+ */
 void parse_token_decl PARAMS((int, int));
+
+/*!
+ *  @brief Parses a %start declaration.
+ */
 void parse_start_decl PARAMS((void));
+
+/*!
+ *  @brief Parses a %type declaration.
+ */
 void parse_type_decl PARAMS((void));
+
+/*!
+ *  @brief Parses a %left, %right or %nonassoc declaration.
+ *
+ *  @param[in] assoc Associativity to assign.
+ */
 void parse_assoc_decl PARAMS((int));
+
+/*!
+ *  @brief Parses a %union declaration.
+ */
 void parse_union_decl PARAMS((void));
+
+/*!
+ *  @brief Parses an %expect declaration.
+ */
 void parse_expect_decl PARAMS((void));
+
+/*!
+ *  @brief Returns the declared type of a symbol in a rule.
+ *
+ *  @param[in] n    Position in the rule.
+ *  @param[in] rule Rule whose symbol is queried.
+ *
+ *  @return Type name, or NULL.
+ *  @retval NULL The symbol has no declared type, or the rule is
+ *               malformed.
+ */
 char *get_type_name PARAMS((int, symbol_list *));
+
+/*!
+ *  @brief Copies a guard into the guard file.
+ *
+ *  @param[in] rule         Rule the guard belongs to.
+ *  @param[in] stack_offset Number of values in the rule so far.
+ */
 void copy_guard PARAMS((symbol_list *, int));
+
+/*!
+ *  @brief Parses a %thong declaration.
+ */
 void parse_thong_decl PARAMS((void));
+
+/*!
+ *  @brief Copies an action into the actions file.
+ *
+ *  @param[in] rule         Rule the action belongs to.
+ *  @param[in] stack_offset Number of values in the rule so far.
+ */
 void copy_action PARAMS((symbol_list *, int));
+
+/*!
+ *  @brief Generates a fresh nonterminal name.
+ *
+ *  @return The generated symbol table entry.
+ */
 bucket *gensym PARAMS((void));
+
+/*!
+ *  @brief Reads the rules section of the input.
+ */
 void readgram PARAMS((void));
+
+/*!
+ *  @brief Records the source line of the current rule.
+ */
 void record_rule_line PARAMS((void));
+
+/*!
+ *  @brief Assigns symbol numbers and builds tags/user_toknums.
+ */
 void packsymbols PARAMS((void));
+
+/*!
+ *  @brief Writes the token #define directives to a file.
+ *
+ *  @param[in] file Output stream.
+ */
 void output_token_defines PARAMS((FILE *));
+
+/*!
+ *  @brief Converts the grammar into the packed ritem/rlhs/rrhs form.
+ */
 void packgram PARAMS((void));
+
+/*!
+ *  @brief Reads a signed integer from a stream.
+ *
+ *  @param[in] stream Input stream.
+ *
+ *  @return The value read.
+ */
 int read_signed_integer PARAMS((FILE *));
 
 #if 0
 static int get_type PARAMS((void));
 #endif
 
-int lineno;
-symbol_list *grammar;
-int start_flag;
-bucket *startval;
-char **tags;
-int *user_toknums;
+int lineno;             /*!< Current input line number. */
+symbol_list *grammar;   /*!< Grammar as read from the input. */
+int start_flag;         /*!< Non-zero once the start symbol is known. */
+bucket *startval;       /*!< Symbol table entry of the start symbol. */
+char **tags;            /*!< Printable names of all symbols. */
+int *user_toknums;      /*!< User token numbers per symbol. */
 
 /* Nonzero if components of semantic values are used, implying
    they must be unions.  */
-static int value_components_used;
+static int value_components_used;   /*!< Non-zero when $$ or $n field access was seen. */
 
-static int typed;  /* nonzero if %union has been seen.  */
+static int typed;       /*!< Non-zero if %union has been seen. */
 
-static int lastprec;  /* incremented for each %left, %right or %nonassoc seen */
+static int lastprec;    /*!< Incremented for each %left, %right or %nonassoc seen. */
 
-static int gensym_count;  /* incremented for each generated symbol */
+static int gensym_count;/*!< Incremented for each generated symbol. */
 
-static bucket *errtoken;
-static bucket *undeftoken;
+static bucket *errtoken;   /*!< Symbol table entry of the `error` token. */
+static bucket *undeftoken; /*!< Symbol table entry of the `$undefined.` token. */
 
 /* Nonzero if any action or guard uses the @n construct.  */
-static int yylsp_needed;
+static int yylsp_needed;    /*!< Non-zero when YYLTYPE must be emitted. */
 
 
+/*!
+ *  @brief Skips the input up to the given character.
+ *
+ *  @param[in] target Character to stop at.
+ */
 static void
 skip_to_char (int target)
 {
@@ -154,6 +420,9 @@ skip_to_char (int target)
 }
 
 
+/*!
+ *  @brief Reads the grammar from finput and fills the global tables.
+ */
 void
 reader (void)
 {
@@ -232,6 +501,11 @@ reader (void)
   free_symtab();
 }
 
+/*!
+ *  @brief Writes the YYLTYPE definition when it is needed.
+ *
+ *  @param[in] f Output stream.
+ */
 void
 reader_output_yylsp (FILE *f)
 {
@@ -239,10 +513,13 @@ reader_output_yylsp (FILE *f)
     fprintf(f, LTYPESTR);
 }
 
-/* read from finput until %% is seen.  Discard the %%.
-Handle any % declarations,
-and copy the contents of any %{ ... %} groups to fattrs.  */
-
+/*!
+ *  @brief Reads the declaration section of the input.
+ *
+ *  Read from finput until %% is seen. Discard the %%. Handle any %
+ *  declarations, and copy the contents of any %{ ... %} groups to
+ *  fattrs.
+ */
 void
 read_declarations (void)
 {
@@ -337,9 +614,12 @@ read_declarations (void)
 }
 
 
-/* copy the contents of a %{ ... %} into the definitions file.
-The %{ has already been read.  Return after reading the %}.  */
-
+/*!
+ *  @brief Copies a %{ ... %} block into the definitions file.
+ *
+ *  Copy the contents of a %{ ... %} into the definitions file. The
+ *  %{ has already been read. Return after reading the %}.
+ */
 void
 copy_definition (void)
 {
@@ -475,10 +755,16 @@ copy_definition (void)
 
 
 
-/* parse what comes after %token or %nterm.
-For %token, what_is is STOKEN and what_is_not is SNTERM.
-For %nterm, the arguments are reversed.  */
-
+/*!
+ *  @brief Parses a %token or %nterm declaration.
+ *
+ *  Parse what comes after %token or %nterm. For %token, what_is is
+ *  STOKEN and what_is_not is SNTERM. For %nterm, the arguments are
+ *  reversed.
+ *
+ *  @param[in] what_is     Class to assign to the symbols.
+ *  @param[in] what_is_not Class that would be a redefinition.
+ */
 void
 parse_token_decl (int what_is, int what_is_not)
 {
@@ -560,23 +846,24 @@ parse_token_decl (int what_is, int what_is_not)
 
 }
 
-/* parse what comes after %thong
-	the full syntax is
-		%thong <type> token number literal
- the <type> or number may be omitted.  The number specifies the
- user_token_number.
-
- Two symbols are entered in the table, one for the token symbol and
- one for the literal.  Both are given the <type>, if any, from the declaration.
- The ->user_token_number of the first is SALIAS and the ->user_token_number
- of the second is set to the number, if any, from the declaration.
- The two symbols are linked via pointers in their ->alias fields.
-
- during output_defines_table, the symbol is reported
- thereafter, only the literal string is retained
- it is the literal string that is output to yytname
-*/
-
+/*!
+ *  @brief Parses a %thong declaration.
+ *
+ *  Parse what comes after %thong. The full syntax is
+ *  `%thong <type> token number literal`. The `<type>` or number may
+ *  be omitted. The number specifies the user_token_number.
+ *
+ *  Two symbols are entered in the table, one for the token symbol and
+ *  one for the literal. Both are given the `<type>`, if any, from the
+ *  declaration. The ->user_token_number of the first is SALIAS and the
+ *  ->user_token_number of the second is set to the number, if any,
+ *  from the declaration. The two symbols are linked via pointers in
+ *  their ->alias fields.
+ *
+ *  During output_defines_table, the symbol is reported thereafter,
+ *  only the literal string is retained. It is the literal string that
+ *  is output to yytname.
+ */
 void
 parse_thong_decl (void)
 {
@@ -637,8 +924,9 @@ parse_thong_decl (void)
 }
 
 
-/* parse what comes after %start */
-
+/*!
+ *  @brief Parses a %start declaration.
+ */
 void
 parse_start_decl (void)
 {
@@ -655,8 +943,12 @@ parse_start_decl (void)
 
 
 
-/* read in a %type declaration and record its information for get_type_name to access */
-
+/*!
+ *  @brief Parses a %type declaration.
+ *
+ *  Read in a %type declaration and record its information for
+ *  get_type_name to access.
+ */
 void
 parse_type_decl (void)
 {
@@ -710,9 +1002,15 @@ parse_type_decl (void)
 
 
 
-/* read in a %left, %right or %nonassoc declaration and record its information.  */
-/* assoc is either LEFT_ASSOC, RIGHT_ASSOC or NON_ASSOC.  */
-
+/*!
+ *  @brief Parses a %left, %right or %nonassoc declaration.
+ *
+ *  Read in a %left, %right or %nonassoc declaration and record its
+ *  information. @p assoc is either LEFT_ASSOC, RIGHT_ASSOC or
+ *  NON_ASSOC.
+ *
+ *  @param[in] assoc Associativity to assign.
+ */
 void
 parse_assoc_decl (int assoc)
 {
@@ -792,10 +1090,13 @@ parse_assoc_decl (int assoc)
 
 
 
-/* copy the union declaration into fattrs (and fdefines),
-   where it is made into the
-   definition of YYSTYPE, the type of elements of the parser value stack.  */
-
+/*!
+ *  @brief Parses a %union declaration.
+ *
+ *  Copy the union declaration into fattrs (and fdefines), where it is
+ *  made into the definition of YYSTYPE, the type of elements of the
+ *  parser value stack.
+ */
 void
 parse_union_decl (void)
 {
@@ -907,9 +1208,12 @@ parse_union_decl (void)
     }
 }
 
-/* parse the declaration %expect N which says to expect N
-   shift-reduce conflicts.  */
-
+/*!
+ *  @brief Parses an %expect declaration.
+ *
+ *  Parse the declaration %expect N which says to expect N shift-reduce
+ *  conflicts.
+ */
 void
 parse_expect_decl (void)
 {
@@ -939,8 +1243,19 @@ parse_expect_decl (void)
 
 /* that's all of parsing the declaration section */
 
-/* Get the data type (alternative in the union) of the value for symbol n in rule rule.  */
-
+/*!
+ *  @brief Returns the declared type of a symbol in a rule.
+ *
+ *  Get the data type (alternative in the union) of the value for
+ *  symbol @p n in rule @p rule.
+ *
+ *  @param[in] n    Position in the rule.
+ *  @param[in] rule Rule whose symbol is queried.
+ *
+ *  @return Type name, or NULL.
+ *  @retval NULL The symbol has no declared type, or the rule is
+ *               malformed.
+ */
 char *
 get_type_name (int n, symbol_list *rule)
 {
@@ -973,13 +1288,19 @@ get_type_name (int n, symbol_list *rule)
 }
 
 
-/* after %guard is seen in the input file,
-copy the actual guard into the guards file.
-If the guard is followed by an action, copy that into the actions file.
-stack_offset is the number of values in the current rule so far,
-which says where to find $0 with respect to the top of the stack,
-for the simple parser in which the stack is not popped until after the guard is run.  */
-
+/*!
+ *  @brief Copies a guard into the guard file.
+ *
+ *  After %guard is seen in the input file, copy the actual guard into
+ *  the guards file. If the guard is followed by an action, copy that
+ *  into the actions file. stack_offset is the number of values in the
+ *  current rule so far, which says where to find $0 with respect to
+ *  the top of the stack, for the simple parser in which the stack is
+ *  not popped until after the guard is run.
+ *
+ *  @param[in] rule         Rule the guard belongs to.
+ *  @param[in] stack_offset Number of values in the rule so far.
+ */
 void
 copy_guard (symbol_list *rule, int stack_offset)
 {
@@ -1211,11 +1532,17 @@ copy_guard (symbol_list *rule, int stack_offset)
 
 
 
-/* Assuming that a { has just been seen, copy everything up to the matching }
-into the actions file.
-stack_offset is the number of values in the current rule so far,
-which says where to find $0 with respect to the top of the stack.  */
-
+/*!
+ *  @brief Copies an action into the actions file.
+ *
+ *  Assuming that a { has just been seen, copy everything up to the
+ *  matching } into the actions file. stack_offset is the number of
+ *  values in the current rule so far, which says where to find $0 with
+ *  respect to the top of the stack.
+ *
+ *  @param[in] rule         Rule the action belongs to.
+ *  @param[in] stack_offset Number of values in the rule so far.
+ */
 void
 copy_action (symbol_list *rule, int stack_offset)
 {
@@ -1432,9 +1759,14 @@ copy_action (symbol_list *rule, int stack_offset)
 
 
 
-/* generate a dummy symbol, a nonterminal,
-whose name cannot conflict with the user's names. */
-
+/*!
+ *  @brief Generates a fresh nonterminal name.
+ *
+ *  Generate a dummy symbol, a nonterminal, whose name cannot conflict
+ *  with the user's names.
+ *
+ *  @return The generated symbol table entry.
+ */
 bucket *
 gensym (void)
 {
@@ -1447,15 +1779,18 @@ gensym (void)
   return (sym);
 }
 
-/* Parse the input grammar into a one symbol_list structure.
-Each rule is represented by a sequence of symbols: the left hand side
-followed by the contents of the right hand side, followed by a null pointer
-instead of a symbol to terminate the rule.
-The next symbol is the lhs of the following rule.
-
-All guards and actions are copied out to the appropriate files,
-labelled by the rule number they apply to.  */
-
+/*!
+ *  @brief Reads the rules section of the input.
+ *
+ *  Parse the input grammar into a one symbol_list structure. Each rule
+ *  is represented by a sequence of symbols: the left hand side
+ *  followed by the contents of the right hand side, followed by a null
+ *  pointer instead of a symbol to terminate the rule. The next symbol
+ *  is the lhs of the following rule.
+ *
+ *  All guards and actions are copied out to the appropriate files,
+ *  labelled by the rule number they apply to.
+ */
 void
 readgram (void)
 {
@@ -1748,6 +2083,9 @@ readgram (void)
 }
 
 
+/*!
+ *  @brief Records the source line of the current rule.
+ */
 void
 record_rule_line (void)
 {
@@ -1813,9 +2151,13 @@ get_type (void)
 #endif
 
 
-/* assign symbol numbers, and write definition of token names into fdefines.
-Set up vectors tags and sprec of names and precedences of symbols.  */
-
+/*!
+ *  @brief Assigns symbol numbers and builds tags/user_toknums.
+ *
+ *  Assign symbol numbers, and write definition of token names into
+ *  fdefines. Set up vectors tags and sprec of names and precedences
+ *  of symbols.
+ */
 void
 packsymbols (void)
 {
@@ -1960,9 +2302,14 @@ packsymbols (void)
     }
 }
 
-/* For named tokens, but not literal ones, define the name.
-   The value is the user token number.
-*/
+/*!
+ *  @brief Writes the token #define directives to a file.
+ *
+ *  For named tokens, but not literal ones, define the name. The value
+ *  is the user token number.
+ *
+ *  @param[in] file Output stream.
+ */
 void
 output_token_defines (FILE *file)
 {
@@ -2005,15 +2352,18 @@ output_token_defines (FILE *file)
 
 
 
-/* convert the rules into the representation using rrhs, rlhs and ritems.  */
-
+/*!
+ *  @brief Converts the grammar into the packed ritem/rlhs/rrhs form.
+ *
+ *  Convert the rules into the representation using rrhs, rlhs and
+ *  ritems.
+ */
 void
 packgram (void)
 {
   register int itemno;
   register int ruleno;
   register symbol_list *p;
-/*  register bucket *bp; JF unused */
 
   bucket *ruleprec;
 
@@ -2066,8 +2416,15 @@ packgram (void)
   ritem[itemno] = 0;
 }
 
-/* Read a signed integer from STREAM and return its value.  */
-
+/*!
+ *  @brief Reads a signed integer from a stream.
+ *
+ *  Read a signed integer from STREAM and return its value.
+ *
+ *  @param[in] stream Input stream.
+ *
+ *  @return The value read.
+ */
 int
 read_signed_integer (FILE *stream)
 {

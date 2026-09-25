@@ -1,22 +1,37 @@
-/* Output the generated parsing program for bison,
-   Copyright (C) 1984, 1986, 1989, 1992 Free Software Foundation, Inc.
+/****************************************************************
+ * Output the generated parsing program for bison,
+ * Copyright (C) 1984, 1986, 1989, 1992 Free Software Foundation, Inc.
+ *
+ * This file is part of Bison, the GNU Compiler Compiler.
+ *
+ * Bison is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Bison is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Bison; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ ****************************************************************/
 
-This file is part of Bison, the GNU Compiler Compiler.
-
-Bison is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-Bison is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Bison; see the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ *  @file output.c
+ *  @brief Outputs the generated parsing program for Bison.
+ *
+ *  Writes the parsing tables, the parser skeleton and the user's
+ *  program text to ftable. Emits the action and guard routines, the
+ *  token translation tables, the rule data, the packed action and
+ *  goto tables, and copies the parser driver from the skeleton file.
+ *
+ *  @copyright Copyright (C) 1984, 1986, 1989, 1992 Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
 
 /* functions to output parsing data to various files.  Entries are:
@@ -112,94 +127,264 @@ YYNTBASE = ntokens.
 #include "state.h"
 
 
-extern int debugflag;
-extern int nolinesflag;
-extern int noparserflag;
-extern int toknumflag;
+extern int debugflag;           /*!< Non-zero when -t was given. */
+extern int nolinesflag;         /*!< Non-zero when -l was given. */
+extern int noparserflag;        /*!< Non-zero when -n was given. */
+extern int toknumflag;          /*!< Non-zero when -k was given. */
 
-extern char **tags;
-extern int *user_toknums;
-extern int tokensetsize;
-extern int final_state;
-extern core **state_table;
-extern shifts **shift_table;
-extern errs **err_table;
-extern reductions **reduction_table;
-extern short *accessing_symbol;
-extern unsigned *LA;
-extern short *LAruleno;
-extern short *lookaheads;
-extern char *consistent;
-extern short *goto_map;
-extern short *from_state;
-extern short *to_state;
-extern int lineno;
+extern char **tags;             /*!< Printable names of all symbols. */
+extern int *user_toknums;       /*!< User token numbers per symbol. */
+extern int tokensetsize;        /*!< Words per token bit set. */
+extern int final_state;         /*!< Number of the termination state. */
+extern core **state_table;      /*!< States indexed by number. */
+extern shifts **shift_table;    /*!< Shifts indexed by state number. */
+extern errs **err_table;        /*!< Explicit error tokens per state. */
+extern reductions **reduction_table; /*!< Reductions indexed by state number. */
+extern short *accessing_symbol; /*!< Accessing symbol of each state. */
+extern unsigned *LA;            /*!< Lookahead bit matrix. */
+extern short *LAruleno;         /*!< Rules that require lookahead. */
+extern short *lookaheads;       /*!< Per-state index into LAruleno. */
+extern char *consistent;        /*!< Non-zero for states requiring no lookahead. */
+extern short *goto_map;         /*!< Index into from_state/to_state per nonterminal. */
+extern short *from_state;       /*!< Source states of goto transitions. */
+extern short *to_state;         /*!< Target states of goto transitions. */
+extern int lineno;              /*!< Current source line number. */
 
+/*!
+ *  @brief Writes the constant preamble shared by all generated files.
+ */
 void output_headers PARAMS((void));
+
+/*!
+ *  @brief Writes the constant trailer shared by all generated files.
+ */
 void output_trailers PARAMS((void));
+
+/*!
+ *  @brief Writes the parsing tables and the parser to ftable.
+ */
 void output PARAMS((void));
+
+/*!
+ *  @brief Writes the token translation table.
+ */
 void output_token_translations PARAMS((void));
+
+/*!
+ *  @brief Writes the rule grammar tables.
+ */
 void output_gram PARAMS((void));
+
+/*!
+ *  @brief Writes the yystos table.
+ */
 void output_stos PARAMS((void));
+
+/*!
+ *  @brief Writes the rule data tables.
+ */
 void output_rule_data PARAMS((void));
+
+/*!
+ *  @brief Writes the #define directives for the parser.
+ */
 void output_defines PARAMS((void));
+
+/*!
+ *  @brief Writes the action and goto tables.
+ */
 void output_actions PARAMS((void));
+
+/*!
+ *  @brief Writes the token action tables.
+ */
 void token_actions PARAMS((void));
+
+/*!
+ *  @brief Records the current action row for the given state.
+ *
+ *  @param[in] state State number.
+ */
 void save_row PARAMS((int));
+
+/*!
+ *  @brief Writes the goto action tables.
+ */
 void goto_actions PARAMS((void));
+
+/*!
+ *  @brief Records the column of the goto table for a symbol.
+ *
+ *  @param[in] symbol        Nonterminal symbol.
+ *  @param[in] default_state Default target state.
+ */
 void save_column PARAMS((int, int));
+
+/*!
+ *  @brief Sorts the vectors by width and tally before packing.
+ */
 void sort_actions PARAMS((void));
+
+/*!
+ *  @brief Packs the vectors into the yytable/yycheck tables.
+ */
 void pack_table PARAMS((void));
+
+/*!
+ *  @brief Writes the yypact and yypgoto tables.
+ */
 void output_base PARAMS((void));
+
+/*!
+ *  @brief Writes the yytable table.
+ */
 void output_table PARAMS((void));
+
+/*!
+ *  @brief Writes the yycheck table.
+ */
 void output_check PARAMS((void));
+
+/*!
+ *  @brief Copies the parser driver into ftable.
+ */
 void output_parser PARAMS((void));
+
+/*!
+ *  @brief Copies the user's trailing program text into ftable.
+ */
 void output_program PARAMS((void));
+
+/*!
+ *  @brief Releases the state itemsets.
+ */
 void free_shifts PARAMS((void));
+
+/*!
+ *  @brief Releases the reduction structures.
+ */
 void free_reductions PARAMS((void));
+
+/*!
+ *  @brief Releases the state tables.
+ */
 void free_itemsets PARAMS((void));
+
+/*!
+ *  @brief Builds the action row for the given state.
+ *
+ *  @param[in] state State number.
+ *
+ *  @return Default action for the state.
+ */
 int action_row PARAMS((int));
+
+/*!
+ *  @brief Chooses the default goto state for a symbol.
+ *
+ *  @param[in] symbol Nonterminal symbol.
+ *
+ *  @return Default state number, or -1 when none.
+ */
 int default_goto PARAMS((int));
+
+/*!
+ *  @brief Finds an earlier vector identical to the given one.
+ *
+ *  @param[in] vector Vector index.
+ *
+ *  @return Index of the matching earlier vector, or -1.
+ */
 int matching_state PARAMS((int));
+
+/*!
+ *  @brief Packs a vector into yytable/yycheck.
+ *
+ *  @param[in] vector Vector index.
+ *
+ *  @return Offset of the packed vector in yytable.
+ *  @retval 0 Internal error (unreachable, berror() is called instead).
+ */
 int pack_vector PARAMS((int));
 
+/*!
+ *  @brief Reports an internal error.
+ *
+ *  @param[in] s Description of the error.
+ */
 extern void berror PARAMS((char *));
+
+/*!
+ *  @brief Reports a fatal error with one argument.
+ *
+ *  @param[in] fmt Format string.
+ *  @param[in] arg Argument for the format.
+ */
 extern void fatals PARAMS((char *, char *));
+
+/*!
+ *  @brief Converts an integer to a printable string.
+ *
+ *  @param[in] i Integer to convert.
+ *
+ *  @return Pointer to a static buffer holding the result.
+ */
 extern char *int_to_string PARAMS((int));
+
+/*!
+ *  @brief Writes the YYLTYPE definition when it is needed.
+ *
+ *  @param[in] f Output stream.
+ */
 extern void reader_output_yylsp PARAMS((FILE *));
 
-static int nvectors;
-static int nentries;
-static short **froms;
-static short **tos;
-static short *tally;
-static short *width;
-static short *actrow;
-static short *state_count;
-static short *order;
-static short *base;
-static short *pos;
-static short *table;
-static short *check;
-static int lowzero;
-static int high;
+static int nvectors;            /*!< Total number of packed vectors. */
+static int nentries;            /*!< Number of nonzero vectors. */
+static short **froms;           /*!< Input of each vector. */
+static short **tos;             /*!< Output of each vector. */
+static short *tally;            /*!< Number of entries in each vector. */
+static short *width;            /*!< Width of each vector. */
+static short *actrow;           /*!< Current action row. */
+static short *state_count;      /*!< Scratch state counter. */
+static short *order;            /*!< Order in which vectors are packed. */
+static short *base;             /*!< Base of each vector in yytable. */
+static short *pos;              /*!< Position of each vector in yytable. */
+static short *table;            /*!< Packed yytable. */
+static short *check;            /*!< Packed yycheck. */
+static int lowzero;             /*!< Lowest zero entry in yytable. */
+static int high;                /*!< Highest used entry in yytable. */
 
 
 
+/*!
+ *  @brief Guard routine preamble emitted into the guard file.
+ *  @def GUARDSTR
+ */
 #define	GUARDSTR	"\n#include \"%s\"\nextern int yyerror;\n\
 extern int yycost;\nextern char * yymsg;\nextern YYSTYPE yyval;\n\n\
 yyguard(n, yyvsp, yylsp)\nregister int n;\nregister YYSTYPE *yyvsp;\n\
 register YYLTYPE *yylsp;\n\
 {\n  yyerror = 0;\nyycost = 0;\n  yymsg = 0;\nswitch (n)\n    {"
 
+/*!
+ *  @brief Semantic parser action routine preamble.
+ *  @def ACTSTR
+ */
 #define	ACTSTR		"\n#include \"%s\"\nextern YYSTYPE yyval;\
 \nextern int yychar;\
 yyaction(n, yyvsp, yylsp)\nregister int n;\nregister YYSTYPE *yyvsp;\n\
 register YYLTYPE *yylsp;\n{\n  switch (n)\n{"
 
+/*!
+ *  @brief Simple parser action routine preamble.
+ *  @def ACTSTR_SIMPLE
+ */
 #define	ACTSTR_SIMPLE	"\n  switch (yyn) {\n"
 
 
+/*!
+ *  @brief Writes the constant preamble shared by all generated files.
+ */
 void
 output_headers (void)
 {
@@ -229,6 +414,9 @@ output_headers (void)
 }
 
 
+/*!
+ *  @brief Writes the constant trailer shared by all generated files.
+ */
 void
 output_trailers (void)
 {
@@ -246,6 +434,9 @@ output_trailers (void)
 }
 
 
+/*!
+ *  @brief Writes the parsing tables and the parser to ftable.
+ */
 void
 output (void)
 {
@@ -289,6 +480,9 @@ output (void)
 }
 
 
+/*!
+ *  @brief Writes the token translation table.
+ */
 void
 output_token_translations (void)
 {
@@ -333,6 +527,9 @@ output_token_translations (void)
 }
 
 
+/*!
+ *  @brief Writes the rule grammar tables.
+ */
 void
 output_gram (void)
 {
@@ -398,6 +595,9 @@ output_gram (void)
 }
 
 
+/*!
+ *  @brief Writes the yystos table.
+ */
 void
 output_stos (void)
 {
@@ -428,6 +628,9 @@ output_stos (void)
 }
 
 
+/*!
+ *  @brief Writes the rule data tables.
+ */
 void
 output_rule_data (void)
 {
@@ -603,6 +806,9 @@ output_rule_data (void)
 }
 
 
+/*!
+ *  @brief Writes the #define directives for the parser.
+ */
 void
 output_defines (void)
 {
@@ -613,8 +819,12 @@ output_defines (void)
 
 
 
-/* compute and output yydefact, yydefgoto, yypact, yypgoto, yytable and yycheck.  */
-
+/*!
+ *  @brief Writes the action and goto tables.
+ *
+ *  Compute and output yydefact, yydefgoto, yypact, yypgoto, yytable
+ *  and yycheck.
+ */
 void
 output_actions (void)
 {
@@ -647,11 +857,13 @@ output_actions (void)
 
 
 
-/* figure out the actions for the specified state, indexed by lookahead token type.
-
-   The yydefact table is output now.  The detailed info
-   is saved for putting into yytable later.  */
-
+/*!
+ *  @brief Writes the token action tables.
+ *
+ *  Figure out the actions for the specified state, indexed by
+ *  lookahead token type. The yydefact table is output now. The
+ *  detailed info is saved for putting into yytable later.
+ */
 void
 token_actions (void)
 {
@@ -691,17 +903,25 @@ token_actions (void)
 
 
 
-/* Decide what to do for each type of token if seen as the lookahead token in specified state.
-   The value returned is used as the default action (yydefact) for the state.
-   In addition, actrow is filled with what to do for each kind of token,
-   index by symbol number, with zero meaning do the default action.
-   The value MINSHORT, a very negative number, means this situation
-   is an error.  The parser recognizes this value specially.
-
-   This is where conflicts are resolved.  The loop over lookahead rules
-   considered lower-numbered rules last, and the last rule considered that likes
-   a token gets to handle it.  */
-
+/*!
+ *  @brief Builds the action row for the given state.
+ *
+ *  Decide what to do for each type of token if seen as the lookahead
+ *  token in specified state. The value returned is used as the
+ *  default action (yydefact) for the state. In addition, actrow is
+ *  filled with what to do for each kind of token, index by symbol
+ *  number, with zero meaning do the default action. The value
+ *  MINSHORT, a very negative number, means this situation is an
+ *  error. The parser recognizes this value specially.
+ *
+ *  This is where conflicts are resolved. The loop over lookahead
+ *  rules considered lower-numbered rules last, and the last rule
+ *  considered that likes a token gets to handle it.
+ *
+ *  @param[in] state State number.
+ *
+ *  @return Default action for the state.
+ */
 int
 action_row (int state)
 {
@@ -865,6 +1085,11 @@ action_row (int state)
 }
 
 
+/*!
+ *  @brief Records the current action row for the given state.
+ *
+ *  @param[in] state State number.
+ */
 void
 save_row (int state)
 {
@@ -902,13 +1127,14 @@ save_row (int state)
 
 
 
-/* figure out what to do after reducing with each rule,
-   depending on the saved state from before the beginning
-   of parsing the data that matched this rule.
-
-   The yydefgoto table is output now.  The detailed info
-   is saved for putting into yytable later.  */
-
+/*!
+ *  @brief Writes the goto action tables.
+ *
+ *  Figure out what to do after reducing with each rule, depending on
+ *  the saved state from before the beginning of parsing the data
+ *  that matched this rule. The yydefgoto table is output now. The
+ *  detailed info is saved for putting into yytable later.
+ */
 void
 goto_actions (void)
 {
@@ -948,6 +1174,13 @@ goto_actions (void)
 
 
 
+/*!
+ *  @brief Chooses the default goto state for a symbol.
+ *
+ *  @param[in] symbol Nonterminal symbol.
+ *
+ *  @return Default state number, or -1 when none.
+ */
 int
 default_goto (int symbol)
 {
@@ -985,6 +1218,12 @@ default_goto (int symbol)
 }
 
 
+/*!
+ *  @brief Records the column of the goto table for a symbol.
+ *
+ *  @param[in] symbol        Nonterminal symbol.
+ *  @param[in] default_state Default target state.
+ */
 void
 save_column (int symbol, int default_state)
 {
@@ -1030,9 +1269,12 @@ save_column (int symbol, int default_state)
 
 
 
-/* the next few functions decide how to pack 
-   the actions and gotos information into yytable. */
-
+/*!
+ *  @brief Sorts the vectors by width and tally before packing.
+ *
+ *  The next few functions decide how to pack the actions and gotos
+ *  information into yytable.
+ */
 void
 sort_actions (void)
 {
@@ -1069,6 +1311,9 @@ sort_actions (void)
 }
 
 
+/*!
+ *  @brief Packs the vectors into the yytable/yycheck tables.
+ */
 void
 pack_table (void)
 {
@@ -1118,6 +1363,13 @@ pack_table (void)
 
 
 
+/*!
+ *  @brief Finds an earlier vector identical to the given one.
+ *
+ *  @param[in] vector Vector index.
+ *
+ *  @return Index of the matching earlier vector, or -1.
+ */
 int
 matching_state (int vector)
 {
@@ -1158,6 +1410,14 @@ matching_state (int vector)
 
 
 
+/*!
+ *  @brief Packs a vector into yytable/yycheck.
+ *
+ *  @param[in] vector Vector index.
+ *
+ *  @return Offset of the packed vector in yytable.
+ *  @retval 0 Internal error (unreachable, berror() is called instead).
+ */
 int
 pack_vector (int vector)
 {
@@ -1224,9 +1484,12 @@ pack_vector (int vector)
 
 
 
-/* the following functions output yytable, yycheck
-   and the vectors whose elements index the portion starts */
-
+/*!
+ *  @brief Writes the yypact and yypgoto tables.
+ *
+ *  The following functions output yytable, yycheck and the vectors
+ *  whose elements index the portion starts.
+ */
 void
 output_base (void)
 {
@@ -1278,6 +1541,9 @@ output_base (void)
 }
 
 
+/*!
+ *  @brief Writes the yytable table.
+ */
 void
 output_table (void)
 {
@@ -1310,6 +1576,9 @@ output_table (void)
 }
 
 
+/*!
+ *  @brief Writes the yycheck table.
+ */
 void
 output_check (void)
 {
@@ -1342,8 +1611,11 @@ output_check (void)
 
 
 
-/* copy the parser code into the ftable file at the end.  */
-
+/*!
+ *  @brief Copies the parser driver into ftable.
+ *
+ *  Copy the parser code into the ftable file at the end.
+ */
 void
 output_parser (void)
 {
@@ -1351,6 +1623,10 @@ output_parser (void)
 #ifdef DONTDEF
   FILE *fpars;
 #else
+/*!
+ *  @brief Parser skeleton stream used by output_parser().
+ *  @def fpars
+ */
 #define fpars fparser
 #endif
 
@@ -1422,6 +1698,9 @@ output_parser (void)
     }
 }
 
+/*!
+ *  @brief Copies the user's trailing program text into ftable.
+ */
 void
 output_program (void)
 {
@@ -1439,6 +1718,9 @@ output_program (void)
 }
 
 
+/*!
+ *  @brief Releases the state tables.
+ */
 void
 free_itemsets (void)
 {
@@ -1453,6 +1735,9 @@ free_itemsets (void)
 }
 
 
+/*!
+ *  @brief Releases the shift structures.
+ */
 void
 free_shifts (void)
 {
@@ -1467,6 +1752,9 @@ free_shifts (void)
 }
 
 
+/*!
+ *  @brief Releases the reduction structures.
+ */
 void
 free_reductions (void)
 {

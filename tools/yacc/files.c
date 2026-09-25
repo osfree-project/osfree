@@ -1,42 +1,77 @@
-/* Open and close files for bison,
-   Copyright (C) 1984, 1986, 1989, 1992 Free Software Foundation, Inc.
+/****************************************************************
+ * Open and close files for bison,
+ * Copyright (C) 1984, 1986, 1989, 1992 Free Software Foundation, Inc.
+ *
+ * This file is part of Bison, the GNU Compiler Compiler.
+ *
+ * Bison is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Bison is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Bison; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ ****************************************************************/
 
-This file is part of Bison, the GNU Compiler Compiler.
-
-Bison is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-Bison is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Bison; see the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ *  @file files.c
+ *  @brief Opens and closes files for Bison.
+ *
+ *  Computes the output file names from the options and the input
+ *  grammar name, opens the input and output streams, creates the
+ *  temporary files used to buffer the generated tables, and closes
+ *  everything cleanly at the end.
+ *
+ *  @copyright Copyright (C) 1984, 1986, 1989, 1992 Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
 
 #include "system.h"
 
 #if defined (VMS) & !defined (__VMS_POSIX)
 #include <ssdef.h>
+/*!
+ *  @brief VMS: alias for the C runtime delete call.
+ *  @def unlink
+ */
 #define unlink delete
 #ifndef XPFILE
+/*!
+ *  @brief VMS default location of the simple parser skeleton.
+ *  @def XPFILE
+ */
 #define XPFILE "GNU_BISON:[000000]BISON.SIMPLE"
 #endif
 #ifndef XPFILE1
+/*!
+ *  @brief VMS default location of the semantic parser skeleton.
+ *  @def XPFILE1
+ */
 #define XPFILE1 "GNU_BISON:[000000]BISON.HAIRY"
 #endif
 #endif
 
 #if defined (_MSC_VER)
 #ifndef XPFILE
+/*!
+ *  @brief MSVC default location of the simple parser skeleton.
+ *  @def XPFILE
+ */
 #define XPFILE "c:/usr/local/lib/bison.simple"
 #endif
 #ifndef XPFILE1
+/*!
+ *  @brief MSVC default location of the semantic parser skeleton.
+ *  @def XPFILE1
+ */
 #define XPFILE1 "c:/usr/local/lib/bison.hairy"
 #endif
 #endif
@@ -54,38 +89,46 @@ Boston, MA 02111-1307, USA.  */
 #include "alloc.h"
 #include "gram.h"
 
-FILE *finput = NULL;
-FILE *foutput = NULL;
-FILE *fdefines = NULL;
-FILE *ftable = NULL;
-FILE *fattrs = NULL;
-FILE *fguard = NULL;
-FILE *faction = NULL;
-FILE *fparser = NULL;
+FILE *finput = NULL;    /*!< Input grammar file. */
+FILE *foutput = NULL;   /*!< Optional file describing the actions taken. */
+FILE *fdefines = NULL;  /*!< Optional file with #define directives for tokens. */
+FILE *ftable = NULL;    /*!< Output file with the tables and the parser. */
+FILE *fattrs = NULL;    /*!< Optional file with the YYSTYPE definition and %{ %} blocks. */
+FILE *fguard = NULL;    /*!< Optional file containing the guard code. */
+FILE *faction = NULL;   /*!< File containing all the action code. */
+FILE *fparser = NULL;   /*!< Parser skeleton to copy into ftable. */
 
-/* File name specified with -o for the output file, or 0 if no -o.  */
+/*!< Output file name given by -o, or 0 if no -o was specified. */
 char *spec_outfile;
 
-char *infile;
-char *outfile;
-char *defsfile;
-char *tabfile;
-char *attrsfile;
-char *guardfile;
-char *actfile;
-char *tmpattrsfile;
-char *tmptabfile;
-char *tmpdefsfile;
+char *infile;           /*!< Input grammar file name. */
+char *outfile;          /*!< Name of the verbose output file. */
+char *defsfile;         /*!< Name of the token-defines file. */
+char *tabfile;          /*!< Name of the generated parser file. */
+char *attrsfile;        /*!< Name of the generated YYSTYPE file. */
+char *guardfile;        /*!< Name of the generated guard file. */
+char *actfile;          /*!< Name of the temporary action file. */
+char *tmpattrsfile;     /*!< Name of the temporary YYSTYPE file. */
+char *tmptabfile;       /*!< Name of the temporary parser-tables file. */
+char *tmpdefsfile;      /*!< Name of the temporary token-defines file. */
 
-extern int noparserflag;
+extern int noparserflag;/*!< Non-zero when -n (no parser) was requested. */
 
 
 #ifdef __OS2__
+/*!
+ *  @brief OS/2: alias to the C runtime mktemp().
+ *  @def mktemp
+ */
 #define mktemp _mktemp
 #include <libgen.h>
 #endif
 
 #ifdef __NT__
+/*!
+ *  @brief Windows NT: alias to the C runtime mktemp().
+ *  @def mktemp
+ */
 #define mktemp _mktemp
 #include <libgen.h>
 #endif
@@ -96,10 +139,17 @@ extern int noparserflag;
 #include <libgen.h>
 #include <process.h> //getpid()
 
-/* Generate a unique temporary file name from TEMPLATE.
-   The last six characters of TEMPLATE must be "XXXXXX";
-   they are replaced with a string that makes the filename unique.  */
-
+/*!
+ *  @brief Generates a unique temporary file name from a template.
+ *
+ *  The last six characters of @p tmpl must be "XXXXXX"; they are
+ *  replaced with a string that makes the filename unique.
+ *
+ *  @param[in,out] tmpl Template string, modified in place.
+ *
+ *  @return Pointer to @p tmpl on success, or @p tmpl with an empty
+ *          first character when no unique name could be found.
+ */
 char * mktemp (char *tmpl)
 {
   static const char letters[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -135,22 +185,87 @@ char * mktemp (char *tmpl)
 }
 #endif                                                                                                                        	          
 
+/*!
+ *  @brief Looks up a variable in the process environment.
+ *
+ *  @param[in] name Variable name.
+ *
+ *  @return Pointer to the variable value.
+ *  @retval NULL The name is not defined in the environment.
+ */
 extern char     *getenv();
+
+/*!
+ *  @brief Prints a system error message for the given function name.
+ *
+ *  @param[in] s Function name, used as the message prefix.
+ */
 extern void     perror();
 
+/*!
+ *  @brief Concatenates a prefix, a fixed-length first part and a suffix.
+ *
+ *  @param[in] string1 First string.
+ *  @param[in] end1    Number of characters of @p string1 to use.
+ *  @param[in] string2 Second string.
+ *
+ *  @return Newly allocated concatenation.
+ */
 char *stringappend PARAMS((char *, int, char *));
+
+/*!
+ *  @brief Computes output file names and opens the input and output files.
+ */
 void openfiles PARAMS((void));
+
+/*!
+ *  @brief Opens the extra files needed by the semantic parser.
+ */
 void open_extra_files PARAMS((void));
+
+/*!
+ *  @brief Opens a file, terminating on failure.
+ *
+ *  @param[in] name File name.
+ *  @param[in] mode fopen() mode string.
+ *
+ *  @return The opened stream.
+ */
 FILE *tryopen PARAMS((char *, char *)); /* This might be a good idea */
+
+/*!
+ *  @brief Closes a file, terminating on failure.
+ *
+ *  @param[in] ptr Stream to close, may be NULL.
+ *
+ *  @return Result of fclose(), or 0 when @p ptr is NULL.
+ *  @retval 0 The stream was NULL and nothing was closed.
+ *  @retval EOF fclose() reported an error.
+ */
 int tryclose PARAMS((FILE *));
+
+/*!
+ *  @brief Terminates the program after closing all streams.
+ *
+ *  @param[in] k Exit status.
+ */
 void done PARAMS((int));
 
-extern char *program_name;
-extern int verboseflag;
-extern int definesflag;
-int fixed_outfiles = 0;
+extern char *program_name;  /*!< Name of the running program. */
+extern int verboseflag;     /*!< Non-zero if the verbose output file was requested. */
+extern int definesflag;     /*!< Non-zero if the defines file was requested. */
+int fixed_outfiles = 0;     /*!< Non-zero when the POSIX -y naming is requested. */
 
 
+/*!
+ *  @brief Concatenates a prefix, a fixed-length first part and a suffix.
+ *
+ *  @param[in] string1 First string.
+ *  @param[in] end1    Number of characters of @p string1 to use.
+ *  @param[in] string2 Second string.
+ *
+ *  @return Newly allocated concatenation.
+ */
 char *
 stringappend (char *string1, int end1, char *string2)
 {
@@ -176,8 +291,12 @@ stringappend (char *string1, int end1, char *string2)
 }
 
 
-/* JF this has been hacked to death.  Nowaday it sets up the file names for
-   the output files, and opens the tmp files and the parser */
+/*!
+ *  @brief Computes output file names and opens the input and output files.
+ *
+ *  JF this has been hacked to death.  Nowaday it sets up the file
+ *  names for the output files, and opens the tmp files and the parser.
+ */
 void
 openfiles (void)
 {
@@ -343,9 +462,6 @@ openfiles (void)
          }
 #endif
 
-//     CharToOem(filename, buffer);
-//      printf("a13b fn=%s\n", buffer);
-
       fparser = tryopen(filename ? filename : PFILE, "r");
     }
 
@@ -426,9 +542,12 @@ openfiles (void)
 
 
 
-/* open the output files needed only for the semantic parser.
-This is done when %semantic_parser is seen in the declarations section.  */
-
+/*!
+ *  @brief Opens the extra files needed by the semantic parser.
+ *
+ *  Open the output files needed only for the semantic parser. This
+ *  is done when %semantic_parser is seen in the declarations section.
+ */
 void
 open_extra_files (void)
 {
@@ -491,8 +610,17 @@ open_extra_files (void)
 
 }
 
-        /* JF to make file opening easier.  This func tries to open file
-           NAME with mode MODE, and prints an error message if it fails. */
+/*!
+ *  @brief Opens a file, terminating on failure.
+ *
+ *  JF to make file opening easier. This func tries to open file NAME
+ *  with mode MODE, and prints an error message if it fails.
+ *
+ *  @param[in] name File name.
+ *  @param[in] mode fopen() mode string.
+ *
+ *  @return The opened stream.
+ */
 FILE *
 tryopen (char *name, char *mode)
 {
@@ -508,6 +636,15 @@ tryopen (char *name, char *mode)
   return ptr;
 }
 
+/*!
+ *  @brief Closes a file, terminating on failure.
+ *
+ *  @param[in] ptr Stream to close, may be NULL.
+ *
+ *  @return Result of fclose(), or 0 when @p ptr is NULL.
+ *  @retval 0 The stream was NULL and nothing was closed.
+ *  @retval EOF fclose() reported an error.
+ */
 int
 tryclose (FILE *ptr)
 {
@@ -526,6 +663,11 @@ tryclose (FILE *ptr)
   return result;
 }
 
+/*!
+ *  @brief Terminates the program after closing all streams.
+ *
+ *  @param[in] k Exit status.
+ */
 void
 done (int k)
 {

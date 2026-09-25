@@ -1,22 +1,36 @@
-/* Print information on generated parser, for bison,
-   Copyright (C) 1984, 1986, 1989 Free Software Foundation, Inc.
+/****************************************************************
+ * Print information on generated parser, for bison,
+ * Copyright (C) 1984, 1986, 1989 Free Software Foundation, Inc.
+ *
+ * This file is part of Bison, the GNU Compiler Compiler.
+ *
+ * Bison is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Bison is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Bison; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ ****************************************************************/
 
-This file is part of Bison, the GNU Compiler Compiler.
-
-Bison is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-Bison is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Bison; see the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ *  @file print.c
+ *  @brief Prints information about the generated parser.
+ *
+ *  Implements the verbose and terse reports requested with -v: prints
+ *  the conflict log, the grammar, and for each state the kernel items
+ *  and the available actions.
+ *
+ *  @copyright Copyright (C) 1984, 1986, 1989 Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
 
 #include <stdio.h>
@@ -28,30 +42,82 @@ Boston, MA 02111-1307, USA.  */
 #include "state.h"
 
 
-extern char **tags;
-extern int nstates;
-extern short *accessing_symbol;
-extern core **state_table;
-extern shifts **shift_table;
-extern errs **err_table;
-extern reductions **reduction_table;
-extern char *consistent;
-extern char any_conflicts;
-extern char *conflicts;
-extern int final_state;
+extern char **tags;             /*!< Printable names of all symbols. */
+extern int nstates;             /*!< Number of parser states. */
+extern short *accessing_symbol; /*!< Accessing symbol of each state. */
+extern core **state_table;      /*!< State structures indexed by number. */
+extern shifts **shift_table;    /*!< Shift structures indexed by number. */
+extern errs **err_table;        /*!< Explicit error tokens per state. */
+extern reductions **reduction_table; /*!< Reduction structures indexed by number. */
+extern char *consistent;        /*!< Non-zero for states requiring no lookahead. */
+extern char any_conflicts;      /*!< Non-zero if any state has a conflict. */
+extern char *conflicts;         /*!< Per-state conflict flag. */
+extern int final_state;         /*!< Number of the termination state. */
 
+/*!
+ *  @brief Writes the terse conflict log.
+ */
 extern void conflict_log PARAMS((void));
+
+/*!
+ *  @brief Writes the verbose conflict log.
+ */
 extern void verbose_conflict_log PARAMS((void));
+
+/*!
+ *  @brief Prints the reductions available in a state.
+ *
+ *  @param[in] state State number.
+ */
 extern void print_reductions PARAMS((int));
 
+/*!
+ *  @brief Writes the terse report about the parser.
+ */
 void terse PARAMS((void));
+
+/*!
+ *  @brief Writes the verbose report about the parser.
+ */
 void verbose PARAMS((void));
+
+/*!
+ *  @brief Prints a token with its external number.
+ *
+ *  @param[in] extnum External token number.
+ *  @param[in] token  Internal token number.
+ */
 void print_token PARAMS((int, int));
+
+/*!
+ *  @brief Prints the contents of a parser state.
+ *
+ *  @param[in] state State number.
+ */
 void print_state PARAMS((int));
+
+/*!
+ *  @brief Prints the kernel items of a parser state.
+ *
+ *  @param[in] state State number.
+ */
 void print_core PARAMS((int));
+
+/*!
+ *  @brief Prints the actions available in a parser state.
+ *
+ *  @param[in] state State number.
+ */
 void print_actions PARAMS((int));
+
+/*!
+ *  @brief Prints the grammar as a whole.
+ */
 void print_grammar PARAMS((void));
 
+/*!
+ *  @brief Writes the terse report about the parser.
+ */
 void
 terse (void)
 {
@@ -62,6 +128,9 @@ terse (void)
 }
 
 
+/*!
+ *  @brief Writes the verbose report about the parser.
+ */
 void
 verbose (void)
 {
@@ -79,6 +148,12 @@ verbose (void)
 }
 
 
+/*!
+ *  @brief Prints a token with its external number.
+ *
+ *  @param[in] extnum External token number.
+ *  @param[in] token  Internal token number.
+ */
 void
 print_token (int extnum, int token)
 {
@@ -86,6 +161,11 @@ print_token (int extnum, int token)
 }
 
 
+/*!
+ *  @brief Prints the contents of a parser state.
+ *
+ *  @param[in] state State number.
+ */
 void
 print_state (int state)
 {
@@ -95,6 +175,11 @@ print_state (int state)
 }
 
 
+/*!
+ *  @brief Prints the kernel items of a parser state.
+ *
+ *  @param[in] state State number.
+ */
 void
 print_core (int state)
 {
@@ -141,6 +226,11 @@ print_core (int state)
 }
 
 
+/*!
+ *  @brief Prints the actions available in a parser state.
+ *
+ *  @param[in] state State number.
+ */
 void
 print_actions (int state)
 {
@@ -236,11 +326,20 @@ print_actions (int state)
     }
 }
 
+/*!
+ *  @brief Ends a line of the grammar listing, wrapping if needed.
+ *
+ *  @param[in] end Column limit beyond which the line is wrapped.
+ *  @def END_TEST
+ */
 #define END_TEST(end) \
   if (column + strlen(buffer) > (end))					 \
     { fprintf (foutput, "%s\n   ", buffer); column = 3; buffer[0] = 0; } \
   else
 
+/*!
+ *  @brief Prints the grammar as a whole.
+ */
 void
 print_grammar (void)
 {

@@ -1,22 +1,37 @@
-/* Generate the nondeterministic finite state machine for bison,
-   Copyright (C) 1984, 1986, 1989 Free Software Foundation, Inc.
+/****************************************************************
+ * Generate the nondeterministic finite state machine for bison,
+ * Copyright (C) 1984, 1986, 1989 Free Software Foundation, Inc.
+ *
+ * This file is part of Bison, the GNU Compiler Compiler.
+ *
+ * Bison is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Bison is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Bison; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ ****************************************************************/
 
-This file is part of Bison, the GNU Compiler Compiler.
-
-Bison is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-Bison is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Bison; see the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ *  @file LR0.c
+ *  @brief Generates the nondeterministic finite state machine for Bison.
+ *
+ *  Builds the LR(0) automaton from the packed grammar: allocates the
+ *  item sets, computes shift and reduction transitions out of every
+ *  state, and finally augments the automaton with the initial and
+ *  final states expected by the parser generator.
+ *
+ *  @copyright Copyright (C) 1984, 1986, 1989 Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
 
 /* See comments in state.h for the data structures that represent it.
@@ -30,58 +45,147 @@ Boston, MA 02111-1307, USA.  */
 #include "state.h"
 
 
-extern char *nullable;
-extern short *itemset;
-extern short *itemsetend;
+extern char *nullable;      /*!< Non-zero per nonterminal that can derive the empty string. */
+extern short *itemset;      /*!< Current set of item numbers (from closure.c). */
+extern short *itemsetend;   /*!< One past the end of the active portion of itemset. */
 
 
-int nstates;
-int final_state;
-core *first_state;
-shifts *first_shift;
-reductions *first_reduction;
+int nstates;                /*!< Number of states generated so far. */
+int final_state;            /*!< Number of the termination state. */
+core *first_state;          /*!< First state in the chain (state 0). */
+shifts *first_shift;        /*!< First shifts structure in the chain. */
+reductions *first_reduction;/*!< First reductions structure in the chain. */
 
+/*!
+ *  @brief Returns the state number reached by shifting @p symbol.
+ *
+ *  @param[in] symbol Grammar symbol to shift on.
+ *
+ *  @return Number of the target state.
+ */
 int get_state PARAMS((int));
+
+/*!
+ *  @brief Creates a new state for the given @p symbol.
+ *
+ *  @param[in] symbol Accessing symbol of the new state.
+ *
+ *  @return Pointer to the newly created core structure.
+ */
 core *new_state PARAMS((int));
 
+/*!
+ *  @brief Allocates the item set and symbol count storage.
+ */
 void allocate_itemsets PARAMS((void));
+
+/*!
+ *  @brief Allocates all the storage needed by the state generator.
+ */
 void allocate_storage PARAMS((void));
+
+/*!
+ *  @brief Releases all the storage allocated by the state generator.
+ */
 void free_storage PARAMS((void));
+
+/*!
+ *  @brief Builds the LR(0) automaton from the grammar.
+ */
 void generate_states PARAMS((void));
+
+/*!
+ *  @brief Computes shift transitions out of the current state.
+ */
 void new_itemsets PARAMS((void));
+
+/*!
+ *  @brief Looks up or creates the states reached by the current shifts.
+ */
 void append_states PARAMS((void));
+
+/*!
+ *  @brief Creates the initial state of the automaton.
+ */
 void initialize_states PARAMS((void));
+
+/*!
+ *  @brief Records the shifts out of the current state.
+ */
 void save_shifts PARAMS((void));
+
+/*!
+ *  @brief Records the reductions allowed in the current state.
+ */
 void save_reductions PARAMS((void));
+
+/*!
+ *  @brief Adds the initial and final states required by the parser.
+ */
 void augment_automaton PARAMS((void));
+
+/*!
+ *  @brief Creates the next-to-final state of the automaton.
+ */
 void insert_start_shift PARAMS((void));
+
+/*!
+ *  @brief Initializes the closure computation.
+ *
+ *  @param[in] n Number of items to allocate for the itemset.
+ */
 extern void initialize_closure PARAMS((int));
+
+/*!
+ *  @brief Computes the closure of the given core.
+ *
+ *  @param[in] core Core item numbers.
+ *  @param[in] n    Number of items in the core.
+ */
 extern void closure PARAMS((short *, int));
+
+/*!
+ *  @brief Releases the storage used by the closure computation.
+ */
 extern void finalize_closure PARAMS((void));
+
+/*!
+ *  @brief Reports that too many of the given kind of object were generated.
+ *
+ *  @param[in] s Description of the object kind.
+ */
 extern void toomany PARAMS((char *));
 
-static core *this_state;
-static core *last_state;
-static shifts *last_shift;
-static reductions *last_reduction;
+static core *this_state;            /*!< Current state being processed. */
+static core *last_state;            /*!< Last state in the chain. */
+static shifts *last_shift;          /*!< Last shifts structure in the chain. */
+static reductions *last_reduction;  /*!< Last reductions structure in the chain. */
 
-static int nshifts;
-static short *shift_symbol;
+static int nshifts;                 /*!< Number of shifts out of the current state. */
+static short *shift_symbol;         /*!< Symbols shiftable from the current state. */
 
-static short *redset;
-static short *shiftset;
+static short *redset;               /*!< Rules that can be reduced in the current state. */
+static short *shiftset;             /*!< States reached by shifts out of the current state. */
 
-static short **kernel_base;
-static short **kernel_end;
-static short *kernel_items;
+static short **kernel_base;         /*!< Start of each symbol's kernel item vector. */
+static short **kernel_end;          /*!< End of each symbol's kernel item vector. */
+static short *kernel_items;         /*!< Backing storage for all kernel item vectors. */
 
 /* hash table for states, to recognize equivalent ones.  */
 
+/*!
+ *  @brief Size of the state hash table.
+ *  @def STATE_TABLE_SIZE
+ */
 #define	STATE_TABLE_SIZE	1009
-static core **state_table;
+
+static core **state_table;          /*!< Hash table of states keyed by item set. */
 
 
 
+/*!
+ *  @brief Allocates the item set and symbol count storage.
+ */
 void
 allocate_itemsets (void)
 {
@@ -127,6 +231,9 @@ allocate_itemsets (void)
 }
 
 
+/*!
+ *  @brief Allocates all the storage needed by the state generator.
+ */
 void
 allocate_storage (void)
 {
@@ -138,6 +245,9 @@ allocate_storage (void)
 }
 
 
+/*!
+ *  @brief Releases all the storage allocated by the state generator.
+ */
 void
 free_storage (void)
 {
@@ -152,8 +262,12 @@ free_storage (void)
 
 
 
-/* compute the nondeterministic finite state machine (see state.h for details)
-from the grammar.  */
+/*!
+ *  @brief Builds the LR(0) automaton from the grammar.
+ *
+ *  Computes the nondeterministic finite state machine (see state.h
+ *  for details).
+ */
 void
 generate_states (void)
 {
@@ -193,13 +307,17 @@ generate_states (void)
 
 
 
-/* Find which symbols can be shifted in the current state,
-   and for each one record which items would be active after that shift.
-   Uses the contents of itemset.
-   shift_symbol is set to a vector of the symbols that can be shifted.
-   For each symbol in the grammar, kernel_base[symbol] points to
-   a vector of item numbers activated if that symbol is shifted,
-   and kernel_end[symbol] points after the end of that vector.  */
+/*!
+ *  @brief Computes shift transitions out of the current state.
+ *
+ *  Find which symbols can be shifted in the current state, and for
+ *  each one record which items would be active after that shift.
+ *  Uses the contents of itemset. shift_symbol is set to a vector of
+ *  the symbols that can be shifted. For each symbol in the grammar,
+ *  kernel_base[symbol] points to a vector of item numbers activated
+ *  if that symbol is shifted, and kernel_end[symbol] points after
+ *  the end of that vector.
+ */
 void
 new_itemsets (void)
 {
@@ -244,10 +362,13 @@ new_itemsets (void)
 
 
 
-/* Use the information computed by new_itemsets to find the state numbers
-   reached by each shift transition from the current state.
-
-   shiftset is set up as a vector of state numbers of those states.  */
+/*!
+ *  @brief Looks up or creates the states reached by the current shifts.
+ *
+ *  Uses the information computed by new_itemsets to find the state
+ *  numbers reached by each shift transition from the current state.
+ *  shiftset is set up as a vector of state numbers of those states.
+ */
 void
 append_states (void)
 {
@@ -282,11 +403,17 @@ append_states (void)
 
 
 
-/* find the state number for the state we would get to
-(from the current state) by shifting symbol.
-Create a new state if no equivalent one exists already.
-Used by append_states  */
-
+/*!
+ *  @brief Finds or creates the state reached by shifting @p symbol.
+ *
+ *  Finds the state number for the state we would get to (from the
+ *  current state) by shifting @p symbol. Creates a new state if no
+ *  equivalent one exists already. Used by append_states.
+ *
+ *  @param[in] symbol Grammar symbol shifted on.
+ *
+ *  @return Number of the target state.
+ */
 int
 get_state (int symbol)
 {
@@ -358,8 +485,16 @@ get_state (int symbol)
 
 
 
-/* subroutine of get_state.  create a new state for those items, if necessary.  */
-
+/*!
+ *  @brief Creates a new state for the given items.
+ *
+ *  Subroutine of get_state. Creates a new state for those items, if
+ *  necessary.
+ *
+ *  @param[in] symbol Accessing symbol of the new state.
+ *
+ *  @return Pointer to the new core structure.
+ */
 core *
 new_state (int symbol)
 {
@@ -398,13 +533,13 @@ new_state (int symbol)
 }
 
 
+/*!
+ *  @brief Creates the initial state of the automaton.
+ */
 void
 initialize_states (void)
 {
   register core *p;
-/*  register unsigned *rp1; JF unused */
-/*  register unsigned *rp2; JF unused */
-/*  register unsigned *rend; JF unused */
 
   p = (core *) xmalloc((unsigned) (sizeof(core) - sizeof(short)));
   first_state = last_state = this_state = p;
@@ -412,6 +547,9 @@ initialize_states (void)
 }
 
 
+/*!
+ *  @brief Records the shifts out of the current state.
+ */
 void
 save_shifts (void)
 {
@@ -447,8 +585,13 @@ save_shifts (void)
 
 
 
-/* find which rules can be used for reduction transitions from the current state
-   and make a reductions structure for the state to record their rule numbers.  */
+/*!
+ *  @brief Records the reductions allowed in the current state.
+ *
+ *  Finds which rules can be used for reduction transitions from the
+ *  current state and makes a reductions structure for the state to
+ *  record their rule numbers.
+ */
 void
 save_reductions (void)
 {
@@ -505,17 +648,20 @@ save_reductions (void)
 
 
 
-/* Make sure that the initial state has a shift that accepts the
-grammar's start symbol and goes to the next-to-final state,
-which has a shift going to the final state, which has a shift
-to the termination state.
-Create such states and shifts if they don't happen to exist already.  */
+/*!
+ *  @brief Adds the initial and final states required by the parser.
+ *
+ *  Makes sure that the initial state has a shift that accepts the
+ *  grammar's start symbol and goes to the next-to-final state, which
+ *  has a shift going to the final state, which has a shift to the
+ *  termination state. Creates such states and shifts if they don't
+ *  happen to exist already.
+ */
 void
 augment_automaton (void)
 {
   register int i;
   register int k;
-/*  register int found; JF unused */
   register core *statep;
   register shifts *sp;
   register shifts *sp2;
@@ -680,9 +826,12 @@ augment_automaton (void)
 }
 
 
-/* subroutine of augment_automaton.
-   Create the next-to-final state, to which a shift has already been made in
-   the initial state.  */
+/*!
+ *  @brief Creates the next-to-final state of the automaton.
+ *
+ *  Subroutine of augment_automaton. Creates the next-to-final state,
+ *  to which a shift has already been made in the initial state.
+ */
 void
 insert_start_shift (void)
 {

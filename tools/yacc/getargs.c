@@ -1,22 +1,37 @@
-/* Parse command line arguments for bison,
-   Copyright (C) 1984, 1986, 1989, 1992 Free Software Foundation, Inc.
+/****************************************************************
+ * Parse command line arguments for bison,
+ * Copyright (C) 1984, 1986, 1989, 1992 Free Software Foundation, Inc.
+ *
+ * This file is part of Bison, the GNU Compiler Compiler.
+ *
+ * Bison is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Bison is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Bison; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ ****************************************************************/
 
-This file is part of Bison, the GNU Compiler Compiler.
-
-Bison is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-Bison is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Bison; see the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ *  @file getargs.c
+ *  @brief Parses command line arguments for Bison.
+ *
+ *  Recognizes the short and long options described by the POSIX yacc
+ *  specification plus Bison's own extensions, sets the corresponding
+ *  global flags, records the input grammar file name in @ref infile,
+ *  and prints the usage message on error or on --help.
+ *
+ *  @copyright Copyright (C) 1984, 1986, 1989, 1992 Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
 
 #include <stdio.h>
@@ -24,24 +39,46 @@ Boston, MA 02111-1307, USA.  */
 #include "system.h"
 #include "files.h"
 
-int verboseflag;
-int definesflag;
-int debugflag;
-int nolinesflag;
-int noparserflag = 0;
-int toknumflag = 0;
-int rawtoknumflag = 0;
-char *spec_name_prefix; /* for -p.  */
-char *spec_file_prefix; /* for -b. */
-extern int fixed_outfiles;/* for -y */
+int verboseflag;        /*!< Non-zero when -v or --verbose was given. */
+int definesflag;        /*!< Non-zero when -d or --defines was given. */
+int debugflag;          /*!< Non-zero when -t or --debug was given. */
+int nolinesflag;        /*!< Non-zero when -l or --no-lines was given. */
+int noparserflag = 0;   /*!< Non-zero when -n or --no-parser was given. */
+int toknumflag = 0;     /*!< Non-zero when -k or --token-table was given. */
+int rawtoknumflag = 0;  /*!< Non-zero when -r or --raw was given. */
+char *spec_name_prefix; /*!< Name prefix set by -p or --name-prefix. */
+char *spec_file_prefix; /*!< File prefix set by -b or --file-prefix. */
+extern int fixed_outfiles;/*!< Non-zero when -y or --yacc was given. */
   
+/*!
+ *  @brief Prints the usage message to the given stream.
+ *
+ *  @param[in] stream Output stream.
+ */
 void usage PARAMS((FILE *));
+
+/*!
+ *  @brief Parses the command line arguments.
+ *
+ *  @param[in] argc Argument count.
+ *  @param[in] argv Argument vector.
+ */
 void getargs PARAMS((int, char *[]));
 
+/*!< Name of the running program, used in diagnostics. */
 extern char *program_name;
 
+/*!
+ *  @brief Reports a warning with one string argument.
+ *
+ *  @param[in] fmt Format string.
+ *  @param[in] arg Argument for the format.
+ */
 extern void warns PARAMS((char *, char *));	/* main.c */
 
+/*!
+ *  @brief Long-option table accepted by getopt_long().
+ */
 struct option longopts[] =
 {
   {"debug", 0, &debugflag, 1},
@@ -62,6 +99,11 @@ struct option longopts[] =
   {0, 0, 0, 0}
 };
 
+/*!
+ *  @brief Prints the usage message to the given stream.
+ *
+ *  @param[in] stream Output stream.
+ */
 void
 usage (FILE *stream)
 {
@@ -76,6 +118,12 @@ Report bugs to bug-bison@gnu.org\n"),
 	   program_name);
 }
 
+/*!
+ *  @brief Parses the command line arguments.
+ *
+ *  @param[in] argc Argument count.
+ *  @param[in] argv Argument vector.
+ */
 void
 getargs (int argc, char *argv[])
 {

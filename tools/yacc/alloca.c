@@ -1,25 +1,30 @@
-/* alloca.c -- allocate automatically reclaimed memory
-   (Mostly) portable public-domain implementation -- D A Gwyn
-
-   This implementation of the PWB library alloca function,
-   which is used to allocate space off the run-time stack so
-   that it is automatically reclaimed upon procedure exit,
-   was inspired by discussions with J. Q. Johnson of Cornell.
-   J.Otto Tennant <jot@cray.com> contributed the Cray support.
-
-   There are some preprocessor constants that can
-   be defined when compiling for your specific system, for
-   improved efficiency; however, the defaults should be okay.
-
-   The general concept of this implementation is to keep
-   track of all alloca-allocated blocks, and reclaim any
-   that are found to be deeper in the stack than the current
-   invocation.  This heuristic does not reclaim storage as
-   soon as it becomes invalid, but it will do so eventually.
-
-   As a special case, alloca(0) reclaims storage without
-   allocating any.  It is a good idea to use alloca(0) in
-   your main control loop, etc. to force garbage collection.  */
+/****************************************************************
+ * alloca.c -- allocate automatically reclaimed memory
+ *
+ * (Mostly) portable public-domain implementation -- D A Gwyn
+ *
+ * This implementation of the PWB library alloca function, which is
+ * used to allocate space off the run-time stack so that it is
+ * automatically reclaimed upon procedure exit, was inspired by
+ * discussions with J. Q. Johnson of Cornell. J.Otto Tennant
+ * <jot@cray.com> contributed the Cray support.
+ *
+ * There are some preprocessor constants that can be defined when
+ * compiling for your specific system, for improved efficiency;
+ * however, the defaults should be okay.
+ *
+ * The general concept of this implementation is to keep track of all
+ * alloca-allocated blocks, and reclaim any that are found to be
+ * deeper in the stack than the current invocation. This heuristic
+ * does not reclaim storage as soon as it becomes invalid, but it will
+ * do so eventually.
+ *
+ * As a special case, alloca(0) reclaims storage without allocating
+ * any. It is a good idea to use alloca(0) in your main control loop,
+ * etc. to force garbage collection.
+ *
+ * @copyright Public domain (D A Gwyn). Distributed with Bison.
+ ****************************************************************/
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -57,9 +62,15 @@ lose
 #endif /* static */
 #endif /* emacs */
 
-/* If your stack is a linked list of frames, you have to
-   provide an "address metric" ADDRESS_FUNCTION macro.  */
-
+/*!
+ *  @brief Computes an "address metric" from a stack-allocated object.
+ *
+ *  If your stack is a linked list of frames, you have to provide an
+ *  "address metric" ADDRESS_FUNCTION macro.
+ *
+ *  @param[in] arg Stack-allocated object to measure.
+ *  @def ADDRESS_FUNCTION
+ */
 #if defined (CRAY) && defined (CRAY_STACKSEG_END)
 long i00afunc ();
 #define ADDRESS_FUNCTION(arg) (char *) i00afunc (&(arg))
@@ -68,12 +79,19 @@ long i00afunc ();
 #endif
 
 #if __STDC__
+/*!
+ *  @brief Generic pointer type used by this file.
+ */
 typedef void *pointer;
 #else
 typedef char *pointer;
 #endif
 
 #ifndef NULL
+/*!
+ *  @brief Null pointer value.
+ *  @def NULL
+ */
 #define	NULL	0
 #endif
 
@@ -87,6 +105,10 @@ typedef char *pointer;
 
    Callers below should use malloc.  */
 
+/*!
+ *  @brief Redirects malloc to xmalloc outside of Emacs.
+ *  @def malloc
+ */
 #ifndef emacs
 #define malloc xmalloc
 #endif
@@ -101,18 +123,38 @@ extern pointer malloc ();
    STACK_DIRECTION = 0 => direction of growth unknown  */
 
 #ifndef STACK_DIRECTION
+/*!
+ *  @brief Direction of stack growth; 0 means unknown at compile time.
+ *  @def STACK_DIRECTION
+ */
 #define	STACK_DIRECTION	0	/* Direction unknown.  */
 #endif
 
 #if STACK_DIRECTION != 0
 
-#define	STACK_DIR	STACK_DIRECTION	/* Known at compile-time.  */
+/*!
+ *  @brief Direction of stack growth, known at compile time.
+ *  @def STACK_DIR
+ */
+#define	STACK_DIR	STACK_DIRECTION
 
 #else /* STACK_DIRECTION == 0; need run-time code.  */
 
-static int stack_dir;		/* 1 or -1 once known.  */
+/*!< Direction of stack growth, determined at run-time: 1 or -1. */
+static int stack_dir;
+
+/*!
+ *  @brief Direction of stack growth; resolved at run-time when needed.
+ *  @def STACK_DIR
+ */
 #define	STACK_DIR	stack_dir
 
+/*!
+ *  @brief Determines the direction of stack growth at run-time.
+ *
+ *  Recurses once, compares stack addresses of the two frames and
+ *  stores +1 or -1 in stack_dir.
+ */
 static void
 find_stack_direction ()
 {
@@ -145,9 +187,19 @@ find_stack_direction ()
    alignment chunk size.  The following default should work okay.  */
 
 #ifndef	ALIGN_SIZE
+/*!
+ *  @brief Alignment chunk size of malloc.
+ *  @def ALIGN_SIZE
+ */
 #define	ALIGN_SIZE	sizeof(double)
 #endif
 
+/*!
+ *  @brief Header prepended to each alloca'ed block.
+ *
+ *  The union forces the header size to agree with the malloc
+ *  alignment chunk size.
+ */
 typedef union hdr
 {
   char align[ALIGN_SIZE];	/* To force sizeof(header).  */
@@ -158,7 +210,7 @@ typedef union hdr
     } h;
 } header;
 
-static header *last_alloca_header = NULL;	/* -> last alloca header.  */
+static header *last_alloca_header = NULL;	/*!< Points to the last alloca header. */
 
 /* Return a pointer to at least SIZE bytes of storage,
    which will be automatically reclaimed upon exit from
@@ -167,6 +219,13 @@ static header *last_alloca_header = NULL;	/* -> last alloca header.  */
    caller, but that method cannot be made to work for some
    implementations of C, for example under Gould's UTX/32.  */
 
+/*!
+ *  @brief Allocates storage automatically reclaimed at procedure exit.
+ *
+ *  @param[in] size Number of bytes to allocate.
+ *
+ *  @return Pointer to the allocated storage, or NULL when @p size is 0.
+ */
 pointer
 alloca (size)
      unsigned size;
@@ -239,15 +298,23 @@ alloca (size)
 #endif
 
 #ifndef CRAY_STACK
+/*!
+ *  @brief Marker used to guard the Cray-specific declarations.
+ *  @def CRAY_STACK
+ */
 #define CRAY_STACK
 #ifndef CRAY2
 /* Stack structures for CRAY-1, CRAY X-MP, and CRAY Y-MP */
+
+/*!
+ *  @brief Stack control header for CRAY-1/X-MP/Y-MP.
+ */
 struct stack_control_header
   {
-    long shgrow:32;		/* Number of times stack has grown.  */
-    long shaseg:32;		/* Size of increments to stack.  */
-    long shhwm:32;		/* High water mark of stack.  */
-    long shsize:32;		/* Current size of stack (all segments).  */
+    long shgrow:32;		/*!< Number of times stack has grown. */
+    long shaseg:32;		/*!< Size of increments to stack. */
+    long shhwm:32;		/*!< High water mark of stack. */
+    long shsize:32;		/*!< Current size of stack (all segments). */
   };
 
 /* The stack segment linkage control information occurs at
@@ -257,23 +324,24 @@ struct stack_control_header
    0200 (octal) words.  This provides for register storage
    for the routine which overflows the stack.  */
 
+/*!
+ *  @brief Stack segment linkage control block for CRAY-1/X-MP/Y-MP.
+ */
 struct stack_segment_linkage
   {
-    long ss[0200];		/* 0200 overflow words.  */
-    long sssize:32;		/* Number of words in this segment.  */
-    long ssbase:32;		/* Offset to stack base.  */
+    long ss[0200];		/*!< 0200 overflow words. */
+    long sssize:32;		/*!< Number of words in this segment. */
+    long ssbase:32;		/*!< Offset to stack base. */
     long:32;
-    long sspseg:32;		/* Offset to linkage control of previous
-				   segment of stack.  */
+    long sspseg:32;		/*!< Offset to linkage control of previous segment of stack. */
     long:32;
-    long sstcpt:32;		/* Pointer to task common address block.  */
-    long sscsnm;		/* Private control structure number for
-				   microtasking.  */
-    long ssusr1;		/* Reserved for user.  */
-    long ssusr2;		/* Reserved for user.  */
-    long sstpid;		/* Process ID for pid based multi-tasking.  */
-    long ssgvup;		/* Pointer to multitasking thread giveup.  */
-    long sscray[7];		/* Reserved for Cray Research.  */
+    long sstcpt:32;		/*!< Pointer to task common address block. */
+    long sscsnm;		/*!< Private control structure number for microtasking. */
+    long ssusr1;		/*!< Reserved for user. */
+    long ssusr2;		/*!< Reserved for user. */
+    long sstpid;		/*!< Process ID for pid based multi-tasking. */
+    long ssgvup;		/*!< Pointer to multitasking thread giveup. */
+    long sscray[7];		/*!< Reserved for Cray Research. */
     long ssa0;
     long ssa1;
     long ssa2;
@@ -295,44 +363,45 @@ struct stack_segment_linkage
 #else /* CRAY2 */
 /* The following structure defines the vector of words
    returned by the STKSTAT library routine.  */
+
+/*!
+ *  @brief Stack statistics block for CRAY-2.
+ */
 struct stk_stat
   {
-    long now;			/* Current total stack size.  */
-    long maxc;			/* Amount of contiguous space which would
-				   be required to satisfy the maximum
-				   stack demand to date.  */
-    long high_water;		/* Stack high-water mark.  */
-    long overflows;		/* Number of stack overflow ($STKOFEN) calls.  */
-    long hits;			/* Number of internal buffer hits.  */
-    long extends;		/* Number of block extensions.  */
-    long stko_mallocs;		/* Block allocations by $STKOFEN.  */
-    long underflows;		/* Number of stack underflow calls ($STKRETN).  */
-    long stko_free;		/* Number of deallocations by $STKRETN.  */
-    long stkm_free;		/* Number of deallocations by $STKMRET.  */
-    long segments;		/* Current number of stack segments.  */
-    long maxs;			/* Maximum number of stack segments so far.  */
-    long pad_size;		/* Stack pad size.  */
-    long current_address;	/* Current stack segment address.  */
-    long current_size;		/* Current stack segment size.  This
-				   number is actually corrupted by STKSTAT to
-				   include the fifteen word trailer area.  */
-    long initial_address;	/* Address of initial segment.  */
-    long initial_size;		/* Size of initial segment.  */
+    long now;			/*!< Current total stack size. */
+    long maxc;			/*!< Amount of contiguous space which would be required to satisfy the maximum stack demand to date. */
+    long high_water;		/*!< Stack high-water mark. */
+    long overflows;		/*!< Number of stack overflow ($STKOFEN) calls. */
+    long hits;			/*!< Number of internal buffer hits. */
+    long extends;		/*!< Number of block extensions. */
+    long stko_mallocs;		/*!< Block allocations by $STKOFEN. */
+    long underflows;		/*!< Number of stack underflow calls ($STKRETN). */
+    long stko_free;		/*!< Number of deallocations by $STKRETN. */
+    long stkm_free;		/*!< Number of deallocations by $STKMRET. */
+    long segments;		/*!< Current number of stack segments. */
+    long maxs;			/*!< Maximum number of stack segments so far. */
+    long pad_size;		/*!< Stack pad size. */
+    long current_address;	/*!< Current stack segment address. */
+    long current_size;		/*!< Current stack segment size. This number is actually corrupted by STKSTAT to include the fifteen word trailer area. */
+    long initial_address;	/*!< Address of initial segment. */
+    long initial_size;		/*!< Size of initial segment. */
   };
 
 /* The following structure describes the data structure which trails
    any stack segment.  I think that the description in 'asdef' is
    out of date.  I only describe the parts that I am sure about.  */
 
+/*!
+ *  @brief Data structure trailing any CRAY-2 stack segment.
+ */
 struct stk_trailer
   {
-    long this_address;		/* Address of this block.  */
-    long this_size;		/* Size of this block (does not include
-				   this trailer).  */
+    long this_address;		/*!< Address of this block. */
+    long this_size;		/*!< Size of this block (does not include this trailer). */
     long unknown2;
     long unknown3;
-    long link;			/* Address of trailer block of previous
-				   segment.  */
+    long link;			/*!< Address of trailer block of previous segment. */
     long unknown5;
     long unknown6;
     long unknown7;
@@ -352,6 +421,13 @@ struct stk_trailer
 /* Determine a "stack measure" for an arbitrary ADDRESS.
    I doubt that "lint" will like this much.  */
 
+/*!
+ *  @brief Returns a stack measure for an arbitrary address (CRAY-2).
+ *
+ *  @param[in] address Address to measure.
+ *
+ *  @return Offset of the address within the stack segments.
+ */
 static long
 i00afunc (long *address)
 {
@@ -426,6 +502,13 @@ i00afunc (long *address)
    routine is to linearize, in some sense, stack addresses
    for alloca.  */
 
+/*!
+ *  @brief Returns a stack cell number for an address (CRAY-1/X-MP/Y-MP).
+ *
+ *  @param[in] address Address to measure.
+ *
+ *  @return Linearized position of the address within the stack.
+ */
 static long
 i00afunc (long address)
 {

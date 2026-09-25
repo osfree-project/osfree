@@ -1,22 +1,36 @@
-/* Grammar reduction for Bison.
-   Copyright (C) 1988, 1989 Free Software Foundation, Inc.
+/****************************************************************
+ * Grammar reduction for Bison.
+ * Copyright (C) 1988, 1989 Free Software Foundation, Inc.
+ *
+ * This file is part of Bison, the GNU Compiler Compiler.
+ *
+ * Bison is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Bison is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Bison; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ ****************************************************************/
 
-This file is part of Bison, the GNU Compiler Compiler.
-
-Bison is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-Bison is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Bison; see the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ *  @file reduce.c
+ *  @brief Grammar reduction for Bison.
+ *
+ *  Finds and eliminates unreachable terminals, nonterminals and
+ *  productions. Unreachable terminals are not eliminated because
+ *  they may be used by the user's parser.
+ *
+ *  @copyright Copyright (C) 1988, 1989 Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
 
 /*
@@ -37,17 +51,37 @@ Boston, MA 02111-1307, USA.  */
 #include "alloc.h"
 
 
-extern char   **tags;		/* reader.c */
-extern int      verboseflag;	/* getargs.c */
-static int      statisticsflag;	/* XXXXXXX */
-extern int      fixed_outfiles;
+extern char   **tags;		/*!< Printable names of all symbols (reader.c). */
+extern int      verboseflag;	/*!< Non-zero when the verbose report was requested. */
+static int      statisticsflag;	/*!< Non-zero to print reduction statistics. */
+extern int      fixed_outfiles; /*!< Non-zero when POSIX -y naming is in effect. */
 
 #ifndef TRUE
+/*!
+ *  @brief Boolean true.
+ *  @def TRUE
+ */
 #define TRUE	(1)
+/*!
+ *  @brief Boolean false.
+ *  @def FALSE
+ */
 #define FALSE	(0)
 #endif
+
+/*!
+ *  @brief Boolean type used throughout the reduction pass.
+ */
 typedef int bool;
+
+/*!
+ *  @brief Bit set of words.
+ */
 typedef unsigned *BSet;
+
+/*!
+ *  @brief Pointer to one rule in the packed ritem array.
+ */
 typedef short  *rule;
 
 
@@ -57,26 +91,104 @@ typedef short  *rule;
  * accessible symbols.
  */
 
-static BSet     N, P, V, V1;
+static BSet     N;              /*!< Nonterminals that are not useless. */
+static BSet     P;              /*!< Rules whose RHS contains only useful nonterminals. */
+static BSet     V;              /*!< Symbols that are accessible. */
+static BSet     V1;             /*!< Tokens mentioned in %prec. */
 
-static int      nuseful_productions, nuseless_productions,
-                nuseful_nonterminals, nuseless_nonterminals;
+static int      nuseful_productions;    /*!< Number of useful rules. */
+static int      nuseless_productions;   /*!< Number of useless rules. */
+static int      nuseful_nonterminals;   /*!< Number of useful nonterminals. */
+static int      nuseless_nonterminals;  /*!< Number of useless nonterminals. */
 
 
+/*!
+ *  @brief Compares two bit sets.
+ *
+ *  @param[in] L First bit set.
+ *  @param[in] R Second bit set.
+ *  @param[in] n Number of words to compare.
+ *
+ *  @return Non-zero when the sets are equal.
+ *  @retval FALSE The sets differ in at least one word.
+ *  @retval TRUE  Every word of the two sets is equal.
+ */
 bool bits_equal PARAMS((BSet, BSet, int));
+
+/*!
+ *  @brief Counts the set bits in a word.
+ *
+ *  @param[in] i Word to inspect.
+ *
+ *  @return Number of set bits.
+ */
 int nbits PARAMS((unsigned));
+
+/*!
+ *  @brief Counts the set bits in a whole bit set.
+ *
+ *  @param[in] S Bit set.
+ *  @param[in] n Number of words.
+ *
+ *  @return Number of set bits.
+ */
 int bits_size PARAMS((BSet, int));
+
+/*!
+ *  @brief Removes useless rules and nonterminals from the grammar.
+ */
 void reduce_grammar PARAMS((void));
+
+/*!
+ *  @brief Computes the set of nonterminals that can derive something.
+ */
 static void useless_nonterminals PARAMS((void));
+
+/*!
+ *  @brief Computes the set of reachable symbols.
+ */
 static void inaccessable_symbols PARAMS((void));
+
+/*!
+ *  @brief Rewrites the grammar tables after reduction.
+ */
 static void reduce_grammar_tables PARAMS((void));
+
+/*!
+ *  @brief Prints the results of the reduction pass.
+ */
 static void print_results PARAMS((void));
+
+/*!
+ *  @brief Prints the summary notices for the reduction pass.
+ */
 static void print_notices PARAMS((void));
+
+/*!
+ *  @brief Dumps the whole grammar to the verbose output.
+ */
 void dump_grammar PARAMS((void));
 
+/*!
+ *  @brief Prints a fatal error with one argument.
+ *
+ *  @param[in] fmt Format string.
+ *  @param[in] arg Argument for the format.
+ */
 extern void fatals PARAMS((char *, char *));
 
 
+/*!
+ *  @brief Compares two bit sets.
+ *
+ *  @param[in] L First bit set.
+ *  @param[in] R Second bit set.
+ *  @param[in] n Number of words to compare.
+ *
+ *  @return Non-zero when the sets are equal.
+ *  @retval FALSE The sets differ in at least one word.
+ *  @retval TRUE  Every word of the two sets is equal.
+ */
 bool
 bits_equal (BSet L, BSet R, int n)
 {
@@ -89,6 +201,13 @@ bits_equal (BSet L, BSet R, int n)
 }
 
 
+/*!
+ *  @brief Counts the set bits in a word.
+ *
+ *  @param[in] i Word to inspect.
+ *
+ *  @return Number of set bits.
+ */
 int
 nbits (unsigned i)
 {
@@ -102,6 +221,14 @@ nbits (unsigned i)
 }
 
 
+/*!
+ *  @brief Counts the set bits in a whole bit set.
+ *
+ *  @param[in] S Bit set.
+ *  @param[in] n Number of words.
+ *
+ *  @return Number of set bits.
+ */
 int
 bits_size (BSet S, int n)
 {
@@ -112,6 +239,9 @@ bits_size (BSet S, int n)
   return count;
 }
 
+/*!
+ *  @brief Removes useless rules and nonterminals from the grammar.
+ */
 void
 reduce_grammar (void)
 {
@@ -167,12 +297,23 @@ reduce_grammar (void)
 
 }
 
-/*
- * Another way to do this would be with a set for each production and then do
- * subset tests against N0, but even for the C grammar the whole reducing
- * process takes only 2 seconds on my 8Mhz AT.
+/*!
+ *  @brief Tests whether a rule is useful.
+ *
+ *  A production is useful if all of the nonterminals in its RHS appear
+ *  in the set of useful nonterminals.
+ *
+ *  Another way to do this would be with a set for each production and
+ *  then do subset tests against N0, but even for the C grammar the
+ *  whole reducing process takes only 2 seconds on my 8Mhz AT.
+ *
+ *  @param[in] i  Rule number.
+ *  @param[in] N0 Set of useful nonterminals.
+ *
+ *  @return Non-zero when the rule is useful.
+ *  @retval FALSE The rule mentions a nonterminal that is not in @p N0.
+ *  @retval TRUE  Every nonterminal of the rule is in @p N0.
  */
-
 static bool
 useful_production (int i, BSet N0)
 {
@@ -192,8 +333,11 @@ useful_production (int i, BSet N0)
 }
 
 
-/* Remember that rules are 1-origin, symbols are 0-origin. */
-
+/*!
+ *  @brief Computes the set of nonterminals that can derive something.
+ *
+ *  Remember that rules are 1-origin, symbols are 0-origin.
+ */
 static void
 useless_nonterminals (void)
 {
@@ -251,6 +395,9 @@ useless_nonterminals (void)
   N = Np;
 }
 
+/*!
+ *  @brief Computes the set of reachable symbols.
+ */
 static void
 inaccessable_symbols (void)
 {
@@ -350,6 +497,9 @@ inaccessable_symbols (void)
       SETBIT(V1, rprecsym[i]);
 }
 
+/*!
+ *  @brief Rewrites the grammar tables after reduction.
+ */
 static void
 reduce_grammar_tables (void)
 {
@@ -420,7 +570,6 @@ reduce_grammar_tables (void)
     {
 
       int    i, n;
-/*      short  j; JF unused */
       short *nontermmap;
       rule   r;
 
@@ -479,11 +628,13 @@ reduce_grammar_tables (void)
     }
 }
 
+/*!
+ *  @brief Prints the results of the reduction pass.
+ */
 static void
 print_results (void)
 {
   int   i;
-/*  short j; JF unused */
   rule  r;
   bool  b;
 
@@ -529,6 +680,9 @@ print_results (void)
     fprintf(foutput, "\n\n");
 }
 
+/*!
+ *  @brief Dumps the whole grammar to the verbose output.
+ */
 void
 dump_grammar (void)
 {
@@ -566,6 +720,9 @@ dump_grammar (void)
 }
 
 
+/*!
+ *  @brief Prints the summary notices for the reduction pass.
+ */
 static void
 print_notices (void)
 {

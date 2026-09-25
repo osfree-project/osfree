@@ -1,32 +1,48 @@
-/* Getopt for GNU.
-   NOTE: getopt is now part of the C library, so if you don't know what
-   "Keep this file name-space clean" means, talk to drepper@gnu.org
-   before changing it!
+/****************************************************************
+ * Getopt for GNU.
+ *
+ * Copyright (C) 1987, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98
+ * Free Software Foundation, Inc.
+ *
+ * NOTE: The canonical source of this file is maintained with the
+ * GNU C Library. Bugs can be reported to bug-glibc@gnu.org.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ ****************************************************************/
 
-   Copyright (C) 1987, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98
-   	Free Software Foundation, Inc.
+/*!
+ *  @file getopt.c
+ *  @brief GNU getopt implementation.
+ *
+ *  Parses command line options, supporting short options and long
+ *  options, permutation of non-option arguments, and the POSIX
+ *  POSIXLY_CORRECT behaviour.
+ *
+ *  @copyright Copyright (C) 1987, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98
+ *             Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
-   NOTE: The canonical source of this file is maintained with the GNU C Library.
-   Bugs can be reported to bug-glibc@gnu.org.
-
-   This program is free software; you can redistribute it and/or modify it
-   under the terms of the GNU General Public License as published by the
-   Free Software Foundation; either version 2, or (at your option) any
-   later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA.  */
-
 /* This tells Alpha OSF/1 not to define a getopt prototype in <stdio.h>.
    Ditto for AIX 3.2 and <stdlib.h>.  */
 #ifndef _NO_PROTO
+/*!
+ *  @brief Suppresses the getopt prototype in system headers.
+ *  @def _NO_PROTO
+ */
 # define _NO_PROTO
 #endif
 
@@ -52,10 +68,18 @@
    program understand `configure --with-gnu-libc' and omit the object files,
    it is simpler to just do this in the source for each such file.  */
 
+/*!
+ *  @brief Version of the getopt interface expected by the caller.
+ *  @def GETOPT_INTERFACE_VERSION
+ */
 #define GETOPT_INTERFACE_VERSION 2
 #if !defined _LIBC && defined __GLIBC__ && __GLIBC__ >= 2
 # include <gnu-versions.h>
 # if _GNU_GETOPT_INTERFACE_VERSION == GETOPT_INTERFACE_VERSION
+/*!
+ *  @brief Suppresses the whole implementation when libc provides it.
+ *  @def ELIDE_CODE
+ */
 #  define ELIDE_CODE
 # endif
 #endif
@@ -84,8 +108,18 @@
    When compiling libc, the _ macro is predefined.  */
 # ifdef HAVE_LIBINTL_H
 #  include <libintl.h>
+/*!
+ *  @brief Marks a string for translation.
+ *  @param[in] msgid Message identifier.
+ *  @def _
+ */
 #  define _(msgid)	gettext (msgid)
 # else
+/*!
+ *  @brief Marks a string for translation.
+ *  @param[in] msgid Message identifier.
+ *  @def _
+ */
 #  define _(msgid)	(msgid)
 # endif
 #endif
@@ -112,7 +146,7 @@
    Also, when `ordering' is RETURN_IN_ORDER,
    each non-option ARGV-element is returned here.  */
 
-char *optarg = NULL;
+char *optarg = NULL;    /*!< Argument of the current option, or next non-option. */
 
 /* Index in ARGV of the next element to be scanned.
    This is used for communication to and from the caller
@@ -127,13 +161,13 @@ char *optarg = NULL;
    how much of ARGV has been scanned so far.  */
 
 /* 1003.2 says this must be 1 before any call.  */
-int optind = 1;
+int optind = 1;         /*!< Index of the next ARGV element to scan. */
 
 /* Formerly, initialization of getopt depended on optind==0, which
    causes problems with re-calling getopt as programs generally don't
    know that. */
 
-int __getopt_initialized = 0;
+int __getopt_initialized = 0;   /*!< Non-zero once getopt has been initialized. */
 
 /* The next char to be scanned in the option-element
    in which the last option character we returned was found.
@@ -142,18 +176,18 @@ int __getopt_initialized = 0;
    If this is zero, or a null string, it means resume the scan
    by advancing to the next ARGV-element.  */
 
-static char *nextchar;
+static char *nextchar;  /*!< Remaining option characters of the current element. */
 
 /* Callers store zero here to inhibit the error message
    for unrecognized options.  */
 
-int opterr = 1;
+int opterr = 1;         /*!< Non-zero to print diagnostics for unknown options. */
 
 /* Set to an option character which was unrecognized.
    This must be initialized on some systems to avoid linking in the
    system's own getopt implementation.  */
 
-int optopt = '?';
+int optopt = '?';       /*!< Last unrecognized option character. */
 
 /* Describe how to deal with options that follow non-option ARGV-elements.
 
@@ -184,13 +218,18 @@ int optopt = '?';
    of the value of `ordering'.  In the case of RETURN_IN_ORDER, only
    `--' can cause `getopt' to return -1 with `optind' != ARGC.  */
 
+/*!
+ *  @brief How options and non-option arguments are ordered.
+ */
 static enum
 {
-  REQUIRE_ORDER, PERMUTE, RETURN_IN_ORDER
+  REQUIRE_ORDER,    /*!< Stop at the first non-option. */
+  PERMUTE,          /*!< Move non-options to the end of ARGV. */
+  RETURN_IN_ORDER   /*!< Return non-options as arguments of pseudo-option 1. */
 } ordering;
 
 /* Value of POSIXLY_CORRECT environment variable.  */
-static char *posixly_correct;
+static char *posixly_correct;   /*!< Value of POSIXLY_CORRECT, or NULL. */
 
 #ifdef	__GNU_LIBRARY__
 /* We want to avoid inclusion of string.h with non-GNU libraries
@@ -198,6 +237,10 @@ static char *posixly_correct;
    On some systems, it contains special magic macros that don't work
    in GCC.  */
 # include <string.h>
+/*!
+ *  @brief Implementation of strchr() selected for this build.
+ *  @def my_index
+ */
 # define my_index	strchr
 #else
 
@@ -211,9 +254,25 @@ static char *posixly_correct;
    whose names are inconsistent.  */
 
 #ifndef getenv
+/*!
+ *  @brief Looks up a variable in the process environment.
+ *
+ *  @param[in] name Variable name.
+ *
+ *  @return Pointer to the variable value, or NULL when the name is
+ *          not defined in the environment.
+ */
 extern char *getenv ();
 #endif
 
+/*!
+ *  @brief Finds the first occurrence of @p chr in @p str.
+ *
+ *  @param[in] str String to search.
+ *  @param[in] chr Character to look for.
+ *
+ *  @return Pointer to the first match, or NULL.
+ */
 static char *
 my_index (str, chr)
      const char *str;
@@ -248,8 +307,8 @@ extern int strlen (const char *);
    been skipped.  `first_nonopt' is the index in ARGV of the first of them;
    `last_nonopt' is the index after the last of them.  */
 
-static int first_nonopt;
-static int last_nonopt;
+static int first_nonopt;    /*!< Index of the first skipped non-option. */
+static int last_nonopt;     /*!< Index just past the last skipped non-option. */
 
 #ifdef _LIBC
 /* Bash 2.0 gives us an environment variable containing flags
@@ -258,15 +317,21 @@ static int last_nonopt;
 /* Defined in getopt_init.c  */
 extern char *__getopt_nonoption_flags;
 
-static int nonoption_flags_max_len;
-static int nonoption_flags_len;
+static int nonoption_flags_max_len;  /*!< Allocated length of the flag string. */
+static int nonoption_flags_len;      /*!< Number of valid flags. */
 
-static int original_argc;
-static char *const *original_argv;
+static int original_argc;            /*!< argc as passed to the process. */
+static char *const *original_argv;   /*!< argv as passed to the process. */
 
 /* Make sure the environment variable bash 2.0 puts in the environment
    is valid for the getopt call we must make sure that the ARGV passed
    to getopt is that one passed to the process.  */
+/*!
+ *  @brief Records the original argc and argv for later comparison.
+ *
+ *  @param[in] argc Argument count.
+ *  @param[in] argv Argument vector.
+ */
 static void
 __attribute__ ((unused))
 store_args_and_env (int argc, char *const *argv)
@@ -280,6 +345,13 @@ store_args_and_env (int argc, char *const *argv)
 text_set_element (__libc_subinit, store_args_and_env);
 # endif /* text_set_element */
 
+/*!
+ *  @brief Swaps the non-option flag bytes for two ARGV elements.
+ *
+ *  @param[in] ch1 First index.
+ *  @param[in] ch2 Second index.
+ *  @def SWAP_FLAGS
+ */
 # define SWAP_FLAGS(ch1, ch2) \
   if (nonoption_flags_len > 0)						      \
     {									      \
@@ -288,6 +360,15 @@ text_set_element (__libc_subinit, store_args_and_env);
       __getopt_nonoption_flags[ch2] = __tmp;				      \
     }
 #else	/* !_LIBC */
+/*!
+ *  @brief Swaps the non-option flag bytes for two ARGV elements.
+ *
+ *  On non-glibc builds this is a no-op.
+ *
+ *  @param[in] ch1 First index.
+ *  @param[in] ch2 Second index.
+ *  @def SWAP_FLAGS
+ */
 # define SWAP_FLAGS(ch1, ch2)
 #endif	/* _LIBC */
 
@@ -301,9 +382,19 @@ text_set_element (__libc_subinit, store_args_and_env);
    the new indices of the non-options in ARGV after they are moved.  */
 
 #if defined __STDC__ && __STDC__
+/*!
+ *  @brief Exchanges two adjacent subsequences of ARGV.
+ *
+ *  @param[in,out] argv Argument vector, permuted in place.
+ */
 static void exchange (char **);
 #endif
 
+/*!
+ *  @brief Exchanges two adjacent subsequences of ARGV.
+ *
+ *  @param[in,out] argv Argument vector, permuted in place.
+ */
 static void
 exchange (argv)
      char **argv;
@@ -387,8 +478,27 @@ exchange (argv)
 /* Initialize the internal data when the first call is made.  */
 
 #if defined __STDC__ && __STDC__
+/*!
+ *  @brief Initializes the internal getopt state.
+ *
+ *  @param[in] argc      Argument count.
+ *  @param[in] argv      Argument vector.
+ *  @param[in] optstring Option string.
+ *
+ *  @return Pointer to the option string to use.
+ */
 static const char *_getopt_initialize (int, char *const *, const char *);
 #endif
+
+/*!
+ *  @brief Initializes the internal getopt state.
+ *
+ *  @param[in] argc      Argument count.
+ *  @param[in] argv      Argument vector.
+ *  @param[in] optstring Option string.
+ *
+ *  @return Pointer to the option string to use.
+ */
 static const char *
 _getopt_initialize (argc, argv, optstring)
      int argc;
@@ -511,6 +621,19 @@ _getopt_initialize (argc, argv, optstring)
    If LONG_ONLY is nonzero, '-' as well as '--' can introduce
    long-named options.  */
 
+/*!
+ *  @brief Shared implementation of getopt, getopt_long and getopt_long_only.
+ *
+ *  @param[in]  argc       Argument count.
+ *  @param[in]  argv       Argument vector.
+ *  @param[in]  optstring  Short option string.
+ *  @param[in]  longopts   Long option table, or NULL.
+ *  @param[out] longind    Index of the matched long option, or NULL.
+ *  @param[in]  long_only  Non-zero to accept long options with a single dash.
+ *
+ *  @return The next option character, 0 for a long option with a flag,
+ *          or -1 when the scan is complete.
+ */
 int
 _getopt_internal (argc, argv, optstring, longopts, longind, long_only)
      int argc;
@@ -535,10 +658,18 @@ _getopt_internal (argc, argv, optstring, longopts, longind, long_only)
      from the shell indicating it is not an option.  The later information
      is only used when the used in the GNU libc.  */
 #ifdef _LIBC
+/*!
+ *  @brief Tests whether the current ARGV element is a non-option.
+ *  @def NONOPTION_P
+ */
 # define NONOPTION_P (argv[optind][0] != '-' || argv[optind][1] == '\0'	      \
 		      || (optind < nonoption_flags_len			      \
 			  && __getopt_nonoption_flags[optind] == '1'))
 #else
+/*!
+ *  @brief Tests whether the current ARGV element is a non-option.
+ *  @def NONOPTION_P
+ */
 # define NONOPTION_P (argv[optind][0] != '-' || argv[optind][1] == '\0')
 #endif
 
@@ -965,6 +1096,15 @@ _getopt_internal (argc, argv, optstring, longopts, longind, long_only)
   }
 }
 
+/*!
+ *  @brief Parses the next short option.
+ *
+ *  @param[in] argc      Argument count.
+ *  @param[in] argv      Argument vector.
+ *  @param[in] optstring Short option string.
+ *
+ *  @return The next option character, or -1 when the scan is complete.
+ */
 int
 getopt (argc, argv, optstring)
      int argc;
@@ -984,6 +1124,14 @@ getopt (argc, argv, optstring)
 /* Compile with -DTEST to make an executable for use in testing
    the above definition of `getopt'.  */
 
+/*!
+ *  @brief Test driver for getopt().
+ *
+ *  @param[in] argc Argument count.
+ *  @param[in] argv Argument vector.
+ *
+ *  @return Exit status.
+ */
 int
 main (argc, argv)
      int argc;

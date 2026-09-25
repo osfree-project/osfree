@@ -1,22 +1,36 @@
-/* Symbol table manager for Bison,
-   Copyright (C) 1984, 1989 Free Software Foundation, Inc.
+/****************************************************************
+ * Symbol table manager for Bison,
+ * Copyright (C) 1984, 1989 Free Software Foundation, Inc.
+ *
+ * This file is part of Bison, the GNU Compiler Compiler.
+ *
+ * Bison is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Bison is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Bison; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ ****************************************************************/
 
-This file is part of Bison, the GNU Compiler Compiler.
-
-Bison is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-Bison is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Bison; see the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ *  @file symtab.c
+ *  @brief Symbol table manager for Bison.
+ *
+ *  Implements a hash table keyed by symbol name, with a linked list of
+ *  buckets used both for hashing and for preserving the order in which
+ *  symbols were first seen.
+ *
+ *  @copyright Copyright (C) 1984, 1989 Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
 
 #include <stdio.h>
@@ -25,15 +39,28 @@ Boston, MA 02111-1307, USA.  */
 #include "symtab.h"
 #include "gram.h"
 
+bucket **symtab;        /*!< Hash table of symbol buckets. */
+bucket *firstsymbol;    /*!< First symbol in insertion order. */
+bucket *lastsymbol;     /*!< Last symbol in insertion order. */
 
-bucket **symtab;
-bucket *firstsymbol;
-bucket *lastsymbol;
-
+/*!
+ *  @brief Initializes the symbol table.
+ */
 void tabinit PARAMS((void));
+
+/*!
+ *  @brief Releases the whole symbol table.
+ */
 void free_symtab PARAMS((void));
 
 
+/*!
+ *  @brief Computes the hash value of a symbol name.
+ *
+ *  @param[in] key Zero-terminated symbol name.
+ *
+ *  @return Hash bucket index in the range [0, TABSIZE).
+ */
 static int
 hash (char *key)
 {
@@ -50,6 +77,13 @@ hash (char *key)
 
 
 
+/*!
+ *  @brief Copies a string into freshly allocated memory.
+ *
+ *  @param[in] s String to duplicate.
+ *
+ *  @return Pointer to the newly allocated copy.
+ */
 static char *
 copys (char *s)
 {
@@ -67,11 +101,12 @@ copys (char *s)
 }
 
 
+/*!
+ *  @brief Initializes the symbol table.
+ */
 void
 tabinit (void)
 {
-/*   register int i; JF unused */
-
   symtab = NEW2(TABSIZE, bucket *);
 
   firstsymbol = NULL;
@@ -79,6 +114,17 @@ tabinit (void)
 }
 
 
+/*!
+ *  @brief Looks up or creates a symbol table entry.
+ *
+ *  If the given name is already present, the existing bucket is
+ *  returned. Otherwise a new bucket is created and linked into both
+ *  the hash chain and the insertion-order chain.
+ *
+ *  @param[in] key Zero-terminated symbol name.
+ *
+ *  @return Pointer to the symbol's bucket.
+ */
 bucket *
 getsym (char *key)
 {
@@ -126,6 +172,9 @@ getsym (char *key)
 }
 
 
+/*!
+ *  @brief Releases the whole symbol table.
+ */
 void
 free_symtab (void)
 {

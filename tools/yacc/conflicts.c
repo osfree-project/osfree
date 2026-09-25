@@ -1,22 +1,37 @@
-/* Find and resolve or report look-ahead conflicts for bison,
-   Copyright (C) 1984, 1989, 1992 Free Software Foundation, Inc.
+/****************************************************************
+ * Find and resolve or report look-ahead conflicts for bison,
+ * Copyright (C) 1984, 1989, 1992 Free Software Foundation, Inc.
+ *
+ * This file is part of Bison, the GNU Compiler Compiler.
+ *
+ * Bison is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Bison is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Bison; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ ****************************************************************/
 
-This file is part of Bison, the GNU Compiler Compiler.
-
-Bison is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-Bison is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Bison; see the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ *  @file conflicts.c
+ *  @brief Finds and resolves or reports look-ahead conflicts.
+ *
+ *  Implements the pass that detects shift/reduce and reduce/reduce
+ *  conflicts in the LALR tables, tries to resolve shift/reduce
+ *  conflicts with the precedence declarations, and produces the
+ *  verbose and terse conflict reports.
+ *
+ *  @copyright Copyright (C) 1984, 1989, 1992 Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
 #include <stdio.h>
 #include "system.h"
@@ -27,49 +42,117 @@ Boston, MA 02111-1307, USA.  */
 #include "state.h"
 
 
-extern char **tags;
-extern int tokensetsize;
-extern char *consistent;
-extern short *accessing_symbol;
-extern shifts **shift_table;
-extern unsigned *LA;
-extern short *LAruleno;
-extern short *lookaheads;
-extern int verboseflag;
-extern int fixed_outfiles;
+extern char **tags;             /*!< Printable names of all symbols. */
+extern int tokensetsize;        /*!< Number of words per token bit set. */
+extern char *consistent;        /*!< Non-zero for states requiring no lookahead. */
+extern short *accessing_symbol; /*!< Accessing symbol of each state. */
+extern shifts **shift_table;    /*!< Shift structures indexed by state number. */
+extern unsigned *LA;            /*!< Lookahead bit matrix. */
+extern short *LAruleno;         /*!< Rules that require lookahead. */
+extern short *lookaheads;       /*!< Index into LAruleno per state. */
+extern int verboseflag;         /*!< Non-zero if the verbose report was requested. */
+extern int fixed_outfiles;      /*!< Non-zero if POSIX -y naming is in effect. */
 
+/*!
+ *  @brief Initializes the conflict-resolution state.
+ */
 void initialize_conflicts PARAMS((void));
+
+/*!
+ *  @brief Marks the conflicts that occur in the given state.
+ *
+ *  @param[in] state State number.
+ */
 void set_conflicts PARAMS((int));
+
+/*!
+ *  @brief Attempts to resolve a shift/reduce conflict using precedence.
+ *
+ *  @param[in] state        State number.
+ *  @param[in] lookaheadnum Index of the lookahead rule.
+ */
 void resolve_sr_conflict PARAMS((int, int));
+
+/*!
+ *  @brief Turns off the shift recorded for a token in a state.
+ *
+ *  @param[in] state State number.
+ *  @param[in] token Token number.
+ */
 void flush_shift PARAMS((int, int));
+
+/*!
+ *  @brief Records a precedence-based conflict resolution in the verbose log.
+ *
+ *  @param[in] state      State number.
+ *  @param[in] LAno       Index into LAruleno.
+ *  @param[in] token      Token number.
+ *  @param[in] resolution Description of the chosen resolution.
+ */
 void log_resolution PARAMS((int, int, int, char *));
+
+/*!
+ *  @brief Writes the terse conflict log.
+ */
 void conflict_log PARAMS((void));
+
+/*!
+ *  @brief Writes the verbose conflict log.
+ */
 void verbose_conflict_log PARAMS((void));
+
+/*!
+ *  @brief Reports the total number of conflicts.
+ */
 void total_conflicts PARAMS((void));
+
+/*!
+ *  @brief Counts the shift/reduce conflicts in a state.
+ *
+ *  @param[in] state State number.
+ */
 void count_sr_conflicts PARAMS((int));
+
+/*!
+ *  @brief Counts the reduce/reduce conflicts in a state.
+ *
+ *  @param[in] state State number.
+ */
 void count_rr_conflicts PARAMS((int));
+
+/*!
+ *  @brief Prints the reductions available in a state.
+ *
+ *  @param[in] state State number.
+ */
 void print_reductions PARAMS((int));
+
+/*!
+ *  @brief Releases the storage used by conflict resolution.
+ */
 void finalize_conflicts PARAMS((void));
 
-char any_conflicts;
-char *conflicts;
-errs **err_table;
-int expected_conflicts;
+char any_conflicts;             /*!< Non-zero if any state has a conflict. */
+char *conflicts;                /*!< Per-state conflict flag. */
+errs **err_table;               /*!< Per-state explicit error tokens, or NULL. */
+int expected_conflicts;         /*!< Number of expected conflicts (%expect). */
 
 
-static unsigned *shiftset;
-static unsigned *lookaheadset;
-static int src_total;
-static int rrc_total;
-static int src_count;
-static int rrc_count;
+static unsigned *shiftset;      /*!< Scratch bit set for shifts. */
+static unsigned *lookaheadset;  /*!< Scratch bit set for lookaheads. */
+static int src_total;           /*!< Total shift/reduce conflicts seen. */
+static int rrc_total;           /*!< Total reduce/reduce conflicts seen. */
+static int src_count;           /*!< Shift/reduce conflicts in the current state. */
+static int rrc_count;           /*!< Reduce/reduce conflicts in the current state. */
 
 
+/*!
+ *  @brief Initializes the conflict-resolution state.
+ */
 void
 initialize_conflicts (void)
 {
   register int i;
-/*  register errs *sp; JF unused */
 
   conflicts = NEW2(nstates, char);
   shiftset = NEW2(tokensetsize, unsigned);
@@ -84,6 +167,11 @@ initialize_conflicts (void)
 }
 
 
+/*!
+ *  @brief Marks the conflicts that occur in the given state.
+ *
+ *  @param[in] state State number.
+ */
 void
 set_conflicts (int state)
 {
@@ -164,12 +252,17 @@ set_conflicts (int state)
 
 
 
-/* Attempt to resolve shift-reduce conflict for one rule
-by means of precedence declarations.
-It has already been checked that the rule has a precedence.
-A conflict is resolved by modifying the shift or reduce tables
-so that there is no longer a conflict.  */
-
+/*!
+ *  @brief Attempts to resolve a shift/reduce conflict using precedence.
+ *
+ *  Attempt to resolve shift-reduce conflict for one rule by means of
+ *  precedence declarations. It has already been checked that the rule
+ *  has a precedence. A conflict is resolved by modifying the shift or
+ *  reduce tables so that there is no longer a conflict.
+ *
+ *  @param[in] state        State number.
+ *  @param[in] lookaheadnum Index of the lookahead rule.
+ */
 void
 resolve_sr_conflict (int state, int lookaheadnum)
 {
@@ -268,15 +361,21 @@ resolve_sr_conflict (int state, int lookaheadnum)
 
 
 
-/* turn off the shift recorded for the specified token in the specified state.
-Used when we resolve a shift-reduce conflict in favor of the reduction.  */
-
+/*!
+ *  @brief Turns off the shift recorded for a token in a state.
+ *
+ *  Turn off the shift recorded for the specified token in the
+ *  specified state. Used when we resolve a shift-reduce conflict in
+ *  favor of the reduction.
+ *
+ *  @param[in] state State number.
+ *  @param[in] token Token number.
+ */
 void
 flush_shift (int state, int token)
 {
   register shifts *shiftp;
   register int k, i;
-/*  register unsigned symbol; JF unused */
 
   shiftp = shift_table[state];
 
@@ -292,6 +391,14 @@ flush_shift (int state, int token)
 }
 
 
+/*!
+ *  @brief Records a precedence-based conflict resolution in the verbose log.
+ *
+ *  @param[in] state      State number.
+ *  @param[in] LAno       Index into LAruleno.
+ *  @param[in] token      Token number.
+ *  @param[in] resolution Description of the chosen resolution.
+ */
 void
 log_resolution (int state, int LAno, int token, char *resolution)
 {
@@ -301,6 +408,9 @@ log_resolution (int state, int LAno, int token, char *resolution)
 }
 
 
+/*!
+ *  @brief Writes the terse conflict log.
+ */
 void
 conflict_log (void)
 {
@@ -324,6 +434,9 @@ conflict_log (void)
 }
   
 
+/*!
+ *  @brief Writes the verbose conflict log.
+ */
 void
 verbose_conflict_log (void)
 {
@@ -365,6 +478,9 @@ verbose_conflict_log (void)
 }
 
 
+/*!
+ *  @brief Reports the total number of conflicts.
+ */
 void
 total_conflicts (void)
 {
@@ -407,6 +523,11 @@ total_conflicts (void)
 }
 
 
+/*!
+ *  @brief Counts the shift/reduce conflicts in a state.
+ *
+ *  @param[in] state State number.
+ */
 void
 count_sr_conflicts (int state)
 {
@@ -474,6 +595,11 @@ count_sr_conflicts (int state)
 }
 
 
+/*!
+ *  @brief Counts the reduce/reduce conflicts in a state.
+ *
+ *  @param[in] state State number.
+ */
 void
 count_rr_conflicts (int state)
 {
@@ -520,6 +646,11 @@ count_rr_conflicts (int state)
 }
 
 
+/*!
+ *  @brief Prints the reductions available in a state.
+ *
+ *  @param[in] state State number.
+ */
 void
 print_reductions (int state)
 {
@@ -739,6 +870,9 @@ print_reductions (int state)
 }
 
 
+/*!
+ *  @brief Releases the storage used by conflict resolution.
+ */
 void
 finalize_conflicts (void)
 {

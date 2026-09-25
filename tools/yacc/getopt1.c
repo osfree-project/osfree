@@ -1,25 +1,40 @@
-/* getopt_long and getopt_long_only entry points for GNU getopt.
-   Copyright (C) 1987,88,89,90,91,92,93,94,96,97,98
-     Free Software Foundation, Inc.
+/****************************************************************
+ * getopt_long and getopt_long_only entry points for GNU getopt.
+ * Copyright (C) 1987,88,89,90,91,92,93,94,96,97,98
+ *   Free Software Foundation, Inc.
+ *
+ * NOTE: The canonical source of this file is maintained with the
+ * GNU C Library. Bugs can be reported to bug-glibc@gnu.org.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+ * USA.
+ ****************************************************************/
 
-   NOTE: The canonical source of this file is maintained with the GNU C Library.
-   Bugs can be reported to bug-glibc@gnu.org.
+/*!
+ *  @file getopt1.c
+ *  @brief Entry points of getopt_long() and getopt_long_only().
+ *
+ *  Thin wrappers around _getopt_internal() that enable long-option
+ *  parsing. getopt_long() only recognizes long options that begin with
+ *  `--'; getopt_long_only() additionally accepts a single `-'.
+ *
+ *  @copyright Copyright (C) 1987,88,89,90,91,92,93,94,96,97,98
+ *             Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
-   This program is free software; you can redistribute it and/or modify it
-   under the terms of the GNU General Public License as published by the
-   Free Software Foundation; either version 2, or (at your option) any
-   later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
-   USA.  */
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -44,10 +59,18 @@
    program understand `configure --with-gnu-libc' and omit the object files,
    it is simpler to just do this in the source for each such file.  */
 
+/*!
+ *  @brief Version of the getopt interface expected by the caller.
+ *  @def GETOPT_INTERFACE_VERSION
+ */
 #define GETOPT_INTERFACE_VERSION 2
 #if !defined _LIBC && defined __GLIBC__ && __GLIBC__ >= 2
 #include <gnu-versions.h>
 #if _GNU_GETOPT_INTERFACE_VERSION == GETOPT_INTERFACE_VERSION
+/*!
+ *  @brief Suppresses the whole implementation when libc provides it.
+ *  @def ELIDE_CODE
+ */
 #define ELIDE_CODE
 #endif
 #endif
@@ -62,9 +85,24 @@
 #endif
 
 #ifndef	NULL
+/*!
+ *  @brief Null pointer constant used in this file.
+ *  @def NULL
+ */
 #define NULL 0
 #endif
 
+/*!
+ *  @brief Parses the next long option.
+ *
+ *  @param[in]  argc         Argument count.
+ *  @param[in]  argv         Argument vector.
+ *  @param[in]  options      Short option string.
+ *  @param[in]  long_options Long option table.
+ *  @param[out] opt_index    Index of the matched long option, or NULL.
+ *
+ *  @return The next option character, 0 for a flag option, or -1.
+ */
 int
 getopt_long (argc, argv, options, long_options, opt_index)
      int argc;
@@ -81,6 +119,17 @@ getopt_long (argc, argv, options, long_options, opt_index)
    but does match a short option, it is parsed as a short option
    instead.  */
 
+/*!
+ *  @brief Parses the next long option, allowing a single dash prefix.
+ *
+ *  @param[in]  argc         Argument count.
+ *  @param[in]  argv         Argument vector.
+ *  @param[in]  options      Short option string.
+ *  @param[in]  long_options Long option table.
+ *  @param[out] opt_index    Index of the matched long option, or NULL.
+ *
+ *  @return The next option character, 0 for a flag option, or -1.
+ */
 int
 getopt_long_only (argc, argv, options, long_options, opt_index)
      int argc;
@@ -99,6 +148,14 @@ getopt_long_only (argc, argv, options, long_options, opt_index)
 
 #include <stdio.h>
 
+/*!
+ *  @brief Test driver for getopt_long().
+ *
+ *  @param[in] argc Argument count.
+ *  @param[in] argv Argument vector.
+ *
+ *  @return Exit status.
+ */
 int
 main (argc, argv)
      int argc;

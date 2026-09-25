@@ -1,22 +1,38 @@
-/* Token-reader for Bison's input parser,
-   Copyright (C) 1984, 1986, 1989, 1992 Free Software Foundation, Inc.
+/****************************************************************
+ * Token-reader for Bison's input parser,
+ * Copyright (C) 1984, 1986, 1989, 1992 Free Software Foundation, Inc.
+ *
+ * This file is part of Bison, the GNU Compiler Compiler.
+ *
+ * Bison is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Bison is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Bison; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ ****************************************************************/
 
-This file is part of Bison, the GNU Compiler Compiler.
-
-Bison is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-Bison is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Bison; see the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ *  @file lex.c
+ *  @brief Token reader for Bison's input parser.
+ *
+ *  Implements lex(), the entry point called from reader.c. It returns
+ *  one of the token type codes defined in lex.h. When an identifier is
+ *  seen, the code IDENTIFIER is returned and the name is looked up in
+ *  the symbol table using symtab.c; symval is set to a pointer to the
+ *  entry found.
+ *
+ *  @copyright Copyright (C) 1984, 1986, 1989, 1992 Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
 
 /*
@@ -35,50 +51,145 @@ Boston, MA 02111-1307, USA.  */
 #include "alloc.h"
 
 /* flags set by % directives */
-extern int definesflag;    	/* for -d */
-extern int toknumflag;   	/* for -k */
-extern int noparserflag;	/* for -n */
-extern int fixed_outfiles;  	/* for -y */
-extern int nolinesflag;    	/* for -l */
-extern int rawtoknumflag;	/* for -r */
-extern int verboseflag;	/* for -v */
-extern int debugflag;  		/* for -t */
-extern char *spec_name_prefix; 	/* for -p */
-extern char *spec_file_prefix;	/* for -b */
+extern int definesflag;    	/*!< Non-zero when -d was given. */
+extern int toknumflag;   	/*!< Non-zero when -k was given. */
+extern int noparserflag;	/*!< Non-zero when -n was given. */
+extern int fixed_outfiles;  	/*!< Non-zero when -y was given. */
+extern int nolinesflag;    	/*!< Non-zero when -l was given. */
+extern int rawtoknumflag;	/*!< Non-zero when -r was given. */
+extern int verboseflag;	/*!< Non-zero when -v was given. */
+extern int debugflag;  		/*!< Non-zero when -t was given. */
+extern char *spec_name_prefix; 	/*!< Name prefix set by -p. */
+extern char *spec_file_prefix;	/*!< File prefix set by -b. */
 /*spec_outfile is declared in files.h, for -o */
 
-extern int lineno;
-extern int translations;
+extern int lineno;          /*!< Current input line number. */
+extern int translations;    /*!< Non-zero if the token translation table is used. */
 
+/*!
+ *  @brief Initializes the token buffer.
+ */
 void init_lex PARAMS((void));
+
+/*!
+ *  @brief Doubles the size of the token buffer.
+ *
+ *  @param[in] p Current position inside the buffer.
+ *
+ *  @return New position inside the reallocated buffer.
+ */
 char *grow_token_buffer PARAMS((char *));
+
+/*!
+ *  @brief Skips whitespace and comments on the input.
+ *
+ *  @return The first non-whitespace character.
+ */
 int skip_white_space PARAMS((void));
+
+/*!
+ *  @brief Calls getc(), terminating on unexpected end of file.
+ *
+ *  @param[in] f Input stream.
+ *
+ *  @return The character read.
+ */
 int safegetc PARAMS((FILE *));
+
+/*!
+ *  @brief Reads one literal character and appends it to the token buffer.
+ *
+ *  Processes backslash escapes, appends the canonical text of the
+ *  character to the buffer pointed to by @p pp, stores its code in
+ *  @p pcode, and returns 1 unless the character is an unescaped
+ *  @p term or a newline.
+ *
+ *  @param[in,out] pp    Pointer to the buffer position.
+ *  @param[out]    pcode Character code.
+ *  @param[in]     term  Terminating character.
+ *
+ *  @return Non-zero if the character is not the terminator.
+ */
 int literalchar PARAMS((char **, int *, char));
+
+/*!
+ *  @brief Pushes a token back for the next call to lex().
+ *
+ *  @param[in] token Token to push back.
+ */
 void unlex PARAMS((int));
+
+/*!
+ *  @brief Reads the next token from the input.
+ *
+ *  @return The next token code.
+ */
 int lex PARAMS((void));
+
+/*!
+ *  @brief Parses a token that starts with a percent sign.
+ *
+ *  @return The token code corresponding to the directive.
+ *  @retval NOOP The directive only set a flag; no token is emitted.
+ */
 int parse_percent_token PARAMS((void));
 
 /* functions from main.c */
+/*!
+ *  @brief Returns a printable form of a character code.
+ *
+ *  @param[in] c Character code.
+ *
+ *  @return Pointer to a static buffer with the printable form.
+ */
 extern char *printable_version PARAMS((int));
+
+/*!
+ *  @brief Prints a fatal error and exits.
+ *
+ *  @param[in] s Message.
+ */
 extern void fatal PARAMS((char *));
+
+/*!
+ *  @brief Prints a warning.
+ *
+ *  @param[in] s Message.
+ */
 extern void warn PARAMS((char *));
+
+/*!
+ *  @brief Prints a warning with an integer argument.
+ *
+ *  @param[in] fmt Format string.
+ *  @param[in] x1  Integer argument.
+ */
 extern void warni PARAMS((char *, int));
+
+/*!
+ *  @brief Prints a warning with one string argument.
+ *
+ *  @param[in] fmt Format string.
+ *  @param[in] x1  String argument.
+ */
 extern void warns PARAMS((char *, char *));
 
-/* Buffer for storing the current token.  */
+/*!< Buffer for storing the current token. */
 char *token_buffer;
 
-/* Allocated size of token_buffer, not including space for terminator.  */
+/*!< Allocated size of token_buffer, not including space for terminator. */
 int maxtoken;
 
-bucket *symval;
-int numval;
+bucket *symval;     /*!< Symbol table entry of the last identifier read. */
+int numval;         /*!< Numeric value of the last NUMBER token read. */
 
-static int unlexed;		/* these two describe a token to be reread */
-static bucket *unlexed_symval;	/* by the next call to lex */
+static int unlexed;		/*!< Token to be reread, or -1. */
+static bucket *unlexed_symval;	/*!< Symbol value saved with the pushed-back token. */
 
 
+/*!
+ *  @brief Initializes the token buffer.
+ */
 void
 init_lex (void)
 {
@@ -88,6 +199,13 @@ init_lex (void)
 }
 
 
+/*!
+ *  @brief Doubles the size of the token buffer.
+ *
+ *  @param[in] p Current position inside the buffer.
+ *
+ *  @return New position inside the reallocated buffer.
+ */
 char *
 grow_token_buffer (char *p)
 {
@@ -98,6 +216,11 @@ grow_token_buffer (char *p)
 }
 
 
+/*!
+ *  @brief Skips whitespace and comments on the input.
+ *
+ *  @return The first non-whitespace character.
+ */
 int
 skip_white_space (void)
 {
@@ -167,7 +290,15 @@ skip_white_space (void)
     }
 }
 
-/* do a getc, but give error message if EOF encountered */
+/*!
+ *  @brief Calls getc(), terminating on unexpected end of file.
+ *
+ *  Do a getc, but give error message if EOF encountered.
+ *
+ *  @param[in] f Input stream.
+ *
+ *  @return The character read.
+ */
 int
 safegetc (FILE *f)
 {
@@ -177,12 +308,20 @@ safegetc (FILE *f)
   return c;
 }
 
-/* read one literal character from finput.  process \ escapes.
-   append the normalized string version of the char to *pp.
-   assign the character code to *pcode
-   return 1 unless the character is an unescaped `term' or \n
-	report error for \n
-*/
+/*!
+ *  @brief Reads one literal character and appends it to the token buffer.
+ *
+ *  Read one literal character from finput. process \ escapes. Append
+ *  the normalized string version of the char to @p pp. Assign the
+ *  character code to @p pcode. Return 1 unless the character is an
+ *  unescaped @p term or \n; report error for \n.
+ *
+ *  @param[in,out] pp    Pointer to the buffer position.
+ *  @param[out]    pcode Character code.
+ *  @param[in]     term  Terminating character.
+ *
+ *  @return Non-zero if the character is not the terminator.
+ */
 int
 literalchar (char **pp, int *pcode, char term)
 {
@@ -297,6 +436,11 @@ literalchar (char **pp, int *pcode, char term)
 }
 
 
+/*!
+ *  @brief Pushes a token back for the next call to lex().
+ *
+ *  @param[in] token Token to push back.
+ */
 void
 unlex (int token)
 {
@@ -305,6 +449,11 @@ unlex (int token)
 }
 
 
+/*!
+ *  @brief Reads the next token from the input.
+ *
+ *  @return The next token code.
+ */
 int
 lex (void)
 {
@@ -498,14 +647,17 @@ lex (void)
     }
 }
 
-/* the following table dictates the action taken for the various
-	% directives.  A setflag value causes the named flag to be
-	set.  A retval action returns the code.
-*/
+/*!
+ *  @brief Table describing the % directives accepted by the reader.
+ *
+ *  The following table dictates the action taken for the various
+ *  % directives. A setflag value causes the named flag to be set. A
+ *  retval action returns the code.
+ */
 struct percent_table_struct {
-	char *name;
-	void *setflag;
-	int retval;
+	char *name;         /*!< Directive name without the leading percent sign. */
+	void *setflag;      /*!< Pointer to a flag variable, or NULL. */
+	int retval;         /*!< Code to return, or NOOP/SETOPT. */
 } percent_table[] =
 {
   {"token", NULL, TOKEN},
@@ -553,9 +705,15 @@ struct percent_table_struct {
   {NULL, NULL, ILLEGAL}
 };
 
-/* Parse a token which starts with %.
-   Assumes the % has already been read and discarded.  */
-
+/*!
+ *  @brief Parses a token that starts with a percent sign.
+ *
+ *  Parse a token which starts with %. Assumes the % has already been
+ *  read and discarded.
+ *
+ *  @return The token code corresponding to the directive.
+ *  @retval NOOP The directive only set a flag; no token is emitted.
+ */
 int
 parse_percent_token (void)
 {

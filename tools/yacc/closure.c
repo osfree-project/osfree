@@ -1,22 +1,37 @@
-/* Subroutines for bison
-   Copyright (C) 1984, 1989 Free Software Foundation, Inc.
+/****************************************************************
+ * Subroutines for bison,
+ * Copyright (C) 1984, 1989 Free Software Foundation, Inc.
+ *
+ * This file is part of Bison, the GNU Compiler Compiler.
+ *
+ * Bison is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Bison is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Bison; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ ****************************************************************/
 
-This file is part of Bison, the GNU Compiler Compiler.
-
-Bison is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-Bison is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Bison; see the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ *  @file closure.c
+ *  @brief Subroutines of file LR0.c.
+ *
+ *  Computes the closure of an item set: given a vector of item
+ *  numbers, decides which rules could be run and which items could
+ *  be accepted next. Entry points are initialize_closure(),
+ *  closure() and finalize_closure().
+ *
+ *  @copyright Copyright (C) 1984, 1989 Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
 
 /* subroutines of file LR0.c.
@@ -56,32 +71,67 @@ Frees itemset, ruleset and internal data.
 #include "gram.h"
 
 
-extern short **derives;
-extern char **tags;
+extern short **derives;         /*!< Rules that derive each nonterminal. */
+extern char **tags;             /*!< Printable names of all symbols. */
 
+/*!
+ *  @brief Allocates the itemset and ruleset vectors.
+ *
+ *  @param[in] n Number of elements to allocate for itemset.
+ */
 void initialize_closure PARAMS((int));
+
+/*!
+ *  @brief Precomputes the fderives table.
+ */
 void set_fderives PARAMS((void));
+
+/*!
+ *  @brief Precomputes the firsts table.
+ */
 void set_firsts PARAMS((void));
+
+/*!
+ *  @brief Computes the closure of the given core.
+ *
+ *  @param[in] core Core item numbers.
+ *  @param[in] n    Number of items in the core.
+ */
 void closure PARAMS((short *, int));
+
+/*!
+ *  @brief Releases the storage used by the closure computation.
+ */
 void finalize_closure PARAMS((void));
 
+/*!
+ *  @brief Computes the reflexive transitive closure of a bit matrix.
+ *
+ *  @param[in,out] R Bit matrix; modified in place.
+ *  @param[in]     n Dimension of the matrix.
+ */
 extern void RTC PARAMS((unsigned *, int));
 
-short *itemset;
-short *itemsetend;
-static unsigned *ruleset;
+short *itemset;                 /*!< Current set of item numbers. */
+short *itemsetend;              /*!< One past the end of itemset. */
+static unsigned *ruleset;       /*!< Bit set of rules that could apply next. */
 
 /* internal data.  See comments before set_fderives and set_firsts.  */
-static unsigned *fderives;
-static unsigned *firsts;
+static unsigned *fderives;      /*!< Rules that can help derive each nonterminal. */
+static unsigned *firsts;        /*!< Nonterminals that can begin the data for another. */
 
 /* number of words required to hold a bit for each rule */
-static int rulesetsize;
+static int rulesetsize;         /*!< Words needed to hold one bit per rule. */
 
 /* number of words required to hold a bit for each variable */
-static int varsetsize;
+static int varsetsize;          /*!< Words needed to hold one bit per variable. */
 
 
+/*!
+ *  @brief Allocates the itemset and ruleset vectors.
+ *
+ *  @param[in] n Number of elements to allocate for itemset.
+ */
 void
 initialize_closure (int n)
 {
@@ -95,11 +145,16 @@ initialize_closure (int n)
 
 
 
-/* set fderives to an nvars by nrules matrix of bits
-   indicating which rules can help derive the beginning of the data
-   for each nonterminal.  For example, if symbol 5 can be derived as
-   the sequence of symbols 8 3 20, and one of the rules for deriving
-   symbol 8 is rule 4, then the [5 - ntokens, 4] bit in fderives is set.  */
+/*!
+ *  @brief Builds the fderives table.
+ *
+ *  set fderives to an nvars by nrules matrix of bits indicating which
+ *  rules can help derive the beginning of the data for each
+ *  nonterminal. For example, if symbol 5 can be derived as the
+ *  sequence of symbols 8 3 20, and one of the rules for deriving
+ *  symbol 8 is rule 4, then the [5 - ntokens, 4] bit in fderives is
+ *  set.
+ */
 void
 set_fderives (void)
 {
@@ -155,16 +210,20 @@ set_fderives (void)
 
 
 
-/* set firsts to be an nvars by nvars bit matrix indicating which items
-   can represent the beginning of the input corresponding to which other items.
-   For example, if some rule expands symbol 5 into the sequence of symbols 8 3 20,
-   the symbol 8 can be the beginning of the data for symbol 5,
-   so the bit [8 - ntokens, 5 - ntokens] in firsts is set. */
+/*!
+ *  @brief Builds the firsts table.
+ *
+ *  set firsts to be an nvars by nvars bit matrix indicating which
+ *  items can represent the beginning of the input corresponding to
+ *  which other items. For example, if some rule expands symbol 5 into
+ *  the sequence of symbols 8 3 20, the symbol 8 can be the beginning
+ *  of the data for symbol 5, so the bit [8 - ntokens, 5 - ntokens] in
+ *  firsts is set.
+ */
 void
 set_firsts (void)
 {
   register unsigned *row;
-/*   register int done; JF unused */
   register int symbol;
   register short *sp;
   register int rowsize;
@@ -200,6 +259,16 @@ set_firsts (void)
 }
 
 
+/*!
+ *  @brief Computes the closure of the given core.
+ *
+ *  Sets up ruleset and itemset to indicate what rules could be run
+ *  and which items could be accepted when the core is the active
+ *  item set.
+ *
+ *  @param[in] core Core item numbers.
+ *  @param[in] n    Number of items in the core.
+ */
 void
 closure (short *core, int n)
 {
@@ -282,6 +351,9 @@ closure (short *core, int n)
 }
 
 
+/*!
+ *  @brief Releases the storage used by the closure computation.
+ */
 void
 finalize_closure (void)
 {
@@ -294,6 +366,12 @@ finalize_closure (void)
 
 #ifdef	DEBUG
 
+/*!
+ *  @brief Prints the current closure to stdout for debugging.
+ *
+ *  @param[in] n Number of items in the current core.
+ */
+void
 print_closure(n)
 int n;
 {
@@ -305,6 +383,9 @@ int n;
 }
 
 
+/*!
+ *  @brief Prints the firsts table to stdout for debugging.
+ */
 void
 print_firsts (void)
 {
@@ -327,6 +408,9 @@ print_firsts (void)
 }
 
 
+/*!
+ *  @brief Prints the fderives table to stdout for debugging.
+ */
 void
 print_fderives (void)
 {

@@ -1,22 +1,37 @@
-/* VMS version of getargs; Uses DCL command parsing.
-   Copyright (C) 1989, 1992 Free Software Foundation, Inc.
+/****************************************************************
+ * VMS version of getargs; Uses DCL command parsing.
+ * Copyright (C) 1989, 1992 Free Software Foundation, Inc.
+ *
+ * This file is part of Bison, the GNU Compiler Compiler.
+ *
+ * Bison is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Bison is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Bison; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ ****************************************************************/
 
-This file is part of Bison, the GNU Compiler Compiler.
-
-Bison is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-Bison is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Bison; see the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ *  @file vmsgetargs.c
+ *  @brief VMS version of getargs; uses DCL command parsing.
+ *
+ *  Implements the same entry point as getargs.c, but obtains the
+ *  options and the input file name by querying the DCL command line
+ *  through the cli$present() and cli$get_value() routines instead of
+ *  parsing argv directly. Only used when Bison is built on VMS.
+ *
+ *  @copyright Copyright (C) 1989, 1992 Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
 
 #include <ctype.h>
@@ -27,20 +42,28 @@ Boston, MA 02111-1307, USA.  */
  *	VMS version of getargs: Uses DCL command parsing
  *		(argc and argv are ignored)
  */
-int verboseflag;
-int definesflag;
-int debugflag;
-int nolinesflag;
-extern int noparserflag;
-extern int toknumflag;
-extern int rawtoknumflag;
-extern int fixed_outfiles;
-extern char * version_string;
+
+int verboseflag;        /*!< Non-zero when /VERBOSE was given. */
+int definesflag;        /*!< Non-zero when /DEFINES was given. */
+int debugflag;          /*!< Non-zero when /DEBUG was given. */
+int nolinesflag;        /*!< Non-zero when /NOLINES was given. */
+extern int noparserflag;/*!< Non-zero when /NOPARSER was given. */
+extern int toknumflag;  /*!< Non-zero when /TOKEN_TABLE was given. */
+extern int rawtoknumflag;/*!< Non-zero when /RAW was given. */
+extern int fixed_outfiles;/*!< Non-zero when /FIXED_OUTFILES or /YACC was given. */
+extern char * version_string;   /*!< Version string printed on /VERSION. */
 
 /* Allocate storgate and initialize, since bison uses them elsewhere.  */
-char *spec_name_prefix;
-char *spec_file_prefix;
 
+char *spec_name_prefix; /*!< Name prefix set by /NAME_PREFIX. */
+char *spec_file_prefix; /*!< File prefix set by /FILE_PREFIX. */
+
+/*!
+ *  @brief Parses the VMS command line.
+ *
+ *  @param[in] argc Ignored on VMS.
+ *  @param[in] argv Ignored on VMS.
+ */
 getargs(argc,argv)
      int argc;
      char *argv[];
@@ -148,6 +171,14 @@ getargs(argc,argv)
 /*
  *	See if "NAME" is present
  */
+
+/*!
+ *  @brief Tests whether the given DCL qualifier is present.
+ *
+ *  @param[in] Name Qualifier name.
+ *
+ *  @return Non-zero when the qualifier is present.
+ */
 int
 cli_present(Name)
      char *Name;
@@ -161,6 +192,16 @@ cli_present(Name)
 
 /*
  *	Get value of "NAME"
+ */
+
+/*!
+ *  @brief Retrieves the value of a DCL qualifier.
+ *
+ *  @param[in]  Name   Qualifier name.
+ *  @param[out] Buffer Output buffer.
+ *  @param[in]  Size   Size of the output buffer.
+ *
+ *  @return Non-zero when the value was retrieved.
  */
 int
 cli_get_value(Name,Buffer,Size)

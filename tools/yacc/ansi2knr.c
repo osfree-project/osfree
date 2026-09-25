@@ -1,31 +1,27 @@
-/* Copyright (C) 1989, 1997, 1998 Aladdin Enterprises.  All rights reserved. */
+/****************************************************************
+ * ansi2knr.c
+ *
+ * Copyright (C) 1989, 1997, 1998 Aladdin Enterprises.
+ * All rights reserved.
+ *
+ * ansi2knr is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY. No author or distributor accepts
+ * responsibility to anyone for the consequences of using it or for
+ * whether it serves any particular purpose or works at all, unless
+ * he says so in writing. Refer to the GNU General Public License
+ * (the "GPL") for full details.
+ *
+ * Everyone is granted permission to copy, modify and redistribute
+ * ansi2knr, but only under the conditions described in the GPL. A
+ * copy of this license is supposed to have been given to you along
+ * with ansi2knr so you can know your rights and responsibilities.
+ * It should be in a file named COPYLEFT, or, if there is no file
+ * named COPYLEFT, a file named COPYING. Among other things, the
+ * copyright notice and this notice must be preserved on all copies.
+ ****************************************************************/
 
 /*$Id: ansi2knr.c,v 1.10 1998/12/02 12:42:23 tromey Exp $*/
 /* Convert ANSI C function definitions to K&R ("traditional C") syntax */
-
-/*
-ansi2knr is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY.  No author or distributor accepts responsibility to anyone for the
-consequences of using it or for whether it serves any particular purpose or
-works at all, unless he says so in writing.  Refer to the GNU General Public
-License (the "GPL") for full details.
-
-Everyone is granted permission to copy, modify and redistribute ansi2knr,
-but only under the conditions described in the GPL.  A copy of this license
-is supposed to have been given to you along with ansi2knr so you can know
-your rights and responsibilities.  It should be in a file named COPYLEFT,
-or, if there is no file named COPYLEFT, a file named COPYING.  Among other
-things, the copyright notice and this notice must be preserved on all
-copies.
-
-We explicitly state here what we believe is already implied by the GPL: if
-the ansi2knr program is distributed as a separate set of sources and a
-separate executable file which are aggregated on a storage medium together
-with another program, this in itself does not bring the other program under
-the GPL, nor does the mere fact that such a program or the procedures for
-constructing it invoke the ansi2knr executable bring any other part of the
-program under the GPL.
-*/
 
 /*
  * Usage:
@@ -91,6 +87,18 @@ program under the GPL.
 		contributed by Jim Avera <jima@netcom.com>;
 		correct error in writeblanks (it shouldn't erase EOLs)
 	lpd 1989-xx-xx original version
+ */
+
+/*!
+ *  @file ansi2knr.c
+ *  @brief Converts ANSI C function definitions to K&R syntax.
+ *
+ *  Recognizes function definitions at the left margin, moves their
+ *  parameter declarations into the old-style pre-body block, and
+ *  rewrites them so that pre-ANSI compilers can compile the input.
+ *
+ *  @copyright Copyright (C) 1989, 1997, 1998 Aladdin Enterprises.
+ *             Distributed with Bison under the terms described above.
  */
 
 /* Most of the conditionals here are to make ansi2knr work with */
@@ -163,26 +171,105 @@ program under the GPL.
 #else
 #endif
 #if STDC_HEADERS || !HAVE_ISASCII
+/*!
+ *  @brief Tests whether a character is ASCII.
+ *  @param[in] c Character to test.
+ *  @def is_ascii
+ */
 #  define is_ascii(c) 1
 #else
 #  define is_ascii(c) isascii(c)
 #endif
 
+/*!
+ *  @brief Tests whether a character is a whitespace character.
+ *  @param[in] c Character to test.
+ *  @def is_space
+ */
 #define is_space(c) (is_ascii(c) && isspace(c))
+
+/*!
+ *  @brief Tests whether a character is an alphabetic character.
+ *  @param[in] c Character to test.
+ *  @def is_alpha
+ */
 #define is_alpha(c) (is_ascii(c) && isalpha(c))
+
+/*!
+ *  @brief Tests whether a character is alphanumeric.
+ *  @param[in] c Character to test.
+ *  @def is_alnum
+ */
 #define is_alnum(c) (is_ascii(c) && isalnum(c))
 
 /* Scanning macros */
+
+/*!
+ *  @brief Tests whether a character can appear inside an identifier.
+ *  @param[in] ch Character to test.
+ *  @def isidchar
+ */
 #define isidchar(ch) (is_alnum(ch) || (ch) == '_')
+
+/*!
+ *  @brief Tests whether a character can start an identifier.
+ *  @param[in] ch Character to test.
+ *  @def isidfirstchar
+ */
 #define isidfirstchar(ch) (is_alpha(ch) || (ch) == '_')
 
 /* Forward references */
+/*!
+ *  @brief Skips spaces and comments in the given direction.
+ *
+ *  @param[in] p   Starting position.
+ *  @param[in] dir  1 for forward, -1 for backward.
+ *
+ *  @return New position after skipping.
+ */
 char *skipspace();
+
+/*!
+ *  @brief Overwrites part of a string with spaces.
+ *
+ *  @param[in] start First character to overwrite.
+ *  @param[in] end   One past the last character to overwrite.
+ *
+ *  @return Always 0.
+ */
 int writeblanks();
+
+/*!
+ *  @brief Tests whether the buffer holds a function definition.
+ *
+ *  @param[in] buf Buffer to inspect.
+ *
+ *  @return Classification of the buffer: 0 = not a function, 1 = a
+ *          function, 2 = a prototype (unused), -1 = may be the
+ *          beginning of a function.
+ */
 int test1();
+
+/*!
+ *  @brief Converts a recognized function definition to K&R syntax.
+ *
+ *  @param[in] buf              Buffer holding the header.
+ *  @param[in] out              Output stream.
+ *  @param[in] header           Non-zero to only convert the header.
+ *  @param[in] convert_varargs  Non-zero to convert `...` to `va_alist`.
+ *
+ *  @return 0 on success, -1 on allocation failure.
+ */
 int convert1();
 
-/* The main program */
+/*!
+ *  @brief Main entry point of ansi2knr.
+ *
+ *  @param[in] argc Argument count.
+ *  @param[in] argv Argument vector.
+ *
+ *  @return Exit status.
+ */
 int
 main(argc, argv)
     int argc;
@@ -190,6 +277,10 @@ main(argc, argv)
 {	FILE *in = stdin;
 	FILE *out = stdout;
 	char *filename = 0;
+/*!
+ *  @brief Size of the line buffer used by main().
+ *  @def bufsize
+ */
 #define bufsize 5000			/* arbitrary size */
 	char *buf;
 	char *line;
@@ -308,6 +399,15 @@ wl:			fputs(buf, out);
 }
 
 /* Skip over space and comments, in either direction. */
+
+/*!
+ *  @brief Skips spaces and comments in the given direction.
+ *
+ *  @param[in] p   Starting position.
+ *  @param[in] dir  1 for forward, -1 for backward.
+ *
+ *  @return New position after skipping.
+ */
 char *
 skipspace(p, dir)
     register char *p;
@@ -332,6 +432,15 @@ skipspace(p, dir)
  * Write blanks over part of a string.
  * Don't overwrite end-of-line characters.
  */
+
+/*!
+ *  @brief Overwrites part of a string with spaces.
+ *
+ *  @param[in] start First character to overwrite.
+ *  @param[in] end   One past the last character to overwrite.
+ *
+ *  @return Always 0.
+ */
 int
 writeblanks(start, end)
     char *start;
@@ -355,6 +464,16 @@ writeblanks(start, end)
  * The reason we don't attempt to convert function prototypes is that
  * Ghostscript's declaration-generating macros look too much like
  * prototypes, and confuse the algorithms.
+ */
+
+/*!
+ *  @brief Tests whether the buffer holds a function definition.
+ *
+ *  @param[in] buf Buffer to inspect.
+ *
+ *  @return Classification of the buffer: 0 = not a function, 1 = a
+ *          function, 2 = a prototype (unused), -1 = may be the
+ *          beginning of a function.
  */
 int
 test1(buf)
@@ -436,6 +555,17 @@ test1(buf)
 }
 
 /* Convert a recognized function definition or header to K&R syntax. */
+
+/*!
+ *  @brief Converts a recognized function definition to K&R syntax.
+ *
+ *  @param[in] buf              Buffer holding the header.
+ *  @param[in] out              Output stream.
+ *  @param[in] header           Non-zero to only convert the header.
+ *  @param[in] convert_varargs  Non-zero to convert `...` to `va_alist`.
+ *
+ *  @return 0 on success, -1 on allocation failure.
+ */
 int
 convert1(buf, out, header, convert_varargs)
     char *buf;

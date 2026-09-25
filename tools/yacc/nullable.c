@@ -1,22 +1,36 @@
-/* Part of the bison parser generator,
-   Copyright (C) 1984, 1989 Free Software Foundation, Inc.
+/****************************************************************
+ * Part of the bison parser generator,
+ * Copyright (C) 1984, 1989 Free Software Foundation, Inc.
+ *
+ * This file is part of Bison, the GNU Compiler Compiler.
+ *
+ * Bison is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Bison is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Bison; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ ****************************************************************/
 
-This file is part of Bison, the GNU Compiler Compiler.
-
-Bison is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-Bison is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Bison; see the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.  */
+/*!
+ *  @file nullable.c
+ *  @brief Computes which nonterminals can derive the empty string.
+ *
+ *  Implements set_nullable(): fills the `nullable' vector, indexed by
+ *  symbol number minus ntokens, with a non-zero value for every
+ *  nonterminal that can expand into the null string.
+ *
+ *  @copyright Copyright (C) 1984, 1989 Free Software Foundation, Inc.
+ *             Licensed under the GNU General Public License v2 or later.
+ */
 
 
 /* set up nullable, a vector saying which nonterminals can expand into the null string.
@@ -28,12 +42,26 @@ Boston, MA 02111-1307, USA.  */
 #include "gram.h"
 #include "alloc.h"
 
-
+/*!
+ *  @brief For each nonterminal, non-zero if it can derive the empty string.
+ *
+ *  Indexed by symbol number minus ntokens.
+ */
 char *nullable;
 
+/*!
+ *  @brief Releases the storage used by the `nullable' vector.
+ */
 void free_nullable PARAMS((void));
+
+/*!
+ *  @brief Fills the `nullable' vector from the current grammar.
+ */
 void set_nullable PARAMS((void));
 
+/*!
+ *  @brief Fills the `nullable' vector from the current grammar.
+ */
 void
 set_nullable (void)
 {
@@ -131,7 +159,9 @@ set_nullable (void)
   FREE(relts);
 }
 
-
+/*!
+ *  @brief Releases the storage used by the `nullable' vector.
+ */
 void
 free_nullable (void)
 {
