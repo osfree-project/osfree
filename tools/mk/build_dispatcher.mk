@@ -13,13 +13,13 @@
 # DOS            --> DOS_CLASS          ERROR (reserved)       ERROR (reserved)
 # DPMI           ERROR (reserved)       --> ERROR (reserved)   ERROR (reserved)
 # WIN            --> WIN16_CLASS        --> WIN32_CLASS        ERROR (reserved)
-# OS2            --> OS2_16_CLASS       --> OS2_32_CLASS (def) ERROR (reserved)
+# OS2            --> OS2_16_CLASS       --> OS2_32_CLASS (*)   ERROR (reserved)
+# POSIX          ERROR (reserved)       ERROR (reserved)       ERROR (reserved)
 # HOST           --> HOST_CLASS         --> HOST_CLASS         --> HOST_CLASS
 #
-# Note: For HOST, TARGET_BITS is not defaulted in this file.
-#       "default" marks the TARGET_BITS used when not explicitly set.
+# Note: "*" marks TARGET_API/TARGET_BITS used when not explicitly set.
 #       Entries with "--> TABLE" defer to class/subclass sub-tables below.
-#       DOS, DPMI and HOST do not validate TARGET_BITS explicitly.
+#       
 
 # ============================================================
 # Default TARGET_BITS per TARGET_API
@@ -205,22 +205,22 @@
 # DRIVER         any              ERROR              Not supported on DPMI
 
 !ifeq TARGET_CLASS APPLICATION
-!ifneq TARGET_SUBCLASS CONSOLE
-!error TARGET_SUBCLASS=$(TARGET_SUBCLASS) is not valid for DPMI APPLICATION. Only CONSOLE allowed.
-!endif
-TARGET_MK=appsdos
+!  ifneq TARGET_SUBCLASS CONSOLE
+!    error TARGET_SUBCLASS=$(TARGET_SUBCLASS) is not valid for DPMI APPLICATION. Only CONSOLE allowed.
+!  endif
+!  define TARGET_MK appsdos
 !else ifeq TARGET_CLASS LIBRARY
-!ifeq TARGET_SUBCLASS DYNAMIC
-!error LIBRARY DYNAMIC is reserved and not yet implemented for DPMI
-!else ifeq TARGET_SUBCLASS STATIC
-TARGET_MK=libsdos
-!else
-!error Unknown TARGET_SUBCLASS for DPMI LIBRARY: $(TARGET_SUBCLASS)
-!endif
+!  ifeq TARGET_SUBCLASS DYNAMIC
+!    error LIBRARY DYNAMIC is reserved and not yet implemented for DPMI
+!  else ifeq TARGET_SUBCLASS STATIC
+!    define TARGET_MK libsdos
+!  else
+!    error Unknown TARGET_SUBCLASS for DPMI LIBRARY: $(TARGET_SUBCLASS)
+!  endif
 !else ifeq TARGET_CLASS DRIVER
-!error DRIVER class is not supported on DPMI
+!  error DRIVER class is not supported on DPMI
 !else
-!error Unknown TARGET_CLASS for DPMI: $(TARGET_CLASS)
+!  error Unknown TARGET_CLASS for DPMI: $(TARGET_CLASS)
 !endif
 
 # --- HOST ---
@@ -237,52 +237,42 @@ TARGET_MK=libsdos
 # DRIVER         any              ERROR              Not supported on HOST
 
 !ifeq TARGET_CLASS APPLICATION
-!ifeq TARGET_LANG pascal
-TARGET_MK=toolspas
-!else
-
-!ifdef LIBS
-pth=$$(pth)
-!ifndef ADDLIBS
-ADDLIBS = $(pth)$(LIBS: =.lib $(pth)).lib
-!else
-ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
-!endif
-pth=$(%ROOT)build$(SEP)lib$(SEP)
-ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
-!endif
-
-TARGET_MK=tools
-!endif
+!  ifeq TARGET_LANG pascal
+!    define TARGET_MK toolspas
+!  else
+!    ifdef LIBS
+!      define pth $$(pth)
+!      ifndef ADDLIBS
+!        define ADDLIBS $(pth)$(LIBS: =.lib $(pth)).lib
+!      else
+!        define ADDLIBS $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!      endif
+!      define pth $(%ROOT)build$(SEP)lib$(SEP)
+!      define ADD_LINKOPT $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
+!    endif
+!    define TARGET_MK tools
+!  endif
 !else ifeq TARGET_CLASS LIBRARY
-!ifeq TARGET_SUBCLASS DYNAMIC
-DLL = 1
-TARGET_MK=tools
-!else ifeq TARGET_SUBCLASS STATIC
-
-
-##############################
-TRGT = $(PROJ).lib
-
-!ifdef LIBS
-pth=$$(pth)
-!ifndef ADDLIBS
-ADDLIBS = $(pth)$(LIBS: =.lib $(pth)).lib
-!else
-ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
-!endif
-pth=$(%ROOT)build$(SEP)lib$(SEP)
-!endif
-
-TARGET_MK=libs
-
-##############################
-
-!endif
+!  ifeq TARGET_SUBCLASS DYNAMIC
+!    define DLL 1
+!    define TARGET_MK tools
+!  else ifeq TARGET_SUBCLASS STATIC
+!    define TRGT $(PROJ).lib
+!    ifdef LIBS
+!      define pth $$(pth)
+!      ifndef ADDLIBS
+!        define ADDLIBS $(pth)$(LIBS: =.lib $(pth)).lib
+!      else
+!        define ADDLIBS $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!      endif
+!      define pth $(%ROOT)build$(SEP)lib$(SEP)
+!    endif
+!    define TARGET_MK libs
+!  endif
 !else ifeq TARGET_CLASS DRIVER
-!error DRIVER class is not supported on HOST
+!  error DRIVER class is not supported on HOST
 !else
-!error Unknown TARGET_CLASS for HOST: $(TARGET_CLASS)
+!  error Unknown TARGET_CLASS for HOST: $(TARGET_CLASS)
 !endif
 
 
@@ -305,101 +295,82 @@ TARGET_MK=libs
 # DRIVER         VIRTUAL          ERROR (reserved)   Virtual driver (VxD)
 
 !ifeq TARGET_BITS 16
-
-# Require add SPDX tags
-#LICENSE_CHECK = 1
-
-!ifeq TARGET_VERSION 300
-ADD_RCOPT = -30
-!endif
-
-!ifeq TARGET_VERSION 310
-ADD_RCOPT = -31
-ADD_LINKOPT=lib commdlg.lib lib shell.lib lib lzexpand.lib
-!endif
-
-ADD_RCOPT = $(ADD_RCOPT) -bt=windows -i=. -i=$(WATCOM)$(SEP)h$(SEP)win
-
-!ifeq TARGET_CLASS APPLICATION
-
-ADD_COPT = $(ADD_COPT) -sg
-
-!ifeq TARGET_VERSION 310
-!endif
-
-!ifeq TARGET_VERSION 311
-!endif
-
+#!  define LICENSE_CHECK 1
+!  ifeq TARGET_VERSION 300
+!    define ADD_RCOPT -30
+!  endif
+!  ifeq TARGET_VERSION 310
+!    define ADD_RCOPT -31
+!    define ADD_LINKOPT lib commdlg.lib lib shell.lib lib lzexpand.lib
+!  endif
+!  define ADD_RCOPT $(ADD_RCOPT) -bt=windows -i=. -i=$(WATCOM)$(SEP)h$(SEP)win
+!  ifeq TARGET_CLASS APPLICATION
+!    define ADD_COPT $(ADD_COPT) -sg
+!    ifeq TARGET_VERSION 310
+!      define ADD_COPT $(ADD_COPT) -2
+!    endif
+!    ifeq TARGET_VERSION 311
+!      define ADD_COPT $(ADD_COPT) -3
+!    endif
 # LIBS -> ADD_LINKOPT
-!ifdef LIBS
-ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
-!endif
-!ifeq TARGET_SUBCLASS GUI
-TARGET_MK=appsw16
-!else ifeq TARGET_SUBCLASS HYBRID
-TARGET_MK=appshybrid
-!else ifeq TARGET_SUBCLASS CONSOLE
-!  error CONSOLE is not supported on 16-bit Windows
-!else ifeq TARGET_SUBCLASS FAMILY
-!  error FAMILY is not supported on 16-bit Windows
-!else ifeq TARGET_SUBCLASS DUAL
-!  error DUAL is not supported on 16-bit Windows
-!else
-!  error Unknown TARGET_SUBCLASS for 16-bit Windows APPLICATION: $(TARGET_SUBCLASS)
-!endif
-
-!else ifeq TARGET_CLASS LIBRARY
-
-!ifeq TARGET_SUBCLASS DYNAMIC
-DLL = 1
+!    ifdef LIBS
+!      define ADD_LINKOPT $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
+!    endif
+!    ifeq TARGET_SUBCLASS GUI
+!      define TARGET_MK appsw16
+!    else ifeq TARGET_SUBCLASS HYBRID
+!      define TARGET_MK appshybrid
+!    else ifeq TARGET_SUBCLASS CONSOLE
+!      error CONSOLE is not supported on 16-bit Windows
+!    else ifeq TARGET_SUBCLASS FAMILY
+!      error FAMILY is not supported on 16-bit Windows
+!    else ifeq TARGET_SUBCLASS DUAL
+!      error DUAL is not supported on 16-bit Windows
+!    else
+!      error Unknown TARGET_SUBCLASS for 16-bit Windows APPLICATION: $(TARGET_SUBCLASS)
+!    endif
+!  else ifeq TARGET_CLASS LIBRARY
+!    ifeq TARGET_SUBCLASS DYNAMIC
+!      define DLL 1
 # LIBS -> ADD_LINKOPT
-
-!ifdef LIBS
-pth=$$(pth)
-!ifndef ADDLIBS
-ADDLIBS = $(pth)$(LIBS: =.lib $(pth)).lib
-!else
-ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
-!endif
-pth=$(%ROOT)build$(SEP)lib$(SEP)
-ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
-!endif
-
-TARGET_MK=appsw16
-
-!else ifeq TARGET_SUBCLASS STATIC
-TRGT = $(PROJ).lib
-
-!ifdef LIBS
-pth=$$(pth)
-!ifndef ADDLIBS
-ADDLIBS = $(pth)$(LIBS: =.lib $(pth)).lib
-!else
-ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
-!endif
-pth=$(%ROOT)build$(SEP)lib$(SEP)
-!endif
-
-TARGET_MK=libsw16
-
-!else
-!error Unknown TARGET_SUBCLASS for 16-bit Windows LIBRARY: $(TARGET_SUBCLASS)
-!endif
-
-!else ifeq TARGET_CLASS DRIVER
-
-!ifeq TARGET_SUBCLASS PHYSICAL
-DLL = 1
-TARGET_MK=appsw16
-!else ifeq TARGET_SUBCLASS VIRTUAL
-!error DRIVER VIRTUAL is reserved and not yet implemented for 16-bit Windows
-!else
-!error Unknown TARGET_SUBCLASS for 16-bit Windows DRIVER: $(TARGET_SUBCLASS). Supported: PHYSICAL, VIRTUAL(reserved).
-!endif
-
-!else
-!error Unknown TARGET_CLASS for 16-bit Windows: $(TARGET_CLASS)
-!endif
+!      ifdef LIBS
+!        define pth $$(pth)
+!        ifndef ADDLIBS
+!          define ADDLIBS $(pth)$(LIBS: =.lib $(pth)).lib
+!        else
+!          define ADDLIBS $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!        endif
+!        define pth $(%ROOT)build$(SEP)lib$(SEP)
+!        define ADD_LINKOPT $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
+!      endif
+!      define TARGET_MK appsw16
+!    else ifeq TARGET_SUBCLASS STATIC
+!      define TRGT $(PROJ).lib
+!      ifdef LIBS
+!        define pth $$(pth)
+!        ifndef ADDLIBS
+!          define ADDLIBS $(pth)$(LIBS: =.lib $(pth)).lib
+!        else
+!          define ADDLIBS $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!        endif
+!        define pth $(%ROOT)build$(SEP)lib$(SEP)
+!      endif
+!      define TARGET_MK libsw16
+!    else
+!      error Unknown TARGET_SUBCLASS for 16-bit Windows LIBRARY: $(TARGET_SUBCLASS)
+!    endif
+!  else ifeq TARGET_CLASS DRIVER
+!    ifeq TARGET_SUBCLASS PHYSICAL
+!      define DLL 1
+!      define TARGET_MK appsw16
+!    else ifeq TARGET_SUBCLASS VIRTUAL
+!      error DRIVER VIRTUAL is reserved and not yet implemented for 16-bit Windows
+!    else
+!      error Unknown TARGET_SUBCLASS for 16-bit Windows DRIVER: $(TARGET_SUBCLASS). Supported: PHYSICAL, VIRTUAL(reserved).
+!    endif
+!  else
+!    error Unknown TARGET_CLASS for 16-bit Windows: $(TARGET_CLASS)
+!  endif
 
 !else ifeq TARGET_BITS 32
 # ============================================================
@@ -412,51 +383,43 @@ TARGET_MK=appsw16
 # APPLICATION    FAMILY           ERROR (reserved)
 # APPLICATION    DUAL             ERROR (reserved)
 # APPLICATION    HYBRID           ERROR (reserved)
-# LIBRARY        DYNAMIC          appsw16.mk         DLL (DLL=1)
+# LIBRARY        DYNAMIC          appsw32.mk         DLL (DLL=1)
 # LIBRARY        STATIC           ERROR (reserved)
 # DRIVER         any              ERROR (reserved)
 
 !ifeq TARGET_CLASS APPLICATION
-
-!ifeq TARGET_SUBCLASS GUI
-WIN_GUI = 1
-TARGET_MK=appsw32
-!else ifeq TARGET_SUBCLASS CONSOLE
-WIN_CONSOLE = 1
-TARGET_MK=appsw32
-!else ifeq TARGET_SUBCLASS FAMILY
-!error FAMILY for Win32 is reserved and not yet implemented
-!else ifeq TARGET_SUBCLASS DUAL
-!error DUAL for Win32 is reserved and not yet implemented
-!else ifeq TARGET_SUBCLASS HYBRID
-!error HYBRID for Win32 is reserved and not yet implemented
-!else
-!error Unknown TARGET_SUBCLASS for 32-bit Windows APPLICATION: $(TARGET_SUBCLASS)
-!endif
-
+!  ifeq TARGET_SUBCLASS GUI
+!    define WIN_GUI 1
+!    define TARGET_MK appsw32
+!  else ifeq TARGET_SUBCLASS CONSOLE
+!    define WIN_CONSOLE 1
+!    define TARGET_MK appsw32
+!  else ifeq TARGET_SUBCLASS FAMILY
+!    error FAMILY for Win32 is reserved and not yet implemented
+!  else ifeq TARGET_SUBCLASS DUAL
+!    error DUAL for Win32 is reserved and not yet implemented
+!  else ifeq TARGET_SUBCLASS HYBRID
+!    error HYBRID for Win32 is reserved and not yet implemented
+!  else
+!    error Unknown TARGET_SUBCLASS for 32-bit Windows APPLICATION: $(TARGET_SUBCLASS)
+!  endif
 !else ifeq TARGET_CLASS LIBRARY
-
-!ifeq TARGET_SUBCLASS DYNAMIC
-DLL = 1
-TARGET_MK=appsw16
-!else ifeq TARGET_SUBCLASS STATIC
-!error LIBRARY STATIC is reserved and not yet implemented for 32-bit Windows
-!else
-!error Unknown TARGET_SUBCLASS for 32-bit Windows LIBRARY: $(TARGET_SUBCLASS)
-!endif
-
+!  ifeq TARGET_SUBCLASS DYNAMIC
+!    define DLL 1
+!    define TARGET_MK appsw32
+!  else ifeq TARGET_SUBCLASS STATIC
+!    error LIBRARY STATIC is reserved and not yet implemented for 32-bit Windows
+!  else
+!    error Unknown TARGET_SUBCLASS for 32-bit Windows LIBRARY: $(TARGET_SUBCLASS)
+!  endif
 !else ifeq TARGET_CLASS DRIVER
-
-!error DRIVER class is reserved and not yet implemented for 32-bit Windows
-
+!  error DRIVER class is reserved and not yet implemented for 32-bit Windows
 !else
-
-!error Unknown TARGET_CLASS for 32-bit Windows: $(TARGET_CLASS)
-
+!  error Unknown TARGET_CLASS for 32-bit Windows: $(TARGET_CLASS)
 !endif
 
 !else
-!error Unsupported TARGET_BITS for WIN: $(TARGET_BITS)
+!  error Unsupported TARGET_BITS for WIN: $(TARGET_BITS)
 !endif
 
 # --- OS/2 ---
@@ -478,52 +441,43 @@ TARGET_MK=appsw16
 # DRIVER         VIRTUAL          appsos2v1.mk       Virtual device driver (VIRTDEVICE=1)
 
 !ifeq TARGET_BITS 16
-
-!ifeq TARGET_CLASS APPLICATION
-
-!ifeq TARGET_SUBCLASS CONSOLE
-TARGET_MK=appsos2v1
-!else ifeq TARGET_SUBCLASS GUI
-PM = 1
-TARGET_MK=appsos2v1
-!else ifeq TARGET_SUBCLASS FAMILY
-TARGET_MK=appsfapi
-!else ifeq TARGET_SUBCLASS DUAL
-TARGET_MK=appsdual
-!else ifeq TARGET_SUBCLASS HYBRID
-TARGET_MK=appshybrid
-!else
-!error Unknown TARGET_SUBCLASS for 16-bit OS/2 APPLICATION: $(TARGET_SUBCLASS)
-!endif
-
-!else ifeq TARGET_CLASS LIBRARY
-
-!ifeq TARGET_SUBCLASS DYNAMIC
-DLL = 1
-TARGET_MK=appsos2v1
-!else ifeq TARGET_SUBCLASS STATIC
-!error LIBRARY STATIC is reserved and not yet implemented for 16-bit OS/2
-!else
-!error Unknown TARGET_SUBCLASS for 16-bit OS/2 LIBRARY: $(TARGET_SUBCLASS)
-!endif
-
-!else ifeq TARGET_CLASS DRIVER
-
-!ifeq TARGET_SUBCLASS PHYSICAL
-PHYSDEVICE = 1
-TARGET_MK=appsos2v1
-!else ifeq TARGET_SUBCLASS VIRTUAL
-VIRTDEVICE = 1
-TARGET_MK=appsos2v1
-!else
-!error Unknown TARGET_SUBCLASS for 16-bit OS/2 DRIVER: $(TARGET_SUBCLASS). Supported: PHYSICAL, VIRTUAL.
-!endif
-
-!else
-
-!error Unknown TARGET_CLASS for 16-bit OS/2: $(TARGET_CLASS)
-
-!endif
+!  ifeq TARGET_CLASS APPLICATION
+!    ifeq TARGET_SUBCLASS CONSOLE
+!      define TARGET_MK appsos2v1
+!    else ifeq TARGET_SUBCLASS GUI
+!      define PM = 1
+!      define TARGET_MK appsos2v1
+!    else ifeq TARGET_SUBCLASS FAMILY
+!      define TARGET_MK appsfapi
+!    else ifeq TARGET_SUBCLASS DUAL
+!      define TARGET_MK appsdual
+!    else ifeq TARGET_SUBCLASS HYBRID
+!      define TARGET_MK appshybrid
+!    else
+!      error Unknown TARGET_SUBCLASS for 16-bit OS/2 APPLICATION: $(TARGET_SUBCLASS)
+!    endif
+!  else ifeq TARGET_CLASS LIBRARY
+!    ifeq TARGET_SUBCLASS DYNAMIC
+!      define DLL 1
+!      define TARGET_MK appsos2v1
+!    else ifeq TARGET_SUBCLASS STATIC
+!      error LIBRARY STATIC is reserved and not yet implemented for 16-bit OS/2
+!    else
+!      error Unknown TARGET_SUBCLASS for 16-bit OS/2 LIBRARY: $(TARGET_SUBCLASS)
+!    endif
+!  else ifeq TARGET_CLASS DRIVER
+!    ifeq TARGET_SUBCLASS PHYSICAL
+!      define PHYSDEVICE 1
+!      define TARGET_MK appsos2v1
+!    else ifeq TARGET_SUBCLASS VIRTUAL
+!      define VIRTDEVICE 1
+!      define TARGET_MK appsos2v1
+!    else
+!      error Unknown TARGET_SUBCLASS for 16-bit OS/2 DRIVER: $(TARGET_SUBCLASS). Supported: PHYSICAL, VIRTUAL.
+!    endif
+!  else
+!    error Unknown TARGET_CLASS for 16-bit OS/2: $(TARGET_CLASS)
+!  endif
 
 !else ifeq TARGET_BITS 32
 # ============================================================
@@ -542,76 +496,63 @@ TARGET_MK=appsos2v1
 # DRIVER         VIRTUAL          appsos2.mk         Virtual device driver (VIRTDEVICE=1)
 
 !ifeq TARGET_CLASS APPLICATION
-
-!ifdef LIBS
-ADD_LINKOPT = $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
-!endif
-
-
-!ifeq TARGET_SUBCLASS CONSOLE
-TARGET_MK=appsos2
-!else ifeq TARGET_SUBCLASS GUI
-PM = 1
-TARGET_MK=appsos2
-!else ifeq TARGET_SUBCLASS FAMILY
-!error FAMILY for 32-bit OS/2 is reserved and not yet implemented
-!else ifeq TARGET_SUBCLASS DUAL
-TARGET_MK=appsdual
-!else ifeq TARGET_SUBCLASS HYBRID
-TARGET_MK=appshybrid
-!else
-!error Unknown TARGET_SUBCLASS for 32-bit OS/2 APPLICATION: $(TARGET_SUBCLASS)
-!endif
-
+!  ifdef LIBS
+!    define ADD_LINKOPT $(ADD_LINKOPT) lib $(LIBS: =.lib lib ).lib
+!  endif
+!  ifeq TARGET_SUBCLASS CONSOLE
+!    define TARGET_MK appsos2
+!  else ifeq TARGET_SUBCLASS GUI
+!    define PM 1
+!    define TARGET_MK appsos2
+!  else ifeq TARGET_SUBCLASS FAMILY
+!    error FAMILY for 32-bit OS/2 is reserved and not yet implemented
+!  else ifeq TARGET_SUBCLASS DUAL
+!    define TARGET_MK appsdual
+!  else ifeq TARGET_SUBCLASS HYBRID
+!    define TARGET_MK appshybrid
+!  else
+!    error Unknown TARGET_SUBCLASS for 32-bit OS/2 APPLICATION: $(TARGET_SUBCLASS)
+!  endif
 !else ifeq TARGET_CLASS LIBRARY
-
-!ifeq TARGET_SUBCLASS DYNAMIC
-DLL = 1
-TARGET_MK=appsos2
-!else ifeq TARGET_SUBCLASS STATIC
-
-TRGT = $(PROJ).lib
-
-!ifdef LIBS
-pth=$$(pth)
-!ifndef ADDLIBS
-ADDLIBS = $(pth)$(LIBS: =.lib $(pth)).lib
-!else
-ADDLIBS = $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
-!endif
-pth=$(%ROOT)build$(SEP)lib$(SEP)
-!endif
-
-TARGET_MK=libsos2
-!else
-!error Unknown TARGET_SUBCLASS for 32-bit OS/2 LIBRARY: $(TARGET_SUBCLASS)
-!endif
-
+!  ifeq TARGET_SUBCLASS DYNAMIC
+!    define DLL 1
+!    define TARGET_MK appsos2
+!  else ifeq TARGET_SUBCLASS STATIC
+!    define TRGT $(PROJ).lib
+!    ifdef LIBS
+!      define pth $$(pth)
+!      ifndef ADDLIBS
+!        define ADDLIBS $(pth)$(LIBS: =.lib $(pth)).lib
+!      else
+!        define ADDLIBS $(ADDLIBS) $(pth)$(LIBS: =.lib $(pth)).lib
+!      endif
+!        define pth $(%ROOT)build$(SEP)lib$(SEP)
+!    endif
+!    define TARGET_MK libsos2
+!  else
+!    error Unknown TARGET_SUBCLASS for 32-bit OS/2 LIBRARY: $(TARGET_SUBCLASS)
+!  endif
 !else ifeq TARGET_CLASS DRIVER
-
-!ifeq TARGET_SUBCLASS PHYSICAL
-PHYSDEVICE = 1
-TARGET_MK=appsos2
-!else ifeq TARGET_SUBCLASS VIRTUAL
-VIRTDEVICE = 1
-TARGET_MK=appsos2
+!  ifeq TARGET_SUBCLASS PHYSICAL
+!    define PHYSDEVICE 1
+!    define TARGET_MK appsos2
+!  else ifeq TARGET_SUBCLASS VIRTUAL
+!    define VIRTDEVICE 1
+!    define TARGET_MK appsos2
+!  else
+!    error Unknown TARGET_SUBCLASS for 32-bit OS/2 DRIVER: $(TARGET_SUBCLASS). Supported: PHYSICAL, VIRTUAL.
+!  endif
 !else
-!error Unknown TARGET_SUBCLASS for 32-bit OS/2 DRIVER: $(TARGET_SUBCLASS). Supported: PHYSICAL, VIRTUAL.
+!  error Unknown TARGET_CLASS for 32-bit OS/2: $(TARGET_CLASS)
 !endif
 
 !else
-
-!error Unknown TARGET_CLASS for 32-bit OS/2: $(TARGET_CLASS)
-
-!endif
-
-!else
-!error Unsupported TARGET_BITS for OS2: $(TARGET_BITS)
+!  error Unsupported TARGET_BITS for OS2: $(TARGET_BITS)
 !endif
 
 
 !else
-!error Unknown TARGET_API: $(TARGET_API)
+!  error Unknown TARGET_API: $(TARGET_API)
 !endif
 
 !include $(%ROOT)tools/mk/$(TARGET_MK).mk
