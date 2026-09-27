@@ -134,6 +134,13 @@ STRIPPED = $(TEST_STR:*tools$(SEP)=)
 TARGET_API=HOST
 !endif
 
+# Try same for packages. Try to delete "*PKGS\"
+STRIPPED = $(TEST_STR:*PKGS$(SEP)=)
+
+# String changed - so we in packages tree
+!ifneq TEST_STR $(STRIPPED)
+TARGET_API=PACKAGE
+!endif
 
 !endif
 

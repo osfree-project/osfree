@@ -37,6 +37,7 @@ ADD_ASMOPT=$(ADD_ASMOPT) -Zd
 ADD_ASMOPT=$(ADD_ASMOPT) -d1
 !endif
 
+
 !include $(%ROOT)tools/mk/build_dispatcher.mk
 
 # ============================================================
@@ -86,6 +87,24 @@ TT2=$(TT:-=_)
  @%append $(BLD)projects.map $(TT2)=$(deps)
 !else
  @%null
+!endif
+# ---- package registry ----
+!ifneq pkg ""
+!ifdef trrgt
+TT_PKG=$(trrgt:.=_)
+TT_PKG=$(TT_PKG:-=_)
+!include $(BLD)packages$(SEP)$(pkg).map
+!ifndef __pkg_$(TT_PKG)
+ @$(SAY) Registering $(trrgt) in package $(pkg)...
+ @%append $(BLD)packages$(SEP)$(pkg).map __pkg_$(TT_PKG)=1
+ @%append $(BLD)packages$(SEP)$(pkg).map pkg_$(TT_PKG)_src=$(dest)$(SEP)$(trrgt)
+ @%append $(BLD)packages$(SEP)$(pkg).map pkg_$(TT_PKG)_trg=$(trrgt)
+ @%append $(BLD)packages$(SEP)$(pkg).map PKG_TARGETS+=$$(STAGING)$(SEP)$$(pkg_$(TT_PKG)_trg)
+ @%append $(BLD)packages$(SEP)$(pkg).map PKG_SOURCES+=$$(pkg_$(TT_PKG)_src)
+ @%append $(BLD)packages$(SEP)$(pkg).map $$(STAGING)$(SEP)$$(pkg_$(TT_PKG)_trg): $$(pkg_$(TT_PKG)_src)
+ @%append $(BLD)packages$(SEP)$(pkg).map 	$$(CP) $$< $$@
+!endif
+!endif
 !endif
 
 # Determine if using standard extension
@@ -157,7 +176,12 @@ gen_deps_wrapper: .symbolic
 #        @echo GDW_DEBUG PLATFORM=[$(PLATFORM)] PATH=[$(PATH)]
         # register project
         @if not exist $(BLD)projects.map @%create $(BLD)projects.map
-        @$(MAKE) $(MAKEOPT) trrgt=$(TRGT:$(PATH)=) deps=$(RELDIR) pmap=$(BLD)projects.map gen_register_project
+        #register package
+!ifdef TARGET_PACKAGE
+        @if not exist $(BLD)packages @md $(BLD)packages
+        @if not exist $(BLD)packages$(SEP)$(TARGET_PACKAGE).map @%create $(BLD)packages$(SEP)$(TARGET_PACKAGE).map
+!endif
+        @$(MAKE) $(MAKEOPT) trrgt=$(TRGT:$(PATH)=) deps=$(RELDIR) dest=$(DEST) pkg=$(TARGET_PACKAGE) pmap=$(BLD)projects.map gen_register_project
         # add to generated makefile RES compile rule
         @if exist $(MYDIR)$(PROJ).rc @$(MAKE) $(MAKEOPT) gen_wrc_rule
         # add to generated makefile OBJS dependencies
