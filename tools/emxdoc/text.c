@@ -103,7 +103,7 @@ static void text_para (void)
  * @retval TRUE   The string consists only of spaces.
  * @retval FALSE  Otherwise.
  */
-static int isblank (const uchar *p)
+static int all_spaces (const uchar *p)
 {
   while (*p != 0)
     if (*p++ != ' ')
@@ -131,7 +131,7 @@ void text_output (const uchar *p, int may_break)
     {
       int rc;
 
-      if (may_break && isblank (p))
+      if (may_break && all_spaces (p))
         rc = lb_glue (lb, strlen (p), NULL);
       else
         rc = lb_word (lb, strlen (p), p, NULL);
@@ -147,16 +147,17 @@ void text_output (const uchar *p, int may_break)
  * @param[in] margin   Left margin.
  * @param[in] width    Right margin.
  * @param[in] newline  Non-zero to finish the paragraph with a newline.
+ * @param[in] style    Default style for unstyled words.
  *
  * @return Number of output lines generated.
  */
-static int text_elements (int margin, int width, int newline)
+static int text_elements (int margin, int width, int newline,
+                          enum style style)
 {
   const struct element *ep, *ep2;
   int i, spaces, line, rc;
   enum style style_stack[STYLE_STACK_SIZE];
   int style_sp;
-  enum style style = STYLE_NORMAL;
 
   style_sp = 0;
   style_stack[style_sp] = style;
@@ -344,7 +345,7 @@ void text_see_also_end (const uchar *s)
 {
   write_string ("  See also: ");
   make_elements (s);
-  text_elements (output_x, text_width, TRUE);
+  text_elements (output_x, text_width, TRUE, STYLE_NORMAL);
 }
 
 
@@ -358,7 +359,8 @@ void text_description_item (const uchar *s)
   write_nl ();
   text_para ();
   make_elements (s);
-  text_elements (env_stack[env_sp-1].tmargin, text_width, FALSE);
+  text_elements (env_stack[env_sp-1].tmargin, text_width, FALSE,
+                 STYLE_NORMAL);
   if (output_x + 2 <= env_stack[env_sp].tmargin)
     write_string ("  ");
   else
@@ -400,7 +402,8 @@ void text_list_item (const uchar *s)
   write_nl ();
   text_para ();
   make_elements (s);
-  text_elements (env_stack[env_sp-1].tmargin, text_width, TRUE);
+  text_elements (env_stack[env_sp-1].tmargin, text_width, TRUE,
+                 STYLE_NORMAL);
   write_nl ();
 }
 
@@ -410,9 +413,13 @@ void text_list_item (const uchar *s)
  */
 void text_copy (void)
 {
+  enum style sty;
+
   if (para_flag)
     write_nl ();
-  text_elements (env_stack[env_sp].tmargin, text_width, TRUE);
+  sty = (env_stack[env_sp].env == ENV_TYPEWRITER
+         ? STYLE_TTY : STYLE_NORMAL);
+  text_elements (env_stack[env_sp].tmargin, text_width, TRUE, sty);
 }
 
 
@@ -529,7 +536,7 @@ void text_prototype_start (uchar *compat)
 void text_prototype_end (uchar *compat)
 {
   (void)compat;
-  text_elements (0, 78, TRUE);
+  text_elements (0, 78, TRUE, STYLE_TTY);
   env_stack[0].tmargin = 4;
 }
 
@@ -578,7 +585,7 @@ void text_table_line (const uchar *s, int wn)
   if (text_table_indent)
     tmargin += 4;
   make_elements (s);
-  if (text_elements (tmargin, 78, TRUE) > 1)
+  if (text_elements (tmargin, 78, TRUE, STYLE_NORMAL) > 1)
     fatal ("%s:%d: Table entry too long", input_fname, line_no);
 }
 

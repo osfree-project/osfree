@@ -1829,6 +1829,9 @@ static void do_table (const uchar *p)
           if (errno != 0 || *tmp != 0)
             fatal ("%s:%d: Invalid %ctable width",
                    input_fname, line_no, escape);
+          if (wn >= (int)(sizeof (widths) / sizeof (widths[0])))
+            fatal ("%s:%d: Too many %ctable columns",
+                   input_fname, line_no, escape);
           widths[wn++] = (int)n;
         }
       else
