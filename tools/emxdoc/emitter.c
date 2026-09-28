@@ -429,7 +429,7 @@ static struct emitter emitters[] = {
   /*  Markdown                                                     */
   /* ------------------------------------------------------------- */
   {
-    "md", 'G', EMIT_FLAG_COLOR | EMIT_FLAG_XREF, 4096, ENC_ISO8859_1,
+    "md", 'G', EMIT_FLAG_COLOR | EMIT_FLAG_XREF, 4096, ENC_DEFAULT,
     "Generate Markdown file",
     "[-cfgr] [-o <output>] [-x <xref>] <input>",
     md_start, md_end,
@@ -457,7 +457,7 @@ static struct emitter emitters[] = {
   /*  DokuWiki                                                     */
   /* ------------------------------------------------------------- */
   {
-    "dw", 'W', EMIT_FLAG_COLOR | EMIT_FLAG_XREF, 4096, ENC_ISO8859_1,
+    "dw", 'W', EMIT_FLAG_COLOR | EMIT_FLAG_XREF, 4096, ENC_DEFAULT,
     "Generate DokuWiki file",
     "[-cfgr] [-o <output>] [-x <xref>] <input>",
     dw_start, dw_end,

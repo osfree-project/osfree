@@ -3,8 +3,11 @@
  *
  *  Emits DokuWiki text: headings via =====, =====, inline styles
  *  via **, //, '', __, code blocks via <code>...</code>.  Words
- *  containing markup characters are wrapped in %%...%% for
- *  protection.
+ *  containing DokuWiki markup sequences are wrapped in %%...%% for
+ *  protection.  Bare URLs are wrapped in [[...]] so that an
+ *  enclosing //...// italic run cannot swallow the closing marker.
+ *  Block-level tags (<code>, <blockquote>) are preceded by a blank
+ *  line, as required by the DokuWiki parser.
  *
  *  @copyright Copyright (C) 2026 osFree Project.
  *             License - see LICENSE in the project root.
@@ -36,34 +39,88 @@ static void dw_escape (const uchar *p)
 }
 
 /*!
- *  @brief Checks whether the string contains DokuWiki markup chars.
+ *  @brief Checks whether the string is a bare URL.
+ *  @param[in] p Pointer to a zero-terminated string.
+ *
+ *  @return Non-zero if the string is a URL.
+ *
+ *  @retval TRUE   The string starts with a known URL scheme.
+ *  @retval FALSE  Otherwise.
+ *
+ *  URLs are wrapped in [[...]] by dw_text() so that an enclosing
+ *  //...// italic run cannot swallow the closing marker as part of
+ *  the URL.
+ */
+static int dw_is_url (const uchar *p)
+{
+  return (strncmp ((const char *)p, "http://",   7) == 0
+          || strncmp ((const char *)p, "https://",  8) == 0
+          || strncmp ((const char *)p, "ftp://",    6) == 0
+          || strncmp ((const char *)p, "ftps://",   7) == 0
+          || strncmp ((const char *)p, "gopher://", 9) == 0
+          || strncmp ((const char *)p, "mailto:",   7) == 0);
+}
+
+/*!
+ *  @brief Checks whether the string contains DokuWiki markup sequences.
  *  @param[in] p Pointer to a zero-terminated string.
  *
  *  @return Non-zero if the string needs a %%...%% wrapper.
  *
  *  @retval TRUE   The string needs a %%...%% wrapper.
  *  @retval FALSE  The string does not need a wrapper.
+ *
+ *  Only paired markers and characters that DokuWiki interprets
+ *  unconditionally trigger nowiki.  Single '*', '/', '_' and
+ *  apostrophe are ordinary text and must not be wrapped.
  */
 static int dw_needs_nowiki (const uchar *p)
 {
   while (*p != 0)
     {
-      uchar c = *p++;
-      if (c == '*' || c == '/' || c == '\'' || c == '_'
-          || c == '[' || c == ']' || c == '{' || c == '}'
-          || c == '~' || c == '<' || c == '>' || c == '&'
-          || c == '|' || c == '%')
+      uchar c = *p;
+      uchar n = p[1];
+
+      /* Paired markup: **, //, __, '' */
+      if ((c == '*' || c == '/' || c == '_' || c == '\'') && c == n)
         return TRUE;
+
+      /* Bracketed markup: [[...]], {{...}} */
+      if ((c == '[' && n == '[') || (c == '{' && n == '{'))
+        return TRUE;
+
+      /* Deleted text: ~~ */
+      if (c == '~' && n == '~')
+        return TRUE;
+
+      /* HTML-ish and table markup, nowiki itself */
+      if (c == '<' || c == '>' || c == '&' || c == '|' || c == '%')
+        return TRUE;
+
+      ++p;
     }
   return FALSE;
 }
 
 /*!
- *  @brief Emits a string, wrapping it in %%...%% when needed.
+ *  @brief Emits a string with DokuWiki escaping.
  *  @param[in] p Pointer to a zero-terminated string.
+ *
+ *  A bare URL is wrapped in [[...]] so that an enclosing italic
+ *  run (//...//) cannot misinterpret the scheme's "//" as its
+ *  closing marker.  Everything else that contains paired markup
+ *  or HTML-ish characters is wrapped in %%...%%.
  */
 static void dw_text (const uchar *p)
 {
+  if (dw_is_url (p))
+    {
+      write_string ("[[");
+      write_string (p);
+      write_string ("]]");
+      return;
+    }
+
   if (dw_needs_nowiki (p))
     {
       write_string ("%%");
@@ -132,7 +189,8 @@ void dw_heading1 (int level, int ref, int global, unsigned flags)
   (void)ref;
   (void)global;
   (void)flags;
-  if (output_x > 0) write_nl ();
+  write_break ();
+  write_nl ();
   switch (level)
     {
     case 1:  n = 6; break;
@@ -193,8 +251,9 @@ void dw_list (void)        { }
 /*! @brief Starts the indent environment. */
 void dw_indent (void)
 {
-  if (output_x > 0) write_nl ();
-  write_string ("<blockquote>\n");
+  write_break ();
+  write_nl ();
+  write_line ("<blockquote>");
 }
 
 /*! @brief Closes the current environment. */
@@ -204,8 +263,8 @@ void dw_end_env (void)
     {
     case ENV_INDENT:
     case ENV_TYPEWRITER:
-      if (output_x > 0) write_nl ();
-      write_string ("</blockquote>\n");
+      write_break ();
+      write_line ("</blockquote>");
       break;
     default:
       break;
@@ -239,11 +298,9 @@ void dw_description_item (const uchar *s)
 /*! @brief Starts an ordered-list item. */
 void dw_enumerate_item (void)
 {
-  int n = ++env_stack[env_sp].counter;
-
   if (output_x > 0) write_nl ();
   dw_indent_for (env_sp - 1);
-  write_fmt ("  - %d. ", n);
+  write_string ("  - ");
 }
 
 /*! @brief Starts an unordered-list item. */
@@ -275,10 +332,11 @@ void dw_list_item (const uchar *s)
 void dw_verbatim_start (enum tag tag_end, int *ptmargin)
 {
   (void)ptmargin;
-  if (output_x > 0) write_nl ();
+  write_break ();
+  write_nl ();
   if (tag_end == TAG_ENDSAMPLECODE)
-    write_string ("**Example:**\n");
-  write_string ("<code>\n");
+    write_line ("**Example:**");
+  write_line ("<code>");
 }
 
 /*!
@@ -301,7 +359,7 @@ void dw_verbatim_end (enum tag tag_end)
 {
   (void)tag_end;
   if (output_x > 0) write_nl ();
-  write_string ("</code>\n");
+  write_line ("</code>");
   para_flag = TRUE;
 }
 
@@ -312,8 +370,9 @@ void dw_verbatim_end (enum tag tag_end)
 void dw_prototype_start (uchar *compat)
 {
   (void)compat;
-  if (output_x > 0) write_nl ();
-  write_string ("<code c>\n");
+  write_break ();
+  write_nl ();
+  write_line ("<code c>");
 }
 
 /*!
@@ -326,7 +385,7 @@ void dw_prototype_end (uchar *compat)
   (void)compat;
   dw_copy ();
   if (output_x > 0) write_nl ();
-  write_string ("</code>\n");
+  write_line ("</code>");
   para_flag = TRUE;
 }
 
@@ -336,6 +395,12 @@ void dw_copy (void)
   enum style style_stack[STYLE_STACK_SIZE];
   int style_sp = 0;
   const struct element *ep;
+
+  if (para_flag)
+    {
+      write_break ();
+      write_nl ();
+    }
 
   style_stack[0] = STYLE_NORMAL;
   for (ep = elements; ep->el != EL_END; ++ep)
@@ -401,7 +466,8 @@ void dw_function_start (const struct toc *tp)
   if (output_x > 0) write_nl ();
   write_string ("===== ");
   dw_text (tp->title);
-  write_string (" =====\n");
+  write_string (" =====");
+  write_nl ();
 }
 
 /*!
@@ -419,7 +485,8 @@ void dw_function_function (const struct toc *tp, const uchar *s)
 void dw_see_also_start (void)
 {
   if (output_x > 0) write_nl ();
-  write_string ("===== See also =====\n\n");
+  write_line ("===== See also =====");
+  write_nl ();
 }
 
 /*!
@@ -466,7 +533,9 @@ void dw_libref_section (const uchar *s)
   if (output_x > 0) write_nl ();
   write_string ("**");
   dw_text (s);
-  write_string ("**\n\n");
+  write_string ("**");
+  write_nl ();
+  write_nl ();
   para_flag = TRUE;
 }
 
