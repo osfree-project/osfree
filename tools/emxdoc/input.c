@@ -48,6 +48,9 @@ struct cond
 
 /*!
  * @brief Precomputed recoding table from one encoding to another.
+ *
+ * Used only for single-byte to single-byte conversions (CP850 to
+ * ISO 8859-1 and back).  UTF-8 output is handled by recode_utf8().
  */
 struct recode_table
 {
@@ -66,7 +69,23 @@ static struct cond cond_stack[COND_STACK_SIZE];
 static int cond_sp;
 
 /*!
- * @brief Character repertoire tables for the supported encodings.
+ * @brief Character repertoires of the supported encodings.
+ *
+ * char_table[ENC_CP850] and char_table[ENC_ISO8859_1] are aligned
+ * positionally: at each index i, the byte in the first string and
+ * the byte in the second string are the SAME character, encoded
+ * in CP850 and in ISO 8859-1 respectively.  A space at a given
+ * position in the second string means "this CP850 character has
+ * no ISO 8859-1 equivalent".
+ *
+ * The CP850 entry now covers all 128 bytes of 0x80..0xFF, so
+ * pseudographic characters (box drawing, block elements) are
+ * part of the repertoire and are detected as CP850 in input files.
+ * The ISO 8859-1 entry keeps its original 87-character repertoire
+ * for compatibility.
+ *
+ * char_table[ENC_UTF_8] is empty; find_encoding() will never select
+ * UTF-8 as an input encoding.
  */
 static const uchar *char_table[ENCODINGS] =
 {
@@ -76,7 +95,13 @@ static const uchar *char_table[ENCODINGS] =
   "\xa1\xa2\xa3\xa4\xa5\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb5\xb6\xb7"
   "\xb8\xbd\xbe\xc6\xc7\xcf\xd0\xd1\xd2\xd3\xd4\xd6\xd7\xd8\xdd\xde"
   "\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xf1\xf3"
-  "\xf4\xf5\xf6\xfa\xfb\xfc\xfd",
+  "\xf4\xf5\xf6\xfa\xfb\xfc\xfd"
+  /* CP850-only additions: pseudographics and letters without
+     ISO 8859-1 equivalents. */
+  "\x9f\xa6\xa7\xb0\xb1\xb2\xb3\xb4\xb9\xba\xbb\xbc\xbf"
+  "\xc0\xc1\xc2\xc3\xc4\xc5\xc8\xc9\xca\xcb\xcc\xcd\xce"
+  "\xd5\xd9\xda\xdb\xdc\xdf"
+  "\xee\xef\xf0\xf2\xf7\xf8\xf9\xfe\xff",
 
   /* ENC_ISO8859_1 */
   "\xc7\xfc\xe9\xe2\xe4\xe0\xe5\xe7\xea\xeb\xe8\xef\xee\xec\xc4\xc5"
@@ -85,15 +110,71 @@ static const uchar *char_table[ENCODINGS] =
   "\xa9\xa2\xa5\xe3\xc3\xa4\xf0\xd0\xca\xcb\xc8\xcd\xce\xcf\xa6\xcc"
   "\xd3\xdf\xd4\xd2\xf5\xd5\xb5\xfe\xde\xda\xdb\xd9\xfd\xdd\xb1\xbe"
   "\xb6\xa7\xf7\xb7\xb9\xb3\xb2"
+  /* Space placeholders for the 41 CP850-only positions above. */
+  "                                         ",
+
+  /* ENC_UTF_8 - output-only, empty repertoire */
+  ""
 };
 
 /*!
- * @brief Empty placeholder for the ISO 8859-1 encoding.
+ * @brief Unicode code points for bytes 0x80..0xFF in CP850.
+ *
+ * Index i corresponds to byte value 0x80 + i.  Every entry is
+ * non-zero, because every CP850 high byte maps to a code point.
  */
-static const uchar chars_iso8859_1[] = "";
+static const unsigned short cp850_to_unicode[128] =
+{
+  /* 0x80 */ 0x00C7, 0x00FC, 0x00E9, 0x00E2, 0x00E4, 0x00E0, 0x00E5, 0x00E7,
+  /* 0x88 */ 0x00EA, 0x00EB, 0x00E8, 0x00EF, 0x00EE, 0x00EC, 0x00C4, 0x00C5,
+  /* 0x90 */ 0x00C9, 0x00E6, 0x00C6, 0x00F4, 0x00F6, 0x00F2, 0x00FB, 0x00F9,
+  /* 0x98 */ 0x00FF, 0x00D6, 0x00DC, 0x00F8, 0x00A3, 0x00D8, 0x00D7, 0x0192,
+  /* 0xA0 */ 0x00E1, 0x00ED, 0x00F3, 0x00FA, 0x00F1, 0x00D1, 0x00AA, 0x00BA,
+  /* 0xA8 */ 0x00BF, 0x00AE, 0x00AC, 0x00BD, 0x00BC, 0x00A1, 0x00AB, 0x00BB,
+  /* 0xB0 */ 0x2591, 0x2592, 0x2593, 0x2502, 0x2524, 0x00C1, 0x00C2, 0x00C0,
+  /* 0xB8 */ 0x00A9, 0x2563, 0x2551, 0x2557, 0x255D, 0x00A2, 0x00A5, 0x2510,
+  /* 0xC0 */ 0x2514, 0x2534, 0x252C, 0x251C, 0x2500, 0x253C, 0x00E3, 0x00C3,
+  /* 0xC8 */ 0x255A, 0x2554, 0x2569, 0x2566, 0x2560, 0x2550, 0x256C, 0x00A4,
+  /* 0xD0 */ 0x00F0, 0x00D0, 0x00CA, 0x00CB, 0x00C8, 0x0131, 0x00CD, 0x00CE,
+  /* 0xD8 */ 0x00CF, 0x2518, 0x250C, 0x2588, 0x2584, 0x258C, 0x2590, 0x2580,
+  /* 0xE0 */ 0x00D3, 0x00DF, 0x00D4, 0x00D2, 0x00F5, 0x00D5, 0x00B5, 0x00FE,
+  /* 0xE8 */ 0x00DE, 0x00DA, 0x00DB, 0x00D9, 0x00FD, 0x00DD, 0x00AF, 0x00B4,
+  /* 0xF0 */ 0x00AD, 0x00B1, 0x2017, 0x00BE, 0x00B6, 0x00A7, 0x00F7, 0x00B8,
+  /* 0xF8 */ 0x00B0, 0x00A8, 0x00B7, 0x00B9, 0x00B3, 0x00B2, 0x25A0, 0x00A0
+};
+
+/*!
+ * @brief Unicode code points for bytes 0x80..0xFF in ISO 8859-1.
+ *
+ * Index i corresponds to byte value 0x80 + i.  In ISO 8859-1 the
+ * byte value equals the Unicode code point, including the C1
+ * control range 0x80..0x9F.
+ */
+static const unsigned short iso8859_1_to_unicode[128] =
+{
+  0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,
+  0x0088, 0x0089, 0x008A, 0x008B, 0x008C, 0x008D, 0x008E, 0x008F,
+  0x0090, 0x0091, 0x0092, 0x0093, 0x0094, 0x0095, 0x0096, 0x0097,
+  0x0098, 0x0099, 0x009A, 0x009B, 0x009C, 0x009D, 0x009E, 0x009F,
+  0x00A0, 0x00A1, 0x00A2, 0x00A3, 0x00A4, 0x00A5, 0x00A6, 0x00A7,
+  0x00A8, 0x00A9, 0x00AA, 0x00AB, 0x00AC, 0x00AD, 0x00AE, 0x00AF,
+  0x00B0, 0x00B1, 0x00B2, 0x00B3, 0x00B4, 0x00B5, 0x00B6, 0x00B7,
+  0x00B8, 0x00B9, 0x00BA, 0x00BB, 0x00BC, 0x00BD, 0x00BE, 0x00BF,
+  0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C4, 0x00C5, 0x00C6, 0x00C7,
+  0x00C8, 0x00C9, 0x00CA, 0x00CB, 0x00CC, 0x00CD, 0x00CE, 0x00CF,
+  0x00D0, 0x00D1, 0x00D2, 0x00D3, 0x00D4, 0x00D5, 0x00D6, 0x00D7,
+  0x00D8, 0x00D9, 0x00DA, 0x00DB, 0x00DC, 0x00DD, 0x00DE, 0x00DF,
+  0x00E0, 0x00E1, 0x00E2, 0x00E3, 0x00E4, 0x00E5, 0x00E6, 0x00E7,
+  0x00E8, 0x00E9, 0x00EA, 0x00EB, 0x00EC, 0x00ED, 0x00EE, 0x00EF,
+  0x00F0, 0x00F1, 0x00F2, 0x00F3, 0x00F4, 0x00F5, 0x00F6, 0x00F7,
+  0x00F8, 0x00F9, 0x00FA, 0x00FB, 0x00FC, 0x00FD, 0x00FE, 0x00FF
+};
 
 /*!
  * @brief Build a recoding table from one encoding to another.
+ *
+ * Only the single-byte encodings ENC_CP850 and ENC_ISO8859_1 are
+ * supported here; UTF-8 output is handled by recode_utf8().
  *
  * @param[in] inp Input encoding.
  * @param[in] out Output encoding.
@@ -132,7 +213,7 @@ static const struct recode_table *build_recode_table (enum enc inp,
 }
 
 /*!
- * @brief Recode a string in place from one encoding to another.
+ * @brief Recode a string in place between single-byte encodings.
  *
  * @param[in,out] s   String to recode. Not NULL.
  * @param[in]     inp Input encoding.
@@ -161,6 +242,100 @@ static int recode (uchar *s, enum enc inp, enum enc out)
 }
 
 /*!
+ * @brief Encode a Unicode code point as UTF-8.
+ *
+ * @param[out] dst Destination buffer.  Must have room for at
+ *                 least 4 bytes.
+ * @param[in]  cp  Unicode code point.
+ *
+ * @return Number of bytes written (1..4).
+ */
+static int utf8_encode (uchar *dst, unsigned long cp)
+{
+  if (cp < 0x80)
+    {
+      dst[0] = (uchar)cp;
+      return 1;
+    }
+  if (cp < 0x800)
+    {
+      dst[0] = (uchar)(0xC0 | (cp >> 6));
+      dst[1] = (uchar)(0x80 | (cp & 0x3F));
+      return 2;
+    }
+  if (cp < 0x10000)
+    {
+      dst[0] = (uchar)(0xE0 | (cp >> 12));
+      dst[1] = (uchar)(0x80 | ((cp >> 6) & 0x3F));
+      dst[2] = (uchar)(0x80 | (cp & 0x3F));
+      return 3;
+    }
+  dst[0] = (uchar)(0xF0 | (cp >> 18));
+  dst[1] = (uchar)(0x80 | ((cp >> 12) & 0x3F));
+  dst[2] = (uchar)(0x80 | ((cp >> 6) & 0x3F));
+  dst[3] = (uchar)(0x80 | (cp & 0x3F));
+  return 4;
+}
+
+/*!
+ * @brief Recode a byte string from a single-byte encoding to UTF-8.
+ *
+ * ASCII bytes and the escape character pass through unchanged so
+ * that parse_tag() still recognises tag markers.  Bytes with the
+ * high bit set are looked up in the encoding-specific table and
+ * re-encoded as UTF-8.
+ *
+ * The output never exceeds three times the input length.  The
+ * transformation MUST NOT be performed in place: an expanding
+ * UTF-8 sequence would overwrite input bytes that have not been
+ * read yet, including the terminating NUL.
+ *
+ * @param[in]  in    Source string in @p inp encoding.  Not NULL.
+ * @param[out] out   Destination buffer.  Not NULL.
+ * @param[in]  outsz Size of @p out in bytes.
+ * @param[in]  inp   Input encoding (ENC_CP850 or ENC_ISO8859_1).
+ *
+ * @return 0 on success, or the first unsupported input byte.
+ */
+static int recode_utf8 (const uchar *in, uchar *out, size_t outsz,
+                        enum enc inp)
+{
+  const uchar *s = in;
+  uchar *d = out;
+  uchar *end = out + outsz - 1;    /* leave room for NUL */
+  const unsigned short *map;
+  unsigned long cp;
+  int n;
+
+  map = (inp == ENC_CP850 ? cp850_to_unicode : iso8859_1_to_unicode);
+
+  while (*s != 0)
+    {
+      if (*s < 0x80 || *s == escape)
+        {
+          if (d >= end)
+            fatal ("%s:%d: UTF-8 output line too long",
+                   input_fname, line_no);
+          *d++ = *s++;
+          continue;
+        }
+
+      cp = map[*s - 0x80];
+      if (cp == 0)
+        return *s;
+      ++s;
+
+      n = utf8_encode (d, cp);
+      if (d + n > end)
+        fatal ("%s:%d: UTF-8 output line too long",
+               input_fname, line_no);
+      d += n;
+    }
+  *d = 0;
+  return 0;
+}
+
+/*!
  * @brief Determine the encoding of a string.
  *
  * @param[in] s String to inspect. Not NULL.
@@ -182,7 +357,8 @@ static enum enc find_encoding (const uchar *s)
       if (c >= 0x80 && c != escape)
         for (i = 0; i < ENCODINGS; ++i)
           {
-            if (strchr (char_table[i], c) == NULL)
+            if (char_table[i][0] == 0
+                || strchr (char_table[i], c) == NULL)
               neg[i] = 1;
             else
               pos[i] = 1;
@@ -270,10 +446,17 @@ static void choose_encoding (const uchar *s)
 /*!
  * @brief Read and preprocess the next input line.
  *
- * Handles CRLF line endings explicitly: a trailing carriage return
- * is stripped after the newline, regardless of whether the C library
- * translates text-mode streams.  This keeps Windows-produced files
- * readable on systems where "rt" is a no-op.
+ * Reads at most INPUT_LINE_BYTES bytes (including the newline).
+ * Strips a trailing carriage return (CRLF line endings on systems
+ * where the C library does not translate them).  If the output
+ * encoding is UTF-8, transcodes the line into UTF-8; the result
+ * can be up to three times as long as the raw input line, which
+ * is why the global input[] buffer is INPUT_LINE_BYTES * 4.
+ *
+ * The UTF-8 conversion is performed into a local temporary buffer
+ * and only then copied back into input[], because a UTF-8
+ * sequence for a single byte is two or three bytes long, and an
+ * in-place conversion would overwrite bytes not yet read.
  */
 void read_line (void)
 {
@@ -282,7 +465,7 @@ void read_line (void)
 
 redo:
   ++line_no;
-  if (fgets (input, sizeof (input), input_file) == NULL)
+  if (fgets (input, INPUT_LINE_BYTES, input_file) == NULL)
     {
       if (ferror (input_file))
         {
@@ -307,10 +490,22 @@ redo:
     choose_encoding (input);
   if (input_encoding != output_encoding && input_encoding != ENC_DEFAULT)
     {
-      int c = recode (input, input_encoding, output_encoding);
-      if (c != 0)
-        fatal ("%s:%d: unsupported character 0x%.2x",
-               input_fname, line_no, c);
+      if (output_encoding == ENC_UTF_8)
+        {
+          uchar tmp[sizeof (input)];
+          int c = recode_utf8 (input, tmp, sizeof (tmp), input_encoding);
+          if (c != 0)
+            fatal ("%s:%d: unsupported character 0x%.2x",
+                   input_fname, line_no, c);
+          memcpy (input, tmp, sizeof (input));
+        }
+      else
+        {
+          int c = recode (input, input_encoding, output_encoding);
+          if (c != 0)
+            fatal ("%s:%d: unsupported character 0x%.2x",
+                   input_fname, line_no, c);
+        }
     }
   if (input[0] == escape)
     {

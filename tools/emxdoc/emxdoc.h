@@ -324,9 +324,21 @@ struct emitter;
 
 /*!
  * @brief Character encodings.
+ *
+ * ENC_UTF_8 is output-only; find_encoding() will never select it
+ * as an input encoding, because its repertoire is empty.
  */
 enum enc { ENC_DEFAULT = -3, ENC_AMBIGUOUS = -2, ENC_UNSUPPORTED = -1,
-           ENC_CP850 = 0, ENC_ISO8859_1, ENCODINGS };
+           ENC_CP850 = 0, ENC_ISO8859_1, ENC_UTF_8, ENCODINGS };
+
+/*!
+ * @brief Number of bytes read from a raw input line.
+ *
+ * fgets() reads at most INPUT_LINE_BYTES-1 characters.  The global
+ * input[] buffer is larger, because one input byte may expand to
+ * up to three bytes of UTF-8 output.
+ */
+#define INPUT_LINE_BYTES 256
 
 /*!
  * @brief The escape character.
@@ -340,8 +352,11 @@ EXTERN int line_no INIT (0);
 
 /*!
  * @brief The current input line.
+ *
+ * Sized to hold the result of converting an INPUT_LINE_BYTES-byte
+ * line to UTF-8.
  */
-EXTERN uchar input[256];
+EXTERN uchar input[INPUT_LINE_BYTES * 4];
 
 /*!
  * @brief The input encoding.

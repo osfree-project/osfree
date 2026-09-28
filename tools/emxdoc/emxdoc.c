@@ -90,6 +90,11 @@ static int history = 0;
 static int opt_r = FALSE;
 
 /*!
+ * @brief Non-zero if the user supplied -j.
+ */
+static int opt_j = FALSE;
+
+/*!
  * @brief Cross-reference file name, or NULL.
  */
 static const char *xref_fname = NULL;
@@ -359,8 +364,8 @@ static void usage (void)
   fputs ("  -f         Enable French spacing\n", stderr);
   fputs ("  -g         Gather global directory data\n", stderr);
   fputs ("  -h<file>   Use hyphenation table\n", stderr);
-  fputs ("  -i<enc>    Select input encoding\n", stderr);
-  fputs ("  -j<enc>    Select output encoding\n", stderr);
+  fputs ("  -i<enc>    Select input encoding (cp850 or iso8859-1)\n", stderr);
+  fputs ("  -j<enc>    Select output encoding (cp850, iso8859-1 or utf-8)\n", stderr);
   fputs ("  -n<start>  Set first ID number\n", stderr);
   fputs ("  -o<output> Set output file name\n", stderr);
   fputs ("  -r         Make output file read-only\n", stderr);
@@ -2741,12 +2746,20 @@ static int opt_number (void)
  * @return The encoding enum value. Never returns on error: the
  *         program is terminated by fatal().
  */
+/*!
+ * @brief Parse an encoding option argument.
+ *
+ * @return The encoding enum value. Never returns on error: the
+ *         program is terminated by fatal().
+ */
 static enum enc opt_encoding (void)
 {
   if (strcmp (optarg, "cp850") == 0)
     return ENC_CP850;
   if (strcmp (optarg, "iso8859-1") == 0)
     return ENC_ISO8859_1;
+  if (strcmp (optarg, "utf-8") == 0 || strcmp (optarg, "utf8") == 0)
+    return ENC_UTF_8;
   fatal ("Invalid encoding: %s", optarg);
   return ENC_DEFAULT;   /* not reached */
 }
@@ -2808,9 +2821,12 @@ int main (int argc, char *argv[])
         break;
       case 'i':
         input_encoding = opt_encoding ();
+        if (input_encoding == ENC_UTF_8)
+          fatal ("UTF-8 input is not supported");
         break;
       case 'j':
         output_encoding = opt_encoding ();
+        opt_j = TRUE;
         break;
       case 'n':
         ref_no = opt_number ();
@@ -2874,10 +2890,13 @@ int main (int argc, char *argv[])
     {
       max_width = bd->max_width;
       output_flag = !(opt_g && (bd->flags & EMIT_FLAG_NO_OUTPUT_IF_G));
-      if (bd->output_encoding != ENC_DEFAULT)
-        output_encoding = bd->output_encoding;
-      else if (output_encoding == ENC_DEFAULT)
-        output_encoding = input_encoding;
+      if (!opt_j)
+        {
+          if (bd->output_encoding != ENC_DEFAULT)
+            output_encoding = bd->output_encoding;
+          else if (output_encoding == ENC_DEFAULT)
+            output_encoding = input_encoding;
+        }
       if (hyphenation_fname != NULL)
         bd->hyphenation (hyphenation_fname);
     }
