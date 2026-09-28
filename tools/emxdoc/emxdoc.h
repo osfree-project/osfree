@@ -243,7 +243,7 @@ enum syntax
 };
 
 /*!
- * @brief Per-backend replacement strings for a word.
+ * @brief Per-emitter replacement strings for a word.
  */
 struct special
 {
@@ -251,6 +251,9 @@ struct special
   uchar *ipf;                   /*!< IPF replacement. */
   uchar *latex;                 /*!< LaTeX replacement. */
   uchar *html;                  /*!< HTML replacement. */
+  uchar *man;                   /*!< man replacement. */
+  uchar *md;                    /*!< Markdown replacement. */
+  uchar *dw;                    /*!< DokuWiki replacement. */
 };
 
 /*!
@@ -263,7 +266,7 @@ struct word
   enum style style;             /*!< Formatting style. */
   uchar *str;                   /*!< The word text. */
   uchar *repl;                  /*!< Replacement text or NULL. */
-  struct special *special;      /*!< Per-backend special text or NULL. */
+  struct special *special;      /*!< Per-emitter special text or NULL. */
   struct word_table *subidx;    /*!< Sub-index table or NULL. */
   int ref, idx;                 /*!< Reference and index IDs. */
   uchar flags;                  /*!< Flag bits, e.g. WF_ABBREV. */
@@ -306,10 +309,18 @@ struct toc
   int ref;                      /*!< Reference ID. */
   int print;                    /*!< Non-zero to print this entry. */
   int global;                   /*!< Non-zero if the section is global. */
-  unsigned flags;               /*!< Heading flags. */
+  unsigned int flags;           /*!< Heading flags. */
   uchar *number;                /*!< Section number or NULL. */
   uchar *title;                 /*!< Section title. */
 };
+
+/*!
+ * @brief One output format.
+ *
+ * Declared here so that emxdoc.c can reference @c bd without
+ * including emitter.h; the full definition lives in emitter.h.
+ */
+struct emitter;
 
 /*!
  * @brief Character encodings.
@@ -412,6 +423,15 @@ EXTERN int hl_stack[HL_STACK_SIZE];
 EXTERN int hl_sp;
 
 /*!
+ * @brief Current IPF highlighting bits (used by ipf.c only).
+ */
+EXTERN int hl_ipf;
+/*!
+ * @brief Current IPF highlighting number (used by ipf.c only).
+ */
+EXTERN int hl_ipf_no;
+
+/*!
  * @brief Current line number of the output file.
  */
 EXTERN int output_line_no;
@@ -499,7 +519,12 @@ EXTERN int tg_underline;
 /*!
  * @brief Current tag: flags (such as HF_UNNUMBERED).
  */
-EXTERN unsigned tg_flags;
+EXTERN unsigned int tg_flags;
+
+/*!
+ * @brief The emitter selected at start-up (see emitter.h).
+ */
+EXTERN struct emitter *bd;
 
 
 /*!
@@ -548,7 +573,7 @@ uchar *xstrdup (const uchar *s);
  *
  * @return Pointer to the new table.
  */
-struct word_table *wt_new (unsigned hash_size);
+struct word_table *wt_new (unsigned int hash_size);
 /*!
  * @brief Find a word in a table by hash.
  *
@@ -558,7 +583,8 @@ struct word_table *wt_new (unsigned hash_size);
  *
  * @return Pointer to the word, or NULL if not found.
  */
-struct word *wt_find (struct word_table *wt, const uchar *str, unsigned hash);
+struct word *wt_find (struct word_table *wt, const uchar *str,
+                      unsigned int hash);
 /*!
  * @brief Compute the hash value of a string in a table.
  *
@@ -567,7 +593,7 @@ struct word *wt_find (struct word_table *wt, const uchar *str, unsigned hash);
  *
  * @return Hash value in the range 0..hash_size-1.
  */
-unsigned wt_hash (struct word_table *wt, const uchar *str);
+unsigned int wt_hash (struct word_table *wt, const uchar *str);
 /*!
  * @brief Find or add a word in a table.
  *
@@ -603,7 +629,7 @@ int wt_count (const struct word_table *wt);
  *
  * @return Pointer to the word, or NULL if not found.
  */
-struct word *word_find (const uchar *str, unsigned hash);
+struct word *word_find (const uchar *str, unsigned int hash);
 /*!
  * @brief Hash a string in the global word table.
  *
@@ -611,7 +637,7 @@ struct word *word_find (const uchar *str, unsigned hash);
  *
  * @return Hash value.
  */
-unsigned word_hash (const uchar *str);
+unsigned int word_hash (const uchar *str);
 /*!
  * @brief Find or add a word in the global word table.
  *
@@ -668,10 +694,10 @@ void write_fmt (const char *fmt, ...) PRINTF (1, 2);
  */
 void write_space (void);
 /*!
- * @brief Dispatch output of a string to the current backend.
+ * @brief Dispatch output of a string to the current emitter.
  *
  * @param[in] p         String. Not NULL.
- * @param[in] may_break Non-zero if the backend may insert a line break.
+ * @param[in] may_break Non-zero if the emitter may insert a line break.
  */
 void format_output (const uchar *p, int may_break);
 /*!

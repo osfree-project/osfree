@@ -44,8 +44,13 @@ void latex_end_hilite (void);
 void latex_end_env (void);
 /*!
  * @brief Emit the separation between a section number and its title.
+ *
+ * @param[in] level  Heading level (unused).
+ * @param[in] ref    Section reference number (unused).
+ * @param[in] global Non-zero if the section is global (unused).
+ * @param[in] flags  Heading flags (unused).
  */
-void latex_heading1 (void);
+void latex_heading1 (int level, int ref, int global, unsigned flags);
 /*!
  * @brief Emit a heading.
  *
@@ -75,9 +80,10 @@ void latex_list (void);
 /*!
  * @brief Begin a LaTeX verbatim block.
  *
- * @param[in] tag_end Tag that terminates the block.
+ * @param[in] tag_end  Tag that terminates the block.
+ * @param[in] ptmargin Receiver of the current margin (unused).
  */
-void latex_verbatim_start (enum tag tag_end);
+void latex_verbatim_start (enum tag tag_end, int *ptmargin);
 /*!
  * @brief End a LaTeX verbatim block.
  *
@@ -106,21 +112,25 @@ void latex_itemize_item (void);
 void latex_list_item (const uchar *s);
 /*!
  * @brief Begin a prototype block.
+ *
+ * @param[in] compat Compatibility string (unused here; see
+ *                    latex_prototype_end).
  */
-void latex_prototype_start (void);
+void latex_prototype_start (uchar *compat);
 /*!
  * @brief End a prototype block.
  *
- * @param[in,out] compat Compatibility note buffer.
+ * @param[in,out] compat Compatibility note buffer. Not NULL.
  */
 void latex_prototype_end (uchar *compat);
 /*!
  * @brief Register a LaTeX index entry.
  *
+ * @param[in] tp    TOC entry the entry refers to (unused).
  * @param[in] s     Index entry text. Not NULL.
  * @param[in] level Index level: 0 for main, 1 for i1, 2 for i2.
  */
-void latex_index (const uchar *s, int level);
+void latex_index (const struct toc *tp, const uchar *s, int level);
 /*!
  * @brief Begin a "See also" paragraph.
  */
@@ -153,9 +163,11 @@ void latex_function_start (const struct toc *tp);
 /*!
  * @brief Emit one function name within a function block.
  *
- * @param[in] s Function name. Not NULL.
+ * @param[in] tp Table-of-contents entry for the enclosing function
+ *               (unused).
+ * @param[in] s  Function name. Not NULL.
  */
-void latex_function_function (const uchar *s);
+void latex_function_function (const struct toc *tp, const uchar *s);
 /*!
  * @brief Emit a paragraph of normal text.
  */

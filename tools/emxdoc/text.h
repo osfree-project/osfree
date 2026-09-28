@@ -32,14 +32,19 @@
 void text_output (const uchar *p, int may_break);
 /*!
  * @brief Emit the start of a level-1 heading.
+ *
+ * @param[in] level  Heading level (unused).
+ * @param[in] ref    Section reference number (unused).
+ * @param[in] global Non-zero if the section is global (unused).
+ * @param[in] flags  Heading flags (unused).
  */
-void text_heading1 (void);
+void text_heading1 (int level, int ref, int global, unsigned flags);
 /*!
  * @brief Emit a heading.
  *
- * @param[in,out] s Heading text; overwritten with the underline.
+ * @param[in] s Heading text. Not NULL.
  */
-void text_heading2 (uchar *s);
+void text_heading2 (const uchar *s);
 /*!
  * @brief Begin a "See also" paragraph.
  */
@@ -91,8 +96,10 @@ void text_verbatim_start (enum tag tag_end, int *ptmargin);
 void text_verbatim_line (enum tag tag_end, int tmargin, uchar *compat);
 /*!
  * @brief Emit a function documentation separator.
+ *
+ * @param[in] tp Table-of-contents entry for the function (unused).
  */
-void text_function (void);
+void text_function_start (const struct toc *tp);
 /*!
  * @brief Begin a prototype block.
  *
@@ -101,8 +108,10 @@ void text_function (void);
 void text_prototype_start (uchar *compat);
 /*!
  * @brief End a prototype block.
+ *
+ * @param[in,out] compat Compatibility buffer. Not NULL.
  */
-void text_prototype_end (void);
+void text_prototype_end (uchar *compat);
 /*!
  * @brief Emit one table-of-contents entry.
  *
@@ -113,17 +122,24 @@ void text_toc_line (const uchar *s, const struct toc *tp);
 /*!
  * @brief Begin a text table.
  *
- * @param[in]     do_indent Non-zero to indent the table.
- * @param[in,out] ptmargin  Top-margin pointer to adjust. Not NULL.
+ * @param[in] do_indent Non-zero to indent the table.
+ * @param[in] widths    Column widths (unused).
+ * @param[in] wn        Number of columns (unused).
  */
-void text_table_start (int do_indent, int *ptmargin);
+void text_table_start (int do_indent, int *widths, int wn);
 /*!
  * @brief Emit one table line.
  *
- * @param[in] s       Line text. Not NULL.
- * @param[in] tmargin Top margin.
+ * @param[in] s  Line text. Not NULL.
+ * @param[in] wn Expected number of columns (unused).
  */
-void text_table_line (const uchar *s, int tmargin);
+void text_table_line (const uchar *s, int wn);
+/*!
+ * @brief End a text table.
+ *
+ * @param[in] do_indent Non-zero if the table was indented (unused).
+ */
+void text_table_end (int do_indent);
 /*!
  * @brief Emit a sample-file reference.
  *
@@ -142,3 +158,23 @@ void text_libref_section (const uchar *s);
  * @param[in] name File name. Not NULL.
  */
 void text_hyphenation (const char *name);
+/*!
+ * @brief Begin a description environment (no-op for text).
+ */
+void text_description (void);
+/*!
+ * @brief Begin an enumerate environment (no-op for text).
+ */
+void text_enumerate (void);
+/*!
+ * @brief Begin an itemize environment (no-op for text).
+ */
+void text_itemize (void);
+/*!
+ * @brief Begin an indent environment (no-op for text).
+ */
+void text_indent (void);
+/*!
+ * @brief Begin a list environment (no-op for text).
+ */
+void text_list (void);

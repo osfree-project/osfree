@@ -66,9 +66,12 @@ void html_toc_end (void);
 /*!
  * @brief Emit the anchor of a level-1 heading.
  *
- * @param[in] ref Section reference number.
+ * @param[in] level  Heading level (unused).
+ * @param[in] ref    Section reference number.
+ * @param[in] global Non-zero if the section is global (unused).
+ * @param[in] flags  Heading flags (unused).
  */
-void html_heading1 (int ref);
+void html_heading1 (int level, int ref, int global, unsigned flags);
 /*!
  * @brief Emit a level-2 heading.
  *
@@ -98,13 +101,18 @@ void html_list (void);
 /*!
  * @brief Begin a verbatim block.
  *
- * @param[in] tag_end Tag that terminates the block.
+ * @param[in] tag_end  Tag that terminates the block.
+ * @param[in] ptmargin Receiver of the current margin (unused).
  */
-void html_verbatim_start (enum tag tag_end);
+void html_verbatim_start (enum tag tag_end, int *ptmargin);
 /*!
  * @brief Emit one verbatim line.
+ *
+ * @param[in] tag_end End tag of the block (unused).
+ * @param[in] tmargin Current margin (unused).
+ * @param[in] compat  Compatibility string (unused).
  */
-void html_verbatim_line (void);
+void html_verbatim_line (enum tag tag_end, int tmargin, uchar *compat);
 /*!
  * @brief End a verbatim block.
  *
@@ -151,12 +159,15 @@ void html_end (void);
 void html_minitoc (const struct toc *tp);
 /*!
  * @brief Begin a prototype block.
+ *
+ * @param[in] compat Compatibility string (unused here; see
+ *                    html_prototype_end).
  */
-void html_prototype_start (void);
+void html_prototype_start (uchar *compat);
 /*!
  * @brief End a prototype block.
  *
- * @param[in,out] compat Compatibility note buffer.
+ * @param[in,out] compat Compatibility note buffer. Not NULL.
  */
 void html_prototype_end (uchar *compat);
 /*!

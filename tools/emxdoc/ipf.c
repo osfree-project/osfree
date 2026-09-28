@@ -28,6 +28,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "emxdoc.h"
+#include "emitter.h"
 #include "ipf.h"
 #include "xref.h"
 
@@ -198,7 +199,7 @@ void ipf_para (void)
  */
 void ipf_margin (int margin)
 {
-  if (out && mode == 'I')
+  if (out && bd->mode == 'I')
     {
       write_fmt (":lm margin=%d.", margin);
       write_nl ();
@@ -449,12 +450,38 @@ void ipf_itemize (void)
 
 
 /*!
+ * @brief Begin an IPF indented block.
+ *
+ * Restores the left margin of the enclosing environment.  Called
+ * from emxdoc.c for %indent and %typewriter.
+ */
+void ipf_indent (void)
+{
+  ipf_env_margin (env_sp);
+}
+
+
+/*!
+ * @brief Begin an IPF list environment.
+ *
+ * IPF does not have a distinct list environment; %list is treated
+ * the same way as %description, so this entry is a no-op.  The
+ * surrounding code emits nothing for IPF in this case.
+ */
+void ipf_list (void)
+{
+}
+
+
+/*!
  * @brief Begin an IPF verbatim block.
  *
- * @param[in] tag_end Tag that terminates the block.
+ * @param[in] tag_end  Tag that terminates the block.
+ * @param[in] ptmargin Receiver of the current margin (unused).
  */
-void ipf_verbatim_start (enum tag tag_end)
+void ipf_verbatim_start (enum tag tag_end, int *ptmargin)
 {
+  (void)ptmargin;
   switch (tag_end)
     {
     case TAG_ENDHEADERS:
@@ -478,9 +505,16 @@ void ipf_verbatim_start (enum tag tag_end)
 
 /*!
  * @brief Emit one verbatim line.
+ *
+ * @param[in] tag_end End tag of the block (unused).
+ * @param[in] tmargin Current margin (unused).
+ * @param[in] compat  Compatibility string (unused).
  */
-void ipf_verbatim_line (void)
+void ipf_verbatim_line (enum tag tag_end, int tmargin, uchar *compat)
 {
+  (void)tag_end;
+  (void)tmargin;
+  (void)compat;
   format_output (input, FALSE);
   write_nl ();
 }
@@ -564,9 +598,12 @@ void ipf_list_item (const uchar *s)
 
 /*!
  * @brief Begin a prototype block.
+ *
+ * @param[in] compat Compatibility string (may be empty). Not NULL.
  */
-void ipf_prototype_start (void)
+void ipf_prototype_start (uchar *compat)
 {
+  (void)compat;
   if (para_flag)
     ipf_para ();
   format_string (function_count == 1 ? "Prototype:" : "Prototypes:",
@@ -579,7 +616,7 @@ void ipf_prototype_start (void)
 /*!
  * @brief End a prototype block.
  *
- * @param[in,out] compat Compatibility note buffer.
+ * @param[in,out] compat Compatibility note buffer. Not NULL.
  */
 void ipf_prototype_end (uchar *compat)
 {
@@ -709,15 +746,18 @@ void ipf_table_end (int do_indent)
 /*!
  * @brief Register an IPF index entry.
  *
- * @param[in] s Index entry text. Not NULL.
+ * @param[in] tp    TOC entry the entry refers to (unused).
+ * @param[in] s     Index entry text. Not NULL.
+ * @param[in] level 0 for %index, 1 for %i1, 2 for %i2.
  */
-void ipf_index (const uchar *s)
+void ipf_index (const struct toc *tp, const uchar *s, int level)
 {
   struct word *wp;
 
+  (void)tp;
   if (!out)
     return;
-  switch (tg_level)
+  switch (level)
     {
     case 0:
       write_string (":i1.");
@@ -847,10 +887,13 @@ void ipf_function_start (const struct toc *tp)
 /*!
  * @brief Emit one function name within a function block.
  *
- * @param[in] s Function name. Not NULL.
+ * @param[in] tp Table-of-contents entry for the enclosing function
+ *               (unused).
+ * @param[in] s  Function name. Not NULL.
  */
-void ipf_function_function (const uchar *s)
+void ipf_function_function (const struct toc *tp, const uchar *s)
 {
+  (void)tp;
   if (out)
     {
       write_break ();

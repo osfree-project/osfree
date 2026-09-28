@@ -28,6 +28,7 @@
 #include <string.h>
 #include <malloc.h>
 #include "emxdoc.h"
+#include "emitter.h"
 #include "text.h"
 #include "lb.h"
 
@@ -51,13 +52,20 @@ static struct lb *lb;
  * @brief Hyphenation dictionary or NULL.
  */
 static struct lbh *lbh = NULL;
+/*!
+ * @brief Non-zero if the current table was requested with indent.
+ */
+static int text_table_indent = FALSE;
 
 /*!
  * @brief Emit spaces so the output column reaches @p margin.
  *
+ * Internal padding helper; not to be confused with the emitter
+ * method text_indent(void), which starts an indent environment.
+ *
  * @param[in] margin Target column.
  */
-static void text_indent (int margin)
+static void text_pad (int margin)
 {
   uchar *s;
   int i;
@@ -116,7 +124,7 @@ void text_output (const uchar *p, int may_break)
     {
       if (may_break && output_x + strlen (p) > format_width)
         write_nl ();
-      text_indent (format_margin);
+      text_pad (format_margin);
       write_string (p);
     }
   else
@@ -247,11 +255,11 @@ static int text_elements (int margin, int width, int newline)
             case LBN_WORD:
             case LBN_PRE:
             case LBN_POST:
-              text_indent (margin);
+              text_pad (margin);
               write_string (lbn.word);
               break;
             case LBN_GLUE:
-              text_indent (margin);
+              text_pad (margin);
               write_fmt ("%*s", lbn.value, "");
               break;
             case LBN_NEWLINE:
@@ -272,9 +280,18 @@ static int text_elements (int margin, int width, int newline)
 
 /*!
  * @brief Emit the start of a level-1 heading.
+ *
+ * @param[in] level  Heading level (unused).
+ * @param[in] ref    Section reference number (unused).
+ * @param[in] global Non-zero if the section is global (unused).
+ * @param[in] flags  Heading flags (unused).
  */
-void text_heading1 (void)
+void text_heading1 (int level, int ref, int global, unsigned int flags)
 {
+  (void)level;
+  (void)ref;
+  (void)global;
+  (void)flags;
   env_stack[0].tmargin = 0;
   write_nl ();
   write_nl ();
@@ -284,10 +301,13 @@ void text_heading1 (void)
 /*!
  * @brief Emit a heading.
  *
- * @param[in,out] s Heading text; overwritten with the underline.
+ * @param[in] s Heading text. Not NULL.
  */
-void text_heading2 (uchar *s)
+void text_heading2 (const uchar *s)
 {
+  uchar buf[512];
+  size_t len;
+
   if (tg_level == 0)
     {
       if (para_flag)
@@ -295,8 +315,13 @@ void text_heading2 (uchar *s)
       write_nl ();
     }
   write_line (s);
-  memset (s, tg_underline, strlen (s));
-  write_line (s);
+  len = strlen (s);
+  if (len >= sizeof (buf))
+    len = sizeof (buf) - 1;
+  memcpy (buf, s, len);
+  buf[len] = 0;
+  memset (buf, tg_underline, len);
+  write_line (buf);
 }
 
 
@@ -348,7 +373,7 @@ void text_enumerate_item (void)
 {
   write_nl ();
   text_para ();
-  text_indent (env_stack[env_sp-1].tmargin);
+  text_pad (env_stack[env_sp-1].tmargin);
   write_fmt ("%d.", ++env_stack[env_sp].counter);
 }
 
@@ -360,7 +385,7 @@ void text_itemize_item (void)
 {
   write_nl ();
   text_para ();
-  text_indent (env_stack[env_sp-1].tmargin);
+  text_pad (env_stack[env_sp-1].tmargin);
   write_string ("- ");
 }
 
@@ -464,9 +489,12 @@ void text_verbatim_line (enum tag tag_end, int tmargin, uchar *compat)
 
 /*!
  * @brief Emit a function documentation separator.
+ *
+ * @param[in] tp Table-of-contents entry for the function (unused).
  */
-void text_function (void)
+void text_function_start (const struct toc *tp)
 {
+  (void)tp;
   env_stack[0].tmargin = 0;
   write_nl ();
   write_line("---------------------------------------"
@@ -495,9 +523,12 @@ void text_prototype_start (uchar *compat)
 
 /*!
  * @brief End a prototype block.
+ *
+ * @param[in,out] compat Compatibility buffer. Not NULL.
  */
-void text_prototype_end (void)
+void text_prototype_end (uchar *compat)
 {
+  (void)compat;
   text_elements (0, 78, TRUE);
   env_stack[0].tmargin = 4;
 }
@@ -519,13 +550,15 @@ void text_toc_line (const uchar *s, const struct toc *tp)
 /*!
  * @brief Begin a text table.
  *
- * @param[in]     do_indent Non-zero to indent the table.
- * @param[in,out] ptmargin  Top-margin pointer to adjust. Not NULL.
+ * @param[in] do_indent Non-zero to indent the table.
+ * @param[in] widths    Column widths (unused).
+ * @param[in] wn        Number of columns (unused).
  */
-void text_table_start (int do_indent, int *ptmargin)
+void text_table_start (int do_indent, int *widths, int wn)
 {
-  if (do_indent)
-    *ptmargin += 4;
+  (void)widths;
+  (void)wn;
+  text_table_indent = do_indent;
   write_nl ();
 }
 
@@ -533,14 +566,32 @@ void text_table_start (int do_indent, int *ptmargin)
 /*!
  * @brief Emit one table line.
  *
- * @param[in] s       Line text. Not NULL.
- * @param[in] tmargin Top margin.
+ * @param[in] s  Line text. Not NULL.
+ * @param[in] wn Expected number of columns (unused).
  */
-void text_table_line (const uchar *s, int tmargin)
+void text_table_line (const uchar *s, int wn)
 {
+  int tmargin;
+
+  (void)wn;
+  tmargin = env_stack[env_sp].tmargin;
+  if (text_table_indent)
+    tmargin += 4;
   make_elements (s);
   if (text_elements (tmargin, 78, TRUE) > 1)
     fatal ("%s:%d: Table entry too long", input_fname, line_no);
+}
+
+
+/*!
+ * @brief End a text table.
+ *
+ * @param[in] do_indent Non-zero if the table was indented (unused).
+ */
+void text_table_end (int do_indent)
+{
+  (void)do_indent;
+  text_table_indent = FALSE;
 }
 
 
@@ -613,4 +664,47 @@ void text_hyphenation (const char *name)
       exit (1);
     }
   fclose (f);
+}
+
+
+/*!
+ * @brief Begin a description environment (no-op for text).
+ *
+ * Text indentation is driven by env_stack[env_sp].tmargin, so no
+ * explicit action is required at environment start.
+ */
+void text_description (void)
+{
+}
+
+
+/*!
+ * @brief Begin an enumerate environment (no-op for text).
+ */
+void text_enumerate (void)
+{
+}
+
+
+/*!
+ * @brief Begin an itemize environment (no-op for text).
+ */
+void text_itemize (void)
+{
+}
+
+
+/*!
+ * @brief Begin an indent environment (no-op for text).
+ */
+void text_indent (void)
+{
+}
+
+
+/*!
+ * @brief Begin a list environment (no-op for text).
+ */
+void text_list (void)
+{
 }

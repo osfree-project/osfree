@@ -29,6 +29,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include "emxdoc.h"
+#include "emitter.h"
 #include "xref.h"
 
 #ifndef _MAX_FNAME
@@ -181,7 +182,8 @@ struct word *use_reference (const uchar *p)
   struct word *wp;
 
   wp = word_find (p, word_hash (p));
-  if ((wp == NULL || wp->ref == 0) && mode != 'T' && mode != 'L')
+  if ((wp == NULL || wp->ref == 0)
+      && !(bd->flags & EMIT_FLAG_SOFT_REFS))
     {
       if (!opt_g)
         fatal ("%s:%d: Undefined label: %s", input_fname, line_no, p);

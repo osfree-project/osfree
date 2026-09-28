@@ -29,15 +29,6 @@
 #define IPF_DESCRIPTION_INDENT  8
 
 /*!
- * @brief Current IPF highlighting bits.
- */
-EXTERN int hl_ipf;
-/*!
- * @brief Current IPF highlighting number.
- */
-EXTERN int hl_ipf_no;
-
-/*!
  * @brief Open an IPF hyperlink.
  *
  * @param[in] database Database name, or NULL for the current file.
@@ -91,7 +82,7 @@ void ipf_toc_end (void);
  * @param[in] global Non-zero if the section is global.
  * @param[in] flags  Heading flags.
  */
-void ipf_heading1 (int level, int ref, int global, unsigned flags);
+void ipf_heading1 (int level, int ref, int global, unsigned int flags);
 /*!
  * @brief Emit a level-2 heading.
  *
@@ -130,15 +121,30 @@ void ipf_enumerate (void);
  */
 void ipf_itemize (void);
 /*!
+ * @brief Begin an IPF indented block.
+ *
+ * Restores the left margin of the enclosing environment.
+ */
+void ipf_indent (void);
+/*!
+ * @brief Begin an IPF list environment (no-op; IPF uses dl).
+ */
+void ipf_list (void);
+/*!
  * @brief Begin an IPF verbatim block.
  *
- * @param[in] tag_end Tag that terminates the block.
+ * @param[in] tag_end  Tag that terminates the block.
+ * @param[in] ptmargin Receiver of the current margin (unused).
  */
-void ipf_verbatim_start (enum tag tag_end);
+void ipf_verbatim_start (enum tag tag_end, int *ptmargin);
 /*!
  * @brief Emit one verbatim line.
+ *
+ * @param[in] tag_end End tag of the block (unused).
+ * @param[in] tmargin Current margin (unused).
+ * @param[in] compat  Compatibility string (unused).
  */
-void ipf_verbatim_line (void);
+void ipf_verbatim_line (enum tag tag_end, int tmargin, uchar *compat);
 /*!
  * @brief End an IPF verbatim block.
  *
@@ -167,12 +173,14 @@ void ipf_itemize_item (void);
 void ipf_list_item (const uchar *s);
 /*!
  * @brief Begin a prototype block.
+ *
+ * @param[in] compat Compatibility string (may be empty). Not NULL.
  */
-void ipf_prototype_start (void);
+void ipf_prototype_start (uchar *compat);
 /*!
  * @brief End a prototype block.
  *
- * @param[in,out] compat Compatibility note buffer.
+ * @param[in,out] compat Compatibility note buffer. Not NULL.
  */
 void ipf_prototype_end (uchar *compat);
 /*!
@@ -203,9 +211,11 @@ void ipf_table_end (int do_indent);
 /*!
  * @brief Register an IPF index entry.
  *
- * @param[in] s Index entry text. Not NULL.
+ * @param[in] tp    TOC entry the entry refers to (unused).
+ * @param[in] s     Index entry text. Not NULL.
+ * @param[in] level 0 for %index, 1 for %i1, 2 for %i2.
  */
-void ipf_index (const uchar *s);
+void ipf_index (const struct toc *tp, const uchar *s, int level);
 /*!
  * @brief Begin a "See also" paragraph.
  */
@@ -238,9 +248,11 @@ void ipf_function_start (const struct toc *tp);
 /*!
  * @brief Emit one function name within a function block.
  *
- * @param[in] s Function name. Not NULL.
+ * @param[in] tp Table-of-contents entry for the enclosing function
+ *               (unused).
+ * @param[in] s  Function name. Not NULL.
  */
-void ipf_function_function (const uchar *s);
+void ipf_function_function (const struct toc *tp, const uchar *s);
 /*!
  * @brief Emit a paragraph of normal text.
  */

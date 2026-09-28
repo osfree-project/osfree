@@ -30,6 +30,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "emxdoc.h"
+#include "emitter.h"
 #include "latex.h"
 
 /*!
@@ -244,9 +245,18 @@ void latex_end_env (void)
 
 /*!
  * @brief Emit the separation between a section number and its title.
+ *
+ * @param[in] level  Heading level (unused).
+ * @param[in] ref    Section reference number (unused).
+ * @param[in] global Non-zero if the section is global (unused).
+ * @param[in] flags  Heading flags (unused).
  */
-void latex_heading1 (void)
+void latex_heading1 (int level, int ref, int global, unsigned flags)
 {
+  (void)level;
+  (void)ref;
+  (void)global;
+  (void)flags;
   write_nl ();
 }
 
@@ -344,10 +354,12 @@ void latex_list (void)
 /*!
  * @brief Begin a LaTeX verbatim block.
  *
- * @param[in] tag_end Tag that terminates the block.
+ * @param[in] tag_end  Tag that terminates the block.
+ * @param[in] ptmargin Receiver of the current margin (unused).
  */
-void latex_verbatim_start (enum tag tag_end)
+void latex_verbatim_start (enum tag tag_end, int *ptmargin)
 {
+  (void)ptmargin;
   write_break ();
   switch (tag_end)
     {
@@ -462,9 +474,13 @@ void latex_copy (void)
 
 /*!
  * @brief Begin a prototype block.
+ *
+ * @param[in] compat Compatibility string (unused here; see
+ *                    latex_prototype_end).
  */
-void latex_prototype_start (void)
+void latex_prototype_start (uchar *compat)
 {
+  (void)compat;
   write_break ();
   write_fmt ("\\subsubsection*{Prototype%s}", function_count == 1 ? "" : "s");
   write_nl ();
@@ -473,7 +489,7 @@ void latex_prototype_start (void)
 /*!
  * @brief End a prototype block.
  *
- * @param[in,out] compat Compatibility note buffer.
+ * @param[in,out] compat Compatibility note buffer. Not NULL.
  */
 void latex_prototype_end (uchar *compat)
 {
@@ -552,12 +568,15 @@ void latex_function_start (const struct toc *tp)
 /*!
  * @brief Emit one function name within a function block.
  *
- * @param[in] s Function name. Not NULL.
+ * @param[in] tp Table-of-contents entry for the enclosing function
+ *               (unused).
+ * @param[in] s  Function name. Not NULL.
  */
-void latex_function_function (const uchar *s)
+void latex_function_function (const struct toc *tp, const uchar *s)
 {
+  (void)tp;
   if (index_word1 != NULL)
-    latex_index (s, 2);
+    latex_index (NULL, s, 2);
 }
 
 /*!
@@ -609,11 +628,13 @@ void latex_end (void)
 /*!
  * @brief Register a LaTeX index entry.
  *
+ * @param[in] tp    TOC entry the entry refers to (unused).
  * @param[in] s     Index entry text. Not NULL.
  * @param[in] level Index level: 0 for main, 1 for i1, 2 for i2.
  */
-void latex_index (const uchar *s, int level)
+void latex_index (const struct toc *tp, const uchar *s, int level)
 {
+  (void)tp;
   switch (level)
     {
     case 0:

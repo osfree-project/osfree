@@ -48,13 +48,7 @@
  */
 #define INIT(X) = X
 #include "emxdoc.h"
-#include "html.h"
-#include "ipf.h"
-#include "latex.h"
-#include "text.h"
-#include "man.h"
-#include "md.h"
-#include "dokuwiki.h"
+#include "emitter.h"
 #include "xref.h"
 #include "cond.h"
 
@@ -331,7 +325,9 @@ static void usage (void)
   fputs ("  emxdoc -I [-acfgr] [-n <start>] [-o <output>] [-x <xref>] <input>\n", stderr);
   fputs ("  emxdoc -K [-o <output>] <input>\n", stderr);
   fputs ("  emxdoc -M [-o <output>] <input>...\n", stderr);
+  fputs ("  emxdoc -E [-i <in>] [-j <out>] [-o <output>] <input>\n", stderr);
   fputs ("\nModes:\n\n", stderr);
+  fputs ("  -E         Generate emxdoc (source) file\n", stderr);
   fputs ("  -H         Generate HTML file\n", stderr);
   fputs ("  -I         Generate IPF file\n", stderr);
   fputs ("  -K         Generate index file\n", stderr);
@@ -709,37 +705,14 @@ static void local_add (struct word *wp)
 
 
 /*!
- * @brief Dispatch output of a string to the current backend.
+ * @brief Dispatch output of a string to the current emitter.
  *
  * @param[in] p         String. Not NULL.
- * @param[in] may_break Non-zero if the backend may insert a line break.
+ * @param[in] may_break Non-zero if the emitter may insert a line break.
  */
 void format_output (const uchar *p, int may_break)
 {
-  switch (mode)
-    {
-    case 'H':
-      html_output (p, may_break);
-      break;
-    case 'I':
-      ipf_output (p, may_break);
-      break;
-    case 'L':
-      latex_output (p, may_break);
-      break;
-    case 'N':
-      man_output (p, may_break);
-      break;
-    case 'G':
-      md_output (p, may_break);
-      break;
-    case 'W':
-      dw_output (p, may_break);
-      break;
-    case 'T':
-      text_output (p, may_break);
-      break;
-    }
+  bd->output (p, may_break);
 }
 
 
@@ -755,24 +728,7 @@ void start_hilite (int hilite)
   ++hl_sp;
   hl_stack[hl_sp] = hl_stack[hl_sp-1] | hilite;
   if (out)
-    switch (mode)
-      {
-      case 'H':
-        html_start_hilite ();
-        break;
-      case 'L':
-        latex_start_hilite ();
-        break;
-      case 'N':
-        man_start_hilite ();
-        break;
-      case 'G':
-        md_start_hilite ();
-        break;
-      case 'W':
-        dw_start_hilite ();
-        break;
-      }
+    bd->start_hilite ();
 }
 
 
@@ -784,24 +740,7 @@ void end_hilite (void)
   if (hl_sp == 0)
     fatal ("%s:%d: Highlighting stack underflow", input_fname, line_no);
   if (out)
-    switch (mode)
-      {
-      case 'H':
-        html_end_hilite ();
-        break;
-      case 'L':
-        latex_end_hilite ();
-        break;
-      case 'N':
-        man_end_hilite ();
-        break;
-      case 'G':
-        md_end_hilite ();
-        break;
-      case 'W':
-        dw_end_hilite ();
-        break;
-      }
+    bd->end_hilite ();
   --hl_sp;
 }
 
@@ -954,24 +893,16 @@ static void make_elements_internal (const uchar *p)
               break;
             case TAG_HPT:
               wp = use_reference (word);
-              switch (mode)
+              if (bd->flags & EMIT_FLAG_LINK_HPT)
                 {
-                case 'H':
-                case 'I':
                   if (wp != NULL)
                     {
                       ep = add_word (word, EL_WORD);
                       ep->n = 1;
                     }
-                  break;
-                case 'N':
-                case 'G':
-                case 'W':
-                case 'T':
-                case 'L':
-                  make_elements_internal (word); /* Recursive! */
-                  break;
                 }
+              else
+                make_elements_internal (word); /* Recursive! */
               break;
             case TAG_BREAK:
             case TAG_FULLSTOP:
@@ -1154,7 +1085,7 @@ void format_string (const uchar *p, int sty, int may_break)
       break;
     case STYLE_EMPHASIZE:
       strcpy (syntax, p);
-      if (mode == 'T')
+      if (bd->flags & EMIT_FLAG_TEXT_STYLE)
         upcase (syntax);
       start_hilite (HL_EM);
       format_output (syntax, may_break);
@@ -1162,7 +1093,7 @@ void format_string (const uchar *p, int sty, int may_break)
       break;
     case STYLE_PARAM:
       strcpy (syntax, p);
-      if (mode != 'T' || prototype_flag)
+      if (!(bd->flags & EMIT_FLAG_TEXT_STYLE) || prototype_flag)
         downcase (syntax);
       start_hilite (HL_SL);
       format_output (syntax, may_break);
@@ -1208,14 +1139,14 @@ void format_string (const uchar *p, int sty, int may_break)
 
           if (*s == '<')
             {
-              if (mode != 'T')
+              if (!(bd->flags & EMIT_FLAG_TEXT_STYLE))
                 ++s;
               d = syntax;
               while (*s != 0 && *s != '>')
                 *d++ = *s++;
               if (*s == '>')
                 {
-                  if (mode == 'T')
+                  if (bd->flags & EMIT_FLAG_TEXT_STYLE)
                     *d++ = *s;
                   ++s;
                 }
@@ -1308,27 +1239,7 @@ static void end_env (int env)
       fatal ("%s:%d: %cend%s expected", input_fname, line_no, escape, name);
     }
   if (out)
-    switch (mode)
-      {
-      case 'H':
-        html_end_env ();
-        break;
-      case 'I':
-        ipf_end_env ();
-        break;
-      case 'L':
-        latex_end_env ();
-        break;
-      case 'N':
-        man_end_env ();
-        break;
-      case 'G':
-        md_end_env ();
-        break;
-      case 'W':
-        dw_end_env ();
-        break;
-      }
+    bd->end_env ();
   --env_sp;
 }
 
@@ -1475,6 +1386,18 @@ static void do_special (const uchar *p)
         {
           m = 'H'; p += 4;
         }
+      else if (strncmp (p, "man", 3) == 0 && isspace (p[3]))
+        {
+          m = 'N'; p += 3;
+        }
+      else if (strncmp (p, "md", 2) == 0 && isspace (p[2]))
+        {
+          m = 'G'; p += 2;
+        }
+      else if (strncmp (p, "dw", 2) == 0 && isspace (p[2]))
+        {
+          m = 'W'; p += 2;
+        }
       else
         fatal ("%s:%d: Invalid special mode", input_fname, line_no);
       while (isspace (*p))
@@ -1498,6 +1421,9 @@ static void do_special (const uchar *p)
           wp->special->ipf = NULL;
           wp->special->latex = NULL;
           wp->special->html = NULL;
+          wp->special->man = NULL;
+          wp->special->md = NULL;
+          wp->special->dw = NULL;
         }
       switch (m)
         {
@@ -1509,6 +1435,12 @@ static void do_special (const uchar *p)
           wp->special->ipf = repl; break;
         case 'L':
           wp->special->latex = repl; break;
+        case 'N':
+          wp->special->man = repl; break;
+        case 'G':
+          wp->special->md = repl; break;
+        case 'W':
+          wp->special->dw = repl; break;
         default:
           abort ();
         }
@@ -1696,59 +1628,12 @@ static void do_heading_out (const uchar *p)
           strcpy (output, toc_ptr->number);
           strcat (output, " ");
         }
-      switch (mode)
-        {
-        case 'H':
-          html_heading1 (toc_ptr->ref);
-          break;
-        case 'I':
-          ipf_heading1 (toc_ptr->level, toc_ptr->ref, toc_ptr->global,
-                        tg_flags);
-          break;
-        case 'L':
-          latex_heading1 ();
-          break;
-        case 'N':
-          man_heading1 ();
-          break;
-        case 'G':
-          md_heading1 ();
-          break;
-        case 'W':
-          dw_heading1 ();
-          break;
-        case 'T':
-          text_heading1 ();
-          break;
-        }
+      bd->heading1 (toc_ptr->level, toc_ptr->ref, toc_ptr->global, tg_flags);
       strcat (output, p);
     }
   else
     strcpy (output, p);
-  switch (mode)
-    {
-    case 'H':
-      html_heading2 (output);
-      break;
-    case 'I':
-      ipf_heading2 (output);
-      break;
-    case 'L':
-      latex_heading2 (p);
-      break;
-    case 'N':
-      man_heading2 (output);
-      break;
-    case 'G':
-      md_heading2 (output);
-      break;
-    case 'W':
-      dw_heading2 (output);
-      break;
-    case 'T':
-      text_heading2 (output);
-      break;
-    }
+  bd->heading2 (output);
   para_flag = TRUE;
 }
 
@@ -1763,24 +1648,11 @@ static void do_toc_out (const uchar *p)
   struct toc *tp;
   int i, len;
 
+  (void)p;
   if (out && para_flag)
-    switch (mode)
-      {
-      case 'T':
-        write_nl ();
-        break;
-      }
+    write_nl ();
   para_flag = FALSE;
-  if (toc_head != NULL)
-    switch (mode)
-      {
-      case 'H':
-        html_toc_start ();
-        break;
-      case 'I':
-        ipf_toc_start ();
-        break;
-      }
+  bd->toc_start ();
   for (tp = toc_head; tp != NULL; tp = tp->next)
     if (tp->print)
       {
@@ -1794,34 +1666,9 @@ static void do_toc_out (const uchar *p)
         i = toc_indent + 2 * tp->level - len;
         memset (output + len, ' ', i);
         output[len+i] = 0;
-        switch (mode)
-          {
-          case 'H':
-            html_toc_line (output, tp);
-            break;
-          case 'I':
-            ipf_toc_line (output, tp);
-            break;
-          case 'N':
-            if (!(tp->flags & HF_UNNUMBERED))
-              man_toc_line (output, tp);
-            break;
-          case 'G':
-            if (!(tp->flags & HF_UNNUMBERED))
-              md_toc_line (output, tp);
-            break;
-          case 'W':
-            if (!(tp->flags & HF_UNNUMBERED))
-              dw_toc_line (output, tp);
-            break;
-          case 'T':
-            if (!(tp->flags & HF_UNNUMBERED))
-              text_toc_line (output, tp);
-            break;
-          }
+        bd->toc_line (output, tp);
       }
-  if (mode == 'I' && toc_head != NULL)
-    ipf_toc_end ();
+  bd->toc_end ();
   copy_flag = TRUE;
 }
 
@@ -1833,29 +1680,9 @@ static void do_description (void)
 {
   check_copy ();
   para_flag = FALSE;
-  start_env (ENV_DESCRIPTION, 8, IPF_DESCRIPTION_INDENT);
+  start_env (ENV_DESCRIPTION, 8, 8);
   if (out)
-    switch (mode)
-      {
-      case 'H':
-        html_description ();
-        break;
-      case 'I':
-        ipf_description ();
-        break;
-      case 'L':
-        latex_description ();
-        break;
-      case 'N':
-        man_description ();
-        break;
-      case 'G':
-        md_description ();
-        break;
-      case 'W':
-        dw_description ();
-        break;
-      }
+    bd->description ();
   read_line ();
 }
 
@@ -1869,27 +1696,7 @@ static void do_enumerate (void)
   para_flag = FALSE;
   start_env (ENV_ENUMERATE, 4, 3);
   if (out)
-    switch (mode)
-      {
-      case 'H':
-        html_enumerate ();
-        break;
-      case 'I':
-        ipf_enumerate ();
-        break;
-      case 'L':
-        latex_enumerate ();
-        break;
-      case 'N':
-        man_enumerate ();
-        break;
-      case 'G':
-        md_enumerate ();
-        break;
-      case 'W':
-        dw_enumerate ();
-        break;
-      }
+    bd->enumerate ();
   read_line ();
 }
 
@@ -1903,27 +1710,7 @@ static void do_itemize (void)
   para_flag = FALSE;
   start_env (ENV_ITEMIZE, 2, 2);
   if (out)
-    switch (mode)
-      {
-      case 'H':
-        html_itemize ();
-        break;
-      case 'I':
-        ipf_itemize ();
-        break;
-      case 'L':
-        latex_itemize ();
-        break;
-      case 'N':
-        man_itemize ();
-        break;
-      case 'G':
-        md_itemize ();
-        break;
-      case 'W':
-        dw_itemize ();
-        break;
-      }
+    bd->itemize ();
   read_line ();
 }
 
@@ -1937,26 +1724,8 @@ static void do_indent (int env)
 {
   check_copy ();
   start_env (env, 4, 4);
-  ipf_env_margin (env_sp);
   if (out)
-    switch (mode)
-      {
-      case 'H':
-        html_indent ();
-        break;
-      case 'L':
-        latex_indent ();
-        break;
-      case 'N':
-        man_indent ();
-        break;
-      case 'G':
-        md_indent ();
-        break;
-      case 'W':
-        dw_indent ();
-        break;
-      }
+    bd->indent ();
   read_line ();
 }
 
@@ -1969,24 +1738,7 @@ static void do_list (void)
   check_copy ();
   start_env (ENV_LIST, 4, 4);
   if (out)
-    switch (mode)
-      {
-      case 'H':
-        html_list ();
-        break;
-      case 'L':
-        latex_description ();
-        break;
-      case 'N':
-        man_list ();
-        break;
-      case 'G':
-        md_list ();
-        break;
-      case 'W':
-        dw_list ();
-        break;
-      }
+    bd->list ();
   read_line ();
 }
 
@@ -2006,30 +1758,7 @@ static void do_verbatim (enum tag tag_end)
   start_line = line_no;
   tmargin = env_stack[env_sp].tmargin;
   if (out)
-    switch (mode)
-      {
-      case 'H':
-        html_verbatim_start (tag_end);
-        break;
-      case 'I':
-        ipf_verbatim_start (tag_end);
-        break;
-      case 'L':
-        latex_verbatim_start (tag_end);
-        break;
-      case 'N':
-        man_verbatim_start (tag_end, &tmargin);
-        break;
-      case 'G':
-        md_verbatim_start (tag_end, &tmargin);
-        break;
-      case 'W':
-        dw_verbatim_start (tag_end, &tmargin);
-        break;
-      case 'T':
-        text_verbatim_start (tag_end, &tmargin);
-        break;
-      }
+    bd->verbatim_start (tag_end, &tmargin);
   for (;;)
     {
       read_line ();
@@ -2059,59 +1788,12 @@ static void do_verbatim (enum tag tag_end)
       if (parse_tag (&p) && tg_tag == tag_end)
         break;
       if (out)
-        {
-          switch (mode)
-            {
-            case 'H':
-              html_verbatim_line ();
-              break;
-            case 'I':
-              ipf_verbatim_line ();
-              break;
-            case 'L':
-            case 'T':
-              text_verbatim_line (tag_end, tmargin, compat);
-              break;
-            case 'N':
-              man_verbatim_line (tag_end, tmargin, compat);
-              break;
-            case 'G':
-              md_verbatim_line (tag_end, tmargin, compat);
-              break;
-            case 'W':
-              dw_verbatim_line (tag_end, tmargin, compat);
-              break;
-            }
-        }
+        bd->verbatim_line (tag_end, tmargin, compat);
     }
   if (out)
-    switch (mode)
-      {
-      case 'H':
-        html_verbatim_end (tag_end);
-        break;
-      case 'I':
-        ipf_verbatim_end (tag_end);
-        break;
-      case 'L':
-        latex_verbatim_end (tag_end);
-        break;
-      case 'N':
-        man_verbatim_end (tag_end);
-        break;
-      case 'G':
-        md_verbatim_end (tag_end);
-        break;
-      case 'W':
-        dw_verbatim_end (tag_end);
-        break;
-      case 'T':
-        para_flag = TRUE;
-        break;
-      }
+    bd->verbatim_end (tag_end);
   read_line ();
 }
-
 
 /*!
  * @brief Process a %table block.
@@ -2157,25 +1839,7 @@ static void do_table (const uchar *p)
     }
 
   if (out)
-    switch (mode)
-      {
-      case 'H':
-        fatal ("%ctable not yet implemented for HTML", escape);
-      case 'I':
-        ipf_table_start (do_indent, widths, wn);
-        break;
-      case 'L':
-        fatal ("%ctable not yet implemented for LaTeX", escape);
-      case 'N':
-        fatal ("%ctable not yet implemented for man", escape);
-      case 'G':
-        fatal ("%ctable not yet implemented for Markdown", escape);
-      case 'W':
-        fatal ("%ctable not yet implemented for DokuWiki", escape);
-      case 'T':
-        text_table_start (do_indent, &tmargin);
-        break;
-      }
+    bd->table_start (do_indent, widths, wn);
   for (;;)
     {
       read_line ();
@@ -2193,27 +1857,11 @@ static void do_table (const uchar *p)
           p = input;
           while (isspace (*p))
             ++p;
-          switch (mode)
-            {
-            case 'I':
-              ipf_table_line (p, wn);
-              break;
-            case 'T':
-              text_table_line (p, tmargin);
-              break;
-            }
+          bd->table_line (p, wn);
         }
     }
   if (out)
-    switch (mode)
-      {
-      case 'I':
-        ipf_table_end (do_indent);
-        break;
-      case 'T':
-        para_flag = TRUE;
-        break;
-      }
+    bd->table_end (do_indent);
   read_line ();
 }
 
@@ -2235,7 +1883,7 @@ static void do_ipf (void)
       p = input;
       if (parse_tag (&p) && tg_tag == TAG_ENDIPF)
         break;
-      if (out && mode == 'I' && output_flag)
+      if (out && bd->mode == 'I' && output_flag)
         {
           fprintf (output_file, "%s\n", input);
           output_x = 0; ++output_line_no;
@@ -2262,7 +1910,7 @@ static void do_text (void)
       p = input;
       if (parse_tag (&p) && tg_tag == TAG_ENDTEXT)
         break;
-      if (out && mode == 'T' && output_flag)
+      if (out && bd->mode == 'T' && output_flag)
         {
           fprintf (output_file, "%s\n", input);
           output_x = 0; ++output_line_no;
@@ -2289,7 +1937,7 @@ static void do_latex (void)
       p = input;
       if (parse_tag (&p) && tg_tag == TAG_ENDLATEX)
         break;
-      if (out && mode == 'L' && output_flag)
+      if (out && bd->mode == 'L' && output_flag)
         {
           fprintf (output_file, "%s\n", input);
           output_x = 0; ++output_line_no;
@@ -2316,7 +1964,7 @@ static void do_html (void)
       p = input;
       if (parse_tag (&p) && tg_tag == TAG_ENDHTML)
         break;
-      if (out && mode == 'H' && output_flag)
+      if (out && bd->mode == 'H' && output_flag)
         {
           fprintf (output_file, "%s\n", input);
           output_x = 0; ++output_line_no;
@@ -2354,18 +2002,7 @@ static void do_index (const uchar *p)
   if (toc_ptr == NULL)
     fatal ("%s:%d: Cannot use %cindex before %ch1",
            input_fname, line_no, escape, escape);
-  switch (mode)
-    {
-    case 'H':
-      html_index (toc_ptr, p, tg_level);
-      break;
-    case 'I':
-      ipf_index (p);
-      break;
-    case 'L':
-      latex_index (p, tg_level);
-      break;
-    }
+  bd->index (toc_ptr, p, tg_level);
   read_line ();
 }
 
@@ -2377,12 +2014,8 @@ static void do_index (const uchar *p)
  */
 static void do_keyword (const uchar *p)
 {
-  switch (mode)
-    {
-    case 'K':
-      keywords_keyword (p);
-      break;
-    }
+  if (bd->mode == 'K')
+    keywords_keyword (p);
   read_line ();
 }
 
@@ -2399,30 +2032,7 @@ static void do_item (const uchar *p)
     case ENV_DESCRIPTION:
       para_flag = FALSE;
       if (out)
-        switch (mode)
-          {
-          case 'H':
-            html_description_item (p);
-            break;
-          case 'I':
-            ipf_description_item (p);
-            break;
-          case 'L':
-            latex_description_item (p);
-            break;
-          case 'N':
-            man_description_item (p);
-            break;
-          case 'G':
-            md_description_item (p);
-            break;
-          case 'W':
-            dw_description_item (p);
-            break;
-          case 'T':
-            text_description_item (p);
-            break;
-          }
+        bd->description_item (p);
       break;
     case ENV_ENUMERATE:
       para_flag = FALSE;
@@ -2430,30 +2040,7 @@ static void do_item (const uchar *p)
         fatal ("%s:%d: %citem of %cenumerate doesn't take an argument",
                input_fname, line_no, escape, escape);
       if (out)
-        switch (mode)
-          {
-          case 'H':
-            html_enumerate_item ();
-            break;
-          case 'I':
-            ipf_enumerate_item ();
-            break;
-          case 'L':
-            latex_enumerate_item ();
-            break;
-          case 'N':
-            man_enumerate_item ();
-            break;
-          case 'G':
-            md_enumerate_item ();
-            break;
-          case 'W':
-            dw_enumerate_item ();
-            break;
-          case 'T':
-            text_enumerate_item ();
-            break;
-          }
+        bd->enumerate_item ();
       break;
     case ENV_ITEMIZE:
       para_flag = FALSE;
@@ -2461,58 +2048,12 @@ static void do_item (const uchar *p)
         fatal ("%s:%d: %citem of %citemize doesn't take an argument",
                input_fname, line_no, escape, escape);
       if (out)
-        switch (mode)
-          {
-          case 'H':
-            html_itemize_item ();
-            break;
-          case 'I':
-            ipf_itemize_item ();
-            break;
-          case 'L':
-            latex_itemize_item ();
-            break;
-          case 'N':
-            man_itemize_item ();
-            break;
-          case 'G':
-            md_itemize_item ();
-            break;
-          case 'W':
-            dw_itemize_item ();
-            break;
-          case 'T':
-            text_itemize_item ();
-            break;
-          }
+        bd->itemize_item ();
       break;
     case ENV_LIST:
       para_flag = FALSE;
       if (out)
-        switch (mode)
-          {
-          case 'H':
-            html_list_item (p);
-            break;
-          case 'I':
-            ipf_list_item (p);
-            break;
-          case 'L':
-            latex_list_item (p);
-            break;
-          case 'N':
-            man_list_item (p);
-            break;
-          case 'G':
-            md_list_item (p);
-            break;
-          case 'W':
-            dw_list_item (p);
-            break;
-          case 'T':
-            text_list_item (p);
-            break;
-          }
+        bd->list_item (p);
       break;
     default:
       fatal ("%s:%d: %citem outside environment",
@@ -2537,30 +2078,7 @@ static void do_prototype (void)
   if (out)
     {
       make_elements_start ();
-      switch (mode)
-        {
-        case 'H':
-          html_prototype_start ();
-          break;
-        case 'I':
-          ipf_prototype_start ();
-          break;
-        case 'L':
-          latex_prototype_start ();
-          break;
-        case 'N':
-          man_prototype_start (compat);
-          break;
-        case 'G':
-          md_prototype_start (compat);
-          break;
-        case 'W':
-          dw_prototype_start (compat);
-          break;
-        case 'T':
-          text_prototype_start (compat);
-          break;
-        }
+      bd->prototype_start (compat);
     }
   for (;;)
     {
@@ -2588,30 +2106,7 @@ static void do_prototype (void)
   if (out)
     {
       make_elements_end ();
-      switch (mode)
-        {
-        case 'H':
-          html_prototype_end (compat);
-          break;
-        case 'I':
-          ipf_prototype_end (compat);
-          break;
-        case 'L':
-          latex_prototype_end (compat);
-          break;
-        case 'N':
-          man_prototype_end ();
-          break;
-        case 'G':
-          md_prototype_end ();
-          break;
-        case 'W':
-          dw_prototype_end ();
-          break;
-        case 'T':
-          text_prototype_end ();
-          break;
-        }
+      bd->prototype_end (compat);
     }
   prototype_flag = FALSE;
   para_flag = TRUE;
@@ -2633,30 +2128,7 @@ static void do_see_also (const uchar *p)
       while (isspace (*p))
         ++p;
       o = output; *o = 0;
-      switch (mode)
-        {
-        case 'H':
-          html_see_also_start ();
-          break;
-        case 'I':
-          ipf_see_also_start ();
-          break;
-        case 'L':
-          latex_see_also_start ();
-          break;
-        case 'N':
-          man_see_also_start ();
-          break;
-        case 'G':
-          md_see_also_start ();
-          break;
-        case 'W':
-          dw_see_also_start ();
-          break;
-        case 'T':
-          text_see_also_start ();
-          break;
-        }
+      bd->see_also_start ();
       while (*p != 0)
         {
           d = word;
@@ -2665,43 +2137,13 @@ static void do_see_also (const uchar *p)
           *d = 0;
           while (isspace (*p))
             ++p;
-          switch (mode)
-            {
-            case 'H':
-              html_see_also_word (word, p);
-              break;
-            case 'I':
-              ipf_see_also_word (word, p);
-              break;
-            case 'L':
-              latex_see_also_word (word, p);
-              break;
-            case 'G':
-            case 'N':
-            case 'T':
-            case 'W':
-              strcpy (o, word);
-              if (*p != 0)
-                strcat (o, ", ");
-              o = strchr (o, 0);
-              break;
-            }
+          bd->see_also_word (word, p);
+          strcpy (o, word);
+          if (*p != 0)
+            strcat (o, ", ");
+          o = strchr (o, 0);
         }
-      switch (mode)
-        {
-        case 'N':
-          man_see_also_end (output);
-          break;
-        case 'G':
-          md_see_also_end (output);
-          break;
-        case 'W':
-          dw_see_also_end (output);
-          break;
-        case 'T':
-          text_see_also_end (output);
-          break;
-        }
+      bd->see_also_end (output);
       para_flag = TRUE;
     }
   read_line ();
@@ -2748,30 +2190,7 @@ static void do_sample_file (const uchar *p)
     {
       while (isspace (*p))
         ++p;
-      switch (mode)
-        {
-        case 'H':
-          html_sample_file (p);
-          break;
-        case 'I':
-          ipf_sample_file (p);
-          break;
-        case 'L':
-          latex_sample_file (p);
-          break;
-        case 'N':
-          man_sample_file (p);
-          break;
-        case 'G':
-          md_sample_file (p);
-          break;
-        case 'W':
-          dw_sample_file (p);
-          break;
-        case 'T':
-          text_sample_file (p);
-          break;
-        }
+      bd->sample_file (p);
     }
   read_line ();
 }
@@ -2785,32 +2204,7 @@ static void do_sample_file (const uchar *p)
 static void do_libref_section (const uchar *text)
 {
   if (out)
-    {
-      switch (mode)
-        {
-        case 'H':
-          html_libref_section (text);
-          break;
-        case 'I':
-          ipf_libref_section (text);
-          break;
-        case 'L':
-          latex_libref_section (text);
-          break;
-        case 'N':
-          man_libref_section (text);
-          break;
-        case 'G':
-          md_libref_section (text);
-          break;
-        case 'W':
-          dw_libref_section (text);
-          break;
-        case 'T':
-          text_libref_section (text);
-          break;
-        }
-    }
+    bd->libref_section (text);
   read_line ();
 }
 
@@ -2831,30 +2225,7 @@ static void do_function (const uchar *p)
     {
       toc_ptr = (toc_ptr == NULL ? toc_head : toc_ptr->next);
       assert (toc_ptr != NULL);
-      switch (mode)
-        {
-        case 'H':
-          html_function_start (toc_ptr);
-          break;
-        case 'I':
-          ipf_function_start (toc_ptr);
-          break;
-        case 'L':
-          latex_function_start (toc_ptr);
-          break;
-        case 'N':
-          man_function (toc_ptr);
-          break;
-        case 'G':
-          md_function (toc_ptr);
-          break;
-        case 'W':
-          dw_function (toc_ptr);
-          break;
-        case 'T':
-          text_function ();
-          break;
-        }
+      bd->function_start (toc_ptr);
       para_flag = FALSE;
     }
   else
@@ -2872,18 +2243,7 @@ static void do_function (const uchar *p)
       *d = 0;
       while (isspace (*p))
         ++p;
-      switch (mode)
-        {
-        case 'H':
-          html_function_function (toc_ptr, word);
-          break;
-        case 'I':
-          ipf_function_function (word);
-          break;
-        case 'L':
-          latex_function_function (word);
-          break;
-        }
+      bd->function_function (toc_ptr, word);
       if (!out)
         {
           wp = define_label (word, toc_ptr->ref, "Function");
@@ -2899,12 +2259,8 @@ static void do_function (const uchar *p)
             }
           strcat (o, word);
           o = strchr (o, 0);
-          switch (mode)
-            {
-            case 'K':
-              write_keyword (word);
-              break;
-            }
+          if (bd->mode == 'K')
+            write_keyword (word);
         }
     }
   if (!out)
@@ -2957,34 +2313,26 @@ static void do_tag (const uchar *p)
       break;
 
     case TAG_HTMLFRAGMENT:
-      if (out && mode == 'H')
-        html_fragment (p);
+      if (out && bd->mode == 'H')
+        bd->html_fragment (p);
       read_line ();
       break;
 
     case TAG_IPFMINITOC:
-      if (out && mode == 'I')
-        ipf_minitoc (toc_ptr);
+      if (out && bd->mode == 'I')
+        bd->minitoc (toc_ptr);
       read_line ();
       break;
 
     case TAG_HTMLMINITOC:
-      if (out && mode == 'H')
-        html_minitoc (toc_ptr);
+      if (out && bd->mode == 'H')
+        bd->minitoc (toc_ptr);
       read_line ();
       break;
 
     case TAG_MINITOC:
       if (out)
-        switch (mode)
-          {
-          case 'H':
-            html_minitoc (toc_ptr);
-            break;
-          case 'I':
-            ipf_minitoc (toc_ptr);
-            break;
-          }
+        bd->minitoc (toc_ptr);
       read_line ();
       break;
 
@@ -3212,30 +2560,7 @@ static void do_copy (void)
   if (out)
     {
       make_elements (line);
-      switch (mode)
-        {
-        case 'H':
-          html_copy ();
-          break;
-        case 'I':
-          ipf_copy ();
-          break;
-        case 'L':
-          latex_copy ();
-          break;
-        case 'N':
-          man_copy ();
-          break;
-        case 'G':
-          md_copy ();
-          break;
-        case 'W':
-          dw_copy ();
-          break;
-        case 'T':
-          text_copy ();
-          break;
-        }
+      bd->copy ();
     }
   para_flag = TRUE; copy_flag = TRUE;
 }
@@ -3286,27 +2611,7 @@ void init_file (void)
   toc_ptr = NULL;
 
   if (out)
-    switch (mode)
-      {
-      case 'H':
-        html_start ();
-        break;
-      case 'I':
-        ipf_start ();
-        break;
-      case 'L':
-        latex_start ();
-        break;
-      case 'N':
-        man_start ();
-        break;
-      case 'G':
-        md_start ();
-        break;
-      case 'W':
-        dw_start ();
-        break;
-      }
+    bd->start ();
 
   para_flag = FALSE;
   env_sp = 0;
@@ -3331,27 +2636,7 @@ void init_file (void)
  */
 static void end_file (void)
 {
-  switch (mode)
-    {
-    case 'H':
-      html_end ();
-      break;
-    case 'I':
-      ipf_end ();
-      break;
-    case 'L':
-      latex_end ();
-      break;
-    case 'N':
-      man_end ();
-      break;
-    case 'G':
-      md_end ();
-      break;
-    case 'W':
-      dw_end ();
-      break;
-    }
+  bd->end ();
   if (env_sp != 0)
     fatal ("%s:%d: Environment not terminated",
            input_fname, env_stack[env_sp].start_line);
@@ -3449,11 +2734,13 @@ int main (int argc, char *argv[])
 
   init ();
 
-  while ((c = getopt (argc, argv, ":?GHIKLMNTWab:ce:fgh:i:j:n:o:rw:x:")) != EOF)
+  while ((c = getopt (argc, argv,
+                      ":?EGHIKLMNTWab:ce:fgh:i:j:n:o:rw:x:")) != EOF)
     switch (c)
       {
       case '?':
         usage ();
+      case 'E':
       case 'G':
       case 'H':
       case 'I':
@@ -3542,13 +2829,18 @@ int main (int argc, char *argv[])
 
   atexit (cleanup);
 
+  /* Select the emitter for the chosen mode. */
+  bd = emit_find (mode);
+  if (bd == NULL)
+    usage ();
+
   switch (mode)
     {
     case 'T':
       max_width = 79;
       output_flag = TRUE;
       if (hyphenation_fname != NULL)
-        text_hyphenation (hyphenation_fname);
+        bd->hyphenation (hyphenation_fname);
       if (output_encoding == ENC_DEFAULT)
         output_encoding = input_encoding;
       break;
@@ -3569,6 +2861,12 @@ int main (int argc, char *argv[])
         output_encoding = input_encoding;
       break;
     case 'N':
+      max_width = 4096;
+      output_flag = TRUE;
+      if (output_encoding == ENC_DEFAULT)
+        output_encoding = input_encoding;
+      break;
+    case 'E':
       max_width = 4096;
       output_flag = TRUE;
       if (output_encoding == ENC_DEFAULT)
@@ -3616,6 +2914,7 @@ int main (int argc, char *argv[])
 
   switch (mode)
     {
+    case 'E':
     case 'G':
     case 'H':
     case 'I':

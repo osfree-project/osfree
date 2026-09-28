@@ -5,6 +5,7 @@
 #
 
 DESCRIPTION = docs converter
+TARGET_PACKAGE = DISK01
 
 !include $(%ROOT)tools/mk/build.mk
 

@@ -29,6 +29,7 @@
 #include <ctype.h>
 #include <assert.h>
 #include "emxdoc.h"
+#include "emitter.h"
 #include "html.h"
 #include "xref.h"
 
@@ -296,10 +297,16 @@ void html_toc_end (void)
 /*!
  * @brief Emit the anchor of a level-1 heading.
  *
- * @param[in] ref Section reference number.
+ * @param[in] level  Heading level (unused).
+ * @param[in] ref    Section reference number.
+ * @param[in] global Non-zero if the section is global (unused).
+ * @param[in] flags  Heading flags (unused).
  */
-void html_heading1 (int ref)
+void html_heading1 (int level, int ref, int global, unsigned flags)
 {
+  (void)level;
+  (void)global;
+  (void)flags;
   write_break ();
   write_fmt ("<A NAME=\"%d\"></A>", ref);
   write_nl ();
@@ -390,10 +397,12 @@ void html_list (void)
 /*!
  * @brief Begin a verbatim block.
  *
- * @param[in] tag_end Tag that terminates the block.
+ * @param[in] tag_end  Tag that terminates the block.
+ * @param[in] ptmargin Receiver of the current margin (unused).
  */
-void html_verbatim_start (enum tag tag_end)
+void html_verbatim_start (enum tag tag_end, int *ptmargin)
 {
+  (void)ptmargin;
   write_break ();
   switch (tag_end)
     {
@@ -418,9 +427,16 @@ void html_verbatim_start (enum tag tag_end)
 
 /*!
  * @brief Emit one verbatim line.
+ *
+ * @param[in] tag_end End tag of the block (unused).
+ * @param[in] tmargin Current margin (unused).
+ * @param[in] compat  Compatibility string (unused).
  */
-void html_verbatim_line (void)
+void html_verbatim_line (enum tag tag_end, int tmargin, uchar *compat)
 {
+  (void)tag_end;
+  (void)tmargin;
+  (void)compat;
   html_output (input, FALSE);
   write_nl ();
 }
@@ -550,9 +566,13 @@ void html_end (void)
 
 /*!
  * @brief Begin a prototype block.
+ *
+ * @param[in] compat Compatibility string (unused here; see
+ *                    html_prototype_end).
  */
-void html_prototype_start (void)
+void html_prototype_start (uchar *compat)
 {
+  (void)compat;
   if (para_flag)
     html_para ();
   format_string (function_count == 1 ? "Prototype:" : "Prototypes:",
@@ -564,7 +584,7 @@ void html_prototype_start (void)
 /*!
  * @brief End a prototype block.
  *
- * @param[in,out] compat Compatibility note buffer.
+ * @param[in,out] compat Compatibility note buffer. Not NULL.
  */
 void html_prototype_end (uchar *compat)
 {
@@ -656,7 +676,7 @@ void html_libref_section (const uchar *s)
 void html_function_start (const struct toc *tp)
 {
   write_line ("<HR>");
-  html_heading1 (tp->ref);
+  html_heading1 (0, tp->ref, 0, 0);
   write_string ("<H2>");
   html_output (tp->title, FALSE);
   write_line ("</H2>");
