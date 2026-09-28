@@ -269,6 +269,11 @@ static void choose_encoding (const uchar *s)
 
 /*!
  * @brief Read and preprocess the next input line.
+ *
+ * Handles CRLF line endings explicitly: a trailing carriage return
+ * is stripped after the newline, regardless of whether the C library
+ * translates text-mode streams.  This keeps Windows-produced files
+ * readable on systems where "rt" is a no-op.
  */
 void read_line (void)
 {
@@ -294,6 +299,10 @@ redo:
   if (p == NULL)
     fatal ("%s:%d: Line too long", input_fname, line_no);
   *p = 0;
+  /* Strip a trailing CR left over from CRLF line endings on
+     systems where the C library does not translate them. */
+  if (p > input && p[-1] == '\r')
+    p[-1] = 0;
   if (input_encoding == ENC_DEFAULT && output_encoding != ENC_DEFAULT)
     choose_encoding (input);
   if (input_encoding != output_encoding && input_encoding != ENC_DEFAULT)
