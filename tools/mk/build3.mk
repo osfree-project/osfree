@@ -89,19 +89,19 @@ TT2=$(TT:-=_)
  @%null
 !endif
 # ---- package registry ----
-!ifneq pkg ""
+!ifneq pkg
 !ifdef trrgt
 TT_PKG=$(trrgt:.=_)
-TT_PKG=$(TT_PKG:-=_)
+TT_PKG2=$(TT_PKG:-=_)
 !include $(BLD)packages$(SEP)$(pkg).map
-!ifndef __pkg_$(TT_PKG)
+!ifndef __pkg_$(TT_PKG2)
  @$(SAY) Registering $(trrgt) in package $(pkg)...
- @%append $(BLD)packages$(SEP)$(pkg).map __pkg_$(TT_PKG)=1
- @%append $(BLD)packages$(SEP)$(pkg).map pkg_$(TT_PKG)_src=$(dest)$(SEP)$(trrgt)
- @%append $(BLD)packages$(SEP)$(pkg).map pkg_$(TT_PKG)_trg=$(trrgt)
- @%append $(BLD)packages$(SEP)$(pkg).map PKG_TARGETS+=$$(STAGING)$(SEP)$$(pkg_$(TT_PKG)_trg)
- @%append $(BLD)packages$(SEP)$(pkg).map PKG_SOURCES+=$$(pkg_$(TT_PKG)_src)
- @%append $(BLD)packages$(SEP)$(pkg).map $$(STAGING)$(SEP)$$(pkg_$(TT_PKG)_trg): $$(pkg_$(TT_PKG)_src)
+ @%append $(BLD)packages$(SEP)$(pkg).map __pkg_$(TT_PKG2)=1
+ @%append $(BLD)packages$(SEP)$(pkg).map pkg_$(TT_PKG2)_src=$(dest)$(SEP)$(trrgt)
+ @%append $(BLD)packages$(SEP)$(pkg).map pkg_$(TT_PKG2)_trg=$(trrgt)
+ @%append $(BLD)packages$(SEP)$(pkg).map PKG_TARGETS+=$$(STAGING)$(SEP)$$(pkg_$(TT_PKG2)_trg)
+ @%append $(BLD)packages$(SEP)$(pkg).map PKG_SOURCES+=$$(pkg_$(TT_PKG2)_src)
+ @%append $(BLD)packages$(SEP)$(pkg).map $$(STAGING)$(SEP)$$(pkg_$(TT_PKG2)_trg): $$(pkg_$(TT_PKG2)_src)
  @%append $(BLD)packages$(SEP)$(pkg).map 	$$(CP) $$< $$@
 !endif
 !endif

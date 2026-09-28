@@ -70,26 +70,25 @@ _name2 = $(srcfile:$(SRCDIR)=)
 _name3 = $(_name2:$(ext)=)
 !endif
 
-add_source: .SYMBOLIC
+add_source: .SYMBOLIC .PROCEDURE
 !ifneq _name3 *
      @%append $(PATH)_sources.mk SOURCES += $(_name3)
 !endif
 
 gen_sources_files: .symbolic
-# @echo GS_CMD: $(MAKE) -h $(MAKEOPT) withsources=$(PATH)_sources.mk
  @$(REXX) mdhier.cmd $(PATH)
  @%create $(PATH)_sources.mk
  @%append $(PATH)_sources.mk !ifndef __$(PROJ)_sources_mk__
  @%append $(PATH)_sources.mk !define __$(PROJ)_sources_mk__
 !ifneq TARGET_LANG pascal
- @for %f in ($(SRCDIR)*.c) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.c add_source
- @for %f in ($(SRCDIR)*.cpp) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.cpp add_source
- @for %f in ($(SRCDIR)*.asm) do @$(MAKE) -h $(MAKEOPT) srcfile=%f ext=.asm add_source
+ $(verbose)for %f in ($(SRCDIR)*.c) do $(verbose)$(MAKE) $(MAKEOPT) srcfile=%f ext=.c add_source
+ $(verbose)for %f in ($(SRCDIR)*.cpp) do $(verbose)$(MAKE) $(MAKEOPT) srcfile=%f ext=.cpp add_source
+ $(verbose)for %f in ($(SRCDIR)*.asm) do $(verbose)$(MAKE) $(MAKEOPT) srcfile=%f ext=.asm add_source
 !endif
- @%append $(PATH)_sources.mk !endif
+ $(verbose)%append $(PATH)_sources.mk !endif
 
 gen_sources: .symbolic gen_sources_files
- @$(MAKE) -h $(MAKEOPT) withsources=$(PATH)_sources.mk
+ $(verbose)$(MAKE) $(MAKEOPT) withsources=$(PATH)_sources.mk
 
 
 !else

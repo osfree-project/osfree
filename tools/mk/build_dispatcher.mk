@@ -2,19 +2,6 @@
 !define __build_dispatcher_mk__
 
 # ============================================================
-# PACKAGE (platform-independent)
-# ============================================================
-!ifeq TARGET_API PACKAGE
-!  ifeq TARGET_CLASS WARPIN
-!    define TARGET_MK build_warppkg
-!  else ifeq TARGET_CLASS SETUP
-!    define TARGET_MK build_setuppkg
-!  else
-!    error Unknown TARGET_CLASS for PACKAGE: $(TARGET_CLASS). Supported: WARPIN, SETUP.
-!  endif
-!else
-
-# ============================================================
 # TARGET_API / TARGET_BITS matrix (top-level dispatch)
 # ============================================================
 # TARGET_API     16-bit                 32-bit                 64-bit
@@ -29,10 +16,24 @@
 # OS2            --> OS2_16_CLASS       --> OS2_32_CLASS (*)   ERROR (reserved)
 # POSIX          ERROR (reserved)       ERROR (reserved)       ERROR (reserved)
 # HOST           --> HOST_CLASS         --> HOST_CLASS         --> HOST_CLASS
+# PACKAGE        --> PACKAGE_CLASS      --> PACKAGE_CLASS      --> PACKAGE_CLASS
 #
 # Note: "*" marks TARGET_API/TARGET_BITS used when not explicitly set.
 #       Entries with "--> TABLE" defer to class/subclass sub-tables below.
 #       
+
+# ============================================================
+# PACKAGE (platform-independent)
+# ============================================================
+!ifeq TARGET_API PACKAGE
+!  ifeq TARGET_CLASS WARPIN
+!    define TARGET_MK build_warppkg
+!  else ifeq TARGET_CLASS SETUP
+!    define TARGET_MK build_setuppkg
+!  else
+!    error Unknown TARGET_CLASS for PACKAGE: $(TARGET_CLASS). Supported: WARPIN, SETUP.
+!  endif
+!else
 
 # ============================================================
 # Default TARGET_BITS per TARGET_API
