@@ -3,8 +3,9 @@
  *
  *  Emits a Markdown document: headings via #, ##, ###, inline
  *  styles via HTML tags <b>, <i>, <code>, <u>, code blocks via
- *  ```...```.  Escapes Markdown-significant characters with a
- *  backslash.
+ *  ```...```.  Block-level constructs (headings, code fences,
+ *  see-also) are surrounded by blank lines, as required by the
+ *  Markdown parser; paragraphs are separated by a blank line too.
  *
  *  @copyright Copyright (C) 2026 osFree Project.
  *             License - see LICENSE in the project root.
@@ -108,8 +109,8 @@ void md_heading1 (int level, int ref, int global, unsigned flags)
   (void)ref;
   (void)global;
   (void)flags;
-  if (output_x > 0)
-    write_nl ();
+  write_break ();
+  write_nl ();
   switch (level)
     {
     case 1:  write_string ("# ");   break;
@@ -126,6 +127,7 @@ void md_heading1 (int level, int ref, int global, unsigned flags)
 void md_heading2 (const uchar *s)
 {
   md_escape (s);
+  write_nl ();
   write_nl ();
 }
 
@@ -157,8 +159,9 @@ void md_list (void)        { }
 /*! @brief Starts the indent environment. */
 void md_indent (void)
 {
-  if (output_x > 0) write_nl ();
-  write_string ("<blockquote>\n");
+  write_break ();
+  write_nl ();
+  write_line ("<blockquote>");
 }
 
 /*! @brief Closes the current environment. */
@@ -168,8 +171,8 @@ void md_end_env (void)
     {
     case ENV_INDENT:
     case ENV_TYPEWRITER:
-      if (output_x > 0) write_nl ();
-      write_string ("</blockquote>\n");
+      write_break ();
+      write_line ("</blockquote>");
       break;
     default:
       break;
@@ -234,15 +237,16 @@ void md_list_item (const uchar *s)
 /*!
  *  @brief Starts a verbatim/example/samplecode block.
  *  @param[in]  tag_end  End tag of the block.
- *  @param[out] ptmargin Receiver of the current margin. Not NULL.
+ *  @param[out] ptmargin Receiver of the current margin (unused).
  */
 void md_verbatim_start (enum tag tag_end, int *ptmargin)
 {
   (void)ptmargin;
-  if (output_x > 0) write_nl ();
+  write_break ();
+  write_nl ();
   if (tag_end == TAG_ENDSAMPLECODE)
-    write_string ("**Example:**\n");
-  write_string ("```\n");
+    write_line ("**Example:**");
+  write_line ("```");
 }
 
 /*!
@@ -265,7 +269,7 @@ void md_verbatim_end (enum tag tag_end)
 {
   (void)tag_end;
   if (output_x > 0) write_nl ();
-  write_string ("```\n");
+  write_line ("```");
   para_flag = TRUE;
 }
 
@@ -276,8 +280,9 @@ void md_verbatim_end (enum tag tag_end)
 void md_prototype_start (uchar *compat)
 {
   (void)compat;
-  if (output_x > 0) write_nl ();
-  write_string ("```c\n");
+  write_break ();
+  write_nl ();
+  write_line ("```c");
 }
 
 /*!
@@ -290,7 +295,7 @@ void md_prototype_end (uchar *compat)
   (void)compat;
   md_copy ();
   if (output_x > 0) write_nl ();
-  write_string ("```\n");
+  write_line ("```");
   para_flag = TRUE;
 }
 
@@ -300,6 +305,12 @@ void md_copy (void)
   enum style style_stack[STYLE_STACK_SIZE];
   int style_sp = 0;
   const struct element *ep;
+
+  if (para_flag)
+    {
+      write_break ();
+      write_nl ();
+    }
 
   style_stack[0] = STYLE_NORMAL;
   for (ep = elements; ep->el != EL_END; ++ep)
@@ -362,9 +373,11 @@ void md_copy (void)
  */
 void md_function_start (const struct toc *tp)
 {
-  if (output_x > 0) write_nl ();
+  write_break ();
+  write_nl ();
   write_string ("## ");
   md_escape (tp->title);
+  write_nl ();
   write_nl ();
 }
 
@@ -382,8 +395,10 @@ void md_function_function (const struct toc *tp, const uchar *s)
 /*! @brief Starts the "See also" block. */
 void md_see_also_start (void)
 {
-  if (output_x > 0) write_nl ();
-  write_string ("## See also\n\n");
+  write_break ();
+  write_nl ();
+  write_line ("## See also");
+  write_nl ();
 }
 
 /*!
@@ -427,10 +442,13 @@ void md_sample_file (const uchar *s)
  */
 void md_libref_section (const uchar *s)
 {
-  if (output_x > 0) write_nl ();
+  write_break ();
+  write_nl ();
   write_string ("**");
   md_escape (s);
-  write_string ("**\n\n");
+  write_string ("**");
+  write_nl ();
+  write_nl ();
   para_flag = TRUE;
 }
 
