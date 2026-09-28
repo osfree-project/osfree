@@ -48,6 +48,17 @@ enum ctok
 };
 
 /*!
+ * @def ISWORD
+ * @brief Test whether a character can continue an identifier.
+ *
+ * Used to enforce a word boundary after a keyword such as "true"
+ * or "html", so that "truex" is not misread as TRUE followed by x.
+ *
+ * @param C Character to test.  Evaluated twice.
+ */
+#define ISWORD(C) (isalnum ((uchar)(C)) || (C) == '_')
+
+/*!
  * @brief A named boolean variable set by cond_set().
  */
 struct cond_var
@@ -188,7 +199,7 @@ static void cond_fetch (void)
       ct_token = CTOK_RPAR; ++cond_ptr;
       return;
     case 'f':
-      if (strncmp (cond_ptr, "false", 5) == 0)
+      if (strncmp (cond_ptr, "false", 5) == 0 && !ISWORD (cond_ptr[5]))
         {
           ct_token = CTOK_CONST; ct_value = FALSE;
           cond_ptr += 5;
@@ -196,7 +207,7 @@ static void cond_fetch (void)
         }
       break;
     case 'h':
-      if (strncmp (cond_ptr, "html", 4) == 0)
+      if (strncmp (cond_ptr, "html", 4) == 0 && !ISWORD (cond_ptr[4]))
         {
           ct_token = CTOK_CONST; ct_value = (mode == 'H');
           cond_ptr += 4;
@@ -204,7 +215,7 @@ static void cond_fetch (void)
         }
       break;
     case 'i':
-      if (strncmp (cond_ptr, "ipf", 3) == 0)
+      if (strncmp (cond_ptr, "ipf", 3) == 0 && !ISWORD (cond_ptr[3]))
         {
           ct_token = CTOK_CONST; ct_value = (mode == 'I');
           cond_ptr += 3;
@@ -212,7 +223,7 @@ static void cond_fetch (void)
         }
       break;
     case 'l':
-      if (strncmp (cond_ptr, "latex", 5) == 0)
+      if (strncmp (cond_ptr, "latex", 5) == 0 && !ISWORD (cond_ptr[5]))
         {
           ct_token = CTOK_CONST; ct_value = (mode == 'L');
           cond_ptr += 5;
@@ -220,13 +231,13 @@ static void cond_fetch (void)
         }
       break;
     case 't':
-      if (strncmp (cond_ptr, "text", 4) == 0)
+      if (strncmp (cond_ptr, "text", 4) == 0 && !ISWORD (cond_ptr[4]))
         {
           ct_token = CTOK_CONST; ct_value = (mode == 'T');
           cond_ptr += 4;
           return;
         }
-      else if (strncmp (cond_ptr, "true", 4) == 0)
+      else if (strncmp (cond_ptr, "true", 4) == 0 && !ISWORD (cond_ptr[4]))
         {
           ct_token = CTOK_CONST; ct_value = TRUE;
           cond_ptr += 4;
