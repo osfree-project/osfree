@@ -1269,16 +1269,47 @@ static void do_end_env (int env)
 
 
 /*!
+ * @brief Copy a whitespace-delimited token into a bounded buffer.
+ *
+ * The token is copied up to the first space or NUL; the destination
+ * is always NUL-terminated.  If the token does not fit in @p size
+ * bytes, fatal() is called with a diagnostic identifying the field.
+ *
+ * @param[out]    dst  Destination buffer.  Not NULL.
+ * @param[in]     size Size of @p dst in bytes.  Must be > 0.
+ * @param[in,out] pp   Pointer to the input position.  Not NULL.
+ *                     On return, *pp points just past the token.
+ * @param[in]     what Field name for diagnostics.  Not NULL.
+ */
+static void copy_token (uchar *dst, size_t size, const uchar **pp,
+                        const char *what)
+{
+  const uchar *p = *pp;
+  size_t n = 0;
+
+  if (size == 0)
+    fatal ("%s:%d: Internal error: empty token buffer",
+           input_fname, line_no);
+  while (*p != 0 && !isspace (*p))
+    {
+      if (n >= size - 1)
+        fatal ("%s:%d: %s too long", input_fname, line_no, what);
+      dst[n++] = *p++;
+    }
+  dst[n] = 0;
+  *pp = p;
+}
+
+
+/*!
  * @brief Process a %format tag.
  *
  * @param[in] p Tag argument. Not NULL.
  */
 static void do_format (const uchar *p)
 {
-  const uchar *q;
   enum style sty;
   struct word *wp;
-  int len;
   uchar word[512];
   uchar flg;
 
@@ -1329,20 +1360,20 @@ static void do_format (const uchar *p)
         fatal ("%s:%d: Invalid style", input_fname, line_no);
       for (;;)
         {
+          size_t wlen;
+
           while (isspace (*p))
             ++p;
           if (*p == 0)
             break;
-          len = 0; q = p;
-          while (*p != 0 && !isspace (*p))
-            word[len++] = *p++;
-          word[len] = 0;
+          copy_token (word, sizeof (word), &p, "Format word");
           if (sty == STYLE_NORMAL && flg == WF_ABBREV)
             {
-              if (len < 2 || word[len-1] != '.')
+              wlen = strlen (word);
+              if (wlen < 2 || word[wlen-1] != '.')
                 fatal ("%s:%d: Abbreviation must end with a period",
                        input_fname, line_no);
-              word[len-1] = 0;
+              word[wlen-1] = 0;
             }
           wp = word_add (word);
           if (sty != STYLE_NORMAL)
@@ -1362,10 +1393,8 @@ static void do_format (const uchar *p)
  */
 static void do_special (const uchar *p)
 {
-  const uchar *q;
   char m;
   struct word *wp;
-  int len;
   uchar word[512], *repl;
 
   if (!out)
@@ -1404,10 +1433,7 @@ static void do_special (const uchar *p)
         ++p;
       if (*p == 0)
         fatal ("%s:%d: Missing word", input_fname, line_no);
-      len = 0; q = p;
-      while (*p != 0 && !isspace (*p))
-        word[len++] = *p++;
-      word[len] = 0;
+      copy_token (word, sizeof (word), &p, "Special word");
       while (isspace (*p))
         ++p;
       if (*p == 0)
@@ -1456,17 +1482,12 @@ static void do_special (const uchar *p)
  */
 static void do_replace (const uchar *p)
 {
-  const uchar *q;
   struct word *wp;
-  int len;
   uchar word[512], *repl;
 
   if (!out)
     {
-      len = 0; q = p;
-      while (*p != 0 && !isspace (*p))
-        word[len++] = *p++;
-      word[len] = 0;
+      copy_token (word, sizeof (word), &p, "Replace word");
       while (isspace (*p))
         ++p;
       if (*p == 0)
@@ -1494,7 +1515,11 @@ static void do_set (const uchar *p)
     fatal ("%s:%d: Invalid variable name", input_fname, line_no);
   word[len++] = *p++;
   while (isalnum (*p) || *p == '_')
-    word[len++] = *p++;
+    {
+      if (len >= (int)sizeof (word) - 1)
+        fatal ("%s:%d: Variable name too long", input_fname, line_no);
+      word[len++] = *p++;
+    }
   word[len] = 0;
   if (!isspace (*p))
     fatal ("%s:%d: Invalid variable name ", input_fname, line_no);
@@ -1804,7 +1829,7 @@ static void do_table (const uchar *p)
 {
   int start_line, tmargin, wn;
   int do_indent;
-  uchar word[512], *d;
+  uchar word[512];
   int widths[20];
   char *tmp;
   long n;
@@ -1816,10 +1841,7 @@ static void do_table (const uchar *p)
   do_indent = FALSE; wn = 0;
   while (*p != 0)
     {
-      d = word;
-      while (*p != 0 && !isspace (*p))
-        *d++ = *p++;
-      *d = 0;
+      copy_token (word, sizeof (word), &p, "Table attribute");
       if (strcmp (word, "indent") == 0)
         do_indent = TRUE;
       else if (isdigit (word[0]))
@@ -2124,7 +2146,7 @@ static void do_prototype (void)
  */
 static void do_see_also (const uchar *p)
 {
-  uchar word[512], *d, *o;
+  uchar word[512], *o;
 
   if (out)
     {
@@ -2134,10 +2156,7 @@ static void do_see_also (const uchar *p)
       bd->see_also_start ();
       while (*p != 0)
         {
-          d = word;
-          while (*p != 0 && !isspace (*p))
-            *d++ = *p++;
-          *d = 0;
+          copy_token (word, sizeof (word), &p, "See also word");
           while (isspace (*p))
             ++p;
           bd->see_also_word (word, p);
@@ -2160,17 +2179,14 @@ static void do_see_also (const uchar *p)
  */
 static void do_param (const uchar *p)
 {
-  uchar word[512], *d;
+  uchar word[512];
   struct word *wp;
 
   if (out)
     {
       while (*p != 0)
         {
-          d = word;
-          while (*p != 0 && !isspace (*p))
-            *d++ = *p++;
-          *d = 0;
+          copy_token (word, sizeof (word), &p, "Parameter name");
           while (isspace (*p))
             ++p;
           wp = word_add (word);
@@ -2219,7 +2235,7 @@ static void do_libref_section (const uchar *text)
  */
 static void do_function (const uchar *p)
 {
-  uchar word[512], *d, *o;
+  uchar word[512], *o;
   struct word *wp;
 
   local_end ();
@@ -2240,10 +2256,7 @@ static void do_function (const uchar *p)
   while (*p != 0)
     {
       ++function_count;
-      d = word;
-      while (*p != 0 && !isspace (*p))
-        *d++ = *p++;
-      *d = 0;
+      copy_token (word, sizeof (word), &p, "Function name");
       while (isspace (*p))
         ++p;
       bd->function_function (toc_ptr, word);
