@@ -46,6 +46,10 @@
  * The signatures are the union of what the individual emitters
  * actually need.  An emitter that does not use a parameter must
  * ignore it with @c (void)param;.
+ *
+ * @c description and @c usage are consumed only by usage();
+ * keeping them here means usage() no longer needs a hand-written
+ * list of emitters.
  */
 struct emitter
 {
@@ -54,6 +58,8 @@ struct emitter
   unsigned int flags;           /*!< EMIT_FLAG_* bits. */
   int max_width;                /*!< Maximum output line width. */
   enum enc output_encoding;     /*!< Encoding or ENC_DEFAULT. */
+  const char *summary;          /*!< One-line summary for "Modes:". */
+  const char *usage;            /*!< Argument summary for "Usage:". */
 
   /*! @brief Emit document prologue. */
   void (*start)   (void);
@@ -275,3 +281,25 @@ struct emitter *emit_find (char mode);
  * @param[in]  size Size of @p buf in bytes.  Must be > 0.
  */
 void emit_mode_string (char *buf, size_t size);
+
+/*!
+ * @brief Emit the "Usage:" lines for every emitter.
+ *
+ * One line per row of emitters[], in table order, of the form
+ * "  emxdoc -X <usage>".  Used by usage() to avoid duplicating
+ * the list of emitters.
+ *
+ * @param[in] f Output stream.  Not NULL.
+ */
+void emit_print_usage (FILE *f);
+
+/*!
+ * @brief Emit the "Modes:" lines for every emitter.
+ *
+ * One line per row of emitters[], in table order, of the form
+ * "  -X         <description>".  Used by usage() to avoid
+ * duplicating the list of emitters.
+ *
+ * @param[in] f Output stream.  Not NULL.
+ */
+void emit_print_modes (FILE *f);

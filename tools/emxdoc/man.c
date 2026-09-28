@@ -551,6 +551,12 @@ void man_copy (void)
   int style_sp = 0;
   const struct element *ep;
 
+  if (para_flag)
+    {
+      write_break ();
+      write_line (".PP");
+    }
+
   style_stack[0] = STYLE_NORMAL;
   for (ep = elements; ep->el != EL_END; ++ep)
     {

@@ -56,7 +56,7 @@
  * @def VERSION
  * @brief Version string of emxdoc.
  */
-#define VERSION "0.9d"
+#define VERSION "0.9d-osf"
 
 /*!
  * @brief Hash table of strings.
@@ -309,34 +309,48 @@ uchar *xstrdup (const uchar *s)
 
 
 /*!
+ * @brief Program modes.
+ *
+ * K and M are not emitters: they select a whole-program action
+ * (keywords generation, directory merge) rather than an output
+ * format.  Kept separate from emitters[]; consumed only by
+ * usage().  Terminated by a row with mode 0.
+ */
+static const struct prog_mode
+{
+  char mode;                    /*!< Command-line mode character. */
+  const char *description;      /*!< One-line summary for "Modes:". */
+  const char *usage;            /*!< Argument summary for "Usage:". */
+} program_modes[] = {
+  { 'K', "Generate index file",   "[-o <output>] <input>" },
+  { 'M', "Merge directory files", "[-o <output>] <input>..." },
+  { 0, NULL, NULL }
+};
+
+
+/*!
  * @brief Print usage text and exit.
  */
 static void usage (void)
 {
-  fputs ("emxdoc " VERSION " -- "
-         "Copyright (c) 1993-1999 by Eberhard Mattes\n\n", stderr);
+  int i;
+
+  fputs ("emxdoc " VERSION "\n"
+         "Copyright (c) 1993-1999 Eberhard Mattes\n"
+         "Copyright (c) 2026      osFree Project\n\n", stderr);
+
   fputs ("Usage:\n", stderr);
-  fputs ("  emxdoc -H [-o <output>] [-x <xref>] <input>\n", stderr);
-  fputs ("  emxdoc -T [-fr] [-o <output>] <input>\n", stderr);
-  fputs ("  emxdoc -L [-fr] [-o <output>] <input>\n", stderr);
-  fputs ("  emxdoc -N [-fr] [-o <output>] <input>\n", stderr);
-  fputs ("  emxdoc -G [-fr] [-o <output>] <input>\n", stderr);
-  fputs ("  emxdoc -W [-fr] [-o <output>] <input>\n", stderr);
-  fputs ("  emxdoc -I [-acfgr] [-n <start>] [-o <output>] [-x <xref>] <input>\n", stderr);
-  fputs ("  emxdoc -K [-o <output>] <input>\n", stderr);
-  fputs ("  emxdoc -M [-o <output>] <input>...\n", stderr);
-  fputs ("  emxdoc -E [-i <in>] [-j <out>] [-o <output>] <input>\n", stderr);
+  emit_print_usage (stderr);
+  for (i = 0; program_modes[i].mode != 0; ++i)
+    fprintf (stderr, "  emxdoc -%c %s\n",
+             program_modes[i].mode, program_modes[i].usage);
+
   fputs ("\nModes:\n\n", stderr);
-  fputs ("  -E         Generate emxdoc (source) file\n", stderr);
-  fputs ("  -H         Generate HTML file\n", stderr);
-  fputs ("  -I         Generate IPF file\n", stderr);
-  fputs ("  -K         Generate index file\n", stderr);
-  fputs ("  -L         Generate LaTeX file\n", stderr);
-  fputs ("  -M         Merge directory files\n", stderr);
-  fputs ("  -N         Generate man (roff) page\n", stderr);
-  fputs ("  -G         Generate Markdown file\n", stderr);
-  fputs ("  -T         Generate text file\n", stderr);
-  fputs ("  -W         Generate DokuWiki file\n", stderr);
+  emit_print_modes (stderr);
+  for (i = 0; program_modes[i].mode != 0; ++i)
+    fprintf (stderr, "  -%c         %s\n",
+             program_modes[i].mode, program_modes[i].description);
+
   fputs ("\nOptions:\n\n", stderr);
   fputs ("  -a         Concatenate instead of call .INF files\n", stderr);
   fputs ("  -b<number> Select line breaking algorithm for -t\n", stderr);
@@ -346,6 +360,7 @@ static void usage (void)
   fputs ("  -g         Gather global directory data\n", stderr);
   fputs ("  -h<file>   Use hyphenation table\n", stderr);
   fputs ("  -i<enc>    Select input encoding\n", stderr);
+  fputs ("  -j<enc>    Select output encoding\n", stderr);
   fputs ("  -n<start>  Set first ID number\n", stderr);
   fputs ("  -o<output> Set output file name\n", stderr);
   fputs ("  -r         Make output file read-only\n", stderr);

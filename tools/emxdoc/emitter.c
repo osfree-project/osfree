@@ -242,8 +242,9 @@ static void noop_hyphenation (const char *name)
 /*!
  * @brief All known emitters, terminated by a row with a NULL name.
  *
- * Each row has exactly 43 values: 3 data fields followed by 40
- * function pointers, in the same order as struct emitter.
+ * Each row has exactly 47 values: 7 data fields followed by 40
+ * function pointers, in the same order as struct emitter.  The
+ * description and usage strings are consumed only by usage().
  */
 static struct emitter emitters[] = {
 
@@ -252,8 +253,11 @@ static struct emitter emitters[] = {
   /* ------------------------------------------------------------- */
   {
     "ipf", 'I',
-    EMIT_FLAG_NO_OUTPUT_IF_G | EMIT_FLAG_COLOR | EMIT_FLAG_XREF | EMIT_FLAG_FIXED_ENCODING,
+    EMIT_FLAG_NO_OUTPUT_IF_G | EMIT_FLAG_COLOR | EMIT_FLAG_XREF
+      | EMIT_FLAG_FIXED_ENCODING,
     250, ENC_CP850,
+    "Generate IPF file",
+    "[-acfgr] [-n <start>] [-o <output>] [-x <xref>] <input>",
     ipf_start, ipf_end,
     ipf_output,
     noop_v, noop_v,
@@ -282,6 +286,8 @@ static struct emitter emitters[] = {
     "html", 'H',
     EMIT_FLAG_LINK_HPT | EMIT_FLAG_XREF | EMIT_FLAG_FIXED_ENCODING,
     4096, ENC_ISO8859_1,
+    "Generate HTML file",
+    "[-o <output>] [-x <xref>] <input>",
     html_start, html_end,
     html_output,
     html_start_hilite, html_end_hilite,
@@ -309,6 +315,8 @@ static struct emitter emitters[] = {
   /* ------------------------------------------------------------- */
   {
     "latex", 'L', EMIT_FLAG_SOFT_REFS, 4096, ENC_DEFAULT,
+    "Generate LaTeX file",
+    "[-fr] [-o <output>] <input>",
     latex_start, latex_end,
     latex_output,
     latex_start_hilite, latex_end_hilite,
@@ -335,7 +343,10 @@ static struct emitter emitters[] = {
   /*  text                                                         */
   /* ------------------------------------------------------------- */
   {
-    "text", 'T', EMIT_FLAG_TEXT_STYLE | EMIT_FLAG_SOFT_REFS, 79, ENC_DEFAULT,
+    "text", 'T', EMIT_FLAG_TEXT_STYLE | EMIT_FLAG_SOFT_REFS,
+    79, ENC_DEFAULT,
+    "Generate text file",
+    "[-fr] [-b <number>] [-h <file>] [-o <output>] <input>",
     noop_v, noop_v,
     text_output,
     noop_v, noop_v,
@@ -363,6 +374,8 @@ static struct emitter emitters[] = {
   /* ------------------------------------------------------------- */
   {
     "man", 'N', EMIT_FLAG_COLOR | EMIT_FLAG_XREF, 4096, ENC_DEFAULT,
+    "Generate man (roff) page",
+    "[-cfgr] [-o <output>] [-x <xref>] <input>",
     man_start, man_end,
     man_output,
     man_start_hilite, man_end_hilite,
@@ -389,6 +402,8 @@ static struct emitter emitters[] = {
   /* ------------------------------------------------------------- */
   {
     "ed", 'E', 0, 4096, ENC_DEFAULT,
+    "Generate emxdoc (source) file",
+    "[-r] [-o <output>] <input>",
     ed_start, ed_end,
     ed_output,
     ed_start_hilite, ed_end_hilite,
@@ -415,6 +430,8 @@ static struct emitter emitters[] = {
   /* ------------------------------------------------------------- */
   {
     "md", 'G', EMIT_FLAG_COLOR | EMIT_FLAG_XREF, 4096, ENC_ISO8859_1,
+    "Generate Markdown file",
+    "[-cfgr] [-o <output>] [-x <xref>] <input>",
     md_start, md_end,
     md_output,
     md_start_hilite, md_end_hilite,
@@ -441,6 +458,8 @@ static struct emitter emitters[] = {
   /* ------------------------------------------------------------- */
   {
     "dw", 'W', EMIT_FLAG_COLOR | EMIT_FLAG_XREF, 4096, ENC_ISO8859_1,
+    "Generate DokuWiki file",
+    "[-cfgr] [-o <output>] [-x <xref>] <input>",
     dw_start, dw_end,
     dw_output,
     dw_start_hilite, dw_end_hilite,
@@ -466,7 +485,7 @@ static struct emitter emitters[] = {
   /*  Terminator                                                   */
   /* ------------------------------------------------------------- */
   {
-    NULL, 0, 0, 0, 0,
+    NULL, 0, 0, 0, 0, NULL, NULL,
     NULL, NULL, NULL,
     NULL, NULL,
     NULL, NULL,
@@ -489,7 +508,7 @@ static struct emitter emitters[] = {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Lookup                                                            */
+/*  Lookup and usage helpers                                          */
 /* ------------------------------------------------------------------ */
 
 /*!
@@ -529,4 +548,32 @@ void emit_mode_string (char *buf, size_t size)
       buf[n++] = emitters[i].mode;
     }
   buf[n] = 0;
+}
+
+/*!
+ * @brief Emit the "Usage:" lines for every emitter.
+ *
+ * @param[in] f Output stream.  Not NULL.
+ */
+void emit_print_usage (FILE *f)
+{
+  int i;
+
+  for (i = 0; emitters[i].name != NULL; ++i)
+    fprintf (f, "  emxdoc -%c %s\n",
+             emitters[i].mode, emitters[i].usage);
+}
+
+/*!
+ * @brief Emit the "Modes:" lines for every emitter.
+ *
+ * @param[in] f Output stream.  Not NULL.
+ */
+void emit_print_modes (FILE *f)
+{
+  int i;
+
+  for (i = 0; emitters[i].name != NULL; ++i)
+    fprintf (f, "  -%c         %s\n",
+             emitters[i].mode, emitters[i].summary);
 }
