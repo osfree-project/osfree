@@ -1,0 +1,53 @@
+/* optparsh.gh - generated from cmt.txt */
+#ifndef OPTPARSH_GH
+#define OPTPARSH_GH
+
+/*
+ * Singly-linked list of strings.  Used for options which may be given
+ * more than once.
+ */
+typedef struct OPT_STRING {
+    struct OPT_STRING * next;
+    char                data[1];
+} OPT_STRING;
+
+/*
+ * Storage for all command-line options.
+ * Field order follows the order of :option. macros in cmt.txt.
+ */
+typedef struct OPT_STORAGE {
+    int             t010101010101;
+    OPT_STRING *    t010101010101_value;
+    int             A;
+    int             B;
+    int             C;
+    int             D;
+    int             E;
+    int             F;
+    OPT_STRING *    F_value;
+    int             HELP;
+    int             _;                  /* "?" option */
+    int             I;
+    int             K;
+    int             L;
+    int             N;
+    int             noinvoke;
+    int             NOLOGO;
+    int             P;
+    int             Q;
+    int             R;
+    int             S;
+    int             T;
+    int             U;
+    int             Y;
+    int             X;
+    OPT_STRING *    X_value;
+    int             nowwarn;
+    int             nowopts;
+    int             passwopts;
+    OPT_STRING *    passwopts_value;
+    int             showwopts;
+    int             verbose;
+} OPT_STORAGE;
+
+#endif /* OPTPARSH_GH */

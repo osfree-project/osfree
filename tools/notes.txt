@@ -35,9 +35,9 @@ bin\
 	mkmsgf.exe			Clone by MKGreene (mostly implemented)
 	mktmpf.exe
 	msgbind.exe			Write tool
-	nmake.exe			Write wrapper?
+	nmake.exe			Clone by Open Watcom (mostly implemented)
 	nmake32.exe			Write wrapper?
-	os2stub.exe			cloned
+	os2stub.exe			Cloned
 	p2string.exe
 	pack.exe
 	pack2.exe

@@ -1,0 +1,176 @@
+/* optparsc.gh - generated from cmt.txt
+ *
+ * Included at the end of parse.c, after all static option handlers and
+ * helper routines have been declared.
+ */
+
+/*
+ * Match the next characters in the current context against name,
+ * case-insensitively.  On success, the position is advanced past the
+ * matched text.  On failure, the position is left unchanged.
+ */
+static int opt_match( const char *name )
+{
+    int start = GetPosContext();
+    int i;
+    int ch;
+
+    for( i = 0; name[i] != '\0'; i++ ) {
+        ch = OPT_GET_LOWER();
+        if( ch != tolower( (unsigned char)name[i] ) ) {
+            SetPosContext( start );
+            return( 0 );
+        }
+    }
+    return( 1 );
+}
+
+
+/*
+ * Initialize option storage.
+ */
+void OPT_INIT( OPT_STORAGE *cmdOpts )
+{
+    memset( cmdOpts, 0, sizeof( *cmdOpts ) );
+}
+
+
+/*
+ * Release any memory held by the option storage.
+ */
+void OPT_FINI( OPT_STORAGE *cmdOpts )
+{
+    OPT_CLEAN_STRING( &cmdOpts->t010101010101_value );
+    OPT_CLEAN_STRING( &cmdOpts->F_value );
+    OPT_CLEAN_STRING( &cmdOpts->X_value );
+    OPT_CLEAN_STRING( &cmdOpts->passwopts_value );
+}
+
+
+/*
+ * Parse the next option.  The leading '-' or '/' has already been consumed
+ * by the caller.  Return 0 on success, non-zero if the option is not
+ * recognized or is malformed.
+ */
+int OPT_PROCESS( OPT_STORAGE *cmdOpts )
+{
+    /*** Long-named options first.  They may share prefixes with
+         single-letter flags (e.g. NOLOGO vs. N). ***/
+    if( opt_match( "HELP" ) ) {
+        cmdOpts->HELP = 1;
+        return( 0 );
+    }
+    if( opt_match( "noinvoke" ) ) {
+        cmdOpts->noinvoke = 1;
+        return( 0 );
+    }
+    if( opt_match( "NOLOGO" ) ) {
+        cmdOpts->NOLOGO = 1;
+        return( 0 );
+    }
+    if( opt_match( "nowwarn" ) ) {
+        cmdOpts->nowwarn = 1;
+        handle_nowwarn( cmdOpts, 0 );
+        return( 0 );
+    }
+    if( opt_match( "nowopts" ) ) {
+        cmdOpts->nowopts = 1;
+        return( 0 );
+    }
+    if( opt_match( "passwopts" ) ) {
+        cmdOpts->passwopts = 1;
+        return( parse_passwopts( &cmdOpts->passwopts_value ) ? 0 : 1 );
+    }
+    if( opt_match( "showwopts" ) ) {
+        cmdOpts->showwopts = 1;
+        return( 0 );
+    }
+    if( opt_match( "verbose" ) ) {
+        cmdOpts->verbose = 1;
+        return( 0 );
+    }
+
+    /*** Options that take an argument ***/
+    if( opt_match( "F" ) ) {
+        cmdOpts->F = 1;
+        return( parse_F( &cmdOpts->F_value ) ? 0 : 1 );
+    }
+    if( opt_match( "X" ) ) {
+        cmdOpts->X = 1;
+        return( parse_X( &cmdOpts->X_value ) ? 0 : 1 );
+    }
+
+    /*** "?" — display usage message ***/
+    if( opt_match( "?" ) ) {
+        cmdOpts->_ = 1;
+        return( 0 );
+    }
+
+    /*** Combining single-letter flags ***/
+    if( opt_match( "A" ) ) {
+        cmdOpts->A = 1;
+        return( parse_combining( cmdOpts, 'A' ) ? 0 : 1 );
+    }
+    if( opt_match( "B" ) ) {
+        cmdOpts->B = 1;
+        return( parse_combining( cmdOpts, 'B' ) ? 0 : 1 );
+    }
+    if( opt_match( "C" ) ) {
+        cmdOpts->C = 1;
+        return( parse_combining( cmdOpts, 'C' ) ? 0 : 1 );
+    }
+    if( opt_match( "D" ) ) {
+        cmdOpts->D = 1;
+        return( parse_combining( cmdOpts, 'D' ) ? 0 : 1 );
+    }
+    if( opt_match( "E" ) ) {
+        cmdOpts->E = 1;
+        return( parse_combining( cmdOpts, 'E' ) ? 0 : 1 );
+    }
+    if( opt_match( "I" ) ) {
+        cmdOpts->I = 1;
+        return( parse_combining( cmdOpts, 'I' ) ? 0 : 1 );
+    }
+    if( opt_match( "K" ) ) {
+        cmdOpts->K = 1;
+        return( parse_combining( cmdOpts, 'K' ) ? 0 : 1 );
+    }
+    if( opt_match( "L" ) ) {
+        cmdOpts->L = 1;
+        return( parse_combining( cmdOpts, 'L' ) ? 0 : 1 );
+    }
+    if( opt_match( "N" ) ) {
+        cmdOpts->N = 1;
+        return( parse_combining( cmdOpts, 'N' ) ? 0 : 1 );
+    }
+    if( opt_match( "P" ) ) {
+        cmdOpts->P = 1;
+        return( parse_combining( cmdOpts, 'P' ) ? 0 : 1 );
+    }
+    if( opt_match( "Q" ) ) {
+        cmdOpts->Q = 1;
+        return( parse_combining( cmdOpts, 'Q' ) ? 0 : 1 );
+    }
+    if( opt_match( "R" ) ) {
+        cmdOpts->R = 1;
+        return( parse_combining( cmdOpts, 'R' ) ? 0 : 1 );
+    }
+    if( opt_match( "S" ) ) {
+        cmdOpts->S = 1;
+        return( parse_combining( cmdOpts, 'S' ) ? 0 : 1 );
+    }
+    if( opt_match( "T" ) ) {
+        cmdOpts->T = 1;
+        return( parse_combining( cmdOpts, 'T' ) ? 0 : 1 );
+    }
+    if( opt_match( "U" ) ) {
+        cmdOpts->U = 1;
+        return( parse_combining( cmdOpts, 'U' ) ? 0 : 1 );
+    }
+    if( opt_match( "Y" ) ) {
+        cmdOpts->Y = 1;
+        return( parse_combining( cmdOpts, 'Y' ) ? 0 : 1 );
+    }
+
+    return( 1 );            /* unrecognized option */
+}
