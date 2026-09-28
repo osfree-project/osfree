@@ -271,6 +271,7 @@ static int cond_factor (void)
       if (ct_token != CTOK_RPAR)
         fatal ("%s:%d: Missing right parenthesis in condition expression",
                input_fname, line_no);
+      cond_fetch ();
       break;
 
     case CTOK_END:
