@@ -29,9 +29,13 @@
 /*!
  * @brief Emitter flags controlling mode-specific behaviour.
  */
-#define EMIT_FLAG_TEXT_STYLE   0x0001
-#define EMIT_FLAG_LINK_HPT     0x0002
-#define EMIT_FLAG_SOFT_REFS    0x0004
+#define EMIT_FLAG_TEXT_STYLE     0x0001
+#define EMIT_FLAG_LINK_HPT       0x0002
+#define EMIT_FLAG_SOFT_REFS      0x0004
+#define EMIT_FLAG_NO_OUTPUT_IF_G 0x0008
+#define EMIT_FLAG_COLOR          0x0010
+#define EMIT_FLAG_XREF           0x0020
+#define EMIT_FLAG_FIXED_ENCODING 0x0040
 
 /*!
  * @brief One output format.
@@ -48,6 +52,8 @@ struct emitter
   const char *name;             /*!< Format name for diagnostics. */
   char mode;                    /*!< Command-line mode character. */
   unsigned int flags;           /*!< EMIT_FLAG_* bits. */
+  int max_width;                /*!< Maximum output line width. */
+  enum enc output_encoding;     /*!< Encoding or ENC_DEFAULT. */
 
   /*! @brief Emit document prologue. */
   void (*start)   (void);
@@ -257,3 +263,15 @@ EXTERN struct emitter *bd INIT (NULL);
  * @return Pointer to the emitter, or NULL if unknown.
  */
 struct emitter *emit_find (char mode);
+
+/*!
+ * @brief Write every emitter mode character into @p buf.
+ *
+ * Produces one character per row of emitters[], in table order,
+ * followed by a NUL.  Used by main() to build the getopt()
+ * option string without duplicating the list of emitters.
+ *
+ * @param[out] buf  Destination buffer.  Not NULL.
+ * @param[in]  size Size of @p buf in bytes.  Must be > 0.
+ */
+void emit_mode_string (char *buf, size_t size);

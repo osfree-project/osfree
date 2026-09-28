@@ -251,7 +251,9 @@ static struct emitter emitters[] = {
   /*  IPF                                                          */
   /* ------------------------------------------------------------- */
   {
-    "ipf", 'I', 0,
+    "ipf", 'I',
+    EMIT_FLAG_NO_OUTPUT_IF_G | EMIT_FLAG_COLOR | EMIT_FLAG_XREF | EMIT_FLAG_FIXED_ENCODING,
+    250, ENC_CP850,
     ipf_start, ipf_end,
     ipf_output,
     noop_v, noop_v,
@@ -277,7 +279,9 @@ static struct emitter emitters[] = {
   /*  HTML                                                         */
   /* ------------------------------------------------------------- */
   {
-    "html", 'H', EMIT_FLAG_LINK_HPT,
+    "html", 'H',
+    EMIT_FLAG_LINK_HPT | EMIT_FLAG_XREF | EMIT_FLAG_FIXED_ENCODING,
+    4096, ENC_ISO8859_1,
     html_start, html_end,
     html_output,
     html_start_hilite, html_end_hilite,
@@ -304,7 +308,7 @@ static struct emitter emitters[] = {
   /*  LaTeX                                                        */
   /* ------------------------------------------------------------- */
   {
-    "latex", 'L', EMIT_FLAG_SOFT_REFS,
+    "latex", 'L', EMIT_FLAG_SOFT_REFS, 4096, ENC_DEFAULT,
     latex_start, latex_end,
     latex_output,
     latex_start_hilite, latex_end_hilite,
@@ -331,7 +335,7 @@ static struct emitter emitters[] = {
   /*  text                                                         */
   /* ------------------------------------------------------------- */
   {
-    "text", 'T', EMIT_FLAG_TEXT_STYLE | EMIT_FLAG_SOFT_REFS,
+    "text", 'T', EMIT_FLAG_TEXT_STYLE | EMIT_FLAG_SOFT_REFS, 79, ENC_DEFAULT,
     noop_v, noop_v,
     text_output,
     noop_v, noop_v,
@@ -358,7 +362,7 @@ static struct emitter emitters[] = {
   /*  man                                                          */
   /* ------------------------------------------------------------- */
   {
-    "man", 'N', 0,
+    "man", 'N', EMIT_FLAG_COLOR | EMIT_FLAG_XREF, 4096, ENC_DEFAULT,
     man_start, man_end,
     man_output,
     man_start_hilite, man_end_hilite,
@@ -384,7 +388,7 @@ static struct emitter emitters[] = {
   /*  emxdoc                                                       */
   /* ------------------------------------------------------------- */
   {
-    "ed", 'E', 0,
+    "ed", 'E', 0, 4096, ENC_DEFAULT,
     ed_start, ed_end,
     ed_output,
     ed_start_hilite, ed_end_hilite,
@@ -410,7 +414,7 @@ static struct emitter emitters[] = {
   /*  Markdown                                                     */
   /* ------------------------------------------------------------- */
   {
-    "md", 'G', 0,
+    "md", 'G', EMIT_FLAG_COLOR | EMIT_FLAG_XREF, 4096, ENC_ISO8859_1,
     md_start, md_end,
     md_output,
     md_start_hilite, md_end_hilite,
@@ -436,7 +440,7 @@ static struct emitter emitters[] = {
   /*  DokuWiki                                                     */
   /* ------------------------------------------------------------- */
   {
-    "dw", 'W', 0,
+    "dw", 'W', EMIT_FLAG_COLOR | EMIT_FLAG_XREF, 4096, ENC_ISO8859_1,
     dw_start, dw_end,
     dw_output,
     dw_start_hilite, dw_end_hilite,
@@ -462,7 +466,7 @@ static struct emitter emitters[] = {
   /*  Terminator                                                   */
   /* ------------------------------------------------------------- */
   {
-    NULL, 0, 0,
+    NULL, 0, 0, 0, 0,
     NULL, NULL, NULL,
     NULL, NULL,
     NULL, NULL,
@@ -503,4 +507,26 @@ struct emitter *emit_find (char mode)
     if (emitters[i].mode == mode)
       return &emitters[i];
   return NULL;
+}
+
+/*!
+ * @brief Write every emitter mode character into @p buf.
+ *
+ * @param[out] buf  Destination buffer.  Not NULL.
+ * @param[in]  size Size of @p buf in bytes.  Must be > 0.
+ */
+void emit_mode_string (char *buf, size_t size)
+{
+  int i;
+  size_t n = 0;
+
+  if (size == 0)
+    return;
+  for (i = 0; emitters[i].name != NULL; ++i)
+    {
+      if (n + 1 >= size)
+        fatal ("Emitter mode string overflow");
+      buf[n++] = emitters[i].mode;
+    }
+  buf[n] = 0;
 }

@@ -2747,27 +2747,19 @@ static enum enc opt_encoding (void)
 int main (int argc, char *argv[])
 {
   int c, i;
+  char modes[16];
+  char optstring[48];
 
   init ();
 
-  while ((c = getopt (argc, argv,
-                      ":?EGHIKLMNTWab:ce:fgh:i:j:n:o:rw:x:")) != EOF)
+  emit_mode_string (modes, sizeof (modes));
+  sprintf (optstring, ":?%sKMab:ce:fgh:i:j:n:o:rw:x:", modes);
+
+  while ((c = getopt (argc, argv, optstring)) != EOF)
     switch (c)
       {
       case '?':
         usage ();
-      case 'E':
-      case 'G':
-      case 'H':
-      case 'I':
-      case 'K':
-      case 'L':
-      case 'M':
-      case 'N':
-      case 'T':
-      case 'W':
-        mode = (char)c;
-        break;
       case 'a':
         opt_a = TRUE;
         break;
@@ -2823,19 +2815,31 @@ int main (int argc, char *argv[])
       case ':':
         fatal ("Missing argument for option -%c", optopt);
       default:
-        fatal ("Invalid option: -%c", optopt);
+        if (emit_find ((char)c) != NULL || c == 'K' || c == 'M')
+          mode = (char)c;
+        else
+          fatal ("Invalid option: -%c", optopt);
       }
 
   if (mode == 0)
     usage ();
-  if (mode != 'I' && mode != 'N' && mode != 'G' && mode != 'W'
-      && (opt_c || opt_g))
+
+  /* Select the emitter for the chosen mode. */
+  if (mode != 'K' && mode != 'M')
+    {
+      bd = emit_find (mode);
+      if (bd == NULL)
+        usage ();
+    }
+
+  if (bd != NULL && !(bd->flags & EMIT_FLAG_COLOR) && (opt_c || opt_g))
     usage ();
-  if (mode != 'I' && mode != 'H' && mode != 'N'
-      && mode != 'G' && mode != 'W' && xref_fname != NULL)
+  if (bd != NULL && !(bd->flags & EMIT_FLAG_XREF) && xref_fname != NULL)
     usage ();
-  if ((mode == 'H' || mode == 'I') && output_encoding != ENC_DEFAULT)
-    warning (0, "Output encoding ignored for -H and -I");
+  if (bd != NULL && (bd->flags & EMIT_FLAG_FIXED_ENCODING)
+      && output_encoding != ENC_DEFAULT)
+    warning (0, "Output encoding ignored for this mode");
+
 
   argv += optind;
   argc -= optind;
@@ -2845,67 +2849,22 @@ int main (int argc, char *argv[])
 
   atexit (cleanup);
 
-  /* Select the emitter for the chosen mode. */
-  bd = emit_find (mode);
-  if (bd == NULL)
-    usage ();
-
-  switch (mode)
+  if (mode == 'K' || mode == 'M')
     {
-    case 'T':
-      max_width = 79;
-      output_flag = TRUE;
-      if (hyphenation_fname != NULL)
-        bd->hyphenation (hyphenation_fname);
-      if (output_encoding == ENC_DEFAULT)
-        output_encoding = input_encoding;
-      break;
-    case 'I':
-      max_width = 250;
-      output_flag = !opt_g;
-      output_encoding = ENC_CP850;
-      break;
-    case 'H':
-      max_width = 4096;
-      output_flag = TRUE;
-      output_encoding = ENC_ISO8859_1;
-      break;
-    case 'L':
-      max_width = 4096;
-      output_flag = TRUE;
-      if (output_encoding == ENC_DEFAULT)
-        output_encoding = input_encoding;
-      break;
-    case 'N':
-      max_width = 4096;
-      output_flag = TRUE;
-      if (output_encoding == ENC_DEFAULT)
-        output_encoding = input_encoding;
-      break;
-    case 'E':
-      max_width = 4096;
-      output_flag = TRUE;
-      if (output_encoding == ENC_DEFAULT)
-        output_encoding = input_encoding;
-      break;
-    case 'G':
-      max_width = 4096;
-      output_flag = TRUE;
-      output_encoding = ENC_ISO8859_1;
-      break;
-    case 'W':
-      max_width = 4096;
-      output_flag = TRUE;
-      output_encoding = ENC_ISO8859_1;
-      break;
-    case 'K':
-    case 'M':
       output_flag = FALSE;
       if (output_encoding == ENC_DEFAULT)
         output_encoding = input_encoding;
-      break;
-    default:
-      abort ();
+    }
+  else
+    {
+      max_width = bd->max_width;
+      output_flag = !(opt_g && (bd->flags & EMIT_FLAG_NO_OUTPUT_IF_G));
+      if (bd->output_encoding != ENC_DEFAULT)
+        output_encoding = bd->output_encoding;
+      else if (output_encoding == ENC_DEFAULT)
+        output_encoding = input_encoding;
+      if (hyphenation_fname != NULL)
+        bd->hyphenation (hyphenation_fname);
     }
 
   if (output_fname == NULL)
@@ -2930,19 +2889,6 @@ int main (int argc, char *argv[])
 
   switch (mode)
     {
-    case 'E':
-    case 'G':
-    case 'H':
-    case 'I':
-    case 'N':
-    case 'T':
-    case 'L':
-    case 'W':
-      out = FALSE;
-      read_file (argv[0]);
-      out = TRUE;
-      read_file (argv[0]);
-      break;
     case 'K':
       keywords_start (argv[0]);
       out = FALSE;
@@ -2955,6 +2901,12 @@ int main (int argc, char *argv[])
       out = TRUE;
       for (i = 0; i < argc; ++i)
         make_global (argv[i]);
+      break;
+    default:
+      out = FALSE;
+      read_file (argv[0]);
+      out = TRUE;
+      read_file (argv[0]);
       break;
     }
 
