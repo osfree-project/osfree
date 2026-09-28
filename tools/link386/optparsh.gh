@@ -1,0 +1,103 @@
+/* optparsh.gh - hand-written replacement for GML-generated header */
+#ifndef OPTPARSH_GH
+#define OPTPARSH_GH
+
+/*
+ * Singly-linked list of strings, used for options which may be given more
+ * than once (COMMENT, EXPORT, INCLUDE, DEFAULTLIB, PASSWOPTS, ...).
+ */
+typedef struct OPT_STRING {
+    struct OPT_STRING * next;
+    char                data[1];
+} OPT_STRING;
+
+/*
+ * Values for /OPT:REF and /OPT:NOREF.
+ */
+typedef enum {
+    OPT_opt_level_optref,
+    OPT_opt_level_optnoref
+} OPT_opt_level;
+
+/*
+ * Storage for all command-line options.
+ * For each /OPTION there is a flag <name> and, if the option accepts an
+ * argument, a pointer <name>_value to an OPT_STRING list.
+ */
+typedef struct OPT_STORAGE {
+    int             _10x;
+    int             align;
+    unsigned        align_value;
+    int             base;
+    OPT_STRING *    base_value;
+    int             comment;
+    OPT_STRING *    comment_value;
+    int             debug;
+    OPT_STRING *    debug_value;
+    int             debugtype;
+    OPT_STRING *    debugtype_value;
+    int             def;
+    OPT_STRING *    def_value;
+    int             defaultlib;
+    OPT_STRING *    defaultlib_value;
+    int             dll;
+    int             entry;
+    OPT_STRING *    entry_value;
+    int             exetype;
+    OPT_STRING *    exetype_value;
+    int             export;
+    OPT_STRING *    export_value;
+    int             fixed;
+    int             forcemultiple;
+    int             forceundefined;
+    int             heap;
+    OPT_STRING *    heap_value;
+    int             implib;
+    OPT_STRING *    implib_value;
+    int             include;
+    OPT_STRING *    include_value;
+    int             incremental;
+    OPT_STRING *    incremental_value;
+    int             internaldllname;
+    OPT_STRING *    internaldllname_value;
+    int             machine;
+    OPT_STRING *    machine_value;
+    int             map;
+    OPT_STRING *    map_value;
+    int             nodefaultlib;
+    int             noentry;
+    int             nofuzzy;
+    int             noinvoke;
+    int             nologo;
+    OPT_opt_level   opt_level;
+    int             order;
+    OPT_STRING *    order_value;
+    int             out;
+    OPT_STRING *    out_value;
+    int             pdb;
+    OPT_STRING *    pdb_value;
+    int             profile;
+    int             release;
+    int             section;
+    OPT_STRING *    section_value;
+    int             showwopts;
+    int             passwopts;
+    OPT_STRING *    passwopts_value;
+    int             nowopts;
+    int             nowref;
+    int             nowwarn;
+    int             stack;
+    OPT_STRING *    stack_value;
+    int             stub;
+    OPT_STRING *    stub_value;
+    int             subsystem;
+    OPT_STRING *    subsystem_value;
+    int             verbose;
+    int             version;
+    OPT_STRING *    version_value;
+    int             vxd;
+    int             warn;
+    unsigned        warn_value;
+} OPT_STORAGE;
+
+#endif /* OPTPARSH_GH */

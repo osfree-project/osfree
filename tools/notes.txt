@@ -26,7 +26,7 @@ bin\
 	kifsmon.exe
 	kiiface.exe
 	kwikinf.exe
-	link386.exe			? reuse Watcom Link
+	link386.exe			Clone by Open Watcom (mostly implemented)
 	mapsym.exe
 	markexe.exe
 	masm2alp.exe
@@ -41,7 +41,7 @@ bin\
 	p2string.exe
 	pack.exe
 	pack2.exe
-	rc.exe
+	rc.exe				? reuse Watcom?
 	rc16.exe
 	rcpp.err
 	rcpp.exe

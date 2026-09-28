@@ -1,0 +1,285 @@
+/* optparsc.gh - hand-written replacement for GML-generated parser.
+ *
+ * This file is #included at the end of parse.c, after all of the static
+ * option handlers and helper routines have been declared.
+ */
+
+/*
+ * Try to match the next characters in the current context against name
+ * (case-insensitively).  On success, position is advanced past the matched
+ * text; on failure, the position is left unchanged.
+ */
+static int opt_match( const char *name )
+{
+    int                 start = GetPosContext();
+    int                 i;
+    int                 ch;
+
+    for( i = 0; name[i] != '\0'; i++ ) {
+        ch = OPT_GET_LOWER();
+        if( ch != (int)tolower( (unsigned char)name[i] ) ) {
+            SetPosContext( start );
+            return( 0 );
+        }
+    }
+    return( 1 );
+}
+
+
+/*
+ * Initialize option storage.
+ */
+void OPT_INIT( OPT_STORAGE *cmdOpts )
+{
+    memset( cmdOpts, 0, sizeof( *cmdOpts ) );
+}
+
+
+/*
+ * Release any memory held by the option storage.
+ */
+void OPT_FINI( OPT_STORAGE *cmdOpts )
+{
+    OPT_CLEAN_STRING( &cmdOpts->base_value );
+    OPT_CLEAN_STRING( &cmdOpts->comment_value );
+    OPT_CLEAN_STRING( &cmdOpts->debug_value );
+    OPT_CLEAN_STRING( &cmdOpts->debugtype_value );
+    OPT_CLEAN_STRING( &cmdOpts->def_value );
+    OPT_CLEAN_STRING( &cmdOpts->defaultlib_value );
+    OPT_CLEAN_STRING( &cmdOpts->entry_value );
+    OPT_CLEAN_STRING( &cmdOpts->exetype_value );
+    OPT_CLEAN_STRING( &cmdOpts->export_value );
+    OPT_CLEAN_STRING( &cmdOpts->heap_value );
+    OPT_CLEAN_STRING( &cmdOpts->implib_value );
+    OPT_CLEAN_STRING( &cmdOpts->include_value );
+    OPT_CLEAN_STRING( &cmdOpts->incremental_value );
+    OPT_CLEAN_STRING( &cmdOpts->internaldllname_value );
+    OPT_CLEAN_STRING( &cmdOpts->machine_value );
+    OPT_CLEAN_STRING( &cmdOpts->map_value );
+    OPT_CLEAN_STRING( &cmdOpts->order_value );
+    OPT_CLEAN_STRING( &cmdOpts->out_value );
+    OPT_CLEAN_STRING( &cmdOpts->passwopts_value );
+    OPT_CLEAN_STRING( &cmdOpts->pdb_value );
+    OPT_CLEAN_STRING( &cmdOpts->section_value );
+    OPT_CLEAN_STRING( &cmdOpts->stack_value );
+    OPT_CLEAN_STRING( &cmdOpts->stub_value );
+    OPT_CLEAN_STRING( &cmdOpts->subsystem_value );
+    OPT_CLEAN_STRING( &cmdOpts->version_value );
+}
+
+
+/*
+ * Parse the next option.  The leading '-' or '/' has already been consumed
+ * by the caller.  Return 0 on success, non-zero if the option is not
+ * recognized or is malformed.
+ */
+int OPT_PROCESS( OPT_STORAGE *cmdOpts )
+{
+    /*** Options with a colon-separated sub-keyword ***/
+    if( opt_match( "force:multiple" ) ) {
+        cmdOpts->forcemultiple = 1;
+        return( 0 );
+    }
+    if( opt_match( "force:undefined" ) ) {
+        cmdOpts->forceundefined = 1;
+        return( 0 );
+    }
+    if( opt_match( "opt:ref" ) ) {
+        cmdOpts->opt_level = OPT_opt_level_optref;
+        return( 0 );
+    }
+    if( opt_match( "opt:noref" ) ) {
+        cmdOpts->opt_level = OPT_opt_level_optnoref;
+        return( 0 );
+    }
+
+    /*** Options that take a special argument ***/
+    if( opt_match( "internaldllname_" ) ) {
+        cmdOpts->internaldllname = 1;
+        return( parse_internaldllname_( &cmdOpts->internaldllname_value ) ? 0 : 1 );
+    }
+    if( opt_match( "defaultlib" ) ) {
+        cmdOpts->defaultlib = 1;
+        return( parse_defaultlib( &cmdOpts->defaultlib_value ) ? 0 : 1 );
+    }
+    if( opt_match( "debugtype" ) ) {
+        cmdOpts->debugtype = 1;
+        return( parse_debugtype( &cmdOpts->debugtype_value ) ? 0 : 1 );
+    }
+    if( opt_match( "incremental" ) ) {
+        cmdOpts->incremental = 1;
+        return( parse_incremental( &cmdOpts->incremental_value ) ? 0 : 1 );
+    }
+    if( opt_match( "passwopts" ) ) {
+        cmdOpts->passwopts = 1;
+        return( parse_passwopts( &cmdOpts->passwopts_value ) ? 0 : 1 );
+    }
+    if( opt_match( "subsystem" ) ) {
+        cmdOpts->subsystem = 1;
+        return( parse_subsystem( &cmdOpts->subsystem_value ) ? 0 : 1 );
+    }
+    if( opt_match( "comment" ) ) {
+        cmdOpts->comment = 1;
+        return( parse_comment( &cmdOpts->comment_value ) ? 0 : 1 );
+    }
+    if( opt_match( "include" ) ) {
+        cmdOpts->include = 1;
+        return( parse_include( &cmdOpts->include_value ) ? 0 : 1 );
+    }
+    if( opt_match( "version" ) ) {
+        cmdOpts->version = 1;
+        return( parse_version( &cmdOpts->version_value ) ? 0 : 1 );
+    }
+    if( opt_match( "machine" ) ) {
+        cmdOpts->machine = 1;
+        return( parse_machine( &cmdOpts->machine_value ) ? 0 : 1 );
+    }
+    if( opt_match( "section" ) ) {
+        cmdOpts->section = 1;
+        return( parse_section( &cmdOpts->section_value ) ? 0 : 1 );
+    }
+    if( opt_match( "export" ) ) {
+        cmdOpts->export = 1;
+        return( parse_export( &cmdOpts->export_value ) ? 0 : 1 );
+    }
+    if( opt_match( "exetype" ) ) {
+        cmdOpts->exetype = 1;
+        return( parse_exetype( &cmdOpts->exetype_value ) ? 0 : 1 );
+    }
+    if( opt_match( "implib" ) ) {
+        cmdOpts->implib = 1;
+        return( parse_implib( &cmdOpts->implib_value ) ? 0 : 1 );
+    }
+    if( opt_match( "entry" ) ) {
+        cmdOpts->entry = 1;
+        return( parse_entry( &cmdOpts->entry_value ) ? 0 : 1 );
+    }
+    if( opt_match( "debug" ) ) {
+        cmdOpts->debug = 1;
+        if( !parse_debug( &cmdOpts->debug_value ) )  return( 1 );
+        handle_debug( cmdOpts, 0 );
+        return( 0 );
+    }
+    if( opt_match( "order" ) ) {
+        cmdOpts->order = 1;
+        return( parse_order( &cmdOpts->order_value ) ? 0 : 1 );
+    }
+    if( opt_match( "stack" ) ) {
+        cmdOpts->stack = 1;
+        return( parse_stack( &cmdOpts->stack_value ) ? 0 : 1 );
+    }
+    if( opt_match( "stub" ) ) {
+        cmdOpts->stub = 1;
+        return( parse_stub( &cmdOpts->stub_value ) ? 0 : 1 );
+    }
+    if( opt_match( "heap" ) ) {
+        cmdOpts->heap = 1;
+        return( parse_heap( &cmdOpts->heap_value ) ? 0 : 1 );
+    }
+    if( opt_match( "base" ) ) {
+        cmdOpts->base = 1;
+        return( parse_base( &cmdOpts->base_value ) ? 0 : 1 );
+    }
+    if( opt_match( "def" ) ) {
+        cmdOpts->def = 1;
+        return( parse_def( &cmdOpts->def_value ) ? 0 : 1 );
+    }
+    if( opt_match( "out" ) ) {
+        cmdOpts->out = 1;
+        return( parse_out( &cmdOpts->out_value ) ? 0 : 1 );
+    }
+    if( opt_match( "pdb" ) ) {
+        cmdOpts->pdb = 1;
+        return( parse_pdb( &cmdOpts->pdb_value ) ? 0 : 1 );
+    }
+    if( opt_match( "map" ) ) {
+        cmdOpts->map = 1;
+        return( parse_map( &cmdOpts->map_value ) ? 0 : 1 );
+    }
+
+    /*** Numeric options ***/
+    if( opt_match( "align" ) ) {
+        if( OPT_GET_NUMBER( &cmdOpts->align_value ) ) {
+            cmdOpts->align = 1;
+            check_align( &cmdOpts->align_value );
+            return( 0 );
+        }
+        return( 1 );
+    }
+    if( opt_match( "warn" ) ) {
+        if( OPT_GET_NUMBER( &cmdOpts->warn_value ) ) {
+            cmdOpts->warn = 1;
+            return( 0 );
+        }
+        return( 1 );
+    }
+
+    /*** Plain flags ***/
+    if( opt_match( "nodefaultlib" ) ) {
+        cmdOpts->nodefaultlib = 1;
+        return( 0 );
+    }
+    if( opt_match( "noinvoke" ) ) {
+        cmdOpts->noinvoke = 1;
+        return( 0 );
+    }
+    if( opt_match( "noentry" ) ) {
+        cmdOpts->noentry = 1;
+        return( 0 );
+    }
+    if( opt_match( "nofuzzy" ) ) {
+        cmdOpts->nofuzzy = 1;
+        return( 0 );
+    }
+    if( opt_match( "nologo" ) ) {
+        cmdOpts->nologo = 1;
+        return( 0 );
+    }
+    if( opt_match( "nowopts" ) ) {
+        cmdOpts->nowopts = 1;
+        return( 0 );
+    }
+    if( opt_match( "nowref" ) ) {
+        cmdOpts->nowref = 1;
+        return( 0 );
+    }
+    if( opt_match( "nowwarn" ) ) {
+        cmdOpts->nowwarn = 1;
+        handle_nowwarn( cmdOpts, 0 );
+        return( 0 );
+    }
+    if( opt_match( "showwopts" ) ) {
+        cmdOpts->showwopts = 1;
+        return( 0 );
+    }
+    if( opt_match( "profile" ) ) {
+        cmdOpts->profile = 1;
+        return( 0 );
+    }
+    if( opt_match( "release" ) ) {
+        cmdOpts->release = 1;
+        return( 0 );
+    }
+    if( opt_match( "verbose" ) ) {
+        cmdOpts->verbose = 1;
+        return( 0 );
+    }
+    if( opt_match( "fixed" ) ) {
+        cmdOpts->fixed = 1;
+        return( 0 );
+    }
+    if( opt_match( "10x_" ) ) {
+        cmdOpts->_10x = 1;
+        return( 0 );
+    }
+    if( opt_match( "dll" ) ) {
+        cmdOpts->dll = 1;
+        return( 0 );
+    }
+    if( opt_match( "vxd" ) ) {
+        cmdOpts->vxd = 1;
+        return( 0 );
+    }
+
+    return( 1 );                        /* unrecognized option */
+}
