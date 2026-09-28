@@ -226,6 +226,15 @@ static void noop_table_end (int do_indent)
   (void)do_indent;
 }
 
+/*!
+ * @brief No-op for hyphenation().
+ * @param[in] name File name. Not NULL.
+ */
+static void noop_hyphenation (const char *name)
+{
+  (void)name;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Emitter table                                                     */
 /* ------------------------------------------------------------------ */
@@ -233,7 +242,7 @@ static void noop_table_end (int do_indent)
 /*!
  * @brief All known emitters, terminated by a row with a NULL name.
  *
- * Each row has exactly 42 values: 3 data fields followed by 39
+ * Each row has exactly 43 values: 3 data fields followed by 40
  * function pointers, in the same order as struct emitter.
  */
 static struct emitter emitters[] = {
@@ -260,7 +269,8 @@ static struct emitter emitters[] = {
     ipf_see_also_start, ipf_see_also_word, noop_string,
     ipf_sample_file, ipf_libref_section,
     ipf_table_start, ipf_table_line, ipf_table_end,
-    noop_string
+    noop_string,
+    noop_hyphenation
   },
 
   /* ------------------------------------------------------------- */
@@ -286,7 +296,8 @@ static struct emitter emitters[] = {
     html_see_also_start, html_see_also_word, noop_string,
     html_sample_file, html_libref_section,
     noop_table_start, noop_table_line, noop_table_end,
-    html_fragment
+    html_fragment,
+    noop_hyphenation
   },
 
   /* ------------------------------------------------------------- */
@@ -312,7 +323,8 @@ static struct emitter emitters[] = {
     latex_see_also_start, latex_see_also_word, noop_string,
     latex_sample_file, latex_libref_section,
     noop_table_start, noop_table_line, noop_table_end,
-    noop_string
+    noop_string,
+    noop_hyphenation
   },
 
   /* ------------------------------------------------------------- */
@@ -338,7 +350,8 @@ static struct emitter emitters[] = {
     text_see_also_start, noop_see_also_word, text_see_also_end,
     text_sample_file, text_libref_section,
     text_table_start, text_table_line, noop_table_end,
-    noop_string
+    noop_string,
+    text_hyphenation
   },
 
   /* ------------------------------------------------------------- */
@@ -363,7 +376,8 @@ static struct emitter emitters[] = {
     man_see_also_start, man_see_also_word, man_see_also_end,
     man_sample_file, man_libref_section,
     man_table_start, man_table_line, man_table_end,
-    noop_string
+    noop_string,
+    noop_hyphenation
   },
 
   /* ------------------------------------------------------------- */
@@ -388,7 +402,8 @@ static struct emitter emitters[] = {
     ed_see_also_start, ed_see_also_word, ed_see_also_end,
     ed_sample_file, ed_libref_section,
     ed_table_start, ed_table_line, ed_table_end,
-    ed_html_fragment
+    ed_html_fragment,
+    noop_hyphenation
   },
 
   /* ------------------------------------------------------------- */
@@ -413,7 +428,8 @@ static struct emitter emitters[] = {
     md_see_also_start, md_see_also_word, md_see_also_end,
     md_sample_file, md_libref_section,
     md_table_start, md_table_line, md_table_end,
-    md_html_fragment
+    md_html_fragment,
+    noop_hyphenation
   },
 
   /* ------------------------------------------------------------- */
@@ -438,7 +454,8 @@ static struct emitter emitters[] = {
     dw_see_also_start, dw_see_also_word, dw_see_also_end,
     dw_sample_file, dw_libref_section,
     dw_table_start, dw_table_line, dw_table_end,
-    dw_html_fragment
+    dw_html_fragment,
+    noop_hyphenation
   },
 
   /* ------------------------------------------------------------- */
@@ -462,6 +479,7 @@ static struct emitter emitters[] = {
     NULL, NULL, NULL,
     NULL, NULL,
     NULL, NULL, NULL,
+    NULL,
     NULL
   }
 };
