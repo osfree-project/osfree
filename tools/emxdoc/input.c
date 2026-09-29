@@ -28,6 +28,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "emxdoc.h"
+#include "emitter.h"
 #include "cond.h"
 
 /*!
@@ -591,6 +592,37 @@ static void invalid_tag (void)
   fatal ("%s:%d: Invalid tag", input_fname, line_no);
 }
 
+static int try_raw_block (const uchar **pp)
+{
+  const uchar *p = *pp;
+  const uchar *q;
+  size_t n;
+  int is_end = FALSE;
+
+  if (strncmp (p, "end", 3) == 0 && p[3] != 0 && !isspace (p[3]))
+    {
+      is_end = TRUE;
+      p += 3;
+    }
+
+  q = p;
+  while (*p != 0 && !isspace (*p))
+    ++p;
+  n = (size_t)(p - q);
+  if (n == 0 || n >= sizeof (tg_raw_name))
+    return FALSE;
+
+  memcpy (tg_raw_name, q, n);
+  tg_raw_name[n] = 0;
+  if (emit_find_by_name ((const char *)tg_raw_name) == NULL)
+    return FALSE;
+
+  tg_tag = is_end ? TAG_RAW_END : TAG_RAW_BEGIN;
+  while (isspace (*p))
+    ++p;
+  *pp = p;
+  return TRUE;
+}
 
 /*!
  * @brief Parse a tag at the start of a line.
@@ -608,6 +640,13 @@ int parse_tag (const uchar **ptr)
     return FALSE;
   ++p;                          /* Skip escape character */
   tg_flags = 0;
+
+  if (try_raw_block (&p))
+    {
+      *ptr = p;
+      return TRUE;
+    }
+
   switch (*p)
     {
     case '.':
@@ -665,8 +704,6 @@ int parse_tag (const uchar **ptr)
         tg_tag = TAG_ENDEXAMPLE;
       else if (strcmp (p, "endheaders") == 0)
         tg_tag = TAG_ENDHEADERS;
-      else if (strcmp (p, "endhtml") == 0)
-        tg_tag = TAG_ENDHTML;
       else if (strcmp (p, "endindent") == 0)
         tg_tag = TAG_ENDINDENT;
       else if (strcmp (p, "enditemize") == 0)
@@ -681,12 +718,6 @@ int parse_tag (const uchar **ptr)
         tg_tag = TAG_ENDVERBATIM;
       else if (strcmp (p, "endtypewriter") == 0)
         tg_tag = TAG_ENDTYPEWRITER;
-      else if (strcmp (p, "endipf") == 0)
-        tg_tag = TAG_ENDIPF;
-      else if (strcmp (p, "endlatex") == 0)
-        tg_tag = TAG_ENDLATEX;
-      else if (strcmp (p, "endtext") == 0)
-        tg_tag = TAG_ENDTEXT;
       else if (strcmp (p, "endtable") == 0)
         tg_tag = TAG_ENDTABLE;
       else if (strcmp (p, "enumerate") == 0)
@@ -751,8 +782,6 @@ int parse_tag (const uchar **ptr)
         tg_tag = TAG_HEADERS;
       else if (strcmp (p, "hints") == 0)
         tg_tag = TAG_HINTS;
-      else if (strcmp (p, "html") == 0)
-        tg_tag = TAG_HTML;
       else if (strncmp (p, "htmlfragment", 12) == 0 && isspace (p[12]))
         {
           tg_tag = TAG_HTMLFRAGMENT;
@@ -773,8 +802,6 @@ int parse_tag (const uchar **ptr)
         }
       else if (strcmp (p, "implementation") == 0)
         tg_tag = TAG_IMPLEMENTATION;
-      else if (strcmp (p, "ipf") == 0)
-        tg_tag = TAG_IPF;
       else if (strcmp (p, "ipfminitoc") == 0)
         tg_tag = TAG_IPFMINITOC;
       else if (strncmp (p, "item", 4) == 0 && ISENDW (p[4]))
@@ -817,8 +844,6 @@ int parse_tag (const uchar **ptr)
           tg_tag = TAG_LANGUAGE;
           SKIPW (p, 8);
         }
-      else if (strcmp (p, "latex") == 0)
-        tg_tag = TAG_LATEX;
       else if (strcmp (p, "list") == 0)
         tg_tag = TAG_LIST;
       else
@@ -921,8 +946,6 @@ int parse_tag (const uchar **ptr)
         }
       else if (strcmp (p, "toc") == 0)
         tg_tag = TAG_TOC;
-      else if (strcmp (p, "text") == 0)
-        tg_tag = TAG_TEXT;
       else if (strncmp (p, "table ", 6) == 0)
         {
           tg_tag = TAG_TABLE;

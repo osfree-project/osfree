@@ -341,7 +341,7 @@ static void usage (void)
   int i;
 
   fputs ("emxdoc " VERSION "\n"
-         "Copyright (c) 1993-1999 Eberhard Mattes\n"
+         "Copyright (c) 1993-2001 Eberhard Mattes\n"
          "Copyright (c) 2026      osFree Project\n\n", stderr);
 
   fputs ("Usage:\n", stderr);
@@ -475,6 +475,24 @@ void write_line (const uchar *p)
   write_nl ();
 }
 
+/*!
+ * @brief Write one raw pass-through line.
+ *
+ * Like write_line(), but bypasses the max_width check: the
+ * content of a raw block is the user's, not the emitter's, and
+ * long lines there are legal.
+ *
+ * @param[in] p String. Must not contain a newline. Not NULL.
+ */
+void write_raw_line (const uchar *p)
+{
+  if (output_flag)
+    {
+      fprintf (output_file, "%s\n", p);
+      output_x = 0;
+      ++output_line_no;
+    }
+}
 
 /*!
  * @brief Write a formatted string to the output file.
@@ -1911,109 +1929,25 @@ static void do_table (const uchar *p)
 }
 
 
-/*!
- * @brief Process an %ipf block.
- */
-static void do_ipf (void)
+static void do_raw (const uchar *name)
 {
-  int start_line;
+  int start_line = line_no;
   const uchar *p;
 
-  start_line = line_no;
   for (;;)
     {
       read_line ();
       if (end_of_file)
-        fatal ("%s:%d: Missing %cendipf", input_fname, start_line, escape);
+        fatal ("%s:%d: Missing %cend%s",
+               input_fname, start_line, escape, name);
       p = input;
-      if (parse_tag (&p) && tg_tag == TAG_ENDIPF)
+      if (parse_tag (&p) && tg_tag == TAG_RAW_END
+          && strcmp ((const char *)tg_raw_name,
+                     (const char *)name) == 0)
         break;
-      if (out && mode == 'I' && output_flag)
-        {
-          fprintf (output_file, "%s\n", input);
-          output_x = 0; ++output_line_no;
-        }
-    }
-  read_line ();
-}
-
-
-/*!
- * @brief Process a %text block.
- */
-static void do_text (void)
-{
-  int start_line;
-  const uchar *p;
-
-  start_line = line_no;
-  for (;;)
-    {
-      read_line ();
-      if (end_of_file)
-        fatal ("%s:%d: Missing %cendtext", input_fname, start_line, escape);
-      p = input;
-      if (parse_tag (&p) && tg_tag == TAG_ENDTEXT)
-        break;
-      if (out && mode == 'T' && output_flag)
-        {
-          fprintf (output_file, "%s\n", input);
-          output_x = 0; ++output_line_no;
-        }
-    }
-  read_line ();
-}
-
-
-/*!
- * @brief Process a %latex block.
- */
-static void do_latex (void)
-{
-  int start_line;
-  const uchar *p;
-
-  start_line = line_no;
-  for (;;)
-    {
-      read_line ();
-      if (end_of_file)
-        fatal ("%s:%d: Missing %cendlatex", input_fname, start_line, escape);
-      p = input;
-      if (parse_tag (&p) && tg_tag == TAG_ENDLATEX)
-        break;
-      if (out && mode == 'L' && output_flag)
-        {
-          fprintf (output_file, "%s\n", input);
-          output_x = 0; ++output_line_no;
-        }
-    }
-  read_line ();
-}
-
-
-/*!
- * @brief Process a %html block.
- */
-static void do_html (void)
-{
-  int start_line;
-  const uchar *p;
-
-  start_line = line_no;
-  for (;;)
-    {
-      read_line ();
-      if (end_of_file)
-        fatal ("%s:%d: Missing %cendhtml", input_fname, start_line, escape);
-      p = input;
-      if (parse_tag (&p) && tg_tag == TAG_ENDHTML)
-        break;
-      if (out && mode == 'H' && output_flag)
-        {
-          fprintf (output_file, "%s\n", input);
-          output_x = 0; ++output_line_no;
-        }
+      if (out && bd != NULL
+          && strcmp ((const char *)name, bd->name) == 0)
+        write_raw_line (input);
     }
   read_line ();
 }
@@ -2392,21 +2326,14 @@ static void do_tag (const uchar *p)
       do_item (p);
       break;
 
-    case TAG_IPF:
-      do_ipf ();
+    case TAG_RAW_BEGIN:
+      do_raw (tg_raw_name);
       break;
 
-    case TAG_TEXT:
-      do_text ();
-      break;
-
-    case TAG_LATEX:
-      do_latex ();
-      break;
-
-    case TAG_HTML:
-      do_html ();
-      break;
+    case TAG_RAW_END:
+      fatal ("%s:%d: %cend%s without %c%s",
+             input_fname, line_no, escape, tg_raw_name,
+             escape, tg_raw_name);
 
     case TAG_LABEL:
       do_label (p);
@@ -2647,6 +2574,7 @@ void init_file (void)
   for (i = 0; i < SECTION_LEVELS; ++i)
     section_numbers[i] = 0;
   toc_ptr = NULL;
+  tg_raw_name[0] = 0;
 
   if (out && bd != NULL)
     bd->start ();

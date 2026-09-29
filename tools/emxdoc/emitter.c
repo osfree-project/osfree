@@ -27,6 +27,8 @@
  */
 
 #include <stdio.h>
+#include <string.h>
+
 #include "emxdoc.h"
 #include "emitter.h"
 
@@ -524,6 +526,16 @@ struct emitter *emit_find (char mode)
 
   for (i = 0; emitters[i].name != NULL; ++i)
     if (emitters[i].mode == mode)
+      return &emitters[i];
+  return NULL;
+}
+
+struct emitter *emit_find_by_name (const char *name)
+{
+  int i;
+
+  for (i = 0; emitters[i].name != NULL; ++i)
+    if (strcmp (emitters[i].name, name) == 0)
       return &emitters[i];
   return NULL;
 }

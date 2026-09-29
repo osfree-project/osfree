@@ -271,6 +271,15 @@ EXTERN struct emitter *bd INIT (NULL);
 struct emitter *emit_find (char mode);
 
 /*!
+ * @brief Look up an emitter by its name.
+ *
+ * @param[in] name Emitter name, e.g. "html".
+ *
+ * @return Pointer to the emitter, or NULL if unknown.
+ */
+struct emitter *emit_find_by_name (const char *name);
+
+/*!
  * @brief Write every emitter mode character into @p buf.
  *
  * Produces one character per row of emitters[], in table order,

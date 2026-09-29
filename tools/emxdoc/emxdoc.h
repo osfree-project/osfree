@@ -116,8 +116,6 @@ enum tag
   TAG_HEADING,
   TAG_TOC,
   TAG_TITLE,
-  TAG_IPF,
-  TAG_ENDIPF,
   TAG_ITEM,
   TAG_SAMPLECODE,
   TAG_ENDSAMPLECODE,
@@ -144,12 +142,6 @@ enum tag
   TAG_TABLE,
   TAG_ENDTABLE,
   TAG_LABEL,
-  TAG_TEXT,
-  TAG_ENDTEXT,
-  TAG_LATEX,
-  TAG_ENDLATEX,
-  TAG_HTML,
-  TAG_ENDHTML,
   TAG_FORMAT,
   TAG_STYLE,
   TAG_REF,
@@ -177,7 +169,9 @@ enum tag
   TAG_SET,
   TAG_REPLACE,
   TAG_ERRORS,
-  TAG_HINTS
+  TAG_HINTS,
+  TAG_RAW_BEGIN,
+  TAG_RAW_END
 };
 
 /*!
@@ -536,6 +530,8 @@ EXTERN int tg_underline;
  */
 EXTERN unsigned int tg_flags;
 
+EXTERN uchar tg_raw_name[64];
+
 /*!
  * @brief The emitter selected at start-up (see emitter.h).
  */
@@ -697,6 +693,8 @@ void write_string (const uchar *p);
  * @param[in] p String. Must not contain a newline. Not NULL.
  */
 void write_line (const uchar *p);
+
+void write_raw_line (const uchar *p);
 /*!
  * @brief Write a formatted string to the output file.
  *
