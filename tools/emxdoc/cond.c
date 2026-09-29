@@ -32,6 +32,7 @@
 #include <ctype.h>
 #include "emxdoc.h"
 #include "cond.h"
+#include "emitter.h"
 
 /*!
  * @brief Lexical tokens produced by cond_fetch().
@@ -206,38 +207,8 @@ static void cond_fetch (void)
           return;
         }
       break;
-    case 'h':
-      if (strncmp (cond_ptr, "html", 4) == 0 && !ISWORD (cond_ptr[4]))
-        {
-          ct_token = CTOK_CONST; ct_value = (mode == 'H');
-          cond_ptr += 4;
-          return;
-        }
-      break;
-    case 'i':
-      if (strncmp (cond_ptr, "ipf", 3) == 0 && !ISWORD (cond_ptr[3]))
-        {
-          ct_token = CTOK_CONST; ct_value = (mode == 'I');
-          cond_ptr += 3;
-          return;
-        }
-      break;
-    case 'l':
-      if (strncmp (cond_ptr, "latex", 5) == 0 && !ISWORD (cond_ptr[5]))
-        {
-          ct_token = CTOK_CONST; ct_value = (mode == 'L');
-          cond_ptr += 5;
-          return;
-        }
-      break;
     case 't':
-      if (strncmp (cond_ptr, "text", 4) == 0 && !ISWORD (cond_ptr[4]))
-        {
-          ct_token = CTOK_CONST; ct_value = (mode == 'T');
-          cond_ptr += 4;
-          return;
-        }
-      else if (strncmp (cond_ptr, "true", 4) == 0 && !ISWORD (cond_ptr[4]))
+      if (strncmp (cond_ptr, "true", 4) == 0 && !ISWORD (cond_ptr[4]))
         {
           ct_token = CTOK_CONST; ct_value = TRUE;
           cond_ptr += 4;
@@ -252,6 +223,14 @@ static void cond_fetch (void)
       while (isalnum (cond_ptr[len]) || cond_ptr[len] == '_')
         name[len] = cond_ptr[len], ++len;
       name[len] = 0;
+      if (emit_find_by_name ((const char *)name) != NULL)
+        {
+          ct_token = CTOK_CONST;
+          ct_value = (bd != NULL
+                      && strcmp ((const char *)name, bd->name) == 0);
+          cond_ptr += len;
+          return;
+        }
       v = cond_find (name);
       if (v != NULL)
         {
