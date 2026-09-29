@@ -2047,7 +2047,8 @@ static void do_index (const uchar *p)
   if (toc_ptr == NULL)
     fatal ("%s:%d: Cannot use %cindex before %ch1",
            input_fname, line_no, escape, escape);
-  bd->index (toc_ptr, p, tg_level);
+  if (bd != NULL)
+    bd->index (toc_ptr, p, tg_level);
   read_line ();
 }
 
@@ -2279,7 +2280,8 @@ static void do_function (const uchar *p)
       copy_token (word, sizeof (word), &p, "Function name");
       while (isspace (*p))
         ++p;
-      bd->function_function (toc_ptr, word);
+      if (out)
+        bd->function_function (toc_ptr, word);
       if (!out)
         {
           wp = define_label (word, toc_ptr->ref, "Function");
@@ -2646,7 +2648,7 @@ void init_file (void)
     section_numbers[i] = 0;
   toc_ptr = NULL;
 
-  if (out)
+  if (out && bd != NULL)
     bd->start ();
 
   para_flag = FALSE;
@@ -2672,7 +2674,8 @@ void init_file (void)
  */
 static void end_file (void)
 {
-  bd->end ();
+  if (bd != NULL)
+    bd->end ();
   if (env_sp != 0)
     fatal ("%s:%d: Environment not terminated",
            input_fname, env_stack[env_sp].start_line);
