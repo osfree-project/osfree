@@ -14,24 +14,7 @@
 !define __build_setuppkg_mk__
 
 !include $(%ROOT)tools/mk/dirs.mk
-
-# ------------------------------------------------------------
-# Minimal command set (subset of all.mk)
-# ------------------------------------------------------------
-!ifeq UNIX FALSE
-CP  = copy
-SAY = echo
-!else
-CP  = cp
-SAY = echo
-!endif
-
-verbose = $(%VERBOSE)
-!ifeq verbose yes
-verbose =
-!else
-verbose = @
-!endif
+!include $(%ROOT)tools/mk/all.mk
 
 # ------------------------------------------------------------
 # Paths

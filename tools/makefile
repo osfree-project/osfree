@@ -15,7 +15,9 @@ DIRS = doxy-lint dos2unix yacc lex awk shared sed UNI &
        jwasm &
        mkmsgf msgextrt exehdr bin2c mkctxt genext2fs &
        qemu-img hlldump mapsym renmodul &
-       target emxdoc bind reuse-lint spdx-sbom reuse-annotate spdx-merge 
+       target emxdoc bind reuse-lint &
+       spdx-sbom reuse-annotate spdx-merge &
+       link386 nmake
 
 #       lxlite &
 # rexxwrap ltools &
