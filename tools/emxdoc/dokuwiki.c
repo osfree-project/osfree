@@ -22,23 +22,6 @@
 #include "dokuwiki.h"
 
 /*!
- *  @brief Emits a line with backslash escaped.
- *  @param[in] p Pointer to a zero-terminated string.
- */
-static void dw_escape (const uchar *p)
-{
-  while (*p != 0)
-    {
-      uchar c = *p++;
-
-      if (c == '\\')
-        write_string ("\\\\");
-      else
-        write_nstring (&c, 1);
-    }
-}
-
-/*!
  *  @brief Checks whether the string is a bare URL.
  *  @param[in] p Pointer to a zero-terminated string.
  *
@@ -124,11 +107,11 @@ static void dw_text (const uchar *p)
   if (dw_needs_nowiki (p))
     {
       write_string ("%%");
-      dw_escape (p);
+      write_string (p);
       write_string ("%%");
     }
   else
-    dw_escape (p);
+    write_string (p);
 }
 
 /*!
