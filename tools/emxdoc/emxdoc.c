@@ -1928,7 +1928,7 @@ static void do_ipf (void)
       p = input;
       if (parse_tag (&p) && tg_tag == TAG_ENDIPF)
         break;
-      if (out && bd->mode == 'I' && output_flag)
+      if (out && mode == 'I' && output_flag)
         {
           fprintf (output_file, "%s\n", input);
           output_x = 0; ++output_line_no;
@@ -1955,7 +1955,7 @@ static void do_text (void)
       p = input;
       if (parse_tag (&p) && tg_tag == TAG_ENDTEXT)
         break;
-      if (out && bd->mode == 'T' && output_flag)
+      if (out && mode == 'T' && output_flag)
         {
           fprintf (output_file, "%s\n", input);
           output_x = 0; ++output_line_no;
@@ -1982,7 +1982,7 @@ static void do_latex (void)
       p = input;
       if (parse_tag (&p) && tg_tag == TAG_ENDLATEX)
         break;
-      if (out && bd->mode == 'L' && output_flag)
+      if (out && mode == 'L' && output_flag)
         {
           fprintf (output_file, "%s\n", input);
           output_x = 0; ++output_line_no;
@@ -2009,7 +2009,7 @@ static void do_html (void)
       p = input;
       if (parse_tag (&p) && tg_tag == TAG_ENDHTML)
         break;
-      if (out && bd->mode == 'H' && output_flag)
+      if (out && mode == 'H' && output_flag)
         {
           fprintf (output_file, "%s\n", input);
           output_x = 0; ++output_line_no;
@@ -2059,7 +2059,7 @@ static void do_index (const uchar *p)
  */
 static void do_keyword (const uchar *p)
 {
-  if (bd->mode == 'K')
+  if (mode == 'K')
     keywords_keyword (p);
   read_line ();
 }
@@ -2295,7 +2295,7 @@ static void do_function (const uchar *p)
             }
           strcat (o, word);
           o = strchr (o, 0);
-          if (bd->mode == 'K')
+          if (mode == 'K')
             write_keyword (word);
         }
     }
@@ -2349,19 +2349,19 @@ static void do_tag (const uchar *p)
       break;
 
     case TAG_HTMLFRAGMENT:
-      if (out && bd->mode == 'H')
+      if (out && mode == 'H')
         bd->html_fragment (p);
       read_line ();
       break;
 
     case TAG_IPFMINITOC:
-      if (out && bd->mode == 'I')
+      if (out && mode == 'I')
         bd->minitoc (toc_ptr);
       read_line ();
       break;
 
     case TAG_HTMLMINITOC:
-      if (out && bd->mode == 'H')
+      if (out && mode == 'H')
         bd->minitoc (toc_ptr);
       read_line ();
       break;
