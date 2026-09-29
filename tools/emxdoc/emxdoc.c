@@ -1584,9 +1584,9 @@ static void do_language (const uchar *p)
 static void do_syntax (const uchar *p)
 {
   if (strcmp (p, "emx") == 0)
-    language = SYNTAX_EMX;
+    syntax_style = SYNTAX_EMX;
   else if (strcmp (p, "dvidrv") == 0)
-    language = SYNTAX_DVIDRV;
+    syntax_style = SYNTAX_DVIDRV;
   else
     fatal ("%s:%d: Invalid syntax style", input_fname, line_no);
   read_line ();
