@@ -364,8 +364,8 @@ static void usage (void)
   fputs ("  -f         Enable French spacing\n", stderr);
   fputs ("  -g         Gather global directory data\n", stderr);
   fputs ("  -h<file>   Use hyphenation table\n", stderr);
-  fputs ("  -i<enc>    Select input encoding (cp850 or iso8859-1)\n", stderr);
-  fputs ("  -j<enc>    Select output encoding (cp850, iso8859-1 or utf-8)\n", stderr);
+  fputs ("  -i<enc>    Select input encoding (cp850, iso8859-1 or cp1252)\n", stderr);
+  fputs ("  -j<enc>    Select output encoding (cp850, iso8859-1, cp1252 or utf-8)\n", stderr);
   fputs ("  -n<start>  Set first ID number\n", stderr);
   fputs ("  -o<output> Set output file name\n", stderr);
   fputs ("  -r         Make output file read-only\n", stderr);

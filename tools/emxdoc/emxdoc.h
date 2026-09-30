@@ -323,7 +323,7 @@ struct emitter;
  * as an input encoding, because its repertoire is empty.
  */
 enum enc { ENC_DEFAULT = -3, ENC_AMBIGUOUS = -2, ENC_UNSUPPORTED = -1,
-           ENC_CP850 = 0, ENC_ISO8859_1, ENC_UTF_8, ENCODINGS };
+           ENC_CP850 = 0, ENC_ISO8859_1, ENC_CP1252, ENC_UTF_8, ENCODINGS };
 
 /*!
  * @brief Number of bytes read from a raw input line.

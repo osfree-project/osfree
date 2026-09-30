@@ -40,6 +40,8 @@
 #include "ed.h"
 #include "md.h"
 #include "dokuwiki.h"
+#include "hc30.h"
+#include "hpj.h"
 
 /* ------------------------------------------------------------------ */
 /*  No-op helpers                                                     */
@@ -480,6 +482,62 @@ static struct emitter emitters[] = {
     dw_sample_file, dw_libref_section,
     dw_table_start, dw_table_line, dw_table_end,
     dw_html_fragment,
+    noop_hyphenation
+  },
+
+  /* ------------------------------------------------------------- */
+  /*  HC30 (WinHelp)                                               */
+  /* ------------------------------------------------------------- */
+  {
+    "hc30", 'R', EMIT_FLAG_LINK_HPT | EMIT_FLAG_XREF, 4096, ENC_CP1252,
+    "Generate WinHelp (HC30) RTF source file",
+    "[-x <xref>] [-o <output>] <input>",
+    hc30_start, hc30_end,
+    hc30_output,
+    hc30_start_hilite, hc30_end_hilite,
+    hc30_heading1, hc30_heading2,
+    hc30_description, hc30_enumerate, hc30_itemize, hc30_indent,
+    hc30_list,
+    hc30_end_env,
+    hc30_description_item, hc30_enumerate_item, hc30_itemize_item,
+    hc30_list_item,
+    hc30_copy,
+    hc30_verbatim_start, hc30_verbatim_line, hc30_verbatim_end,
+    hc30_prototype_start, hc30_prototype_end,
+    hc30_toc_start, hc30_toc_line, hc30_toc_end, hc30_minitoc,
+    hc30_function_start, hc30_function_function,
+    hc30_index,
+    hc30_see_also_start, hc30_see_also_word, hc30_see_also_end,
+    hc30_sample_file, hc30_libref_section,
+    hc30_table_start, hc30_table_line, hc30_table_end,
+    hc30_html_fragment,
+    noop_hyphenation
+  },
+
+  /* ------------------------------------------------------------- */
+  /*  HPJ (WinHelp project)                                        */
+  /* ------------------------------------------------------------- */
+  {
+    "hpj", 'P', 0, 4096, ENC_DEFAULT,
+    "Generate WinHelp (HC30) project file",
+    "[-o <output>] <input>",
+    hpj_start, hpj_end,
+    noop_output,
+    noop_v, noop_v,
+    hpj_heading1, hpj_heading2,
+    noop_v, noop_v, noop_v, noop_v, noop_v,
+    noop_v,
+    noop_string, noop_v, noop_v, noop_string,
+    noop_v,
+    noop_verbatim_start, noop_verbatim_line, noop_verbatim_end,
+    noop_prototype, noop_prototype,
+    noop_v, noop_toc_line, noop_v, noop_toc,
+    noop_toc, noop_function_function,
+    noop_index,
+    noop_v, noop_see_also_word, noop_string,
+    noop_string, noop_string,
+    noop_table_start, noop_table_line, noop_table_end,
+    noop_string,
     noop_hyphenation
   },
 
