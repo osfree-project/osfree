@@ -1,6 +1,13 @@
 /*!
  * @file phrenc.c
- * @brief Phrase-table encoder implementation.
+ * @brief Phrase-table encoder implementation with automatic
+ *        size-benefit selection.
+ *
+ * The encoder scans the accumulated corpus, keeps the most frequent
+ * phrases, and then measures whether the resulting |Phrases table
+ * pays for itself.  If the total encoded |TOPIC plus the |Phrases
+ * table is not smaller than the raw |TOPIC alone, the table is
+ * discarded and the caller falls back to plain text.
  */
 #include "phrenc.h"
 #include "vector.h"
@@ -10,7 +17,7 @@
 
 /*!
  * @def PHRENC_MAX_PHRASES
- * @brief Maximum number of phrases in the table.
+ * @brief Hard ceiling on phrase-table entries (format limit is 1920).
  */
 #define PHRENC_MAX_PHRASES 1920
 
@@ -34,10 +41,6 @@
 
 /*!
  * @brief One phrase candidate.
- *
- * A candidate is created for every substring occurrence encountered
- * during the scan. Duplicates are merged later, in phrenc_build.
- * The length is cached so that comparisons do not need strlen.
  */
 typedef struct {
     PSZ   pszText;   /*!< NUL-terminated phrase. Heap allocated. */
@@ -51,23 +54,40 @@ typedef struct {
  */
 typedef struct {
     HVECTOR vCandidates;    /*!< PhrCandidateRec by value. */
-    HVECTOR vCorpus;        /*!< PSZ - all added texts, for scanning. */
+    HVECTOR vCorpus;        /*!< PSZ copies of all added texts. */
     BOOL    fTableBuilt;    /*!< TRUE once phrenc_build has run. */
+    BOOL    fTableKept;     /*!< TRUE if the table survived the size check. */
 } PhrEncRec;
 
-/*!
- * @def ENC_FROM_HANDLE
- * @brief Convert an encoder handle to its record pointer.
- * @param h Encoder handle.
- */
+/*! @def ENC_FROM_HANDLE
+ *  @brief Convert an encoder handle to its record pointer.
+ *  @param[in] h Encoder handle. */
 #define ENC_FROM_HANDLE(h) ((PhrEncRec*)(h))
 
-/*!
- * @def ENC_HANDLE_FROM
- * @brief Convert an encoder record pointer to a handle.
- * @param d Encoder record pointer.
- */
+/*! @def ENC_HANDLE_FROM
+ *  @brief Convert an encoder record pointer to a handle.
+ *  @param[in] d Encoder record pointer. */
 #define ENC_HANDLE_FROM(d) ((HANDLE)(d))
+
+/* ------------------------------------------------------------------
+ * Forward declarations
+ * ------------------------------------------------------------------ */
+
+/*!
+ * @brief Encode a string using the phrase table (internal helper).
+ *
+ * @param[in]  pEnc     Encoder state. Not NULL.
+ * @param[in]  pszIn    Input string. Not NULL.
+ * @param[out] pbOut    Output buffer. Not NULL.
+ * @param[in]  cbOut    Size of the output buffer.
+ * @param[out] pcbUsed  Receives the number of bytes written.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_BUFFER_OVERFLOW    Output buffer is too small.
+ */
+static APIRET phrenc_encode_into(PhrEncRec* pEnc, const char* pszIn,
+                                 PBYTE pbOut, ULONG cbOut, PULONG pcbUsed);
 
 /* ------------------------------------------------------------------
  * Candidate list
@@ -103,7 +123,7 @@ static int phrenc_cmp_by_text(const void* a, const void* b)
  * @param[in] b Second candidate.
  *
  * @return Comparison result per qsort convention.
- * @retval -1  @a a sorts before @a b (higher count or longer text).
+ * @retval -1  @a a sorts before @a b.
  * @retval 0   @a a and @a b are equal.
  * @retval 1   @a a sorts after @a b.
  */
@@ -124,9 +144,6 @@ static int phrenc_cmp_by_count(const void* a, const void* b)
 
 /*!
  * @brief Append all candidate substrings of one text to the vector.
- *
- * No deduplication is done here; each occurrence produces its own
- * record. Merge happens later in phrenc_build.
  *
  * @param[in] pEnc    Encoder state. Not NULL.
  * @param[in] pszText Text to scan. Not NULL.
@@ -166,15 +183,84 @@ static APIRET phrenc_scan(PhrEncRec* pEnc, const char* pszText)
 }
 
 /* ------------------------------------------------------------------
+ * Benefit analysis
+ * ------------------------------------------------------------------ */
+
+/*!
+ * @brief Decide whether the current phrase table saves bytes.
+ *
+ * Computes:
+ *   raw_total   = sum over corpus of (strlen+1)
+ *   enc_total   = sum over corpus of encode(text).len
+ *   table_total = 4 + 2*(n+1) + sum of phrase bodies
+ *
+ * The table is kept when table_total + enc_total < raw_total + 4,
+ * where the "4" is the empty |Phrases header written anyway.
+ *
+ * @param[in] pEnc Encoder state with a built table.
+ *
+ * @return TRUE if the table saves bytes, FALSE otherwise.
+ * @retval TRUE   Keep the table.
+ * @retval FALSE  Discard the table and fall back to plain text.
+ */
+static BOOL phrenc_is_beneficial(PhrEncRec* pEnc)
+{
+    ULONG nCorpus = 0, i;
+    ULONG rawTotal = 0, encTotal = 0, tableTotal;
+    BOOL  fAnyText = FALSE;
+
+    VectorGetCount(pEnc->vCorpus, &nCorpus);
+    for (i = 0; i < nCorpus; i++) {
+        PSZ text = NULL;
+        PBYTE tmp;
+        ULONG tmpCap, used = 0;
+        VectorGetItem(pEnc->vCorpus, i, &text, sizeof(text), NULL);
+        if (!text) continue;
+        fAnyText = TRUE;
+        rawTotal += (ULONG)strlen(text) + 1;
+        tmpCap = (ULONG)(2 * strlen(text)) + 2;
+        tmp = (PBYTE)malloc(tmpCap);
+        if (!tmp) continue;
+        if (phrenc_encode_into(pEnc, text, tmp, tmpCap, &used) == NO_ERROR)
+            encTotal += used;
+        free(tmp);
+    }
+
+    if (!fAnyText) {
+        /* Nothing to measure; keep an empty table. */
+        return FALSE;
+    }
+
+    /* |Phrases size with the current table. */
+    tableTotal = 4;                               /* count + flag */
+    {
+        ULONG nKept = 0;
+        VectorGetCount(pEnc->vCandidates, &nKept);
+        tableTotal += 2 * (nKept + 1);            /* offset array */
+        for (i = 0; i < nKept; i++) {
+            PhrCandidateRec r;
+            VectorGetItem(pEnc->vCandidates, i, &r, sizeof(r), NULL);
+            tableTotal += r.ulLen;
+        }
+    }
+
+    /* Total file impact:
+     *   with phrases:    tableTotal + encTotal
+     *   without phrases: 4          + rawTotal
+     * Keep the table only if strictly smaller. */
+    return (tableTotal + encTotal) < (rawTotal + 4);
+}
+
+/* ------------------------------------------------------------------
  * Table building
  * ------------------------------------------------------------------ */
 
 /*!
  * @brief Build the phrase table from accumulated candidates.
  *
- * Sorts candidates by text, merges adjacent duplicates (summing
- * their counts), sorts the result by count, and keeps the top
- * PHRENC_MAX_PHRASES entries with count >= PHRENC_MIN_COUNT.
+ * After the initial candidate merge, the encoder measures whether the
+ * resulting table actually reduces total file size.  If not, the
+ * table is discarded and `PhrEncWrite` writes an empty |Phrases file.
  *
  * @param[in] pEnc Encoder state. Not NULL.
  *
@@ -199,6 +285,7 @@ static APIRET phrenc_build(PhrEncRec* pEnc)
         VectorDestroy(v);
         pEnc->vCandidates = vKept;
         pEnc->fTableBuilt = TRUE;
+        pEnc->fTableKept = FALSE;
         return NO_ERROR;
     }
 
@@ -251,6 +338,24 @@ static APIRET phrenc_build(PhrEncRec* pEnc)
     free(aSorted);
     VectorDestroy(v);
     pEnc->vCandidates = vKept;
+
+    /* Size-benefit check: does the table actually help? */
+    if (!phrenc_is_beneficial(pEnc)) {
+        ULONG nKept = 0;
+        VectorGetCount(vKept, &nKept);
+        for (i = 0; i < nKept; i++) {
+            PhrCandidateRec r;
+            VectorGetItem(vKept, i, &r, sizeof(r), NULL);
+            if (r.pszText) free(r.pszText);
+        }
+        VectorDestroy(vKept);
+        rc = VectorCreate(sizeof(PhrCandidateRec), &pEnc->vCandidates);
+        if (rc != NO_ERROR) return rc;
+        pEnc->fTableKept = FALSE;
+    } else {
+        pEnc->fTableKept = TRUE;
+    }
+
     pEnc->fTableBuilt = TRUE;
     return NO_ERROR;
 }
@@ -280,6 +385,8 @@ APIRET APIENTRY PhrEncCreate(PHPHRE phEnc)
     memset(p, 0, sizeof(*p));
     rc = VectorCreate(sizeof(PhrCandidateRec), &p->vCandidates);
     if (rc != NO_ERROR) { free(p); return rc; }
+    rc = VectorCreate(sizeof(PSZ), &p->vCorpus);
+    if (rc != NO_ERROR) { VectorDestroy(p->vCandidates); free(p); return rc; }
     *phEnc = ENC_HANDLE_FROM(p);
     return NO_ERROR;
 }
@@ -307,6 +414,15 @@ APIRET APIENTRY PhrEncDestroy(HPHRE hEnc)
         }
         VectorDestroy(p->vCandidates);
     }
+    if (p->vCorpus) {
+        VectorGetCount(p->vCorpus, &n);
+        for (i = 0; i < n; i++) {
+            PSZ s = NULL;
+            VectorGetItem(p->vCorpus, i, &s, sizeof(s), NULL);
+            if (s) free(s);
+        }
+        VectorDestroy(p->vCorpus);
+    }
     free(p);
     return NO_ERROR;
 }
@@ -325,16 +441,21 @@ APIRET APIENTRY PhrEncDestroy(HPHRE hEnc)
 APIRET APIENTRY PhrEncAddText(HPHRE hEnc, PCSZ pszText)
 {
     PhrEncRec* p;
+    PSZ copy;
     if (hEnc == NULLHANDLE || !pszText) return ERROR_INVALID_PARAMETER;
     p = ENC_FROM_HANDLE(hEnc);
+    copy = strdup(pszText);
+    if (copy) {
+        if (VectorAdd(p->vCorpus, &copy) != NO_ERROR) {
+            free(copy);
+            return ERROR_NOT_ENOUGH_MEMORY;
+        }
+    }
     return phrenc_scan(p, pszText);
 }
 
 /*!
  * @brief Build the phrase table from the accumulated corpus.
- *
- * Must be called after all texts have been added and before any
- * calls to PhrEncEncode or PhrEncWrite.
  *
  * @param[in] hEnc Handle. Not NULLHANDLE.
  *
@@ -352,9 +473,9 @@ APIRET APIENTRY PhrEncBuildTable(HPHRE hEnc)
 }
 
 /*!
- * @brief Encode a string using the phrase table.
+ * @brief Encode a string using the phrase table (internal helper).
  *
- * @param[in]  hEnc     Handle. Not NULLHANDLE.
+ * @param[in]  pEnc     Encoder state. Not NULL.
  * @param[in]  pszIn    Input string. Not NULL.
  * @param[out] pbOut    Output buffer. Not NULL.
  * @param[in]  cbOut    Size of the output buffer.
@@ -362,30 +483,25 @@ APIRET APIENTRY PhrEncBuildTable(HPHRE hEnc)
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_BUFFER_OVERFLOW    Output buffer is too small.
  */
-APIRET APIENTRY PhrEncEncode(HPHRE hEnc, PCSZ pszIn, PBYTE pbOut,
-                             ULONG cbOut, PULONG pcbUsed)
+static APIRET phrenc_encode_into(PhrEncRec* pEnc, const char* pszIn,
+                                 PBYTE pbOut, ULONG cbOut, PULONG pcbUsed)
 {
-    PhrEncRec* p;
     ULONG n = 0, i;
     ULONG pos = 0;
     ULONG ulLen;
     ULONG ulOut = 0;
 
-    if (hEnc == NULLHANDLE || !pszIn || !pbOut || !pcbUsed)
-        return ERROR_INVALID_PARAMETER;
-    p = ENC_FROM_HANDLE(hEnc);
     ulLen = (ULONG)strlen(pszIn);
-    VectorGetCount(p->vCandidates, &n);
+    VectorGetCount(pEnc->vCandidates, &n);
 
     while (pos < ulLen) {
         LONG bestIdx = -1;
         ULONG bestLen = 0;
         for (i = 0; i < n; i++) {
             PhrCandidateRec r;
-            VectorGetItem(p->vCandidates, i, &r, sizeof(r), NULL);
+            VectorGetItem(pEnc->vCandidates, i, &r, sizeof(r), NULL);
             if (r.ulLen <= bestLen) continue;
             if (pos + r.ulLen > ulLen) continue;
             if (memcmp(pszIn + pos, r.pszText, r.ulLen) == 0) {
@@ -428,6 +544,30 @@ APIRET APIENTRY PhrEncEncode(HPHRE hEnc, PCSZ pszIn, PBYTE pbOut,
 }
 
 /*!
+ * @brief Encode a string using the phrase table.
+ *
+ * @param[in]  hEnc     Handle. Not NULLHANDLE.
+ * @param[in]  pszIn    Input string. Not NULL.
+ * @param[out] pbOut    Output buffer. Not NULL.
+ * @param[in]  cbOut    Size of the output buffer.
+ * @param[out] pcbUsed  Receives the number of bytes written.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_BUFFER_OVERFLOW    Output buffer is too small.
+ */
+APIRET APIENTRY PhrEncEncode(HPHRE hEnc, PCSZ pszIn, PBYTE pbOut,
+                             ULONG cbOut, PULONG pcbUsed)
+{
+    PhrEncRec* p;
+    if (hEnc == NULLHANDLE || !pszIn || !pbOut || !pcbUsed)
+        return ERROR_INVALID_PARAMETER;
+    p = ENC_FROM_HANDLE(hEnc);
+    return phrenc_encode_into(p, pszIn, pbOut, cbOut, pcbUsed);
+}
+
+/*!
  * @brief Query the number of phrases in the table.
  *
  * @param[in]  hEnc     Handle. Not NULLHANDLE.
@@ -445,6 +585,11 @@ APIRET APIENTRY PhrEncQueryCount(HPHRE hEnc, PULONG pulCount)
 
 /*!
  * @brief Write the |Phrases file to a stream.
+ *
+ * The offset array is always written, even when there are no phrases,
+ * because the format requires exactly count+1 offset entries.  An
+ * empty table therefore occupies 6 bytes: count (u16), flag (u16)
+ * and a single offset word (u16).
  *
  * @param[in] hEnc Handle. Not NULLHANDLE.
  * @param[in] f    Output stream. Not NULL.
@@ -470,8 +615,11 @@ APIRET APIENTRY PhrEncWrite(HPHRE hEnc, FILE* f)
 
     fwrite(&count, sizeof(count), 1, f);
     fwrite(&flag, sizeof(flag), 1, f);
-    if (count == 0) return NO_ERROR;
 
+    /*
+     * Offset array.  Even an empty table writes one word (the base
+     * offset), so the total empty |Phrases is exactly 6 bytes.
+     */
     offsets = (PUSHORT)malloc((n + 1) * sizeof(USHORT));
     if (!offsets) return ERROR_NOT_ENOUGH_MEMORY;
 
@@ -489,6 +637,7 @@ APIRET APIENTRY PhrEncWrite(HPHRE hEnc, FILE* f)
     fwrite(offsets, sizeof(USHORT), n + 1, f);
     free(offsets);
 
+    /* Phrase bodies. Empty when count == 0. */
     for (i = 0; i < n; i++) {
         PhrCandidateRec r;
         VectorGetItem(p->vCandidates, i, &r, sizeof(r), NULL);

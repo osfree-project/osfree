@@ -27,9 +27,8 @@ typedef HTOP  *PHTOP;
 APIRET APIENTRY TopCreate(PHTOP phTop);
 APIRET APIENTRY TopDestroy(HTOP hTop);
 APIRET APIENTRY TopAddTopic(HTOP hTop, PCSZ pszTitle, PCSZ pszContext);
-APIRET APIENTRY TopAddText(HTOP hTop, PCSZ pszText);
+APIRET APIENTRY TopAddText(HTOP hTop, PCSZ pszText, ULONG ulFontIndex);
 APIRET APIENTRY TopAddLink(HTOP hTop, ULONG ulTargetTopic, BOOL fPopup);
-APIRET APIENTRY TopSetLastFont(HTOP hTop, ULONG ulFontIndex);
 APIRET APIENTRY TopQueryTopicCount(HTOP hTop, PULONG pulCount);
 APIRET APIENTRY TopWrite(HTOP hTop, FILE* f, PHVECTOR phvOffsets, HPHRE hEnc);
 

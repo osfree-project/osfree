@@ -17,21 +17,11 @@ typedef struct {
 } TOPICBLOCKHEADER;
 
 /*!
- * @brief TOPICLINK header (21 bytes on disk).
- *
- * Field order per helpdeco.h:
- *   offset  0: BlockSize  (u32)
- *   offset  4: DataLen2   (u32)
- *   offset  8: PrevBlock  (u32)
- *   offset 12: NextBlock  (u32)
- *   offset 16: DataLen1   (u32)
- *   offset 20: RecordType (u8)
- *
- * DataLen1 includes this 21-byte header; BlockSize >= DataLen1.
+ * @brief TOPICLINK header (21 bytes on disk, per helpdeco.h).
  */
 typedef struct {
     ULONG ulBlockSize;   /*!< Total size INCLUDING this 21-byte header. */
-    ULONG ulDataLen2;    /*!< Length of LinkData2. */
+    ULONG ulDataLen2;    /*!< Decoded length of LinkData2. */
     ULONG ulPrevBlock;   /*!< Distance to previous TOPICLINK. */
     ULONG ulNextBlock;   /*!< Distance to next TOPICLINK. */
     ULONG ulDataLen1;    /*!< End offset of LinkData1 (incl. header). */
@@ -217,12 +207,6 @@ static APIRET top_buf_str(TopBufRec* pBuf, PCSZ psz)
 /*!
  * @brief Pad the flat buffer so the next TOPICLINK fits in one block.
  *
- * If the remaining space in the current physical 2048-byte block is
- * smaller than the 21-byte TOPICLINK header, append zero bytes up to
- * the block boundary.  The next TOPICLINK then starts at the first
- * data byte of the next block, matching the format's guarantee that
- * a header never straddles a block boundary.
- *
  * @param[in,out] pBuf Flat buffer.
  *
  * @return APIRET
@@ -378,6 +362,7 @@ static TopTopicRec* top_last_topic(TopRec* pTop)
  *
  * @param[in] hTop    Handle. Not NULLHANDLE.
  * @param[in] pszText Text. Not NULL.
+ * @param[in] ulFontIndex Font descriptor index.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
@@ -385,7 +370,7 @@ static TopTopicRec* top_last_topic(TopRec* pTop)
  *                                  there is no current topic.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
  */
-APIRET APIENTRY TopAddText(HTOP hTop, PCSZ pszText)
+APIRET APIENTRY TopAddText(HTOP hTop, PCSZ pszText, ULONG ulFontIndex)
 {
     TopRec* p;
     TopTopicRec* t;
@@ -400,7 +385,8 @@ APIRET APIENTRY TopAddText(HTOP hTop, PCSZ pszText)
     if (n > 0) {
         TopFragRec* last = NULL;
         VectorGetItem(t->vFragments, n - 1, &last, sizeof(last), NULL);
-        if (last && last->ulKind == TOP_FRAG_TEXT) {
+        // Склеиваем только если совпадает шрифт
+        if (last && last->ulKind == TOP_FRAG_TEXT && last->ulFontIndex == ulFontIndex) {
             size_t lo = strlen(last->pszText);
             size_t la = strlen(pszText);
             char* nn = (char*)realloc(last->pszText, lo + la + 1);
@@ -415,6 +401,7 @@ APIRET APIENTRY TopAddText(HTOP hTop, PCSZ pszText)
     if (!f) return ERROR_NOT_ENOUGH_MEMORY;
     memset(f, 0, sizeof(*f));
     f->ulKind = TOP_FRAG_TEXT;
+    f->ulFontIndex = ulFontIndex;
     f->pszText = strdup(pszText);
     if (!f->pszText) { free(f); return ERROR_NOT_ENOUGH_MEMORY; }
     return VectorAdd(t->vFragments, &f);
@@ -454,34 +441,6 @@ APIRET APIENTRY TopAddLink(HTOP hTop, ULONG ulTargetTopic, BOOL fPopup)
 }
 
 /*!
- * @brief Set the font of the last text fragment.
- *
- * @param[in] hTop        Handle. Not NULLHANDLE.
- * @param[in] ulFontIndex Font descriptor index.
- *
- * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  @a hTop is NULL, or there is no
- *                                  current text fragment.
- */
-APIRET APIENTRY TopSetLastFont(HTOP hTop, ULONG ulFontIndex)
-{
-    TopRec* p;
-    TopTopicRec* t;
-    ULONG n;
-    TopFragRec* f = NULL;
-    if (hTop == NULLHANDLE) return ERROR_INVALID_PARAMETER;
-    p = TOP_FROM_HANDLE(hTop);
-    t = top_last_topic(p);
-    if (!t) return ERROR_INVALID_PARAMETER;
-    VectorGetCount(t->vFragments, &n);
-    if (n == 0) return ERROR_INVALID_PARAMETER;
-    VectorGetItem(t->vFragments, n - 1, &f, sizeof(f), NULL);
-    if (f && f->ulKind == TOP_FRAG_TEXT) f->ulFontIndex = ulFontIndex;
-    return NO_ERROR;
-}
-
-/*!
  * @brief Query the number of topics.
  *
  * @param[in]  hTop     Handle. Not NULLHANDLE.
@@ -507,18 +466,10 @@ typedef struct { ULONG ulFlatOffset; } TopLinkOffsetRec;
 /*!
  * @brief Emit one topic (header link + content link) into the flat buffer.
  *
- * Layout produced (all sizes LE):
- *
- *   [TOPICLINK 21] BlockSize=33+n1, DataLen2=n1, Prev, Next, DataLen1=33, Rec=0x02
- *   [TOPICHEADER30 12]
- *   [LinkData2 = title + NUL, n1 bytes]
- *
- *   [TOPICLINK 21] BlockSize=21+d1+d2, DataLen2=d2, Prev, Next, DataLen1=21+d1, Rec=0x01
- *   [LinkData1 = d1 bytes]
- *   [LinkData2 = d2 bytes]
- *
- * Before each TOPICLINK the buffer is padded so the 21-byte header does
- * not straddle a physical block boundary.
+ * LinkData2 is produced twice when @a hEnc is non-NULL: once as raw
+ * NUL-terminated strings and once phrase-encoded.  The shorter of the
+ * two is written.  `DataLen2` in the LINK header always stores the
+ * decoded length so the viewer can expand the compressed stream.
  *
  * @param[in,out] flat       Flat buffer.
  * @param[in]     t          Topic. Not NULL.
@@ -534,15 +485,17 @@ typedef struct { ULONG ulFlatOffset; } TopLinkOffsetRec;
 static APIRET top_emit_topic(TopBufRec* flat, TopTopicRec* t, ULONG num,
                              HVECTOR vLinks, HPHRE hEnc, ULONG* pOutOffset)
 {
-    TopBufRec d1, d2;
+    TopBufRec d1, d2raw, d2cmp;
     APIRET rc;
     ULONG nf = 0, i;
     LONG prevFont = -1;
     TopLinkOffsetRec offRec;
     ULONG nTitle;
+    BOOL  fCompress;
 
     memset(&d1, 0, sizeof(d1));
-    memset(&d2, 0, sizeof(d2));
+    memset(&d2raw, 0, sizeof(d2raw));
+    memset(&d2cmp, 0, sizeof(d2cmp));
 
     if (pOutOffset) *pOutOffset = flat->ulLen;
 
@@ -567,6 +520,10 @@ static APIRET top_emit_topic(TopBufRec* flat, TopTopicRec* t, ULONG num,
                 if (rc != NO_ERROR) goto fail;
                 prevFont = (LONG)f->ulFontIndex;
             }
+            /* Raw copy for fallback. */
+            rc = top_buf_str(&d2raw, f->pszText ? f->pszText : "");
+            if (rc != NO_ERROR) goto fail;
+            /* Compressed copy (or duplicate when no encoder). */
             if (hEnc != NULLHANDLE) {
                 const char* pszSrc = f->pszText ? f->pszText : "";
                 ULONG cbMax = (ULONG)(2 * strlen(pszSrc) + 2);
@@ -575,12 +532,12 @@ static APIRET top_emit_topic(TopBufRec* flat, TopTopicRec* t, ULONG num,
                 if (!pbTmp) { rc = ERROR_NOT_ENOUGH_MEMORY; goto fail; }
                 rc = PhrEncEncode(hEnc, pszSrc, pbTmp, cbMax, &cbUsed);
                 if (rc == NO_ERROR) {
-                    rc = top_buf_append(&d2, pbTmp, cbUsed);
+                    rc = top_buf_append(&d2cmp, pbTmp, cbUsed);
                 }
                 free(pbTmp);
                 if (rc != NO_ERROR) goto fail;
             } else {
-                rc = top_buf_str(&d2, f->pszText ? f->pszText : "");
+                rc = top_buf_str(&d2cmp, f->pszText ? f->pszText : "");
                 if (rc != NO_ERROR) goto fail;
             }
         } else if (f->ulKind == TOP_FRAG_LINK) {
@@ -588,19 +545,47 @@ static APIRET top_emit_topic(TopBufRec* flat, TopTopicRec* t, ULONG num,
             if (rc != NO_ERROR) goto fail;
             rc = top_buf_u32(&d1, f->ulTargetTopic);
             if (rc != NO_ERROR) goto fail;
-            rc = top_buf_str(&d2, f->pszText ? f->pszText : "");
+
+            /* Link label, raw and compressed. */
+            rc = top_buf_str(&d2raw, f->pszText ? f->pszText : "");
             if (rc != NO_ERROR) goto fail;
+            if (hEnc != NULLHANDLE) {
+                const char* pszSrc = f->pszText ? f->pszText : "";
+                ULONG cbMax = (ULONG)(2 * strlen(pszSrc) + 2);
+                PBYTE pbTmp = (PBYTE)malloc(cbMax);
+                ULONG cbUsed = 0;
+                if (!pbTmp) { rc = ERROR_NOT_ENOUGH_MEMORY; goto fail; }
+                rc = PhrEncEncode(hEnc, pszSrc, pbTmp, cbMax, &cbUsed);
+                if (rc == NO_ERROR) {
+                    rc = top_buf_append(&d2cmp, pbTmp, cbUsed);
+                }
+                free(pbTmp);
+                if (rc != NO_ERROR) goto fail;
+            } else {
+                rc = top_buf_str(&d2cmp, f->pszText ? f->pszText : "");
+                if (rc != NO_ERROR) goto fail;
+            }
+
             rc = top_buf_byte(&d1, 0x89);
             if (rc != NO_ERROR) goto fail;
-            rc = top_buf_str(&d2, "");
+
+            /* Empty terminator string, one NUL. */
+            rc = top_buf_byte(&d2raw, 0);
+            if (rc != NO_ERROR) goto fail;
+            rc = top_buf_byte(&d2cmp, 0);
             if (rc != NO_ERROR) goto fail;
         }
     }
 
     rc = top_buf_byte(&d1, 0xFF);
     if (rc != NO_ERROR) goto fail;
-    rc = top_buf_str(&d2, "");
+    rc = top_buf_byte(&d2raw, 0);
     if (rc != NO_ERROR) goto fail;
+    rc = top_buf_byte(&d2cmp, 0);
+    if (rc != NO_ERROR) goto fail;
+
+    /* Only compress when we actually save bytes. */
+    fCompress = (hEnc != NULLHANDLE) && (d2cmp.ulLen < d2raw.ulLen);
 
     nTitle = t->pszTitle ? (ULONG)strlen(t->pszTitle) + 1 : 1;
 
@@ -644,6 +629,7 @@ static APIRET top_emit_topic(TopBufRec* flat, TopTopicRec* t, ULONG num,
     /* --- Content link (RecordType = 0x01) --- */
     {
         TOPICLINK lk;
+        TopBufRec* pUse = fCompress ? &d2cmp : &d2raw;
 
         rc = top_align_before_link(flat);
         if (rc != NO_ERROR) goto fail;
@@ -652,8 +638,8 @@ static APIRET top_emit_topic(TopBufRec* flat, TopTopicRec* t, ULONG num,
         VectorAdd(vLinks, &offRec);
 
         memset(&lk, 0, sizeof(lk));
-        lk.ulBlockSize = 21UL + d1.ulLen + d2.ulLen;
-        lk.ulDataLen2  = d2.ulLen;
+        lk.ulBlockSize = 21UL + d1.ulLen + pUse->ulLen;
+        lk.ulDataLen2  = d2raw.ulLen;     /* decoded length */
         lk.ulPrevBlock = 0;
         lk.ulNextBlock = 0;
         lk.ulDataLen1  = 21UL + d1.ulLen;
@@ -662,17 +648,19 @@ static APIRET top_emit_topic(TopBufRec* flat, TopTopicRec* t, ULONG num,
         if (rc != NO_ERROR) goto fail;
         rc = top_buf_append(flat, d1.pbData, d1.ulLen);
         if (rc != NO_ERROR) goto fail;
-        rc = top_buf_append(flat, d2.pbData, d2.ulLen);
+        rc = top_buf_append(flat, pUse->pbData, pUse->ulLen);
         if (rc != NO_ERROR) goto fail;
     }
 
     free(d1.pbData);
-    free(d2.pbData);
+    free(d2raw.pbData);
+    free(d2cmp.pbData);
     return NO_ERROR;
 
 fail:
     free(d1.pbData);
-    free(d2.pbData);
+    free(d2raw.pbData);
+    free(d2cmp.pbData);
     return rc;
 }
 

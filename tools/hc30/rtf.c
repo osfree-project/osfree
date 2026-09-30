@@ -104,6 +104,22 @@ typedef struct {
  *  @brief Hidden-text buffer size in bytes. */
 #define RTF_MAX_HIDDEN   512
 
+/*! @def RTF_MAX_STATE_STACK
+ *  @brief Maximum depth of the formatting state stack. */
+#define RTF_MAX_STATE_STACK 256
+
+/*!
+ * @brief Saved formatting state for a nested RTF group.
+ */
+typedef struct {
+    ULONG ulCurFace;
+    ULONG ulCurSize;
+    ULONG ulCurAttr;
+    BYTE  abCurFG[3];
+    BYTE  abCurBG[3];
+    ULONG ulCurFamily;
+} RtfStateRec;
+
 /*!
  * @brief RTF parser state shared across one parse pass.
  */
@@ -119,6 +135,9 @@ typedef struct {
     BYTE  abCurFG[3];                  /*!< Current foreground RGB. */
     BYTE  abCurBG[3];                  /*!< Current background RGB. */
     ULONG ulCurFamily;                 /*!< Current font family code. */
+
+    RtfStateRec aStateStack[RTF_MAX_STATE_STACK];
+    int iStateStackTop;                /*!< Current depth of the state stack. */
 
     BOOL  fHaveTextFrag;               /*!< TRUE once a text fragment exists. */
     LONG  lLastTextFont;               /*!< Font index of last text fragment. */
@@ -376,6 +395,8 @@ static void rtf_start_topic(RtfParserCtx* pCtx)
     pCtx->abCurFG[0] = 0; pCtx->abCurFG[1] = 0; pCtx->abCurFG[2] = 0;
     pCtx->abCurBG[0] = 0xFF; pCtx->abCurBG[1] = 0xFF; pCtx->abCurBG[2] = 0xFF;
     pCtx->ulCurFamily = 2;
+
+    pCtx->iStateStackTop = 0; // »нициализаци€ стека состо€ний
 
     pCtx->fHaveTextFrag = FALSE;
     pCtx->lLastTextFont = -1;
@@ -850,12 +871,12 @@ static void rtf_parse_buffer(RtfParserCtx* pCtx, const char* pszBuf,
             }
             if (strncmp(p, "par", 3) == 0 && !isalpha((unsigned char)p[3])) {
                 if (!pCtx->fLastWasSpace) rtf_emit_text(pCtx, " ", 1);
-                rtf_emit_text(pCtx, "\n", 1);
+                rtf_emit_text(pCtx, "\r\n", 2);
                 p += 3; rtf_skip_space(&p); continue;
             }
             if (strncmp(p, "line", 4) == 0 && !isalpha((unsigned char)p[4])) {
                 if (!pCtx->fLastWasSpace) rtf_emit_text(pCtx, " ", 1);
-                rtf_emit_text(pCtx, "\n", 1);
+                rtf_emit_text(pCtx, "\r\n", 2);
                 p += 4; rtf_skip_space(&p); continue;
             }
             if (strncmp(p, "tab", 3) == 0 && !isalpha((unsigned char)p[3])) {
@@ -1003,6 +1024,16 @@ static void rtf_parse_buffer(RtfParserCtx* pCtx, const char* pszBuf,
 
         if (*p == '{') {
             pCtx->ulBraceLevel++;
+            // —охран€ем текущее состо€ние форматировани€
+            if (pCtx->iStateStackTop < RTF_MAX_STATE_STACK) {
+                RtfStateRec* s = &pCtx->aStateStack[pCtx->iStateStackTop++];
+                s->ulCurFace = pCtx->ulCurFace;
+                s->ulCurSize = pCtx->ulCurSize;
+                s->ulCurAttr = pCtx->ulCurAttr;
+                s->ulCurFamily = pCtx->ulCurFamily;
+                memcpy(s->abCurFG, pCtx->abCurFG, 3);
+                memcpy(s->abCurBG, pCtx->abCurBG, 3);
+            }
             if (p[1] == '\\' && strncmp(p + 2, "footnote", 8) == 0) {
                 pCtx->fInFootnote = TRUE;
                 pCtx->ulFootnoteLen = 0;
@@ -1016,10 +1047,32 @@ static void rtf_parse_buffer(RtfParserCtx* pCtx, const char* pszBuf,
         }
 
         if (*p == '}') {
+            // ¬осстанавливаем состо€ние форматировани€
+            if (pCtx->iStateStackTop > 0) {
+                RtfStateRec* s = &pCtx->aStateStack[--pCtx->iStateStackTop];
+                pCtx->ulCurFace = s->ulCurFace;
+                pCtx->ulCurSize = s->ulCurSize;
+                pCtx->ulCurAttr = s->ulCurAttr;
+                pCtx->ulCurFamily = s->ulCurFamily;
+                memcpy(pCtx->abCurFG, s->abCurFG, 3);
+                memcpy(pCtx->abCurBG, s->abCurBG, 3);
+            }
+
             if (pCtx->fInFootnote &&
                 pCtx->ulBraceLevel == pCtx->ulFootnoteBrace) {
                 rtf_flush_footnote(pCtx);
             }
+            
+            // ѕринудительно закрываем ссылку, если мы внутри {\v ...}
+            if (pCtx->fInV) {
+                pCtx->fInV = FALSE;
+                pCtx->szHidden[pCtx->ulHiddenLen] = '\0';
+                pCtx->szLinkText[pCtx->ulLinkTextLen] = '\0';
+                rtf_emit_link(pCtx, pCtx->szLinkText, pCtx->szHidden, pCtx->fInUL ? TRUE : FALSE);
+                pCtx->ulLinkTextLen = 0;
+                pCtx->ulHiddenLen = 0;
+            }
+
             if (pCtx->ulBraceLevel > 0) pCtx->ulBraceLevel--;
             p++;
             continue;
