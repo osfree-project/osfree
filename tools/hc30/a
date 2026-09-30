@@ -1,0 +1,8 @@
+Win64 build host
+root=C:\devl\osfree\
+cd ..
+cd hc30 && C:\devl\osfree\osFreeBE\watcom\binnt\wmake.exe -f C:\devl\osfree\tools\hc30\makefile -h PROJ=hc30
+CD       tools\hc30\ 
+CC       topic.obj 
+LINK     hc30.exe 
+INST     hc30.exe 

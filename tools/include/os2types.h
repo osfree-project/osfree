@@ -41,6 +41,7 @@ typedef int                 BOOL;
 typedef char                CHAR;
 typedef char               *PSZ;
 typedef const char         *PCSZ;
+typedef void               VOID;
 typedef void               *PVOID;
 typedef const void         *PCVOID;
 typedef PVOID              *PPVOID;
