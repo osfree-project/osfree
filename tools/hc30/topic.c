@@ -512,7 +512,11 @@ static APIRET top_emit_topic(TopBufRec* flat, TopTopicRec* t, ULONG num,
         TopFragRec* f = NULL;
         VectorGetItem(t->vFragments, i, &f, sizeof(f), NULL);
         if (!f) continue;
+
         if (f->ulKind == TOP_FRAG_TEXT) {
+            const char* src;
+            const char* p;
+
             if ((LONG)f->ulFontIndex != prevFont) {
                 rc = top_buf_byte(&d1, 0x80);
                 if (rc != NO_ERROR) goto fail;
@@ -520,25 +524,68 @@ static APIRET top_emit_topic(TopBufRec* flat, TopTopicRec* t, ULONG num,
                 if (rc != NO_ERROR) goto fail;
                 prevFont = (LONG)f->ulFontIndex;
             }
-            /* Raw copy for fallback. */
-            rc = top_buf_str(&d2raw, f->pszText ? f->pszText : "");
-            if (rc != NO_ERROR) goto fail;
-            /* Compressed copy (or duplicate when no encoder). */
-            if (hEnc != NULLHANDLE) {
-                const char* pszSrc = f->pszText ? f->pszText : "";
-                ULONG cbMax = (ULONG)(2 * strlen(pszSrc) + 2);
-                PBYTE pbTmp = (PBYTE)malloc(cbMax);
-                ULONG cbUsed = 0;
-                if (!pbTmp) { rc = ERROR_NOT_ENOUGH_MEMORY; goto fail; }
-                rc = PhrEncEncode(hEnc, pszSrc, pbTmp, cbMax, &cbUsed);
-                if (rc == NO_ERROR) {
-                    rc = top_buf_append(&d2cmp, pbTmp, cbUsed);
+
+            /*
+             * Split the text at '\r' markers (RTF \par).  Each chunk
+             * becomes one LinkData2 string.  Between chunks emit
+             * LinkData1 opcode 0x82, which tells WinHelp to end the
+             * current paragraph and start a new one with the same
+             * ParagraphFormat (verified against the WinHlp32 char
+             * stream decoder: opcode 0x82 -> SameParagraphFormat).
+             *
+             * RTF \par\par therefore yields two 0x82 bytes, producing
+             * an empty paragraph between the surrounding text -- the
+             * blank line that the compiler previously failed to emit.
+             */
+            src = f->pszText ? f->pszText : "";
+            p = src;
+            for (;;) {
+                const char* cr = strchr(p, '\r');
+                size_t chunkLen = cr ? (size_t)(cr - p) : strlen(p);
+
+                /* Raw form: chunk + NUL. */
+                rc = top_buf_append(&d2raw, p, (ULONG)chunkLen);
+                if (rc != NO_ERROR) goto fail;
+                rc = top_buf_byte(&d2raw, 0);
+                if (rc != NO_ERROR) goto fail;
+
+                /* Compressed form: encode chunk independently. */
+                if (hEnc != NULLHANDLE) {
+                    char*  chunkCopy;
+                    ULONG  cbMax, cbUsed = 0;
+                    PBYTE  pbTmp;
+
+                    chunkCopy = (char*)malloc(chunkLen + 1);
+                    if (!chunkCopy) { rc = ERROR_NOT_ENOUGH_MEMORY; goto fail; }
+                    memcpy(chunkCopy, p, chunkLen);
+                    chunkCopy[chunkLen] = '\0';
+
+                    cbMax = (ULONG)(2 * chunkLen + 2);
+                    pbTmp = (PBYTE)malloc(cbMax);
+                    if (!pbTmp) {
+                        free(chunkCopy);
+                        rc = ERROR_NOT_ENOUGH_MEMORY;
+                        goto fail;
+                    }
+                    rc = PhrEncEncode(hEnc, chunkCopy, pbTmp, cbMax, &cbUsed);
+                    free(chunkCopy);
+                    if (rc == NO_ERROR) {
+                        rc = top_buf_append(&d2cmp, pbTmp, cbUsed);
+                    }
+                    free(pbTmp);
+                    if (rc != NO_ERROR) goto fail;
+                } else {
+                    rc = top_buf_append(&d2cmp, p, (ULONG)chunkLen);
+                    if (rc != NO_ERROR) goto fail;
+                    rc = top_buf_byte(&d2cmp, 0);
+                    if (rc != NO_ERROR) goto fail;
                 }
-                free(pbTmp);
+
+                if (!cr) break;
+
+                rc = top_buf_byte(&d1, 0x82);
                 if (rc != NO_ERROR) goto fail;
-            } else {
-                rc = top_buf_str(&d2cmp, f->pszText ? f->pszText : "");
-                if (rc != NO_ERROR) goto fail;
+                p = cr + 1;
             }
         } else if (f->ulKind == TOP_FRAG_LINK) {
             rc = top_buf_byte(&d1, f->fPopup ? 0xE0 : 0xE1);
@@ -546,7 +593,6 @@ static APIRET top_emit_topic(TopBufRec* flat, TopTopicRec* t, ULONG num,
             rc = top_buf_u32(&d1, f->ulTargetTopic);
             if (rc != NO_ERROR) goto fail;
 
-            /* Link label, raw and compressed. */
             rc = top_buf_str(&d2raw, f->pszText ? f->pszText : "");
             if (rc != NO_ERROR) goto fail;
             if (hEnc != NULLHANDLE) {
@@ -569,7 +615,6 @@ static APIRET top_emit_topic(TopBufRec* flat, TopTopicRec* t, ULONG num,
             rc = top_buf_byte(&d1, 0x89);
             if (rc != NO_ERROR) goto fail;
 
-            /* Empty terminator string, one NUL. */
             rc = top_buf_byte(&d2raw, 0);
             if (rc != NO_ERROR) goto fail;
             rc = top_buf_byte(&d2cmp, 0);
@@ -639,7 +684,7 @@ static APIRET top_emit_topic(TopBufRec* flat, TopTopicRec* t, ULONG num,
 
         memset(&lk, 0, sizeof(lk));
         lk.ulBlockSize = 21UL + d1.ulLen + pUse->ulLen;
-        lk.ulDataLen2  = d2raw.ulLen;     /* decoded length */
+        lk.ulDataLen2  = d2raw.ulLen;
         lk.ulPrevBlock = 0;
         lk.ulNextBlock = 0;
         lk.ulDataLen1  = 21UL + d1.ulLen;

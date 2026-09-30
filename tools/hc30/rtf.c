@@ -883,7 +883,10 @@ static void rtf_parse_buffer(RtfParserCtx* pCtx, const char* pszBuf,
              * and blanks between \par\par paragraphs would be lost.
              */
             if (strncmp(p, "par", 3) == 0 && !isalpha((unsigned char)p[3])) {
-                rtf_emit_text(pCtx, "\r\n", 2);
+                /* Emit a single '\r' marker.  topic.c splits the text at '\r'
+                   and inserts LinkData1 opcode 0x82 (SameParagraphFormat) between
+                   chunks, giving WinHelp a genuine paragraph boundary. */
+                rtf_emit_text(pCtx, "\r", 1);
                 p += 3; rtf_skip_space(&p); continue;
             }
             if (strncmp(p, "line", 4) == 0 && !isalpha((unsigned char)p[4])) {
