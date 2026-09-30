@@ -5,4 +5,5 @@ begin
   include 'pm.uni';
   include 'osa.uni';
   include 'opendoc.uni';
+  include 'vdm.uni';
 end;

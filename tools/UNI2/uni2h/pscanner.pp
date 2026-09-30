@@ -166,7 +166,6 @@ type
     FCurLine: string;
     FDefines: TStrings;
     TokenStr: PChar;
-    FIncludeStack: TList;
 
     function GetCurColumn: Integer;
   protected
@@ -418,20 +417,12 @@ constructor TPascalScanner.Create(AFileResolver: TFileResolver);
 begin
   inherited Create;
   FFileResolver := AFileResolver;
-  FIncludeStack := TList.Create;
   FDefines := TStringList.Create;
 end;
 
 destructor TPascalScanner.Destroy;
 begin
   FDefines.Free;
-  while FIncludeStack.Count > 1 do
-  begin
-    TIncludeStackItem(FIncludeStack[1]).Free;
-    FIncludeStack.Delete(1);
-  end;
-  FIncludeStack.Free;
-
   CurSourceFile.Free;
   inherited Destroy;
 end;
@@ -455,33 +446,8 @@ begin
 end;
 
 function TPascalScanner.FetchToken: TToken;
-var
-  IncludeStackItem: TIncludeStackItem;
 begin
-  while true do
-  begin
-    Result := DoFetchToken;
-    if FCurToken = tkEOF then
-      if FIncludeStack.Count > 0 then
-      begin
-        CurSourceFile.Free;
-        IncludeStackItem :=
-          TIncludeStackItem(FIncludeStack[FIncludeStack.Count - 1]);
-        FIncludeStack.Delete(FIncludeStack.Count - 1);
-        FCurSourceFile := IncludeStackItem.SourceFile;
-        FCurFilename := IncludeStackItem.Filename;
-        FCurToken := IncludeStackItem.Token;
-        FCurTokenString := IncludeStackItem.TokenString;
-        FCurLine := IncludeStackItem.Line;
-        FCurRow := IncludeStackItem.Row;
-        TokenStr := IncludeStackItem.TokenStr;
-        IncludeStackItem.Free;
-        Result := FCurToken;
-      end else
-        break
-    else
-      break;
-  end;
+  Result := DoFetchToken;
 end;
 
 procedure TPascalScanner.Error(const Msg: string);

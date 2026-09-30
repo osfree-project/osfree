@@ -58,7 +58,8 @@ os2inc: $(OS2TKINC)os2.inc &
 	.symbolic
 
 ## OS/2 Personality H files
-os2: $(OS2TKH)os2.h &
+os2: $(OS2TKH)vdm.h &
+     $(OS2TKH)os2.h &
      $(OS2TKH)os2def.h &
      $(OS2TKH)bse.h &
      $(OS2TKH)bseord.h &
@@ -269,7 +270,7 @@ $(OS2TKH)time.h: $(SRC)os2$(SEP)time.uni
 ## DOS Personality files
 dos: $(OUT)dos$(SEP)dos.h .symbolic # $(OUT)$dos$(SEP)os2vdm.h
 
-$(OUT)dos$(SEP)dos.h: $(SRC)dos$(SEP)dos.uni
+$(OUT)dos$(SEP)dos.h: $(SRC)os2$(SEP)dos.uni
 
 $(OUT)dos$(SEP)os2vdm.h: $(SRC)dos$(SEP)os2vdm.uni
 
@@ -287,7 +288,7 @@ $(OUT)dos$(SEP)os2vdm.h: $(SRC)dos$(SEP)os2vdm.uni
 
 .lib: $(PATH)
 
-os2hfiles = $(OS2TKH)os2.h $(OS2TKH)os2def.h $(OS2TKH)bse.h
+os2hfiles = $(OS2TKH)os2.h $(OS2TKH)os2def.h $(OS2TKH)bse.h $(OS2TKH)bseord.h $(OS2TKH)vdm.h
 
 $(os2hfiles): os2.uni
  @$(SAY) UNI2H    $^. $(LOG)

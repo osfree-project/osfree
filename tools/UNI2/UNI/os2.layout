@@ -12,6 +12,12 @@ begin
     included
     desc="OS/2 Base";
 
+  group vdm : vdm.h
+    macro
+    guard
+    included
+    desc="OS/2 VDM";
+
   group pm : pm.h
     macro=INCL_NOPMAPI invert
     cascade=INCL_PM

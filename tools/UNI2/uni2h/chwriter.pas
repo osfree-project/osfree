@@ -1,3 +1,11 @@
+{**
+  @file CHWriter.pas
+  @brief C header emitter.
+
+  Generates C headers from a PasTree module, ABI data and a layout.
+  Supports syscall functions with interrupt, service and call conventions
+  through #pragma aux directives.
+}
 unit CHWriter;
 
 interface
@@ -5,8 +13,31 @@ interface
 uses
   Classes, SysUtils, PasTree, ABIReader, LayoutParser;
 
+{**
+  @brief Write C headers for all groups of a module.
+  @param Module Parsed .uni module.
+  @param ABIData Parsed .abi data.
+  @param Layout Parsed layout.
+  @param DefaultOutput Default output file name.
+  @param H2IncCompat Emit NOINC / INC markers.
+  @param NoCommon Emit INCL_NOCOMMON checks.
+  @param CppWrapping Wrap with extern "C".
+  @param IBMWrapping Wrap with IBM C/C++ pragmas.
+}
 procedure WriteCHeaders(Module: TPasModule; ABIData: TABIData; Layout: TLayout;
   const DefaultOutput: string; H2IncCompat, NoCommon, CppWrapping, IBMWrapping: Boolean);
+
+{**
+  @brief Write a single C header for a selected group.
+  @param Module Parsed .uni module.
+  @param ABIData Parsed .abi data.
+  @param Layout Parsed layout.
+  @param OutputFile Target file name.
+  @param H2IncCompat Emit NOINC / INC markers.
+  @param NoCommon Emit INCL_NOCOMMON checks.
+  @param CppWrapping Wrap with extern "C".
+  @param IBMWrapping Wrap with IBM C/C++ pragmas.
+}
 procedure WriteSingleCHeader(Module: TPasModule; ABIData: TABIData; Layout: TLayout;
   const OutputFile: string; H2IncCompat, NoCommon, CppWrapping, IBMWrapping: Boolean);
 
@@ -43,6 +74,8 @@ type
     procedure WriteType(AType: TPasType);
     procedure WriteStructure(Stru: TPasRecordType);
     procedure WriteFunction(AFunc: TPasProcedureBase);
+    procedure WriteSyscallPragma(AFunc: TPasProcedureBase;
+      ProcType: TPasProcedureType; const RetType: string; Syscall: TABISyscall);
     procedure WriteVariable(AVar: TPasVariable);
     procedure WriteConstant(AConst: TPasConst);
     function GetIncludedMacro(const GroupName: string; const Entry: TLayoutEntry): string;
@@ -58,6 +91,11 @@ type
     procedure Generate(Module: TPasModule; const OutputFileName: string);
   end;
 
+{**
+  @brief Map a .uni primitive type to a C type.
+  @param Name Primitive type name.
+  @return C type name.
+}
 function PrimitiveToC(const Name: string): string;
 begin
   if Name = 'int8' then Result := 'char'
@@ -74,6 +112,102 @@ begin
   else if Name = 'bool' then Result := '_Bool'
   else if Name = 'pointer' then Result := 'void *'
   else Result := Name;
+end;
+
+{**
+  @brief Convert an .abi numeric token into the assembler form.
+
+  "$21" becomes "21h"; "-1" stays "-1"; a decimal token stays as is.
+}
+function ConvertAsmNumber(const S: string): string;
+begin
+  if S = '' then
+    Result := ''
+  else if S[1] = '$' then
+    Result := Copy(S, 2, MaxInt) + 'h'
+  else
+    Result := S;
+end;
+
+{**
+  @brief Convert a far address token "$SSSS:$OOOO" into "SSSSh:OOOOh".
+}
+function ConvertFarAddr(const S: string): string;
+var
+  p: Integer;
+begin
+  p := Pos(':', S);
+  if p = 0 then
+    Result := ConvertAsmNumber(S)
+  else
+    Result := ConvertAsmNumber(Copy(S, 1, p - 1)) + ':' +
+              ConvertAsmNumber(Copy(S, p + 1, MaxInt));
+end;
+
+{**
+  @brief Split a register or register pair into individual names.
+  @param Regs Register name or pair ("ah", "ds:dx").
+  @param List Output list receiving one or two names.
+}
+procedure SplitRegs(const Regs: string; List: TStringList);
+var
+  p: Integer;
+  S: string;
+begin
+  S := Regs;
+  while S <> '' do
+  begin
+    p := Pos(':', S);
+    if p = 0 then
+    begin
+      List.Add(S);
+      Break;
+    end
+    else
+    begin
+      List.Add(Copy(S, 1, p - 1));
+      Delete(S, 1, p);
+    end;
+  end;
+end;
+
+{**
+  @brief Parse an 8-bit decimal or hexadecimal token.
+  @param S Token from the .abi file.
+  @param N Output numeric value.
+  @return True if the token is a scalar in the range 0..255.
+}
+function ParseByteNumber(const S: string; out N: Integer): Boolean;
+var
+  V: Integer;
+begin
+  Result := False;
+  N := 0;
+  if S = '' then Exit;
+  if S[1] = '$' then
+    V := StrToIntDef('$' + Copy(S, 2, MaxInt), -1)
+  else
+    V := StrToIntDef(S, -1);
+  if (V >= 0) and (V <= 255) then
+  begin
+    N := V;
+    Result := True;
+  end;
+end;
+
+{**
+  @brief Check whether a type is a pointer, resolving alias chains.
+  @param AType Type to check.
+  @return True if the type is a pointer type.
+}
+function IsPointerType(AType: TPasType): Boolean;
+begin
+  Result := False;
+  if AType = nil then Exit;
+  if AType is TPasPointerType then
+    Result := True
+  else if AType is TPasAliasType then
+    Result := IsPointerType(TPasAliasType(AType).DestType);
 end;
 
 constructor TCHWriter.Create(AStream: TStream; AData: TABIData; ALayout: TLayout;
@@ -391,8 +525,6 @@ var
   HasChildWithOutput: Boolean;
   HasOwnDecl: Boolean;
 begin
-  WriteLn('DEBUG: ProcessGroupContents: Group=', Group.Name, ' OwnFile=', OwnFile);
-
   IncludeMacroName := 'INCL_' + UpperCase(Group.Name);
   if Assigned(FLayout) then
   begin
@@ -415,11 +547,9 @@ begin
 
   if Assigned(Section) then
   begin
-    WriteLn('DEBUG: Section.Declarations.Count=', Section.Declarations.Count);
     for i := 0 to Section.Declarations.Count - 1 do
     begin
       El := TPasElement(Section.Declarations[i]);
-      WriteLn('DEBUG: Decl[', i, '] Class=', El.ClassName, ' Name=', El.Name);
       if El is TPasGroup then
       begin
         HasChildWithOutput := True;
@@ -523,8 +653,6 @@ var
   IncludeMacroName, Description, BaseName, GuardName, IncMacro: string;
   Invert: Boolean;
 begin
-  WriteLn('DEBUG: ProcessGroup: Group=', Group.Name);
-
   IncludeMacroName := 'INCL_' + UpperCase(Group.Name);
   NewFileName := '';
   LayoutEntry := nil;
@@ -552,7 +680,6 @@ begin
 
   if NewFileName <> '' then
   begin
-    WriteLn('DEBUG: ProcessGroup: NewFileName=', NewFileName);
     if Description <> '' then
       wln('/* ' + Description + ' */');
     if LayoutEntry <> nil then
@@ -583,7 +710,6 @@ begin
     if not FNoChildFiles then
     begin
       BaseName := ChangeFileExt(ExtractFileName(NewFileName), '');
-      WriteLn('DEBUG: Создание дочернего файла ', NewFileName);
       ChildStream := TFileStream.Create(NewFileName, fmCreate);
       ChildWriter := TCHWriter.Create(ChildStream, FABIData, FLayout,
                                       FH2IncCompat, FNoCommon,
@@ -605,7 +731,6 @@ var
   Desc, BaseName, GuardName, IncMacro: string;
   LayoutEntry: TLayoutEntry;
 begin
-  WriteLn('DEBUG: GenerateForGroup: Group=', Group.Name, ' Output=', OutputFileName);
   Desc := '';
   GuardName := '';
   IncMacro := '';
@@ -643,6 +768,12 @@ begin
   WriteEpilog;
 end;
 
+{**
+  @brief Find a group by name in a module tree.
+  @param Element Module or group to search in.
+  @param GroupName Group name.
+  @return Found group or nil.
+}
 function FindGroupByName(Element: TPasElement; const GroupName: string): TPasElement;
 var
   i: Integer;
@@ -674,7 +805,6 @@ var
   Group: TPasElement;
   BaseName: string;
 begin
-  WriteLn('DEBUG: GenerateSingleFile: Output=', OutputFileName);
   BaseName := ExtractFileName(OutputFileName);
   LayoutEntry := FLayout.FindByOutputFile(BaseName);
   if LayoutEntry = nil then
@@ -694,7 +824,6 @@ end;
 
 procedure TCHWriter.ProcessElement(El: TPasElement);
 begin
-  WriteLn('DEBUG: ProcessElement: Class=', El.ClassName, ' Name=', El.Name);
   if El is TPasComment then
     WriteComment(TPasComment(El))
   else if El is TPasRecordType then
@@ -720,8 +849,6 @@ var
   i: Integer;
   Arg: TPasArgument;
 begin
-  WriteLn('DEBUG: WriteType: ', AType.ClassName, ' Name=', AType.Name);
-
   if AType is TPasAliasType then
   begin
     CType := PrimitiveToC(TPasAliasType(AType).DestType.Name);
@@ -731,7 +858,6 @@ begin
   begin
     if Assigned(TPasPointerType(AType).DestType) then
     begin
-      // Если указывает на процедурный тип, используем его имя
       if (TPasPointerType(AType).DestType is TPasProcedureType) or
          (TPasPointerType(AType).DestType is TPasFunctionType) then
         CType := TPasPointerType(AType).DestType.Name
@@ -748,7 +874,7 @@ begin
   end
   else if AType is TPasProcedureType then
   begin
-    Convention := '_System';  // позже можно брать из ABI
+    Convention := '_System';
     Args := 'void';
     if Assigned(TPasProcedureType(AType).Args) and
        (TPasProcedureType(AType).Args.Count > 0) then
@@ -815,7 +941,6 @@ var
   PrefixTag: string;
   FieldComment: string;
 begin
-  WriteLn('DEBUG: WriteStructure: ', Stru.Name);
   StructAttr := nil;
   if Assigned(FABIData) then
     StructAttr := FABIData.FindStructure(Stru.Name);
@@ -827,19 +952,15 @@ begin
     if FH2IncCompat then wln('/* INC */');
   end;
 
-  // Формируем тег префикса
   PrefixTag := '';
   if FH2IncCompat and Assigned(StructAttr) and (StructAttr.Prefix <> '') then
     PrefixTag := ' /* ' + StructAttr.Prefix + ' */';
 
-  // Выводим строку typedef struct с фигурной скобкой в той же строке
   wln('typedef struct _' + Stru.Name + ' {' + PrefixTag);
 
   for i := 0 to Stru.Members.Count - 1 do
   begin
     VarEl := TPasVariable(Stru.Members[i]);
-
-    WriteLn('DEBUG:   Поле ', i, ': ', VarEl.Name, ' тип=', VarEl.VarType.ClassName, ' имя типа=', VarEl.VarType.Name);
 
     if Assigned(VarEl.VarType) then
     begin
@@ -871,7 +992,6 @@ begin
     end;
   end;
 
-  // Закрывающая строка структуры
   wln('} ' + Stru.Name + ';');
 
   if Assigned(StructAttr) and (StructAttr.Pack > 0) then
@@ -879,6 +999,288 @@ begin
     if FH2IncCompat then wln('/* NOINC */');
     wln('#pragma pack(pop)');
     if FH2IncCompat then wln('/* INC */');
+  end;
+end;
+
+{**
+  @brief Emit a #pragma aux directive for an interrupt, service or call syscall.
+
+  Output form:
+  @code
+  #pragma aux <name> = \
+      "mov ..." \                       -- for registers with rkValue
+      "<control instruction>" \         -- int NNh | hlt/db/db NOT | call SSSS:OOOO
+      [cf conversion] \                 -- jnc/jmp/xor for CF -> APIRET
+      value [reg1 reg2 ...] \           -- for registers with rkResult
+      parm [reg...] [reg...] \          -- one block per function parameter
+      modify [reg1 reg2 ...];           -- every register from inputs and outputs
+  @endcode
+
+  Registers inside [...] are separated by spaces, as required by OpenWatcom.
+  If Syscall.UsesCF is set, the sequence converts CF=1 (error in AX) and
+  CF=0 (result in AX) into APIRET-style return: AX = error code on CF=1,
+  AX = 0 on CF=0. On success, registers holding pointers to out-value
+  parameters receive the result value before AX is cleared.
+
+  All inconsistencies (missing register for a parameter, unknown parameter
+  in a register, missing or extra result register, invalid Number, CF
+  without a result register) raise an exception with the function name.
+}
+procedure TCHWriter.WriteSyscallPragma(AFunc: TPasProcedureBase;
+  ProcType: TPasProcedureType; const RetType: string; Syscall: TABISyscall);
+var
+  i, j: Integer;
+  Reg: TABIRegister;
+  Arg: TPasArgument;
+  MovLines: TStringList;
+  InstrLines: TStringList;
+  ParmBlocks: TStringList;
+  ValueParts: TStringList;
+  ModifyParts: TStringList;
+  RegNames: TStringList;
+  ParamRegs: TStringList;
+  ParameterNames: TStringList;
+  OutPointerRegs: TStringList;
+  NumVal: Integer;
+  HasResult: Boolean;
+
+  {**
+    @brief Build a space-separated register list from a TStringList.
+    @param List List of register names.
+    @return Space-separated string without brackets.
+  }
+  function JoinRegs(List: TStringList): string;
+  var
+    k: Integer;
+  begin
+    Result := '';
+    for k := 0 to List.Count - 1 do
+    begin
+      if k > 0 then Result := Result + ' ';
+      Result := Result + List[k];
+    end;
+  end;
+
+begin
+  if not (SameText(Syscall.Convention, 'interrupt') or
+          SameText(Syscall.Convention, 'service') or
+          SameText(Syscall.Convention, 'call')) then
+    raise Exception.CreateFmt(
+      'Function "%s": unsupported syscall convention "%s"',
+      [AFunc.Name, Syscall.Convention]);
+
+  ParameterNames := TStringList.Create;
+  MovLines := TStringList.Create;
+  InstrLines := TStringList.Create;
+  ParmBlocks := TStringList.Create;
+  ValueParts := TStringList.Create;
+  ModifyParts := TStringList.Create;
+  RegNames := TStringList.Create;
+  OutPointerRegs := TStringList.Create;
+  try
+    if Assigned(ProcType) then
+      for i := 0 to ProcType.Args.Count - 1 do
+        ParameterNames.Add(TPasArgument(ProcType.Args[i]).Name);
+
+    { mov instructions for registers with a fixed value }
+    for i := 0 to Syscall.Inputs.Count - 1 do
+    begin
+      Reg := TABIRegister(Syscall.Inputs[i]);
+      if Reg.Kind = rkValue then
+      begin
+        if Pos(':', Reg.Regs) > 0 then
+          raise Exception.CreateFmt(
+            'Function "%s": fixed value on a register pair "%s" is not supported',
+            [AFunc.Name, Reg.Regs]);
+        MovLines.Add('    "mov ' + Reg.Regs + ',' + ConvertAsmNumber(Reg.Target) + '" \');
+      end;
+    end;
+    for i := 0 to Syscall.Outputs.Count - 1 do
+    begin
+      Reg := TABIRegister(Syscall.Outputs[i]);
+      if Reg.Kind = rkValue then
+      begin
+        if Pos(':', Reg.Regs) > 0 then
+          raise Exception.CreateFmt(
+            'Function "%s": fixed value on a register pair "%s" is not supported',
+            [AFunc.Name, Reg.Regs]);
+        MovLines.Add('    "mov ' + Reg.Regs + ',' + ConvertAsmNumber(Reg.Target) + '" \');
+      end;
+    end;
+
+    { control transfer instruction }
+    if SameText(Syscall.Convention, 'interrupt') then
+    begin
+      if not ParseByteNumber(Syscall.Number, NumVal) then
+        raise Exception.CreateFmt(
+          'Function "%s": interrupt number "%s" is not a scalar in range 0..255',
+          [AFunc.Name, Syscall.Number]);
+      InstrLines.Add('    "int ' + ConvertAsmNumber(Syscall.Number) + '" \');
+    end
+    else if SameText(Syscall.Convention, 'service') then
+    begin
+      if not ParseByteNumber(Syscall.Number, NumVal) then
+        raise Exception.CreateFmt(
+          'Function "%s": service code "%s" is not a scalar in range 0..255',
+          [AFunc.Name, Syscall.Number]);
+      InstrLines.Add('    "hlt" \');
+      InstrLines.Add('    "db ' + IntToStr(NumVal) + '" \');
+      InstrLines.Add('    "db NOT ' + IntToStr(NumVal) + '" \');
+    end
+    else if SameText(Syscall.Convention, 'call') then
+    begin
+      if Pos(':', Syscall.Number) = 0 then
+        raise Exception.CreateFmt(
+          'Function "%s": call target "%s" is not a far address (expected SSSS:OOOO)',
+          [AFunc.Name, Syscall.Number]);
+      InstrLines.Add('    "call ' + ConvertFarAddr(Syscall.Number) + '" \');
+    end;
+
+    { collect registers holding pointers to out-value parameters:
+      - parameter has Access = argOut or argInOut;
+      - parameter type is not a pointer (otherwise the callee writes
+        through the pointer and the wrapper must not touch it). }
+    if Syscall.UsesCF and Assigned(ProcType) then
+      for i := 0 to ProcType.Args.Count - 1 do
+      begin
+        Arg := TPasArgument(ProcType.Args[i]);
+        if (Arg.Access <> argOut) and (Arg.Access <> argInOut) then Continue;
+        if IsPointerType(Arg.ArgType) then Continue;
+        for j := 0 to Syscall.Inputs.Count - 1 do
+        begin
+          Reg := TABIRegister(Syscall.Inputs[j]);
+          if (Reg.Kind = rkParam) and SameText(Reg.Target, Arg.Name) then
+            OutPointerRegs.Add(Reg.Regs);
+        end;
+        for j := 0 to Syscall.Outputs.Count - 1 do
+        begin
+          Reg := TABIRegister(Syscall.Outputs[j]);
+          if (Reg.Kind = rkParam) and SameText(Reg.Target, Arg.Name) then
+            OutPointerRegs.Add(Reg.Regs);
+        end;
+      end;
+
+    { if CF is used, generate a conversion from CF+AX to APIRET in AX }
+    if Syscall.UsesCF then
+    begin
+      HasResult := False;
+      for i := 0 to Syscall.Outputs.Count - 1 do
+        if TABIRegister(Syscall.Outputs[i]).Kind = rkResult then
+          HasResult := True;
+      if not HasResult then
+        raise Exception.CreateFmt(
+          'Function "%s": CF conversion requires a result register',
+          [AFunc.Name]);
+
+      InstrLines.Add('    "jnc @@cf_ok" \');
+      InstrLines.Add('    "jmp @@cf_done" \');
+      InstrLines.Add('    "@@cf_ok:" \');
+      for i := 0 to OutPointerRegs.Count - 1 do
+        InstrLines.Add('    "mov [' + OutPointerRegs[i] + '],ax" \');
+      InstrLines.Add('    "xor ax,ax" \');
+      InstrLines.Add('    "@@cf_done:" \');
+    end;
+
+    { parm blocks, one per parameter in signature order }
+    if Assigned(ProcType) then
+      for i := 0 to ProcType.Args.Count - 1 do
+      begin
+        Arg := TPasArgument(ProcType.Args[i]);
+        ParamRegs := TStringList.Create;
+        try
+          for j := 0 to Syscall.Inputs.Count - 1 do
+          begin
+            Reg := TABIRegister(Syscall.Inputs[j]);
+            if (Reg.Kind = rkParam) and SameText(Reg.Target, Arg.Name) then
+              SplitRegs(Reg.Regs, ParamRegs);
+          end;
+          for j := 0 to Syscall.Outputs.Count - 1 do
+          begin
+            Reg := TABIRegister(Syscall.Outputs[j]);
+            if (Reg.Kind = rkParam) and SameText(Reg.Target, Arg.Name) then
+              SplitRegs(Reg.Regs, ParamRegs);
+          end;
+          if ParamRegs.Count = 0 then
+            raise Exception.CreateFmt(
+              'Function "%s": no register bound to parameter "%s"',
+              [AFunc.Name, Arg.Name]);
+          ParmBlocks.Add('    parm [' + JoinRegs(ParamRegs) + '] \');
+        finally
+          ParamRegs.Free;
+        end;
+      end;
+
+    { value block }
+    for i := 0 to Syscall.Outputs.Count - 1 do
+    begin
+      Reg := TABIRegister(Syscall.Outputs[i]);
+      if Reg.Kind = rkResult then
+        SplitRegs(Reg.Regs, ValueParts);
+    end;
+
+    { modify block: flat list of every register, deduplicated }
+    for i := 0 to Syscall.Inputs.Count - 1 do
+    begin
+      Reg := TABIRegister(Syscall.Inputs[i]);
+      SplitRegs(Reg.Regs, RegNames);
+    end;
+    for i := 0 to Syscall.Outputs.Count - 1 do
+    begin
+      Reg := TABIRegister(Syscall.Outputs[i]);
+      SplitRegs(Reg.Regs, RegNames);
+    end;
+    for i := 0 to RegNames.Count - 1 do
+      if ModifyParts.IndexOf(RegNames[i]) < 0 then
+        ModifyParts.Add(RegNames[i]);
+
+    { validation: every rkParam target must be a real parameter }
+    for i := 0 to Syscall.Inputs.Count - 1 do
+    begin
+      Reg := TABIRegister(Syscall.Inputs[i]);
+      if (Reg.Kind = rkParam) and (ParameterNames.IndexOf(Reg.Target) < 0) then
+        raise Exception.CreateFmt(
+          'Function "%s": register "%s" bound to unknown parameter "%s"',
+          [AFunc.Name, Reg.Regs, Reg.Target]);
+    end;
+    for i := 0 to Syscall.Outputs.Count - 1 do
+    begin
+      Reg := TABIRegister(Syscall.Outputs[i]);
+      if (Reg.Kind = rkParam) and (ParameterNames.IndexOf(Reg.Target) < 0) then
+        raise Exception.CreateFmt(
+          'Function "%s": register "%s" bound to unknown parameter "%s"',
+          [AFunc.Name, Reg.Regs, Reg.Target]);
+    end;
+
+    { validation: result register must match the return type }
+    HasResult := ValueParts.Count > 0;
+    if SameText(RetType, 'void') and HasResult then
+      raise Exception.CreateFmt(
+        'Function "%s": void function has a result register', [AFunc.Name]);
+    if (not SameText(RetType, 'void')) and (not HasResult) then
+      raise Exception.CreateFmt(
+        'Function "%s": non-void function has no result register', [AFunc.Name]);
+
+    { assemble the directive }
+    wln('#pragma aux ' + AFunc.Name + ' = \');
+    for i := 0 to MovLines.Count - 1 do
+      wln(MovLines[i]);
+    for i := 0 to InstrLines.Count - 1 do
+      wln(InstrLines[i]);
+    if ValueParts.Count > 0 then
+      wln('    value [' + JoinRegs(ValueParts) + '] \');
+    for i := 0 to ParmBlocks.Count - 1 do
+      wln(ParmBlocks[i]);
+    if ModifyParts.Count > 0 then
+      wln('    modify [' + JoinRegs(ModifyParts) + '];');
+  finally
+    ParameterNames.Free;
+    MovLines.Free;
+    InstrLines.Free;
+    ParmBlocks.Free;
+    ValueParts.Free;
+    ModifyParts.Free;
+    RegNames.Free;
+    OutPointerRegs.Free;
   end;
 end;
 
@@ -891,8 +1293,8 @@ var
   Arg: TPasArgument;
   Entries: TList;
   IsPointer: Boolean;
+  Syscall: TABISyscall;
 begin
-  WriteLn('DEBUG: WriteFunction: ', AFunc.Name);
   if AFunc is TPasFunction then
   begin
     FuncType := TPasFunctionType(TPasFunction(AFunc).ProcType);
@@ -908,6 +1310,7 @@ begin
   end;
 
   Convention := '';
+  Syscall := nil;
   if Assigned(FABIData) then
   begin
     Entries := FABIData.FindEntry(AFunc.Name);
@@ -916,6 +1319,13 @@ begin
         Convention := TABIEntry(Entries[0]).Convention;
     finally
       Entries.Free;
+    end;
+
+    if Convention = '' then
+    begin
+      Syscall := FABIData.FindSyscall(AFunc.Name);
+      if Assigned(Syscall) then
+        Convention := Syscall.Convention;
     end;
   end;
   if Convention = '' then
@@ -956,14 +1366,22 @@ begin
   else
     Args := 'void';
 
-  wln(RetType + ' ' + Convention + ' ' + AFunc.Name + '(' + Args + ');');
+  if Assigned(Syscall) then
+    wln(RetType + ' ' + AFunc.Name + '(' + Args + ');')
+  else
+    wln(RetType + ' ' + Convention + ' ' + AFunc.Name + '(' + Args + ');');
+
+  if Assigned(Syscall) and
+     (SameText(Convention, 'interrupt') or
+      SameText(Convention, 'service') or
+      SameText(Convention, 'call')) then
+    WriteSyscallPragma(AFunc, ProcType, RetType, Syscall);
 end;
 
 procedure TCHWriter.WriteVariable(AVar: TPasVariable);
 var
   TypeName: string;
 begin
-  WriteLn('DEBUG: WriteVariable: ', AVar.Name);
   if Assigned(AVar.VarType) then
   begin
     if AVar.VarType is TPasPointerType then
@@ -976,7 +1394,6 @@ end;
 
 procedure TCHWriter.WriteConstant(AConst: TPasConst);
 begin
-  WriteLn('DEBUG: WriteConstant: ', AConst.Name, ' = ', AConst.Value);
   wln('#define ' + AConst.Name + ' ' + AConst.Value);
 end;
 
@@ -985,7 +1402,6 @@ var
   Desc, BaseName, GuardName, IncMacro: string;
   LayoutEntry: TLayoutEntry;
 begin
-  WriteLn('DEBUG: Generate: Output=', OutputFileName);
   Desc := '';
   GuardName := '';
   IncMacro := '';
@@ -1025,6 +1441,12 @@ begin
   WriteEpilog;
 end;
 
+{**
+  @brief Write a set of C headers, one per layout group.
+
+  Content is first written to a temporary file; on success the target
+  file is replaced atomically. On failure the temporary file is removed.
+}
 procedure WriteCHeaders(Module: TPasModule; ABIData: TABIData; Layout: TLayout;
   const DefaultOutput: string; H2IncCompat, NoCommon, CppWrapping, IBMWrapping: Boolean);
 var
@@ -1039,7 +1461,6 @@ begin
 
   TempName := DefaultOutput + '.tmp';
 
-  // Создаём временный файл
   RootStream := TFileStream.Create(TempName, fmCreate);
   try
     Writer := TCHWriter.Create(RootStream, ABIData, Layout,
@@ -1050,7 +1471,6 @@ begin
       Writer.Free;
     end;
   except
-    // При ошибке удаляем временный файл
     RootStream.Free;
     if FileExists(TempName) then
       DeleteFile(TempName);
@@ -1059,12 +1479,17 @@ begin
 
   RootStream.Free;
 
-  // Удаляем целевой файл, если существует, и переименовываем временный
   if FileExists(DefaultOutput) then
     DeleteFile(DefaultOutput);
   RenameFile(TempName, DefaultOutput);
 end;
 
+{**
+  @brief Write a single C header for one selected group.
+
+  Content is first written to a temporary file; on success the target
+  file is replaced atomically. On failure the temporary file is removed.
+}
 procedure WriteSingleCHeader(Module: TPasModule; ABIData: TABIData; Layout: TLayout;
   const OutputFile: string; H2IncCompat, NoCommon, CppWrapping, IBMWrapping: Boolean);
 var
@@ -1079,7 +1504,6 @@ begin
 
   TempName := OutputFile + '.tmp';
 
-  // Создаём временный файл
   Stream := TFileStream.Create(TempName, fmCreate);
   try
     Writer := TCHWriter.Create(Stream, ABIData, Layout,
@@ -1091,7 +1515,6 @@ begin
       Writer.Free;
     end;
   except
-    // При ошибке удаляем временный файл
     Stream.Free;
     if FileExists(TempName) then
       DeleteFile(TempName);
@@ -1100,7 +1523,6 @@ begin
 
   Stream.Free;
 
-  // Удаляем целевой файл, если существует, и переименовываем временный
   if FileExists(OutputFile) then
     DeleteFile(OutputFile);
   RenameFile(TempName, OutputFile);

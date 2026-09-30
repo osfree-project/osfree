@@ -1,78 +1,235 @@
+{**
+  @file ABIReader.pas
+  @brief Parser for .abi files Ч the binary interface of the platform.
+
+  The module reads a .abi file and builds a TABIData model containing:
+  - modules (DLL) and static libraries with their exports;
+  - system calls (syscall) with interrupt, service and call conventions;
+  - structure attributes (pack, prefix, bitfield);
+  - callback type attributes (convention).
+
+  The .abi syntax is described in the uni2h v2.0 specification, section 3.
+}
 unit ABIReader;
 
 interface
 
 uses Classes, SysUtils;
 
+{**
+  @brief ABI module kind.
+  @details mtDLL Ч dynamic library (module), mtLibrary Ч static library (library).
+}
 type
   TABIModuleType = (mtDLL, mtLibrary);
 
+{**
+  @brief Entry point in a module/library.
+  @details Describes an export of a function or variable: ordinal, calling
+  convention, OS version range, and (for syscall-like records) register lists.
+}
+type
   TABIEntry = class
-    LogicalName: string;
-    RealName: string;
-    Number: Integer;
-    Convention: string;
-    VersionMin: string;
-    VersionMax: string;
-    Inputs: string;
-    Outputs: string;
-    IsAlias: Boolean;
-    AliasFor: string;
+    LogicalName: string;      {** @brief Logical name of the export }
+    RealName: string;         {** @brief Real name for "entry REAL = LOGICAL" }
+    Number: Integer;          {** @brief DLL ordinal }
+    Convention: string;       {** @brief Calling convention }
+    VersionMin: string;       {** @brief Minimum OS version (inclusive) }
+    VersionMax: string;       {** @brief Maximum OS version (inclusive) }
+    Inputs: string;           {** @brief Raw input register list }
+    Outputs: string;          {** @brief Raw output register list }
+    IsAlias: Boolean;         {** @brief Alias flag }
+    AliasFor: string;         {** @brief Name the entry is an alias for }
   end;
 
+{**
+  @brief Kind of binding of a syscall register.
+
+  Every register in a syscall is bound to exactly one of:
+  - a fixed value (rkValue);
+  - an input, output or inout parameter (rkParam);
+  - the function result (rkResult).
+
+  Free registers are not allowed.
+}
+type
+  TABIRegisterKind = (rkValue, rkParam, rkResult);
+
+{**
+  @brief Register descriptor for a syscall directive.
+
+  A register entry has the form:
+  @code
+  reg                  -- not allowed: free register
+  reg=$XX              -- fixed value
+  reg=N                -- fixed decimal value
+  reg=param            -- bound to a parameter
+  reg=Result           -- bound to the function result
+  reg1:reg2=$XXXXXXXX  -- register pair with a fixed value
+  reg1:reg2=param      -- register pair bound to a parameter
+  reg1:reg2=Result     -- register pair bound to the result
+  @endcode
+
+  Regs holds the register name or pair ("ah", "ds:dx") as written.
+  Kind defines the binding. Target holds the value, the parameter name,
+  or is empty for a result binding.
+}
+type
+  TABIRegister = class
+    Regs: string;             {** @brief Register name or pair ("ah", "ds:dx") }
+    Kind: TABIRegisterKind;   {** @brief Binding kind }
+    Target: string;           {** @brief Value, parameter name, or '' }
+  end;
+
+{**
+  @brief Bit-field descriptor for a structure.
+}
+type
   TABIBitField = class
-    BitName: string;
-    BitPos: Integer;
-    Width: Integer;
+    BitName: string;          {** @brief Bit-field name }
+    BitPos: Integer;          {** @brief Bit position }
+    Width: Integer;           {** @brief Width in bits (defaults to 1) }
   end;
 
+{**
+  @brief Structure attributes from .abi.
+  @details Defines alignment, field-name prefix and bit-field layout.
+}
+type
   TABIStructure = class
-    Name: string;
-    Pack: Integer;
-    Prefix: string;
-    BitFields: TList;
+    Name: string;             {** @brief Structure name }
+    Pack: Integer;            {** @brief Alignment (#pragma pack) }
+    Prefix: string;           {** @brief Field-name prefix }
+    BitFields: TList;         {** @brief List of TABIBitField }
     constructor Create;
     destructor Destroy; override;
   end;
 
+{**
+  @brief Callback type attributes.
+}
+type
   TABICallback = class
-    Name: string;
-    Convention: string;
+    Name: string;             {** @brief Type name }
+    Convention: string;       {** @brief Calling convention }
   end;
 
+{**
+  @brief System call.
+
+  Describes a direct call not bound to a DLL/LIB. Distinguished by Convention:
+  - interrupt Ч call via int N, where N = Number;
+  - service   Ч call to an MVDM service via HLT; DB Number; DB NOT Number;
+  - call      Ч far call to an absolute address, where Number = 'SSSS:OOOO'.
+
+  Number is stored as a string exactly as written in the .abi file:
+  '$21' for interrupt/service, '$1234:$5678' for call. The convention
+  defines the interpretation; the emitter performs any formatting.
+
+  Inputs and Outputs hold TABIRegister objects. Every register is bound
+  either to a fixed value, a parameter or the result.
+
+  If UsesCF is True, the CF flag is produced by the call and must be
+  converted into an APIRET-style return value by the emitter. The
+  emitter also fills out-value parameters from the result register
+  when CF=0.
+}
+type
+  TABISyscall = class
+    Name: string;             {** @brief Syscall name }
+    Number: string;           {** @brief Interrupt vector, service code or far address }
+    Convention: string;       {** @brief 'interrupt', 'service' or 'call' }
+    Inputs: TList;            {** @brief List of TABIRegister Ч inputs }
+    Outputs: TList;           {** @brief List of TABIRegister Ч outputs }
+    UsesCF: Boolean;          {** @brief True if CF is an error indicator }
+    VersionMin: string;       {** @brief Minimum OS version }
+    VersionMax: string;       {** @brief Maximum OS version }
+    constructor Create;
+    destructor Destroy; override;
+  end;
+
+{**
+  @brief ABI module: a DLL or a static library.
+}
+type
   TABIModule = class
-    Name: string;
-    ModuleType: TABIModuleType;
-    VersionMin: string;
-    VersionMax: string;
-    Entries: TList;
+    Name: string;             {** @brief Module name }
+    ModuleType: TABIModuleType; {** @brief Module kind }
+    VersionMin: string;       {** @brief Minimum OS version }
+    VersionMax: string;       {** @brief Maximum OS version }
+    Entries: TList;           {** @brief List of TABIEntry }
     constructor Create;
     destructor Destroy; override;
   end;
 
+{**
+  @brief Root ABI model.
+  @details Holds all modules, structures, callback types and syscalls
+  parsed from a .abi file.
+}
+type
   TABIData = class
-    Modules: TList;
-    Structures: TList;
-    Callbacks: TList;
+    Modules: TList;           {** @brief List of TABIModule }
+    Structures: TList;        {** @brief List of TABIStructure }
+    Callbacks: TList;         {** @brief List of TABICallback }
+    Syscalls: TList;          {** @brief List of TABISyscall }
     constructor Create;
     destructor Destroy; override;
+
+    {**
+      @brief Find all entries with the given logical name.
+      @param LogicalName Logical name of the export.
+      @return List of TABIEntry (may be empty). Caller must free it.
+    }
     function FindEntry(const LogicalName: string): TList;
+
+    {**
+      @brief Find structure attributes by name.
+      @param Name Structure name.
+      @return Pointer to TABIStructure or nil.
+    }
     function FindStructure(const Name: string): TABIStructure;
+
+    {**
+      @brief Find a callback type by name.
+      @param Name Type name.
+      @return Pointer to TABICallback or nil.
+    }
     function FindCallback(const Name: string): TABICallback;
+
+    {**
+      @brief Find a syscall by name.
+      @param Name Syscall name.
+      @return Pointer to TABISyscall or nil.
+    }
+    function FindSyscall(const Name: string): TABISyscall;
   end;
 
+{**
+  @brief Exception raised by the .abi parser.
+}
+type
   EABIError = class(Exception);
 
+{**
+  @brief Load a .abi file and build a TABIData model.
+  @param AFilename Path to the .abi file.
+  @param ABI Result Ч a newly created TABIData object.
+}
 procedure LoadABI(const AFilename: string; out ABI: TABIData);
 
 implementation
 
+{**
+  @brief Internal .abi parser.
+  @details Parses the file line by line, reads tokens and fills TABIData.
+}
 type
   TABIParser = class
   private
-    F: TextFile;
-    Line: string;
-    LineNum: Integer;
+    F: TextFile;              {** @brief Input file }
+    Line: string;             {** @brief Current line }
+    LineNum: Integer;         {** @brief Current line number }
     procedure Error(const Msg: string);
     procedure NextLine;
     procedure SkipEmptyLines;
@@ -86,7 +243,10 @@ type
     procedure ParseType(ABI: TABIData);
     procedure ParseModule(ABI: TABIData; ModuleType: TABIModuleType);
     procedure ParseEntry(Module: TABIModule);
+    procedure ParseSyscall(ABI: TABIData);
   end;
+
+{ TABIStructure }
 
 constructor TABIStructure.Create;
 begin
@@ -103,6 +263,30 @@ begin
   inherited;
 end;
 
+{ TABISyscall }
+
+constructor TABISyscall.Create;
+begin
+  Inputs := TList.Create;
+  Outputs := TList.Create;
+  UsesCF := False;
+end;
+
+destructor TABISyscall.Destroy;
+var
+  i: Integer;
+begin
+  for i := 0 to Inputs.Count - 1 do
+    TABIRegister(Inputs[i]).Free;
+  Inputs.Free;
+  for i := 0 to Outputs.Count - 1 do
+    TABIRegister(Outputs[i]).Free;
+  Outputs.Free;
+  inherited;
+end;
+
+{ TABIModule }
+
 constructor TABIModule.Create;
 begin
   Entries := TList.Create;
@@ -118,11 +302,14 @@ begin
   inherited;
 end;
 
+{ TABIData }
+
 constructor TABIData.Create;
 begin
   Modules := TList.Create;
   Structures := TList.Create;
   Callbacks := TList.Create;
+  Syscalls := TList.Create;
 end;
 
 destructor TABIData.Destroy;
@@ -138,6 +325,9 @@ begin
   for i := 0 to Callbacks.Count - 1 do
     TABICallback(Callbacks[i]).Free;
   Callbacks.Free;
+  for i := 0 to Syscalls.Count - 1 do
+    TABISyscall(Syscalls[i]).Free;
+  Syscalls.Free;
   inherited;
 end;
 
@@ -186,6 +376,21 @@ begin
   Result := nil;
 end;
 
+function TABIData.FindSyscall(const Name: string): TABISyscall;
+var
+  i: Integer;
+begin
+  for i := 0 to Syscalls.Count - 1 do
+  begin
+    Result := TABISyscall(Syscalls[i]);
+    if CompareStr(Result.Name, Name) = 0 then
+      Exit;
+  end;
+  Result := nil;
+end;
+
+{ TABIParser }
+
 procedure TABIParser.Error(const Msg: string);
 begin
   raise EABIError.CreateFmt('ABI Error (line %d): %s', [LineNum, Msg]);
@@ -218,7 +423,7 @@ begin
     Result := ''
   else if Line[1] = '''' then
   begin
-    // строковый литерал
+    { String literal: from the opening quote up to and including the closing one. }
     p := 2;
     while (p <= Length(Line)) and (Line[p] <> '''') do
       Inc(p);
@@ -496,6 +701,179 @@ begin
   Module.Entries.Add(Entry);
 end;
 
+{**
+  @brief Parse a syscall directive.
+
+  Expected syntax:
+  @code
+  syscall Name;
+  begin
+    [ number = N; ]                          -- N = scalar or far address
+    convention = interrupt | service | call | 'string';
+    [ version = 'X'[ - 'Y' ]; ]
+    [ inputs  = ( reg[=val|param], ... ); ]
+    [ outputs = ( reg[=val|param], cf, ... ); ]
+  end;
+  @endcode
+
+  Clause order is free. Every register is bound either to a fixed value,
+  a parameter or the result. Free registers are rejected. The token "cf"
+  is accepted only in outputs and marks the call as returning an error
+  indicator through the CF flag; it is stored in UsesCF.
+}
+procedure TABIParser.ParseSyscall(ABI: TABIData);
+var
+  Sys: TABISyscall;
+  T: string;
+
+  {**
+    @brief Read a single register from an inputs/outputs list.
+
+    The register token may contain a colon for a register pair ("ds:dx").
+    If followed by '=', the right-hand token is classified:
+    - a leading '$', digit or '-' means a fixed value (rkValue);
+    - the name "Result" (case-insensitive) means the function result (rkResult);
+    - anything else is a parameter name (rkParam).
+
+    A register without '=' is rejected: free registers are not allowed.
+
+    @return A new TABIRegister object; the caller adds it to a list.
+  }
+  function ReadRegister: TABIRegister;
+  var
+    RHS: string;
+  begin
+    Result := TABIRegister.Create;
+    Result.Regs := ReadToken;
+    Result.Kind := rkValue;
+    Result.Target := '';
+
+    if Result.Regs = '' then
+      Error('Register name expected');
+
+    if PeekToken = '=' then
+    begin
+      Expect('=');
+      RHS := ReadToken;
+      if RHS = '' then
+        Error('Value or parameter name expected after "="');
+
+      if (RHS[1] = '$') or (RHS[1] = '-') or
+         ((RHS[1] >= '0') and (RHS[1] <= '9')) then
+      begin
+        Result.Kind := rkValue;
+        Result.Target := RHS;
+      end
+      else if SameText(RHS, 'Result') then
+      begin
+        Result.Kind := rkResult;
+        Result.Target := '';
+      end
+      else
+      begin
+        Result.Kind := rkParam;
+        Result.Target := RHS;
+      end;
+    end
+    else
+      Error('Free register "' + Result.Regs +
+            '" is not allowed; a register must be bound to a value, ' +
+            'a parameter or the result');
+  end;
+
+begin
+  Sys := TABISyscall.Create;
+  try
+    Sys.Name := ReadToken;
+    Expect(';');
+    SkipEmptyLines;
+    Expect('begin');
+    SkipEmptyLines;
+
+    while True do
+    begin
+      T := ReadToken;
+      if T = 'end' then Break;
+
+      if SameText(T, 'number') then
+      begin
+        Expect('=');
+        Sys.Number := ReadToken;
+        Expect(';');
+      end
+      else if SameText(T, 'convention') then
+      begin
+        Expect('=');
+        T := ReadToken;
+        if (Length(T) >= 2) and (T[1] = '''') and (T[Length(T)] = '''') then
+          Sys.Convention := Copy(T, 2, Length(T) - 2)
+        else
+          Sys.Convention := T;
+        Expect(';');
+      end
+      else if SameText(T, 'version') then
+      begin
+        Expect('=');
+        Sys.VersionMin := ReadVersion;
+        if PeekToken = '-' then
+        begin
+          Expect('-');
+          Sys.VersionMax := ReadVersion;
+        end;
+        Expect(';');
+      end
+      else if SameText(T, 'inputs') then
+      begin
+        Expect('=');
+        Expect('(');
+        while True do
+        begin
+          if SameText(PeekToken, 'cf') then
+            Error('CF as an input flag is not supported');
+          Sys.Inputs.Add(ReadRegister);
+          if PeekToken = ',' then
+            Expect(',')
+          else
+            Break;
+        end;
+        Expect(')');
+        Expect(';');
+      end
+      else if SameText(T, 'outputs') then
+      begin
+        Expect('=');
+        Expect('(');
+        while True do
+        begin
+          if SameText(PeekToken, 'cf') then
+          begin
+            Expect('cf');
+            Sys.UsesCF := True;
+          end
+          else
+            Sys.Outputs.Add(ReadRegister);
+          if PeekToken = ',' then
+            Expect(',')
+          else
+            Break;
+        end;
+        Expect(')');
+        Expect(';');
+      end
+      else
+        Error('Unexpected syscall attribute "' + T + '"');
+
+      SkipEmptyLines;
+    end;
+
+    Expect(';');
+    ABI.Syscalls.Add(Sys);
+  except
+    Sys.Free;
+    raise;
+  end;
+end;
+
 procedure TABIParser.ParseModule(ABI: TABIData; ModuleType: TABIModuleType);
 var
   Modu: TABIModule;
@@ -569,9 +947,7 @@ begin
       else if SameText(T, 'library') then
         Parser.ParseModule(ABI, mtLibrary)
       else if SameText(T, 'syscall') then
-      begin
-        while not SameText(Parser.ReadToken, 'end') do ;
-      end
+        Parser.ParseSyscall(ABI)
       else
         Parser.Error('Unexpected token "' + T + '"');
     end;

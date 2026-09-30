@@ -10521,3 +10521,466 @@ begin
     number = 5471;
   end;
 end;
+
+// DOS INT 21h
+syscall VdmOpen;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$3D, al=mode, ds:dx=pszName, di=phandle);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmClose;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$3E, bx=handle);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmRead;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$3F, bx=handle, cx=count, ds:dx=buf, di=pBytesRead);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmWrite;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$40, bx=handle, cx=count, ds:dx=buf, di=pBytesWritten);
+  outputs = (ax=Result, cf);
+end;
+
+// JOIN array
+syscall VdmQueryJoin;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$61, bp=$6467, al=$00, si=$0002, bx=cDrive, cx=usBufferSize, es:di=Buffer);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmSetJoin;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$61, bp=$6467, al=$01, si=$0002, bx=cDrive, es:di=pszPath);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmDeleteJoin;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$61, bp=$6467, al=$02, si=$0002, bx=cDrive);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmQuerySubst;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$61, bp=$6467, al=$00, si=$0003, bx=cDrive, cx=usBufferSize, es:di=Buffer);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmSetSubst;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$61, bp=$6467, al=$01, si=$0003, bx=cDrive, es:di=pszPath);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmDeleteSubst;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$61, bp=$6467, al=$02, si=$0003, bx=cDrive);
+  outputs = (ax=Result, cf);
+end;
+
+// Session title
+syscall VdmEnableAutoTitle;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, dx=$0000, cx=$636C, bx=$0000);
+  outputs = (ax=Result);
+end;
+
+syscall VdmSetTitle;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, dx=$0001, cx=$636C, bx=$0000, es:di=pszTitle);
+  outputs = (ax=Result);
+end;
+
+syscall VdmQueryTitle;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, dx=$0002, cx=$636C, bx=$0000, es:di=pszTitle);
+  outputs = (ax=Result);
+end;
+
+syscall VdmQueryLastDrive;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, dx=$0003, cx=$636C, bx=$0000);
+  outputs = (al=Result);
+end;
+
+// VDM internals
+syscall VdmQueryJftSize;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, dx=$0004, cx=$636C, bx=$0000);
+  outputs = (ax=Result);
+end;
+
+syscall VdmQuerySftFlags;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, dx=$0005, cx=$636C, bx=$0000, di=handle);
+  outputs = (ax=Result);
+end;
+
+syscall VdmLoadProgram;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, dx=$0006, cx=$636C, bx=$0000, es:di=pszFilespec, ds=baseAddress);
+  outputs = (ax=Result);
+end;
+
+syscall VdmQueryCallGate;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, dx=$0007, cx=$636C, bx=$0000);
+  outputs = (ax=Result);
+end;
+
+syscall VdmQueryLoadingMessage;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, dx=$0008, cx=$636C, bx=$0000, di=ppszMessage);
+  outputs = (ax=Result, cf);
+end;
+
+// OS/2 API via INT 21
+syscall VdmStartSession;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0025, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmGetCp;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0082, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmQueryFSAttach;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$00B6, cx=$636C, es:di=pFsqAttach);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmEditName;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$00BF, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmForceDelete;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$00CB, cx=$636C, ds:dx=pszFile);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmCreateEventSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0144, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmOpenEventSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0145, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmCloseEventSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0146, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmResetEventSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0147, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmPostEventSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0148, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmWaitEventSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0149, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmQueryEventSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$014A, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmCreateMutexSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$014B, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmOpenMutexSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$014C, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmCloseMutexSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$014D, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmRequestMutexSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$014E, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmReleaseMutexSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$014F, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmQueryMutexSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0150, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmCreateMuxWaitSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0151, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmOpenMuxWaitSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0152, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmCloseMuxWaitSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0153, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmWaitMuxWaitSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0154, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmAddMuxWaitSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0155, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmDeleteMuxWaitSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0156, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+syscall VdmQueryMuxWaitSem;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$64, bx=$0157, cx=$636C, ds:si=pParams);
+  outputs = (ax=Result);
+end;
+
+// FAPI
+syscall VdmOpen2;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$6C, al=$01, bl=openMode, bh=flags, cx=createAttr, dl=action,             ds:si=pszName, es:di=pEaop, bp=phandle);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmCreateDir2;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$6D, ds:si=pszPath, es:di=pEa);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmEnumAttribute;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$6E, ds:si=pParamPacket);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmQueryMaxEASize;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ax=$6F00, ds:si=pMaxSize);
+  outputs = (ax=Result, cf);
+end;
+
+// Named Pipes
+syscall VdmQueryNPipeInfo;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ax=$5F32, bx=handle, cx=size, dx=level, ds:si=pInfo);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmQueryNPHState;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ax=$5F33, bx=handle, di=pMode);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmSetNPHState;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ax=$5F34, bx=handle, cx=mode);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmPeekNPipe;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ax=$5F35, bx=handle, cx=bufLen, ds:si=pBuffer);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmTransactNPipe;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ax=$5F36, bx=handle, cx=inBufLen, ds:si=pInBuffer,             dx=outBufLen, es:di=pOutBuffer);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmCallNPipe;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ax=$5F37, ds:si=pStackFrame);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmWaitNPipe;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ax=$5F38, ds:dx=pszPipeName, bx=$0000, cx=timeout);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmRawReadNPipe;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ax=$5F39, bx=handle, cx=bufLen, ds:dx=pBuffer);
+  outputs = (ax=Result, cf);
+end;
+
+syscall VdmRawWriteNPipe;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ax=$5F3A, bx=handle, cx=bufLen, ds:dx=pBuffer);
+  outputs = (ax=Result, cf);
+end;
