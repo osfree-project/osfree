@@ -396,7 +396,7 @@ static void rtf_start_topic(RtfParserCtx* pCtx)
     pCtx->abCurBG[0] = 0xFF; pCtx->abCurBG[1] = 0xFF; pCtx->abCurBG[2] = 0xFF;
     pCtx->ulCurFamily = 2;
 
-    pCtx->iStateStackTop = 0; // »нициализаци€ стека состо€ний
+    pCtx->iStateStackTop = 0;
 
     pCtx->fHaveTextFrag = FALSE;
     pCtx->lLastTextFont = -1;
@@ -503,7 +503,14 @@ static void rtf_emit_link(RtfParserCtx* pCtx, const char* pszVisible,
     if (!pFrag) return;
     memset(pFrag, 0, sizeof(*pFrag));
     pFrag->ulKind = RTF_FRAG_LINK;
-    pFrag->pszText = strdup(pszVisible ? pszVisible : "");
+
+    /* If the visible label is empty, use the hidden text (this is the
+       usual case for {\v target text}). */
+    if (pszVisible && *pszVisible) {
+        pFrag->pszText = strdup(pszVisible);
+    } else {
+        pFrag->pszText = strdup(pszHidden ? pszHidden : "");
+    }
     pFrag->pszContext = strdup(pszHidden ? pszHidden : "");
     pFrag->fPopup = fPopup;
     ulDesc = rtf_font_get_or_create(pCtx->pDoc,
@@ -869,14 +876,18 @@ static void rtf_parse_buffer(RtfParserCtx* pCtx, const char* pszBuf,
                 rtf_skip_space(&p);
                 continue;
             }
+            /*
+             * Paragraph break: emit a single CR (0x0D).  WinHelp uses
+             * \r as a paragraph mark and \n as a soft line break; using
+             * \r\n here would be collapsed into a single visual break
+             * and blanks between \par\par paragraphs would be lost.
+             */
             if (strncmp(p, "par", 3) == 0 && !isalpha((unsigned char)p[3])) {
-                if (!pCtx->fLastWasSpace) rtf_emit_text(pCtx, " ", 1);
                 rtf_emit_text(pCtx, "\r\n", 2);
                 p += 3; rtf_skip_space(&p); continue;
             }
             if (strncmp(p, "line", 4) == 0 && !isalpha((unsigned char)p[4])) {
-                if (!pCtx->fLastWasSpace) rtf_emit_text(pCtx, " ", 1);
-                rtf_emit_text(pCtx, "\r\n", 2);
+                rtf_emit_text(pCtx, "\n", 1);
                 p += 4; rtf_skip_space(&p); continue;
             }
             if (strncmp(p, "tab", 3) == 0 && !isalpha((unsigned char)p[3])) {
@@ -1024,7 +1035,7 @@ static void rtf_parse_buffer(RtfParserCtx* pCtx, const char* pszBuf,
 
         if (*p == '{') {
             pCtx->ulBraceLevel++;
-            // —охран€ем текущее состо€ние форматировани€
+            /* Save formatting state for this group. */
             if (pCtx->iStateStackTop < RTF_MAX_STATE_STACK) {
                 RtfStateRec* s = &pCtx->aStateStack[pCtx->iStateStackTop++];
                 s->ulCurFace = pCtx->ulCurFace;
@@ -1047,7 +1058,7 @@ static void rtf_parse_buffer(RtfParserCtx* pCtx, const char* pszBuf,
         }
 
         if (*p == '}') {
-            // ¬осстанавливаем состо€ние форматировани€
+            /* Restore formatting state after group. */
             if (pCtx->iStateStackTop > 0) {
                 RtfStateRec* s = &pCtx->aStateStack[--pCtx->iStateStackTop];
                 pCtx->ulCurFace = s->ulCurFace;
@@ -1062,13 +1073,14 @@ static void rtf_parse_buffer(RtfParserCtx* pCtx, const char* pszBuf,
                 pCtx->ulBraceLevel == pCtx->ulFootnoteBrace) {
                 rtf_flush_footnote(pCtx);
             }
-            
-            // ѕринудительно закрываем ссылку, если мы внутри {\v ...}
+
+            /* Force-close a {\v ...} link at the group boundary. */
             if (pCtx->fInV) {
                 pCtx->fInV = FALSE;
                 pCtx->szHidden[pCtx->ulHiddenLen] = '\0';
                 pCtx->szLinkText[pCtx->ulLinkTextLen] = '\0';
-                rtf_emit_link(pCtx, pCtx->szLinkText, pCtx->szHidden, pCtx->fInUL ? TRUE : FALSE);
+                rtf_emit_link(pCtx, pCtx->szLinkText, pCtx->szHidden,
+                              pCtx->fInUL ? TRUE : FALSE);
                 pCtx->ulLinkTextLen = 0;
                 pCtx->ulHiddenLen = 0;
             }

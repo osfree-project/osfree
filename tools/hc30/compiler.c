@@ -338,6 +338,10 @@ static APIRET cmp_build_phrases(HRTFDOC hDoc, HPHRE hEnc, HVECTOR vActive)
 
 /* ==================================================================
  * Topic emission
+ *
+ * NOTE: WinHelp 3.0 uses 0-based font indices in the |TOPIC stream.
+ * Index 0 references the first descriptor in |FONT, index 1 the
+ * second, and so on.
  * ================================================================== */
 
 /*!
@@ -350,14 +354,27 @@ static APIRET cmp_build_phrases(HRTFDOC hDoc, HPHRE hEnc, HVECTOR vActive)
  * @param[in] ulFontMapCount Length of @a aulFontMap.
  * @param[in] pszTitle       Topic title.
  * @param[in] pszContext     Topic context string.
+ * @param[in] hvTopics       Vector of CmpTopicRec for title lookup.
+ * @param[in] ulTopicCount   Number of topics in @a hvTopics.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
  */
+/* ==================================================================
+ * Topic emission
+ *
+ * NOTE: WinHelp 3.0 uses 1-based font indices in the |TOPIC stream.
+ * Index 0 designates the built-in "system" font; descriptors stored
+ * in |FONT are referenced by index 1, 2, 3, ...  We add +1 to the
+ * zero-based descriptor index returned by FntGetOrCreateDescriptor
+ * before emitting it into the |TOPIC stream.
+ * ================================================================== */
+
 static APIRET cmp_emit_topic(HTOP hTop, HRTFTOPIC hTopic, HVECTOR hvMap,
                              const ULONG* aulFontMap, ULONG ulFontMapCount,
-                             PCSZ pszTitle, PCSZ pszContext)
+                             PCSZ pszTitle, PCSZ pszContext,
+                             HVECTOR hvTopics, ULONG ulTopicCount)
 {
     HRTFENUM hEnum;
     APIRET   rc;
@@ -383,7 +400,7 @@ static APIRET cmp_emit_topic(HTOP hTop, HRTFTOPIC hTopic, HVECTOR hvMap,
             RtfQueryFragText(hFrag, szText, sizeof(szText), NULL);
             RtfQueryFragFont(hFrag, &ulFontIdx);
             if (aulFontMap && ulFontIdx < ulFontMapCount)
-                ulMapped = aulFontMap[ulFontIdx];
+                ulMapped = aulFontMap[ulFontIdx] + 1;   /* 1-based */
             rc = TopAddText(hTop, szText, ulMapped);
             if (rc != NO_ERROR) { RtfFindClose(hEnum); return rc; }
         } else if (ulType == RTF_FRAG_LINK) {
@@ -391,18 +408,39 @@ static APIRET cmp_emit_topic(HTOP hTop, HRTFTOPIC hTopic, HVECTOR hvMap,
             char  szCtx[256];
             BOOL  fPopup = FALSE;
             ULONG ulTarget = TOP_UNRESOLVED_LINK;
+            ULONG ulFontIdx = 0, ulMapped = 0;
             szText[0] = '\0';
             szCtx[0]  = '\0';
             RtfQueryFragText(hFrag, szText, sizeof(szText), NULL);
             RtfQueryFragContext(hFrag, szCtx, sizeof(szCtx), NULL);
             RtfQueryFragPopup(hFrag, &fPopup);
+
             if (szCtx[0]) {
                 ULONG ulNum = 0;
-                if (cmp_map_lookup(hvMap, szCtx, &ulNum) == NO_ERROR)
+                if (cmp_map_lookup(hvMap, szCtx, &ulNum) == NO_ERROR) {
                     ulTarget = ulNum;
+                } else {
+                    /* Fallback: resolve the target by topic title. */
+                    ULONG k;
+                    for (k = 0; k < ulTopicCount; k++) {
+                        CmpTopicRec rec2;
+                        char szTitle2[256];
+                        VectorGetItem(hvTopics, k, &rec2, sizeof(rec2), NULL);
+                        RtfQueryTopicTitle(rec2.hTopic, szTitle2,
+                                           sizeof(szTitle2), NULL);
+                        if (stricmp(szTitle2, szCtx) == 0) {
+                            ulTarget = rec2.ulTopicNumber;
+                            break;
+                        }
+                    }
+                }
             }
+
             if (szText[0]) {
-                rc = TopAddText(hTop, szText, 0);
+                RtfQueryFragFont(hFrag, &ulFontIdx);
+                if (aulFontMap && ulFontIdx < ulFontMapCount)
+                    ulMapped = aulFontMap[ulFontIdx] + 1;   /* 1-based */
+                rc = TopAddText(hTop, szText, ulMapped);
                 if (rc != NO_ERROR) { RtfFindClose(hEnum); return rc; }
             }
             rc = TopAddLink(hTop, ulTarget, fPopup);
@@ -774,7 +812,8 @@ APIRET APIENTRY CmpCompile(HHPJ hHpj, HRTFDOC hDoc, PCSZ pszHpjPath,
         RtfQueryTopicTitle(rec.hTopic, szTitle, sizeof(szTitle), NULL);
         RtfQueryTopicContext(rec.hTopic, szContext, sizeof(szContext), NULL);
         rc = cmp_emit_topic(hTop, rec.hTopic, hvMap, aulFontMap,
-                            ulFontMapCount, szTitle, szContext);
+                            ulFontMapCount, szTitle, szContext,
+                            hvTopics, ulCount);
         if (rc != NO_ERROR) goto fail;
     }
 
