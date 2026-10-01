@@ -14,7 +14,6 @@
 
  **********************************************************************}
 
-
 unit PasTree;
 
 interface
@@ -26,14 +25,12 @@ resourcestring
   SPasTreeElement = 'generic element';
   SPasTreeSection = 'unit section';
   SPasTreeModule = 'module';
-  SPasTreePackage = 'package';
   SPasTreeType = 'generic type';
   SPasTreePointerType = 'pointer type';
   SPasTreeAliasType = 'alias type';
   SPasTreeTypeAliasType = '"type" alias type';
   SPasTreeRangeType = 'range type';
   SPasTreeArrayType = 'array type';
-  SPasTreeFileType = 'file type';
   SPasTreeEnumValue = 'enumeration value';
   SPasTreeEnumType = 'enumeration type';
   SPasTreeSetType = 'set type';
@@ -47,9 +44,6 @@ resourcestring
   SPasTreeConst = 'constant';
   SPasTreeProcedure = 'procedure';
   SPasTreeFunction = 'function';
-  SPasTreeProcedureImpl = 'procedure/function implementation';
-  SPasTreeConstructorImpl = 'constructor implementation';
-  SPasTreeDestructorImpl = 'destructor implementation';
 
 type
 
@@ -57,9 +51,6 @@ type
 
   TPasMemberVisibility = (visDefault, visPrivate, visProtected, visPublic,
     visPublished, visAutomated);
-
-  TPasMemberVisibilities = set of TPasMemberVisibility;
-
 
   TPTreeElement = class of TPasElement;
 
@@ -101,7 +92,6 @@ type
 
   TPasModule = class(TPasElement)
   public
-    PackageName: string;
     InterfaceSection, ImplementationSection: TPasSection;
     destructor Destroy; override;
     function ElementTypeName: string; override;
@@ -114,14 +104,6 @@ type
     destructor Destroy; override;
     function ElementTypeName: string; override;
     function GetDeclaration(full: boolean): string; override;
-  end;
-
-  TPasPackage = class(TPasElement)
-  public
-    Modules: TList;     // List of TPasModule objects
-    constructor Create(const AName: string; AParent: TPasElement); override;
-    destructor Destroy; override;
-    function ElementTypeName: string; override;
   end;
 
   TPasType = class(TPasElement)
@@ -160,14 +142,6 @@ type
   TPasArrayType = class(TPasType)
   public
     IndexRange : string;
-    ElType: TPasType;
-    destructor Destroy; override;
-    function ElementTypeName: string; override;
-    function GetDeclaration(full : boolean) : string; override;
-  end;
-
-  TPasFileType = class(TPasType)
-  public
     ElType: TPasType;
     destructor Destroy; override;
     function ElementTypeName: string; override;
@@ -283,7 +257,6 @@ type
   public
     VarType: TPasType;
     Value: string;
-    Modifiers : string;
     InlineComment: string;   // комментарий после объявления поля (для H2INC)
     destructor Destroy; override;
     function ElementTypeName: string; override;
@@ -309,7 +282,7 @@ type
     function ElementTypeName: string; override;
     function TypeName: string; override;
     function GetDeclaration(full: Boolean): string; override;
-    procedure GetModifiers(List: TStrings);
+//    procedure GetModifiers(List: TStrings);
   end;
 
   TPasFunction = class(TPasProcedure)
@@ -333,14 +306,12 @@ function TPasElement.ElementTypeName: string; begin Result := SPasTreeElement en
 function TPasComment.ElementTypeName: string; begin Result := 'comment'; end;
 function TPasSection.ElementTypeName: string; begin Result := SPasTreeSection end;
 function TPasModule.ElementTypeName: string; begin Result := SPasTreeModule end;
-function TPasPackage.ElementTypeName: string; begin Result := SPasTreePackage end;
 function TPasType.ElementTypeName: string; begin Result := SPasTreeType end;
 function TPasPointerType.ElementTypeName: string; begin Result := SPasTreePointerType end;
 function TPasAliasType.ElementTypeName: string; begin Result := SPasTreeAliasType end;
 function TPasTypeAliasType.ElementTypeName: string; begin Result := SPasTreeTypeAliasType end;
 function TPasRangeType.ElementTypeName: string; begin Result := SPasTreeRangeType end;
 function TPasArrayType.ElementTypeName: string; begin Result := SPasTreeArrayType end;
-function TPasFileType.ElementTypeName: string; begin Result := SPasTreeFileType end;
 function TPasEnumValue.ElementTypeName: string; begin Result := SPasTreeEnumValue end;
 function TPasEnumType.ElementTypeName: string; begin Result := SPasTreeEnumType end;
 function TPasSetType.ElementTypeName: string; begin Result := SPasTreeSetType end;
@@ -416,14 +387,9 @@ end;
 
 function TPasElement.GetModule: TPasModule;
 begin
-  if ClassType = TPasPackage then
-    Result := nil
-  else
-  begin
-    Result := TPasModule(Self);
-    while Assigned(Result) and not (Result.ClassType = TPasModule) do
-      Result := TPasModule(Result.Parent);
-  end;
+  Result := TPasModule(Self);
+  while Assigned(Result) and not (Result.ClassType = TPasModule) do
+    Result := TPasModule(Result.Parent);
 end;
 
 function TPasElement.GetDeclaration (full : boolean): string;
@@ -490,26 +456,6 @@ begin
   Result := Name;
 end;
 
-constructor TPasPackage.Create(const AName: string; AParent: TPasElement);
-begin
-  if (Length(AName) > 0) and (AName[1] <> '#') then
-    inherited Create('#' + AName, AParent)
-  else
-    inherited Create(AName, AParent);
-  Modules := TList.Create;
-end;
-
-destructor TPasPackage.Destroy;
-var
-  i: Integer;
-begin
-  for i := 0 to Modules.Count - 1 do
-    TPasModule(Modules[i]).Release;
-  Modules.Free;
-  inherited Destroy;
-end;
-
-
 destructor TPasPointerType.Destroy;
 begin
   if Assigned(DestType) then
@@ -532,14 +478,6 @@ begin
     ElType.Release;
   inherited Destroy;
 end;
-
-destructor TPasFileType.Destroy;
-begin
-  if Assigned(ElType) then
-    ElType.Release;
-  inherited Destroy;
-end;
-
 
 constructor TPasEnumType.Create(const AName: string; AParent: TPasElement);
 begin
@@ -755,15 +693,6 @@ begin
     Result:=Result+ElType.Name
   else
     Result:=Result+'const';
-  If Full Then
-    Result:=Name+' = '+Result;
-end;
-
-function TPasFileType.GetDeclaration (full : boolean) : string;
-begin
-  Result:='File of ';
-  If Assigned(Eltype) then
-    Result:=Result+ElType.Name;
   If Full Then
     Result:=Name+' = '+Result;
 end;

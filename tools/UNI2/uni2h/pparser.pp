@@ -37,7 +37,6 @@ resourcestring
   SParserExpectedSemiColonEnd = 'Expected ";" or "End"';
   SParserExpectedConstVarID = 'Expected "in", "var" or identifier';
   SParserExpectedColonID = 'Expected ":" or identifier';
-  SParserSyntaxError = 'Syntax error';
   SParserTypeSyntaxError = 'Syntax error in type';
   SParserArrayTypeSyntaxError = 'Syntax error in array type';
   SParserInterfaceTokenError = 'Invalid token in interface section of group';
@@ -46,8 +45,6 @@ resourcestring
 
 type
   TPasTreeContainer = class
-  protected
-    FPackage: TPasPackage;
   public
     function CreateElement(AClass: TPTreeElement; const AName: String;
       AParent: TPasElement; const ASourceFilename: String;
@@ -61,7 +58,6 @@ type
       ASourceLinenumber: Integer): TPasFunctionType;
     function FindElement(const AName: String): TPasElement; virtual; abstract;
     function FindModule(const AName: String): TPasModule; virtual;
-    property Package: TPasPackage read FPackage;
   end;
 
   EParserError = class(Exception)
@@ -122,7 +118,6 @@ type
     function ParseType(Parent: TPasElement): TPasType;
     function ParseComplexType: TPasType;
     procedure ParseArrayType(Element: TPasArrayType);
-    procedure ParseFileType(Element: TPasFileType);
     function ParseExpression: String;
     procedure AddProcOrFunction(ASection: TPasSection; AProc: TPasProcedure);
 
@@ -145,7 +140,6 @@ type
     function ParseStructure(Parent: TPasElement): TPasRecordType;
     function ParseVariableDecl(Parent: TPasElement): TPasVariable;
     procedure ParseRecordDecl(Parent: TPasRecordType; IsNested: Boolean);
-    function ParseClassDecl(Parent: TPasElement; const AClassName: String): TPasType;
 
     property FileResolver: TFileResolver read FFileResolver;
     property Scanner: TPascalScanner read FScanner;
@@ -365,10 +359,6 @@ begin
         Result := TPasPointerType(CreateElement(TPasPointerType, '', Parent));
         TPasPointerType(Result).DestType := ParseType(nil);
       end;
-    tkFile:
-      begin
-        Result := TPasFileType(CreateElement(TPasFileType, '', Parent));
-      end;
     tkArray:
       begin
         Result := TPasArrayType(CreateElement(TPasArrayType, '', Parent));
@@ -503,13 +493,6 @@ begin
   end;
 end;
 
-procedure TPasParser.ParseFileType(Element: TPasFileType);
-begin
-  NextToken;
-  If CurToken=tkOf then
-    Element.ElType := ParseType(nil);
-end;
-
 function TPasParser.ParseExpression: String;
 var
   BracketLevel: Integer;
@@ -596,12 +579,7 @@ var
   VarEl: TPasVariable;
   GroupEl: TPasGroup;
 begin
-  Module := TPasModule(CreateElement(TPasModule, ExpectIdentifier, Engine.Package));
-  if Assigned(Engine.Package) then
-  begin
-    Module.PackageName := Engine.Package.Name;
-    Engine.Package.Modules.Add(Module);
-  end;
+  Module := TPasModule(CreateElement(TPasModule, ExpectIdentifier, nil));
   ExpectToken(tkSemicolon);
   ExpectToken(tkBegin);
 
@@ -791,8 +769,6 @@ begin
   ExpectToken(tkEqual);
   NextToken;
   case CurToken of
-    tkClass:
-      Result := ParseClassDecl(Parent, TypeName);
     tkCaret:
       begin
         Result := TPasPointerType(CreateElement(TPasPointerType, TypeName, Parent));
@@ -843,17 +819,6 @@ begin
           UngetToken;
           UngetToken;
           ParseRange;
-        end;
-      end;
-    tkFile:
-      begin
-        Result := TPasFileType(CreateElement(TPasFileType, TypeName, Parent));
-        try
-          ParseFileType(TPasFileType(Result));
-          ExpectToken(tkSemicolon);
-        except
-          Result.Free;
-          raise;
         end;
       end;
     tkArray:
@@ -1005,8 +970,7 @@ procedure TPasParser.ParseVarDecl(Parent: TPasElement; List: TList);
 var
   i: Integer;
   VarType: TPasType;
-  Value, S: String;
-  M: string;
+  Value: String;
 begin
   while True do
   begin
@@ -1033,62 +997,7 @@ begin
       TPasVariable(List[i]).Value := Value;
   end else
     UngetToken;
-  NextToken;
-  if CurToken = tkAbsolute then
-    ExpectIdentifier
-  else
-    UngetToken;
   ExpectToken(tkSemicolon);
-  M := '';
-  while True do
-  begin
-    NextToken;
-    if CurToken = tkIdentifier then
-    begin
-      s := UpperCase(CurTokenText);
-      if s = 'CVAR' then
-      begin
-        M := M + '; cvar';
-        ExpectToken(tkSemicolon);
-      end
-      else if (s = 'EXTERNAL') or (s = 'PUBLIC') or (s = 'EXPORT') then
-      begin
-        M := M + ';' + CurTokenText;
-        if s = 'EXTERNAL' then
-        begin
-          NextToken;
-          if ((CurToken = tkString) or (CurToken = tkIdentifier)) and (UpperCase(CurTokenText)<> 'NAME') then
-          begin
-            M := M + ' ' + CurTokenText;
-            NextToken;
-          end;
-        end else
-          NextToken;
-        if (CurToken = tkIdentifier) and (UpperCase(CurTokenText) = 'NAME') then
-        begin
-          M := M + ' name ';
-          NextToken;
-          if (CurToken = tkString) or (CurToken = tkIdentifier) then
-            M := M + CurTokenText
-          else
-            ParseExc(SParserSyntaxError);
-          ExpectToken(tkSemicolon);
-        end else if CurToken <> tkSemicolon then
-          ParseExc(SParserSyntaxError);
-      end else
-      begin
-        UngetToken;
-        break;
-      end
-    end else
-    begin
-      UngetToken;
-      break;
-    end;
-  end;
-  if M <> '' then
-    for i := 0 to List.Count - 1 do
-      TPasVariable(List[i]).Modifiers := M;
 end;
 
 procedure TPasParser.ParseArgList(Parent: TPasElement; Args: TList; EndToken: TToken);
@@ -1360,12 +1269,6 @@ begin
     end else
       ParseInlineVarDecl(Parent, Parent.Members, visDefault, IsNested);
   end;
-end;
-
-function TPasParser.ParseClassDecl(Parent: TPasElement; const AClassName: String): TPasType;
-begin
-  // Заглушка, классы не используются
-  Result := nil;
 end;
 
 function ExpandIncludes(const AFileName: string): string;

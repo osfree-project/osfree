@@ -62,29 +62,20 @@ type
     tkPower,                 // '**'
     tkSymmetricalDifference, // '><'
     // Reserved words
-    tkabsolute,
     tkand,
     tkarray,
     tkas,
     tkbegin,
     tkcase,
-    tkclass,
     tkconst,
     tkInArg,
     tkInOutArg,
     tkOutArg,
-        tkdefault,
-        tkalias,
-    tkconstructor,
-    tkdestructor,
     tkdiv,
     tkdo,
     tkend,
     tkfalse,
-    tkfile,
-    tkfinally,
     tkfunction,
-    tkinherited,
     tkerror,
     tkis,
     tkmod,
@@ -101,9 +92,6 @@ type
     tktrue,
     tktype,
     tkGroup,
-    tkuses,
-    tkvar,
-    tkwith,
     tkxor,
     // Новые ключевые слова для uni2h v2.0
     tkStructure,
@@ -226,29 +214,20 @@ const
     '**',
     '><',
     // Reserved words
-    'absolute',
     'and',
     'array',
     'as',
     'begin',
     'case',
-    'class',
     'constant',
     'in',
     'inout',
     'out',
-    'default',
-    'alias',
-    'constructor',
-    'destructor',
     'div',
     'do',
     'end',
     'false',
-    'file',
-    'finally',
     'function',
-    'inherited',
     'error',
     'is',
     'mod',
@@ -265,9 +244,6 @@ const
     'true',
     'type',
     'group',
-    'uses',
-    'var',
-    'with',
     'xor',
     'structure',
     'variable'
@@ -850,7 +826,7 @@ begin
         if SectionLength > 0 then
           Move(TokenStart^, FCurTokenString[1], SectionLength);
 
-        for i := tkAbsolute to tkVariable do
+        for i := tkAnd to tkVariable do
           if CompareStr(CurTokenString, TokenInfos[i]) = 0 then
           begin
             Result := i;
