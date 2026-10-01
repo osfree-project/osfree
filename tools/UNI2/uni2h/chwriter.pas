@@ -110,6 +110,7 @@ begin
   else if Name = 'double' then Result := 'double'
   else if Name = 'char' then Result := 'char'
   else if Name = 'bool' then Result := '_Bool'
+  else if SameText(Name, 'VOID') then Result := 'void'
   else if Name = 'pointer' then Result := 'void *'
   else Result := Name;
 end;
@@ -197,17 +198,56 @@ end;
 
 {**
   @brief Check whether a type is a pointer, resolving alias chains.
-  @param AType Type to check.
-  @return True if the type is a pointer type.
+
+  A type is treated as a pointer if it is TPasPointerType, if it is an
+  alias of a pointer, or if its name is VOID (untyped pointer).
 }
 function IsPointerType(AType: TPasType): Boolean;
 begin
   Result := False;
   if AType = nil then Exit;
-  if AType is TPasPointerType then
+  if SameText(AType.Name, 'VOID') then
+    Result := True
+  else if AType is TPasPointerType then
     Result := True
   else if AType is TPasAliasType then
     Result := IsPointerType(TPasAliasType(AType).DestType);
+end;
+
+{**
+  @brief Build a load instruction "mov val,ptr" or "mov val,seg:[ofs]".
+  @param ValReg Value register name.
+  @param PtrRegs Pointer register or pair ("di" or "es:di").
+  @return Assembler instruction text.
+}
+function MakePtrLoad(const ValReg, PtrRegs: string): string;
+var
+  p: Integer;
+begin
+  p := Pos(':', PtrRegs);
+  if p > 0 then
+    Result := 'mov ' + ValReg + ',' +
+              Copy(PtrRegs, 1, p - 1) + ':[' + Copy(PtrRegs, p + 1, MaxInt) + ']'
+  else
+    Result := 'mov ' + ValReg + ',[' + PtrRegs + ']';
+end;
+
+{**
+  @brief Build a store instruction "mov ptr,val" or "mov seg:[ofs],val".
+  @param PtrRegs Pointer register or pair ("di" or "es:di").
+  @param ValReg Value register name.
+  @return Assembler instruction text.
+}
+function MakePtrStore(const PtrRegs, ValReg: string): string;
+var
+  p: Integer;
+begin
+  p := Pos(':', PtrRegs);
+  if p > 0 then
+    Result := 'mov ' + Copy(PtrRegs, 1, p - 1) + ':[' + Copy(PtrRegs, p + 1, MaxInt) +
+              '],' + ValReg
+  else
+    Result := 'mov [' + PtrRegs + '],' + ValReg;
 end;
 
 constructor TCHWriter.Create(AStream: TStream; AData: TABIData; ALayout: TLayout;
@@ -848,6 +888,8 @@ var
   Args: string;
   i: Integer;
   Arg: TPasArgument;
+  ArgIsPointer: Boolean;
+  BaseName: string;
 begin
   if AType is TPasAliasType then
   begin
@@ -889,7 +931,14 @@ begin
           if Arg.ArgType is TPasPointerType then
             Args := Args + PrimitiveToC(TPasPointerType(Arg.ArgType).DestType.Name) + ' *' + Arg.Name
           else
-            Args := Args + PrimitiveToC(Arg.ArgType.Name) + ' ' + Arg.Name;
+          begin
+            ArgIsPointer := IsPointerType(Arg.ArgType);
+            BaseName := Arg.ArgType.Name;
+            if ArgIsPointer then
+              Args := Args + PrimitiveToC(BaseName) + ' *' + Arg.Name
+            else
+              Args := Args + PrimitiveToC(BaseName) + ' ' + Arg.Name;
+          end;
         end
         else
           Args := Args + 'void ' + Arg.Name;
@@ -919,7 +968,14 @@ begin
           if Arg.ArgType is TPasPointerType then
             Args := Args + PrimitiveToC(TPasPointerType(Arg.ArgType).DestType.Name) + ' *' + Arg.Name
           else
-            Args := Args + PrimitiveToC(Arg.ArgType.Name) + ' ' + Arg.Name;
+          begin
+            ArgIsPointer := IsPointerType(Arg.ArgType);
+            BaseName := Arg.ArgType.Name;
+            if ArgIsPointer then
+              Args := Args + PrimitiveToC(BaseName) + ' *' + Arg.Name
+            else
+              Args := Args + PrimitiveToC(BaseName) + ' ' + Arg.Name;
+          end;
         end
         else
           Args := Args + 'void ' + Arg.Name;
@@ -1008,23 +1064,33 @@ end;
   Output form:
   @code
   #pragma aux <name> = \
-      "mov ..." \                       -- for registers with rkValue
+      "mov ..." \                       -- fixed-value registers (rkValue)
+      "mov val,[ptr]" \                 -- inout loads (before the call)
       "<control instruction>" \         -- int NNh | hlt/db/db NOT | call SSSS:OOOO
-      [cf conversion] \                 -- jnc/jmp/xor for CF -> APIRET
-      value [reg1 reg2 ...] \           -- for registers with rkResult
-      parm [reg...] [reg...] \          -- one block per function parameter
+      "jc err" \                        -- CF=1 goes to err (error in AX)
+      "mov [ptr],val" \                 -- out/inout stores (on success)
+      "xor ax,ax" \                     -- APIRET = 0 on success
+      "err:" \                          -- end of CF branch
+      value [reg1 reg2 ...] \           -- rkResult registers
+      parm [..] [..] [..] \             -- one bracketed group per parameter, in order
       modify [reg1 reg2 ...];           -- every register from inputs and outputs
   @endcode
 
   Registers inside [...] are separated by spaces, as required by OpenWatcom.
-  If Syscall.UsesCF is set, the sequence converts CF=1 (error in AX) and
-  CF=0 (result in AX) into APIRET-style return: AX = error code on CF=1,
-  AX = 0 on CF=0. On success, registers holding pointers to out-value
-  parameters receive the result value before AX is cleared.
+  Out-value parameters (Arg.Access = argOut) with a non-pointer type receive
+  a pointer register in inputs and a value register in outputs; inout
+  parameters (argInOut) are loaded from the pointer before the call and
+  stored back on success. Parameters whose type is VOID or a pointer are
+  not stored through an extra register: the caller passes the pointer by
+  value, and the callee writes through it directly.
+  If Syscall.UsesCF is set, the store block is guarded by the CF branch and
+  AX is cleared on success. Labels are plain names ("err") local to the
+  pragma aux block.
 
   All inconsistencies (missing register for a parameter, unknown parameter
   in a register, missing or extra result register, invalid Number, CF
-  without a result register) raise an exception with the function name.
+  without a result register, out/inout parameter without pointer or value
+  register) raise an exception with the function name.
 }
 procedure TCHWriter.WriteSyscallPragma(AFunc: TPasProcedureBase;
   ProcType: TPasProcedureType; const RetType: string; Syscall: TABISyscall);
@@ -1032,22 +1098,23 @@ var
   i, j: Integer;
   Reg: TABIRegister;
   Arg: TPasArgument;
+  PtrReg, ValReg: TABIRegister;
   MovLines: TStringList;
   InstrLines: TStringList;
-  ParmBlocks: TStringList;
+  PreLoadLines: TStringList;
+  PostStoreLines: TStringList;
+  ParmGroups: TStringList;
   ValueParts: TStringList;
   ModifyParts: TStringList;
   RegNames: TStringList;
   ParamRegs: TStringList;
   ParameterNames: TStringList;
-  OutPointerRegs: TStringList;
   NumVal: Integer;
   HasResult: Boolean;
+  ParmLine: string;
 
   {**
     @brief Build a space-separated register list from a TStringList.
-    @param List List of register names.
-    @return Space-separated string without brackets.
   }
   function JoinRegs(List: TStringList): string;
   var
@@ -1058,6 +1125,26 @@ var
     begin
       if k > 0 then Result := Result + ' ';
       Result := Result + List[k];
+    end;
+  end;
+
+  {**
+    @brief Find a parameter-bound register in a list.
+  }
+  function FindParamReg(const Args: TList; const Target: string): TABIRegister;
+  var
+    k: Integer;
+    R: TABIRegister;
+  begin
+    Result := nil;
+    for k := 0 to Args.Count - 1 do
+    begin
+      R := TABIRegister(Args[k]);
+      if (R.Kind = rkParam) and SameText(R.Target, Target) then
+      begin
+        Result := R;
+        Exit;
+      end;
     end;
   end;
 
@@ -1072,17 +1159,18 @@ begin
   ParameterNames := TStringList.Create;
   MovLines := TStringList.Create;
   InstrLines := TStringList.Create;
-  ParmBlocks := TStringList.Create;
+  PreLoadLines := TStringList.Create;
+  PostStoreLines := TStringList.Create;
+  ParmGroups := TStringList.Create;
   ValueParts := TStringList.Create;
   ModifyParts := TStringList.Create;
   RegNames := TStringList.Create;
-  OutPointerRegs := TStringList.Create;
   try
     if Assigned(ProcType) then
       for i := 0 to ProcType.Args.Count - 1 do
         ParameterNames.Add(TPasArgument(ProcType.Args[i]).Name);
 
-    { mov instructions for registers with a fixed value }
+    { fixed-value registers (rkValue) produce mov instructions }
     for i := 0 to Syscall.Inputs.Count - 1 do
     begin
       Reg := TABIRegister(Syscall.Inputs[i]);
@@ -1107,6 +1195,39 @@ begin
         MovLines.Add('    "mov ' + Reg.Regs + ',' + ConvertAsmNumber(Reg.Target) + '" \');
       end;
     end;
+
+    { out/inout parameters with a non-pointer type: pointer register in
+      inputs, value register in outputs. Pointer-typed and VOID parameters
+      are skipped — the caller passes the pointer by value and the callee
+      writes through it directly. }
+    if Assigned(ProcType) then
+      for i := 0 to ProcType.Args.Count - 1 do
+      begin
+        Arg := TPasArgument(ProcType.Args[i]);
+        if (Arg.Access <> argOut) and (Arg.Access <> argInOut) then Continue;
+        if IsPointerType(Arg.ArgType) then Continue;
+
+        PtrReg := FindParamReg(Syscall.Inputs, Arg.Name);
+        ValReg := FindParamReg(Syscall.Outputs, Arg.Name);
+
+        if PtrReg = nil then
+          raise Exception.CreateFmt(
+            'Function "%s": no pointer register in inputs for out/inout parameter "%s"',
+            [AFunc.Name, Arg.Name]);
+        if ValReg = nil then
+          raise Exception.CreateFmt(
+            'Function "%s": no value register in outputs for out/inout parameter "%s"',
+            [AFunc.Name, Arg.Name]);
+        if Pos(':', ValReg.Regs) > 0 then
+          raise Exception.CreateFmt(
+            'Function "%s": out/inout parameter "%s" value register is a pair "%s"',
+            [AFunc.Name, Arg.Name, ValReg.Regs]);
+
+        if Arg.Access = argInOut then
+          PreLoadLines.Add('    "' + MakePtrLoad(ValReg.Regs, PtrReg.Regs) + '" \');
+
+        PostStoreLines.Add('    "' + MakePtrStore(PtrReg.Regs, ValReg.Regs) + '" \');
+      end;
 
     { control transfer instruction }
     if SameText(Syscall.Convention, 'interrupt') then
@@ -1136,31 +1257,7 @@ begin
       InstrLines.Add('    "call ' + ConvertFarAddr(Syscall.Number) + '" \');
     end;
 
-    { collect registers holding pointers to out-value parameters:
-      - parameter has Access = argOut or argInOut;
-      - parameter type is not a pointer (otherwise the callee writes
-        through the pointer and the wrapper must not touch it). }
-    if Syscall.UsesCF and Assigned(ProcType) then
-      for i := 0 to ProcType.Args.Count - 1 do
-      begin
-        Arg := TPasArgument(ProcType.Args[i]);
-        if (Arg.Access <> argOut) and (Arg.Access <> argInOut) then Continue;
-        if IsPointerType(Arg.ArgType) then Continue;
-        for j := 0 to Syscall.Inputs.Count - 1 do
-        begin
-          Reg := TABIRegister(Syscall.Inputs[j]);
-          if (Reg.Kind = rkParam) and SameText(Reg.Target, Arg.Name) then
-            OutPointerRegs.Add(Reg.Regs);
-        end;
-        for j := 0 to Syscall.Outputs.Count - 1 do
-        begin
-          Reg := TABIRegister(Syscall.Outputs[j]);
-          if (Reg.Kind = rkParam) and SameText(Reg.Target, Arg.Name) then
-            OutPointerRegs.Add(Reg.Regs);
-        end;
-      end;
-
-    { if CF is used, generate a conversion from CF+AX to APIRET in AX }
+    { CF conversion and out/inout stores }
     if Syscall.UsesCF then
     begin
       HasResult := False;
@@ -1172,17 +1269,22 @@ begin
           'Function "%s": CF conversion requires a result register',
           [AFunc.Name]);
 
-      InstrLines.Add('    "jnc @@cf_ok" \');
-      InstrLines.Add('    "jmp @@cf_done" \');
-      InstrLines.Add('    "@@cf_ok:" \');
-      for i := 0 to OutPointerRegs.Count - 1 do
-        InstrLines.Add('    "mov [' + OutPointerRegs[i] + '],ax" \');
+      InstrLines.Add('    "jc err" \');
+      for i := 0 to PostStoreLines.Count - 1 do
+        InstrLines.Add(PostStoreLines[i]);
       InstrLines.Add('    "xor ax,ax" \');
-      InstrLines.Add('    "@@cf_done:" \');
-    end;
+      InstrLines.Add('    "err:" \');
+    end
+    else
+      for i := 0 to PostStoreLines.Count - 1 do
+        InstrLines.Add(PostStoreLines[i]);
 
-    { parm blocks, one per parameter in signature order }
-    if Assigned(ProcType) then
+    { parm: one bracketed group per parameter in signature order.
+      Only registers from inputs participate; outputs hold values
+      written by DOS and are not part of the calling convention. }
+    if Assigned(ProcType) and (ProcType.Args.Count > 0) then
+    begin
+      ParmLine := '    parm';
       for i := 0 to ProcType.Args.Count - 1 do
       begin
         Arg := TPasArgument(ProcType.Args[i]);
@@ -1194,21 +1296,18 @@ begin
             if (Reg.Kind = rkParam) and SameText(Reg.Target, Arg.Name) then
               SplitRegs(Reg.Regs, ParamRegs);
           end;
-          for j := 0 to Syscall.Outputs.Count - 1 do
-          begin
-            Reg := TABIRegister(Syscall.Outputs[j]);
-            if (Reg.Kind = rkParam) and SameText(Reg.Target, Arg.Name) then
-              SplitRegs(Reg.Regs, ParamRegs);
-          end;
           if ParamRegs.Count = 0 then
             raise Exception.CreateFmt(
               'Function "%s": no register bound to parameter "%s"',
               [AFunc.Name, Arg.Name]);
-          ParmBlocks.Add('    parm [' + JoinRegs(ParamRegs) + '] \');
+          ParmLine := ParmLine + ' [' + JoinRegs(ParamRegs) + ']';
         finally
           ParamRegs.Free;
         end;
       end;
+      ParmLine := ParmLine + ' \';
+      ParmGroups.Add(ParmLine);
+    end;
 
     { value block }
     for i := 0 to Syscall.Outputs.Count - 1 do
@@ -1264,23 +1363,26 @@ begin
     wln('#pragma aux ' + AFunc.Name + ' = \');
     for i := 0 to MovLines.Count - 1 do
       wln(MovLines[i]);
+    for i := 0 to PreLoadLines.Count - 1 do
+      wln(PreLoadLines[i]);
     for i := 0 to InstrLines.Count - 1 do
       wln(InstrLines[i]);
     if ValueParts.Count > 0 then
       wln('    value [' + JoinRegs(ValueParts) + '] \');
-    for i := 0 to ParmBlocks.Count - 1 do
-      wln(ParmBlocks[i]);
+    for i := 0 to ParmGroups.Count - 1 do
+      wln(ParmGroups[i]);
     if ModifyParts.Count > 0 then
       wln('    modify [' + JoinRegs(ModifyParts) + '];');
   finally
     ParameterNames.Free;
     MovLines.Free;
     InstrLines.Free;
-    ParmBlocks.Free;
+    PreLoadLines.Free;
+    PostStoreLines.Free;
+    ParmGroups.Free;
     ValueParts.Free;
     ModifyParts.Free;
     RegNames.Free;
-    OutPointerRegs.Free;
   end;
 end;
 
@@ -1348,7 +1450,10 @@ begin
           BaseTypeName := TPasPointerType(Arg.ArgType).DestType.Name;
         end
         else
+        begin
+          IsPointer := IsPointerType(Arg.ArgType);
           BaseTypeName := Arg.ArgType.Name;
+        end;
       end
       else
         BaseTypeName := 'void';

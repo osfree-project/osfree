@@ -10527,15 +10527,15 @@ syscall VdmOpen;
 begin
   number = $21;
   convention = interrupt;
-  inputs  = (ah=$3D, al=mode, ds:dx=pszName, di=phandle);
-  outputs = (ax=Result, cf);
+  inputs  = (ah=$3D, al=uchMode, ds:dx=pszName, es:di=phFile);
+  outputs = (ax=Result, ax=phFile, cf);
 end;
 
 syscall VdmClose;
 begin
   number = $21;
   convention = interrupt;
-  inputs  = (ah=$3E, bx=handle);
+  inputs  = (ah=$3E, bx=hFile);
   outputs = (ax=Result, cf);
 end;
 
@@ -10543,16 +10543,16 @@ syscall VdmRead;
 begin
   number = $21;
   convention = interrupt;
-  inputs  = (ah=$3F, bx=handle, cx=count, ds:dx=buf, di=pBytesRead);
-  outputs = (ax=Result, cf);
+  inputs  = (ah=$3F, bx=hFile, cx=cbRead, ds:dx=pBuffer, es:di=pcbActual);
+  outputs = (ax=Result, ax=pcbActual, cf);
 end;
 
 syscall VdmWrite;
 begin
   number = $21;
   convention = interrupt;
-  inputs  = (ah=$40, bx=handle, cx=count, ds:dx=buf, di=pBytesWritten);
-  outputs = (ax=Result, cf);
+  inputs  = (ah=$40, bx=hFile, cx=cbWrite, ds:dx=pBuffer, es:di=pcbActual);
+  outputs = (ax=Result, ax=pcbActual, cf);
 end;
 
 // JOIN array

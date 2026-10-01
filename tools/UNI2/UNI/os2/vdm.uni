@@ -6,84 +6,8 @@ begin
   constant DOS_WRITE = $40;
 
   (* DOS INT 21h *)
-  function VdmOpen(in pszName: PCHAR; in mode: WORD; out phandle: WORD): APIRET;
-  function VdmClose(in handle: WORD): APIRET;
-  function VdmRead(in handle: WORD; out buf: PCHAR; in count: WORD; out pBytesRead: WORD): APIRET;
-  function VdmWrite(in handle: WORD; in buf: PCHAR; in count: WORD; out pBytesWritten: WORD): APIRET;
-
-  (* JOIN array *)
-  function VdmQueryJoin(in cDrive: CHAR; in usBufferSize: USHORT; out Buffer: PVOID): APIRET;
-  function VdmSetJoin(in cDrive: CHAR; in pszPath: PSZ): APIRET;
-  function VdmDeleteJoin(in cDrive: CHAR): APIRET;
-
-  (* SUBST *)
-  function VdmQuerySubst(in cDrive: CHAR; in usBufferSize: USHORT; out Buffer: PVOID): APIRET;
-  function VdmSetSubst(in cDrive: CHAR; in pszPath: PSZ): APIRET;
-  function VdmDeleteSubst(in cDrive: CHAR): APIRET;
-
-  (* Session title *)
-  function VdmEnableAutoTitle(): APIRET;
-  function VdmSetTitle(in pszTitle: PSZ): APIRET;
-  function VdmQueryTitle(out pszTitle: PSZ): APIRET;
-  function VdmQueryLastDrive(): CHAR;
-
-  (* VDM internals *)
-  function VdmQueryJftSize(): USHORT;
-  function VdmQuerySftFlags(in handle: USHORT): USHORT;
-  function VdmLoadProgram(in pszFilespec: PSZ; in baseAddress: USHORT): APIRET;
-  function VdmQueryCallGate(): USHORT;
-  function VdmQueryLoadingMessage(out ppszMessage: PVOID): APIRET;
-
-  (* OS/2 API via INT 21 *)
-  function VdmStartSession(in pParams: PVOID): APIRET;
-  function VdmGetCp(in pParams: PVOID): APIRET;
-  function VdmQueryFSAttach(in pFsqAttach: PVOID): APIRET;
-  function VdmEditName(in pParams: PVOID): APIRET;
-  function VdmForceDelete(in pszFile: PSZ): APIRET;
-  function VdmCreateEventSem(in pParams: PVOID): APIRET;
-  function VdmOpenEventSem(in pParams: PVOID): APIRET;
-  function VdmCloseEventSem(in pParams: PVOID): APIRET;
-  function VdmResetEventSem(in pParams: PVOID): APIRET;
-  function VdmPostEventSem(in pParams: PVOID): APIRET;
-  function VdmWaitEventSem(in pParams: PVOID): APIRET;
-  function VdmQueryEventSem(in pParams: PVOID): APIRET;
-  function VdmCreateMutexSem(in pParams: PVOID): APIRET;
-  function VdmOpenMutexSem(in pParams: PVOID): APIRET;
-  function VdmCloseMutexSem(in pParams: PVOID): APIRET;
-  function VdmRequestMutexSem(in pParams: PVOID): APIRET;
-  function VdmReleaseMutexSem(in pParams: PVOID): APIRET;
-  function VdmQueryMutexSem(in pParams: PVOID): APIRET;
-  function VdmCreateMuxWaitSem(in pParams: PVOID): APIRET;
-  function VdmOpenMuxWaitSem(in pParams: PVOID): APIRET;
-  function VdmCloseMuxWaitSem(in pParams: PVOID): APIRET;
-  function VdmWaitMuxWaitSem(in pParams: PVOID): APIRET;
-  function VdmAddMuxWaitSem(in pParams: PVOID): APIRET;
-  function VdmDeleteMuxWaitSem(in pParams: PVOID): APIRET;
-  function VdmQueryMuxWaitSem(in pParams: PVOID): APIRET;
-
-  (* FAPI *)
-  function VdmOpen2(in pszName: PSZ; in openMode: USHORT; in flags: USHORT;
-                    in createAttr: USHORT; in action: USHORT; in pEaop: PVOID;
-                    out phandle: WORD): APIRET;
-  function VdmCreateDir2(in pszPath: PSZ; in pEa: PVOID): APIRET;
-  function VdmEnumAttribute(in pParamPacket: PVOID): APIRET;
-  function VdmQueryMaxEASize(out pMaxSize: ULONG): APIRET;
-
-  (* Named Pipes *)
-  function VdmQueryNPipeInfo(in handle: ULONG; in size: USHORT; in level: USHORT;
-                             out pInfo: PVOID): APIRET;
-  function VdmQueryNPHState(in handle: ULONG; out pMode: USHORT): APIRET;
-  function VdmSetNPHState(in handle: ULONG; in mode: USHORT): APIRET;
-  function VdmPeekNPipe(in handle: ULONG; in bufLen: USHORT; out pBuffer: PVOID;
-                        out pBytesRead: USHORT; out pBytesLeft: USHORT;
-                        out pMsgBytesLeft: USHORT; out pStatus: USHORT): APIRET;
-  function VdmTransactNPipe(in handle: ULONG; in inBufLen: USHORT; in pInBuffer: PVOID;
-                            in outBufLen: USHORT; out pOutBuffer: PVOID;
-                            out pBytesRead: USHORT): APIRET;
-  function VdmCallNPipe(in pStackFrame: PVOID): APIRET;
-  function VdmWaitNPipe(in pszPipeName: PSZ; in timeout: ULONG): APIRET;
-  function VdmRawReadNPipe(in handle: ULONG; in bufLen: USHORT; out pBuffer: PVOID;
-                           out pBytesRead: USHORT): APIRET;
-  function VdmRawWriteNPipe(in handle: ULONG; in bufLen: USHORT; in pBuffer: PVOID;
-                            out pBytesWritten: USHORT): APIRET;
+  function VdmOpen(in pszName: PSZ; in uchMode: UCHAR; out phFile: WORD): APIRET;
+  function VdmClose(in hFile: WORD): APIRET;
+  function VdmRead(in hFile: WORD; out pBuffer: VOID; in cbRead: WORD; out pcbActual: WORD): APIRET;
+  function VdmWrite(in hFile: WORD; in pBuffer: PVOID; in cbWrite: WORD; out pcbActual: WORD): APIRET;
 end;

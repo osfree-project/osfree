@@ -1,0 +1,600 @@
+
+  (* JOIN array *)
+  function VdmQueryJoin(in cDrive: CHAR; in usBufferSize: USHORT; out Buffer: PVOID): APIRET;
+  function VdmSetJoin(in cDrive: CHAR; in pszPath: PSZ): APIRET;
+  function VdmDeleteJoin(in cDrive: CHAR): APIRET;
+
+  (* SUBST *)
+  function VdmQuerySubst(in cDrive: CHAR; in usBufferSize: USHORT; out Buffer: PVOID): APIRET;
+  function VdmSetSubst(in cDrive: CHAR; in pszPath: PSZ): APIRET;
+  function VdmDeleteSubst(in cDrive: CHAR): APIRET;
+
+  (* Session title *)
+  function VdmEnableAutoTitle(): APIRET;
+  function VdmSetTitle(in pszTitle: PSZ): APIRET;
+  function VdmQueryTitle(out pszTitle: PSZ): APIRET;
+  function VdmQueryLastDrive(): CHAR;
+
+  (* VDM internals *)
+  function VdmQueryJftSize(): USHORT;
+  function VdmQuerySftFlags(in handle: USHORT): USHORT;
+  function VdmLoadProgram(in pszFilespec: PSZ; in baseAddress: USHORT): APIRET;
+  function VdmQueryCallGate(): USHORT;
+  function VdmQueryLoadingMessage(out ppszMessage: PVOID): APIRET;
+
+  (* OS/2 API via INT 21 *)
+  function VdmStartSession(in pParams: PVOID): APIRET;
+  function VdmGetCp(in pParams: PVOID): APIRET;
+  function VdmQueryFSAttach(in pFsqAttach: PVOID): APIRET;
+  function VdmEditName(in pParams: PVOID): APIRET;
+  function VdmForceDelete(in pszFile: PSZ): APIRET;
+  function VdmCreateEventSem(in pParams: PVOID): APIRET;
+  function VdmOpenEventSem(in pParams: PVOID): APIRET;
+  function VdmCloseEventSem(in pParams: PVOID): APIRET;
+  function VdmResetEventSem(in pParams: PVOID): APIRET;
+  function VdmPostEventSem(in pParams: PVOID): APIRET;
+  function VdmWaitEventSem(in pParams: PVOID): APIRET;
+  function VdmQueryEventSem(in pParams: PVOID): APIRET;
+  function VdmCreateMutexSem(in pParams: PVOID): APIRET;
+  function VdmOpenMutexSem(in pParams: PVOID): APIRET;
+  function VdmCloseMutexSem(in pParams: PVOID): APIRET;
+  function VdmRequestMutexSem(in pParams: PVOID): APIRET;
+  function VdmReleaseMutexSem(in pParams: PVOID): APIRET;
+  function VdmQueryMutexSem(in pParams: PVOID): APIRET;
+  function VdmCreateMuxWaitSem(in pParams: PVOID): APIRET;
+  function VdmOpenMuxWaitSem(in pParams: PVOID): APIRET;
+  function VdmCloseMuxWaitSem(in pParams: PVOID): APIRET;
+  function VdmWaitMuxWaitSem(in pParams: PVOID): APIRET;
+  function VdmAddMuxWaitSem(in pParams: PVOID): APIRET;
+  function VdmDeleteMuxWaitSem(in pParams: PVOID): APIRET;
+  function VdmQueryMuxWaitSem(in pParams: PVOID): APIRET;
+
+  (* FAPI *)
+  function VdmOpen2(in pszName: PSZ; in openMode: USHORT; in flags: USHORT;
+                    in createAttr: USHORT; in action: USHORT; in pEaop: PVOID;
+                    out phandle: WORD): APIRET;
+  function VdmCreateDir2(in pszPath: PSZ; in pEa: PVOID): APIRET;
+  function VdmEnumAttribute(in pParamPacket: PVOID): APIRET;
+  function VdmQueryMaxEASize(out pMaxSize: ULONG): APIRET;
+
+  (* Named Pipes *)
+  function VdmQueryNPipeInfo(in handle: ULONG; in size: USHORT; in level: USHORT;
+                             out pInfo: PVOID): APIRET;
+  function VdmQueryNPHState(in handle: ULONG; out pMode: USHORT): APIRET;
+  function VdmSetNPHState(in handle: ULONG; in mode: USHORT): APIRET;
+  function VdmPeekNPipe(in handle: ULONG; in bufLen: USHORT; out pBuffer: PVOID;
+                        out pBytesRead: USHORT; out pBytesLeft: USHORT;
+                        out pMsgBytesLeft: USHORT; out pStatus: USHORT): APIRET;
+  function VdmTransactNPipe(in handle: ULONG; in inBufLen: USHORT; in pInBuffer: PVOID;
+                            in outBufLen: USHORT; out pOutBuffer: PVOID;
+                            out pBytesRead: USHORT): APIRET;
+  function VdmCallNPipe(in pStackFrame: PVOID): APIRET;
+  function VdmWaitNPipe(in pszPipeName: PSZ; in timeout: ULONG): APIRET;
+  function VdmRawReadNPipe(in handle: ULONG; in bufLen: USHORT; out pBuffer: PVOID;
+                           out pBytesRead: USHORT): APIRET;
+  function VdmRawWriteNPipe(in handle: ULONG; in bufLen: USHORT; in pBuffer: PVOID;
+                            out pBytesWritten: USHORT): APIRET;
+
+1.0+
+// ---- Program control ----
+syscall VdmTerminate;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$00);
+  outputs = ();
+end;
+
+// ---- Console I/O ----
+syscall VdmCharIn;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$01);
+  outputs = (al=Result);
+end;
+
+syscall VdmCharOut;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$02, dl=uchChar);
+  outputs = ();
+end;
+
+syscall VdmAuxIn;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$03);
+  outputs = (al=Result);
+end;
+
+syscall VdmAuxOut;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$04, dl=uchChar);
+  outputs = ();
+end;
+
+syscall VdmPrnOut;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$05, dl=uchChar);
+  outputs = ();
+end;
+
+syscall VdmDirectCharIn;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$06, dl=$FF);
+  outputs = (al=Result);
+end;
+
+syscall VdmDirectCharOut;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$06, dl=uchChar);
+  outputs = ();
+end;
+
+syscall VdmCharInNoEcho;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$08);
+  outputs = (al=Result);
+end;
+
+syscall VdmPrintString;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$09, ds:dx=pszString);
+  outputs = ();
+end;
+
+syscall VdmBufferedInput;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$0A, ds:dx=pBuffer);
+  outputs = ();
+end;
+
+syscall VdmInputStatus;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$0B);
+  outputs = (al=Result);
+end;
+
+syscall VdmFlushInput;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$0C, al=uchFunction);
+  outputs = ();
+end;
+
+// ---- Disk ----
+syscall VdmResetDisk;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$0D);
+  outputs = ();
+end;
+
+syscall VdmSetDefaultDrive;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$0E, dl=uchDrive);
+  outputs = ();
+end;
+
+syscall VdmQueryDefaultDrive;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$19);
+  outputs = (al=Result);
+end;
+
+syscall VdmSetDTA;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$1A, ds:dx=pDTA);
+  outputs = ();
+end;
+
+// ---- FCB file operations ----
+syscall VdmFcbOpen;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$0F, ds:dx=pFcb);
+  outputs = (al=Result);
+end;
+
+syscall VdmFcbClose;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$10, ds:dx=pFcb);
+  outputs = (al=Result);
+end;
+
+syscall VdmFcbFindFirst;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$11, ds:dx=pFcb);
+  outputs = (al=Result);
+end;
+
+syscall VdmFcbFindNext;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$12, ds:dx=pFcb);
+  outputs = (al=Result);
+end;
+
+syscall VdmFcbDelete;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$13, ds:dx=pFcb);
+  outputs = (al=Result);
+end;
+
+syscall VdmFcbReadSeq;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$14, ds:dx=pFcb);
+  outputs = (al=Result);
+end;
+
+syscall VdmFcbWriteSeq;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$15, ds:dx=pFcb);
+  outputs = (al=Result);
+end;
+
+syscall VdmFcbCreate;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$16, ds:dx=pFcb);
+  outputs = (al=Result);
+end;
+
+syscall VdmFcbRename;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$17, ds:dx=pFcb);
+  outputs = (al=Result);
+end;
+
+syscall VdmFcbReadRandom;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$21, ds:dx=pFcb);
+  outputs = (al=Result);
+end;
+
+syscall VdmFcbWriteRandom;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$22, ds:dx=pFcb);
+  outputs = (al=Result);
+end;
+
+syscall VdmFcbFileSize;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$23, ds:dx=pFcb);
+  outputs = (al=Result);
+end;
+
+syscall VdmFcbSetRandomRecord;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$24, ds:dx=pFcb);
+  outputs = ();
+end;
+
+syscall VdmFcbReadBlock;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$27, ds:dx=pFcb, cx=usCount);
+  outputs = (al=Result);
+end;
+
+syscall VdmFcbWriteBlock;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$28, ds:dx=pFcb, cx=usCount);
+  outputs = (al=Result);
+end;
+
+// ---- Disk parameter block ----
+syscall VdmQueryAllocInfo;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$1B);
+  outputs = (ds:bx=pDpb, cx=usBytesPerSector, dx=usAvailableClusters);
+end;
+
+syscall VdmQueryAllocInfoDrive;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$1C, dl=uchDrive);
+  outputs = (ds:bx=pDpb, cx=usBytesPerSector, dx=usAvailableClusters);
+end;
+
+syscall VdmQueryDPB;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$1F);
+  outputs = (ds:bx=pDpb);
+end;
+
+// ---- Filename parsing ----
+syscall VdmParseFilename;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$29, ds:si=pszString, es:di=pFcb, al=uchOptions);
+  outputs = (al=Result);
+end;
+
+// ---- Interrupt vectors ----
+syscall VdmSetVector;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$25, al=uchVector, ds:dx=pAddress);
+  outputs = ();
+end;
+
+// ---- PSP ----
+syscall VdmCreatePSP;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$26, dx=usSegment);
+  outputs = ();
+end;
+
+// ---- Date and time ----
+syscall VdmQueryDate;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$2A);
+  outputs = (cx=usYear, dh=uchMonth, dl=uchDay);
+end;
+
+syscall VdmSetDate;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$2B, cx=usYear, dh=uchMonth, dl=uchDay);
+  outputs = (al=Result);
+end;
+
+syscall VdmQueryTime;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$2C);
+  outputs = (ch=uchHours, cl=uchMinutes, dh=uchSeconds, dl=uchHundredths);
+end;
+
+syscall VdmSetTime;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$2D, ch=uchHours, cl=uchMinutes, dh=uchSeconds, dl=uchHundredths);
+  outputs = (al=Result);
+end;
+
+// ---- Verify ----
+syscall VdmSetVerify;
+begin
+  number = $21;
+  convention = interrupt;
+  version = '1.0';
+  inputs  = (ah=$2E, al=uchVerify);
+  outputs = ();
+end;
+
+syscall VdmFcbFileSize;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$23, ds:dx=pFcb);
+  outputs = (al=Result);
+end;
+
+syscall VdmFcbSetRandomRecord;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$24, ds:dx=pFcb);
+  outputs = ();
+end;
+
+syscall VdmFcbReadBlock;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$27, ds:dx=pFcb, cx=usCount);
+  outputs = (al=Result);
+end;
+
+syscall VdmFcbWriteBlock;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$28, ds:dx=pFcb, cx=usCount);
+  outputs = (al=Result);
+end;
+
+// ---- Disk parameter block ----
+syscall VdmQueryAllocInfo;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$1B);
+  outputs = (ds:bx=pDpb, cx=usBytesPerSector, dx=usAvailableClusters);
+end;
+
+syscall VdmQueryAllocInfoDrive;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$1C, dl=uchDrive);
+  outputs = (ds:bx=pDpb, cx=usBytesPerSector, dx=usAvailableClusters);
+end;
+
+syscall VdmQueryDPB;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$1F);
+  outputs = (ds:bx=pDpb);
+end;
+
+// ---- Filename parsing ----
+syscall VdmParseFilename;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$29, ds:si=pszString, es:di=pFcb, al=uchOptions);
+  outputs = (al=Result);
+end;
+
+// ---- Interrupt vectors ----
+syscall VdmSetVector;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$25, al=uchVector, ds:dx=pAddress);
+  outputs = ();
+end;
+
+// ---- PSP ----
+syscall VdmCreatePSP;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$26, dx=usSegment);
+  outputs = ();
+end;
+
+// ---- Date and time ----
+syscall VdmQueryDate;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$2A);
+  outputs = (cx=usYear, dh=uchMonth, dl=uchDay);
+end;
+
+syscall VdmSetDate;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$2B, cx=usYear, dh=uchMonth, dl=uchDay);
+  outputs = (al=Result);
+end;
+
+syscall VdmQueryTime;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$2C);
+  outputs = (ch=uchHours, cl=uchMinutes, dh=uchSeconds, dl=uchHundredths);
+end;
+
+syscall VdmSetTime;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$2D, ch=uchHours, cl=uchMinutes, dh=uchSeconds, dl=uchHundredths);
+  outputs = (al=Result);
+end;
+
+// ---- Verify ----
+syscall VdmSetVerify;
+begin
+  number = $21;
+  convention = interrupt;
+  inputs  = (ah=$2E, al=uchVerify);
+  outputs = ();
+end;
