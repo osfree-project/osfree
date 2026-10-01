@@ -20,7 +20,7 @@
 
 Дополнительные файлы, специфичные для конкретных генераторов, описаны в соответствующих разделах.
 
-Все входные файлы используют паскалеподобный синтаксис с ключевыми словами `begin`/`end`, `record`/`end`, `case ... of`. Комментарии: однострочные `//`, многострочные `{ }` или `(* *)`.
+Все входные файлы используют паскалеподобный синтаксис с ключевыми словами begin/end, structure/end, case ... of. Комментарии: однострочные `//`, многострочные `{ }` или `(* *)`.
 
 ### 1.3 Командная строка
 
@@ -89,6 +89,7 @@ constant    = "constant" identifier "=" number ";"
 variable    = "variable" identifier ":" type ";"
 
 structure   = "structure" identifier ";"
+              "begin"
               { field }
               [ "case" identifier ":" type "of"
                   { case_branch }
@@ -141,22 +142,25 @@ variable _os2_version: uint32;
 
 Структура (structure)
 
-Составной тип данных с именованными полями. Может содержать вложенные записи (record) и вариантную часть (case ... of).
+Составной тип данных с именованными полями. Может содержать вложенные структуры (structure) и вариантную часть (case ... of).
 
 Обычная структура:
 pascal
 
 structure KBDKEYINFO;
+begin
   chChar: uint8;
   chScan: uint8;
 end;
 
-Структура с битовыми полями (описываются как вложенная запись без указания раскладки — раскладка задаётся в .abi):
+Структура с битовыми полями (описываются как вложенная структура без указания раскладки — раскладка задаётся в .abi):
 pascal
 
 structure KBDINFO;
+begin
   cb: uint16;
-  fsMask: record
+  fsMask: structure
+  begin
     fEcho: boolean;
     fBinary: boolean;
   end;
@@ -166,6 +170,7 @@ end;
 pascal
 
 structure VARIANT;
+begin
   case type: uint16 of
     1: (intVal: int32);
     2: (floatVal: float);
@@ -210,18 +215,26 @@ library     = "library" identifier ";"
 
 syscall     = "syscall" identifier ";"
               "begin"
-                [ number_clause ]
-                convention_clause
-                [ version_clause ]
+                { syscall_attribute }
               "end" ";"
+
+syscall_attribute = number_clause
+                  | convention_clause
+                  | version_clause
+                  | inputs_clause
+                  | outputs_clause
 
 entry       = "entry" identifier [ "=" identifier ] ";"
               "begin"
-                [ number_clause ]
-                [ convention_clause ]
-                [ version_clause ]
+                { entry_attribute }
               "end" ";"
             | alias_entry
+
+entry_attribute = number_clause
+                | convention_clause
+                | version_clause
+                | inputs_clause
+                | outputs_clause
 
 alias_entry = "entry" identifier "=" identifier ";"
 
@@ -242,19 +255,25 @@ callback_attr = "type" identifier ";"
                   "convention" "=" string ";"
                 "end" ";"
 
-number_clause = "number" "=" number ";"
+number_clause     = "number" "=" number ";"
 convention_clause = "convention" "=" (string | interrupt_service) ";"
-                   [ "inputs" "=" "(" register_list ")" ";" ]
-                   [ "outputs" "=" "(" register_list ")" ";" ]
-interrupt_service = "interrupt" | "service"
-register_list = register { "," register }
-register      = identifier [ "=" number ]
+inputs_clause     = "inputs"  "=" "(" register_list ")" ";"
+outputs_clause    = "outputs" "=" "(" register_list_or_cf ")" ";"
+interrupt_service = "interrupt" | "service" | "call"
+register_list     = register { "," register }
+register_list_or_cf = register_or_cf { "," register_or_cf }
+register_or_cf    = register | "cf"
+register          = identifier [ "=" register_rhs ]
+register_rhs      = number | identifier | "Result"
 
 version_clause = "version" "=" version_range ";"
 version_range = version [ "-" version ]
 version       = string
 
-Поле number используется для ординалов DLL, номеров прерываний и кодов инструкций.
+
+
+Поле number используется для ординалов DLL, номеров прерываний, кодов сервисных инструкций и дальних адресов ($SSSS:$OOOO для convention = call).
+
 3.2 Описание конструкций
 Модуль (module)
 
@@ -282,26 +301,29 @@ end;
 
 Системный вызов (syscall)
 
-Описывает прямой вызов прерывания (interrupt) или сервисной инструкции (service). Не привязан к DLL/LIB. Содержит номер прерывания/инструкции и списки регистров.
+Описывает прямой вызов прерывания (interrupt), сервисной инструкции (service) или дальний вызов по абсолютному адресу (call). Не привязан к DLL/LIB. Содержит номер прерывания/инструкции и списки регистров.
+
 pascal
 
 syscall DosOpen;
 begin
   convention = interrupt;
   number = $21;
-  inputs = (ah=$3D, al, ds, dx);
-  outputs = (ax, cf);
+  inputs  = (ah=$3D, al=Flags, ds:dx=PathName);
+  outputs = (ax=Result, cf);
 end;
 
 Точка входа (entry)
 
 Описывает экспортируемую функцию или переменную в module/library. Может включать:
 
-    number – ординал (для DLL) или номер прерывания (для syscall).
+  number – ординал (для DLL) или номер прерывания (для syscall).
 
-    convention – строка соглашения вызова ('_System', '_Far16 _Pascal', interrupt, service).
+  convention – строка соглашения вызова ('_System', '_Far16 _Pascal', interrupt, service, call).
 
-    version – диапазон версий ОС, в которых доступен экспорт.
+  version – диапазон версий ОС, в которых доступен экспорт.
+
+  inputs, outputs – списки регистров.
 
 Стандартный экспорт:
 pascal
@@ -343,7 +365,7 @@ end;
 
     prefix – строка, добавляемая к именам полей в MASM.
 
-    bitfield – раскладка битового поля (привязывается к полю, описанному как record).
+    bitfield – раскладка битового поля (привязывается к полю, описанному как structure).
 
 pascal
 
@@ -389,61 +411,71 @@ end;
 Формат файла .layout:
 text
 
-<группа>  <выходной_файл>  [optional|always] [noincl=<макрос>] [macro=<макрос>] [desc="описание"]
+layout;
+begin
+  group <группа> [ : <выходной_файл> ] ;
+    [macro [= <макрос>]]
+    [invert]
+    [guard [= <макрос>]]
+    [included [= <макрос>]]
+    [cascade [= <макрос>]]
+    [desc = "описание"]
+  end;
+  ...
+end.
 
-    Если выходной файл не указан, группа наследует файл родительской группы, а её содержимое встраивается в родительский файл.
+  Если выходной файл не указан, группа наследует файл родительской группы, а её содержимое встраивается в родительский файл.
 
-    optional — группа не входит в каскад родительского макроса, включается только при явном макросе INCL_<имя_группы> или макросе, указанном через macro=.
+  macro — задаёт макрос условного включения; по умолчанию имя не задано (тогда #include выводится безусловно). Голый macro = HasMacro := True с автоименем INCL_<ИМЯ>.
 
-    always — группа включается безусловно, #include в родительском файле не оборачивается в условные директивы.
+  invert — инвертирует условие включения: #ifndef <макрос> ... #include ... #endif вместо #ifdef.
 
-    noincl=<макрос> — если указан, включение файла оборачивается в #ifndef <макрос> ... #endif.
+  guard — имя охранного макроса (#ifndef/#define) внутри файла группы. Голый guard — автоимя __<ИМЯ>__.
 
-    macro=<макрос> — переопределяет имя макроса, используемое для условного включения (по умолчанию INCL_<имя_группы>).
+  included — если указано, в теле файла генерируется #define <макрос>. Голый included — автоимя INCL_<ИМЯ>INCLUDED.
 
-    desc="описание" — текстовое описание файла, которое будет помещено в баннер заголовка и, при необходимости, в комментарий перед #include.
+  cascade — задаёт каскадный макрос. Голый cascade — автоимя (значение macro или INCL_<ИМЯ>).
 
-Каскады макросов (например, #ifdef INCL_DOS -> #define INCL_DOSPROCESS) генерируются автоматически для всех не-optional и не-always вложенных групп.
+  desc="описание" — текстовое описание файла, ...
+
+Каскады макросов (например, #ifdef INCL_DOS -> #define INCL_DOSPROCESS) генерируются автоматически для тех вложенных групп, у которых задано поле cascade.
 
 Пример .layout:
-ini
 
-os2def     os2def.h   always desc="Common definitions"
-base       bse.h      noincl=INCL_NOBASEAPI desc="OS/2 Base Include File"
-pm         pm.h       noincl=INCL_NOPMAPI desc="OS/2 Presentation Manager Include File"
-osa        osa.h      optional macro=INCL_OSAAPI desc="Open Scripting Architecture (OSA) Include File"
-opendoc    od.h       optional macro=INCL_ODAPI desc="OpenDoc for OS/2 Include File"
+layout;
+begin
+  group os2def : os2def.h ;
+    desc = "Common definitions"
+  end;
+  group base : bse.h ;
+    included = INCL_NOBASEAPI
+    desc = "OS/2 Base Include File"
+  end;
+  group pm : pm.h ;
+    included = INCL_NOPMAPI
+    desc = "OS/2 Presentation Manager Include File"
+  end;
+  group osa : osa.h ;
+    macro = INCL_OSAAPI
+    desc = "Open Scripting Architecture (OSA) Include File"
+  end;
+  group opendoc : od.h ;
+    macro = INCL_ODAPI
+    desc = "OpenDoc for OS/2 Include File"
+  end;
 
-os2        os2.h      desc="This is the top level include file that includes all the files necessary for writing an OS/2 application."
+  group os2 : os2.h ;
+    desc = "This is the top level include file that includes all the files necessary for writing an OS/2 application."
+  end;
 
-dos        bsedos.h
-dosprocess
-dosfilemgr
-dosmemmgr
-dossemaphores
-dosdatetime
-dosmodulemgr
-dosresources
-dosnls
-dosexceptions
-dosmisc
-dosmonitors
-dosqueues
-dossesmgr
-dosdevices
-dosnmpipes
-dosprofile
-dosmvdm
-
-sub        bsesub.h
-kbd        kbd.h
-vio        vio.h
-mou        mou.h
-
-doserrors  bseerr.h   optional
-
-win        pmwin.h
-gpi        pmgpi.h
+  group dos : bsedos.h ;
+  end;
+  group dosprocess ;
+  end;
+  group dosfilemgr ;
+  end;
+  ...
+end.
 
 Маппинг примитивов:
 .uni	C-тип
@@ -463,23 +495,21 @@ pointer	void *
 
 Логика работы:
 
-    Для каждой группы, имеющей запись в .layout, создаётся отдельный файл.
+    Для каждой группы, имеющей запись в .layout с указанным выходным файлом, создаётся отдельный файл. Если выходной файл не указан — содержимое встраивается в родителя.
 
     В начало файла добавляется баннер с именем модуля и описанием (если задано).
 
-    Затем охранный #ifndef, пролог (IBM/C++ обёртки, если включены), каскады макросов, #include для дочерних групп, содержимое группы, эпилог и закрывающий #endif.
+    Затем пролог (IBM/C++ обёртки, если включены), охранный #ifndef/#define, #define для included-макроса, каскады макросов, #include для дочерних групп, содержимое группы, закрывающий #endif, эпилог.
 
-    Для optional групп в родительском файле вставляется #ifdef <макрос> вокруг #include.
+    Если у дочерней группы задан macro и нет invert — вокруг #include выводится #ifdef <макрос> ... #endif. При invert — #ifndef ... #endif. Без macro — #include безусловно.
 
-    Для always групп #include выводится безусловно.
-
-    Для групп с noincl включение оборачивается в #ifndef.
+    Если задан included, в теле файла группы генерируется #define <макрос>.
 
     Типы: примитивы транслируются согласно таблице, псевдонимы превращаются в typedef.
 
     Структуры: typedef struct _ИМЯ { ... } ИМЯ; с опциональным #pragma pack согласно pack из ABI. Битовые поля раскладываются согласно bitfield.
 
-    Функции: для каждой функции ищутся все entry/syscall в ABI. Если несколько версий, генерируются отдельные прототипы с #if OS2_VERSION. Строка convention вставляется в объявление. Для interrupt/service формируется #pragma aux.
+    Функции: для каждой функции ищется запись в ABI — сначала через FindEntry (берётся первая найденная), при отсутствии — через FindSyscall. Строка convention вставляется в объявление (по умолчанию _System). Версионные блоки #if OS2_VERSION не генерируются. Для interrupt/service/call формируется #pragma aux.
 
     Переменные: extern <тип> <имя>;
 
