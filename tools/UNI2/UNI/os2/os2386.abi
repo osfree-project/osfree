@@ -339,15 +339,26 @@ type MMIOPROC;             convention = '_System'; end;
 
 library OS2386;
 begin
-  entry DosGetMessage;
+//  entry DosGetMessage;
+//  begin
+//    convention = '_System';
+//  end;
+
+//  entry DosQueryMessageCP;
+//  begin
+//    convention = '_System';
+//  end;
+
+  entry DosOpen;
   begin
     convention = '_System';
   end;
 
-  entry DosQueryMessageCP;
+  entry DosOpen;
   begin
-    convention = '_System';
+    convention = '_Far16 _Pascal';
   end;
+
 end;
 
 module BDCALLS;
@@ -537,8 +548,8 @@ begin
 end;
 
 module DOSCALLS;
-  version = '2.0';
 begin
+  version = '2.0';
   // 16-битные экспорты (реальные имена + convention = '_Far16 _Pascal')
   entry DOS16CWAIT = DosWaitChild;
   begin
@@ -1820,7 +1831,7 @@ begin
 
   entry DosOpen;
   begin
-    convention = '_Far16 _Pascal';
+    convention = '_System';
     number = 273;
   end;
 
