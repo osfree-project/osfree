@@ -257,7 +257,7 @@ type
   public
     VarType: TPasType;
     Value: string;
-    InlineComment: string;   // комментарий после объявления поля (для H2INC)
+    InlineComment: string;
     destructor Destroy; override;
     function ElementTypeName: string; override;
     function GetDeclaration(full : boolean) : string; override;
@@ -275,14 +275,11 @@ type
 
   TPasProcedure = class(TPasProcedureBase)
   public
-    IsVirtual, IsDynamic, IsAbstract, IsOverride,
-      IsOverload, IsMessage, isReintroduced, isStatic: Boolean;
     ProcType: TPasProcedureType;
     destructor Destroy; override;
     function ElementTypeName: string; override;
     function TypeName: string; override;
     function GetDeclaration(full: Boolean): string; override;
-//    procedure GetModifiers(List: TStrings);
   end;
 
   TPasFunction = class(TPasProcedure)
@@ -900,7 +897,6 @@ begin
       Result:=VarType.GetDeclaration(False)
     else
       Result:=VarType.Name;
-    Result:=Result+Modifiers;
     if (Value<>'') then
       Result:=Result+' = '+Value;
     end
@@ -908,27 +904,6 @@ begin
     Result:=Value;
   If Full then
     Result:=Name+' '+Seps[Assigned(VarType)]+' '+Result;
-end;
-
-
-Procedure TPasProcedure.GetModifiers(List : TStrings);
-
-  Procedure DoAdd(B : Boolean; S : string);
-
-  begin
-    if B then
-      List.add('; '+S);
-  end;
-
-begin
-  Doadd(IsVirtual,' Virtual');
-  DoAdd(IsDynamic,' Dynamic');
-  DoAdd(IsOverride,' Override');
-  DoAdd(IsAbstract,' Abstract');
-  DoAdd(IsOverload,' Overload');
-  DoAdd(IsReintroduced,' Reintroduce');
-  DoAdd(IsStatic,' Static');
-  DoAdd(IsMessage,' Message');
 end;
 
 function TPasProcedure.GetDeclaration (full : boolean) : string;
@@ -941,7 +916,6 @@ begin
     If Full then
       S.Add(TypeName+' '+Name);
     ProcType.GetArguments(S);
-    GetModifiers(S);
     Result:=IndentStrings(S,Length(S[0]));
   finally
     S.Free;
@@ -970,7 +944,6 @@ begin
           T:=T+GetDeclaration(False);
         S.Add(T);
         end;
-    GetModifiers(S);
     Result:=IndentStrings(S,Length(S[0]));
   finally
     S.Free;

@@ -406,11 +406,17 @@ begin
 end;
 
 procedure TABIParser.SkipEmptyLines;
+var
+  S: string;
 begin
-  while (TrimLeft(Line) = '') and not EOF(F) do
-    NextLine;
-  while (Pos('//', TrimLeft(Line)) = 1) and not EOF(F) do
-    NextLine;
+  while not EOF(F) do
+  begin
+    S := TrimLeft(Line);
+    if (S = '') or (Pos('//', S) = 1) then
+      NextLine
+    else
+      Break;
+  end;
 end;
 
 function TABIParser.ReadToken: string;
@@ -884,34 +890,34 @@ begin
   Modu.Name := ReadToken;
   Expect(';');
   SkipEmptyLines;
-  while True do
-  begin
-    T := PeekToken;
-    if T = 'begin' then Break;
-    if SameText(T, 'version') then
-    begin
-      Expect('version');
-      Expect('=');
-      Modu.VersionMin := ReadVersion;
-      if PeekToken = '-' then
-      begin
-        Expect('-');
-        Modu.VersionMax := ReadVersion;
-      end;
-      Expect(';');
-      SkipEmptyLines;
-    end
-    else
-      Error('Expected "begin" or "version", got "' + T + '"');
-  end;
   Expect('begin');
   SkipEmptyLines;
+
+  if SameText(PeekToken, 'version') then
+  begin
+    Expect('version');
+    Expect('=');
+    Modu.VersionMin := ReadVersion;
+    if PeekToken = '-' then
+    begin
+      Expect('-');
+      Modu.VersionMax := ReadVersion;
+    end;
+    Expect(';');
+    SkipEmptyLines;
+
+    if SameText(PeekToken, 'version') then
+      Error('Duplicate version clause');
+  end;
+
   while True do
   begin
     T := ReadToken;
     if T = 'end' then Break;
     if T = 'entry' then
       ParseEntry(Modu)
+    else if SameText(T, 'version') then
+      Error('Version clause must precede all entries')
     else
       Error('Expected "entry", got "' + T + '"');
     SkipEmptyLines;
