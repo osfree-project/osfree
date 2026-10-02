@@ -547,542 +547,1381 @@ begin
   end;
 end;
 
+
 module DOSCALLS;
 begin
-  version = '2.0';
-  // 16-битные экспорты (реальные имена + convention = '_Far16 _Pascal')
-  entry DOS16CWAIT = DosWaitChild;
+  version = '1.00';
+
+  entry DOSICREATETHREAD;
   begin
+    version = '1.00'-'1.30';
+    number = 1;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSCWAIT=DosCWait;
+  begin
+    version = '1.00'-'1.30';
+    number = 2;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16CWAIT = DosCWait;
+  begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 2;
   end;
 
+  entry DOSENTERCRITSEC = DosEnterCritSec;
+  begin
+    version = '1.00'-'1.30';
+    number = 3;
+    convention = '_Far _Pascal';
+  end;
+
   entry DOS16ENTERCRITSEC = DosEnterCritSec;
   begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 3;
   end;
 
+  entry DOSIEXECPGM;
+  begin
+    version = '1.00'-'1.30';
+    number = 4;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSEXIT = DosExit;
+  begin
+    version = '1.00'-'1.30';
+    number = 5;
+    convention = '_Far _Pascal';
+  end;
+
   entry DOS16EXIT = DosExit;
   begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 5;
   end;
 
+  entry DOSEXITCRITSEC = DosExitCritSec;
+  begin
+    version = '1.00'-'1.30';
+    number = 6;
+    convention = '_Far _Pascal';
+  end;
+
   entry DOS16EXITCRITSEC = DosExitCritSec;
   begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 6;
   end;
 
+  entry DOSEXITLIST = DosExitList;
+  begin
+    version = '1.00'-'1.30';
+    number = 7;
+    convention = '_Far _Pascal';
+  end;
+
   entry DOS16EXITLIST = DosExitList;
   begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 7;
   end;
 
-  entry DOS16GETINFOSEG = DosGetInfoBlocks;
+  entry DOSGETINFOSEG = DosGetInfoSeg;
   begin
+    version = '1.00'-'1.30';
+    number = 8;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16GETINFOSEG = DosGetInfoSeg;
+  begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 8;
   end;
 
-  entry DOS16GETPRTY = DosSetPriority;
+  entry DOSGETPRTY = DosGetPrty;
   begin
+    version = '1.00'-'1.30';
+    number = 9;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16GETPRTY = DosGetPrty;
+  begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 9;
   end;
 
+  entry DOSKILLPROCESS = DosKillProcess;
+  begin
+    version = '1.00'-'1.30';
+    number = 10;
+    convention = '_Far _Pascal';
+  end;
+
   entry DOS16KILLPROCESS = DosKillProcess;
   begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 10;
   end;
 
-  entry DOS16SETPRTY = DosSetPriority;
+  entry DOSSETPRTY = DosSetPrty;
   begin
+    version = '1.00'-'1.30';
+    number = 11;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16SETPRTY = DosSetPrty;
+  begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 11;
   end;
 
-  entry DOSPTRACE;
+  entry DOSPTRACE = DosPTrace;
   begin
-    convention = '_Far16 _Pascal';
+    version = '1.00';
     number = 12;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSHOLDSIGNAL = DosHoldSignal;
+  begin
+    version = '1.00'-'1.30';
+    number = 13;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16HOLDSIGNAL = DosHoldSignal;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 13;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSSETSIGHANDLER = DosSetSigHandler;
+  begin
+    version = '1.00'-'1.30';
+    number = 14;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16SETSIGHANDLER = DosSetSigHandler;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 14;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSFLAGPROCESS = DosFlagProcess;
+  begin
+    version = '1.00'-'1.30';
+    number = 15;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16FLAGPROCESS = DosFlagProcess;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 15;
+    convention = '_Far16 _Pascal';
   end;
 
-  entry DOS16MAKEPIPE = DosCreatePipe;
+  entry DOSMAKEPIPE = DosMakePipe;
   begin
-    convention = '_Far16 _Pascal';
+    version = '1.00'-'1.30';
     number = 16;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16MAKEPIPE = DosMakePipe;
+  begin
+    version = '2.00';
+    number = 16;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSISYSSEMCLEAR;
+  begin
+    version = '1.00'-'1.30';
+    number = 17;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSISEMREQUEST;
+  begin
+    version = '1.00'-'1.30';
+    number = 18;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSISYSSEMSET;
+  begin
+    version = '1.00'-'1.30';
+    number = 19;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSEMSETWAIT = DosSemSetWait;
+  begin
+    version = '1.00'-'1.30';
+    number = 20;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16SEMSETWAIT = DosSemSetWait;
   begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 20;
   end;
 
+  entry DOSISEMWAIT;
+  begin
+    version = '1.00'-'1.30';
+    number = 21;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSMUXSEMWAIT = DosMuxSemWait;
+  begin
+    version = '1.00'-'1.30';
+    number = 22;
+    convention = '_Far _Pascal';
+  end;
+
   entry DOS16MUXSEMWAIT = DosMuxSemWait;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 22;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSCLOSESEM = DosCloseSem;
+  begin
+    version = '1.00'-'1.30';
+    number = 23;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16CLOSESEM = DosCloseSem;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 23;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSCREATESEM = DosCreateSem;
+  begin
+    version = '1.00'-'1.30';
+    number = 24;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16CREATESEM = DosCreateSem;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 24;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSOPENSEM = DosOpenSem;
+  begin
+    version = '1.00'-'1.30';
+    number = 25;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16OPENSEM = DosOpenSem;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 25;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSRESUMETHREAD = DosResumeThread;
+  begin
+    version = '1.00'-'1.30';
+    number = 26;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16RESUMETHREAD = DosResumeThread;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 26;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSSUSPENDTHREAD = DosSuspendThread;
+  begin
+    version = '1.00'-'1.30';
+    number = 27;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16SUSPENDTHREAD = DosSuspendThread;
   begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 27;
   end;
 
+  entry DOSSETDATETIME = DosSetDateTime;
+  begin
+    version = '1.00'-'1.30';
+    number = 28;
+    convention = '_Far _Pascal';
+  end;
+
   entry DOS16SETDATETIME = DosSetDateTime;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 28;
-  end;
-
-  entry DOS16TIMERASYNC = DosAsyncTimer;
-  begin
     convention = '_Far16 _Pascal';
-    number = 29;
   end;
 
-  entry DOS16TIMERSTART = DosStartTimer;
+  entry DOSTIMERASYNC = DosTimerAsync;
   begin
+    version = '1.00'-'1.30';
+    number = 29;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16TIMERASYNC = DosTimerAsync;
+  begin
+    version = '2.00';
+    number = 29;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSTIMERSTART = DosTimerStart;
+  begin
+    version = '1.00'-'1.30';
+    number = 30;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16TIMERSTART = DosTimerStart;
+  begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 30;
   end;
 
-  entry DOS16TIMERSTOP = DosStopTimer;
+  entry DOSTIMERSTOP = DosTimerStop;
   begin
+    version = '1.00'-'1.30';
+    number = 31;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16TIMERSTOP = DosTimerStop;
+  begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 31;
   end;
 
+  entry DOSSLEEP = DosSleep;
+  begin
+    version = '1.00'-'1.30';
+    number = 32;
+    convention = '_Far _Pascal';
+  end;
+
   entry DOS16SLEEP = DosSleep;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 32;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSGETDATETIME = DosGetDateTime;
+  begin
+    version = '1.00'-'1.30';
+    number = 33;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16GETDATETIME = DosGetDateTime;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 33;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSALLOCSEG = DosAllocSeg;
+  begin
+    version = '1.00'-'1.30';
+    number = 34;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16ALLOCSEG = DosAllocSeg;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 34;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSALLOCSHRSEG = DosAllocShrSeg;
+  begin
+    version = '1.00'-'1.30';
+    number = 35;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16ALLOCSHRSEG = DosAllocShrSeg;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 35;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSGETSHRSEG = DosGetShrSeg;
+  begin
+    version = '1.00'-'1.30';
+    number = 36;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16GETSHRSEG = DosGetShrSeg;
   begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 36;
   end;
 
+  entry DOSGIVESEG = DosGiveSeg;
+  begin
+    version = '1.00'-'1.30';
+    number = 37;
+    convention = '_Far _Pascal';
+  end;
+
   entry DOS16GIVESEG = DosGiveSeg;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 37;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSREALLOCSEG = DosReallocSeg;
+  begin
+    version = '1.00'-'1.30';
+    number = 38;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16REALLOCSEG = DosReallocSeg;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 38;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSFREESEG = DosFreeSeg;
+  begin
+    version = '1.00'-'1.30';
+    number = 39;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16FREESEG = DosFreeSeg;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 39;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSALLOCHUGE = DosAllocHuge;
+  begin
+    version = '1.00'-'1.30';
+    number = 40;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16ALLOCHUGE = DosAllocHuge;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 40;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSGETHUGESHIFT = DosGetHugeShift;
+  begin
+    version = '1.00'-'1.30';
+    number = 41;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16GETHUGESHIFT = DosGetHugeShift;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 41;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSREALLOCHUGE = DosReallocHuge;
+  begin
+    version = '1.00'-'1.30';
+    number = 42;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16REALLOCHUGE = DosReallocHuge;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 42;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSCREATECSALIAS = DosCreateCSAlias;
+  begin
+    version = '1.00'-'1.30';
+    number = 43;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16CREATECSALIAS = DosCreateCSAlias;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 43;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSLOADMODULE = DosLoadModule;
+  begin
+    version = '1.00'-'1.30';
+    number = 44;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16LOADMODULE = DosLoadModule;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 44;
+    convention = '_Far16 _Pascal';
   end;
 
-  entry DOS16GETPROCADDR = DosQueryProcAddr;
+  entry DOSGETPROCADDR = DosGetProcAddr;
   begin
-    convention = '_Far16 _Pascal';
+    version = '1.00'-'1.30';
     number = 45;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16GETPROCADDR = DosGetProcAddr;
+  begin
+    version = '2.00';
+    number = 45;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSFREEMODULE = DosFreeModule;
+  begin
+    version = '1.00'-'1.30';
+    number = 46;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16FREEMODULE = DosFreeModule;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 46;
+    convention = '_Far16 _Pascal';
   end;
 
-  entry DOS16GETMODHANDLE = DosQueryModuleHandle;
+  entry DOSGETMODHANDLE = DosGetModHandle;
   begin
-    convention = '_Far16 _Pascal';
+    version = '1.00'-'1.30';
     number = 47;
+    convention = '_Far _Pascal';
   end;
 
-  entry DOS16GETMODNAME = DosQueryModuleName;
+  entry DOS16GETMODHANDLE = DosGetModHandle;
   begin
+    version = '2.00';
+    number = 47;
     convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSGETMODNAME = DosGetModName;
+  begin
+    version = '1.00'-'1.30';
     number = 48;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16GETMODNAME = DosGetModName;
+  begin
+    version = '2.00';
+    number = 48;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSGETMACHINEMODE = DosGetMachineMode;
+  begin
+    version = '1.00'-'1.30';
+    number = 49;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16GETMACHINEMODE = DosGetMachineMode;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 49;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSBEEP = DosBeep;
+  begin
+    version = '1.00'-'1.30';
+    number = 50;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16BEEP = DosBeep;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 50;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSCLIACCESS = DosCliAccess;
+  begin
+    version = '1.00'-'1.30';
+    number = 51;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16CLIACCESS = DosCliAccess;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 51;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSDEVCONFIG = DosDevConfig;
+  begin
+    version = '1.00'-'1.30';
+    number = 52;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16DEVCONFIG = DosDevConfig;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 52;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSDEVIOCTL = DosDevIOCtl;
+  begin
+    version = '1.00'-'1.30';
+    number = 53;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16DEVIOCTL = DosDevIOCtl;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 53;
+    convention = '_Far16 _Pascal';
   end;
 
-  entry DOS16BUFRESET = DosResetBuffer;
+  entry DOSSGSWITCH;
   begin
-    convention = '_Far16 _Pascal';
+    version = '1.00'-'1.30';
+    number = 54;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSGSWITCHME;
+  begin
+    version = '1.00'-'1.30';
+    number = 55;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSBUFRESET = DosBufReset;
+  begin
+    version = '1.00'-'1.30';
     number = 56;
+    convention = '_Far _Pascal';
   end;
 
-  entry DOS16CHDIR = DosSetCurrentDir;
+  entry DOS16BUFRESET = DosBufReset;
   begin
+    version = '2.00';
+    number = 56;
     convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSCHDIR = DosChDir;
+  begin
+    version = '1.00'-'1.30';
     number = 57;
+    convention = '_Far _Pascal';
   end;
 
-  entry DOS16CHGFILEPTR = DosSetFilePtr;
+  entry DOS16CHDIR = DosChDir;
   begin
+    version = '2.00';
+    number = 57;
     convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSCHGFILEPTR = DosChgFilePtr;
+  begin
+    version = '1.00'-'1.30';
     number = 58;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16CHGFILEPTR = DosChgFilePtr;
+  begin
+    version = '2.00';
+    number = 58;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSCLOSE = DosClose;
+  begin
+    version = '1.00'-'1.30';
+    number = 59;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16CLOSE = DosClose;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 59;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSDELETE = DosDelete;
+  begin
+    version = '1.00'-'1.30';
+    number = 60;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16DELETE = DosDelete;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 60;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSDUPHANDLE = DosDupHandle;
+  begin
+    version = '1.00'-'1.30';
+    number = 61;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16DUPHANDLE = DosDupHandle;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 61;
+    convention = '_Far16 _Pascal';
   end;
 
-  entry DOS16FILELOCKS = DosSetFileLocks;
+  entry DOSFILELOCKS = DosFileLocks;
   begin
-    convention = '_Far16 _Pascal';
+    version = '1.00'-'1.30';
     number = 62;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16FILELOCKS = DosFileLocks;
+  begin
+    version = '2.00';
+    number = 62;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSFINDCLOSE = DosFindClose;
+  begin
+    version = '1.00'-'1.30';
+    number = 63;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16FINDCLOSE = DosFindClose;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 63;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSFINDFIRST = DosFindFirst;
+  begin
+    version = '1.00'-'1.30';
+    number = 64;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16FINDFIRST = DosFindFirst;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 64;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSFINDNEXT = DosFindNext;
+  begin
+    version = '1.00'-'1.30';
+    number = 65;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16FINDNEXT = DosFindNext;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 65;
+    convention = '_Far16 _Pascal';
   end;
 
-  entry DOS16MKDIR = DosCreateDir;
+  entry DOSMKDIR = DosMkDir;
   begin
-    convention = '_Far16 _Pascal';
+    version = '1.00'-'1.30';
     number = 66;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16MKDIR = DosMkDir;
+  begin
+    version = '2.00';
+    number = 66;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSMOVE = DosMove;
+  begin
+    version = '1.00'-'1.30';
+    number = 67;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16MOVE = DosMove;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 67;
+    convention = '_Far16 _Pascal';
   end;
 
-  entry DOS16NEWSIZE = DosSetFileSize;
+  entry DOSNEWSIZE = DosNewSize;
   begin
-    convention = '_Far16 _Pascal';
+    version = '1.00'-'1.30';
     number = 68;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16NEWSIZE = DosNewSize;
+  begin
+    version = '2.00';
+    number = 68;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSPORTACCESS = DosPortAccess;
+  begin
+    version = '1.00'-'1.30';
+    number = 69;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16PORTACCESS = DosPortAccess;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 69;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSOPEN = DosOpen;
+  begin
+    version = '1.00'-'1.30';
+    number = 70;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16OPEN = DosOpen;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 70;
+    convention = '_Far16 _Pascal';
   end;
 
-  entry DOS16QCURDIR = DosQueryCurrentDir;
+  entry DOSQCURDIR = DosQCurDir;
   begin
-    convention = '_Far16 _Pascal';
+    version = '1.00'-'1.30';
     number = 71;
+    convention = '_Far _Pascal';
   end;
 
-  entry DOS16QCURDISK = DosQueryCurrentDisk;
+  entry DOS16QCURDIR = DosQCurDir;
   begin
+    version = '2.00';
+    number = 71;
     convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSQCURDISK = DosQCurDisk;
+  begin
+    version = '1.00'-'1.30';
     number = 72;
+    convention = '_Far _Pascal';
   end;
 
-  entry DOS16QFHANDSTATE = DosQueryFHState;
+  entry DOS16QCURDISK = DosQCurDisk;
   begin
+    version = '2.00';
+    number = 72;
     convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSQFHANDSTATE = DosQFHandState;
+  begin
+    version = '1.00'-'1.30';
     number = 73;
+    convention = '_Far _Pascal';
   end;
 
-  entry DOS16QFILEINFO = DosQueryFileInfo;
+  entry DOS16QFHANDSTATE = DosQFHandState;
   begin
+    version = '2.00';
+    number = 73;
     convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSQFILEINFO = DosQFileInfo;
+  begin
+    version = '1.00'-'1.30';
     number = 74;
+    convention = '_Far _Pascal';
   end;
 
-  entry DOS16QFILEMODE = DosQueryFileMode;
+  entry DOS16QFILEINFO = DosQFileInfo;
   begin
+    version = '2.00';
+    number = 74;
     convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSQFILEMODE = DosQFileMode;
+  begin
+    version = '1.00'-'1.30';
     number = 75;
+    convention = '_Far _Pascal';
   end;
 
-  entry DOS16QFSINFO = DosQueryFSInfo;
+  entry DOS16QFILEMODE = DosQFileMode;
   begin
+    version = '2.00';
+    number = 75;
     convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSQFSINFO = DosQFSInfo;
+  begin
+    version = '1.00'-'1.30';
     number = 76;
+    convention = '_Far _Pascal';
   end;
 
-  entry DOS16QHANDTYPE = DosQueryHType;
+  entry DOS16QFSINFO = DosQFSInfo;
   begin
+    version = '2.00';
+    number = 76;
     convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSQHANDTYPE = DosQHandType;
+  begin
+    version = '1.00'-'1.30';
     number = 77;
+    convention = '_Far _Pascal';
   end;
 
-  entry DOS16QVERIFY = DosQueryVerify;
+  entry DOS16QHANDTYPE = DosQHandType;
   begin
+    version = '2.00';
+    number = 77;
     convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSQVERIFY = DosQVerify;
+  begin
+    version = '1.00'-'1.30';
     number = 78;
+    convention = '_Far _Pascal';
   end;
 
-  entry DOS16RMDIR = DosDeleteDir;
+  entry DOS16QVERIFY = DosQVerify;
   begin
+    version = '2.00';
+    number = 78;
     convention = '_Far16 _Pascal';
-    number = 80;
   end;
 
-  entry DOS16SELECTDISK = DosSetDefaultDisk;
+  entry DOSIREAD;
   begin
+    version = '1.00'-'1.30';
+    number = 79;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSRMDIR = DosRmDir;
+  begin
+    version = '1.00'-'1.30';
+    number = 80;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16RMDIR = DosRmDir;
+  begin
+    version = '2.00';
+    number = 80;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSSELECTDISK = DosSelectDisk;
+  begin
+    version = '1.00'-'1.30';
+    number = 81;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16SELECTDISK = DosSelectDisk;
+  begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 81;
   end;
 
-  entry DOS16SETFHANDSTATE = DosSetFHState;
+  entry DOSSETFHANDSTATE = DosSetFHandState;
   begin
-    convention = '_Far16 _Pascal';
+    version = '1.00'-'1.30';
     number = 82;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16SETFHANDSTATE = DosSetFHandState;
+  begin
+    version = '2.00';
+    number = 82;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSSETFILEINFO = DosSetFileInfo;
+  begin
+    version = '1.00'-'1.30';
+    number = 83;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16SETFILEINFO = DosSetFileInfo;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 83;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSSETFILEMODE = DosSetFileMode;
+  begin
+    version = '1.00'-'1.30';
+    number = 84;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16SETFILEMODE = DosSetFileMode;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 84;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSSETMAXFH = DosSetMaxFH;
+  begin
+    version = '1.00'-'1.30';
+    number = 85;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16SETMAXFH = DosSetMaxFH;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 85;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSSETVERIFY = DosSetVerify;
+  begin
+    version = '1.00'-'1.30';
+    number = 86;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16SETVERIFY = DosSetVerify;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 86;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSIWRITE;
+  begin
+    version = '1.00'-'1.30';
+    number = 87;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSYSTEMSERVICE = DosSystemService;
+  begin
+    version = '1.00'-'1.30';
+    number = 88;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16SYSTEMSERVICE = DosSystemService;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 88;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSSETVEC = DosSetVec;
+  begin
+    version = '1.00'-'1.30';
+    number = 89;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16SETVEC = DosSetVec;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 89;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSSYSTRACE = DosSysTrace;
+  begin
+    version = '1.00'-'1.30';
+    number = 90;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16SYSTRACE = DosSysTrace;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 90;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSGETENV = DosGetEnv;
+  begin
+    version = '1.00'-'1.30';
+    number = 91;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16GETENV = DosGetEnv;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 91;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSGETVERSION = DosGetVersion;
+  begin
+    version = '1.00'-'1.30';
+    number = 92;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16GETVERSION = DosGetVersion;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 92;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSQTRACEINFO;
+  begin
+    version = '1.00'-'1.30';
+    number = 93;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETPID = DosGetPID;
+  begin
+    version = '1.00'-'1.30';
+    number = 94;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16GETPID = DosGetPID;
   begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 94;
   end;
 
+  entry UNUSEDG;
+  begin
+    version = '1.00'-'1.30';
+    number = 95;
+    convention = '_Far _Pascal';
+  end;
+
   entry DOS16OPEN2 = DosOpen2;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 95;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSLIBINIT = DosLibInit;
+  begin
+    version = '1.00'-'1.30';
+    number = 96;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16LIBINIT = DosLibInit;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 96;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSSETFSINFO = DosSetFSInfo;
+  begin
+    version = '1.00'-'1.30';
+    number = 97;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16SETFSINFO = DosSetFSInfo;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 97;
+    convention = '_Far16 _Pascal';
   end;
 
-  entry DOS16QPATHINFO = DosQueryPathInfo;
+  entry UNUSEDA;
   begin
-    convention = '_Far16 _Pascal';
+    version = '1.00'-'1.30';
     number = 98;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOS16QPATHINFO = DosQPathInfo;
+  begin
+    version = '2.00';
+    number = 98;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry UNUSEDB;
+  begin
+    version = '1.00'-'1.30';
+    number = 99;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16DEVIOCTL2 = DosDevIOCtl2;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 99;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSICANONICALIZE;
+  begin
+    version = '1.00'-'1.30';
+    number = 100;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETFGND;
+  begin
+    version = '1.00'-'1.30';
+    number = 101;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSWAPTASKINIT;
+  begin
+    version = '1.00'-'1.30';
+    number = 102;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSREADPHYS;
+  begin
+    version = '1.00'-'1.30';
+    number = 103;
+    convention = '_Far _Pascal';
+  end;
+
+  entry UNUSEDE;
+  begin
+    version = '1.00'-'1.30';
+    number = 104;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16SETPATHINFO = DosSetPathInfo;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 104;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry UNUSEDF;
+  begin
+    version = '1.00'-'1.30';
+    number = 105;
+    convention = '_Far _Pascal';
+  end;
+
+  entry STRUCHECK;
+  begin
+    version = '1.00'-'1.30';
+    number = 106;
+    convention = '_Far _Pascal';
+  end;
+
+  entry STRURESUPDATE;
+  begin
+    version = '1.00'-'1.30';
+    number = 107;
+    convention = '_Far _Pascal';
+  end;
+
+  entry GETHEADERS;
+  begin
+    version = '1.00'-'1.30';
+    number = 108;
+    convention = '_Far _Pascal';
   end;
 
   entry DOSISETRELMAXFH = DosSetRelMaxFH;
@@ -1091,10 +1930,25 @@ begin
     number = 108;
   end;
 
+
+  entry DBGETKVAR;
+  begin
+    version = '1.00'-'1.30';
+    number = 109;
+    convention = '_Far _Pascal';
+  end;
+
   entry DOSIDEVIOCTL = DosIDevIOCtl;
   begin
     convention = '_Far16 _Pascal';
     number = 109;
+  end;
+
+  entry GETSELADDR;
+  begin
+    version = '1.00'-'1.30';
+    number = 110;
+    convention = '_Far _Pascal';
   end;
 
   entry DosForceDelete;
@@ -1103,10 +1957,24 @@ begin
     number = 110;
   end;
 
+  entry GETADDR;
+  begin
+    version = '1.00'-'1.30';
+    number = 111;
+    convention = '_Far _Pascal';
+  end;
+
   entry DosKillThread;
   begin
     convention = '_Far16 _Pascal';
     number = 111;
+  end;
+
+  entry DBMEMLOCK;
+  begin
+    version = '1.00'-'1.30';
+    number = 112;
+    convention = '_Far _Pascal';
   end;
 
   entry DosQueryRASInfo;
@@ -1115,10 +1983,24 @@ begin
     number = 112;
   end;
 
+  entry DBMEMUNLOCK;
+  begin
+    version = '1.00'-'1.30';
+    number = 113;
+    convention = '_Far _Pascal';
+  end;
+
   entry DosDumpProcess;
   begin
     convention = '_Far16 _Pascal';
     number = 113;
+  end;
+
+  entry DBSEGALLOC;
+  begin
+    version = '1.00'-'1.30';
+    number = 114;
+    convention = '_Far _Pascal';
   end;
 
   entry DosSuppressPopUps;
@@ -1127,10 +2009,59 @@ begin
     number = 114;
   end;
 
+  entry DBMEMREALLOC;
+  begin
+    version = '1.00'-'1.30';
+    number = 115;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DBMEMFREE;
+  begin
+    version = '1.00'-'1.30';
+    number = 116;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DBGETOWNER;
+  begin
+    version = '1.00'-'1.30';
+    number = 117;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DBPHYSINFO;
+  begin
+    version = '1.00'-'1.30';
+    number = 118;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETSTDA;
+  begin
+    version = '1.00'-'1.30';
+    number = 119;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSERROR = DosError;
+  begin
+    version = '1.00'-'1.30';
+    number = 120;
+    convention = '_Far _Pascal';
+  end;
+
   entry DOS16ERROR = DosError;
   begin
     convention = '_Far16 _Pascal';
     number = 120;
+  end;
+
+  entry DOSGETSEG = DosGetSeg;
+  begin
+    version = '1.00'-'1.30';
+    number = 121;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16GETSEG = DosGetSeg;
@@ -1139,32 +2070,281 @@ begin
     number = 121;
   end;
 
+  entry DOSLOCKSEG = DosLockSeg;
+  begin
+    version = '1.00'-'1.30';
+    number = 122;
+    convention = '_Far _Pascal';
+  end;
+
   entry DOS16LOCKSEG = DosLockSeg;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 122;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSUNLOCKSEG = DosUnlockSeg;
+  begin
+    version = '1.00'-'1.30';
+    number = 123;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16UNLOCKSEG = DosUnlockSeg;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 123;
+    convention = '_Far16 _Pascal';
+  end;
+
+  entry DOSSGSWITCHPROC;
+  begin
+    version = '1.00'-'1.30';
+    number = 124;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSIRAMSEMWAKE;
+  begin
+    version = '1.00'-'1.30';
+    number = 125;
+    convention = '_Far _Pascal';
+  end;
+
+  entry UNUSEDC;
+  begin
+    version = '1.00'-'1.30';
+    number = 126;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16SIZESEG = DosSizeSeg;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 126;
+    convention = '_Far16 _Pascal';
+  end;
+
+
+  entry DOSMEMAVAIL = DosMemAvail;
+  begin
+    version = '1.00'-'1.30';
+    number = 127;
+    convention = '_Far _Pascal';
   end;
 
   entry DOS16MEMAVAIL = DosMemAvail;
   begin
-    convention = '_Far16 _Pascal';
+    version = '2.00';
     number = 127;
+    convention = '_Far16 _Pascal';
   end;
+
+  entry UNUSEDD;
+  begin
+    version = '1.00'-'1.30';
+    number = 128;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSPHYSICALDISK;
+  begin
+    version = '1.00'-'1.30';
+    number = 129;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETCP;
+  begin
+    version = '1.00'-'1.30';
+    number = 130;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSISETCP;
+  begin
+    version = '1.00'-'1.30';
+    number = 131;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGLOBALSEG;
+  begin
+    version = '1.00'-'1.30';
+    number = 132;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSPROFILE;
+  begin
+    version = '1.00'-'1.30';
+    number = 133;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSENDSIGNAL;
+  begin
+    version = '1.00'-'1.30';
+    number = 134;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSHUGESHIFT;
+  begin
+    version = '1.00'-'1.30';
+    number = 135;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSHUGEINCR;
+  begin
+    version = '1.00'-'1.30';
+    number = 136;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSREAD;
+  begin
+    version = '1.00'-'1.30';
+    number = 137;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSWRITE;
+  begin
+    version = '1.00'-'1.30';
+    number = 138;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSERRCLASS;
+  begin
+    version = '1.00'-'1.30';
+    number = 139;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSEMREQUEST;
+  begin
+    version = '1.00'-'1.30';
+    number = 140;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSEMCLEAR;
+  begin
+    version = '1.00'-'1.30';
+    number = 141;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSEMWAIT;
+  begin
+    version = '1.00'-'1.30';
+    number = 142;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSEMSET;
+  begin
+    version = '1.00'-'1.30';
+    number = 143;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSEXECPGM;
+  begin
+    version = '1.00'-'1.30';
+    number = 144;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSCREATETHREAD;
+  begin
+    version = '1.00'-'1.30';
+    number = 145;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSUBSET;
+  begin
+    version = '1.00'-'1.30';
+    number = 146;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSUBALLOC;
+  begin
+    version = '1.00'-'1.30';
+    number = 147;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSUBFREE;
+  begin
+    version = '1.00'-'1.30';
+    number = 148;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSREADASYNC;
+  begin
+    version = '1.00'-'1.30';
+    number = 149;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSWRITEASYNC;
+  begin
+    version = '1.00'-'1.30';
+    number = 150;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSEARCHPATH;
+  begin
+    version = '1.00'-'1.30';
+    number = 151;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSCANENV;
+  begin
+    version = '1.00'-'1.30';
+    number = 152;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETCP;
+  begin
+    version = '1.00'-'1.30';
+    number = 153;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSQPROCSTATUS;
+  begin
+    version = '1.00'-'1.30';
+    number = 154;
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETPROCCP;
+  begin
+    version = '1.00'-'1.30';
+    number = 164;
+    convention = '_Far _Pascal';
+  end;
+
+//////////////////////////////////////////////////////////////////////////////
+  // 16-битные экспорты (реальные имена + convention = '_Far16 _Pascal')
+
+
 
   entry DOS16PHYSICALDISK = DosPhysicalDisk;
   begin
+    version = '2.00';
     convention = '_Far16 _Pascal';
     number = 129;
   end;
@@ -10995,3 +12175,785 @@ begin
   inputs  = (ax=$5F3A, bx=handle, cx=bufLen, ds:dx=pBuffer);
   outputs = (ax=Result, cf);
 end;
+
+
+
+library DOSCALLS;
+begin
+  version=1.00
+  entry DOSICREATETHREAD;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSCWAIT=DosCWait;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSENTERCRITSEC;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSIEXECPGM;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSEXIT;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSEXITCRITSEC;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSEXITLIST;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETINFOSEG;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETPRTY;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSKILLPROCESS;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETPRTY;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSPTRACE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSHOLDSIGNAL;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETSIGHANDLER;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSFLAGPROCESS;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSMAKEPIPE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSISYSSEMCLEAR;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSISEMREQUEST;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSISYSSEMSET;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSEMSETWAIT;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSISEMWAIT;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSMUXSEMWAIT;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSCLOSESEM;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSCREATESEM;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSOPENSEM;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSRESUMETHREAD;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSUSPENDTHREAD;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETDATETIME;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSTIMERASYNC;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSTIMERSTART;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSTIMERSTOP;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSLEEP;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETDATETIME;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSALLOCSEG;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSALLOCSHRSEG;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETSHRSEG;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGIVESEG;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSREALLOCSEG;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSFREESEG;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSALLOCHUGE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETHUGESHIFT;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSREALLOCHUGE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSCREATECSALIAS;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSLOADMODULE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETPROCADDR;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSFREEMODULE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETMODHANDLE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETMODNAME;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETMACHINEMODE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSBEEP;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSCLIACCESS;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSDEVCONFIG;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSDEVIOCTL;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSGSWITCH;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSGSWITCHME;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSBUFRESET;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSCHDIR;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSCHGFILEPTR;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSCLOSE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSDELETE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSDUPHANDLE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSFILELOCKS;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSFINDCLOSE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSFINDFIRST;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSFINDNEXT;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSMKDIR;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSMOVE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSNEWSIZE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSPORTACCESS;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSOPEN;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSQCURDIR;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSQCURDISK;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSQFHANDSTATE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSQFILEINFO;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSQFILEMODE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSQFSINFO;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSQHANDTYPE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSQVERIFY;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSIREAD;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSRMDIR;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSELECTDISK;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETFHANDSTATE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETFILEINFO;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETFILEMODE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETMAXFH;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETVERIFY;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSIWRITE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSYSTEMSERVICE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETVEC;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSYSTRACE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETENV;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETVERSION;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSQTRACEINFO;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETPID;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry UNUSEDG;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSLIBINIT;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETFSINFO;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry UNUSEDA;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry UNUSEDB;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSICANONICALIZE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETFGND;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSWAPTASKINIT;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSREADPHYS;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry UNUSEDE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry UNUSEDF;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry STRUCHECK;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry STRURESUPDATE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry GETHEADERS;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DBGETKVAR;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry GETSELADDR;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry GETADDR;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DBMEMLOCK;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DBMEMUNLOCK;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DBSEGALLOC;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DBMEMREALLOC;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DBMEMFREE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DBGETOWNER;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DBPHYSINFO;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETSTDA;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSERROR;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETSEG;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSLOCKSEG;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSUNLOCKSEG;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSGSWITCHPROC;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSIRAMSEMWAKE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry UNUSEDC;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSMEMAVAIL;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry UNUSEDD;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSPHYSICALDISK;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGETCP;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSISETCP;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSGLOBALSEG;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSPROFILE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSENDSIGNAL;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSHUGESHIFT;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSHUGEINCR;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSREAD;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSWRITE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSERRCLASS;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSEMREQUEST;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSEMCLEAR;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSEMWAIT;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSEMSET;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSEXECPGM;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSCREATETHREAD;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSUBSET;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSUBALLOC;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSUBFREE;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSREADASYNC;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSWRITEASYNC;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSEARCHPATH;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSCANENV;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETCP;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSQPROCSTATUS;
+  begin
+    convention = '_Far _Pascal';
+  end;
+
+  entry DOSSETPROCCP;
+  begin
+    convention = '_Far _Pascal';
+  end;
+end;
+

@@ -9,6 +9,7 @@
 
 #include "os2types.h"
 #include "os2err.h"
+#include "mzexe.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,8 +20,11 @@ extern "C" {
  *
  *  Provides handle-based read access to NE executables plus a bind
  *  operation that merges a DOS stub with an NE image into a single
- *  FamilyAPI executable. All handles (HNE) are opaque; the internal
- *  representation is private to newexe.c.
+ *  FamilyAPI executable. All handles (HNE, HNEENUM) are opaque; the
+ *  internal representation is private to newexe.c.
+ *
+ *  The MZ header that precedes the NE header is defined in mzexe.h
+ *  and shared with the LX reader.
  *
  *  References:
  *    - Microsoft MS-DOS Programmer's Reference, "New Executable
@@ -32,241 +36,645 @@ extern "C" {
  *      structure).
  */
 
-/*! @name MZ header constants */
-/*! @{ */
-#define EMAGIC      0x5A4D                /*!< MZ signature ("MZ"). */
-#define ENEWEXE     sizeof(struct exe_hdr)/*!< Size of the MZ header. */
+/* ==================================================================
+ * NE header constants
+ * ================================================================== */
 
-#define ENEWHDR     0x003C                /*!< Offset of e_lfanew. */
-#define ERESWDS     0x0010                /*!< Reserved words. */
-#define ERES1WDS    0x0004                /*!< Count of e_res words. */
-#define ERES2WDS    0x000A                /*!< Count of e_res2 words. */
-#define ECP         0x0004                /*!< e_cp offset. */
-#define ECBLP       0x0002                /*!< e_cblp offset. */
-#define EMINALLOC   0x000A                /*!< e_minalloc offset. */
-/*! @} */
-
-/*! @name MZ header field accessors */
-/*! @{ */
-#define E_MAGIC(x)      (x).e_magic       /*!< Magic ("MZ"). */
-#define E_CBLP(x)       (x).e_cblp        /*!< Bytes in last block. */
-#define E_CP(x)         (x).e_cp          /*!< Blocks in file. */
-#define E_CRLC(x)       (x).e_crlc        /*!< Relocation entries. */
-#define E_CPARHDR(x)    (x).e_cparhdr     /*!< Header size in paras. */
-#define E_MINALLOC(x)   (x).e_minalloc    /*!< Min extra paragraphs. */
-#define E_MAXALLOC(x)   (x).e_maxalloc    /*!< Max extra paragraphs. */
-#define E_SS(x)         (x).e_ss          /*!< Initial SS. */
-#define E_SP(x)         (x).e_sp          /*!< Initial SP. */
-#define E_CSUM(x)       (x).e_csum        /*!< Checksum. */
-#define E_IP(x)         (x).e_ip          /*!< Initial IP. */
-#define E_CS(x)         (x).e_cs          /*!< Initial CS. */
-#define E_LFARLC(x)     (x).e_lfarlc      /*!< Relocation table offset. */
-#define E_OVNO(x)       (x).e_ovno        /*!< Overlay number. */
-#define E_RES(x)        (x).e_res         /*!< Reserved. */
-#define E_OEMID(x)      (x).e_oemid       /*!< OEM identifier. */
-#define E_OEMINFO(x)    (x).e_oeminfo     /*!< OEM info. */
-#define E_RES2(x)       (x).e_res2        /*!< Reserved. */
-#define E_LFANEW(x)     (x).e_lfanew      /*!< File offset of NE header. */
-/*! @} */
-
-/*! @name NE header constants */
-/*! @{ */
-#define NEMAGIC         0x454E            /*!< NE signature ("NE"). */
-#define NERESBYTES      8                 /*!< Reserved bytes. */
-#define NECRC           8                 /*!< CRC bytes. */
-/*! @} */
-
-/*! @name NE header aliases
- *
- *  Aliases used for the in-memory view of the NE header.
+/**
+ * @def NEMAGIC
+ * @brief NE signature ("NE"). Value: 0x454E.
  */
-/*! @{ */
-#define ne_pWinFileStruc (ne_magic + 0x0a) /*!< Offset of OFSTRUCT. */
-#define ne_cbModName     0                 /*!< Module name length. */
-#define ne_pWinModName   8                 /*!< Module name pointer. */
-/*! @} */
+#define NEMAGIC         0x454E
 
-/*! @name NE header field accessors */
-/*! @{ */
+/**
+ * @def NERESBYTES
+ * @brief Reserved bytes. Value: 8.
+ */
+#define NERESBYTES      8
+
+/**
+ * @def NECRC
+ * @brief CRC bytes. Value: 8.
+ */
+#define NECRC           8
+
+/* ==================================================================
+ * NE header aliases
+ *
+ * Aliases used for the in-memory view of the NE header.
+ * ================================================================== */
+
+/**
+ * @def ne_pWinFileStruc
+ * @brief Offset of OFSTRUCT.
+ */
+#define ne_pWinFileStruc (ne_magic + 0x0a)
+
+/**
+ * @def ne_cbModName
+ * @brief Module name length.
+ */
+#define ne_cbModName     0
+
+/**
+ * @def ne_pWinModName
+ * @brief Module name pointer.
+ */
+#define ne_pWinModName   8
+
+/* ==================================================================
+ * NE header field accessors
+ * ================================================================== */
+
+/**
+ * @def NE_MAGIC(x)
+ * @brief Accessor for the ne_magic field.
+ * @param x NE header structure.
+ */
 #define NE_MAGIC(x)         (x).ne_magic
-#define NE_VER(x)           (x).ne_ver
-#define NE_REV(x)           (x).ne_rev
-#define NE_ENTTAB(x)        (x).ne_enttab
-#define NE_CBENTTAB(x)      (x).ne_cbenttab
-#define NE_CRC(x)           (x).ne_crc
-#define NE_FLAGS(x)         (x).ne_flags
-#define NE_AUTODATA(x)      (x).ne_autodata
-#define NE_HEAP(x)          (x).ne_heap
-#define NE_STACK(x)         (x).ne_stack
-#define NE_CSIP(x)          (x).ne_csip
-#define NE_SSSP(x)          (x).ne_sssp
-#define NE_CSEG(x)          (x).ne_cseg
-#define NE_CMOD(x)          (x).ne_cmod
-#define NE_CBNRESTAB(x)     (x).ne_cbnrestab
-#define NE_SEGTAB(x)        (x).ne_segtab
-#define NE_RSRCTAB(x)       (x).ne_rsrctab
-#define NE_RESTAB(x)        (x).ne_restab
-#define NE_MODTAB(x)        (x).ne_modtab
-#define NE_IMPTAB(x)        (x).ne_imptab
-#define NE_NRESTAB(x)       (x).ne_nrestab
-#define NE_CMOVENT(x)       (x).ne_cmovent
-#define NE_ALIGN(x)         (x).ne_align
-#define NE_CRES(x)          (x).ne_cres
-#define NE_RES(x)           (x).ne_res
-#define NE_EXETYP(x)        (x).ne_exetyp
-#define NE_FLAGSOTHERS(x)   (x).ne_flagsothers
-/*! @} */
 
+/**
+ * @def NE_VER(x)
+ * @brief Accessor for the ne_ver field (linker version).
+ * @param x NE header structure.
+ */
+#define NE_VER(x)           (x).ne_ver
+
+/**
+ * @def NE_REV(x)
+ * @brief Accessor for the ne_rev field (linker revision).
+ * @param x NE header structure.
+ */
+#define NE_REV(x)           (x).ne_rev
+
+/**
+ * @def NE_ENTTAB(x)
+ * @brief Accessor for the ne_enttab field (Entry Table file offset,
+ *        relative to the beginning of the segmented EXE header).
+ * @param x NE header structure.
+ */
+#define NE_ENTTAB(x)        (x).ne_enttab
+
+/**
+ * @def NE_CBENTTAB(x)
+ * @brief Accessor for the ne_cbenttab field (number of bytes in the
+ *        entry table, on disk).
+ * @param x NE header structure.
+ */
+#define NE_CBENTTAB(x)      (x).ne_cbenttab
+
+/**
+ * @def NE_CRC(x)
+ * @brief Accessor for the ne_crc field (32-bit CRC of entire contents
+ *        of file; words taken as 00 during the calculation, on disk).
+ * @param x NE header structure.
+ */
+#define NE_CRC(x)           (x).ne_crc
+
+/**
+ * @def NE_FLAGS(x)
+ * @brief Accessor for the ne_flags field.
+ * @param x NE header structure.
+ */
+#define NE_FLAGS(x)         (x).ne_flags
+
+/**
+ * @def NE_AUTODATA(x)
+ * @brief Accessor for the ne_autodata field (segment number of
+ *        automatic data segment).
+ * @param x NE header structure.
+ */
+#define NE_AUTODATA(x)      (x).ne_autodata
+
+/**
+ * @def NE_HEAP(x)
+ * @brief Accessor for the ne_heap field (initial size of dynamic
+ *        heap).
+ * @param x NE header structure.
+ */
+#define NE_HEAP(x)          (x).ne_heap
+
+/**
+ * @def NE_STACK(x)
+ * @brief Accessor for the ne_stack field (initial size of stack).
+ * @param x NE header structure.
+ */
+#define NE_STACK(x)         (x).ne_stack
+
+/**
+ * @def NE_CSIP(x)
+ * @brief Accessor for the ne_csip field (segment number:offset of
+ *        CS:IP).
+ * @param x NE header structure.
+ */
+#define NE_CSIP(x)          (x).ne_csip
+
+/**
+ * @def NE_SSSP(x)
+ * @brief Accessor for the ne_sssp field (segment number:offset of
+ *        SS:SP).
+ * @param x NE header structure.
+ */
+#define NE_SSSP(x)          (x).ne_sssp
+
+/**
+ * @def NE_CSEG(x)
+ * @brief Accessor for the ne_cseg field (number of entries in the
+ *        Segment Table).
+ * @param x NE header structure.
+ */
+#define NE_CSEG(x)          (x).ne_cseg
+
+/**
+ * @def NE_CMOD(x)
+ * @brief Accessor for the ne_cmod field (number of entries in the
+ *        Module Reference Table).
+ * @param x NE header structure.
+ */
+#define NE_CMOD(x)          (x).ne_cmod
+
+/**
+ * @def NE_CBNRESTAB(x)
+ * @brief Accessor for the ne_cbnrestab field (number of bytes in the
+ *        Non-Resident Name Table).
+ * @param x NE header structure.
+ */
+#define NE_CBNRESTAB(x)     (x).ne_cbnrestab
+
+/**
+ * @def NE_SEGTAB(x)
+ * @brief Accessor for the ne_segtab field (Segment Table file offset,
+ *        relative to the beginning of the segmented EXE header).
+ * @param x NE header structure.
+ */
+#define NE_SEGTAB(x)        (x).ne_segtab
+
+/**
+ * @def NE_RSRCTAB(x)
+ * @brief Accessor for the ne_rsrctab field (Resource Table file
+ *        offset, relative to the beginning of the segmented EXE
+ *        header).
+ * @param x NE header structure.
+ */
+#define NE_RSRCTAB(x)       (x).ne_rsrctab
+
+/**
+ * @def NE_RESTAB(x)
+ * @brief Accessor for the ne_restab field (Resident Name Table file
+ *        offset, relative to the beginning of the segmented EXE
+ *        header).
+ * @param x NE header structure.
+ */
+#define NE_RESTAB(x)        (x).ne_restab
+
+/**
+ * @def NE_MODTAB(x)
+ * @brief Accessor for the ne_modtab field (Module Reference Table
+ *        file offset, relative to the beginning of the segmented EXE
+ *        header).
+ * @param x NE header structure.
+ */
+#define NE_MODTAB(x)        (x).ne_modtab
+
+/**
+ * @def NE_IMPTAB(x)
+ * @brief Accessor for the ne_imptab field (Imported Names Table file
+ *        offset, relative to the beginning of the segmented EXE
+ *        header).
+ * @param x NE header structure.
+ */
+#define NE_IMPTAB(x)        (x).ne_imptab
+
+/**
+ * @def NE_NRESTAB(x)
+ * @brief Accessor for the ne_nrestab field (Non-Resident Name Table
+ *        offset, relative to the beginning of the file).
+ * @param x NE header structure.
+ */
+#define NE_NRESTAB(x)       (x).ne_nrestab
+
+/**
+ * @def NE_CMOVENT(x)
+ * @brief Accessor for the ne_cmovent field (number of movable entries
+ *        in the Entry Table).
+ * @param x NE header structure.
+ */
+#define NE_CMOVENT(x)       (x).ne_cmovent
+
+/**
+ * @def NE_ALIGN(x)
+ * @brief Accessor for the ne_align field (logical sector alignment
+ *        shift count).
+ * @param x NE header structure.
+ */
+#define NE_ALIGN(x)         (x).ne_align
+
+/**
+ * @def NE_CRES(x)
+ * @brief Accessor for the ne_cres field (number of resource entries).
+ * @param x NE header structure.
+ */
+#define NE_CRES(x)          (x).ne_cres
+
+/**
+ * @def NE_RES(x)
+ * @brief Accessor for the ne_res field (reserved).
+ * @param x NE header structure.
+ */
+#define NE_RES(x)           (x).ne_res
+
+/**
+ * @def NE_EXETYP(x)
+ * @brief Accessor for the ne_exetyp field (executable type used by
+ *        loader).
+ * @param x NE header structure.
+ */
+#define NE_EXETYP(x)        (x).ne_exetyp
+
+/**
+ * @def NE_FLAGSOTHERS(x)
+ * @brief Accessor for the ne_flagsothers field (operating system
+ *        flags).
+ * @param x NE header structure.
+ */
+#define NE_FLAGSOTHERS(x)   (x).ne_flagsothers
+
+/**
+ * @def NE_USAGE(x)
+ * @brief In-memory usage count accessor.
+ * @param x NE header structure.
+ */
 #define NE_USAGE(x)     (WORD)*((WORD *)(x)+1)
+
+/**
+ * @def NE_PNEXTEXE(x)
+ * @brief In-memory next-module selector accessor.
+ * @param x NE header structure.
+ */
 #define NE_PNEXTEXE(x)  (WORD)(x).ne_cbenttab
+
+/**
+ * @def NE_ONEWEXE(x)
+ * @brief In-memory DGROUP segment entry accessor.
+ * @param x NE header structure.
+ */
 #define NE_ONEWEXE(x)   (WORD)(x).ne_crc
+
+/**
+ * @def NE_PFILEINFO(x)
+ * @brief In-memory file-info pointer accessor.
+ * @param x NE header structure.
+ */
 #define NE_PFILEINFO(x) (WORD)((DWORD)(x).ne_crc >> 16)
 
-/*! @name NE executable types
+/* ==================================================================
+ * NE executable types
  *
- *  Values for the ne_exetyp field. The full list documented in the
- *  original NE specification also includes 05h (BOSS), 81h and 82h
- *  (PharLap 286|DOS-Extender for OS/2 and Windows); only the ones
- *  used by the binder are defined here.
- */
-/*! @{ */
-#define NE_UNKNOWN      0x0   /*!< Unknown. */
-#define NE_OS2          0x1   /*!< OS/2. */
-#define NE_WINDOWS      0x2   /*!< Windows. */
-#define NE_DOS4         0x3   /*!< European MS-DOS 4.x. */
-#define NE_DEV386       0x4   /*!< Windows 386. */
-/*! @} */
+ * Values for the ne_exetyp field. The full list documented in the
+ * original NE specification also includes 05h (BOSS), 81h and 82h
+ * (PharLap 286|DOS-Extender for OS/2 and Windows); only the ones
+ * used by the binder are defined here.
+ * ================================================================== */
 
-/*! @name NE flag word values
+/**
+ * @def NE_UNKNOWN
+ * @brief Unknown. Value: 0x0.
+ */
+#define NE_UNKNOWN      0x0
+
+/**
+ * @def NE_OS2
+ * @brief OS/2. Value: 0x1.
+ */
+#define NE_OS2          0x1
+
+/**
+ * @def NE_WINDOWS
+ * @brief Windows. Value: 0x2.
+ */
+#define NE_WINDOWS      0x2
+
+/**
+ * @def NE_DOS4
+ * @brief European MS-DOS 4.x. Value: 0x3.
+ */
+#define NE_DOS4         0x3
+
+/**
+ * @def NE_DEV386
+ * @brief Windows 386. Value: 0x4.
+ */
+#define NE_DEV386       0x4
+
+/* ==================================================================
+ * NE flag word values
  *
- *  Values for the ne_flags field.
- */
-/*! @{ */
-#define NENOTP          0x8000  /*!< Not a Windows program. */
-#define NENOTMPSAFE     0x4000  /*!< Not MP-safe. */
-#define NEIERR          0x2000  /*!< Errors in image. */
-#define NEBOUND         0x0800  /*!< Bound. */
-#define NEAPPTYP        0x0700  /*!< Application type (mask). */
-#define NENOTWINCOMPAT  0x0100  /*!< Not Windows-compatible. */
-#define NEWINCOMPAT     0x0200  /*!< Windows-compatible, not PM. */
-#define NEWINAPI        0x0300  /*!< Uses Windows API. */
-#define NEFLTP          0x0080  /*!< Floating-point. */
-#define NEI386          0x0040  /*!< 386 instructions. */
-#define NEI286          0x0020  /*!< 286 instructions. */
-#define NEI086          0x0010  /*!< 086 instructions. */
-#define NEPROT          0x0008  /*!< Protected mode only. */
-#define NEPPLI          0x0004  /*!< Per-process library init. */
-#define NEINST          0x0002  /*!< Instance data. */
-#define NESOLO          0x0001  /*!< Solo data. */
-/*! @} */
+ * Values for the ne_flags field.
+ * ================================================================== */
 
-/*! @name NE flagsothers values
+/**
+ * @def NENOTP
+ * @brief Not a Windows program. Value: 0x8000.
+ */
+#define NENOTP          0x8000
+
+/**
+ * @def NENOTMPSAFE
+ * @brief Not MP-safe. Value: 0x4000.
+ */
+#define NENOTMPSAFE     0x4000
+
+/**
+ * @def NEIERR
+ * @brief Errors in image. Value: 0x2000.
+ */
+#define NEIERR          0x2000
+
+/**
+ * @def NEBOUND
+ * @brief Bound. Value: 0x0800.
+ */
+#define NEBOUND         0x0800
+
+/**
+ * @def NEAPPTYP
+ * @brief Application type (mask). Value: 0x0700.
+ */
+#define NEAPPTYP        0x0700
+
+/**
+ * @def NENOTWINCOMPAT
+ * @brief Not Windows-compatible. Value: 0x0100.
+ */
+#define NENOTWINCOMPAT  0x0100
+
+/**
+ * @def NEWINCOMPAT
+ * @brief Windows-compatible, not PM. Value: 0x0200.
+ */
+#define NEWINCOMPAT     0x0200
+
+/**
+ * @def NEWINAPI
+ * @brief Uses Windows API. Value: 0x0300.
+ */
+#define NEWINAPI        0x0300
+
+/**
+ * @def NEFLTP
+ * @brief Floating-point. Value: 0x0080.
+ */
+#define NEFLTP          0x0080
+
+/**
+ * @def NEI386
+ * @brief 386 instructions. Value: 0x0040.
+ */
+#define NEI386          0x0040
+
+/**
+ * @def NEI286
+ * @brief 286 instructions. Value: 0x0020.
+ */
+#define NEI286          0x0020
+
+/**
+ * @def NEI086
+ * @brief 086 instructions. Value: 0x0010.
+ */
+#define NEI086          0x0010
+
+/**
+ * @def NEPROT
+ * @brief Protected mode only. Value: 0x0008.
+ */
+#define NEPROT          0x0008
+
+/**
+ * @def NEPPLI
+ * @brief Per-process library init. Value: 0x0004.
+ */
+#define NEPPLI          0x0004
+
+/**
+ * @def NEINST
+ * @brief Instance data. Value: 0x0002.
+ */
+#define NEINST          0x0002
+
+/**
+ * @def NESOLO
+ * @brief Solo data. Value: 0x0001.
+ */
+#define NESOLO          0x0001
+
+/* ==================================================================
+ * NE flagsothers values
  *
- *  Values for the ne_flagsothers field.
+ * Values for the ne_flagsothers field.
+ * ================================================================== */
+
+/**
+ * @def NELONGNAMES
+ * @brief Long names present. Value: 0x01.
  */
-/*! @{ */
-#define NELONGNAMES     0x01    /*!< Long names present. */
-#define NEWINISPROT     0x02    /*!< Windows protected. */
-#define NEWINGETPROPFON 0x04    /*!< Get property function. */
-#define NEWLOAPPL       0x80    /*!< Non-Windows application. */
-/*! @} */
+#define NELONGNAMES     0x01
 
-/*! @name Segment table field accessors */
-/*! @{ */
-#define NS_SECTOR(x)    (x).ns_sector   /*!< File sector. */
-#define NS_CBSEG(x)     (x).ns_cbseg    /*!< Segment length. */
-#define NS_FLAGS(x)     (x).ns_flags    /*!< Segment flags. */
-#define NS_MINALLOC(x)  (x).ns_minalloc /*!< Minimum allocation. */
-/*! @} */
+/**
+ * @def NEWINISPROT
+ * @brief Windows protected. Value: 0x02.
+ */
+#define NEWINISPROT     0x02
 
-#define NSTYPE          0x0007  /*!< Mask of segment type bits. */
+/**
+ * @def NEWINGETPROPFON
+ * @brief Get property function. Value: 0x04.
+ */
+#define NEWINGETPROPFON 0x04
+
+/**
+ * @def NEWLOAPPL
+ * @brief Non-Windows application. Value: 0x80.
+ */
+#define NEWLOAPPL       0x80
+
+/* ==================================================================
+ * Segment table field accessors
+ * ================================================================== */
+
+/**
+ * @def NS_SECTOR(x)
+ * @brief Accessor for the ns_sector field (file sector).
+ * @param x Segment table entry.
+ */
+#define NS_SECTOR(x)    (x).ns_sector
+
+/**
+ * @def NS_CBSEG(x)
+ * @brief Accessor for the ns_cbseg field (segment length).
+ * @param x Segment table entry.
+ */
+#define NS_CBSEG(x)     (x).ns_cbseg
+
+/**
+ * @def NS_FLAGS(x)
+ * @brief Accessor for the ns_flags field (segment flags).
+ * @param x Segment table entry.
+ */
+#define NS_FLAGS(x)     (x).ns_flags
+
+/**
+ * @def NS_MINALLOC(x)
+ * @brief Accessor for the ns_minalloc field (minimum allocation).
+ * @param x Segment table entry.
+ */
+#define NS_MINALLOC(x)  (x).ns_minalloc
+
+/**
+ * @def NSTYPE
+ * @brief Mask of segment type bits. Value: 0x0007.
+ */
+#define NSTYPE          0x0007
 
 #if (EXE386 == 0)
-#define NSCODE          0x0000  /*!< Code segment. */
-#define NSDATA          0x0001  /*!< Data segment. */
-#define NSITER          0x0008  /*!< Iterated data. */
-#define NSMOVE          0x0010  /*!< Movable. */
-#define NSSHARED        0x0020  /*!< Shared. */
-#define NSPRELOAD       0x0040  /*!< Preload. */
-#define NSEXRD          0x0080  /*!< Execute/read only. */
 
-#define NSRELOC         0x0100  /*!< Has relocations. */
-#define NSCONFORM       0x0200  /*!< Conforming. */
-#define NSEXPDOWN       0x0200  /*!< Expand down. */
-#define NSDPL           0x0C00  /*!< Descriptor privilege level. */
-#define SHIFTDPL        10      /*!< DPL shift count. */
-#define NSDISCARD       0x1000  /*!< Discardable. */
-#define NS32BIT         0x2000  /*!< 32-bit segment. */
-#define NSHUGE          0x4000  /*!< Huge segment. */
+/**
+ * @def NSCODE
+ * @brief Code segment. Value: 0x0000.
+ */
+#define NSCODE          0x0000
 
-#define NSGDT           0x8000  /*!< Uses GDT. */
-#define NSPURE          NSSHARED/*!< Pure (alias for shared). */
-#define NSALIGN         9       /*!< Default alignment shift. */
-#define NSLOADED        0x0004  /*!< Loaded flag. */
+/**
+ * @def NSDATA
+ * @brief Data segment. Value: 0x0001.
+ */
+#define NSDATA          0x0001
+
+/**
+ * @def NSITER
+ * @brief Iterated data. Value: 0x0008.
+ */
+#define NSITER          0x0008
+
+/**
+ * @def NSMOVE
+ * @brief Movable. Value: 0x0010.
+ */
+#define NSMOVE          0x0010
+
+/**
+ * @def NSSHARED
+ * @brief Shared. Value: 0x0020.
+ */
+#define NSSHARED        0x0020
+
+/**
+ * @def NSPRELOAD
+ * @brief Preload. Value: 0x0040.
+ */
+#define NSPRELOAD       0x0040
+
+/**
+ * @def NSEXRD
+ * @brief Execute/read only. Value: 0x0080.
+ */
+#define NSEXRD          0x0080
+
+/**
+ * @def NSRELOC
+ * @brief Has relocations. Value: 0x0100.
+ */
+#define NSRELOC         0x0100
+
+/**
+ * @def NSCONFORM
+ * @brief Conforming. Value: 0x0200.
+ */
+#define NSCONFORM       0x0200
+
+/**
+ * @def NSEXPDOWN
+ * @brief Expand down. Value: 0x0200.
+ */
+#define NSEXPDOWN       0x0200
+
+/**
+ * @def NSDPL
+ * @brief Descriptor privilege level. Value: 0x0C00.
+ */
+#define NSDPL           0x0C00
+
+/**
+ * @def SHIFTDPL
+ * @brief DPL shift count. Value: 10.
+ */
+#define SHIFTDPL        10
+
+/**
+ * @def NSDISCARD
+ * @brief Discardable. Value: 0x1000.
+ */
+#define NSDISCARD       0x1000
+
+/**
+ * @def NS32BIT
+ * @brief 32-bit segment. Value: 0x2000.
+ */
+#define NS32BIT         0x2000
+
+/**
+ * @def NSHUGE
+ * @brief Huge segment. Value: 0x4000.
+ */
+#define NSHUGE          0x4000
+
+/**
+ * @def NSGDT
+ * @brief Uses GDT. Value: 0x8000.
+ */
+#define NSGDT           0x8000
+
+/**
+ * @def NSPURE
+ * @brief Pure (alias for shared).
+ */
+#define NSPURE          NSSHARED
+
+/**
+ * @def NSALIGN
+ * @brief Default alignment shift. Value: 9.
+ */
+#define NSALIGN         9
+
+/**
+ * @def NSLOADED
+ * @brief Loaded flag. Value: 0x0004.
+ */
+#define NSLOADED        0x0004
+
 #endif
 
-#pragma pack(push,1)
-
-/*! @brief DOS MZ executable header.
+/* ==================================================================
+ * Entry Table flags
  *
- *  The first 64 bytes of every DOS and NE executable. The field
- *  comments describe the meaning of each WORD or DWORD in the
- *  original DOS format.
+ * Values for the FLAGS byte of an Entry Table entry. Bit 0 marks
+ * the entry as exported; bit 1 marks it as a reference to the
+ * module's global data area.
+ * ================================================================== */
+
+/**
+ * @def NEENT_EXPORTED
+ * @brief Entry is exported. Value: 0x01.
  */
-struct exe_hdr {
-    WORD    e_magic;        /*!< 0x4D, 0x5A. Magic number of an EXE
-                             *   file: first byte 0x4D, second 0x5A. */
-    WORD    e_cblp;         /*!< Bytes in the last block of the
-                             *   program that are actually used. Zero
-                             *   means the entire last block is used
-                             *   (effective value 512). */
-    WORD    e_cp;           /*!< Number of 512-byte blocks in the
-                             *   file that are part of the EXE. If
-                             *   e_cblp is non-zero, only that much of
-                             *   the last block is used. */
-    WORD    e_crlc;         /*!< Number of relocation entries stored
-                             *   after the header. May be zero. */
-    WORD    e_cparhdr;      /*!< Number of paragraphs in the header.
-                             *   The program's data begins just after
-                             *   the header; this field can be used to
-                             *   calculate the appropriate file offset.
-                             *   The header includes the relocation
-                             *   entries. Some systems may fail if the
-                             *   header is not a multiple of 512
-                             *   bytes. */
-    WORD    e_minalloc;     /*!< Number of paragraphs of additional
-                             *   memory that the program will need.
-                             *   Equivalent to the BSS size in a Unix
-                             *   program. The program cannot be loaded
-                             *   if there is not at least this much
-                             *   memory available. */
-    WORD    e_maxalloc;     /*!< Maximum number of paragraphs of
-                             *   additional memory. Normally the OS
-                             *   reserves all remaining conventional
-                             *   memory for the program; this field
-                             *   limits it. */
-    WORD    e_ss;           /*!< Relative value of the stack segment.
-                             *   Added to the segment the program was
-                             *   loaded at; result initializes SS. */
-    WORD    e_sp;           /*!< Initial value of the SP register. */
-    WORD    e_csum;         /*!< Word checksum. If set properly, the
-                             *   16-bit sum of all words in the file
-                             *   should be zero. Usually not filled
-                             *   in. */
-    WORD    e_ip;           /*!< Initial value of the IP register. */
-    WORD    e_cs;           /*!< Initial value of the CS register,
-                             *   relative to the segment the program
-                             *   was loaded at. */
-    WORD    e_lfarlc;       /*!< Offset of the first relocation item
-                             *   in the file. */
-    WORD    e_ovno;         /*!< Overlay number. Normally zero,
-                             *   meaning the main program. */
-    WORD    e_res[ERES1WDS];/*!< Reserved. */
-    WORD    e_oemid;        /*!< OEM identifier. */
-    WORD    e_oeminfo;      /*!< OEM info. */
-    WORD    e_res2[ERES2WDS];/*!< Reserved. */
-    DWORD   e_lfanew;       /*!< File offset of the NE header. */
-};
+#define NEENT_EXPORTED      0x01
+
+/**
+ * @def NEENT_GLOBALDATA
+ * @brief Entry uses the global data area. Value: 0x02.
+ */
+#define NEENT_GLOBALDATA    0x02
+
+#pragma pack(push,1)
 
 /*! @brief New Executable (NE) header.
  *
@@ -451,70 +859,304 @@ struct new_rlc {
     } nr_union;
 };
 
-/*! @name Relocation entry accessors */
-/*! @{ */
+/* ==================================================================
+ * Relocation entry accessors
+ * ================================================================== */
+
+/**
+ * @def NR_STYPE(x)
+ * @brief Accessor for the nr_stype field.
+ * @param x Relocation table entry.
+ */
 #define NR_STYPE(x)     (x).nr_stype
+
+/**
+ * @def NR_FLAGS(x)
+ * @brief Accessor for the nr_flags field.
+ * @param x Relocation table entry.
+ */
 #define NR_FLAGS(x)     (x).nr_flags
+
+/**
+ * @def NR_SOFF(x)
+ * @brief Accessor for the nr_soff field.
+ * @param x Relocation table entry.
+ */
 #define NR_SOFF(x)      (x).nr_soff
+
+/**
+ * @def NR_SEGNO(x)
+ * @brief Accessor for the internal segment reference.
+ * @param x Relocation table entry.
+ */
 #define NR_SEGNO(x)     (x).nr_union.nr_intref.nr_segno
+
+/**
+ * @def NR_RES(x)
+ * @brief Accessor for the reserved byte.
+ * @param x Relocation table entry.
+ */
 #define NR_RES(x)       (x).nr_union.nr_intref.nr_res
+
+/**
+ * @def NR_ENTRY(x)
+ * @brief Accessor for the entry index.
+ * @param x Relocation table entry.
+ */
 #define NR_ENTRY(x)     (x).nr_union.nr_intref.nr_entry
+
+/**
+ * @def NR_MOD(x)
+ * @brief Accessor for the module reference index.
+ * @param x Relocation table entry.
+ */
 #define NR_MOD(x)       (x).nr_union.nr_import.nr_mod
+
+/**
+ * @def NR_PROC(x)
+ * @brief Accessor for the procedure ordinal or name offset.
+ * @param x Relocation table entry.
+ */
 #define NR_PROC(x)      (x).nr_union.nr_import.nr_proc
+
+/**
+ * @def NR_OSTYPE(x)
+ * @brief Accessor for the OS fixup type.
+ * @param x Relocation table entry.
+ */
 #define NR_OSTYPE(x)    (x).nr_union.nr_osfix.nr_ostype
+
+/**
+ * @def NR_OSRES(x)
+ * @brief Accessor for the reserved OS fixup word.
+ * @param x Relocation table entry.
+ */
 #define NR_OSRES(x)     (x).nr_union.nr_osfix.nr_osres
-/*! @} */
 
-/*! @name Relocation source types */
-/*! @{ */
-#define NRSTYP      0x0f    /*!< Mask of source type. */
-#define NRSBYT      0x00    /*!< Low byte. */
-#define NRSSEG      0x02    /*!< Segment. */
-#define NRSPTR      0x03    /*!< Far pointer. */
-#define NRSOFF      0x05    /*!< Offset. */
-#define NRPTR48     0x06    /*!< 48-bit pointer. */
-#define NROFF32     0x07    /*!< 32-bit offset. */
-#define NRSOFF32    0x08    /*!< 32-bit self-relative offset. */
-/*! @} */
+/* ==================================================================
+ * Relocation source types
+ * ================================================================== */
 
-#define NRADD       0x04    /*!< Additive fixup. */
+/**
+ * @def NRSTYP
+ * @brief Mask of source type. Value: 0x0f.
+ */
+#define NRSTYP      0x0f
 
-/*! @name Relocation types */
-/*! @{ */
-#define NRRTYP      0x03    /*!< Mask of relocation type. */
-#define NRRINT      0x00    /*!< Internal reference. */
-#define NRRORD      0x01    /*!< Import by ordinal. */
-#define NRRNAM      0x02    /*!< Import by name. */
-#define NRROSF      0x03    /*!< OS fixup. */
-/*! @} */
+/**
+ * @def NRSBYT
+ * @brief Low byte. Value: 0x00.
+ */
+#define NRSBYT      0x00
 
-#define NRICHAIN    0x08    /*!< Chain bit. */
+/**
+ * @def NRSSEG
+ * @brief Segment. Value: 0x02.
+ */
+#define NRSSEG      0x02
+
+/**
+ * @def NRSPTR
+ * @brief Far pointer. Value: 0x03.
+ */
+#define NRSPTR      0x03
+
+/**
+ * @def NRSOFF
+ * @brief Offset. Value: 0x05.
+ */
+#define NRSOFF      0x05
+
+/**
+ * @def NRPTR48
+ * @brief 48-bit pointer. Value: 0x06.
+ */
+#define NRPTR48     0x06
+
+/**
+ * @def NROFF32
+ * @brief 32-bit offset. Value: 0x07.
+ */
+#define NROFF32     0x07
+
+/**
+ * @def NRSOFF32
+ * @brief 32-bit self-relative offset. Value: 0x08.
+ */
+#define NRSOFF32    0x08
+
+/**
+ * @def NRADD
+ * @brief Additive fixup. Value: 0x04.
+ */
+#define NRADD       0x04
+
+/* ==================================================================
+ * Relocation types
+ * ================================================================== */
+
+/**
+ * @def NRRTYP
+ * @brief Mask of relocation type. Value: 0x03.
+ */
+#define NRRTYP      0x03
+
+/**
+ * @def NRRINT
+ * @brief Internal reference. Value: 0x00.
+ */
+#define NRRINT      0x00
+
+/**
+ * @def NRRORD
+ * @brief Import by ordinal. Value: 0x01.
+ */
+#define NRRORD      0x01
+
+/**
+ * @def NRRNAM
+ * @brief Import by name. Value: 0x02.
+ */
+#define NRRNAM      0x02
+
+/**
+ * @def NRROSF
+ * @brief OS fixup. Value: 0x03.
+ */
+#define NRROSF      0x03
+
+/**
+ * @def NRICHAIN
+ * @brief Chain bit. Value: 0x08.
+ */
+#define NRICHAIN    0x08
 
 #if (EXE386 == 0)
 
+/* ==================================================================
+ * Resource accessors
+ * ================================================================== */
+
+/**
+ * @def RS_LEN(x)
+ * @brief Accessor for the rs_len field (length of the string).
+ * @param x Resource string.
+ */
 #define RS_LEN(x)       (x).rs_len
+
+/**
+ * @def RS_STRING(x)
+ * @brief Accessor for the rs_string field (first character).
+ * @param x Resource string.
+ */
 #define RS_STRING(x)    (x).rs_string
+
+/**
+ * @def RS_ALIGN(x)
+ * @brief Accessor for the rs_align field (alignment shift count).
+ * @param x Resource table header.
+ */
 #define RS_ALIGN(x)     (x).rs_align
 
+/**
+ * @def RT_ID(x)
+ * @brief Accessor for the rt_id field (resource type ID).
+ * @param x Resource type info.
+ */
 #define RT_ID(x)        (x).rt_id
+
+/**
+ * @def RT_NRES(x)
+ * @brief Accessor for the rt_nres field (number of resources).
+ * @param x Resource type info.
+ */
 #define RT_NRES(x)      (x).rt_nres
+
+/**
+ * @def RT_PROC(x)
+ * @brief Accessor for the rt_proc field (reserved).
+ * @param x Resource type info.
+ */
 #define RT_PROC(x)      (x).rt_proc
 
+/**
+ * @def RN_OFFSET(x)
+ * @brief Accessor for the rn_offset field (offset within resource
+ *        data).
+ * @param x Resource name info.
+ */
 #define RN_OFFSET(x)    (x).rn_offset
+
+/**
+ * @def RN_LENGTH(x)
+ * @brief Accessor for the rn_length field (length of resource).
+ * @param x Resource name info.
+ */
 #define RN_LENGTH(x)    (x).rn_length
+
+/**
+ * @def RN_FLAGS(x)
+ * @brief Accessor for the rn_flags field (flags).
+ * @param x Resource name info.
+ */
 #define RN_FLAGS(x)     (x).rn_flags
+
+/**
+ * @def RN_ID(x)
+ * @brief Accessor for the rn_id field (resource ID).
+ * @param x Resource name info.
+ */
 #define RN_ID(x)        (x).rn_id
+
+/**
+ * @def RN_HANDLE(x)
+ * @brief Accessor for the rn_handle field (handle).
+ * @param x Resource name info.
+ */
 #define RN_HANDLE(x)    (x).rn_handle
+
+/**
+ * @def RN_USAGE(x)
+ * @brief Accessor for the rn_usage field (usage flags).
+ * @param x Resource name info.
+ */
 #define RN_USAGE(x)     (x).rn_usage
 
-#define RSORDID     0x8000  /*!< Resource ordinal ID flag. */
+/**
+ * @def RSORDID
+ * @brief Resource ordinal ID flag. Value: 0x8000.
+ */
+#define RSORDID     0x8000
 
-#define RNMOVE      0x0010  /*!< Movable resource. */
-#define RNPURE      0x0020  /*!< Pure resource. */
-#define RNPRELOAD   0x0040  /*!< Preload resource. */
-#define RNDISCARD   0xF000  /*!< Discard priority mask. */
+/**
+ * @def RNMOVE
+ * @brief Movable resource. Value: 0x0010.
+ */
+#define RNMOVE      0x0010
 
-#define NE_FFLAGS_LIBMODULE 0x8000  /*!< Library module flag. */
+/**
+ * @def RNPURE
+ * @brief Pure resource. Value: 0x0020.
+ */
+#define RNPURE      0x0020
+
+/**
+ * @def RNPRELOAD
+ * @brief Preload resource. Value: 0x0040.
+ */
+#define RNPRELOAD   0x0040
+
+/**
+ * @def RNDISCARD
+ * @brief Discard priority mask. Value: 0xF000.
+ */
+#define RNDISCARD   0xF000
+
+/**
+ * @def NE_FFLAGS_LIBMODULE
+ * @brief Library module flag. Value: 0x8000.
+ */
+#define NE_FFLAGS_LIBMODULE 0x8000
 
 /*! @brief Resource string. */
 struct rsrc_string {
@@ -562,6 +1204,17 @@ struct new_rsrc {
  *  @see NeClose
  */
 typedef HANDLE HNE;
+
+/*! @brief Handle to an NE export enumeration cursor.
+ *
+ *  Opaque. Created by NeExportFindFirst, NeExportFindByName or
+ *  NeExportFindByOrdinal; released by NeExportFindClose. The internal
+ *  representation is private to newexe.c.
+ *
+ *  @see NeExportFindFirst
+ *  @see NeExportFindClose
+ */
+typedef HANDLE HNEENUM;
 
 /*! @brief Open an NE executable file.
  *
@@ -719,6 +1372,25 @@ APIRET APIENTRY NeQueryReloc(HNE hNe, USHORT usSegment,
                              USHORT usIndex,
                              struct new_rlc *pRlc);
 
+/*! @brief Return the module name of this NE image.
+ *
+ *  The module name is the first entry of the Resident Name Table,
+ *  stored as a length-prefixed string without a terminating NUL.
+ *  This function copies it into @p pszName as a NUL-terminated
+ *  string.
+ *
+ *  @param[in]  hNe      Handle. Not NULLHANDLE.
+ *  @param[out] pszName  Receives a NUL-terminated name. Not NULL.
+ *  @param[in]  cbName   Size of @p pszName including the NUL.
+ *
+ *  @return APIRET
+ *  @retval NO_ERROR                 Success.
+ *  @retval ERROR_INVALID_PARAMETER  Bad handle or NULL pointer.
+ *  @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ *  @retval ERROR_READ_FAULT         Read error.
+ */
+APIRET APIENTRY NeQuerySelfModuleName(HNE hNe, PSZ pszName, ULONG cbName);
+
 /*! @brief Bind a DOS stub and an NE image into one file.
  *
  *  Copies @p pszStub verbatim into @p pszOutput, pads the output to
@@ -744,6 +1416,255 @@ APIRET APIENTRY NeQueryReloc(HNE hNe, USHORT usSegment,
  */
 APIRET APIENTRY NeBind(PCSZ pszStub, PCSZ pszInput,
                        PCSZ pszOutput);
+
+/* ------------------------------------------------------------------ */
+/* NE export enumeration API                                           */
+/* ------------------------------------------------------------------ */
+
+/*! @brief Open a cursor on the first export of an NE module.
+ *
+ *  The cursor walks the exports in increasing ordinal order. Bundles
+ *  that contain no entries, and entries whose EXPORTED bit is clear,
+ *  are skipped silently. Exports without a name are still reported;
+ *  use NeExportIsNamed to tell them apart.
+ *
+ *  @param[in]  hNe       Handle. Not NULLHANDLE.
+ *  @param[out] phEnum    Receives the cursor. Not NULL. Set to
+ *                        NULLHANDLE on error or when the module has
+ *                        no exports.
+ *  @param[out] pulCount  Optional. May be NULL. On success receives
+ *                        the total number of exports.
+ *
+ *  @return APIRET
+ *  @retval NO_ERROR                 Success.
+ *  @retval ERROR_INVALID_PARAMETER  @p hNe or @p phEnum is NULL.
+ *  @retval ERROR_INVALID_HANDLE     Handle is not recognized.
+ *  @retval ERROR_NO_MORE_ITEMS      Module has no exports.
+ *                                   *phEnum = NULLHANDLE.
+ *  @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ *  @retval ERROR_READ_FAULT         Read error.
+ *
+ *  @see NeExportFindNext
+ *  @see NeExportFindClose
+ */
+APIRET APIENTRY NeExportFindFirst(HNE hNe, HNEENUM *phEnum,
+                                  PULONG pulCount);
+
+/*! @brief Advance an export cursor to the next export.
+ *
+ *  @param[in] hEnum  Cursor from NeExportFindFirst or one of the
+ *                    find-by functions. Not NULLHANDLE.
+ *
+ *  @return APIRET
+ *  @retval NO_ERROR                 Success.
+ *  @retval ERROR_INVALID_HANDLE     Handle is not recognized.
+ *  @retval ERROR_NO_MORE_ITEMS      No more exports.
+ *  @retval ERROR_READ_FAULT         Read error.
+ *
+ *  @see NeExportFindFirst
+ *  @see NeExportFindClose
+ */
+APIRET APIENTRY NeExportFindNext(HNEENUM hEnum);
+
+/*! @brief Close an export cursor.
+ *
+ *  Passing NULLHANDLE is a no-op.
+ *
+ *  @param[in] hEnum  Cursor. NULLHANDLE is accepted.
+ *
+ *  @return APIRET
+ *  @retval NO_ERROR                Success. Also for NULLHANDLE.
+ *  @retval ERROR_INVALID_HANDLE    Handle is not recognized.
+ *
+ *  @see NeExportFindFirst
+ */
+APIRET APIENTRY NeExportFindClose(HNEENUM hEnum);
+
+/*! @brief Position a new cursor on an export by name.
+ *
+ *  Comparison is case-sensitive. If several entries share the same
+ *  name (possible with alias entries), the one with the lowest
+ *  ordinal is chosen.
+ *
+ *  @param[in]  hNe     Handle. Not NULLHANDLE.
+ *  @param[in]  pszName Name to find. Not NULL.
+ *  @param[out] phEnum  Receives the cursor. Not NULL. Set to
+ *                      NULLHANDLE on error.
+ *
+ *  @return APIRET
+ *  @retval NO_ERROR                 Success.
+ *  @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ *  @retval ERROR_INVALID_HANDLE     Handle is not recognized.
+ *  @retval ERROR_FILE_NOT_FOUND     Name not present.
+ *  @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ *  @retval ERROR_READ_FAULT         Read error.
+ *
+ *  @see NeExportFindFirst
+ *  @see NeExportFindClose
+ */
+APIRET APIENTRY NeExportFindByName(HNE hNe, PCSZ pszName,
+                                   HNEENUM *phEnum);
+
+/*! @brief Position a new cursor on an export by ordinal.
+ *
+ *  @param[in]  hNe        Handle. Not NULLHANDLE.
+ *  @param[in]  usOrdinal  Ordinal to find (1-based).
+ *  @param[out] phEnum     Receives the cursor. Not NULL. Set to
+ *                         NULLHANDLE on error.
+ *
+ *  @return APIRET
+ *  @retval NO_ERROR                 Success.
+ *  @retval ERROR_INVALID_PARAMETER  @p hNe or @p phEnum is NULL.
+ *  @retval ERROR_INVALID_HANDLE     Handle is not recognized.
+ *  @retval ERROR_FILE_NOT_FOUND     Ordinal is not exported.
+ *  @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ *  @retval ERROR_READ_FAULT         Read error.
+ *
+ *  @see NeExportFindFirst
+ *  @see NeExportFindClose
+ */
+APIRET APIENTRY NeExportFindByOrdinal(HNE hNe, USHORT usOrdinal,
+                                      HNEENUM *phEnum);
+
+/*! @brief Retrieve the name of the current export.
+ *
+ *  Size-query convention:
+ *    - pszBuf == NULL, ulSize == 0: only *pulUsed (size including
+ *      NUL) is written, no buffer touched.
+ *    - ulSize large enough: value copied and NUL-terminated; *pulUsed
+ *      is the length without NUL.
+ *    - ulSize too small: ERROR_BUFFER_OVERFLOW; *pulUsed is the
+ *      required size including NUL.
+ *
+ *  For an anonymous export (see NeExportIsNamed) a synthetic name of
+ *  the form "Ordinal<N>" is returned, so the caller always receives a
+ *  usable string. The real name, when present, is taken from the
+ *  Resident Name Table first and from the Non-Resident Name Table
+ *  otherwise.
+ *
+ *  @param[in]  hEnum    Cursor. Not NULLHANDLE.
+ *  @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ *  @param[in]  ulSize   Size of @p pszBuf in bytes.
+ *  @param[out] pulUsed  Optional. May be NULL.
+ *
+ *  @return APIRET
+ *  @retval NO_ERROR                 Success.
+ *  @retval ERROR_INVALID_PARAMETER  @p hEnum is NULL, or @p pszBuf is
+ *                                   NULL without size-query.
+ *  @retval ERROR_INVALID_HANDLE     Handle is not recognized.
+ *  @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ *
+ *  @see NeExportIsNamed
+ */
+APIRET APIENTRY NeExportGetName(HNEENUM hEnum,
+                                PSZ pszBuf, ULONG ulSize, PULONG pulUsed);
+
+/*! @brief Retrieve the ordinal of the current export.
+ *
+ *  @param[in]  hEnum       Cursor. Not NULLHANDLE.
+ *  @param[out] pusOrdinal  Receives the ordinal (1-based). Not NULL.
+ *
+ *  @return APIRET
+ *  @retval NO_ERROR                 Success.
+ *  @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ *  @retval ERROR_INVALID_HANDLE     Handle is not recognized.
+ */
+APIRET APIENTRY NeExportGetOrdinal(HNEENUM hEnum, PUSHORT pusOrdinal);
+
+/*! @brief Retrieve the raw Entry Table flags of the current export.
+ *
+ *  The returned value is the FLAGS byte of the Entry Table entry,
+ *  without interpretation. Use NeExportIsGlobalData for the
+ *  GLOBALDATA predicate.
+ *
+ *  @param[in]  hEnum     Cursor. Not NULLHANDLE.
+ *  @param[out] pulFlags  Receives the flags. Not NULL.
+ *
+ *  @return APIRET
+ *  @retval NO_ERROR                 Success.
+ *  @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ *  @retval ERROR_INVALID_HANDLE     Handle is not recognized.
+ */
+APIRET APIENTRY NeExportGetFlags(HNEENUM hEnum, PULONG pulFlags);
+
+/*! @brief Query whether the current export has a real name.
+ *
+ *  @param[in]  hEnum    Cursor. Not NULLHANDLE.
+ *  @param[out] pfNamed  Receives TRUE if a name is present in the
+ *                       Resident or Non-Resident Name Table. Not
+ *                       NULL.
+ *
+ *  @return APIRET
+ *  @retval NO_ERROR                 Success.
+ *  @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ *  @retval ERROR_INVALID_HANDLE     Handle is not recognized.
+ *
+ *  @see NeExportGetName
+ */
+APIRET APIENTRY NeExportIsNamed(HNEENUM hEnum, PBOOL pfNamed);
+
+/*! @brief Query whether the current export is a variable.
+ *
+ *  Returns TRUE when the GLOBALDATA bit (NEENT_GLOBALDATA) is set in
+ *  the Entry Table flags.
+ *
+ *  @param[in]  hEnum         Cursor. Not NULLHANDLE.
+ *  @param[out] pfGlobalData  Receives TRUE for a variable. Not NULL.
+ *
+ *  @return APIRET
+ *  @retval NO_ERROR                 Success.
+ *  @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ *  @retval ERROR_INVALID_HANDLE     Handle is not recognized.
+ */
+APIRET APIENTRY NeExportIsGlobalData(HNEENUM hEnum, PBOOL pfGlobalData);
+
+/*! @brief Query whether the current export is a forwarder.
+ *
+ *  Always returns FALSE for NE; present for symmetry with the LX
+ *  reader.
+ *
+ *  @param[in]  hEnum        Cursor. Not NULLHANDLE.
+ *  @param[out] pfForwarder  Receives FALSE. Not NULL.
+ *
+ *  @return APIRET
+ *  @retval NO_ERROR                 Success.
+ *  @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ *  @retval ERROR_INVALID_HANDLE     Handle is not recognized.
+ */
+APIRET APIENTRY NeExportIsForwarder(HNEENUM hEnum, PBOOL pfForwarder);
+
+/*! @brief Determine the calling convention of the current export.
+ *
+ *  Scans the first bytes of the function body for the first
+ *  occurrence of one of the following instruction bytes:
+ *
+ *    - C3        ret        -> "_System"       (near, caller cleanup)
+ *    - C2 xx xx  ret imm16  -> "_Pascal"       (callee cleanup)
+ *    - CB        retf       -> "_System"       (far, caller cleanup)
+ *    - CA xx xx  retf imm16 -> "_Far16 _Pascal" (far, callee cleanup)
+ *
+ *  If none of these bytes is found within the segment bounds, the
+ *  default convention "_System" is returned. The choice is a
+ *  heuristic: NE does not store the calling convention explicitly.
+ *
+ *  Size-query convention as for NeExportGetName.
+ *
+ *  @param[in]  hEnum    Cursor. Not NULLHANDLE.
+ *  @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ *  @param[in]  ulSize   Size of @p pszBuf in bytes.
+ *  @param[out] pulUsed  Optional. May be NULL.
+ *
+ *  @return APIRET
+ *  @retval NO_ERROR                 Success.
+ *  @retval ERROR_INVALID_PARAMETER  @p hEnum is NULL, or @p pszBuf is
+ *                                   NULL without size-query.
+ *  @retval ERROR_INVALID_HANDLE     Handle is not recognized.
+ *  @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ *  @retval ERROR_READ_FAULT         Segment body cannot be read.
+ */
+APIRET APIENTRY NeExportGetConvention(HNEENUM hEnum,
+                                      PSZ pszBuf, ULONG ulSize,
+                                      PULONG pulUsed);
 
 #ifdef __cplusplus
 } /* extern "C" */
