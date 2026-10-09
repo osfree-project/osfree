@@ -28,13 +28,23 @@
 
 /* $Header: /home/daffy/u0/vern/flex/RCS/yylex.c,v 2.13 95/03/04 16:10:41 vern Exp $ */
 
+/*!
+ *  @file yylex.c
+ *  @brief Scanner front-end for flex.
+ *
+ *  Wraps the flex-generated scanner and adds tracing support.
+ */
+
 #include "flexdef.h"
 #include <ctype.h>
 #include "parse.h"
 
 
-/* yylex - scan for a regular expression token */
-
+/*!
+ *  @brief Scans for a regular expression token.
+ *
+ *  @return Next token code.
+ */
 int yylex()
 	{
 	int toktype;

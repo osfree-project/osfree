@@ -28,9 +28,19 @@
 
 /* $Header: /home/daffy/u0/vern/flex/RCS/ecs.c,v 2.9 93/12/07 10:18:20 vern Exp $ */
 
+/*!
+ *  @file ecs.c
+ *  @brief Equivalence class routines.
+ *
+ *  Converts character classes to equivalence classes and maintains the
+ *  equivalence class tables.
+ */
+
 #include "flexdef.h"
 
-/* ccl2ecl - convert character classes to set of equivalence classes */
+/*!
+ *  @brief Converts character classes to sets of equivalence classes.
+ */
 
 void ccl2ecl()
 	{
@@ -65,12 +75,19 @@ void ccl2ecl()
 	}
 
 
-/* cre8ecs - associate equivalence class numbers with class members
+/*!
+ *  @brief Associates equivalence class numbers with class members.
  *
- * fwd is the forward linked-list of equivalence class members.  bck
- * is the backward linked-list, and num is the number of class members.
+ *  fwd is the forward linked-list of equivalence class members.  bck
+ *  is the backward linked-list, and num is the number of class members.
  *
- * Returned is the number of classes.
+ *  Returned is the number of classes.
+ *
+ *  @param[in,out] fwd Forward linked list of equivalence class members.
+ *  @param[in,out] bck Backward linked list.
+ *  @param[in]     num Number of class members.
+ *
+ *  @return Number of classes.
  */
 
 int cre8ecs( fwd, bck, num )
@@ -97,19 +114,27 @@ int fwd[], bck[], num;
 	}
 
 
-/* mkeccl - update equivalence classes based on character class xtions
+/*!
+ *  @brief Updates equivalence classes based on character class transitions.
  *
- * synopsis
- *    Char ccls[];
- *    int lenccl, fwd[llsiz], bck[llsiz], llsiz, NUL_mapping;
- *    void mkeccl( Char ccls[], int lenccl, int fwd[llsiz], int bck[llsiz],
+ *  synopsis
+ *     Char ccls[];
+ *     int lenccl, fwd[llsiz], bck[llsiz], llsiz, NUL_mapping;
+ *     void mkeccl( Char ccls[], int lenccl, int fwd[llsiz], int bck[llsiz],
  *			int llsiz, int NUL_mapping );
  *
- * ccls contains the elements of the character class, lenccl is the
- * number of elements in the ccl, fwd is the forward link-list of equivalent
- * characters, bck is the backward link-list, and llsiz size of the link-list.
+ *  ccls contains the elements of the character class, lenccl is the
+ *  number of elements in the ccl, fwd is the forward link-list of equivalent
+ *  characters, bck is the backward link-list, and llsiz size of the link-list.
  *
- * NUL_mapping is the value which NUL (0) should be mapped to.
+ *  NUL_mapping is the value which NUL (0) should be mapped to.
+ *
+ *  @param[in]     ccls       Elements of the character class.
+ *  @param[in]     lenccl     Number of elements in @p ccls.
+ *  @param[in,out] fwd        Forward link list.
+ *  @param[in,out] bck        Backward link list.
+ *  @param[in]     llsiz      Size of the link list.
+ *  @param[in]     NUL_mapping Value NUL should be mapped to.
  */
 
 void mkeccl( ccls, lenccl, fwd, bck, llsiz, NUL_mapping )
@@ -205,7 +230,13 @@ int lenccl, fwd[], bck[], llsiz, NUL_mapping;
 	}
 
 
-/* mkechar - create equivalence class for single character */
+/*!
+ *  @brief Creates an equivalence class for a single character.
+ *
+ *  @param[in]     tch Character.
+ *  @param[in,out] fwd Forward link list.
+ *  @param[in,out] bck Backward link list.
+ */
 
 void mkechar( tch, fwd, bck )
 int tch, fwd[], bck[];

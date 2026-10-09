@@ -28,51 +28,96 @@
 
 /* $Header: /home/daffy/u0/vern/flex/RCS/tblcmp.c,v 2.11 94/11/05 17:08:28 vern Exp $ */
 
+/*!
+ *  @file tblcmp.c
+ *  @brief Table compression routines.
+ *
+ *  Packs the DFA transition tables into the compressed representation
+ *  used by the generated scanner, and builds proto and template entries.
+ */
+
 #include "flexdef.h"
 
 
 /* declarations for functions that have forward references */
 
+/*! @brief Creates base/def and nxt/chk entries for a transition array.
+ *  @param[in] state      Transition array.
+ *  @param[in] numchars   Number of characters in @p state.
+ *  @param[in] statenum   Offset into the base/def tables.
+ *  @param[in] deflink    Entry for the def table.
+ *  @param[in] totaltrans Total number of transitions.
+ */
 void mkentry PROTO((register int*, int, int, int, int));
+
+/*! @brief Creates a new proto entry.
+ *  @param[in] state    State transition array.
+ *  @param[in] statenum State number.
+ *  @param[in] comstate Common destination state.
+ */
 void mkprot PROTO((int[], int, int));
+
+/*! @brief Creates a template entry based on a state and connects the state to it.
+ *  @param[in] state    State transition array.
+ *  @param[in] statenum State number.
+ *  @param[in] comstate Common destination state.
+ */
 void mktemplate PROTO((int[], int, int));
+
+/*! @brief Moves a proto queue element to the front of the queue.
+ *  @param[in] qelm Element to move.
+ */
 void mv2front PROTO((int));
+
+/*! @brief Computes differences between two state tables.
+ *  @param[in]  state State array to compare.
+ *  @param[in]  pr    Proto index.
+ *  @param[out] ext   Difference array.
+ *  @return Number of differences.
+ */
 int tbldiff PROTO((int[], int, int[]));
 
 
-/* bldtbl - build table entries for dfa state
+/*!
+ *  @brief Builds table entries for a DFA state.
  *
- * synopsis
- *   int state[numecs], statenum, totaltrans, comstate, comfreq;
- *   bldtbl( state, statenum, totaltrans, comstate, comfreq );
+ *  synopsis
+ *    int state[numecs], statenum, totaltrans, comstate, comfreq;
+ *    bldtbl( state, statenum, totaltrans, comstate, comfreq );
  *
- * State is the statenum'th dfa state.  It is indexed by equivalence class and
- * gives the number of the state to enter for a given equivalence class.
- * totaltrans is the total number of transitions out of the state.  Comstate
- * is that state which is the destination of the most transitions out of State.
- * Comfreq is how many transitions there are out of State to Comstate.
+ *  State is the statenum'th dfa state.  It is indexed by equivalence class and
+ *  gives the number of the state to enter for a given equivalence class.
+ *  totaltrans is the total number of transitions out of the state.  Comstate
+ *  is that state which is the destination of the most transitions out of State.
+ *  Comfreq is how many transitions there are out of State to Comstate.
  *
- * A note on terminology:
- *    "protos" are transition tables which have a high probability of
- * either being redundant (a state processed later will have an identical
- * transition table) or nearly redundant (a state processed later will have
- * many of the same out-transitions).  A "most recently used" queue of
- * protos is kept around with the hope that most states will find a proto
- * which is similar enough to be usable, and therefore compacting the
- * output tables.
- *    "templates" are a special type of proto.  If a transition table is
- * homogeneous or nearly homogeneous (all transitions go to the same
- * destination) then the odds are good that future states will also go
- * to the same destination state on basically the same character set.
- * These homogeneous states are so common when dealing with large rule
- * sets that they merit special attention.  If the transition table were
- * simply made into a proto, then (typically) each subsequent, similar
- * state will differ from the proto for two out-transitions.  One of these
- * out-transitions will be that character on which the proto does not go
- * to the common destination, and one will be that character on which the
- * state does not go to the common destination.  Templates, on the other
- * hand, go to the common state on EVERY transition character, and therefore
- * cost only one difference.
+ *  A note on terminology:
+ *     "protos" are transition tables which have a high probability of
+ *  either being redundant (a state processed later will have an identical
+ *  transition table) or nearly redundant (a state processed later will have
+ *  many of the same out-transitions).  A "most recently used" queue of
+ *  protos is kept around with the hope that most states will find a proto
+ *  which is similar enough to be usable, and therefore compacting the
+ *  output tables.
+ *     "templates" are a special type of proto.  If a transition table is
+ *  homogeneous or nearly homogeneous (all transitions go to the same
+ *  destination) then the odds are good that future states will also go
+ *  to the same destination state on basically the same character set.
+ *  These homogeneous states are so common when dealing with large rule
+ *  sets that they merit special attention.  If the transition table were
+ *  simply made into a proto, then (typically) each subsequent, similar
+ *  state will differ from the proto for two out-transitions.  One of these
+ *  out-transitions will be that character on which the proto does not go
+ *  to the common destination, and one will be that character on which the
+ *  state does not go to the common destination.  Templates, on the other
+ *  hand, go to the common state on EVERY transition character, and therefore
+ *  cost only one difference.
+ *
+ *  @param[in] state      State transition array.
+ *  @param[in] statenum   State number.
+ *  @param[in] totaltrans Total number of transitions.
+ *  @param[in] comstate   Common destination state.
+ *  @param[in] comfreq    Number of transitions to @p comstate.
  */
 
 void bldtbl( state, statenum, totaltrans, comstate, comfreq )
@@ -217,12 +262,13 @@ int state[], statenum, totaltrans, comstate, comfreq;
 	}
 
 
-/* cmptmps - compress template table entries
+/*!
+ *  @brief Compresses template table entries.
  *
- * Template tables are compressed by using the 'template equivalence
- * classes', which are collections of transition character equivalence
- * classes which always appear together in templates - really meta-equivalence
- * classes.
+ *  Template tables are compressed by using the 'template equivalence
+ *  classes', which are collections of transition character equivalence
+ *  classes which always appear together in templates - really meta-equivalence
+ *  classes.
  */
 
 void cmptmps()
@@ -296,7 +342,9 @@ void cmptmps()
 
 
 
-/* expand_nxt_chk - expand the next check arrays */
+/*!
+ *  @brief Expands the next check arrays.
+ */
 
 void expand_nxt_chk()
 	{
@@ -314,23 +362,30 @@ void expand_nxt_chk()
 	}
 
 
-/* find_table_space - finds a space in the table for a state to be placed
+/*!
+ *  @brief Finds a space in the table for a state to be placed.
  *
- * synopsis
- *     int *state, numtrans, block_start;
- *     int find_table_space();
+ *  synopsis
+ *      int *state, numtrans, block_start;
+ *      int find_table_space();
  *
- *     block_start = find_table_space( state, numtrans );
+ *      block_start = find_table_space( state, numtrans );
  *
- * State is the state to be added to the full speed transition table.
- * Numtrans is the number of out-transitions for the state.
+ *  State is the state to be added to the full speed transition table.
+ *  Numtrans is the number of out-transitions for the state.
  *
- * find_table_space() returns the position of the start of the first block (in
- * chk) able to accommodate the state
+ *  find_table_space() returns the position of the start of the first block (in
+ *  chk) able to accommodate the state
  *
- * In determining if a state will or will not fit, find_table_space() must take
- * into account the fact that an end-of-buffer state will be added at [0],
- * and an action number will be added in [-1].
+ *  In determining if a state will or will not fit, find_table_space() must take
+ *  into account the fact that an end-of-buffer state will be added at [0],
+ *  and an action number will be added in [-1].
+ *
+ *  @param[in] state    State to place.
+ *  @param[in] numtrans Number of out-transitions.
+ *
+ *  @return Start position of the first block able to accommodate the state.
+ *  @retval 1 The table is empty, so the first available spot is returned.
  */
 
 int find_table_space( state, numtrans )
@@ -422,16 +477,18 @@ int *state, numtrans;
 			return i;
 
 		else
-		++i;
+			++i;
 		}
 	}
 
 
-/* inittbl - initialize transition tables
+/*!
+ *  @brief Initializes transition tables.
  *
- * Initializes "firstfree" to be one beyond the end of the table.  Initializes
- * all "chk" entries to be zero.
+ *  Initializes "firstfree" to be one beyond the end of the table.  Initializes
+ *  all "chk" entries to be zero.
  */
+
 void inittbl()
 	{
 	register int i;
@@ -462,7 +519,9 @@ void inittbl()
 	}
 
 
-/* mkdeftbl - make the default, "jam" table entries */
+/*!
+ *  @brief Makes the default, "jam" table entries.
+ */
 
 void mkdeftbl()
 	{
@@ -495,23 +554,30 @@ void mkdeftbl()
 	}
 
 
-/* mkentry - create base/def and nxt/chk entries for transition array
+/*!
+ *  @brief Creates base/def and nxt/chk entries for transition array.
  *
- * synopsis
- *   int state[numchars + 1], numchars, statenum, deflink, totaltrans;
- *   mkentry( state, numchars, statenum, deflink, totaltrans );
+ *  synopsis
+ *    int state[numchars + 1], numchars, statenum, deflink, totaltrans;
+ *    mkentry( state, numchars, statenum, deflink, totaltrans );
  *
- * "state" is a transition array "numchars" characters in size, "statenum"
- * is the offset to be used into the base/def tables, and "deflink" is the
- * entry to put in the "def" table entry.  If "deflink" is equal to
- * "JAMSTATE", then no attempt will be made to fit zero entries of "state"
- * (i.e., jam entries) into the table.  It is assumed that by linking to
- * "JAMSTATE" they will be taken care of.  In any case, entries in "state"
- * marking transitions to "SAME_TRANS" are treated as though they will be
- * taken care of by whereever "deflink" points.  "totaltrans" is the total
- * number of transitions out of the state.  If it is below a certain threshold,
- * the tables are searched for an interior spot that will accommodate the
- * state array.
+ *  "state" is a transition array "numchars" characters in size, "statenum"
+ *  is the offset to be used into the base/def tables, and "deflink" is the
+ *  entry to put in the "def" table entry.  If "deflink" is equal to
+ *  "JAMSTATE", then no attempt will be made to fit zero entries of "state"
+ *  (i.e., jam entries) into the table.  It is assumed that by linking to
+ *  "JAMSTATE" they will be taken care of.  In any case, entries in "state"
+ *  marking transitions to "SAME_TRANS" are treated as though they will be
+ *  taken care of by whereever "deflink" points.  "totaltrans" is the total
+ *  number of transitions out of the state.  If it is below a certain threshold,
+ *  the tables are searched for an interior spot that will accommodate the
+ *  state array.
+ *
+ *  @param[in] state      Transition array.
+ *  @param[in] numchars   Number of characters in @p state.
+ *  @param[in] statenum   Offset into the base/def tables.
+ *  @param[in] deflink    Entry for the def table.
+ *  @param[in] totaltrans Total number of transitions.
  */
 
 void mkentry( state, numchars, statenum, deflink, totaltrans )
@@ -638,8 +704,14 @@ int numchars, statenum, deflink, totaltrans;
 	}
 
 
-/* mk1tbl - create table entries for a state (or state fragment) which
- *            has only one out-transition
+/*!
+ *  @brief Creates table entries for a state (or state fragment) which
+ *         has only one out-transition.
+ *
+ *  @param[in] state  State number.
+ *  @param[in] sym    Transition symbol.
+ *  @param[in] onenxt Next state.
+ *  @param[in] onedef Default entry.
  */
 
 void mk1tbl( state, sym, onenxt, onedef )
@@ -667,7 +739,13 @@ int state, sym, onenxt, onedef;
 	}
 
 
-/* mkprot - create new proto entry */
+/*!
+ *  @brief Creates a new proto entry.
+ *
+ *  @param[in] state    State transition array.
+ *  @param[in] statenum State number.
+ *  @param[in] comstate Common destination state.
+ */
 
 void mkprot( state, statenum, comstate )
 int state[], statenum, comstate;
@@ -704,8 +782,13 @@ int state[], statenum, comstate;
 	}
 
 
-/* mktemplate - create a template entry based on a state, and connect the state
- *              to it
+/*!
+ *  @brief Creates a template entry based on a state, and connects the state
+ *         to it.
+ *
+ *  @param[in] state    State transition array.
+ *  @param[in] statenum State number.
+ *  @param[in] comstate Common destination state.
  */
 
 void mktemplate( state, statenum, comstate )
@@ -759,7 +842,11 @@ int state[], statenum, comstate;
 	}
 
 
-/* mv2front - move proto queue element to front of queue */
+/*!
+ *  @brief Moves proto queue element to front of queue.
+ *
+ *  @param[in] qelm Element to move.
+ */
 
 void mv2front( qelm )
 int qelm;
@@ -782,11 +869,16 @@ int qelm;
 	}
 
 
-/* place_state - place a state into full speed transition table
+/*!
+ *  @brief Places a state into full speed transition table.
  *
- * State is the statenum'th state.  It is indexed by equivalence class and
- * gives the number of the state to enter for a given equivalence class.
- * Transnum is the number of out-transitions for the state.
+ *  State is the statenum'th state.  It is indexed by equivalence class and
+ *  gives the number of the state to enter for a given equivalence class.
+ *  Transnum is the number of out-transitions for the state.
+ *
+ *  @param[in] state    State array.
+ *  @param[in] statenum State number.
+ *  @param[in] transnum Number of out-transitions.
  */
 
 void place_state( state, statenum, transnum )
@@ -826,11 +918,17 @@ int *state, statenum, transnum;
 	}
 
 
-/* stack1 - save states with only one out-transition to be processed later
+/*!
+ *  @brief Saves states with only one out-transition to be processed later.
  *
- * If there's room for another state on the "one-transition" stack, the
- * state is pushed onto it, to be processed later by mk1tbl.  If there's
- * no room, we process the sucker right now.
+ *  If there's room for another state on the "one-transition" stack, the
+ *  state is pushed onto it, to be processed later by mk1tbl.  If there's
+ *  no room, we process the sucker right now.
+ *
+ *  @param[in] statenum  State number.
+ *  @param[in] sym       Transition symbol.
+ *  @param[in] nextstate Next state.
+ *  @param[in] deflink   Default entry.
  */
 
 void stack1( statenum, sym, nextstate, deflink )
@@ -850,18 +948,25 @@ int statenum, sym, nextstate, deflink;
 	}
 
 
-/* tbldiff - compute differences between two state tables
+/*!
+ *  @brief Computes differences between two state tables.
  *
- * "state" is the state array which is to be extracted from the pr'th
- * proto.  "pr" is both the number of the proto we are extracting from
- * and an index into the save area where we can find the proto's complete
- * state table.  Each entry in "state" which differs from the corresponding
- * entry of "pr" will appear in "ext".
+ *  "state" is the state array which is to be extracted from the pr'th
+ *  proto.  "pr" is both the number of the proto we are extracting from
+ *  and an index into the save area where we can find the proto's complete
+ *  state table.  Each entry in "state" which differs from the corresponding
+ *  entry of "pr" will appear in "ext".
  *
- * Entries which are the same in both "state" and "pr" will be marked
- * as transitions to "SAME_TRANS" in "ext".  The total number of differences
- * between "state" and "pr" is returned as function value.  Note that this
- * number is "numecs" minus the number of "SAME_TRANS" entries in "ext".
+ *  Entries which are the same in both "state" and "pr" will be marked
+ *  as transitions to "SAME_TRANS" in "ext".  The total number of differences
+ *  between "state" and "pr" is returned as function value.  Note that this
+ *  number is "numecs" minus the number of "SAME_TRANS" entries in "ext".
+ *
+ *  @param[in]  state State array to compare.
+ *  @param[in]  pr    Proto index.
+ *  @param[out] ext   Difference array.
+ *
+ *  @return Number of differences.
  */
 
 int tbldiff( state, pr, ext )

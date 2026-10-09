@@ -28,24 +28,68 @@
 
 /* $Header: /home/daffy/u0/vern/flex/RCS/sym.c,v 2.19 95/03/04 16:11:04 vern Exp $ */
 
+/*!
+ *  @file sym.c
+ *  @brief Symbol table routines.
+ *
+ *  Implements the hash tables used for start conditions, name definitions
+ *  and character classes.
+ */
+
 #include "flexdef.h"
 
 
 /* declare functions that have forward references */
 
+/*! @brief Computes the hash value for a string and hash size.
+ *  @param[in] str       String to hash.
+ *  @param[in] hash_size Size of the hash table.
+ *  @return Hash value.
+ */
 int hashfunct PROTO((register char[], int));
 
 
+/*!
+ *  @brief Name-definition hash table.
+ */
 struct hash_entry *ndtbl[NAME_TABLE_HASH_SIZE];
+
+/*!
+ *  @brief Start-condition hash table.
+ */
 struct hash_entry *sctbl[START_COND_HASH_SIZE];
+
+/*!
+ *  @brief Character-class hash table.
+ */
 struct hash_entry *ccltab[CCL_HASH_SIZE];
 
+/*!
+ *  @brief Finds a symbol in a symbol table.
+ *
+ *  @param[in] sym        Symbol name.
+ *  @param[in] table      Hash table.
+ *  @param[in] table_size Size of @p table.
+ *
+ *  @return Pointer to the symbol entry, or to an empty entry.
+ */
 struct hash_entry *findsym();
 
 
-/* addsym - add symbol and definitions to symbol table
+/*!
+ *  @brief Adds a symbol and its definitions to a symbol table.
  *
- * -1 is returned if the symbol already exists, and the change not made.
+ *  -1 is returned if the symbol already exists, and the change not made.
+ *
+ *  @param[in] sym        Symbol name.
+ *  @param[in] str_def    String definition.
+ *  @param[in] int_def    Integer definition.
+ *  @param[in] table      Hash table.
+ *  @param[in] table_size Size of @p table.
+ *
+ *  @return 0 on success, -1 if the symbol already exists.
+ *  @retval 0 The symbol was added.
+ *  @retval -1 The symbol already exists; the change was not made.
  */
 
 int addsym( sym, str_def, int_def, table, table_size )
@@ -96,7 +140,12 @@ int table_size;
 	}
 
 
-/* cclinstal - save the text of a character class */
+/*!
+ *  @brief Saves the text of a character class.
+ *
+ *  @param[in] ccltxt Character class text.
+ *  @param[in] cclnum Character class number.
+ */
 
 void cclinstal( ccltxt, cclnum )
 Char ccltxt[];
@@ -113,9 +162,14 @@ int cclnum;
 	}
 
 
-/* ccllookup - lookup the number associated with character class text
+/*!
+ *  @brief Looks up the number associated with character class text.
  *
- * Returns 0 if there's no CCL associated with the text.
+ *  Returns 0 if there's no CCL associated with the text.
+ *
+ *  @param[in] ccltxt Character class text.
+ *
+ *  @return Character class number, or 0 if not found.
  */
 
 int ccllookup( ccltxt )
@@ -125,7 +179,15 @@ Char ccltxt[];
 	}
 
 
-/* findsym - find symbol in symbol table */
+/*!
+ *  @brief Finds a symbol in a symbol table.
+ *
+ *  @param[in] sym        Symbol name.
+ *  @param[in] table      Hash table.
+ *  @param[in] table_size Size of @p table.
+ *
+ *  @return Pointer to the symbol entry, or to an empty entry.
+ */
 
 struct hash_entry *findsym( sym, table, table_size )
 register char sym[];
@@ -151,7 +213,14 @@ int table_size;
 	}
 
 
-/* hashfunct - compute the hash value for "str" and hash size "hash_size" */
+/*!
+ *  @brief Computes the hash value for a string and hash size.
+ *
+ *  @param[in] str       String to hash.
+ *  @param[in] hash_size Size of the hash table.
+ *
+ *  @return Hash value.
+ */
 
 int hashfunct( str, hash_size )
 register char str[];
@@ -173,7 +242,12 @@ int hash_size;
 	}
 
 
-/* ndinstal - install a name definition */
+/*!
+ *  @brief Installs a name definition.
+ *
+ *  @param[in] name       Name.
+ *  @param[in] definition Definition text.
+ */
 
 void ndinstal( name, definition )
 char name[];
@@ -189,9 +263,14 @@ Char definition[];
 	}
 
 
-/* ndlookup - lookup a name definition
+/*!
+ *  @brief Looks up a name definition.
  *
- * Returns a nil pointer if the name definition does not exist.
+ *  Returns a nil pointer if the name definition does not exist.
+ *
+ *  @param[in] nd Name to look up.
+ *
+ *  @return Definition text, or NULL if not found.
  */
 
 Char *ndlookup( nd )
@@ -201,7 +280,9 @@ char nd[];
 	}
 
 
-/* scextend - increase the maximum number of start conditions */
+/*!
+ *  @brief Increases the maximum number of start conditions.
+ */
 
 void scextend()
 	{
@@ -217,10 +298,14 @@ void scextend()
 	}
 
 
-/* scinstal - make a start condition
+/*!
+ *  @brief Makes a start condition.
  *
- * NOTE
- *    The start condition is "exclusive" if xcluflg is true.
+ *  NOTE
+ *     The start condition is "exclusive" if xcluflg is true.
+ *
+ *  @param[in] str     Start condition name.
+ *  @param[in] xcluflg Non-zero if the start condition is exclusive.
  */
 
 void scinstal( str, xcluflg )
@@ -250,9 +335,14 @@ int xcluflg;
 	}
 
 
-/* sclookup - lookup the number associated with a start condition
+/*!
+ *  @brief Looks up the number associated with a start condition.
  *
- * Returns 0 if no such start condition.
+ *  Returns 0 if no such start condition.
+ *
+ *  @param[in] str Start condition name.
+ *
+ *  @return Start condition number, or 0 if not found.
  */
 
 int sclookup( str )

@@ -28,21 +28,66 @@
 
 /* $Header: /home/daffy/u0/vern/flex/RCS/gen.c,v 2.56 96/05/25 20:43:38 vern Exp $ */
 
+/*!
+ *  @file gen.c
+ *  @brief Actual generation (writing) of flex scanners.
+ *
+ *  Writes the generated scanner, its transition tables and the user's
+ *  actions to the output file.
+ */
+
 #include "flexdef.h"
 
 
 /* declare functions that have forward references */
 
+/*!
+ *  @brief Generates the code to find the next state.
+ *
+ *  @param[in] worry_about_NULs Non-zero to handle NUL characters specially.
+ */
 void gen_next_state PROTO((int));
+
+/*!
+ *  @brief Generates equivalence-class tables.
+ */
 void genecs PROTO((void));
+
+/*!
+ *  @brief Writes out a formatted string at the current indentation level.
+ *
+ *  @param[in] fmt Format string.
+ *  @param[in] arg String argument.
+ */
 void indent_put2s PROTO((char [], char []));
+
+/*!
+ *  @brief Writes out a string at the current indentation level.
+ *
+ *  @param[in] str String to write.
+ */
 void indent_puts PROTO((char []));
 
 
-static int indent_level = 0; /* each level is 8 spaces */
+static int indent_level = 0;  /*!< Current indentation level; each level is 8 spaces. */
 
+/*!
+ *  @brief Increases the indentation level by one.
+ *  @def indent_up
+ */
 #define indent_up() (++indent_level)
+
+/*!
+ *  @brief Decreases the indentation level by one.
+ *  @def indent_down
+ */
 #define indent_down() (--indent_level)
+
+/*!
+ *  @brief Sets the indentation level.
+ *  @param[in] indent_val New indentation level.
+ *  @def set_indent
+ */
 #define set_indent(indent_val) indent_level = indent_val
 
 /* Almost everything is done in terms of arrays starting at 1, so provide
@@ -50,14 +95,32 @@ static int indent_level = 0; /* each level is 8 spaces */
  * to this is that the fast table representation generally uses the
  * 0 elements of its arrays, too.)
  */
+
+/*!
+ *  @brief Declaration template for an integer array.
+ */
 static char C_int_decl[] = "static yyconst int %s[%d] =\n    {   0,\n";
+
+/*!
+ *  @brief Declaration template for a short integer array.
+ */
 static char C_short_decl[] = "static yyconst short int %s[%d] =\n    {   0,\n";
+
+/*!
+ *  @brief Declaration template for a long integer array.
+ */
 static char C_long_decl[] = "static yyconst long int %s[%d] =\n    {   0,\n";
+
+/*!
+ *  @brief Declaration template for a yy_state_type array.
+ */
 static char C_state_decl[] =
 	"static yyconst yy_state_type %s[%d] =\n    {   0,\n";
 
 
-/* Indent to the current level. */
+/*!
+ *  @brief Indents to the current level.
+ */
 
 void do_indent()
 	{
@@ -77,7 +140,9 @@ void do_indent()
 	}
 
 
-/* Generate the code to keep backing-up information. */
+/*!
+ *  @brief Generates the code to keep backing-up information.
+ */
 
 void gen_backing_up()
 	{
@@ -98,7 +163,9 @@ void gen_backing_up()
 	}
 
 
-/* Generate the code to perform the backing up. */
+/*!
+ *  @brief Generates the code to perform the backing up.
+ */
 
 void gen_bu_action()
 	{
@@ -127,7 +194,9 @@ void gen_bu_action()
 	}
 
 
-/* genctbl - generates full speed compressed transition table */
+/*!
+ *  @brief Generates the full speed compressed transition table.
+ */
 
 void genctbl()
 	{
@@ -223,7 +292,9 @@ void genctbl()
 	}
 
 
-/* Generate equivalence-class tables. */
+/*!
+ *  @brief Generates equivalence-class tables.
+ */
 
 void genecs()
 	{
@@ -265,7 +336,9 @@ void genecs()
 	}
 
 
-/* Generate the code to find the action number. */
+/*!
+ *  @brief Generates the code to find the action number.
+ */
 
 void gen_find_action()
 	{
@@ -404,7 +477,9 @@ void gen_find_action()
 	}
 
 
-/* genftbl - generate full transition table */
+/*!
+ *  @brief Generates the full transition table.
+ */
 
 void genftbl()
 	{
@@ -438,7 +513,11 @@ void genftbl()
 	}
 
 
-/* Generate the code to find the next compressed-table state. */
+/*!
+ *  @brief Generates the code to find the next compressed-table state.
+ *
+ *  @param[in] char_map Character mapping expression.
+ */
 
 void gen_next_compressed_state( char_map )
 char *char_map;
@@ -484,7 +563,9 @@ char *char_map;
 	}
 
 
-/* Generate the code to find the next match. */
+/*!
+ *  @brief Generates the code to find the next match.
+ */
 
 void gen_next_match()
 	{
@@ -593,7 +674,11 @@ void gen_next_match()
 	}
 
 
-/* Generate the code to find the next state. */
+/*!
+ *  @brief Generates the code to find the next state.
+ *
+ *  @param[in] worry_about_NULs Non-zero to handle NUL characters specially.
+ */
 
 void gen_next_state( worry_about_NULs )
 int worry_about_NULs;
@@ -659,7 +744,9 @@ int worry_about_NULs;
 	}
 
 
-/* Generate the code to make a NUL transition. */
+/*!
+ *  @brief Generates the code to make a NUL transition.
+ */
 
 void gen_NUL_trans()
 	{ /* NOTE - changes in here should be reflected in gen_next_match() */
@@ -746,7 +833,9 @@ void gen_NUL_trans()
 	}
 
 
-/* Generate the code to find the start state. */
+/*!
+ *  @brief Generates the code to find the start state.
+ */
 
 void gen_start_state()
 	{
@@ -779,7 +868,9 @@ void gen_start_state()
 	}
 
 
-/* gentabs - generate data statements for the transition tables */
+/*!
+ *  @brief Generates data statements for the transition tables.
+ */
 
 void gentabs()
 	{
@@ -1026,8 +1117,11 @@ void gentabs()
 	}
 
 
-/* Write out a formatted string (with a secondary string argument) at the
- * current indentation level, adding a final newline.
+/*!
+ *  @brief Writes out a formatted string at the current indentation level.
+ *
+ *  @param[in] fmt Format string.
+ *  @param[in] arg String argument.
  */
 
 void indent_put2s( fmt, arg )
@@ -1039,8 +1133,10 @@ char fmt[], arg[];
 	}
 
 
-/* Write out a string at the current indentation level, adding a final
- * newline.
+/*!
+ *  @brief Writes out a string at the current indentation level.
+ *
+ *  @param[in] str String to write.
  */
 
 void indent_puts( str )
@@ -1051,7 +1147,8 @@ char str[];
 	}
 
 
-/* make_tables - generate transition tables and finishes generating output file
+/*!
+ *  @brief Generates transition tables and finishes generating the output file.
  */
 
 void make_tables()

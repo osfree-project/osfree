@@ -28,24 +28,70 @@
 
 /* $Header: /home/daffy/u0/vern/flex/RCS/dfa.c,v 2.26 95/04/20 13:53:14 vern Exp $ */
 
+/*!
+ *  @file dfa.c
+ *  @brief DFA construction routines.
+ *
+ *  Builds the DFA from the NFA, computes epsilon closures, partitions
+ *  characters into equivalence classes, and detects dangerous trailing
+ *  context.
+ */
+
 #include "flexdef.h"
 
 
 /* declare functions that have forward references */
 
+/*!
+ *  @brief Lists the rules associated with a DFA state.
+ *
+ *  @param[in] file Output stream.
+ *  @param[in] ds   State number.
+ */
 void dump_associated_rules PROTO((FILE*, int));
+
+/*!
+ *  @brief Lists the transitions associated with a DFA state.
+ *
+ *  @param[in] file  Output stream.
+ *  @param[in] state Out-transitions of the state.
+ */
 void dump_transitions PROTO((FILE*, int[]));
+
+/*!
+ *  @brief Partitions characters with the same out-transitions.
+ *
+ *  @param[in]  ds        NFA state set.
+ *  @param[in]  numstates Number of states.
+ *  @param[out] symlist   Symbols present.
+ *  @param[out] duplist   Duplicate equivalence class links.
+ */
 void sympartition PROTO((int[], int, int[], int[]));
+
+/*!
+ *  @brief Follows the symbol transitions one step.
+ *
+ *  @param[in]  ds       NFA state set.
+ *  @param[in]  dsize    Size of @p ds.
+ *  @param[in]  transsym Transition symbol.
+ *  @param[out] nset     Resulting NFA state set.
+ *
+ *  @return Number of states in @p nset.
+ */
 int symfollowset PROTO((int[], int, int, int[]));
 
 
-/* check_for_backing_up - check a DFA state for backing up
+/*!
+ *  @brief Checks a DFA state for backing up.
  *
- * synopsis
- *     void check_for_backing_up( int ds, int state[numecs] );
+ *  synopsis
+ *      void check_for_backing_up( int ds, int state[numecs] );
  *
- * ds is the number of the state to check and state[] is its out-transitions,
- * indexed by equivalence class.
+ *  ds is the number of the state to check and state[] is its out-transitions,
+ *  indexed by equivalence class.
+ *
+ *  @param[in] ds    Number of the state to check.
+ *  @param[in] state Out-transitions of the state, indexed by equivalence class.
  */
 
 void check_for_backing_up( ds, state )
@@ -76,26 +122,31 @@ int state[];
 	}
 
 
-/* check_trailing_context - check to see if NFA state set constitutes
- *                          "dangerous" trailing context
+/*!
+ *  @brief Checks whether an NFA state set constitutes "dangerous" trailing context.
  *
- * synopsis
- *    void check_trailing_context( int nfa_states[num_states+1], int num_states,
+ *  synopsis
+ *     void check_trailing_context( int nfa_states[num_states+1], int num_states,
  *				int accset[nacc+1], int nacc );
  *
- * NOTES
- *  Trailing context is "dangerous" if both the head and the trailing
- *  part are of variable size \and/ there's a DFA state which contains
- *  both an accepting state for the head part of the rule and NFA states
- *  which occur after the beginning of the trailing context.
+ *  NOTES
+ *   Trailing context is "dangerous" if both the head and the trailing
+ *   part are of variable size \and/ there's a DFA state which contains
+ *   both an accepting state for the head part of the rule and NFA states
+ *   which occur after the beginning of the trailing context.
  *
- *  When such a rule is matched, it's impossible to tell if having been
- *  in the DFA state indicates the beginning of the trailing context or
- *  further-along scanning of the pattern.  In these cases, a warning
- *  message is issued.
+ *   When such a rule is matched, it's impossible to tell if having been
+ *   in the DFA state indicates the beginning of the trailing context or
+ *   further-along scanning of the pattern.  In these cases, a warning
+ *   message is issued.
  *
- *    nfa_states[1 .. num_states] is the list of NFA states in the DFA.
- *    accset[1 .. nacc] is the list of accepting numbers for the DFA state.
+ *     nfa_states[1 .. num_states] is the list of NFA states in the DFA.
+ *     accset[1 .. nacc] is the list of accepting numbers for the DFA state.
+ *
+ *  @param[in] nfa_states List of NFA states in the DFA state.
+ *  @param[in] num_states Number of NFA states.
+ *  @param[in] accset     Accepting numbers of the DFA state.
+ *  @param[in] nacc       Number of accepting numbers.
  */
 
 void check_trailing_context( nfa_states, num_states, accset, nacc )
@@ -136,11 +187,15 @@ int nacc;
 	}
 
 
-/* dump_associated_rules - list the rules associated with a DFA state
+/*!
+ *  @brief Lists the rules associated with a DFA state.
  *
- * Goes through the set of NFA states associated with the DFA and
- * extracts the first MAX_ASSOC_RULES unique rules, sorts them,
- * and writes a report to the given file.
+ *  Goes through the set of NFA states associated with the DFA and
+ *  extracts the first MAX_ASSOC_RULES unique rules, sorts them,
+ *  and writes a report to the given file.
+ *
+ *  @param[in] file Output stream.
+ *  @param[in] ds   State number.
  */
 
 void dump_associated_rules( file, ds )
@@ -184,15 +239,19 @@ int ds;
 	}
 
 
-/* dump_transitions - list the transitions associated with a DFA state
+/*!
+ *  @brief Lists the transitions associated with a DFA state.
  *
- * synopsis
- *     dump_transitions( FILE *file, int state[numecs] );
+ *  synopsis
+ *      dump_transitions( FILE *file, int state[numecs] );
  *
- * Goes through the set of out-transitions and lists them in human-readable
- * form (i.e., not as equivalence classes); also lists jam transitions
- * (i.e., all those which are not out-transitions, plus EOF).  The dump
- * is done to the given file.
+ *  Goes through the set of out-transitions and lists them in human-readable
+ *  form (i.e., not as equivalence classes); also lists jam transitions
+ *  (i.e., all those which are not out-transitions, plus EOF).  The dump
+ *  is done to the given file.
+ *
+ *  @param[in] file  Output stream.
+ *  @param[in] state Out-transitions of the state.
  */
 
 void dump_transitions( file, state )
@@ -224,24 +283,33 @@ int state[];
 	}
 
 
-/* epsclosure - construct the epsilon closure of a set of ndfa states
+/*!
+ *  @brief Constructs the epsilon closure of a set of ndfa states.
  *
- * synopsis
- *    int *epsclosure( int t[num_states], int *numstates_addr,
+ *  synopsis
+ *     int *epsclosure( int t[num_states], int *numstates_addr,
  *			int accset[num_rules+1], int *nacc_addr,
  *			int *hashval_addr );
  *
- * NOTES
- *  The epsilon closure is the set of all states reachable by an arbitrary
- *  number of epsilon transitions, which themselves do not have epsilon
- *  transitions going out, unioned with the set of states which have non-null
- *  accepting numbers.  t is an array of size numstates of nfa state numbers.
- *  Upon return, t holds the epsilon closure and *numstates_addr is updated.
- *  accset holds a list of the accepting numbers, and the size of accset is
- *  given by *nacc_addr.  t may be subjected to reallocation if it is not
- *  large enough to hold the epsilon closure.
+ *  NOTES
+ *   The epsilon closure is the set of all states reachable by an arbitrary
+ *   number of epsilon transitions, which themselves do not have epsilon
+ *   transitions going out, unioned with the set of states which have non-null
+ *   accepting numbers.  t is an array of size numstates of nfa state numbers.
+ *   Upon return, t holds the epsilon closure and *numstates_addr is updated.
+ *   accset holds a list of the accepting numbers, and the size of accset is
+ *   given by *nacc_addr.  t may be subjected to reallocation if it is not
+ *   large enough to hold the epsilon closure.
  *
- *  hashval is the hash value for the dfa corresponding to the state set.
+ *   hashval is the hash value for the dfa corresponding to the state set.
+ *
+ *  @param[in]     t          Array of NFA state numbers.
+ *  @param[in,out] ns_addr    Number of states on entry, updated on exit.
+ *  @param[out]    accset     Accepting numbers found.
+ *  @param[out]    nacc_addr  Number of accepting numbers.
+ *  @param[out]    hv_addr    Hash value of the state set.
+ *
+ *  @return Pointer to the (possibly reallocated) state array.
  */
 
 int *epsclosure( t, ns_addr, accset, nacc_addr, hv_addr )
@@ -252,14 +320,38 @@ int *t, *ns_addr, accset[], *nacc_addr, *hv_addr;
 	int stkend, nstate;
 	static int did_stk_init = false, *stk; 
 
+/*!
+ *  @brief Marks an NFA state as visited during epsilon closure.
+ *
+ *  @param[in] state State number.
+ *  @def MARK_STATE
+ */
 #define MARK_STATE(state) \
 trans1[state] = trans1[state] - MARKER_DIFFERENCE;
 
+/*!
+ *  @brief Tests whether an NFA state has been marked.
+ *
+ *  @param[in] state State number.
+ *  @def IS_MARKED
+ */
 #define IS_MARKED(state) (trans1[state] < 0)
 
+/*!
+ *  @brief Clears the visited mark from an NFA state.
+ *
+ *  @param[in] state State number.
+ *  @def UNMARK_STATE
+ */
 #define UNMARK_STATE(state) \
 trans1[state] = trans1[state] + MARKER_DIFFERENCE;
 
+/*!
+ *  @brief Records the accepting number of an NFA state, if any.
+ *
+ *  @param[in] state State number.
+ *  @def CHECK_ACCEPT
+ */
 #define CHECK_ACCEPT(state) \
 { \
 nfaccnum = accptnum[state]; \
@@ -267,6 +359,11 @@ if ( nfaccnum != NIL ) \
 accset[++nacc] = nfaccnum; \
 }
 
+/*!
+ *  @brief Grows the DFA state set and stack arrays.
+ *
+ *  @def DO_REALLOCATION
+ */
 #define DO_REALLOCATION \
 { \
 current_max_dfa_size += MAX_DFA_SIZE_INCREMENT; \
@@ -275,6 +372,12 @@ t = reallocate_integer_array( t, current_max_dfa_size ); \
 stk = reallocate_integer_array( stk, current_max_dfa_size ); \
 } \
 
+/*!
+ *  @brief Pushes an NFA state onto the closure stack and marks it.
+ *
+ *  @param[in] state State number.
+ *  @def PUT_ON_STACK
+ */
 #define PUT_ON_STACK(state) \
 { \
 if ( ++stkend >= current_max_dfa_size ) \
@@ -283,6 +386,12 @@ stk[stkend] = state; \
 MARK_STATE(state) \
 }
 
+/*!
+ *  @brief Appends an NFA state to the closure state set.
+ *
+ *  @param[in] state State number.
+ *  @def ADD_STATE
+ */
 #define ADD_STATE(state) \
 { \
 if ( ++numstates >= current_max_dfa_size ) \
@@ -291,6 +400,12 @@ t[numstates] = state; \
 hashval += state; \
 }
 
+/*!
+ *  @brief Pushes, checks acceptance and adds an NFA state in one step.
+ *
+ *  @param[in] state State number.
+ *  @def STACK_STATE
+ */
 #define STACK_STATE(state) \
 { \
 PUT_ON_STACK(state) \
@@ -364,7 +479,9 @@ ADD_STATE(state) \
 	}
 
 
-/* increase_max_dfas - increase the maximum number of DFAs */
+/*!
+ *  @brief Increases the maximum number of DFAs.
+ */
 
 void increase_max_dfas()
 	{
@@ -386,10 +503,11 @@ void increase_max_dfas()
 	}
 
 
-/* ntod - convert an ndfa to a dfa
+/*!
+ *  @brief Converts an ndfa to a dfa.
  *
- * Creates the dfa corresponding to the ndfa we've constructed.  The
- * dfa starts out in state #1.
+ *  Creates the dfa corresponding to the ndfa we've constructed.  The
+ *  dfa starts out in state #1.
  */
 
 void ntod()
@@ -780,14 +898,26 @@ void ntod()
 	}
 
 
-/* snstods - converts a set of ndfa states into a dfa state
+/*!
+ *  @brief Converts a set of ndfa states into a dfa state.
  *
- * synopsis
- *    is_new_state = snstods( int sns[numstates], int numstates,
+ *  synopsis
+ *     is_new_state = snstods( int sns[numstates], int numstates,
  *				int accset[num_rules+1], int nacc,
  *				int hashval, int *newds_addr );
  *
- * On return, the dfa state number is in newds.
+ *  On return, the dfa state number is in newds.
+ *
+ *  @param[in]  sns        Set of NFA state numbers.
+ *  @param[in]  numstates  Number of states in @p sns.
+ *  @param[in]  accset     Accepting numbers.
+ *  @param[in]  nacc       Number of accepting numbers.
+ *  @param[in]  hashval    Hash value of the set.
+ *  @param[out] newds_addr DFA state number.
+ *
+ *  @return Non-zero if a new DFA state was created.
+ *  @retval 0 The state already existed.
+ *  @retval 1 A new DFA state was created.
  */
 
 int snstods( sns, numstates, accset, nacc, hashval, newds_addr )
@@ -915,11 +1045,19 @@ int sns[], numstates, accset[], nacc, hashval, *newds_addr;
 	}
 
 
-/* symfollowset - follow the symbol transitions one step
+/*!
+ *  @brief Follows the symbol transitions one step.
  *
- * synopsis
- *    numstates = symfollowset( int ds[current_max_dfa_size], int dsize,
+ *  synopsis
+ *     numstates = symfollowset( int ds[current_max_dfa_size], int dsize,
  *				int transsym, int nset[current_max_dfa_size] );
+ *
+ *  @param[in]  ds       NFA state set.
+ *  @param[in]  dsize    Size of @p ds.
+ *  @param[in]  transsym Transition symbol.
+ *  @param[out] nset     Resulting NFA state set.
+ *
+ *  @return Number of states in @p nset.
  */
 
 int symfollowset( ds, dsize, transsym, nset )
@@ -1003,11 +1141,17 @@ int ds[], dsize, transsym, nset[];
 	}
 
 
-/* sympartition - partition characters with same out-transitions
+/*!
+ *  @brief Partitions characters with the same out-transitions.
  *
- * synopsis
- *    sympartition( int ds[current_max_dfa_size], int numstates,
+ *  synopsis
+ *     sympartition( int ds[current_max_dfa_size], int numstates,
  *			int symlist[numecs], int duplist[numecs] );
+ *
+ *  @param[in]  ds        NFA state set.
+ *  @param[in]  numstates Number of states.
+ *  @param[out] symlist   Symbols present.
+ *  @param[out] duplist   Duplicate equivalence class links.
  */
 
 void sympartition( ds, numstates, symlist, duplist )

@@ -1,3 +1,11 @@
+/*!
+ *  @file main.c
+ *  @brief Flex tool to generate fast lexical analyzers.
+ *
+ *  Parses the command line, reads the input file(s), converts the NFA to
+ *  a DFA, generates the scanner tables and writes the scanner output.
+ */
+
 /* flex - tool to generate fast lexical analyzers */
 
 /*-
@@ -27,6 +35,9 @@
  */
 
 #ifndef lint
+/*!
+ *  @brief Copyright string embedded in the executable for SCCS `what`.
+ */
 char copyright[] =
 "@(#) Copyright (c) 1990 The Regents of the University of California.\n\
  All rights reserved.\n";
@@ -34,19 +45,36 @@ char copyright[] =
 
 /* $Header: /home/daffy/u0/vern/flex/RCS/main.c,v 2.64 96/05/25 20:42:42 vern Exp $ */
 
-
 #include "flexdef.h"
 #include "version.h"
 #ifdef __LINUX__
 #include <unistd.h>
 #endif
+
+/*!
+ *  @brief Version string of this flex build.
+ */
 static char flex_version[] = FLEX_VERSION;
 
 
 /* declare functions that have forward references */
 
+/*!
+ *  @brief Initializes flex from the command line.
+ *
+ *  @param[in] argc Argument count.
+ *  @param[in] argv Argument vector.
+ */
 void flexinit PROTO((int, char**));
+
+/*!
+ *  @brief Reads in the rules section of the input file(s).
+ */
 void readin PROTO((void));
+
+/*!
+ *  @brief Allocates memory for internal tables.
+ */
 void set_up_initial_allocations PROTO((void));
 
 #ifdef NEED_ARGV_FIXUP
@@ -55,63 +83,765 @@ extern void argv_fixup PROTO((int *, char ***));
 
 
 /* these globals are all defined and commented in flexdef.h */
-int printstats, syntaxerror, eofseen, ddebug, trace, nowarn, spprdflt;
-int interactive, caseins, lex_compat, do_yylineno, useecs, fulltbl, usemecs;
-int fullspd, gen_line_dirs, performance_report, backing_up_report;
-int C_plus_plus, long_align, use_read, yytext_is_array, do_yywrap, csize;
-int yymore_used, reject, real_reject, continued_action, in_rule;
-int yymore_really_used, reject_really_used;
-int datapos, dataline, linenum, out_linenum;
+
+/*!
+ *  @brief Non-zero when -v was given (statistics).
+ */
+int printstats;
+
+/*!
+ *  @brief Non-zero once a syntax error has been found.
+ */
+int syntaxerror;
+
+/*!
+ *  @brief Non-zero once an EOF has been seen in the input.
+ */
+int eofseen;
+
+/*!
+ *  @brief Non-zero when -d was given (debug scanner).
+ */
+int ddebug;
+
+/*!
+ *  @brief Non-zero when -T was given (trace processing).
+ */
+int trace;
+
+/*!
+ *  @brief Non-zero when -w was given (suppress warnings).
+ */
+int nowarn;
+
+/*!
+ *  @brief Non-zero when -s was given (suppress default rule).
+ */
+int spprdflt;
+
+/*!
+ *  @brief Non-zero when -I was given (interactive scanner).
+ */
+int interactive;
+
+/*!
+ *  @brief Non-zero when -i was given (case-insensitive scanner).
+ */
+int caseins;
+
+/*!
+ *  @brief Non-zero when -l was given (maximal lex compatibility).
+ */
+int lex_compat;
+
+/*!
+ *  @brief Non-zero when yylineno maintenance is requested.
+ */
+int do_yylineno;
+
+/*!
+ *  @brief Non-zero when -Ce was given (use equivalence classes).
+ */
+int useecs;
+
+/*!
+ *  @brief Non-zero when -Cf was given (full transition table).
+ */
+int fulltbl;
+
+/*!
+ *  @brief Non-zero when -Cm was given (use meta-equivalence classes).
+ */
+int usemecs;
+
+/*!
+ *  @brief Non-zero when -CF was given (fast transition table).
+ */
+int fullspd;
+
+/*!
+ *  @brief Non-zero unless -L was given (generate #line directives).
+ */
+int gen_line_dirs;
+
+/*!
+ *  @brief Performance report level set by -p.
+ */
+int performance_report;
+
+/*!
+ *  @brief Non-zero when -b was given (backing-up report).
+ */
+int backing_up_report;
+
+/*!
+ *  @brief Non-zero when generating a C++ scanner class (-+).
+ */
+int C_plus_plus;
+
+/*!
+ *  @brief Non-zero when -Ca was given (favor long-word alignment).
+ */
+int long_align;
+
+/*!
+ *  @brief Non-zero when using read() instead of stdio for scanner input.
+ */
+int use_read;
+
+/*!
+ *  @brief Non-zero when %array was given (yytext is an array).
+ */
+int yytext_is_array;
+
+/*!
+ *  @brief Non-zero when yywrap() processing is requested.
+ */
+int do_yywrap;
+
+/*!
+ *  @brief Size of the character set: 128 (7-bit) or 256 (8-bit).
+ */
+int csize;
+
+/*!
+ *  @brief Non-zero when yymore() is used in input rules.
+ */
+int yymore_used;
+
+/*!
+ *  @brief Non-zero when back-up tables for REJECT are generated.
+ */
+int reject;
+
+/*!
+ *  @brief Non-zero when REJECT is really used.
+ */
+int real_reject;
+
+/*!
+ *  @brief Non-zero when the rule's action falls through to the next one.
+ */
+int continued_action;
+
+/*!
+ *  @brief Non-zero while parsing an individual rule.
+ */
+int in_rule;
+
+/*!
+ *  @brief Whether yymore() is really used, regardless of detection.
+ */
+int yymore_really_used;
+
+/*!
+ *  @brief Whether REJECT is really used, regardless of detection.
+ */
+int reject_really_used;
+
+/*!
+ *  @brief Number of characters on the current output line.
+ */
+int datapos;
+
+/*!
+ *  @brief Number of contiguous lines of data in the current data statement.
+ */
+int dataline;
+
+/*!
+ *  @brief Current input line number.
+ */
+int linenum;
+
+/*!
+ *  @brief Current output line number.
+ */
+int out_linenum;
+
+/*!
+ *  @brief Skeleton file, or NULL when using the compiled-in skeleton.
+ */
 FILE *skelfile = NULL;
+
+/*!
+ *  @brief Index into the compiled-in skeleton array.
+ */
 int skel_ind = 0;
+
+/*!
+ *  @brief Array holding the rule actions.
+ */
 char *action_array;
-int action_size, defs1_offset, prolog_offset, action_offset, action_index;
-char *infilename = NULL, *outfilename = NULL;
+
+/*!
+ *  @brief Size of @ref action_array.
+ */
+int action_size;
+
+/*!
+ *  @brief Index where the user's section 1 definitions start.
+ */
+int defs1_offset;
+
+/*!
+ *  @brief Index where the prolog starts.
+ */
+int prolog_offset;
+
+/*!
+ *  @brief Index where the non-prolog actions start.
+ */
+int action_offset;
+
+/*!
+ *  @brief Index where the next action should go.
+ */
+int action_index;
+
+/*!
+ *  @brief Name of the input file.
+ */
+char *infilename = NULL;
+
+/*!
+ *  @brief Name of the output file.
+ */
+char *outfilename = NULL;
+
+/*!
+ *  @brief Whether outfilename was explicitly set.
+ */
 int did_outfilename;
-char *prefix, *yyclass;
-int do_stdinit, use_stdout;
-int onestate[ONE_STACK_SIZE], onesym[ONE_STACK_SIZE];
-int onenext[ONE_STACK_SIZE], onedef[ONE_STACK_SIZE], onesp;
-int current_mns, current_max_rules;
-int num_rules, num_eof_rules, default_rule, lastnfa;
-int *firstst, *lastst, *finalst, *transchar, *trans1, *trans2;
-int *accptnum, *assoc_rule, *state_type;
-int *rule_type, *rule_linenum, *rule_useful;
+
+/*!
+ *  @brief Prefix used for externally visible names ("yy" by default).
+ */
+char *prefix;
+
+/*!
+ *  @brief yyFlexLexer subclass to use for YY_DECL.
+ */
+char *yyclass;
+
+/*!
+ *  @brief Whether to initialize yyin/yyout to stdin/stdout.
+ */
+int do_stdinit;
+
+/*!
+ *  @brief Non-zero when -t was given (write scanner to stdout).
+ */
+int use_stdout;
+
+/*!
+ *  @brief Stack of states having only one out-transition.
+ */
+int onestate[ONE_STACK_SIZE];
+
+/*!
+ *  @brief Transition symbols for the one-transition stack.
+ */
+int onesym[ONE_STACK_SIZE];
+
+/*!
+ *  @brief Target states for the one-transition stack.
+ */
+int onenext[ONE_STACK_SIZE];
+
+/*!
+ *  @brief Default base entries for the one-transition stack.
+ */
+int onedef[ONE_STACK_SIZE];
+
+/*!
+ *  @brief Stack pointer for the one-transition stack.
+ */
+int onesp;
+
+/*!
+ *  @brief Current maximum on the number of NFA states.
+ */
+int current_mns;
+
+/*!
+ *  @brief Current maximum number of rules.
+ */
+int current_max_rules;
+
+/*!
+ *  @brief Number of rules created so far.
+ */
+int num_rules;
+
+/*!
+ *  @brief Number of <<EOF>> rules.
+ */
+int num_eof_rules;
+
+/*!
+ *  @brief Number of the default rule.
+ */
+int default_rule;
+
+/*!
+ *  @brief Last NFA state number created.
+ */
+int lastnfa;
+
+/*!
+ *  @brief Physically first state of each fragment.
+ */
+int *firstst;
+
+/*!
+ *  @brief Last physical state of each fragment.
+ */
+int *lastst;
+
+/*!
+ *  @brief Last logical state of each fragment.
+ */
+int *finalst;
+
+/*!
+ *  @brief Transition character of each NFA state.
+ */
+int *transchar;
+
+/*!
+ *  @brief First transition state.
+ */
+int *trans1;
+
+/*!
+ *  @brief Second transition state for epsilons.
+ */
+int *trans2;
+
+/*!
+ *  @brief Accepting number of each NFA state.
+ */
+int *accptnum;
+
+/*!
+ *  @brief Rule associated with each NFA state.
+ */
+int *assoc_rule;
+
+/*!
+ *  @brief State type of each NFA state.
+ */
+int *state_type;
+
+/*!
+ *  @brief Rule type of each rule.
+ */
+int *rule_type;
+
+/*!
+ *  @brief Line number associated with each rule.
+ */
+int *rule_linenum;
+
+/*!
+ *  @brief Non-zero if a rule can be matched.
+ */
+int *rule_useful;
+
+/*!
+ *  @brief Current type of state being made.
+ */
 int current_state_type;
+
+/*!
+ *  @brief Non-zero if variable trailing context rules are used.
+ */
 int variable_trailing_context_rules;
-int numtemps, numprots, protprev[MSP], protnext[MSP], prottbl[MSP];
-int protcomst[MSP], firstprot, lastprot, protsave[PROT_SAVE_SIZE];
-int numecs, nextecm[CSIZE + 1], ecgroup[CSIZE + 1], nummecs, tecfwd[CSIZE + 1];
+
+/*!
+ *  @brief Number of templates created.
+ */
+int numtemps;
+
+/*!
+ *  @brief Number of protos created.
+ */
+int numprots;
+
+/*!
+ *  @brief Backlink to a more-recently used proto.
+ */
+int protprev[MSP];
+
+/*!
+ *  @brief Forward link to a less-recently used proto.
+ */
+int protnext[MSP];
+
+/*!
+ *  @brief Base/def table entry for each proto.
+ */
+int prottbl[MSP];
+
+/*!
+ *  @brief Common state of each proto.
+ */
+int protcomst[MSP];
+
+/*!
+ *  @brief Number of the most recently used proto.
+ */
+int firstprot;
+
+/*!
+ *  @brief Number of the least recently used proto.
+ */
+int lastprot;
+
+/*!
+ *  @brief Saved state array for protos.
+ */
+int protsave[PROT_SAVE_SIZE];
+
+/*!
+ *  @brief Number of equivalence classes.
+ */
+int numecs;
+
+/*!
+ *  @brief Forward link of equivalence class members.
+ */
+int nextecm[CSIZE + 1];
+
+/*!
+ *  @brief Class number or backward link of EC members.
+ */
+int ecgroup[CSIZE + 1];
+
+/*!
+ *  @brief Number of meta-equivalence classes.
+ */
+int nummecs;
+
+/*!
+ *  @brief Forward link of meta-equivalence class members.
+ */
+int tecfwd[CSIZE + 1];
+
+/*!
+ *  @brief Backward link of meta-equivalence class members.
+ */
 int tecbck[CSIZE + 1];
-int lastsc, *scset, *scbol, *scxclu, *sceof;
+
+/*!
+ *  @brief Last start condition created.
+ */
+int lastsc;
+
+/*!
+ *  @brief Set of rules active in each start condition.
+ */
+int *scset;
+
+/*!
+ *  @brief Set of rules active at the beginning of line in each start condition.
+ */
+int *scbol;
+
+/*!
+ *  @brief Non-zero if a start condition is exclusive.
+ */
+int *scxclu;
+
+/*!
+ *  @brief Non-zero if a start condition has an EOF rule.
+ */
+int *sceof;
+
+/*!
+ *  @brief Current limit on the number of start conditions.
+ */
 int current_max_scs;
+
+/*!
+ *  @brief Names of start conditions.
+ */
 char **scname;
-int current_max_dfa_size, current_max_xpairs;
-int current_max_template_xpairs, current_max_dfas;
-int lastdfa, *nxt, *chk, *tnxt;
-int *base, *def, *nultrans, NUL_ec, tblend, firstfree, **dss, *dfasiz;
+
+/*!
+ *  @brief Current maximum number of NFA states in a DFA.
+ */
+int current_max_dfa_size;
+
+/*!
+ *  @brief Current maximum number of non-template transition pairs.
+ */
+int current_max_xpairs;
+
+/*!
+ *  @brief Current maximum number of template transition pairs.
+ */
+int current_max_template_xpairs;
+
+/*!
+ *  @brief Current maximum number of DFA states.
+ */
+int current_max_dfas;
+
+/*!
+ *  @brief Last DFA state number created.
+ */
+int lastdfa;
+
+/*!
+ *  @brief State to enter upon reading a character.
+ */
+int *nxt;
+
+/*!
+ *  @brief Check value for the nxt table.
+ */
+int *chk;
+
+/*!
+ *  @brief Internal nxt table for templates.
+ */
+int *tnxt;
+
+/*!
+ *  @brief Offset into nxt for a given state.
+ */
+int *base;
+
+/*!
+ *  @brief Destination when chk disallows the nxt entry.
+ */
+int *def;
+
+/*!
+ *  @brief NUL transition for each state.
+ */
+int *nultrans;
+
+/*!
+ *  @brief Equivalence class of the NUL character.
+ */
+int NUL_ec;
+
+/*!
+ *  @brief Last nxt/chk table entry being used.
+ */
+int tblend;
+
+/*!
+ *  @brief First empty entry in the nxt/chk table.
+ */
+int firstfree;
+
+/*!
+ *  @brief NFA state set for each DFA.
+ */
+int **dss;
+
+/*!
+ *  @brief Size of the NFA state set for each DFA.
+ */
+int *dfasiz;
+
+/*!
+ *  @brief Accepting set or accepting number for each DFA state.
+ */
 union dfaacc_union *dfaacc;
-int *accsiz, *dhash, numas;
-int numsnpairs, jambase, jamstate;
-int lastccl, *cclmap, *ccllen, *cclng, cclreuse;
-int current_maxccls, current_max_ccl_tbl_size;
+
+/*!
+ *  @brief Size of the accepting set for each DFA state.
+ */
+int *accsiz;
+
+/*!
+ *  @brief DFA state hash value.
+ */
+int *dhash;
+
+/*!
+ *  @brief Number of DFA accepting states created.
+ */
+int numas;
+
+/*!
+ *  @brief Number of state/nextstate transition pairs.
+ */
+int numsnpairs;
+
+/*!
+ *  @brief Position in base/def where the default jam table starts.
+ */
+int jambase;
+
+/*!
+ *  @brief State number corresponding to the "jam" state.
+ */
+int jamstate;
+
+/*!
+ *  @brief CCL index of the last created CCL.
+ */
+int lastccl;
+
+/*!
+ *  @brief Maps a CCL index to its set pointer.
+ */
+int *cclmap;
+
+/*!
+ *  @brief Length of each CCL.
+ */
+int *ccllen;
+
+/*!
+ *  @brief Non-zero for a negated CCL.
+ */
+int *cclng;
+
+/*!
+ *  @brief Number of times a CCL is reused.
+ */
+int cclreuse;
+
+/*!
+ *  @brief Current limit on the number of unique CCLs.
+ */
+int current_maxccls;
+
+/*!
+ *  @brief Current limit on the CCL table size.
+ */
+int current_max_ccl_tbl_size;
+
+/*!
+ *  @brief Characters in each CCL, indexed by cclmap.
+ */
 Char *ccltbl;
+
+/*!
+ *  @brief Last NAME scanned by the scanner.
+ */
 char nmstr[MAXLINE];
-int sectnum, nummt, hshcol, dfaeql, numeps, eps2, num_reallocs;
-int tmpuses, totnst, peakpairs, numuniq, numdup, hshsave;
-int num_backing_up, bol_needed;
+
+/*!
+ *  @brief Section number currently being parsed.
+ */
+int sectnum;
+
+/*!
+ *  @brief Number of empty nxt/chk table entries.
+ */
+int nummt;
+
+/*!
+ *  @brief Number of hash collisions detected by snstods.
+ */
+int hshcol;
+
+/*!
+ *  @brief Number of times a newly created DFA was equal to an old one.
+ */
+int dfaeql;
+
+/*!
+ *  @brief Number of epsilon NFA states created.
+ */
+int numeps;
+
+/*!
+ *  @brief Number of epsilon states with two out-transitions.
+ */
+int eps2;
+
+/*!
+ *  @brief Number of reallocations needed.
+ */
+int num_reallocs;
+
+/*!
+ *  @brief Number of DFA states that chain to templates.
+ */
+int tmpuses;
+
+/*!
+ *  @brief Total number of NFA states used to make DFA states.
+ */
+int totnst;
+
+/*!
+ *  @brief Peak number of transition pairs stored internally.
+ */
+int peakpairs;
+
+/*!
+ *  @brief Number of unique transitions.
+ */
+int numuniq;
+
+/*!
+ *  @brief Number of duplicate transitions.
+ */
+int numdup;
+
+/*!
+ *  @brief Number of hash collisions saved.
+ */
+int hshsave;
+
+/*!
+ *  @brief Number of DFA states requiring backing up.
+ */
+int num_backing_up;
+
+/*!
+ *  @brief Whether the scanner needs beginning-of-line recognition.
+ */
+int bol_needed;
+
+/*!
+ *  @brief File summarizing backing-up states.
+ */
 FILE *backing_up_file;
+
+/*!
+ *  @brief End-of-buffer DFA state number.
+ */
 int end_of_buffer_state;
+
+/*!
+ *  @brief Names of input files.
+ */
 char **input_files;
+
+/*!
+ *  @brief Number of input files.
+ */
 int num_input_files;
 
 /* Make sure program_name is initialized so we don't crash if writing
  * out an error message before getting the program name from argv[0].
  */
+
+/*!
+ *  @brief Name with which the program was invoked.
+ */
 char *program_name = "flex";
 
 #ifndef SHORT_FILE_NAMES
+/*!
+ *  @brief Template for the default output file name.
+ */
 static char *outfile_template = "lex.%s.%s";
+
+/*!
+ *  @brief Default backing-up report file name.
+ */
 static char *backing_name = "lex.backup";
 #else
 static char *outfile_template = "lex%s.%s";
@@ -126,11 +856,31 @@ static char *backing_name = "lex.bck";
 extern unsigned _stklen = 16384;
 #endif
 
+/*!
+ *  @brief Buffer for the generated output file path.
+ */
 static char outfile_path[MAXLINE];
+
+/*!
+ *  @brief Non-zero once the output file has been created.
+ */
 static int outfile_created = 0;
+
+/*!
+ *  @brief Name of the skeleton file given with -S.
+ */
 static char *skelname = NULL;
 
 
+/*!
+ *  @brief Main entry point of flex.
+ *
+ *  @param[in] argc Argument count.
+ *  @param[in] argv Argument vector.
+ *
+ *  @return Exit status.
+ *  @retval 0 On success.
+ */
 int main( argc, argv )
 int argc;
 char **argv;
@@ -172,7 +922,9 @@ char **argv;
 	}
 
 
-/* check_options - check user-specified options */
+/*!
+ *  @brief Checks user-specified options for consistency.
+ */
 
 void check_options()
 	{
@@ -305,6 +1057,11 @@ void check_options()
 
 	if ( strcmp( prefix, "yy" ) )
 		{
+/*!
+ *  @brief Emits a #define renaming a flex symbol with the given prefix.
+ *  @param[in] name Suffix of the symbol name.
+ *  @def GEN_PREFIX
+ */
 #define GEN_PREFIX(name) out_str3( "#define yy%s %s%s\n", name, prefix, name )
 		if ( C_plus_plus )
 			GEN_PREFIX( "FlexLexer" );
@@ -344,10 +1101,12 @@ void check_options()
 	}
 
 
-/* flexend - terminate flex
+/*!
+ *  @brief Terminates flex.
  *
- * note
- *    This routine does not return.
+ *  @param[in] exit_status Exit status.
+ *
+ *  @note This routine does not return.
  */
 
 void flexend( exit_status )
@@ -580,7 +1339,12 @@ _( "  %d/%d character classes needed %d/%d words of storage, %d reused\n" ),
 	}
 
 
-/* flexinit - initialize flex */
+/*!
+ *  @brief Initializes flex from the command line.
+ *
+ *  @param[in] argc Argument count.
+ *  @param[in] argv Argument vector.
+ */
 
 void flexinit( argc, argv )
 int argc;
@@ -855,7 +1619,9 @@ char **argv;
 	}
 
 
-/* readin - read in the rules section of the input file(s) */
+/*!
+ *  @brief Reads in the rules section of the input file(s).
+ */
 
 void readin()
 	{
@@ -1060,7 +1826,9 @@ _( "Variable trailing context rules entail a large performance penalty\n" ) );
 	}
 
 
-/* set_up_initial_allocations - allocate memory for internal tables */
+/*!
+ *  @brief Allocates memory for internal tables.
+ */
 
 void set_up_initial_allocations()
 	{
@@ -1116,6 +1884,10 @@ void set_up_initial_allocations()
 	nultrans = (int *) 0;
 	}
 
+
+/*!
+ *  @brief Prints the usage message.
+ */
 
 void usage()
 	{

@@ -28,20 +28,40 @@
 
 /* $Header: /home/daffy/u0/vern/flex/RCS/nfa.c,v 2.17 95/03/04 16:11:42 vern Exp $ */
 
+/*!
+ *  @file nfa.c
+ *  @brief NFA construction routines.
+ *
+ *  Provides the routines that build and combine NFA machines for the
+ *  regular expressions appearing in the input file.
+ */
+
 #include "flexdef.h"
 
 
 /* declare functions that have forward references */
 
+/*! @brief Makes a duplicate of a given machine.
+ *  @param[in] mach Machine to duplicate.
+ *  @return Duplicate machine.
+ */
 int dupmachine PROTO((int));
+
+/*! @brief Makes a transition from one state to another.
+ *  @param[in] statefrom Source state.
+ *  @param[in] stateto   Destination state.
+ */
 void mkxtion PROTO((int, int));
 
 
-/* add_accept - add an accepting state to a machine
+/*!
+ *  @brief Adds an accepting state to a machine.
  *
- * accepting_number becomes mach's accepting number.
+ *  accepting_number becomes mach's accepting number.
+ *
+ *  @param[in] mach             Machine to which the accepting state is added.
+ *  @param[in] accepting_number Accepting number to associate.
  */
-
 void add_accept( mach, accepting_number )
 int mach, accepting_number;
 	{
@@ -63,17 +83,22 @@ int mach, accepting_number;
 	}
 
 
-/* copysingl - make a given number of copies of a singleton machine
+/*!
+ *  @brief Makes a given number of copies of a singleton machine.
  *
- * synopsis
+ *  synopsis
  *
- *   newsng = copysingl( singl, num );
+ *    newsng = copysingl( singl, num );
  *
- *     newsng - a new singleton composed of num copies of singl
- *     singl  - a singleton machine
- *     num    - the number of copies of singl to be present in newsng
+ *      newsng - a new singleton composed of num copies of singl
+ *      singl  - a singleton machine
+ *      num    - the number of copies of singl to be present in newsng
+ *
+ *  @param[in] singl Singleton machine.
+ *  @param[in] num   Number of copies.
+ *
+ *  @return New machine composed of @p num copies of @p singl.
  */
-
 int copysingl( singl, num )
 int singl, num;
 	{
@@ -88,8 +113,11 @@ int singl, num;
 	}
 
 
-/* dumpnfa - debugging routine to write out an nfa */
-
+/*!
+ *  @brief Debugging routine to write out an NFA.
+ *
+ *  @param[in] state1 Start state.
+ */
 void dumpnfa( state1 )
 int state1;
 
@@ -128,23 +156,27 @@ int state1;
 	}
 
 
-/* dupmachine - make a duplicate of a given machine
+/*!
+ *  @brief Makes a duplicate of a given machine.
  *
- * synopsis
+ *  synopsis
  *
- *   copy = dupmachine( mach );
+ *    copy = dupmachine( mach );
  *
- *     copy - holds duplicate of mach
- *     mach - machine to be duplicated
+ *      copy - holds duplicate of mach
+ *      mach - machine to be duplicated
  *
- * note that the copy of mach is NOT an exact duplicate; rather, all the
- * transition states values are adjusted so that the copy is self-contained,
- * as the original should have been.
+ *  note that the copy of mach is NOT an exact duplicate; rather, all the
+ *  transition states values are adjusted so that the copy is self-contained,
+ *  as the original should have been.
  *
- * also note that the original MUST be contiguous, with its low and high
- * states accessible by the arrays firstst and lastst
+ *  also note that the original MUST be contiguous, with its low and high
+ *  states accessible by the arrays firstst and lastst
+ *
+ *  @param[in] mach Machine to duplicate.
+ *
+ *  @return Duplicate machine.
  */
-
 int dupmachine( mach )
 int mach;
 	{
@@ -183,18 +215,23 @@ int mach;
 	}
 
 
-/* finish_rule - finish up the processing for a rule
+/*!
+ *  @brief Finishes up the processing for a rule.
  *
- * An accepting number is added to the given machine.  If variable_trail_rule
- * is true then the rule has trailing context and both the head and trail
- * are variable size.  Otherwise if headcnt or trailcnt is non-zero then
- * the machine recognizes a pattern with trailing context and headcnt is
- * the number of characters in the matched part of the pattern, or zero
- * if the matched part has variable length.  trailcnt is the number of
- * trailing context characters in the pattern, or zero if the trailing
- * context has variable length.
+ *  An accepting number is added to the given machine.  If variable_trail_rule
+ *  is true then the rule has trailing context and both the head and trail
+ *  are variable size.  Otherwise if headcnt or trailcnt is non-zero then
+ *  the machine recognizes a pattern with trailing context and headcnt is
+ *  the number of characters in the matched part of the pattern, or zero
+ *  if the matched part has variable length.  trailcnt is the number of
+ *  trailing context characters in the pattern, or zero if the trailing
+ *  context has variable length.
+ *
+ *  @param[in] mach                Machine for the rule.
+ *  @param[in] variable_trail_rule Non-zero if the rule has variable trailing context.
+ *  @param[in] headcnt             Number of characters in the head, or zero.
+ *  @param[in] trailcnt            Number of trailing context characters, or zero.
  */
-
 void finish_rule( mach, variable_trail_rule, headcnt, trailcnt )
 int mach, variable_trail_rule, headcnt, trailcnt;
 	{
@@ -274,22 +311,27 @@ int mach, variable_trail_rule, headcnt, trailcnt;
 	}
 
 
-/* link_machines - connect two machines together
+/*!
+ *  @brief Connects two machines together.
  *
- * synopsis
+ *  synopsis
  *
- *   new = link_machines( first, last );
+ *    new = link_machines( first, last );
  *
- *     new    - a machine constructed by connecting first to last
- *     first  - the machine whose successor is to be last
- *     last   - the machine whose predecessor is to be first
+ *      new    - a machine constructed by connecting first to last
+ *      first  - the machine whose successor is to be last
+ *      last   - the machine whose predecessor is to be first
  *
- * note: this routine concatenates the machine first with the machine
- *  last to produce a machine new which will pattern-match first first
- *  and then last, and will fail if either of the sub-patterns fails.
- *  FIRST is set to new by the operation.  last is unmolested.
+ *  note: this routine concatenates the machine first with the machine
+ *   last to produce a machine new which will pattern-match first first
+ *   and then last, and will fail if either of the sub-patterns fails.
+ *   FIRST is set to new by the operation.  last is unmolested.
+ *
+ *  @param[in] first Machine whose successor is to be @p last.
+ *  @param[in] last  Machine whose predecessor is to be @p first.
+ *
+ *  @return The concatenated machine.
  */
-
 int link_machines( first, last )
 int first, last;
 	{
@@ -311,13 +353,13 @@ int first, last;
 	}
 
 
-/* mark_beginning_as_normal - mark each "beginning" state in a machine
- *                            as being a "normal" (i.e., not trailing context-
- *                            associated) states
+/*!
+ *  @brief Marks each beginning state in a machine as a normal state.
  *
- * The "beginning" states are the epsilon closure of the first state
+ *  The "beginning" states are the epsilon closure of the first state.
+ *
+ *  @param[in] mach Machine to process.
  */
-
 void mark_beginning_as_normal( mach )
 register int mach;
 	{
@@ -350,20 +392,25 @@ register int mach;
 	}
 
 
-/* mkbranch - make a machine that branches to two machines
+/*!
+ *  @brief Makes a machine that branches to two machines.
  *
- * synopsis
+ *  synopsis
  *
- *   branch = mkbranch( first, second );
+ *    branch = mkbranch( first, second );
  *
- *     branch - a machine which matches either first's pattern or second's
- *     first, second - machines whose patterns are to be or'ed (the | operator)
+ *      branch - a machine which matches either first's pattern or second's
+ *      first, second - machines whose patterns are to be or'ed (the | operator)
  *
- * Note that first and second are NEITHER destroyed by the operation.  Also,
- * the resulting machine CANNOT be used with any other "mk" operation except
- * more mkbranch's.  Compare with mkor()
+ *  Note that first and second are NEITHER destroyed by the operation.  Also,
+ *  the resulting machine CANNOT be used with any other "mk" operation except
+ *  more mkbranch's.  Compare with mkor()
+ *
+ *  @param[in] first  First alternative.
+ *  @param[in] second Second alternative.
+ *
+ *  @return Branching machine.
  */
-
 int mkbranch( first, second )
 int first, second;
 	{
@@ -384,14 +431,18 @@ int first, second;
 	}
 
 
-/* mkclos - convert a machine into a closure
+/*!
+ *  @brief Converts a machine into a closure.
  *
- * synopsis
- *   new = mkclos( state );
+ *  synopsis
+ *    new = mkclos( state );
  *
- * new - a new state which matches the closure of "state"
+ *  new - a new state which matches the closure of "state"
+ *
+ *  @param[in] state Machine to close.
+ *
+ *  @return Machine matching the closure of @p state.
  */
-
 int mkclos( state )
 int state;
 	{
@@ -399,20 +450,24 @@ int state;
 	}
 
 
-/* mkopt - make a machine optional
+/*!
+ *  @brief Makes a machine optional.
  *
- * synopsis
+ *  synopsis
  *
- *   new = mkopt( mach );
+ *    new = mkopt( mach );
  *
- *     new  - a machine which optionally matches whatever mach matched
- *     mach - the machine to make optional
+ *      new  - a machine which optionally matches whatever mach matched
+ *      mach - the machine to make optional
  *
- * notes:
- *     1. mach must be the last machine created
- *     2. mach is destroyed by the call
+ *  notes:
+ *      1. mach must be the last machine created
+ *      2. mach is destroyed by the call
+ *
+ *  @param[in] mach Machine to make optional.
+ *
+ *  @return Machine that optionally matches @p mach.
  */
-
 int mkopt( mach )
 int mach;
 	{
@@ -437,20 +492,25 @@ int mach;
 	}
 
 
-/* mkor - make a machine that matches either one of two machines
+/*!
+ *  @brief Makes a machine that matches either one of two machines.
  *
- * synopsis
+ *  synopsis
  *
- *   new = mkor( first, second );
+ *    new = mkor( first, second );
  *
- *     new - a machine which matches either first's pattern or second's
- *     first, second - machines whose patterns are to be or'ed (the | operator)
+ *      new - a machine which matches either first's pattern or second's
+ *      first, second - machines whose patterns are to be or'ed (the | operator)
  *
- * note that first and second are both destroyed by the operation
- * the code is rather convoluted because an attempt is made to minimize
- * the number of epsilon states needed
+ *  note that first and second are both destroyed by the operation
+ *  the code is rather convoluted because an attempt is made to minimize
+ *  the number of epsilon states needed
+ *
+ *  @param[in] first  First alternative.
+ *  @param[in] second Second alternative.
+ *
+ *  @return Machine matching either alternative.
  */
-
 int mkor( first, second )
 int first, second;
 	{
@@ -503,14 +563,18 @@ int first, second;
 	}
 
 
-/* mkposcl - convert a machine into a positive closure
+/*!
+ *  @brief Converts a machine into a positive closure.
  *
- * synopsis
- *   new = mkposcl( state );
+ *  synopsis
+ *    new = mkposcl( state );
  *
- *    new - a machine matching the positive closure of "state"
+ *     new - a machine matching the positive closure of "state"
+ *
+ *  @param[in] state Machine to close.
+ *
+ *  @return Machine matching the positive closure of @p state.
  */
-
 int mkposcl( state )
 int state;
 	{
@@ -531,18 +595,24 @@ int state;
 	}
 
 
-/* mkrep - make a replicated machine
+/*!
+ *  @brief Makes a replicated machine.
  *
- * synopsis
- *   new = mkrep( mach, lb, ub );
+ *  synopsis
+ *    new = mkrep( mach, lb, ub );
  *
- *    new - a machine that matches whatever "mach" matched from "lb"
- *          number of times to "ub" number of times
+ *     new - a machine that matches whatever "mach" matched from "lb"
+ *           number of times to "ub" number of times
  *
- * note
- *   if "ub" is INFINITY then "new" matches "lb" or more occurrences of "mach"
+ *  note
+ *    if "ub" is INFINITY then "new" matches "lb" or more occurrences of "mach"
+ *
+ *  @param[in] mach Machine to replicate.
+ *  @param[in] lb   Lower bound on the number of repetitions.
+ *  @param[in] ub   Upper bound, or INFINITY.
+ *
+ *  @return Replicated machine.
  */
-
 int mkrep( mach, lb, ub )
 int mach, lb, ub;
 	{
@@ -574,22 +644,26 @@ int mach, lb, ub;
 	}
 
 
-/* mkstate - create a state with a transition on a given symbol
+/*!
+ *  @brief Creates a state with a transition on a given symbol.
  *
- * synopsis
+ *  synopsis
  *
- *   state = mkstate( sym );
+ *    state = mkstate( sym );
  *
- *     state - a new state matching sym
- *     sym   - the symbol the new state is to have an out-transition on
+ *      state - a new state matching sym
+ *      sym   - the symbol the new state is to have an out-transition on
  *
- * note that this routine makes new states in ascending order through the
- * state array (and increments LASTNFA accordingly).  The routine DUPMACHINE
- * relies on machines being made in ascending order and that they are
- * CONTIGUOUS.  Change it and you will have to rewrite DUPMACHINE (kludge
- * that it admittedly is)
+ *  note that this routine makes new states in ascending order through the
+ *  state array (and increments LASTNFA accordingly).  The routine DUPMACHINE
+ *  relies on machines being made in ascending order and that they are
+ *  CONTIGUOUS.  Change it and you will have to rewrite DUPMACHINE (kludge
+ *  that it admittedly is)
+ *
+ *  @param[in] sym Symbol the new state transitions on.
+ *
+ *  @return New state number.
  */
-
 int mkstate( sym )
 int sym;
 	{
@@ -658,16 +732,19 @@ int sym;
 	}
 
 
-/* mkxtion - make a transition from one state to another
+/*!
+ *  @brief Makes a transition from one state to another.
  *
- * synopsis
+ *  synopsis
  *
- *   mkxtion( statefrom, stateto );
+ *    mkxtion( statefrom, stateto );
  *
- *     statefrom - the state from which the transition is to be made
- *     stateto   - the state to which the transition is to be made
+ *      statefrom - the state from which the transition is to be made
+ *      stateto   - the state to which the transition is to be made
+ *
+ *  @param[in] statefrom Source state.
+ *  @param[in] stateto   Destination state.
  */
-
 void mkxtion( statefrom, stateto )
 int statefrom, stateto;
 	{
@@ -685,8 +762,9 @@ int statefrom, stateto;
 		}
 	}
 
-/* new_rule - initialize for a new rule */
-
+/*!
+ *  @brief Initializes for a new rule.
+ */
 void new_rule()
 	{
 	if ( ++num_rules >= current_max_rules )

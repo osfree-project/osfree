@@ -28,9 +28,23 @@
 
 /* $Header: /home/daffy/u0/vern/flex/RCS/misc.c,v 2.47 95/04/28 11:39:39 vern Exp $ */
 
+/*!
+ *  @file misc.c
+ *  @brief Miscellaneous flex routines.
+ *
+ *  Provides error reporting, dynamic array helpers, output formatting,
+ *  string utilities and the skeleton-file copier.
+ */
+
 #include "flexdef.h"
 
 
+/*!
+ *  @brief Adds a #define to the action file.
+ *
+ *  @param[in] defname Macro name.
+ *  @param[in] value   Macro value.
+ */
 void action_define( defname, value )
 char *defname;
 int value;
@@ -49,6 +63,11 @@ int value;
 	}
 
 
+/*!
+ *  @brief Adds the given text to the stored actions.
+ *
+ *  @param[in] new_text Text to append.
+ */
 void add_action( new_text )
 char *new_text;
 	{
@@ -76,8 +95,14 @@ char *new_text;
 	}
 
 
-/* allocate_array - allocate memory for an integer array of the given size */
-
+/*!
+ *  @brief Allocates memory for an integer array of the given size.
+ *
+ *  @param[in] size         Number of elements.
+ *  @param[in] element_size Size of each element.
+ *
+ *  @return Pointer to the allocated memory.
+ */
 void *allocate_array( size, element_size )
 int size;
 size_t element_size;
@@ -94,8 +119,15 @@ size_t element_size;
 	}
 
 
-/* all_lower - true if a string is all lower-case */
-
+/*!
+ *  @brief Tests whether a string is all lower case.
+ *
+ *  @param[in] str String to test.
+ *
+ *  @return Non-zero if every character is lower case.
+ *  @retval 0 At least one character is not a lower-case letter.
+ *  @retval 1 All characters are lower-case letters.
+ */
 int all_lower( str )
 register char *str;
 	{
@@ -110,8 +142,15 @@ register char *str;
 	}
 
 
-/* all_upper - true if a string is all upper-case */
-
+/*!
+ *  @brief Tests whether a string is all upper case.
+ *
+ *  @param[in] str String to test.
+ *
+ *  @return Non-zero if every character is upper case.
+ *  @retval 0 At least one character is not an upper-case letter.
+ *  @retval 1 All characters are upper-case letters.
+ */
 int all_upper( str )
 register char *str;
 	{
@@ -126,21 +165,24 @@ register char *str;
 	}
 
 
-/* bubble - bubble sort an integer array in increasing order
+/*!
+ *  @brief Bubble-sorts an integer array in increasing order.
  *
- * synopsis
- *   int v[n], n;
- *   void bubble( v, n );
+ *  synopsis
+ *    int v[n], n;
+ *    void bubble( v, n );
  *
- * description
- *   sorts the first n elements of array v and replaces them in
- *   increasing order.
+ *  description
+ *    sorts the first n elements of array v and replaces them in
+ *    increasing order.
  *
- * passed
- *   v - the array to be sorted
- *   n - the number of elements of 'v' to be sorted
+ *  passed
+ *    v - the array to be sorted
+ *    n - the number of elements of 'v' to be sorted
+ *
+ *  @param[in,out] v Array to sort.
+ *  @param[in]     n Number of elements to sort.
  */
-
 void bubble( v, n )
 int v[], n;
 	{
@@ -157,11 +199,14 @@ int v[], n;
 	}
 
 
-/* check_char - checks a character to make sure it's within the range
- *		we're expecting.  If not, generates fatal error message
- *		and exits.
+/*!
+ *  @brief Checks that a character is within the expected range.
+ *
+ *  Checks a character to make sure it's within the range we're expecting.
+ *  If not, generates fatal error message and exits.
+ *
+ *  @param[in] c Character to check.
  */
-
 void check_char( c )
 int c;
 	{
@@ -177,8 +222,13 @@ int c;
 
 
 
-/* clower - replace upper-case letter to lower-case */
-
+/*!
+ *  @brief Replaces an upper-case letter with its lower-case equivalent.
+ *
+ *  @param[in] c Character to convert.
+ *
+ *  @return Lower-case equivalent, or @p c unchanged.
+ */
 Char clower( c )
 register int c;
 	{
@@ -186,8 +236,13 @@ register int c;
 	}
 
 
-/* copy_string - returns a dynamically allocated copy of a string */
-
+/*!
+ *  @brief Returns a dynamically allocated copy of a string.
+ *
+ *  @param[in] str String to copy.
+ *
+ *  @return Newly allocated copy.
+ */
 char *copy_string( str )
 register const char *str;
 	{
@@ -213,10 +268,13 @@ register const char *str;
 	}
 
 
-/* copy_unsigned_string -
- *    returns a dynamically allocated copy of a (potentially) unsigned string
+/*!
+ *  @brief Returns a dynamically allocated copy of a (potentially) unsigned string.
+ *
+ *  @param[in] str String to copy.
+ *
+ *  @return Newly allocated copy.
  */
-
 Char *copy_unsigned_string( str )
 register Char *str;
 	{
@@ -236,24 +294,28 @@ register Char *str;
 	}
 
 
-/* cshell - shell sort a character array in increasing order
+/*!
+ *  @brief Shell-sorts a character array in increasing order.
  *
- * synopsis
+ *  synopsis
  *
- *   Char v[n];
- *   int n, special_case_0;
- *   cshell( v, n, special_case_0 );
+ *    Char v[n];
+ *    int n, special_case_0;
+ *    cshell( v, n, special_case_0 );
  *
- * description
- *   Does a shell sort of the first n elements of array v.
- *   If special_case_0 is true, then any element equal to 0
- *   is instead assumed to have infinite weight.
+ *  description
+ *    Does a shell sort of the first n elements of array v.
+ *    If special_case_0 is true, then any element equal to 0
+ *    is instead assumed to have infinite weight.
  *
- * passed
- *   v - array to be sorted
- *   n - number of elements of v to be sorted
+ *  passed
+ *    v - array to be sorted
+ *    n - number of elements of v to be sorted
+ *
+ *  @param[in,out] v              Array to sort.
+ *  @param[in]     n              Number of elements to sort.
+ *  @param[in]     special_case_0 Non-zero to treat 0 as infinite weight.
  */
-
 void cshell( v, n, special_case_0 )
 Char v[];
 int n, special_case_0;
@@ -286,8 +348,9 @@ int n, special_case_0;
 	}
 
 
-/* dataend - finish up a block of data declarations */
-
+/*!
+ *  @brief Finishes up a block of data declarations.
+ */
 void dataend()
 	{
 	if ( datapos > 0 )
@@ -301,8 +364,9 @@ void dataend()
 	}
 
 
-/* dataflush - flush generated data statements */
-
+/*!
+ *  @brief Flushes generated data statements.
+ */
 void dataflush()
 	{
 	outc( '\n' );
@@ -321,8 +385,11 @@ void dataflush()
 	}
 
 
-/* flexerror - report an error message and terminate */
-
+/*!
+ *  @brief Reports an error message and terminates.
+ *
+ *  @param[in] msg Message to print.
+ */
 void flexerror( msg )
 const char msg[];
 	{
@@ -331,8 +398,9 @@ const char msg[];
 	}
 
 
-/* flexfatal - report a fatal error message and terminate */
-
+/** @brief Reports a fatal error message and terminates.
+ *  @param msg Message to print.
+ */
 void flexfatal( msg )
 const char msg[];
 	{
@@ -342,8 +410,10 @@ const char msg[];
 	}
 
 
-/* htoi - convert a hexadecimal digit string to an integer value */
-
+/** @brief Converts a hexadecimal digit string to an integer value.
+ *  @param str Hexadecimal string.
+ *  @return Converted value.
+ */
 int htoi( str )
 Char str[];
 	{
@@ -355,8 +425,12 @@ Char str[];
 	}
 
 
-/* lerrif - report an error message formatted with one integer argument */
-
+/*!
+ *  @brief Reports an error message formatted with one integer argument.
+ *
+ *  @param[in] msg Format string.
+ *  @param[in] arg Integer argument.
+ */
 void lerrif( msg, arg )
 const char msg[];
 int arg;
@@ -367,8 +441,10 @@ int arg;
 	}
 
 
-/* lerrsf - report an error message formatted with one string argument */
-
+/** @brief Reports an error message formatted with one string argument.
+ *  @param msg Format string.
+ *  @param arg String argument.
+ */
 void lerrsf( msg, arg )
 const char msg[], arg[];
 	{
@@ -379,8 +455,10 @@ const char msg[], arg[];
 	}
 
 
-/* line_directive_out - spit out a "#line" statement */
-
+/** @brief Emits a #line statement.
+ *  @param output_file Output stream, or NULL to add to the action array.
+ *  @param do_infile   Non-zero to use the input file name.
+ */
 void line_directive_out( output_file, do_infile )
 FILE *output_file;
 int do_infile;
@@ -434,9 +512,11 @@ int do_infile;
 	}
 
 
-/* mark_defs1 - mark the current position in the action array as
- *               representing where the user's section 1 definitions end
- *		 and the prolog begins
+/*!
+ *  @brief Marks the end of the user's section 1 definitions.
+ *
+ *  Marks the current position in the action array as representing where
+ *  the user's section 1 definitions end and the prolog begins.
  */
 void mark_defs1()
 	{
@@ -447,8 +527,11 @@ void mark_defs1()
 	}
 
 
-/* mark_prolog - mark the current position in the action array as
- *               representing the end of the action prolog
+/*!
+ *  @brief Marks the end of the action prolog.
+ *
+ *  Marks the current position in the action array as representing the end
+ *  of the action prolog.
  */
 void mark_prolog()
 	{
@@ -458,9 +541,12 @@ void mark_prolog()
 	}
 
 
-/* mk2data - generate a data statement for a two-dimensional array
+/*!
+ *  @brief Generates a data statement for a two-dimensional array.
  *
- * Generates a data statement initializing the current 2-D array to "value".
+ *  Generates a data statement initializing the current 2-D array to "value".
+ *
+ *  @param[in] value Value to emit.
  */
 void mk2data( value )
 int value;
@@ -484,10 +570,13 @@ int value;
 	}
 
 
-/* mkdata - generate a data statement
+/*!
+ *  @brief Generates a data statement.
  *
- * Generates a data statement initializing the current array element to
- * "value".
+ *  Generates a data statement initializing the current array element to
+ *  "value".
+ *
+ *  @param[in] value Value to emit.
  */
 void mkdata( value )
 int value;
@@ -510,8 +599,13 @@ int value;
 	}
 
 
-/* myctoi - return the integer represented by a string of digits */
-
+/*!
+ *  @brief Returns the integer represented by a string of digits.
+ *
+ *  @param[in] array Digit string.
+ *
+ *  @return Converted value.
+ */
 int myctoi( array )
 char array[];
 	{
@@ -523,8 +617,13 @@ char array[];
 	}
 
 
-/* myesc - return character corresponding to escape sequence */
-
+/*!
+ *  @brief Returns the character corresponding to an escape sequence.
+ *
+ *  @param[in] array Escape sequence text.
+ *
+ *  @return Decoded character.
+ */
 Char myesc( array )
 Char array[];
 	{
@@ -603,8 +702,13 @@ Char array[];
 	}
 
 
-/* otoi - convert an octal digit string to an integer value */
-
+/*!
+ *  @brief Converts an octal digit string to an integer value.
+ *
+ *  @param[in] str Octal string.
+ *
+ *  @return Converted value.
+ */
 int otoi( str )
 Char str[];
 	{
@@ -615,10 +719,11 @@ Char str[];
 	}
 
 
-/* out - various flavors of outputing a (possibly formatted) string for the
- *	 generated scanner, keeping track of the line count.
+/*!
+ *  @brief Outputs a string, keeping track of the line count.
+ *
+ *  @param[in] str String to output.
  */
-
 void out( str )
 const char str[];
 	{
@@ -626,6 +731,11 @@ const char str[];
 	out_line_count( str );
 	}
 
+
+/** @brief Outputs a formatted string with one integer argument.
+ *  @param fmt Format string.
+ *  @param n   Integer argument.
+ */
 void out_dec( fmt, n )
 const char fmt[];
 int n;
@@ -634,6 +744,12 @@ int n;
 	out_line_count( fmt );
 	}
 
+
+/** @brief Outputs a formatted string with two integer arguments.
+ *  @param fmt Format string.
+ *  @param n1  First integer argument.
+ *  @param n2  Second integer argument.
+ */
 void out_dec2( fmt, n1, n2 )
 const char fmt[];
 int n1, n2;
@@ -642,6 +758,11 @@ int n1, n2;
 	out_line_count( fmt );
 	}
 
+
+/** @brief Outputs a formatted string with one unsigned argument in hex.
+ *  @param fmt Format string.
+ *  @param x   Unsigned argument.
+ */
 void out_hex( fmt, x )
 const char fmt[];
 unsigned int x;
@@ -650,6 +771,10 @@ unsigned int x;
 	out_line_count( fmt );
 	}
 
+
+/** @brief Updates the output line count for a string.
+ *  @param str String to scan.
+ */
 void out_line_count( str )
 const char str[];
 	{
@@ -660,6 +785,11 @@ const char str[];
 			++out_linenum;
 	}
 
+
+/** @brief Outputs a formatted string with one string argument.
+ *  @param fmt Format string.
+ *  @param str String argument.
+ */
 void out_str( fmt, str )
 const char fmt[], str[];
 	{
@@ -668,6 +798,13 @@ const char fmt[], str[];
 	out_line_count( str );
 	}
 
+
+/** @brief Outputs a formatted string with three string arguments.
+ *  @param fmt Format string.
+ *  @param s1  First string argument.
+ *  @param s2  Second string argument.
+ *  @param s3  Third string argument.
+ */
 void out_str3( fmt, s1, s2, s3 )
 const char fmt[], s1[], s2[], s3[];
 	{
@@ -678,6 +815,12 @@ const char fmt[], s1[], s2[], s3[];
 	out_line_count( s3 );
 	}
 
+
+/** @brief Outputs a formatted string with a string and an integer argument.
+ *  @param fmt Format string.
+ *  @param str String argument.
+ *  @param n   Integer argument.
+ */
 void out_str_dec( fmt, str, n )
 const char fmt[], str[];
 int n;
@@ -687,6 +830,10 @@ int n;
 	out_line_count( str );
 	}
 
+
+/** @brief Outputs a single character, keeping track of the line count.
+ *  @param c Character to output.
+ */
 void outc( c )
 int c;
 	{
@@ -696,6 +843,12 @@ int c;
 		++out_linenum;
 	}
 
+
+/*!
+ *  @brief Outputs a string followed by a newline.
+ *
+ *  @param[in] str String to output.
+ */
 void outn( str )
 const char str[];
 	{
@@ -705,11 +858,13 @@ const char str[];
 	}
 
 
-/* readable_form - return the the human-readable form of a character
+/** @brief Returns the human-readable form of a character.
  *
- * The returned string is in static storage.
+ *  The returned string is in static storage.
+ *
+ *  @param c Character code.
+ *  @return Pointer to a static buffer with the printable form.
  */
-
 char *readable_form( c )
 register int c;
 	{
@@ -750,8 +905,15 @@ register int c;
 	}
 
 
-/* reallocate_array - increase the size of a dynamic array */
-
+/*!
+ *  @brief Increases the size of a dynamic array.
+ *
+ *  @param[in] array        Array to resize.
+ *  @param[in] size         New number of elements.
+ *  @param[in] element_size Size of each element.
+ *
+ *  @return Pointer to the resized array.
+ */
 void *reallocate_array( array, size, element_size )
 void *array;
 int size;
@@ -768,11 +930,12 @@ size_t element_size;
 	}
 
 
-/* skelout - write out one section of the skeleton file
+/*!
+ *  @brief Writes out one section of the skeleton file.
  *
- * Description
- *    Copies skelfile or skel array to stdout until a line beginning with
- *    "%%" or EOF is found.
+ *  Description
+ *     Copies skelfile or skel array to stdout until a line beginning with
+ *     "%%" or EOF is found.
  */
 void skelout()
 	{
@@ -826,12 +989,15 @@ void skelout()
 	}
 
 
-/* transition_struct_out - output a yy_trans_info structure
+/*!
+ *  @brief Outputs a yy_trans_info structure.
  *
- * outputs the yy_trans_info structure with the two elements, element_v and
- * element_n.  Formats the output with spaces and carriage returns.
+ *  Outputs the yy_trans_info structure with the two elements, element_v and
+ *  element_n.  Formats the output with spaces and carriage returns.
+ *
+ *  @param[in] element_v First element.
+ *  @param[in] element_n Second element.
  */
-
 void transition_struct_out( element_v, element_n )
 int element_v, element_n;
 	{
@@ -851,8 +1017,15 @@ int element_v, element_n;
 	}
 
 
-/* The following is only needed when building flex's parser using certain
- * broken versions of bison.
+/*!
+ *  @brief Allocates memory, terminating on failure.
+ *
+ *  The following is only needed when building flex's parser using certain
+ *  broken versions of bison.
+ *
+ *  @param[in] size Number of bytes to allocate.
+ *
+ *  @return Pointer to the allocated memory.
  */
 void *yy_flex_xmalloc( size )
 int size;
@@ -867,11 +1040,15 @@ int size;
 	}
 
 
-/* zero_out - set a region of memory to 0
+/*!
+ *  @brief Sets a region of memory to 0.
  *
- * Sets region_ptr[0] through region_ptr[size_in_bytes - 1] to zero.
+ *  Description
+ *     Sets region_ptr[0] through region_ptr[size_in_bytes - 1] to zero.
+ *
+ *  @param[in] region_ptr    Start of the region.
+ *  @param[in] size_in_bytes Size of the region in bytes.
  */
-
 void zero_out( region_ptr, size_in_bytes )
 char *region_ptr;
 size_t size_in_bytes;
