@@ -174,11 +174,9 @@ extern void warni PARAMS((char *, int));
  */
 extern void warns PARAMS((char *, char *));
 
-/*!< Buffer for storing the current token. */
-char *token_buffer;
+char *token_buffer; /*!< Buffer for storing the current token. */
 
-/*!< Allocated size of token_buffer, not including space for terminator. */
-int maxtoken;
+int maxtoken; /*!< Allocated size of token_buffer, not including space for terminator. */
 
 bucket *symval;     /*!< Symbol table entry of the last identifier read. */
 int numval;         /*!< Numeric value of the last NUMBER token read. */

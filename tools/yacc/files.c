@@ -98,8 +98,8 @@ FILE *fguard = NULL;    /*!< Optional file containing the guard code. */
 FILE *faction = NULL;   /*!< File containing all the action code. */
 FILE *fparser = NULL;   /*!< Parser skeleton to copy into ftable. */
 
-/*!< Output file name given by -o, or 0 if no -o was specified. */
-char *spec_outfile;
+
+char *spec_outfile;     /*!< Output file name given by -o, or 0 if no -o was specified. */
 
 char *infile;           /*!< Input grammar file name. */
 char *outfile;          /*!< Name of the verbose output file. */

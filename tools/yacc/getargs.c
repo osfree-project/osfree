@@ -65,8 +65,7 @@ void usage PARAMS((FILE *));
  */
 void getargs PARAMS((int, char *[]));
 
-/*!< Name of the running program, used in diagnostics. */
-extern char *program_name;
+extern char *program_name; /*!< Name of the running program, used in diagnostics. */
 
 /*!
  *  @brief Reports a warning with one string argument.
