@@ -28,10 +28,21 @@
 
 /* $Header: /home/daffy/u0/vern/flex/RCS/ccl.c,v 2.9 93/09/16 20:32:14 vern Exp $ */
 
+/*!
+ *  @file ccl.c
+ *  @brief Routines for character classes.
+ *
+ *  Provides ccladd(), cclinit(), cclnegate() and list_character_set().
+ */
+
 #include "flexdef.h"
 
-/* ccladd - add a single character to a ccl */
-
+/*!
+ *  @brief Adds a single character to a character class.
+ *
+ *  @param[in] cclp Character class index.
+ *  @param[in] ch   Character to add.
+ */
 void ccladd( cclp, ch )
 int cclp;
 int ch;
@@ -66,8 +77,11 @@ int ch;
 	}
 
 
-/* cclinit - return an empty ccl */
-
+/*!
+ *  @brief Returns an empty character class.
+ *
+ *  @return Index of the newly created character class.
+ */
 int cclinit()
 	{
 	if ( ++lastccl >= current_maxccls )
@@ -100,8 +114,11 @@ int cclinit()
 	}
 
 
-/* cclnegate - negate the given ccl */
-
+/*!
+ *  @brief Negates the given character class.
+ *
+ *  @param[in] cclp Character class index.
+ */
 void cclnegate( cclp )
 int cclp;
 	{
@@ -109,13 +126,16 @@ int cclp;
 	}
 
 
-/* list_character_set - list the members of a set of characters in CCL form
+/*!
+ *  @brief Lists the members of a set of characters in CCL form.
  *
- * Writes to the given file a character-class representation of those
- * characters present in the given CCL.  A character is present if it
- * has a non-zero value in the cset array.
+ *  Writes to the given file a character-class representation of those
+ *  characters present in the given CCL.  A character is present if it
+ *  has a non-zero value in the cset array.
+ *
+ *  @param[in] file Output stream.
+ *  @param[in] cset Character set array.
  */
-
 void list_character_set( file, cset )
 FILE *file;
 int cset[];
