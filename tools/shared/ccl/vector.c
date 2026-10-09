@@ -85,7 +85,9 @@ static unsigned char *element_at(VECTORCTL *pCtl, unsigned long ulIndex) {
  *         below.
  *
  * @retval NO_ERROR                 Success.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed, or the
+ *                                  requested size would overflow
+ *                                  the addressable range.
  */
 static APIRET vector_reserve(VECTORCTL *pCtl, unsigned long ulNeeded) {
     unsigned long ulNewCapacity;
@@ -101,6 +103,10 @@ static APIRET vector_reserve(VECTORCTL *pCtl, unsigned long ulNeeded) {
         }
         ulNewCapacity *= 2;
     }
+
+    /* Reject a capacity that would make the byte size overflow. */
+    if (ulNewCapacity > (unsigned long)-1 / pCtl->ulElemSize)
+        return ERROR_NOT_ENOUGH_MEMORY;
 
     pbNew = (unsigned char *)realloc(pCtl->pbData,
                                      (size_t)ulNewCapacity *

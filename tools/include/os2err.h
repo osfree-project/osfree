@@ -55,6 +55,20 @@ extern "C" {
  *  Value: 30. */
 #define ERROR_READ_FAULT            30
 
+/*!
+ * @def ERROR_NOT_SUPPORTED
+ * @brief The requested operation is not supported.
+ * @par Value
+ *   50 (0x32). Source: IBM OS/2 BSEERR.H.
+ */
+#define ERROR_NOT_SUPPORTED         50
+
+/*!
+ * @def ERROR_FILE_EXISTS
+ * @brief The file or an exported name already exists.
+ */
+#define ERROR_FILE_EXISTS           80
+
 /** @brief One or more parameters are not valid. Value: 87. */
 #define ERROR_INVALID_PARAMETER     87
 

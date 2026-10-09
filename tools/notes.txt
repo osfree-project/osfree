@@ -122,3 +122,83 @@ msg\					Generate them...
 samples\				Will be missed? Or write something?
 som\					Reuse somFree/somLite. See notes.txt in SOM directory for content
 speech\					Most probably will not be implemented
+
+
+
+
+## Правила именования функций
+
+1. **Общий шаблон.** Имя функции строится по схеме «класс + глагол + существительное»: `Dll` (класс) + `FindFirst` (глагол) + `Export` (объект) -> `DllFindFirstExport`.
+
+2. **Канонические глаголы.** SAA CPI определяет четыре канонических глагола: **Create**, **Get**, **Set**, **Query**.
+
+3. **Значения глаголов:**
+   - **Create** — создать новый ресурс.
+   - **Get** — получить ресурс или его содержимое.
+   - **Set** — изменить системное значение или состояние.
+   - **Query** — запросить информацию о существующем объекте (атрибуты, состояние, признак).
+
+4. **Итерация.** Для перебора элементов коллекции используется отдельный паттерн: `FindFirst` / `FindNext` / `FindClose`. Эти имена не входят в канонический набор SAA CPI, но являются стандартом OS/2 Control Program API.
+
+5. **Применение в проекте.** Класс `Dll`, объект `Export`:
+   - итерация: `DllFindFirstExport`, `DllFindNextExport`, `DllFindCloseExport`;
+   - запрос атрибутов: `DllQueryExportByName`, `DllQueryExportByOrdinal`, `DllQueryExportName`, `DllQueryExportOrdinal`, `DllQueryExportFlags`, `DllQueryExportNamed`, `DllQueryExportGlobalData`, `DllQueryExportForwarder`, `DllQueryExportConvention`;
+   - запись: `DllSetForwarder` (глагол Set, единственная write-операция).
+
+## Фактчекинг
+
+### 1. Шаблон «класс + глагол + существительное»
+
+**Источник:** SAA CPI C Reference, Level 2 (SC09-1308-02). Документ указан в списке документации OS/2 (EDM2, «Systems Application Architecture Library»).
+
+Прямой цитаты с формулировкой шаблона в доступных результатах поиска нет — PDF-версия документа недоступна для открытия. Правило подтверждается косвенно: во всех функциях OS/2 API класс (`Dos`, `Dll`) стоит первым, затем глагол, затем объект.
+
+### 2. Канонические глаголы Create, Get, Set, Query
+
+**Источник:** OS/2 Control Program Programming Reference. В результатах поиска зафиксировано прямое утверждение:
+
+> «The use of the terms Create, Get, Set and Query in function names is in accordance with SAA conventions».
+
+Это подтверждает, что OS/2 API следует SAA в выборе глаголов. Сам документ — `S10G-6263-00`, Control Program Programming Reference, входит в OS/2 2.0 Technical Library.
+
+### 3. Значения глаголов
+
+**Get** (получить ресурс) и **Query** (запросить атрибут) в доступных источниках различаются по объекту запроса:
+
+- **DosGet*** — получение ресурса: `DosGetEnv` (адрес строки окружения), `DosGetDateTime` (текущие дата и время), `DosGetMessage` (сообщение из файла), `DosGetVersion` (версия).
+- **DosQuery*** / **DosQ*** — запрос атрибутов существующего объекта: `DosQSysInfo` / `DosQuerySysInfo` (системная информация), `DosQueryQueue` (размер очереди), `DosQFileInfo` / `DosQueryFileInfo` (размер, атрибуты, дата и время файла), `DosQVerify` / `DosQueryVerify` (состояние флага read-after-write).
+
+Таким образом, Get применяется к ресурсам, которые можно «взять», Query — к свойствам уже существующего объекта.
+
+**Set** и **Create** в доступных результатах поиска прямо не проиллюстрированы, но следуют из того же утверждения о соответствии SAA: Set — изменение, Create — создание.
+
+### 4. Паттерн итерации FindFirst / FindNext / FindClose
+
+**Источник:** OS/2 Control Program API, функции `DosFindFirst`, `DosFindNext`, `DosFindClose`.
+
+Описание из документации:
+
+> «To find all files that match the file specification, issue `DosFindNext` repeatedly until the message `ERROR_NO_MORE_FILES` is returned. Then issue `DosFindClose` to close the directory handle».
+
+> «`DosFindFirst` searches the current directory and locates the first file name that matches the given pattern. `DosFindNext` locates the next matching file name... The directory handle returned by `DosFindFirst` must be used in subsequent calls to `DosFindNext`».
+
+Это не отдельный пункт SAA CPI, а стандартный паттерн OS/2 API для итерации. Глагол `Find` в канонический набор SAA CPI не входит, но в OS/2 API он закреплён за тремя функциями-курсорами.
+
+### 5. Что не удалось подтвердить
+
+- **Точная цитата из SAA CPI C Reference** о том, что канонических глаголов ровно четыре и они перечислены как Create, Get, Set, Query. PDF-версия документа (SC09-1308-02) в доступных результатах поиска не открылась. Утверждение о четырёх глаголах основано на косвенном подтверждении из OS/2 Control Program Programming Reference.
+- **Точное определение каждого глагола** (например, «Query возвращает информацию о существующем объекте») в виде нормативной формулировки. Различие Get/Query выведено из практики OS/2 API, а не из процитированного определения.
+
+## Вывод
+
+Правила, которым следует проект:
+
+| Глагол | Назначение | Пример в проекте |
+|---|---|---|
+| `FindFirst` / `FindNext` / `FindClose` | итерация по коллекции | `DllFindFirstExport`, `DllFindNextExport`, `DllFindCloseExport` |
+| `Query` | запрос атрибута или признака существующего объекта | `DllQueryExportName`, `DllQueryExportFlags`, `DllQueryExportNamed`, `DllQueryExportForwarder` |
+| `Set` | изменение состояния | `DllSetForwarder` |
+
+Имена `DllQueryExportByName` и `DllQueryExportByOrdinal` следуют шаблону «класс + глагол + объект + предлог + критерий»: класс `Dll`, глагол `Query`, объект `Export`, `ByName`/`ByOrdinal` — критерий.
+
+Если нужна более глубокая проверка по конкретному пункту SAA CPI C Reference — пришлите текст соответствующего раздела, и я сверю формулировки дословно.
