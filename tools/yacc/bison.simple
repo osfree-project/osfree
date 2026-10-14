@@ -36,6 +36,10 @@
 #else /* alloca not defined */
 #ifdef __GNUC__
 #define YYSTACK_USE_ALLOCA
+/*!
+ *  @brief Use the GNU C built-in alloca.
+ *  @def alloca
+ */
 #define alloca __builtin_alloca
 #else /* not GNU C.  */
 #if (!defined (__STDC__) && defined (sparc)) || defined (__sparc__) || defined (__sparc) || defined (__sgi) || (defined (__sun) && defined (__i386))
@@ -63,6 +67,10 @@
 #ifdef __hpux /* haible@ilog.fr says this works for HPUX 9.05 and up,
 		 and on HPUX 10.  Eventually we can turn this on.  */
 #define YYSTACK_USE_ALLOCA
+/*!
+ *  @brief HP-UX built-in alloca (currently disabled).
+ *  @def alloca
+ */
 #define alloca __builtin_alloca
 #endif /* __hpux */
 #endif
@@ -74,8 +82,16 @@
 #endif /* YYSTACK_USE_ALLOCA not defined */
 
 #ifdef YYSTACK_USE_ALLOCA
+/*!
+ *  @brief Selects the stack-allocation primitive used by the parser.
+ *  @def YYSTACK_ALLOC
+ */
 #define YYSTACK_ALLOC alloca
 #else
+/*!
+ *  @brief Selects the stack-allocation primitive used by the parser.
+ *  @def YYSTACK_ALLOC
+ */
 #define YYSTACK_ALLOC malloc
 #endif
 
@@ -83,19 +99,72 @@
    It is replaced by the list of actions, each action
    as one case of the switch.  */
 
+/*!
+ *  @brief Resets the error-recovery status of the parser.
+ *  @def yyerrok
+ */
 #define yyerrok		(yyerrstatus = 0)
+
+/*!
+ *  @brief Discards the current lookahead token.
+ *  @def yyclearin
+ */
 #define yyclearin	(yychar = YYEMPTY)
+
+/*!
+ *  @brief Sentinel value meaning "no lookahead token yet".
+ *  @def YYEMPTY
+ */
 #define YYEMPTY		-2
+
+/*!
+ *  @brief Internal token number meaning end of input.
+ *  @def YYEOF
+ */
 #define YYEOF		0
+
+/*!
+ *  @brief Accepts the current parse and returns success.
+ *  @def YYACCEPT
+ */
 #define YYACCEPT	goto yyacceptlab
+
+/*!
+ *  @brief Aborts the current parse and returns failure.
+ *  @def YYABORT
+ */
 #define YYABORT 	goto yyabortlab
+
+/*!
+ *  @brief Raises a syntax error and enters error recovery without
+ *         calling yyerror().
+ *  @def YYERROR
+ */
 #define YYERROR		goto yyerrlab1
+
 /* Like YYERROR except do call yyerror.
    This remains here temporarily to ease the
    transition to the new meaning of YYERROR, for GCC.
    Once GCC version 2 has supplanted version 1, this can go.  */
+
+/*!
+ *  @brief Raises a syntax error and calls yyerror() first.
+ *  @def YYFAIL
+ */
 #define YYFAIL		goto yyerrlab
+
+/*!
+ *  @brief Non-zero while the parser is recovering from an error.
+ *  @def YYRECOVERING
+ */
 #define YYRECOVERING()  (!!yyerrstatus)
+
+/*!
+ *  @brief Pushes back a token together with its value.
+ *  @def YYBACKUP
+ *  @param token Token to push back.
+ *  @param value Semantic value to push back.
+ */
 #define YYBACKUP(token, value) \
 do								\
   if (yychar == YYEMPTY && yylen == 1)				\
@@ -108,24 +177,53 @@ do								\
     { yyerror ("syntax error: cannot back up"); YYERROR; }	\
 while (0)
 
+/*!
+ *  @brief Internal token number of the `error` token.
+ *  @def YYTERROR
+ */
 #define YYTERROR	1
+
+/*!
+ *  @brief External token number of the `error` token.
+ *  @def YYERRCODE
+ */
 #define YYERRCODE	256
 
 #ifndef YYPURE
+/*!
+ *  @brief Invocation of the user-supplied lexical analyzer.
+ *  @def YYLEX
+ */
 #define YYLEX		yylex()
 #endif
 
 #ifdef YYPURE
 #ifdef YYLSP_NEEDED
 #ifdef YYLEX_PARAM
+/*!
+ *  @brief Pure-parser lexical analyzer call, with locations and user parameter.
+ *  @def YYLEX
+ */
 #define YYLEX		yylex(&yylval, &yylloc, YYLEX_PARAM)
 #else
+/*!
+ *  @brief Pure-parser lexical analyzer call, with locations.
+ *  @def YYLEX
+ */
 #define YYLEX		yylex(&yylval, &yylloc)
 #endif
 #else /* not YYLSP_NEEDED */
 #ifdef YYLEX_PARAM
+/*!
+ *  @brief Pure-parser lexical analyzer call, with user parameter.
+ *  @def YYLEX
+ */
 #define YYLEX		yylex(&yylval, YYLEX_PARAM)
 #else
+/*!
+ *  @brief Pure-parser lexical analyzer call.
+ *  @def YYLEX
+ */
 #define YYLEX		yylex(&yylval)
 #endif
 #endif /* not YYLSP_NEEDED */
@@ -156,6 +254,10 @@ int yydebug;			/*  nonzero means print parse trace	*/
 /*  YYINITDEPTH indicates the initial size of the parser's stacks	*/
 
 #ifndef	YYINITDEPTH
+/*!
+ *  @brief Initial size of the parser's state and value stacks.
+ *  @def YYINITDEPTH
+ */
 #define YYINITDEPTH 200
 #endif
 
@@ -167,21 +269,40 @@ int yydebug;			/*  nonzero means print parse trace	*/
 #endif
 
 #ifndef YYMAXDEPTH
+/*!
+ *  @brief Maximum size to which the parser's stacks can grow.
+ *  @def YYMAXDEPTH
+ */
 #define YYMAXDEPTH 10000
 #endif
-
+
 /* Define __yy_memcpy.  Note that the size argument
    should be passed with type unsigned int, because that is what the non-GCC
    definitions require.  With GCC, __builtin_memcpy takes an arg
    of type size_t, but it can handle unsigned int.  */
 
 #if __GNUC__ > 1		/* GNU C and GNU C++ define this.  */
+/*!
+ *  @brief Memory-copy primitive used by the stack-extension code.
+ *  @def __yy_memcpy
+ *  @param TO    Destination pointer.
+ *  @param FROM  Source pointer.
+ *  @param COUNT Number of bytes to copy.
+ */
 #define __yy_memcpy(TO,FROM,COUNT)	__builtin_memcpy(TO,FROM,COUNT)
 #else				/* not GNU C or C++ */
 #ifndef __cplusplus
 
 /* This is the most reliable way to avoid incompatibilities
    in available built-in functions on various systems.  */
+
+/*!
+ *  @brief Portable memory-copy primitive used by the stack-extension code.
+ *
+ *  @param[in] to    Destination pointer.
+ *  @param[in] from  Source pointer.
+ *  @param[in] count Number of bytes to copy.
+ */
 static void
 __yy_memcpy (to, from, count)
      char *to;
@@ -200,6 +321,14 @@ __yy_memcpy (to, from, count)
 
 /* This is the most reliable way to avoid incompatibilities
    in available built-in functions on various systems.  */
+
+/*!
+ *  @brief Portable memory-copy primitive used by the stack-extension code.
+ *
+ *  @param[in] to    Destination pointer.
+ *  @param[in] from  Source pointer.
+ *  @param[in] count Number of bytes to copy.
+ */
 static void
 __yy_memcpy (char *to, char *from, unsigned int count)
 {
@@ -213,7 +342,7 @@ __yy_memcpy (char *to, char *from, unsigned int count)
 
 #endif
 #endif
-
+
 #line 217 "/emx/share/bison.simple"
 
 /* The user can define YYPARSE_PARAM as the name of an argument to be passed
@@ -224,14 +353,38 @@ __yy_memcpy (char *to, char *from, unsigned int count)
 
 #ifdef YYPARSE_PARAM
 #ifdef __cplusplus
+/*!
+ *  @brief Declares the user-supplied yyparse() parameter (C++ form).
+ *  @def YYPARSE_PARAM_ARG
+ */
 #define YYPARSE_PARAM_ARG void *YYPARSE_PARAM
+/*!
+ *  @brief Empty declaration used with the C++ form.
+ *  @def YYPARSE_PARAM_DECL
+ */
 #define YYPARSE_PARAM_DECL
 #else /* not __cplusplus */
+/*!
+ *  @brief Declares the user-supplied yyparse() parameter (C form).
+ *  @def YYPARSE_PARAM_ARG
+ */
 #define YYPARSE_PARAM_ARG YYPARSE_PARAM
+/*!
+ *  @brief Old-style parameter declaration for the C form.
+ *  @def YYPARSE_PARAM_DECL
+ */
 #define YYPARSE_PARAM_DECL void *YYPARSE_PARAM;
 #endif /* not __cplusplus */
 #else /* not YYPARSE_PARAM */
+/*!
+ *  @brief No user-supplied yyparse() parameter.
+ *  @def YYPARSE_PARAM_ARG
+ */
 #define YYPARSE_PARAM_ARG
+/*!
+ *  @brief No user-supplied yyparse() parameter.
+ *  @def YYPARSE_PARAM_DECL
+ */
 #define YYPARSE_PARAM_DECL
 #endif /* not YYPARSE_PARAM */
 
@@ -244,6 +397,20 @@ int yyparse (void);
 #endif
 #endif
 
+/*!
+ *  @brief LALR(1) parser driver generated by Bison.
+ *
+ *  Runs the shift/reduce automaton described by yypact/yypgoto/yytable/
+ *  yycheck/yydefact/yydefgoto, invokes yylex() to obtain lookahead
+ *  tokens and the action routines emitted in place of the dollar-sign
+ *  marker to perform semantic actions.
+ *
+ *  @return 0 when the input is accepted, 1 on a syntax error, 2 on a
+ *          parser stack overflow that could not be recovered from.
+ *  @retval 0 The input was accepted.
+ *  @retval 1 The input was rejected (syntax error).
+ *  @retval 2 The parser stack overflowed and could not be extended.
+ */
 int
 yyparse(YYPARSE_PARAM_ARG)
      YYPARSE_PARAM_DECL
@@ -266,8 +433,16 @@ yyparse(YYPARSE_PARAM_ARG)
   YYLTYPE *yyls = yylsa;
   YYLTYPE *yylsp;
 
+/*!
+ *  @brief Pops one element from the parser stacks.
+ *  @def YYPOPSTACK
+ */
 #define YYPOPSTACK   (yyvsp--, yyssp--, yylsp--)
 #else
+/*!
+ *  @brief Pops one element from the parser stacks.
+ *  @def YYPOPSTACK
+ */
 #define YYPOPSTACK   (yyvsp--, yyssp--)
 #endif
 
@@ -541,7 +716,7 @@ yyreduce:
 
 $   /* the action file gets copied in in place of this dollarsign */
 #line 543 "/emx/share/bison.simple"
-
+
   yyvsp -= yylen;
   yyssp -= yylen;
 #ifdef YYLSP_NEEDED
