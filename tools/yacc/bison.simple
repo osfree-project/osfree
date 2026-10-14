@@ -233,22 +233,38 @@ while (0)
 
 #ifndef YYPURE
 
+/*!
+ *  @brief Current lookahead token.
+ */
 int	yychar;			/*  the lookahead symbol		*/
+/*!
+ *  @brief Semantic value of the lookahead symbol.
+ */
 YYSTYPE	yylval;			/*  the semantic value of the		*/
 				/*  lookahead symbol			*/
 
 #ifdef YYLSP_NEEDED
+/*!
+ *  @brief Location data for the lookahead symbol.
+ */
 YYLTYPE yylloc;			/*  location data for the lookahead	*/
 				/*  symbol				*/
 #endif
 
+/*!
+ *  @brief Number of parse errors seen so far.
+ */
 int yynerrs;			/*  number of parse errors so far       */
 #endif  /* not YYPURE */
 
 #if YYDEBUG != 0
+/*!
+ *  @brief Non-zero to print a parse trace.
+ *
+ *  Since this is uninitialized, it does not stop multiple parsers
+ *  from coexisting.
+ */
 int yydebug;			/*  nonzero means print parse trace	*/
-/* Since this is uninitialized, it does not stop multiple parsers
-   from coexisting.  */
 #endif
 
 /*  YYINITDEPTH indicates the initial size of the parser's stacks	*/

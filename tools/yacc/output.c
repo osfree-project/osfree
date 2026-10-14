@@ -491,8 +491,10 @@ output_token_translations (void)
 
   if (translations)
     {
+      fprintf(ftable, "\n");
+      fprintf(ftable, "/*!\n *  @brief Maps external token numbers to internal ones.\n *  @def YYTRANSLATE\n *  @param x External token number.\n */\n");
       fprintf(ftable,
-	      "\n#define YYTRANSLATE(x) ((unsigned)(x) <= %d ? yytranslate[x] : %d)\n",
+	      "#define YYTRANSLATE(x) ((unsigned)(x) <= %d ? yytranslate[x] : %d)\n",
 	      max_user_token_number, nsyms);
     
       if (ntokens < 127)  /* play it very safe; check maximum element value.  */
@@ -522,7 +524,9 @@ output_token_translations (void)
     }
   else
     {
-      fprintf(ftable, "\n#define YYTRANSLATE(x) (x)\n");
+      fprintf(ftable, "\n");
+      fprintf(ftable, "/*!\n *  @brief Maps external token numbers to internal ones.\n *  @def YYTRANSLATE\n *  @param x External token number.\n */\n");
+      fprintf(ftable, "#define YYTRANSLATE(x) (x)\n");
     } 
 }
 
@@ -543,7 +547,8 @@ output_gram (void)
   if (! semantic_parser  && ! noparserflag)
     fprintf(ftable, "\n#if YYDEBUG != 0");
 
-  fprintf(ftable, "\nstatic const short yyprhs[] = {     0");
+  fprintf(ftable, "\n/*!\n *  @brief Index in yyrhs of the first item for each rule.\n */\n");
+  fprintf(ftable, "static const short yyprhs[] = {     0");
 
   j = 10;
   for (i = 1; i <= nrules; i++)
@@ -565,7 +570,8 @@ output_gram (void)
 
   fprintf(ftable, "\n};\n");
 
-  fprintf(ftable, "\nstatic const short yyrhs[] = {%6d", ritem[0]);
+  fprintf(ftable, "\n/*!\n *  @brief Right-hand sides of all rules, packed into one array.\n */\n");
+  fprintf(ftable, "static const short yyrhs[] = {%6d", ritem[0]);
 
   j = 10;
   for (sp = ritem + 1; *sp; sp++)
@@ -638,6 +644,7 @@ output_rule_data (void)
   register int j;
 
   fprintf(ftable, "\n#if YYDEBUG != 0\n");
+  fprintf(ftable, "/*!\n *  @brief Source line number of each rule.\n */\n");
   fprintf(ftable, "static const short yyrline[] = { 0");
 
   j = 10;
@@ -673,6 +680,8 @@ output_rule_data (void)
 
   /* Output the table of symbol names.  */
 
+  fprintf(ftable,
+          "/*!\n *  @brief Printable names of all symbols.\n */\n");
   fprintf(ftable,
           "static const char * const yytname[] = {   \"%s\"",
           tags[0]);
@@ -739,6 +748,7 @@ output_rule_data (void)
 
   if (toknumflag) 
     {
+      fprintf(ftable, "/*!\n *  @brief User token numbers of all tokens.\n */\n");
       fprintf(ftable, "static const short yytoknum[] = { 0");
       j = 10;
       for (i = 1; i <= ntokens; i++) {
@@ -755,6 +765,7 @@ output_rule_data (void)
       fprintf(ftable, "\n};\n\n");
     }
 
+  fprintf(ftable, "/*!\n *  @brief Symbol number of the nonterminal each rule derives.\n */\n");
   fprintf(ftable, "static const short yyr1[] = {     0");
 
   j = 10;
@@ -777,7 +788,9 @@ output_rule_data (void)
 
   FREE(rlhs + 1);
 
-  fprintf(ftable, "\n};\n\nstatic const short yyr2[] = {     0");
+  fprintf(ftable, "\n};\n");
+  fprintf(ftable, "/*!\n *  @brief Number of symbols in the right-hand side of each rule.\n */\n");
+  fprintf(ftable, "static const short yyr2[] = {     0");
 
   j = 10;
   for (i = 1; i < nrules; i++)
@@ -812,8 +825,12 @@ output_rule_data (void)
 void
 output_defines (void)
 {
-  fprintf(ftable, "\n\n#define\tYYFINAL\t\t%d\n", final_state);
+  fprintf(ftable, "\n\n");
+  fprintf(ftable, "/*!\n *  @brief Final state number of the generated parser.\n *  @def YYFINAL\n */\n");
+  fprintf(ftable, "#define\tYYFINAL\t\t%d\n", final_state);
+  fprintf(ftable, "/*!\n *  @brief Most negative short int; used as a flag in yytable.\n *  @def YYFLAG\n */\n");
   fprintf(ftable, "#define\tYYFLAG\t\t%d\n", MINSHORT);
+  fprintf(ftable, "/*!\n *  @brief Internal token number of the first nonterminal.\n *  @def YYNTBASE\n */\n");
   fprintf(ftable, "#define\tYYNTBASE\t%d\n", ntokens);
 }
 
@@ -874,7 +891,8 @@ token_actions (void)
   actrow = NEW2(ntokens, short);
 
   k = action_row(0);
-  fprintf(ftable, "\nstatic const short yydefact[] = {%6d", k);
+  fprintf(ftable, "\n/*!\n *  @brief Default rule to reduce with in each state.\n */\n");
+  fprintf(ftable, "static const short yydefact[] = {%6d", k);
   save_row(0);
 
   j = 10;
@@ -1145,7 +1163,8 @@ goto_actions (void)
   state_count = NEW2(nstates, short);
 
   k = default_goto(ntokens);
-  fprintf(ftable, "\nstatic const short yydefgoto[] = {%6d", k);
+  fprintf(ftable, "\n/*!\n *  @brief Default state to go to after reducing by each nonterminal.\n */\n");
+  fprintf(ftable, "static const short yydefgoto[] = {%6d", k);
   save_column(ntokens, k);
 
   j = 10;
@@ -1496,7 +1515,8 @@ output_base (void)
   register int i;
   register int j;
 
-  fprintf(ftable, "\nstatic const short yypact[] = {%6d", base[0]);
+  fprintf(ftable, "\n/*!\n *  @brief Index into yytable of the portion describing each state.\n */\n");
+  fprintf(ftable, "static const short yypact[] = {%6d", base[0]);
 
   j = 10;
   for (i = 1; i < nstates; i++)
@@ -1516,7 +1536,9 @@ output_base (void)
       fprintf(ftable, "%6d", base[i]);
     }
 
-  fprintf(ftable, "\n};\n\nstatic const short yypgoto[] = {%6d", base[nstates]);
+  fprintf(ftable, "\n};\n");
+  fprintf(ftable, "/*!\n *  @brief Index into yytable of the goto portion for each nonterminal.\n */\n");
+  fprintf(ftable, "static const short yypgoto[] = {%6d", base[nstates]);
 
   j = 10;
   for (i = nstates + 1; i < nvectors; i++)
@@ -1550,8 +1572,11 @@ output_table (void)
   register int i;
   register int j;
 
-  fprintf(ftable, "\n\n#define\tYYLAST\t\t%d\n\n", high);
-  fprintf(ftable, "\nstatic const short yytable[] = {%6d", table[0]);
+  fprintf(ftable, "\n\n");
+  fprintf(ftable, "/*!\n *  @brief Highest used entry in the yytable/yycheck arrays.\n *  @def YYLAST\n */\n");
+  fprintf(ftable, "#define\tYYLAST\t\t%d\n\n", high);
+  fprintf(ftable, "\n/*!\n *  @brief Packed parser action table.\n */\n");
+  fprintf(ftable, "static const short yytable[] = {%6d", table[0]);
 
   j = 10;
   for (i = 1; i <= high; i++)
@@ -1585,7 +1610,8 @@ output_check (void)
   register int i;
   register int j;
 
-  fprintf(ftable, "\nstatic const short yycheck[] = {%6d", check[0]);
+  fprintf(ftable, "\n/*!\n *  @brief Bounds check for the packed yytable array.\n */\n");
+  fprintf(ftable, "static const short yycheck[] = {%6d", check[0]);
 
   j = 10;
   for (i = 1; i <= high; i++)

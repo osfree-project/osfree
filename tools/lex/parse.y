@@ -7,11 +7,6 @@
 %token CCE_LOWER CCE_PRINT CCE_PUNCT CCE_SPACE CCE_UPPER CCE_XDIGIT
 
 %{
-/*!
- *  @file parse.c
- *  @brief Parser for flex input (generated from parse.y).
- */
-
 /*-
  * Copyright (c) 1990 The Regents of the University of California.
  * All rights reserved.
