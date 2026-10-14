@@ -272,6 +272,7 @@ extern char *getenv ();
  *  @param[in] chr Character to look for.
  *
  *  @return Pointer to the first match, or NULL.
+ *  @retval 0 @p chr is not found.
  */
 static char *
 my_index (str, chr)

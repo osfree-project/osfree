@@ -594,6 +594,43 @@ static int is_keyword(const char *s, int len)
     return 0;
 }
 
+/*! @brief Tests whether a token can begin a parameter declaration.
+ *
+ *  Used by the K&R detection to tell a parameter declaration (which
+ *  begins with a type) from a C++ trailing qualifier (which is
+ *  followed by ';', '{', '->', or another qualifier keyword).
+ *
+ *  A token begins a declaration when it is a type keyword, '*', '&',
+ *  or an identifier that is not itself a C++ trailing qualifier.
+ *
+ *  @param[in] i Index into toks[].
+ *  @return Non-zero when the token can begin a declaration.
+ *  @retval 0 Token is a C++ trailing qualifier or a punctuator other
+ *            than '*' or '&'.
+ *  @retval 1 Token is a type keyword, '*', '&', or an identifier.
+ */
+static int tok_starts_decl(int i)
+{
+    static const char *cxx_trailing[] = {
+        "const", "volatile", "noexcept", "override", "final",
+        NULL
+    };
+    int j;
+
+    if (toks[i].type == T_IDENT) {
+        for (j = 0; cxx_trailing[j] != NULL; j++) {
+            int len = (int)strlen(cxx_trailing[j]);
+            if (toks[i].len == len &&
+                memcmp(toks[i].p, cxx_trailing[j], len) == 0) {
+                return 0;
+            }
+        }
+        return 1;
+    }
+    if (tok_punct(i, "*") || tok_punct(i, "&")) return 1;
+    return 0;
+}
+
 /*! @brief Tests whether an identifier looks like a return constant.
  *
  * True when every character is an uppercase letter, a digit or an
@@ -1057,6 +1094,25 @@ static int path_names_match(const char *a, const char *b)
     return *ba == 0 && *bb == 0;
 }
 
+/*! @brief Tests whether the source file is a C++ file by extension.
+ *
+ *  Uses the same extension list as preproc_compiler().
+ *
+ *  @param[in] fname Source file name. Not NULL.
+ *  @return Non-zero when the file name ends in a C++ extension.
+ */
+static int is_cxx_file(const char *fname)
+{
+    const char *dot = strrchr(fname, '.');
+    if (dot == NULL) return 0;
+    return strcmp(dot, ".cpp") == 0 || strcmp(dot, ".cxx") == 0 ||
+           strcmp(dot, ".cc")  == 0 || strcmp(dot, ".c++") == 0 ||
+           strcmp(dot, ".C")   == 0 || strcmp(dot, ".CPP") == 0 ||
+           strcmp(dot, ".CXX") == 0 || strcmp(dot, ".CC")  == 0 ||
+           strcmp(dot, ".inl") == 0 || strcmp(dot, ".ipp") == 0 ||
+           strcmp(dot, ".tcc") == 0 || strcmp(dot, ".tpp") == 0;
+}
+
 /*! @brief Selects the Open Watcom compiler to preprocess a file.
  *
  * Returns "wpp386" for C++ source extensions, "wcc386" for everything
@@ -1067,17 +1123,7 @@ static int path_names_match(const char *a, const char *b)
  */
 static const char *preproc_compiler(const char *fname)
 {
-    const char *dot = strrchr(fname, '.');
-    if (dot != NULL) {
-        if (strcmp(dot, ".cpp") == 0 || strcmp(dot, ".cxx") == 0 ||
-            strcmp(dot, ".cc") == 0 || strcmp(dot, ".c++") == 0 ||
-            strcmp(dot, ".C") == 0 || strcmp(dot, ".CPP") == 0 ||
-            strcmp(dot, ".CXX") == 0 || strcmp(dot, ".CC") == 0 ||
-            strcmp(dot, ".inl") == 0 || strcmp(dot, ".ipp") == 0 ||
-            strcmp(dot, ".tcc") == 0 || strcmp(dot, ".tpp") == 0)
-            return "wpp386";
-    }
-    return "wcc386";
+    return is_cxx_file(fname) ? "wpp386" : "wcc386";
 }
 
 /*! @brief Extracts the macro name and parameters from a #define token.
@@ -1706,19 +1752,30 @@ static int check_file(const char *fname)
                          * the tokens up to '{' are parameter
                          * declarations, and the ';' inside them must
                          * not end the declaration. */
-                        {
-                            int k = i + 1;
-                            while (toks[k].type == T_COMMENT ||
-                                   toks[k].type == T_PREPROC) k++;
-                            if (!(tok_punct(k, ";") ||
-                                  tok_punct(k, "=") ||
-                                  tok_punct(k, "(") ||
-                                  tok_is(k, "const") ||
-                                  tok_is(k, "volatile") ||
-                                  tok_is(k, "noexcept") ||
-                                  tok_is(k, "override") ||
-                                  tok_is(k, "final"))) {
-                                kr_mode = 1;
+                         {
+                             int k = i + 1;
+                             while (toks[k].type == T_COMMENT ||
+                                    toks[k].type == T_PREPROC) k++;
+                             if (!(tok_punct(k, ";") ||
+                                   tok_punct(k, "=") ||
+                                   tok_punct(k, "("))) {
+                                   /* Not an ANSI prototype.  Either a K&R definition or a
+                                    * C++ function with trailing qualifiers.  For a .c file
+                                    * a trailing qualifier cannot appear, so any token here
+                                    * starts a parameter declaration.  For a .cpp file a
+                                    * qualifier keyword followed by a declaration starter is
+                                    * a K&R parameter, not a trailing qualifier. */
+                                  if (!is_cxx_file(fname) ||
+                                      !(tok_is(k, "const") || tok_is(k, "volatile") ||
+                                        tok_is(k, "noexcept") || tok_is(k, "override") ||
+                                        tok_is(k, "final"))) {
+                                      kr_mode = 1;
+                                  } else {
+                                      int m = k + 1;
+                                      while (toks[m].type == T_COMMENT ||
+                                             toks[m].type == T_PREPROC) m++;
+                                      if (tok_starts_decl(m)) kr_mode = 1;
+                                  }
                             }
                         }
                     }
