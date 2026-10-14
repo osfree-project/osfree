@@ -1369,6 +1369,84 @@ static int check_defines_raw(const char *fname)
     return errors;
 }
 
+/*! @brief Replaces comments in a line with spaces.
+ *
+ *  Walks the line and overwrites every comment character with a
+ *  space.  String and character literals are respected: a pair
+ *  of slash and star that appears inside them is not treated as
+ *  the start of a comment, and a quote that appears inside a
+ *  comment does not open a literal.  The state variables are
+ *  preserved across calls so a comment or a literal that spans
+ *  multiple lines is handled correctly.  After the call the line
+ *  can be inspected as if the comments were never there, which
+ *  mirrors what the Open Watcom preprocessor does before deciding
+ *  where to insert a #line directive.
+ *
+ *  @param[in,out] line     Line to strip in place. Not NULL.
+ *  @param[in,out] in_block Non-zero while inside a block comment that
+ *                          started on an earlier line.
+ *  @param[in,out] in_str   Non-zero while inside a string literal that
+ *                          started on an earlier line.
+ *  @param[in,out] in_chr   Non-zero while inside a character literal
+ *                          that started on an earlier line.
+ */
+static void strip_comments(char *line, int *in_block,
+                           int *in_str, int *in_chr)
+{
+    char *p = line;
+    int in_line_comment = 0;
+
+    while (*p != 0) {
+        if (*in_block) {
+            if (p[0] == '*' && p[1] == '/') {
+                *p++ = ' ';
+                *p++ = ' ';
+                *in_block = 0;
+            } else {
+                if (*p != '\n') *p = ' ';
+                p++;
+            }
+            continue;
+        }
+        if (in_line_comment) {
+            if (*p == '\n') {
+                in_line_comment = 0;
+                p++;
+            } else {
+                *p++ = ' ';
+            }
+            continue;
+        }
+        if (*in_str) {
+            if (*p == '\\' && p[1] != 0) { p += 2; continue; }
+            if (*p == '"') *in_str = 0;
+            p++;
+            continue;
+        }
+        if (*in_chr) {
+            if (*p == '\\' && p[1] != 0) { p += 2; continue; }
+            if (*p == '\'') *in_chr = 0;
+            p++;
+            continue;
+        }
+        if (p[0] == '/' && p[1] == '*') {
+            *p++ = ' ';
+            *p++ = ' ';
+            *in_block = 1;
+            continue;
+        }
+        if (p[0] == '/' && p[1] == '/') {
+            *p++ = ' ';
+            *p++ = ' ';
+            in_line_comment = 1;
+            continue;
+        }
+        if (*p == '"') { *in_str = 1; p++; continue; }
+        if (*p == '\'') { *in_chr = 1; p++; continue; }
+        p++;
+    }
+}
+
 /*! @brief Runs the preprocessor and keeps the original file's lines.
  *
  * Builds a single command line for the preprocessor and runs it with
@@ -1410,6 +1488,9 @@ static char *preprocess_file(const char *fname, long *out_len)
     size_t cap, len, emitted_lines;
     long src_line;
     int in_orig;
+    int in_block_comment = 0;
+    int in_string_literal = 0;
+    int in_char_literal = 0;
     char cur_file[PATHBUF];
     int have_cwd;
     int rc;
@@ -1502,9 +1583,21 @@ static char *preprocess_file(const char *fname, long *out_len)
         int is_directive = 0;
         long num;
         char new_file[PATHBUF];
+        char stripped[PRELINE];
         char *p, *end, *q;
 
-        p = line;
+        /* The Open Watcom preprocessor strips comments before it
+         * decides where to insert a #line directive; when it then
+         * re-emits the comments for -pcl, a directive can end up
+         * glued to the right of a comment on the same physical
+         * line.  Reproduce the same order here: remove comments
+         * first, then look for the directive in what remains.  */
+        memcpy(stripped, line, linelen + 1);
+        strip_comments(stripped, &in_block_comment,
+                       &in_string_literal, &in_char_literal);
+
+        p = stripped;
+        while (*p == ' ' || *p == '\t') p++;
         if (*p == '#') {
             p++;
             while (*p == ' ' || *p == '\t') p++;
