@@ -1,7 +1,30 @@
+/*!
+ *  @file strtof.c
+ *  @brief Portable implementation of strtof().
+ *
+ *  Provides a simple fallback for systems whose C library does not
+ *  ship strtof(). Supports an optional sign, an integer part, a
+ *  decimal fraction and a base-10 exponent.
+ */
+
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
 
+/*!
+ *  @brief Converts a string to a float.
+ *
+ *  Parses an optional sign, an integer part, a fractional part and an
+ *  optional decimal exponent of the form `e[+-]N`.
+ *
+ *  @param[in]  s      NUL-terminated input string.
+ *  @param[out] endptr Receives the address of the first character after
+ *                     the parsed number, or the original @p s when no
+ *                     number was parsed.
+ *
+ *  @return The parsed value.
+ *  @retval 0 Empty input, no number found, or invalid exponent.
+ */
 float strtof(const char* s, char** endptr) {
     register const char*  p     = s;
     register float        value = 0.;

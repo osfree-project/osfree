@@ -14,6 +14,14 @@ General Public License for more details.  */
 
 /* Written by Jan Brittenson, bson@gnu.ai.mit.edu.  */
 
+/*!
+ *  @file getline.c
+ *  @brief Replacement for the GNU C library getline() function.
+ *
+ *  Provides a portable getstr()/getline()/getline_safe() trio used by
+ *  genext2fs on systems whose C library does not ship getline().
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -27,10 +35,17 @@ General Public License for more details.  */
 #if STDC_HEADERS
 #include <stdlib.h>
 #else
+/*!
+ *  @brief Fallback declarations of malloc() and realloc() for pre-ANSI C.
+ */
 char *malloc (), *realloc ();
 #endif
 
 /* Always add at least this many bytes when extending the buffer.  */
+/*!
+ *  @brief Minimum number of bytes added when extending the line buffer.
+ *  @def MIN_CHUNK
+ */
 #define MIN_CHUNK 64
 
 /* Read up to (and including) a TERMINATOR from STREAM into *LINEPTR
@@ -154,6 +169,19 @@ getstr (lineptr, n, stream, terminator, offset, limit)
   return ret;
 }
 
+/*!
+ *  @brief Reads a line from a stream, growing the buffer as needed.
+ *
+ *  Convenience wrapper around getstr() that reads up to and including
+ *  the next newline, with no limit on the input length.
+ *
+ *  @param[in,out] lineptr Line buffer (may be NULL on entry).
+ *  @param[in,out] n       Allocated size of @p lineptr in bytes.
+ *  @param[in]     stream  Input stream.
+ *
+ *  @return Number of characters read, not counting the terminating NUL.
+ *  @retval -1 End of file or read error; @c errno is set on error.
+ */
 int
 getline (lineptr, n, stream)
      char **lineptr;
@@ -163,6 +191,20 @@ getline (lineptr, n, stream)
   return getstr (lineptr, n, stream, '\n', 0, GETLINE_NO_LIMIT);
 }
 
+/*!
+ *  @brief Reads a line from a stream with an upper bound on its length.
+ *
+ *  Convenience wrapper around getstr() that reads up to and including
+ *  the next newline, but never more than @p limit characters.
+ *
+ *  @param[in,out] lineptr Line buffer (may be NULL on entry).
+ *  @param[in,out] n       Allocated size of @p lineptr in bytes.
+ *  @param[in]     stream  Input stream.
+ *  @param[in]     limit   Maximum number of characters to read.
+ *
+ *  @return Number of characters read, not counting the terminating NUL.
+ *  @retval -1 End of file or read error; @c errno is set on error.
+ */
 int
 getline_safe (lineptr, n, stream, limit)
      char **lineptr;

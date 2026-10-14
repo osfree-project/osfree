@@ -50,6 +50,17 @@
 //       6 Jan 2003     Erik Andersen <andersee@debian.org> added
 //                      mkfs.jffs2 compatible device table support,
 //                      along with -q, -P, -U
+
+/*!
+ *  @file genext2fs.c
+ *  @brief ext2 filesystem image generator.
+ *
+ *  Builds an ext2 filesystem image from a directory tree and/or a
+ *  device table, with optional support for reserved blocks, holes,
+ *  hardlinks, groups and big-endian byte swapping. Usage information
+ *  is printed by showhelp().
+ */
+
 #ifdef __OS2__
 #define __CPM__
 #endif
@@ -93,17 +104,38 @@
 #include <unistd.h>
 #endif
 
+/*!
+ *  @brief Running totals used during an initial scan pass.
+ */
 struct stats {
-        unsigned long nblocks;
-        unsigned long ninodes;
+        unsigned long nblocks;  /*!< Total data blocks. */
+        unsigned long ninodes;  /*!< Total inodes. */
 };
 
 // block size
 
+/*!
+ *  @brief Filesystem block size in bytes.
+ *  @def BLOCKSIZE
+ */
 #define BLOCKSIZE         1024
+
+/*!
+ *  @brief Number of blocks per block group.
+ *  @def BLOCKS_PER_GROUP
+ */
 #define BLOCKS_PER_GROUP  8192
-/* Percentage of blocks that are reserved.*/
+
+/*!
+ *  @brief Percentage of blocks that are reserved.
+ *  @def RESERVED_BLOCKS
+ */
 #define RESERVED_BLOCKS       5/100
+
+/*!
+ *  @brief Maximum percentage of blocks that may be reserved.
+ *  @def MAX_RESERVED_BLOCKS
+ */
 #define MAX_RESERVED_BLOCKS  25/100
 
 
@@ -112,114 +144,350 @@ struct stats {
    but in terms of 512 bytes. That is what INODE_BLOCKSIZE represents.
    INOBLK is the number of such blocks in an actual disk block            */
 
+/*!
+ *  @brief Size of an inode block in bytes (always 512).
+ *  @def INODE_BLOCKSIZE
+ */
 #define INODE_BLOCKSIZE   512
+
+/*!
+ *  @brief Number of INODE_BLOCKSIZE units in one BLOCKSIZE unit.
+ *  @def INOBLK
+ */
 #define INOBLK            (BLOCKSIZE / INODE_BLOCKSIZE)
 
 // reserved inodes
 
+/*!
+ *  @brief Inode number of the bad-blocks inode.
+ *  @def EXT2_BAD_INO
+ */
 #define EXT2_BAD_INO         1     // Bad blocks inode
+/*!
+ *  @brief Inode number of the root directory.
+ *  @def EXT2_ROOT_INO
+ */
 #define EXT2_ROOT_INO        2     // Root inode
+/*!
+ *  @brief Inode number of the ACL index inode.
+ *  @def EXT2_ACL_IDX_INO
+ */
 #define EXT2_ACL_IDX_INO     3     // ACL inode
+/*!
+ *  @brief Inode number of the ACL data inode.
+ *  @def EXT2_ACL_DATA_INO
+ */
 #define EXT2_ACL_DATA_INO    4     // ACL inode
+/*!
+ *  @brief Inode number of the boot-loader inode.
+ *  @def EXT2_BOOT_LOADER_INO
+ */
 #define EXT2_BOOT_LOADER_INO 5     // Boot loader inode
+/*!
+ *  @brief Inode number of the undelete-directory inode.
+ *  @def EXT2_UNDEL_DIR_INO
+ */
 #define EXT2_UNDEL_DIR_INO   6     // Undelete directory inode
+/*!
+ *  @brief First non-reserved inode number.
+ *  @def EXT2_FIRST_INO
+ */
 #define EXT2_FIRST_INO       11    // First non reserved inode
 
 // magic number for ext2
 
+/*!
+ *  @brief Magic number stored in the superblock.
+ *  @def EXT2_MAGIC_NUMBER
+ */
 #define EXT2_MAGIC_NUMBER  0xEF53
 
 
 // direct/indirect block addresses
 
+/*!
+ *  @brief Number of direct block addresses in an inode.
+ *  @def EXT2_NDIR_BLOCKS
+ */
 #define EXT2_NDIR_BLOCKS   11                    // direct blocks
+/*!
+ *  @brief Index of the single-indirect block in an inode.
+ *  @def EXT2_IND_BLOCK
+ */
 #define EXT2_IND_BLOCK     12                    // indirect block
+/*!
+ *  @brief Index of the double-indirect block in an inode.
+ *  @def EXT2_DIND_BLOCK
+ */
 #define EXT2_DIND_BLOCK    13                    // double indirect block
+/*!
+ *  @brief Index of the triple-indirect block in an inode.
+ *  @def EXT2_TIND_BLOCK
+ */
 #define EXT2_TIND_BLOCK    14                    // triple indirect block
+/*!
+ *  @brief Marker for an inode whose block list has not been built yet.
+ *  @def EXT2_INIT_BLOCK
+ */
 #define EXT2_INIT_BLOCK    0xFFFFFFFF            // just initialized (not really a block address)
 
 // end of a block walk
 
+/*!
+ *  @brief Return value of walk_bw() marking the end of a block list.
+ *  @def WALK_END
+ */
 #define WALK_END           0xFFFFFFFE
 
 // file modes
 
+/*!
+ *  @brief Format mask for file-mode bits.
+ *  @def FM_IFMT
+ */
 #define FM_IFMT    0170000      // format mask
+/*!
+ *  @brief Socket file mode.
+ *  @def FM_IFSOCK
+ */
 #define FM_IFSOCK  0140000      // socket
+/*!
+ *  @brief Symbolic link file mode.
+ *  @def FM_IFLNK
+ */
 #define FM_IFLNK   0120000      // symbolic link
+/*!
+ *  @brief Regular file mode.
+ *  @def FM_IFREG
+ */
 #define FM_IFREG   0100000      // regular file
 
+/*!
+ *  @brief Block device file mode.
+ *  @def FM_IFBLK
+ */
 #define FM_IFBLK   0060000      // block device
+/*!
+ *  @brief Directory file mode.
+ *  @def FM_IFDIR
+ */
 #define FM_IFDIR   0040000      // directory
+/*!
+ *  @brief Character device file mode.
+ *  @def FM_IFCHR
+ */
 #define FM_IFCHR   0020000      // character device
+/*!
+ *  @brief FIFO file mode.
+ *  @def FM_IFIFO
+ */
 #define FM_IFIFO   0010000      // fifo
 
+/*!
+ *  @brief Mask covering every permission and special bit.
+ *  @def FM_IMASK
+ */
 #define FM_IMASK   0007777      // *all* perms mask for everything below
 
+/*!
+ *  @brief Set-user-ID permission bit.
+ *  @def FM_ISUID
+ */
 #define FM_ISUID   0004000      // SUID
+/*!
+ *  @brief Set-group-ID permission bit.
+ *  @def FM_ISGID
+ */
 #define FM_ISGID   0002000      // SGID
+/*!
+ *  @brief Sticky permission bit.
+ *  @def FM_ISVTX
+ */
 #define FM_ISVTX   0001000      // sticky bit
 
+/*!
+ *  @brief Mask of all "user" permission bits.
+ *  @def FM_IRWXU
+ */
 #define FM_IRWXU   0000700      // entire "user" mask
+/*!
+ *  @brief User read permission bit.
+ *  @def FM_IRUSR
+ */
 #define FM_IRUSR   0000400      // read
+/*!
+ *  @brief User write permission bit.
+ *  @def FM_IWUSR
+ */
 #define FM_IWUSR   0000200      // write
+/*!
+ *  @brief User execute permission bit.
+ *  @def FM_IXUSR
+ */
 #define FM_IXUSR   0000100      // execute
 
+/*!
+ *  @brief Mask of all "group" permission bits.
+ *  @def FM_IRWXG
+ */
 #define FM_IRWXG   0000070      // entire "group" mask
+/*!
+ *  @brief Group read permission bit.
+ *  @def FM_IRGRP
+ */
 #define FM_IRGRP   0000040      // read
+/*!
+ *  @brief Group write permission bit.
+ *  @def FM_IWGRP
+ */
 #define FM_IWGRP   0000020      // write
+/*!
+ *  @brief Group execute permission bit.
+ *  @def FM_IXGRP
+ */
 #define FM_IXGRP   0000010      // execute
 
+/*!
+ *  @brief Mask of all "other" permission bits.
+ *  @def FM_IRWXO
+ */
 #define FM_IRWXO   0000007      // entire "other" mask
+/*!
+ *  @brief Other read permission bit.
+ *  @def FM_IROTH
+ */
 #define FM_IROTH   0000004      // read
+/*!
+ *  @brief Other write permission bit.
+ *  @def FM_IWOTH
+ */
 #define FM_IWOTH   0000002      // write
+/*!
+ *  @brief Other execute permission bit.
+ *  @def FM_IXOTH
+ */
 #define FM_IXOTH   0000001      // execute
 
 // options
 
+/*!
+ *  @brief Option flag: allow files with holes.
+ *  @def OP_HOLES
+ */
 #define OP_HOLES     0x01       // make files with holes
 
 /* Defines for accessing group details */
 
 // Number of groups in the filesystem
+/*!
+ *  @brief Computes the number of block groups in the filesystem.
+ *  @def GRP_NBGROUPS
+ *  @param fs Filesystem.
+ */
 #define GRP_NBGROUPS(fs) (((fs)->sb.s_blocks_count+(fs)->sb.s_blocks_per_group-1)/(fs)->sb.s_blocks_per_group)
 
 // Get group block bitmap (bbm) given the group number
+/*!
+ *  @brief Returns the block bitmap of the given group.
+ *  @def GRP_GET_GROUP_BBM
+ *  @param fs  Filesystem.
+ *  @param grp Block-group index.
+ */
 #define GRP_GET_GROUP_BBM(fs,grp) ( get_blk((fs),(fs)->gd[(grp)].bg_block_bitmap) )
 
 // Get group inode bitmap (ibm) given the group number
+/*!
+ *  @brief Returns the inode bitmap of the given group.
+ *  @def GRP_GET_GROUP_IBM
+ *  @param fs  Filesystem.
+ *  @param grp Block-group index.
+ */
 #define GRP_GET_GROUP_IBM(fs,grp) ( get_blk((fs),(fs)->gd[(grp)].bg_inode_bitmap) )
 
 // Given an inode number find the group it belongs to
+/*!
+ *  @brief Returns the block group that owns the given inode.
+ *  @def GRP_GROUP_OF_INODE
+ *  @param fs  Filesystem.
+ *  @param nod Inode number.
+ */
 #define GRP_GROUP_OF_INODE(fs,nod) ( ((nod)-1) / (fs)->sb.s_inodes_per_group)
 
 //Given an inode number get the inode bitmap that covers it
+/*!
+ *  @brief Returns the inode bitmap that covers the given inode.
+ *  @def GRP_GET_INODE_BITMAP
+ *  @param fs  Filesystem.
+ *  @param nod Inode number.
+ */
 #define GRP_GET_INODE_BITMAP(fs,nod) \
         ( GRP_GET_GROUP_IBM((fs),GRP_GROUP_OF_INODE((fs),(nod))) )
 
 //Given an inode number find its offset within the inode bitmap that covers it
+/*!
+ *  @brief Returns the offset of an inode within its group's inode bitmap.
+ *  @def GRP_IBM_OFFSET
+ *  @param fs  Filesystem.
+ *  @param nod Inode number.
+ */
 #define GRP_IBM_OFFSET(fs,nod) \
         ( (nod) - GRP_GROUP_OF_INODE((fs),(nod))*(fs)->sb.s_inodes_per_group )
 
 // Given a block number find the group it belongs to
+/*!
+ *  @brief Returns the block group that owns the given block.
+ *  @def GRP_GROUP_OF_BLOCK
+ *  @param fs  Filesystem.
+ *  @param blk Block number.
+ */
 #define GRP_GROUP_OF_BLOCK(fs,blk) ( ((blk)-1) / (fs)->sb.s_blocks_per_group)
 
 //Given a block number get the block bitmap that covers it
+/*!
+ *  @brief Returns the block bitmap that covers the given block.
+ *  @def GRP_GET_BLOCK_BITMAP
+ *  @param fs  Filesystem.
+ *  @param blk Block number.
+ */
 #define GRP_GET_BLOCK_BITMAP(fs,blk) \
         ( GRP_GET_GROUP_BBM((fs),GRP_GROUP_OF_BLOCK((fs),(blk))) )
 
 //Given a block number find its offset within the block bitmap that covers it
+/*!
+ *  @brief Returns the offset of a block within its group's block bitmap.
+ *  @def GRP_BBM_OFFSET
+ *  @param fs  Filesystem.
+ *  @param blk Block number.
+ */
 #define GRP_BBM_OFFSET(fs,blk) \
         ( (blk) - GRP_GROUP_OF_BLOCK((fs),(blk))*(fs)->sb.s_blocks_per_group )
 
 
 // used types
 
+/*!
+ *  @brief Signed 8-bit integer.
+ */
 typedef signed char int8;
+/*!
+ *  @brief Unsigned 8-bit integer.
+ */
 typedef unsigned char uint8;
+/*!
+ *  @brief Signed 16-bit integer.
+ */
 typedef signed short int16;
+/*!
+ *  @brief Unsigned 16-bit integer.
+ */
 typedef unsigned short uint16;
+/*!
+ *  @brief Signed 32-bit integer.
+ */
 typedef signed int int32;
+/*!
+ *  @brief Unsigned 32-bit integer.
+ */
 typedef unsigned int uint32;
 
 
@@ -235,31 +503,96 @@ typedef unsigned int uint32;
 
 #ifdef __GNUC__
   #if (defined(__sun) && defined(__SVR4)) || defined __APPLE__
+/*!
+ *  @brief Width prefix used in scanf() format strings.
+ *  @def SCANF_PREFIX
+ */
     #define SCANF_PREFIX "511"
+/*!
+ *  @brief Argument form for the %s conversion in scanf().
+ *  @def SCANF_STRING
+ *  @param s Pointer variable to fill.
+ */
     #define SCANF_STRING(s) (s = malloc(512))
     #ifdef __APPLE__
+/*!
+ *  @brief getcwd() allocation mode.
+ *  @def GETCWD_SIZE
+ */
       #define GETCWD_SIZE 0
     #else
+/*!
+ *  @brief getcwd() allocation mode.
+ *  @def GETCWD_SIZE
+ */
       #define GETCWD_SIZE 4096
+/*!
+ *  @brief Storage class used by the snprintf() replacement.
+ *  @def SNPRINTF_STORAGE_CLASS
+ */
       #define SNPRINTF_STORAGE_CLASS inline
     #endif // defined __APPLE__
     #else
+/*!
+ *  @brief Width prefix used in scanf() format strings.
+ *  @def SCANF_PREFIX
+ */
     #define SCANF_PREFIX "a"
+/*!
+ *  @brief Argument form for the %s conversion in scanf().
+ *  @def SCANF_STRING
+ *  @param s Pointer variable to fill.
+ */
     #define SCANF_STRING(s) (&s)
+/*!
+ *  @brief getcwd() allocation mode.
+ *  @def GETCWD_SIZE
+ */
     #define GETCWD_SIZE 0
   #endif // (defined(__sun) && defined(__SVR4)) || defined __APPLE__
 #else
+/*!
+ *  @brief Width prefix used in scanf() format strings.
+ *  @def SCANF_PREFIX
+ */
   #define SCANF_PREFIX "511"
+/*!
+ *  @brief Argument form for the %s conversion in scanf().
+ *  @def SCANF_STRING
+ *  @param s Pointer variable to fill.
+ */
   #define SCANF_STRING(s) (s = malloc(512))
   #ifndef __CPM__
+/*!
+ *  @brief getcwd() allocation mode.
+ *  @def GETCWD_SIZE
+ */
     #define GETCWD_SIZE -1
   #else
+/*!
+ *  @brief getcwd() allocation mode.
+ *  @def GETCWD_SIZE
+ */
     #define GETCWD_SIZE 0
   #endif
+/*!
+ *  @brief Storage class used by the snprintf() replacement.
+ *  @def SNPRINTF_STORAGE_CLASS
+ */
   #define SNPRINTF_STORAGE_CLASS static inline
 #endif // defined __GNUC__
 
 #ifndef __CPM__
+/*!
+ *  @brief Portable snprintf() replacement (unbounded).
+ *
+ *  @param[out] str Destination buffer.
+ *  @param[in]  n   Ignored size (unbounded).
+ *  @param[in]  fmt printf-style format string.
+ *  @param[in]  ... Arguments for @p fmt.
+ *
+ *  @return Number of characters written.
+ */
 int
 snprintf(char *str, size_t n, const char *fmt, ...)
 {
@@ -275,6 +608,16 @@ snprintf(char *str, size_t n, const char *fmt, ...)
 #if defined(__APPLE__) && defined(__GNUC__)
 // getline() replacement for Darwin, might work on other systems
 // written according to the getline man page included with Debian Linux
+/*!
+ *  @brief Reads a line from a stream, growing the buffer as needed.
+ *
+ *  @param[in,out] lineptr Line buffer.
+ *  @param[in,out] n       Allocated size of @p lineptr.
+ *  @param[in]     stream  Input stream.
+ *
+ *  @return Number of characters read, or -1 on error/EOF.
+ *  @retval -1 End of file or error.
+ */
 ssize_t
 getline(char **lineptr, size_t *n, FILE *stream)
 {
@@ -318,6 +661,15 @@ getline(char **lineptr, size_t *n, FILE *stream)
 // SI-style multiplier if provided; supported multipliers are Ki, Mi, Gi, k, M
 // and G.
 
+/*!
+ *  @brief Parses a number with an optional SI-style multiplier.
+ *
+ *  Multipliers: Ki, Mi, Gi, k, M, G.
+ *
+ *  @param[in] nptr NUL-terminated number string.
+ *
+ *  @return Parsed and scaled value.
+ */
 float
 SI_atof(const char *nptr)
 {
@@ -346,12 +698,26 @@ SI_atof(const char *nptr)
 
 // endianness swap
 
+/*!
+ *  @brief Swaps the two bytes of a 16-bit value.
+ *
+ *  @param[in] val Value to swap.
+ *
+ *  @return Value with the two bytes swapped.
+ */
 static inline uint16
 swab16(uint16 val)
 {
         return (val >> 8) | (val << 8);
 }
 
+/*!
+ *  @brief Swaps the four bytes of a 32-bit value.
+ *
+ *  @param[in] val Value to swap.
+ *
+ *  @return Value with the four bytes reversed.
+ */
 static inline uint32
 swab32(uint32 val)
 {
@@ -364,102 +730,169 @@ swab32(uint32 val)
 // this trick makes me declare things only once
 // (once for the structures, once for the endianness swap)
 
+/*!
+ *  @brief Macro describing the on-disk ext2 superblock layout.
+ *  @def superblock_decl
+ */
 #define superblock_decl \
-        udecl32(s_inodes_count)        /* Count of inodes in the filesystem */ \
-        udecl32(s_blocks_count)        /* Count of blocks in the filesystem */ \
-        udecl32(s_r_blocks_count)      /* Count of the number of reserved blocks */ \
-        udecl32(s_free_blocks_count)   /* Count of the number of free blocks */ \
-        udecl32(s_free_inodes_count)   /* Count of the number of free inodes */ \
-        udecl32(s_first_data_block)    /* The first block which contains data */ \
-        udecl32(s_log_block_size)      /* Indicator of the block size */ \
-        decl32(s_log_frag_size)        /* Indicator of the size of the fragments */ \
-        udecl32(s_blocks_per_group)    /* Count of the number of blocks in each block group */ \
-        udecl32(s_frags_per_group)     /* Count of the number of fragments in each block group */ \
-        udecl32(s_inodes_per_group)    /* Count of the number of inodes in each block group */ \
-        udecl32(s_mtime)               /* The time that the filesystem was last mounted */ \
-        udecl32(s_wtime)               /* The time that the filesystem was last written to */ \
-        udecl16(s_mnt_count)           /* The number of times the file system has been mounted */ \
-        decl16(s_max_mnt_count)        /* The number of times the file system can be mounted */ \
-        udecl16(s_magic)               /* Magic number indicating ex2fs */ \
-        udecl16(s_state)               /* Flags indicating the current state of the filesystem */ \
-        udecl16(s_errors)              /* Flags indicating the procedures for error reporting */ \
-        udecl16(s_minor_rev_level)     /* The minor revision level of the filesystem */ \
-        udecl32(s_lastcheck)           /* The time that the filesystem was last checked */ \
-        udecl32(s_checkinterval)       /* The maximum time permissable between checks */ \
-        udecl32(s_creator_os)          /* Indicator of which OS created the filesystem */ \
-        udecl32(s_rev_level)           /* The revision level of the filesystem */ \
-        udecl16(s_def_resuid)          /* The default uid for reserved blocks */ \
-        udecl16(s_def_resgid)          /* The default gid for reserved blocks */
+        udecl32(s_inodes_count)        /*!< Count of inodes in the filesystem */ \
+        udecl32(s_blocks_count)        /*!< Count of blocks in the filesystem */ \
+        udecl32(s_r_blocks_count)      /*!< Count of the number of reserved blocks */ \
+        udecl32(s_free_blocks_count)   /*!< Count of the number of free blocks */ \
+        udecl32(s_free_inodes_count)   /*!< Count of the number of free inodes */ \
+        udecl32(s_first_data_block)    /*!< The first block which contains data */ \
+        udecl32(s_log_block_size)      /*!< Indicator of the block size */ \
+        decl32(s_log_frag_size)        /*!< Indicator of the size of the fragments */ \
+        udecl32(s_blocks_per_group)    /*!< Count of the number of blocks in each block group */ \
+        udecl32(s_frags_per_group)     /*!< Count of the number of fragments in each block group */ \
+        udecl32(s_inodes_per_group)    /*!< Count of the number of inodes in each block group */ \
+        udecl32(s_mtime)               /*!< The time that the filesystem was last mounted */ \
+        udecl32(s_wtime)               /*!< The time that the filesystem was last written to */ \
+        udecl16(s_mnt_count)           /*!< The number of times the file system has been mounted */ \
+        decl16(s_max_mnt_count)        /*!< The number of times the file system can be mounted */ \
+        udecl16(s_magic)               /*!< Magic number indicating ex2fs */ \
+        udecl16(s_state)               /*!< Flags indicating the current state of the filesystem */ \
+        udecl16(s_errors)              /*!< Flags indicating the procedures for error reporting */ \
+        udecl16(s_minor_rev_level)     /*!< The minor revision level of the filesystem */ \
+        udecl32(s_lastcheck)           /*!< The time that the filesystem was last checked */ \
+        udecl32(s_checkinterval)       /*!< The maximum time permissable between checks */ \
+        udecl32(s_creator_os)          /*!< Indicator of which OS created the filesystem */ \
+        udecl32(s_rev_level)           /*!< The revision level of the filesystem */ \
+        udecl16(s_def_resuid)          /*!< The default uid for reserved blocks */ \
+        udecl16(s_def_resgid)          /*!< The default gid for reserved blocks */
 
+/*!
+ *  @brief Macro describing the on-disk ext2 group descriptor layout.
+ *  @def groupdescriptor_decl
+ */
 #define groupdescriptor_decl \
-        udecl32(bg_block_bitmap)       /* Block number of the block bitmap */ \
-        udecl32(bg_inode_bitmap)       /* Block number of the inode bitmap */ \
-        udecl32(bg_inode_table)        /* Block number of the inode table */ \
-        udecl16(bg_free_blocks_count)  /* Free blocks in the group */ \
-        udecl16(bg_free_inodes_count)  /* Free inodes in the group */ \
-        udecl16(bg_used_dirs_count)    /* Number of directories in the group */ \
-        udecl16(bg_pad)
+        udecl32(bg_block_bitmap)       /*!< Block number of the block bitmap */ \
+        udecl32(bg_inode_bitmap)       /*!< Block number of the inode bitmap */ \
+        udecl32(bg_inode_table)        /*!< Block number of the inode table */ \
+        udecl16(bg_free_blocks_count)  /*!< Free blocks in the group */ \
+        udecl16(bg_free_inodes_count)  /*!< Free inodes in the group */ \
+        udecl16(bg_used_dirs_count)    /*!< Number of directories in the group */ \
+        udecl16(bg_pad)                /*!< Padding */
 
+/*!
+ *  @brief Macro describing the on-disk ext2 inode layout.
+ *  @def inode_decl
+ */
 #define inode_decl \
-        udecl16(i_mode)                /* Entry type and file mode */ \
-        udecl16(i_uid)                 /* User id */ \
-        udecl32(i_size)                /* File/dir size in bytes */ \
-        udecl32(i_atime)               /* Last access time */ \
-        udecl32(i_ctime)               /* Creation time */ \
-        udecl32(i_mtime)               /* Last modification time */ \
-        udecl32(i_dtime)               /* Deletion time */ \
-        udecl16(i_gid)                 /* Group id */ \
-        udecl16(i_links_count)         /* Number of (hard) links to this inode */ \
-        udecl32(i_blocks)              /* Number of blocks used (1 block = 512 bytes) */ \
-        udecl32(i_flags)               /* ??? */ \
-        udecl32(i_reserved1) \
-        utdecl32(i_block,15)           /* Blocks table */ \
-        udecl32(i_version)             /* ??? */ \
-        udecl32(i_file_acl)            /* File access control list */ \
-        udecl32(i_dir_acl)             /* Directory access control list */ \
-        udecl32(i_faddr)               /* Fragment address */ \
-        udecl8(i_frag)                 /* Fragments count*/ \
-        udecl8(i_fsize)                /* Fragment size */ \
-        udecl16(i_pad1)
+        udecl16(i_mode)                /*!< Entry type and file mode */ \
+        udecl16(i_uid)                 /*!< User id */ \
+        udecl32(i_size)                /*!< File/dir size in bytes */ \
+        udecl32(i_atime)               /*!< Last access time */ \
+        udecl32(i_ctime)               /*!< Creation time */ \
+        udecl32(i_mtime)               /*!< Last modification time */ \
+        udecl32(i_dtime)               /*!< Deletion time */ \
+        udecl16(i_gid)                 /*!< Group id */ \
+        udecl16(i_links_count)         /*!< Number of (hard) links to this inode */ \
+        udecl32(i_blocks)              /*!< Number of blocks used (1 block = 512 bytes) */ \
+        udecl32(i_flags)               /*!< Inode flags */ \
+        udecl32(i_reserved1)           /*!< Reserved */ \
+        utdecl32(i_block,15)           /*!< Blocks table */ \
+        udecl32(i_version)             /*!< File version */ \
+        udecl32(i_file_acl)            /*!< File access control list */ \
+        udecl32(i_dir_acl)             /*!< Directory access control list */ \
+        udecl32(i_faddr)               /*!< Fragment address */ \
+        udecl8(i_frag)                 /*!< Fragments count */ \
+        udecl8(i_fsize)                /*!< Fragment size */ \
+        udecl16(i_pad1)                /*!< Padding */
 
+/*!
+ *  @brief Macro describing the on-disk ext2 directory entry layout.
+ *  @def directory_decl
+ */
 #define directory_decl \
-        udecl32(d_inode)               /* Inode entry */ \
-        udecl16(d_rec_len)             /* Total size on record */ \
-        udecl8(d_name_len)  /* 16*/   /* Size of entry name */ \
-        udecl8(d_file_type)  /* Added */
+        udecl32(d_inode)               /*!< Inode entry */ \
+        udecl16(d_rec_len)             /*!< Total size on record */ \
+        udecl8(d_name_len)             /*!< Size of entry name */ \
+        udecl8(d_file_type)            /*!< File type (added) */
 
+/*!
+ *  @brief Declares a signed 8-bit field.
+ *  @def decl8
+ *  @param x Field name.
+ */
 #define decl8(x) int8 x;
+/*!
+ *  @brief Declares an unsigned 8-bit field.
+ *  @def udecl8
+ *  @param x Field name.
+ */
 #define udecl8(x) uint8 x;
+/*!
+ *  @brief Declares a signed 16-bit field.
+ *  @def decl16
+ *  @param x Field name.
+ */
 #define decl16(x) int16 x;
+/*!
+ *  @brief Declares an unsigned 16-bit field.
+ *  @def udecl16
+ *  @param x Field name.
+ */
 #define udecl16(x) uint16 x;
+/*!
+ *  @brief Declares a signed 32-bit field.
+ *  @def decl32
+ *  @param x Field name.
+ */
 #define decl32(x) int32 x;
+/*!
+ *  @brief Declares an unsigned 32-bit field.
+ *  @def udecl32
+ *  @param x Field name.
+ */
 #define udecl32(x) uint32 x;
+/*!
+ *  @brief Declares an array of unsigned 32-bit fields.
+ *  @def utdecl32
+ *  @param x Field name.
+ *  @param n Number of elements.
+ */
 #define utdecl32(x,n) uint32 x[n];
 
+/*!
+ *  @brief ext2 superblock.
+ */
 typedef struct
 {
         superblock_decl
-        uint32 s_reserved[235];       // Reserved
+        uint32 s_reserved[235];       /*!< Reserved */
 } superblock;
 
+/*!
+ *  @brief ext2 block-group descriptor.
+ */
 typedef struct
 {
         groupdescriptor_decl
-        uint32 bg_reserved[3];
+        uint32 bg_reserved[3];        /*!< Reserved */
 } groupdescriptor;
 
+/*!
+ *  @brief ext2 inode.
+ */
 typedef struct
 {
         inode_decl
-        uint32 i_reserved2[2];
+        uint32 i_reserved2[2];        /*!< Reserved */
 } inode;
 
+/*!
+ *  @brief ext2 directory entry (variable-length name at the end).
+ */
 typedef struct
 {
         directory_decl
-        char d_name[1];
+        char d_name[1];               /*!< Entry name (variable size) */
 } directory;
 
+/*!
+ *  @brief One raw filesystem block.
+ */
 typedef uint8 block[BLOCKSIZE];
 
 /* blockwalker fields:
@@ -488,23 +921,29 @@ typedef uint8 block[BLOCKSIZE];
    only bpind will be used.
 */
 
+/*!
+ *  @brief Iterator over the block list of an inode.
+ */
 typedef struct
 {
-        uint32 bnum;
-        uint32 bpdir;
-        uint32 bpind;
-        uint32 bpdind;
-        uint32 bptind;
+        uint32 bnum;    /*!< Total blocks accessed so far (including indirection blocks). */
+        uint32 bpdir;   /*!< Index into i_block[] (level of indirection). */
+        uint32 bpind;   /*!< First running index into indirection blocks. */
+        uint32 bpdind;  /*!< Second running index into indirection blocks. */
+        uint32 bptind;  /*!< Third running index into indirection blocks. */
 } blockwalker;
 
 
 /* Filesystem structure that support groups */
 #if BLOCKSIZE == 1024
+/*!
+ *  @brief In-memory representation of the whole filesystem image.
+ */
 typedef struct
 {
-        block zero;            // The famous block 0
-        superblock sb;         // The superblock
-        groupdescriptor gd[1]; // The group descriptors
+        block zero;            /*!< The famous block 0 */
+        superblock sb;         /*!< The superblock */
+        groupdescriptor gd[1]; /*!< The group descriptors */
 } filesystem;
 #else
 #error UNHANDLED BLOCKSIZE
@@ -520,62 +959,151 @@ typedef struct
 #undef udecl32
 #undef utdecl32
 
+/*!
+ *  @brief Empty redefinition of a signed 8-bit field for the byte-swap pass.
+ *  @def decl8
+ *  @param x Field name.
+ */
 #define decl8(x)
+/*!
+ *  @brief Empty redefinition of an unsigned 8-bit field for the byte-swap pass.
+ *  @def udecl8
+ *  @param x Field name.
+ */
 #define udecl8(x)
+/*!
+ *  @brief Byte-swaps a signed 16-bit field.
+ *  @def decl16
+ *  @param x Field name.
+ */
 #define decl16(x) this->x = swab16(this->x);
+/*!
+ *  @brief Byte-swaps an unsigned 16-bit field.
+ *  @def udecl16
+ *  @param x Field name.
+ */
 #define udecl16(x) this->x = swab16(this->x);
+/*!
+ *  @brief Byte-swaps a signed 32-bit field.
+ *  @def decl32
+ *  @param x Field name.
+ */
 #define decl32(x) this->x = swab32(this->x);
+/*!
+ *  @brief Byte-swaps an unsigned 32-bit field.
+ *  @def udecl32
+ *  @param x Field name.
+ */
 #define udecl32(x) this->x = swab32(this->x);
+/*!
+ *  @brief Byte-swaps an array of unsigned 32-bit fields.
+ *  @def utdecl32
+ *  @param x Field name.
+ *  @param n Number of elements.
+ */
 #define utdecl32(x,n) { int i; for(i=0; i<n; i++) this->x[i] = swab32(this->x[i]); }
 
+/*!
+ *  @brief Default initial capacity of the hardlink table.
+ *  @def HDLINK_CNT
+ */
 #define HDLINK_CNT   16
-static int32 hdlink_cnt = HDLINK_CNT;
+
+static int32 hdlink_cnt = HDLINK_CNT;   /*!< Current capacity of the hardlink table. */
+
+/*!
+ *  @brief One hardlink table entry.
+ */
 struct hdlink_s
 {
-        uint32  src_inode;
-        uint32  dst_nod;
+        uint32  src_inode;  /*!< Source inode number (from stat). */
+        uint32  dst_nod;    /*!< Target inode number in the generated image. */
 };
 
+/*!
+ *  @brief Hardlink table.
+ */
 struct hdlinks_s
 {
-        int32 count;
-        struct hdlink_s *hdl;
+        int32 count;              /*!< Number of entries in @c hdl. */
+        struct hdlink_s *hdl;     /*!< Entries. */
 };
 
-static struct hdlinks_s hdlinks;
+static struct hdlinks_s hdlinks;  /*!< Table of hardlinks. */
 
+/*!
+ *  @brief Byte-swaps a superblock in place.
+ *
+ *  @param[in,out] sb Superblock to swap.
+ */
 static void
 swap_sb(superblock *sb)
 {
+/*!
+ *  @brief Selects the object that the byte-swap macros operate on.
+ *  @def this
+ */
 #define this sb
         superblock_decl
 #undef this
 }
 
+/*!
+ *  @brief Byte-swaps a group descriptor in place.
+ *
+ *  @param[in,out] gd Group descriptor to swap.
+ */
 static void
 swap_gd(groupdescriptor *gd)
 {
+/*!
+ *  @brief Selects the object that the byte-swap macros operate on.
+ *  @def this
+ */
 #define this gd
         groupdescriptor_decl
 #undef this
 }
 
+/*!
+ *  @brief Byte-swaps an inode in place.
+ *
+ *  @param[in,out] nod Inode to swap.
+ */
 static void
 swap_nod(inode *nod)
 {
+/*!
+ *  @brief Selects the object that the byte-swap macros operate on.
+ *  @def this
+ */
 #define this nod
         inode_decl
 #undef this
 }
 
+/*!
+ *  @brief Byte-swaps a directory entry in place.
+ *
+ *  @param[in,out] dir Directory entry to swap.
+ */
 static void
 swap_dir(directory *dir)
 {
+/*!
+ *  @brief Selects the object that the byte-swap macros operate on.
+ *  @def this
+ */
 #define this dir
         directory_decl
 #undef this
 }
 
+/*!
+ *  @brief Byte-swaps all 32-bit words in a block.
+ *
+ *  @param[in,out] b Block to swap.
+ */
 static void
 swap_block(block b)
 {
@@ -593,10 +1121,16 @@ swap_block(block b)
 #undef udecl32
 #undef utdecl32
 
-static char * app_name;
-static const char *const memory_exhausted = "memory exhausted";
+static char * app_name;                                     /*!< Program name used in diagnostics. */
+static const char *const memory_exhausted = "memory exhausted";  /*!< Message printed on out-of-memory. */
 
 // error (un)handling
+/*!
+ *  @brief Prints a formatted error message prefix.
+ *
+ *  @param[in] s Format string.
+ *  @param[in] p Format arguments.
+ */
 static void
 verror_msg(const char *s, va_list p)
 {
@@ -604,6 +1138,13 @@ verror_msg(const char *s, va_list p)
         fprintf(stderr, "%s: ", app_name);
         vfprintf(stderr, s, p);
 }
+
+/*!
+ *  @brief Prints a formatted error message.
+ *
+ *  @param[in] s   Format string.
+ *  @param[in] ... Format arguments.
+ */
 static void
 error_msg(const char *s, ...)
 {
@@ -614,6 +1155,12 @@ error_msg(const char *s, ...)
         putc('\n', stderr);
 }
 
+/*!
+ *  @brief Prints a formatted error message and exits with failure.
+ *
+ *  @param[in] s   Format string.
+ *  @param[in] ... Format arguments.
+ */
 static void
 error_msg_and_die(const char *s, ...)
 {
@@ -625,6 +1172,12 @@ error_msg_and_die(const char *s, ...)
         exit(EXIT_FAILURE);
 }
 
+/*!
+ *  @brief Prints an errno-based error message.
+ *
+ *  @param[in] s Format string.
+ *  @param[in] p Format arguments.
+ */
 static void
 vperror_msg(const char *s, va_list p)
 {
@@ -637,6 +1190,12 @@ vperror_msg(const char *s, va_list p)
         fprintf(stderr, "%s%s\n", s, strerror(err));
 }
 
+/*!
+ *  @brief Prints an errno-based error message and exits.
+ *
+ *  @param[in] s   Format string.
+ *  @param[in] ... Format arguments.
+ */
 static void
 perror_msg_and_die(const char *s, ...)
 {
@@ -647,6 +1206,14 @@ perror_msg_and_die(const char *s, ...)
         exit(EXIT_FAILURE);
 }
 
+/*!
+ *  @brief Opens a file, terminating the program on failure.
+ *
+ *  @param[in] path Path to open.
+ *  @param[in] mode fopen() mode string.
+ *
+ *  @return Opened stream.
+ */
 static FILE *
 xfopen(const char *path, const char *mode)
 {
@@ -656,6 +1223,14 @@ xfopen(const char *path, const char *mode)
         return fp;
 }
 
+/*!
+ *  @brief Duplicates a string, terminating the program on out-of-memory.
+ *
+ *  @param[in] s String to duplicate (may be NULL).
+ *
+ *  @return Newly allocated copy, or NULL when @p s is NULL.
+ *  @retval NULL The input string was NULL.
+ */
 static char *
 xstrdup(const char *s)
 {
@@ -669,6 +1244,14 @@ xstrdup(const char *s)
         return t;
 }
 
+/*!
+ *  @brief realloc() wrapper that terminates the program on out-of-memory.
+ *
+ *  @param[in] ptr  Pointer to resize.
+ *  @param[in] size New size in bytes.
+ *
+ *  @return Resized pointer.
+ */
 static void *
 xrealloc(void *ptr, size_t size)
 {
@@ -681,6 +1264,13 @@ xrealloc(void *ptr, size_t size)
 #ifndef __CPM__
 #include <unistd.h>
 int readlink(const char *path, char *buf, size_t bufsiz);
+/*!
+ *  @brief Reads a symbolic link target, growing the buffer as needed.
+ *
+ *  @param[in] path Path of the symbolic link.
+ *
+ *  @return Newly allocated target string.
+ */
 static char *
 xreadlink(const char *path)
 {
@@ -703,6 +1293,14 @@ xreadlink(const char *path)
 }
 #endif
 
+/*!
+ *  @brief Looks up an inode in the hardlink table.
+ *
+ *  @param[in] inode Source inode number.
+ *
+ *  @return Index of the entry.
+ *  @retval -1 The inode is not in the table.
+ */
 int
 is_hardlink(ino_t inode)
 {
@@ -717,15 +1315,31 @@ is_hardlink(ino_t inode)
 }
 
 // printf helper macro
+/*!
+ *  @brief Emits a count and its plural 's' as printf arguments.
+ *  @def plural
+ *  @param[in] a Number.
+ */
 #define plural(a) (a), ((a) > 1) ? "s" : ""
 
 // temporary working block
+/*!
+ *  @brief Allocates a zeroed work block.
+ *
+ *  @return Pointer to the work block.
+ */
 static inline uint8 *
 get_workblk(void)
 {
         unsigned char* b=calloc(1,BLOCKSIZE);
         return b;
 }
+
+/*!
+ *  @brief Releases a work block allocated by get_workblk().
+ *
+ *  @param[in] b Work block.
+ */
 static inline void
 free_workblk(block b)
 {
@@ -733,6 +1347,14 @@ free_workblk(block b)
 }
 
 /* Rounds qty upto a multiple of siz. siz should be a power of 2 */
+/*!
+ *  @brief Rounds a quantity up to a multiple of @p siz.
+ *
+ *  @param[in] qty Quantity to round up.
+ *  @param[in] siz Block size (must be a power of 2).
+ *
+ *  @return Rounded-up value.
+ */
 static uint32
 rndup(uint32 qty, uint32 siz)
 {
@@ -740,6 +1362,14 @@ rndup(uint32 qty, uint32 siz)
 }
 
 // check if something is allocated in the bitmap
+/*!
+ *  @brief Tests whether the given item is marked allocated in a bitmap.
+ *
+ *  @param[in] b    Bitmap block.
+ *  @param[in] item One-based item index.
+ *
+ *  @return Non-zero when the item is allocated.
+ */
 static inline uint32
 allocated(block b, uint32 item)
 {
@@ -747,6 +1377,14 @@ allocated(block b, uint32 item)
 }
 
 // return a given block from a filesystem
+/*!
+ *  @brief Returns a pointer to the given block of the image.
+ *
+ *  @param[in] fs  Filesystem.
+ *  @param[in] blk Block number.
+ *
+ *  @return Pointer to the block data.
+ */
 static inline uint8 *
 get_blk(filesystem *fs, uint32 blk)
 {
@@ -754,6 +1392,14 @@ get_blk(filesystem *fs, uint32 blk)
 }
 
 // return a given inode from a filesystem
+/*!
+ *  @brief Returns a pointer to the given inode of the image.
+ *
+ *  @param[in] fs  Filesystem.
+ *  @param[in] nod Inode number.
+ *
+ *  @return Pointer to the inode structure.
+ */
 static inline inode *
 get_nod(filesystem *fs, uint32 nod)
 {
@@ -768,6 +1414,15 @@ get_nod(filesystem *fs, uint32 nod)
 
 // allocate a given block/inode in the bitmap
 // allocate first free if item == 0
+/*!
+ *  @brief Marks the given item (or the first free item) as allocated.
+ *
+ *  @param[in,out] b    Bitmap block.
+ *  @param[in]     item One-based item index, or 0 for "first free".
+ *
+ *  @return One-based index of the allocated item.
+ *  @retval 0 No free item was found.
+ */
 static uint32
 allocate(block b, uint32 item)
 {
@@ -793,6 +1448,12 @@ allocate(block b, uint32 item)
 }
 
 // deallocate a given block/inode
+/*!
+ *  @brief Marks the given item as free in a bitmap.
+ *
+ *  @param[in,out] b    Bitmap block.
+ *  @param[in]     item One-based item index.
+ */
 static void
 deallocate(block b, uint32 item)
 {
@@ -800,6 +1461,14 @@ deallocate(block b, uint32 item)
 }
 
 // allocate a block
+/*!
+ *  @brief Allocates one filesystem block near the given inode.
+ *
+ *  @param[in] fs  Filesystem.
+ *  @param[in] nod Inode the block is intended for.
+ *
+ *  @return One-based block number of the allocated block.
+ */
 static uint32
 alloc_blk(filesystem *fs, uint32 nod)
 {
@@ -824,6 +1493,12 @@ alloc_blk(filesystem *fs, uint32 nod)
 }
 
 // free a block
+/*!
+ *  @brief Frees one filesystem block.
+ *
+ *  @param[in] fs Filesystem.
+ *  @param[in] bk One-based block number.
+ */
 static void
 free_blk(filesystem *fs, uint32 bk)
 {
@@ -837,6 +1512,13 @@ free_blk(filesystem *fs, uint32 bk)
 }
 
 // allocate an inode
+/*!
+ *  @brief Allocates one inode, spreading allocations across groups.
+ *
+ *  @param[in] fs Filesystem.
+ *
+ *  @return One-based inode number of the allocated inode.
+ */
 static uint32
 alloc_nod(filesystem *fs)
 {
@@ -869,6 +1551,12 @@ alloc_nod(filesystem *fs)
 }
 
 // print a bitmap allocation
+/*!
+ *  @brief Prints a bitmap allocation as ASCII art.
+ *
+ *  @param[in] b   Bitmap block.
+ *  @param[in] max One-based index of the last item to print.
+ */
 static void
 print_bm(block b, uint32 max)
 {
@@ -885,6 +1573,13 @@ print_bm(block b, uint32 max)
 }
 
 // initalize a blockwalker (iterator for blocks list)
+/*!
+ *  @brief Initializes a blockwalker for the given inode.
+ *
+ *  @param[in]  fs  Filesystem.
+ *  @param[in]  nod Inode number.
+ *  @param[out] bw  Blockwalker to initialize.
+ */
 static void
 init_bw(filesystem *fs, uint32 nod, blockwalker *bw)
 {
@@ -900,6 +1595,19 @@ init_bw(filesystem *fs, uint32 nod, blockwalker *bw)
 //                                the file. moreover, i_blocks isn't updated.
 //                                in fact, don't do that, just use extend_blk
 // if hole!=0, create a hole in the file
+/*!
+ *  @brief Returns the next data block of an inode, optionally allocating or freeing.
+ *
+ *  @param[in]     fs     Filesystem.
+ *  @param[in]     nod    Inode number.
+ *  @param[in,out] bw     Blockwalker.
+ *  @param[in,out] create Allocation mode pointer; decremented per allocation
+ *                        when positive, or used as a free count when negative.
+ *  @param[in]     hole   Non-zero to create a hole instead of allocating.
+ *
+ *  @return One-based block number.
+ *  @retval WALK_END End of the block list.
+ */
 static uint32
 walk_bw(filesystem *fs, uint32 nod, blockwalker *bw, int32 *create, uint32 hole)
 {
@@ -1132,6 +1840,14 @@ walk_bw(filesystem *fs, uint32 nod, blockwalker *bw, int32 *create, uint32 hole)
 }
 
 // add blocks to an inode (file/dir/etc...)
+/*!
+ *  @brief Extends (or shrinks) an inode's block list.
+ *
+ *  @param[in] fs     Filesystem.
+ *  @param[in] nod    Inode number.
+ *  @param[in] b      Source data for newly-allocated blocks.
+ *  @param[in] amount Positive number of blocks to append, negative to remove.
+ */
 static void
 extend_blk(filesystem *fs, uint32 nod, block b, int amount)
 {
@@ -1173,6 +1889,14 @@ extend_blk(filesystem *fs, uint32 nod, block b, int amount)
 }
 
 // link an entry (inode #) to a directory
+/*!
+ *  @brief Adds a directory entry pointing at the given inode.
+ *
+ *  @param[in] fs    Filesystem.
+ *  @param[in] dnod  Parent directory inode.
+ *  @param[in] nod   Inode the entry refers to.
+ *  @param[in] name  Entry name.
+ */
 static void
 add2dir(filesystem *fs, uint32 dnod, uint32 nod, const char* name)
 {
@@ -1263,6 +1987,16 @@ add2dir(filesystem *fs, uint32 dnod, uint32 nod, const char* name)
 }
 
 // find an entry in a directory
+/*!
+ *  @brief Looks up a name in a directory.
+ *
+ *  @param[in] fs   Filesystem.
+ *  @param[in] nod  Directory inode.
+ *  @param[in] name Entry name.
+ *
+ *  @return Inode number of the entry.
+ *  @retval 0 The entry was not found.
+ */
 static uint32
 find_dir(filesystem *fs, uint32 nod, const char * name)
 {
@@ -1283,6 +2017,16 @@ find_dir(filesystem *fs, uint32 nod, const char * name)
 }
 
 // find the inode of a full path
+/*!
+ *  @brief Resolves an absolute path to an inode.
+ *
+ *  @param[in] fs   Filesystem.
+ *  @param[in] nod  Starting inode (typically EXT2_ROOT_INO).
+ *  @param[in] name Path to resolve.
+ *
+ *  @return Inode number of the last path component.
+ *  @retval 0 A path component was not found.
+ */
 static uint32
 find_path(filesystem *fs, uint32 nod, const char * name)
 {
@@ -1309,6 +2053,22 @@ find_path(filesystem *fs, uint32 nod, const char * name)
 }
 
 // create a simple inode
+/*!
+ *  @brief Creates or updates an inode of the given type.
+ *
+ *  @param[in] fs         Filesystem.
+ *  @param[in] parent_nod Parent directory inode.
+ *  @param[in] name       Entry name.
+ *  @param[in] mode       Mode bits (including type).
+ *  @param[in] uid        Owner user id.
+ *  @param[in] gid        Owner group id.
+ *  @param[in] major      Device major number (device nodes only).
+ *  @param[in] minor      Device minor number (device nodes only).
+ *  @param[in] ctime      Creation time.
+ *  @param[in] mtime      Modification time.
+ *
+ *  @return Inode number.
+ */
 static uint32
 mknod_fs(filesystem *fs, uint32 parent_nod, const char *name, uint32 mode, uint16 uid, uint16 gid, uint8 major, uint8 minor, uint32 ctime, uint32 mtime)
 {
@@ -1353,6 +2113,20 @@ mknod_fs(filesystem *fs, uint32 parent_nod, const char *name, uint32 mode, uint1
 }
 
 // make a full-fledged directory (i.e. with "." & "..")
+/*!
+ *  @brief Creates a directory (with "." and "..") in the image.
+ *
+ *  @param[in] fs         Filesystem.
+ *  @param[in] parent_nod Parent directory inode.
+ *  @param[in] name       Directory name.
+ *  @param[in] mode       Permission mode bits.
+ *  @param[in] uid        Owner user id.
+ *  @param[in] gid        Owner group id.
+ *  @param[in] ctime      Creation time.
+ *  @param[in] mtime      Modification time.
+ *
+ *  @return Inode number of the new directory.
+ */
 static inline uint32
 mkdir_fs(filesystem *fs, uint32 parent_nod, const char *name, uint32 mode,
         uid_t uid, gid_t gid, uint32 ctime, uint32 mtime)
@@ -1361,6 +2135,21 @@ mkdir_fs(filesystem *fs, uint32 parent_nod, const char *name, uint32 mode,
 }
 
 // make a symlink
+/*!
+ *  @brief Creates a symbolic link in the image.
+ *
+ *  @param[in] fs         Filesystem.
+ *  @param[in] parent_nod Parent directory inode.
+ *  @param[in] name       Symbolic-link name.
+ *  @param[in] size       Length of the link target.
+ *  @param[in] b          Link target bytes.
+ *  @param[in] uid        Owner user id.
+ *  @param[in] gid        Owner group id.
+ *  @param[in] ctime      Creation time.
+ *  @param[in] mtime      Modification time.
+ *
+ *  @return Inode number of the symbolic link.
+ */
 static uint32
 mklink_fs(filesystem *fs, uint32 parent_nod, const char *name, size_t size, uint8 *b, uid_t uid, gid_t gid, uint32 ctime, uint32 mtime)
 {
@@ -1377,6 +2166,22 @@ mklink_fs(filesystem *fs, uint32 parent_nod, const char *name, size_t size, uint
 }
 
 // make a file from a FILE*
+/*!
+ *  @brief Creates a regular file in the image.
+ *
+ *  @param[in] fs         Filesystem.
+ *  @param[in] parent_nod Parent directory inode.
+ *  @param[in] name       File name.
+ *  @param[in] mode       Permission mode bits.
+ *  @param[in] size       File size in bytes.
+ *  @param[in] f          Stream to read the contents from (or NULL for zeros).
+ *  @param[in] uid        Owner user id.
+ *  @param[in] gid        Owner group id.
+ *  @param[in] ctime      Creation time.
+ *  @param[in] mtime      Modification time.
+ *
+ *  @return Inode number of the new file.
+ */
 static uint32
 mkfile_fs(filesystem *fs, uint32 parent_nod, const char *name, uint32 mode, size_t size, FILE *f, uid_t uid, gid_t gid, uint32 ctime, uint32 mtime)
 {
@@ -1399,6 +2204,13 @@ mkfile_fs(filesystem *fs, uint32 parent_nod, const char *name, uint32 mode, size
 }
 
 // retrieves a mode info from a struct stat
+/*!
+ *  @brief Converts POSIX mode bits to internal FM_* mode bits.
+ *
+ *  @param[in] st Stat buffer.
+ *
+ *  @return Internal mode bits.
+ */
 static uint32
 get_mode(struct stat *st)
 {
@@ -1450,6 +2262,17 @@ get_mode(struct stat *st)
     block, fifo, or directory does not exist, it will be created.
 */
 
+/*!
+ *  @brief Adds entries from a mkfs.jffs2-style device table.
+ *
+ *  @param[in] fs            Filesystem.
+ *  @param[in] this_nod      Root inode of the target directory.
+ *  @param[in] fh            Stream of the device table file.
+ *  @param[in] squash_uids   Non-zero to force uid/gid to 0.
+ *  @param[in] squash_perms  Non-zero to strip group/other permissions.
+ *  @param[in] fs_timestamp  Filesystem-wide timestamp (ctime).
+ *  @param[in] stats         Optional stats collector; when non-NULL, only counts.
+ */
 static void
 add2fs_from_file(filesystem *fs, uint32 this_nod, FILE * fh, int squash_uids, int squash_perms, uint32 fs_timestamp, struct stats *stats)
 {
@@ -1559,6 +2382,16 @@ add2fs_from_file(filesystem *fs, uint32 this_nod, FILE * fh, int squash_uids, in
 }
 
 // adds a tree of entries to the filesystem from current dir
+/*!
+ *  @brief Recursively adds the current directory to the filesystem image.
+ *
+ *  @param[in] fs            Filesystem.
+ *  @param[in] this_nod      Inode of the parent directory in the image.
+ *  @param[in] squash_uids   Non-zero to force uid/gid to 0.
+ *  @param[in] squash_perms  Non-zero to strip group/other permissions.
+ *  @param[in] fs_timestamp  Filesystem-wide timestamp (ctime).
+ *  @param[in] stats         Optional stats collector; when non-NULL, only counts.
+ */
 static void
 add2fs_from_dir(filesystem *fs, uint32 this_nod, int squash_uids, int squash_perms, uint32 fs_timestamp, struct stats *stats)
 {
@@ -1683,6 +2516,12 @@ add2fs_from_dir(filesystem *fs, uint32 this_nod, int squash_uids, int squash_per
 }
 
 // endianness swap of x-indirect blocks
+/*!
+ *  @brief Byte-swaps an inode's block tree from host to on-disk order.
+ *
+ *  @param[in] fs  Filesystem.
+ *  @param[in] nod Inode whose block tree to swap.
+ */
 static void
 swap_goodblocks(filesystem *fs, inode *nod)
 {
@@ -1739,6 +2578,12 @@ swap_goodblocks(filesystem *fs, inode *nod)
         return;
 }
 
+/*!
+ *  @brief Byte-swaps an inode's block tree from on-disk to host order.
+ *
+ *  @param[in] fs  Filesystem.
+ *  @param[in] nod Inode whose block tree to swap.
+ */
 static void
 swap_badblocks(filesystem *fs, inode *nod)
 {
@@ -1784,6 +2629,11 @@ swap_badblocks(filesystem *fs, inode *nod)
 }
 
 // endianness swap of the whole filesystem
+/*!
+ *  @brief Byte-swaps the whole filesystem from host to on-disk order.
+ *
+ *  @param[in] fs Filesystem.
+ */
 static void
 swap_goodfs(filesystem *fs)
 {
@@ -1813,6 +2663,11 @@ swap_goodfs(filesystem *fs)
         swap_sb(&fs->sb);
 }
 
+/*!
+ *  @brief Byte-swaps the whole filesystem from on-disk to host order.
+ *
+ *  @param[in] fs Filesystem.
+ */
 static void
 swap_badfs(filesystem *fs)
 {
@@ -1843,6 +2698,17 @@ swap_badfs(filesystem *fs)
 }
 
 // initialize an empty filesystem
+/*!
+ *  @brief Creates an empty ext2 filesystem image in memory.
+ *
+ *  @param[in] nbblocks     Total number of blocks.
+ *  @param[in] nbinodes     Total number of inodes.
+ *  @param[in] nbresrvd     Number of reserved blocks.
+ *  @param[in] holes        Non-zero to allow holes.
+ *  @param[in] fs_timestamp Filesystem-wide timestamp.
+ *
+ *  @return Newly allocated filesystem.
+ */
 static filesystem *
 init_fs(int nbblocks, int nbinodes, int nbresrvd, int holes, uint32 fs_timestamp)
 {
@@ -2013,6 +2879,14 @@ init_fs(int nbblocks, int nbinodes, int nbresrvd, int holes, uint32 fs_timestamp
 }
 
 // loads a filesystem from disk
+/*!
+ *  @brief Loads an existing ext2 image from a stream.
+ *
+ *  @param[in] fh     Input stream.
+ *  @param[in] swapit Non-zero when the image is in the other endianness.
+ *
+ *  @return Newly allocated filesystem.
+ */
 static filesystem *
 load_fs(FILE * fh, int swapit)
 {
@@ -2035,6 +2909,11 @@ load_fs(FILE * fh, int swapit)
         return fs;
 }
 
+/*!
+ *  @brief Releases a filesystem created by init_fs() or load_fs().
+ *
+ *  @param[in] fs Filesystem.
+ */
 static void
 free_fs(filesystem *fs)
 {
@@ -2042,6 +2921,13 @@ free_fs(filesystem *fs)
 }
 
 // just walk through blocks list
+/*!
+ *  @brief Writes the block list of an inode to a stream.
+ *
+ *  @param[in] fs  Filesystem.
+ *  @param[in] nod Inode number.
+ *  @param[in] fh  Output stream.
+ */
 static void
 flist_blocks(filesystem *fs, uint32 nod, FILE *fh)
 {
@@ -2054,6 +2940,12 @@ flist_blocks(filesystem *fs, uint32 nod, FILE *fh)
 }
 
 // walk through blocks list
+/*!
+ *  @brief Prints the block list of an inode.
+ *
+ *  @param[in] fs  Filesystem.
+ *  @param[in] nod Inode number.
+ */
 static void
 list_blocks(filesystem *fs, uint32 nod)
 {
@@ -2068,6 +2960,13 @@ list_blocks(filesystem *fs, uint32 nod)
 }
 
 // saves blocks to FILE*
+/*!
+ *  @brief Writes the contents of an inode to a stream.
+ *
+ *  @param[in] fs  Filesystem.
+ *  @param[in] nod Inode number.
+ *  @param[in] f   Output stream.
+ */
 static void
 write_blocks(filesystem *fs, uint32 nod, FILE* f)
 {
@@ -2086,6 +2985,13 @@ write_blocks(filesystem *fs, uint32 nod, FILE* f)
 }
 
 // hexdumps blocks to a FILE*
+/*!
+ *  @brief Hex-dumps the contents of an inode.
+ *
+ *  @param[in] fs  Filesystem.
+ *  @param[in] nod Inode number.
+ *  @param[in] f   Output stream (currently unused).
+ */
 static void
 hexdump_blocks(filesystem *fs, uint32 nod, FILE* f)
 {
@@ -2122,6 +3028,12 @@ hexdump_blocks(filesystem *fs, uint32 nod, FILE* f)
 }
 
 // print block/char device minor and major
+/*!
+ *  @brief Prints the major/minor numbers of a device inode.
+ *
+ *  @param[in] fs  Filesystem.
+ *  @param[in] nod Inode number.
+ */
 static void
 print_dev(filesystem *fs, uint32 nod)
 {
@@ -2132,6 +3044,12 @@ print_dev(filesystem *fs, uint32 nod)
 }
 
 // print an inode as a directory
+/*!
+ *  @brief Prints the entries of a directory inode.
+ *
+ *  @param[in] fs  Filesystem.
+ *  @param[in] nod Inode number.
+ */
 static void
 print_dir(filesystem *fs, uint32 nod)
 {
@@ -2157,6 +3075,12 @@ print_dir(filesystem *fs, uint32 nod)
 }
 
 // print a symbolic link
+/*!
+ *  @brief Prints the target of a symbolic-link inode.
+ *
+ *  @param[in] fs  Filesystem.
+ *  @param[in] nod Inode number.
+ */
 static void
 print_link(filesystem *fs, uint32 nod)
 {
@@ -2171,6 +3095,12 @@ print_link(filesystem *fs, uint32 nod)
 }
 
 // make a ls-like printout of permissions
+/*!
+ *  @brief Formats mode bits as an ls-style permission string.
+ *
+ *  @param[in]  mode  Internal FM_* mode bits.
+ *  @param[out] perms 11-byte buffer receiving the string.
+ */
 static void
 make_perms(uint32 mode, char perms[11])
 {
@@ -2231,6 +3161,12 @@ make_perms(uint32 mode, char perms[11])
 }
 
 // print an inode
+/*!
+ *  @brief Prints the contents of an inode.
+ *
+ *  @param[in] fs  Filesystem.
+ *  @param[in] nod Inode number.
+ */
 static void
 print_inode(filesystem *fs, uint32 nod)
 {
@@ -2298,6 +3234,11 @@ print_inode(filesystem *fs, uint32 nod)
 }
 
 // describes various fields in a filesystem
+/*!
+ *  @brief Prints a summary of the filesystem contents.
+ *
+ *  @param[in] fs Filesystem.
+ */
 static void
 print_fs(filesystem *fs)
 {
@@ -2334,6 +3275,13 @@ print_fs(filesystem *fs)
         }
 }
 
+/*!
+ *  @brief Writes the in-memory filesystem to a stream.
+ *
+ *  @param[in] fs     Filesystem.
+ *  @param[in] fh     Output stream.
+ *  @param[in] swapit Non-zero to swap bytes to the other endianness.
+ */
 static void
 dump_fs(filesystem *fs, FILE * fh, int swapit)
 {
@@ -2347,6 +3295,9 @@ dump_fs(filesystem *fs, FILE * fh, int swapit)
                 swap_badfs(fs);
 }
 
+/*!
+ *  @brief Prints the usage message.
+ */
 static void
 showhelp(void)
 {
@@ -2371,14 +3322,37 @@ showhelp(void)
         "Report bugs to genext2fs-devel@lists.sourceforge.net\n", app_name);
 }
 
+/*!
+ *  @brief Maximum number of -d/-D options.
+ *  @def MAX_DOPT
+ */
 #define MAX_DOPT 128
+
+/*!
+ *  @brief Maximum number of -g options.
+ *  @def MAX_GOPT
+ */
 #define MAX_GOPT 128
 
+/*!
+ *  @brief Maximum length of a generated block-map file name.
+ *  @def MAX_FILENAME
+ */
 #define MAX_FILENAME 255
 
-extern char* optarg;
-extern int optind, opterr, optopt;
+extern char* optarg;                     /*!< Current option argument (POSIX). */
+extern int optind, opterr, optopt;       /*!< getopt() state (POSIX). */
 
+/*!
+ *  @brief Entry point of the genext2fs tool.
+ *
+ *  @param[in] argc Argument count.
+ *  @param[in] argv Argument vector.
+ *
+ *  @return Exit status.
+ *  @retval 0 Success.
+ *  @retval 1 Invalid option or usage error.
+ */
 int
 main(int argc, char **argv)
 {
