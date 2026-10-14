@@ -7,6 +7,11 @@
 %token CCE_LOWER CCE_PRINT CCE_PUNCT CCE_SPACE CCE_UPPER CCE_XDIGIT
 
 %{
+/*!
+ *  @file parse.c
+ *  @brief Parser for flex input (generated from parse.y).
+ */
+
 /*-
  * Copyright (c) 1990 The Regents of the University of California.
  * All rights reserved.
@@ -55,6 +60,10 @@
 #ifdef YYBISON
 # ifdef __GNUC__
 #  ifndef alloca
+/*!
+ *  @brief Use the GNU C built-in alloca.
+ *  @def alloca
+ */
 #   define alloca __builtin_alloca
 #  endif
 # else
@@ -62,6 +71,9 @@
 #   include <alloca.h>
 #  else
 #   ifdef __hpux
+/*!
+ *  @brief HP-UX fallback declaration of alloca().
+ */
 void *alloca ();
 #   else
 #    ifdef __TURBOC__
@@ -70,6 +82,9 @@ void *alloca ();
 #     ifdef __WATCOM__
 #      include <malloc.h>
 #     else
+/*!
+ *  @brief Generic fallback declaration of alloca().
+ */
 char *alloca ();
 #     endif
 #    endif
@@ -81,16 +96,46 @@ char *alloca ();
 /* Bletch, ^^^^ that was ugly! */
 
 
+/*!
+ *  @brief Global parser state: current pattern machine, start-condition
+ *         number, epsilon state, head and trail counts, current character
+ *         class, last character, loop index and current rule length.
+ */
 int pat, scnum, eps, headcnt, trailcnt, anyccl, lastchar, i, rulelen;
+
+/*!
+ *  @brief Parser flags: whether trailing context was seen, whether the
+ *         current start condition is exclusive, the current character class
+ *         and its sortedness, whether the pattern has variable length, and
+ *         whether it has variable trailing context.
+ */
 int trlcontxt, xcluflg, currccl, cclsorted, varlength, variable_trail_rule;
 
+/*!
+ *  @brief Stack of start conditions active for the current rule.
+ */
 int *scon_stk;
+
+/*!
+ *  @brief Current stack pointer into @ref scon_stk.
+ */
 int scon_stk_ptr;
 
+/*!
+ *  @brief Whether the '.' character class has already been created.
+ */
 static int madeany = false;  /* whether we've made the '.' character class */
+
+/*!
+ *  @brief Whether the previous rule's action was '|'.
+ */
 int previous_continued_action;  /* whether the previous rule's action was '|' */
 
-/* Expand a POSIX character class expression. */
+/*!
+ *  @brief Expand a POSIX character class expression.
+ *  @def CCL_EXPR
+ *  @param func Character-testing predicate.
+ */
 #define CCL_EXPR(func) \
         { \
         int c; \
@@ -99,14 +144,22 @@ int previous_continued_action;  /* whether the previous rule's action was '|' */
                         ccladd( currccl, c ); \
         }
 
-/* While POSIX defines isblank(), it's not ANSI C. */
+/*!
+ *  @brief While POSIX defines isblank(), it's not ANSI C.
+ *  @def IS_BLANK
+ *  @param c Character to test.
+ */
 #define IS_BLANK(c) ((c) == ' ' || (c) == '\t')
 
-/* On some over-ambitious machines, such as DEC Alpha's, the default
- * token type is "long" instead of "int"; this leads to problems with
- * declaring yylval in flexdef.h.  But so far, all the yacc's I've seen
- * wrap their definitions of YYSTYPE with "#ifndef YYSTYPE"'s, so the
- * following should ensure that the default token type is "int".
+/*!
+ *  @brief Default token type for the generated parser.
+ *  @def YYSTYPE
+ *
+ *  On some over-ambitious machines, such as DEC Alpha's, the default
+ *  token type is "long" instead of "int"; this leads to problems with
+ *  declaring yylval in flexdef.h.  But so far, all the yacc's I've seen
+ *  wrap their definitions of YYSTYPE with "#ifndef YYSTYPE"'s, so the
+ *  following should ensure that the default token type is "int".
  */
 #define YYSTYPE int
 
@@ -779,8 +832,8 @@ string          :  string CHAR
 %%
 
 
-/* build_eof_action - build the "<<EOF>>" action for the active start
- *                    conditions
+/*!
+ *  @brief Builds the "<<EOF>>" action for the active start conditions.
  */
 
 void build_eof_action()
@@ -816,7 +869,11 @@ void build_eof_action()
         }
 
 
-/* format_synerr - write out formatted syntax error */
+/*!
+ *  @brief Writes out a formatted syntax error.
+ *  @param[in] msg Format string.
+ *  @param[in] arg Argument to format into @p msg.
+ */
 
 void format_synerr( msg, arg )
 char msg[], arg[];
@@ -828,7 +885,10 @@ char msg[], arg[];
         }
 
 
-/* synerr - report a syntax error */
+/*!
+ *  @brief Reports a syntax error.
+ *  @param[in] str Error message.
+ */
 
 void synerr( str )
 char str[];
@@ -838,7 +898,11 @@ char str[];
         }
 
 
-/* format_warn - write out formatted warning */
+/*!
+ *  @brief Writes out a formatted warning.
+ *  @param[in] msg Format string.
+ *  @param[in] arg Argument to format into @p msg.
+ */
 
 void format_warn( msg, arg )
 char msg[], arg[];
@@ -850,7 +914,10 @@ char msg[], arg[];
         }
 
 
-/* warn - report a warning, unless -w was given */
+/*!
+ *  @brief Reports a warning, unless -w was given.
+ *  @param[in] str Warning message.
+ */
 
 void warn( str )
 char str[];
@@ -858,8 +925,11 @@ char str[];
         line_warning( str, linenum );
         }
 
-/* format_pinpoint_message - write out a message formatted with one string,
- *                           pinpointing its location
+
+/*!
+ *  @brief Writes out a message formatted with one string, pinpointing its location.
+ *  @param[in] msg Format string.
+ *  @param[in] arg String argument.
  */
 
 void format_pinpoint_message( msg, arg )
@@ -872,7 +942,10 @@ char msg[], arg[];
         }
 
 
-/* pinpoint_message - write out a message, pinpointing its location */
+/*!
+ *  @brief Writes out a message, pinpointing its location.
+ *  @param[in] str Message.
+ */
 
 void pinpoint_message( str )
 char str[];
@@ -881,7 +954,11 @@ char str[];
         }
 
 
-/* line_warning - report a warning at a given line, unless -w was given */
+/*!
+ *  @brief Reports a warning at a given line, unless -w was given.
+ *  @param[in] str  Warning message.
+ *  @param[in] line Line number.
+ */
 
 void line_warning( str, line )
 char str[];
@@ -897,7 +974,11 @@ int line;
         }
 
 
-/* line_pinpoint - write out a message, pinpointing it at the given line */
+/*!
+ *  @brief Writes out a message, pinpointing it at the given line.
+ *  @param[in] str  Message.
+ *  @param[in] line Line number.
+ */
 
 void line_pinpoint( str, line )
 char str[];
@@ -907,8 +988,9 @@ int line;
         }
 
 
-/* yyerror - eat up an error message from the parser;
- *           currently, messages are ignore
+/*!
+ *  @brief Eats up an error message from the parser; currently, messages are ignored.
+ *  @param[in] msg Error message (ignored).
  */
 
 void yyerror( msg )
