@@ -399,7 +399,7 @@ const char msg[];
 
 
 /*! @brief Reports a fatal error message and terminates.
- *  @param msg Message to print.
+ *  @param[in] msg Message to print.
  */
 void flexfatal( msg )
 const char msg[];
@@ -411,7 +411,7 @@ const char msg[];
 
 
 /*! @brief Converts a hexadecimal digit string to an integer value.
- *  @param str Hexadecimal string.
+ *  @param[in] str Hexadecimal string.
  *  @return Converted value.
  */
 int htoi( str )
@@ -442,8 +442,8 @@ int arg;
 
 
 /*! @brief Reports an error message formatted with one string argument.
- *  @param msg Format string.
- *  @param arg String argument.
+ *  @param[in] msg Format string.
+ *  @param[in] arg String argument.
  */
 void lerrsf( msg, arg )
 const char msg[], arg[];
@@ -456,8 +456,8 @@ const char msg[], arg[];
 
 
 /*! @brief Emits a #line statement.
- *  @param output_file Output stream, or NULL to add to the action array.
- *  @param do_infile   Non-zero to use the input file name.
+ *  @param[in] output_file Output stream, or NULL to add to the action array.
+ *  @param[in] do_infile   Non-zero to use the input file name.
  */
 void line_directive_out( output_file, do_infile )
 FILE *output_file;
@@ -733,8 +733,8 @@ const char str[];
 
 
 /*! @brief Outputs a formatted string with one integer argument.
- *  @param fmt Format string.
- *  @param n   Integer argument.
+ *  @param[in] fmt Format string.
+ *  @param[in] n   Integer argument.
  */
 void out_dec( fmt, n )
 const char fmt[];
@@ -746,9 +746,9 @@ int n;
 
 
 /*! @brief Outputs a formatted string with two integer arguments.
- *  @param fmt Format string.
- *  @param n1  First integer argument.
- *  @param n2  Second integer argument.
+ *  @param[in] fmt Format string.
+ *  @param[in] n1  First integer argument.
+ *  @param[in] n2  Second integer argument.
  */
 void out_dec2( fmt, n1, n2 )
 const char fmt[];
@@ -760,8 +760,8 @@ int n1, n2;
 
 
 /*! @brief Outputs a formatted string with one unsigned argument in hex.
- *  @param fmt Format string.
- *  @param x   Unsigned argument.
+ *  @param[in] fmt Format string.
+ *  @param[in] x   Unsigned argument.
  */
 void out_hex( fmt, x )
 const char fmt[];
@@ -773,7 +773,7 @@ unsigned int x;
 
 
 /*! @brief Updates the output line count for a string.
- *  @param str String to scan.
+ *  @param[in] str String to scan.
  */
 void out_line_count( str )
 const char str[];
@@ -787,8 +787,8 @@ const char str[];
 
 
 /*! @brief Outputs a formatted string with one string argument.
- *  @param fmt Format string.
- *  @param str String argument.
+ *  @param[in] fmt Format string.
+ *  @param[in] str String argument.
  */
 void out_str( fmt, str )
 const char fmt[], str[];
@@ -800,10 +800,10 @@ const char fmt[], str[];
 
 
 /*! @brief Outputs a formatted string with three string arguments.
- *  @param fmt Format string.
- *  @param s1  First string argument.
- *  @param s2  Second string argument.
- *  @param s3  Third string argument.
+ *  @param[in] fmt Format string.
+ *  @param[in] s1  First string argument.
+ *  @param[in] s2  Second string argument.
+ *  @param[in] s3  Third string argument.
  */
 void out_str3( fmt, s1, s2, s3 )
 const char fmt[], s1[], s2[], s3[];
@@ -817,9 +817,9 @@ const char fmt[], s1[], s2[], s3[];
 
 
 /*! @brief Outputs a formatted string with a string and an integer argument.
- *  @param fmt Format string.
- *  @param str String argument.
- *  @param n   Integer argument.
+ *  @param[in] fmt Format string.
+ *  @param[in] str String argument.
+ *  @param[in] n   Integer argument.
  */
 void out_str_dec( fmt, str, n )
 const char fmt[], str[];
@@ -832,7 +832,7 @@ int n;
 
 
 /*! @brief Outputs a single character, keeping track of the line count.
- *  @param c Character to output.
+ *  @param[in] c Character to output.
  */
 void outc( c )
 int c;
@@ -862,7 +862,7 @@ const char str[];
  *
  *  The returned string is in static storage.
  *
- *  @param c Character code.
+ *  @param[in] c Character code.
  *  @return Pointer to a static buffer with the printable form.
  */
 char *readable_form( c )
