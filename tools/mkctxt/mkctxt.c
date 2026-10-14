@@ -53,31 +53,63 @@
   	
 */
 
+/*!
+ *  @file mkctxt.c
+ *  @brief Generator for context-structure definitions from *.X files.
+ *
+ *  Reads a context description file (a *.X file) and produces three
+ *  derived files next to it: a C include (*.h_c), an assembly include
+ *  (*.inc) and an assembly offsets definition (*.def). The description
+ *  language is a small keyword-based format (typedef / package /
+ *  structure / byte / word / pointer / reference / constant) documented
+ *  in CONTEXT.X.
+ */
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 
-static char *typename = NULL;	/* Current typedef */
-static char *pkg = NULL;	/* Current package */
-static char *stru = NULL;	/* Current structure */
-static unsigned pkgOffs = 0, offset = 0;	/* package and overall offset */
-static char *fnam = NULL;	/* filename with spare room for extension */
-static char *fext;			/* pointer to extension of fnam */
-static char buf[1024];
-static unsigned lineNr = 0;
-static FILE *fincc, *finca, *fdefa, *fx;
+static char *typename = NULL;	/*!< Current typedef name. */
+static char *pkg = NULL;	/*!< Current package name. */
+static char *stru = NULL;	/*!< Current structure name. */
+static unsigned pkgOffs = 0, offset = 0;	/*!< Package-relative and overall offsets. */
+static char *fnam = NULL;	/*!< Filename with spare room for extension. */
+static char *fext;			/*!< Pointer to extension of fnam. */
+static char buf[1024];		/*!< Input line buffer. */
+static unsigned lineNr = 0;	/*!< Current input line number. */
+static FILE *fincc, *finca, *fdefa, *fx;	/*!< Output files and input file. */
 
 
+/*!
+ *  @brief Skips leading whitespace in a string.
+ *
+ *  @param[in] p Input string.
+ *
+ *  @return Pointer to the first non-whitespace character.
+ */
 static char *skipws(char *p)
 {	while(*p && isspace(*p))
 		++p;
 	return p;
 }
+
+/*!
+ *  @brief Advances both offsets by the size of a field.
+ *
+ *  @param[in] size Size in bytes of the field just emitted.
+ */
 static void incOffs(int size)
 {	offset += size;
 	pkgOffs += size;
 }
+
+/*!
+ *  @brief Emits a #define / %define pair for a constant.
+ *
+ *  @param[in] name  Symbolic name of the constant.
+ *  @param[in] value Textual value of the constant.
+ */
 static void dumpDefine(char *name, char *value)
 {	long i;
 
@@ -85,6 +117,15 @@ static void dumpDefine(char *name, char *value)
 	fprintf(fincc, "#define %s %ld\n", name, i);
 	fprintf(finca, "%%define %s %ld\n", name, i);
 }
+
+/*!
+ *  @brief Emits EQUs for an offset symbol.
+ *
+ *  Emits a global offset definition, a per-package offset definition
+ *  when a package is active, and a label in the .def file.
+ *
+ *  @param[in] symbol Symbolic name of the field/structure.
+ */
 static void dumpEQU(char *symbol)
 {	fprintf(finca, "?%s EQU %u\n", symbol, offset);
 	fprintf(fdefa, "??%s:\n", symbol);
@@ -92,11 +133,19 @@ static void dumpEQU(char *symbol)
 	if(pkg && pkg != symbol)
 		fprintf(finca, "?%s_%s EQU %u\n", pkg, symbol, pkgOffs);
 }
+
+/*!
+ *  @brief Emits indentation according to the active nesting levels.
+ */
 static void indent(void)
 {	if(typename) putc('\t', fincc);
 	if(pkg)	putc('\t', fincc);
 	if(stru)	putc('\t', fincc);
 }
+
+/*!
+ *  @brief Closes the currently open structure, if any.
+ */
 static void endStru(void)
 {	if(stru) {
 		fprintf(fincc, "\t\t} %s;\n", stru);
@@ -104,6 +153,10 @@ static void endStru(void)
 		stru = NULL;
 	}
 }
+
+/*!
+ *  @brief Closes the currently open package, if any.
+ */
 static void endPkg(void)
 {	if(pkg) {
 		fprintf(fincc, "\t} %s;\n", pkg);
@@ -111,6 +164,10 @@ static void endPkg(void)
 		pkg = NULL;
 	}
 }
+
+/*!
+ *  @brief Closes the currently open typedef, if any.
+ */
 static void endType(void)
 {	if(typename) {
 		fprintf(fincc, "} %s;\n\n#include <algndflt.h>\n", typename);
@@ -119,13 +176,40 @@ static void endType(void)
 	}
 }
 
+/*!
+ *  @brief Emits a single field of a structure.
+ *
+ *  Emits the offset definition, the C declaration and the assembly
+ *  descriptor for one field.
+ *
+ *  @param[in] name    Field name.
+ *  @param[in] value   Initial value / description for the assembly side.
+ *  @param[in] Ctype   C type specifier.
+ *  @param[in] asmType Assembly descriptor letter ('B', 'W', 'D').
+ */
 static void dumpItem(char *name, char *value, char *Ctype, char asmType)
 {	dumpEQU(name);
 	indent();
 	fprintf(fincc, "%s %s;\n", Ctype, name);
 	fprintf(fdefa, "\tD%c %s\n", asmType, value);
 }
+
+/*!
+ *  @brief Fetches the next whitespace-delimited word from the input line.
+ *
+ *  Convenience wrapper around word_() that hides the @c p variable.
+ *
+ *  @def word
+ */
 #define word word_(&p)
+
+/*!
+ *  @brief Implementation of the @c word macro.
+ *
+ *  @param[in,out] Xp Address of the current line pointer.
+ *
+ *  @return Pointer to the next word inside the line buffer.
+ */
 static char *word_(char **Xp)
 {	char *p, *q;
 
@@ -142,7 +226,27 @@ static char *word_(char **Xp)
 		*Xp = q;
 	return p;
 }
+
+/*!
+ *  @brief Tests whether the next word matches the given keyword.
+ *
+ *  Convenience wrapper around match_() that hides the @c p variable.
+ *
+ *  @def match
+ *  @param[in] w Keyword to match (case-insensitive).
+ */
 #define match(w) match_(&p, (w))
+
+/*!
+ *  @brief Implementation of the @c match macro.
+ *
+ *  @param[in,out] Xp Address of the current line pointer.
+ *  @param[in]     w  Keyword to match (case-insensitive).
+ *
+ *  @return Non-zero when the keyword matched and was consumed.
+ *  @retval 0 The next word is not the requested keyword.
+ *  @retval 1 The next word is the requested keyword; it was consumed.
+ */
 static int match_(char **Xp, char *w)
 {	char *p, *q;
 
@@ -161,6 +265,28 @@ static int match_(char **Xp, char *w)
 	return 0;
 }
 
+/*!
+ *  @brief Entry point of MKCTXT.
+ *
+ *  @param[in] argc Argument count.
+ *  @param[in] argv Argument vector; argv[1] is the .X file name.
+ *
+ *  @return Exit status.
+ *  @retval 0   Success.
+ *  @retval 40  Input file could not be opened.
+ *  @retval 41  C include file could not be created.
+ *  @retval 42  Assembly include file could not be created.
+ *  @retval 43  Assembly definition file could not be created.
+ *  @retval 50  Read error from the input file.
+ *  @retval 51  Write error to the C include file.
+ *  @retval 52  Write error to the assembly include file.
+ *  @retval 53  Write error to the assembly definition file.
+ *  @retval 60  Syntax error: invalid keyword.
+ *  @retval 61  Syntax error: too many arguments.
+ *  @retval 62  Syntax error: missing argument or keyword.
+ *  @retval 120 Out of memory.
+ *  @retval 127 Wrong usage.
+ */
 main(int argc, char **argv)
 {
 	char *p, *name, *value;
