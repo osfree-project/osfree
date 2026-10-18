@@ -59,4 +59,59 @@ PLINKED_NODE LinkedNodeAlloc(PVOID pElem, ULONG size, ULONG tag);
  */
 void LinkedNodeFree(PLINKED_NODE pNode);
 
+/*!
+ * @brief Link a node immediately after a reference node.
+ *
+ * Adjusts pRef->next, pRef->next->prev (if any) and initializes
+ * pNew->prev / pNew->next. Does not touch elemt, size or tag. Does
+ * not update any container bookkeeping (head, tail, count); the
+ * caller is responsible for that.
+ *
+ * Used by dlist.c (insert_at_end, insert_after), all_dlist.c
+ * (stack_push, list_insert, list_add) and (Phase 1) list.c.
+ *
+ * @param[in]     pRef  Reference node. Must not be NULL.
+ * @param[in,out] pNew  Node to insert. Its prev and next fields are
+ *                      overwritten.
+ */
+void LinkedNodeInsertAfter(PLINKED_NODE pRef, PLINKED_NODE pNew);
+
+/*!
+ * @brief Link a node immediately before a reference node.
+ *
+ * Adjusts pRef->prev, pRef->prev->next (if any) and initializes
+ * pNew->prev / pNew->next. Does not touch elemt, size or tag. Does
+ * not update any container bookkeeping; the caller is responsible
+ * for that.
+ *
+ * Used by dlist.c (insert_at_start, insert_before) and (Phase 1)
+ * list.c.
+ *
+ * @param[in]     pRef  Reference node. Must not be NULL.
+ * @param[in,out] pNew  Node to insert. Its prev and next fields are
+ *                      overwritten.
+ */
+void LinkedNodeInsertBefore(PLINKED_NODE pRef, PLINKED_NODE pNew);
+
+/*!
+ * @brief Unlink a node from its neighbours.
+ *
+ * Repairs the neighbours (prev->next and next->prev), then clears
+ * pNode->prev and pNode->next so the node is no longer reachable
+ * from either end. Does not touch elemt, size or tag. Does not
+ * update any container bookkeeping (head, tail, count); the caller
+ * is responsible for that.
+ *
+ * The clearing of pNode->prev and pNode->next is deliberate: after
+ * Unlink, a stale pointer to the unlinked node carries no back-link
+ * into the container, which makes debugging use-after-unlink bugs
+ * easier to spot.
+ *
+ * Used by dlist.c (unlink_node), all_dlist.c (stack_pop,
+ * stack_remove, list_remove) and (Phase 1) list.c.
+ *
+ * @param[in,out] pNode  Node to unlink. Must not be NULL.
+ */
+void LinkedNodeUnlink(PLINKED_NODE pNode);
+
 #endif /* CCL_LINKED_LIST_PRIVATE_H */

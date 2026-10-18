@@ -13,6 +13,11 @@
  * the IBM-style Dlist module (see linked_list_private.h). The first
  * three fields of LINKED_NODE (elemt, next, prev) match stack_cmp
  * byte for byte; a typecast between them is safe.
+ *
+ * Link nodes go through LinkedNodeAlloc / LinkedNodeFree, which use
+ * the ccl allocator hooks ((*CclMalloc) / (*CclFree)). The handle
+ * (phStack / phList) and the payload stay on malloc / free per the
+ * legacy contract (see docs/ccl_conventions.md).
  */
 
 #include <stdlib.h>
@@ -114,9 +119,11 @@ unsigned long stack_push(phStack pph, void *content)
     pNew = node_alloc(content);
     if (pNew == NULL) return ERROR_NOT_ENOUGH_MEMORY;
 
-    /* Update the pointers */
-    pNew->prev = pPrev;
-    if (pPrev != NULL) pPrev->next = pNew;
+    /* Link the new component after the old top, if any.
+       On an empty stack pNew simply becomes the sole node. */
+    if (pPrev != NULL) {
+        LinkedNodeInsertAfter((PLINKED_NODE)pPrev, (PLINKED_NODE)pNew);
+    }
     *pph = pNew;
 
     return NO_ERROR;
@@ -150,16 +157,15 @@ unsigned long stack_pop(phStack pph, void **content)
     /* Don't "pop" if the stack is empty */
     if (pCur == NULL) return all_RC_DLIST_NULL;
 
-    /* Save the address of the previous component */
+    /* Save the address of the previous component. This must be done
+       before LinkedNodeUnlink clears pCur->prev. */
     pPrev = pCur->prev;
-
-    /* Update the 'next' pointer of the previous component, if it exists */
-    if (pPrev != NULL) pPrev->next = NULL;
 
     /* Save the pointer to the contents */
     *content = pCur->elemt;
 
-    /* Release memory for the current component */
+    /* Unlink the current component, then release it */
+    LinkedNodeUnlink((PLINKED_NODE)pCur);
     node_free(pCur);
 
     /* Update the stack pointer */
@@ -205,25 +211,20 @@ void *stack_top(phStack pph)
  */
 unsigned long stack_remove(phStack pph, void *component)
 {
-    stack_cmp *pCur, *pPrev, *pNext;
+    stack_cmp *pCur;
 
     if (pph == NULL) return ERROR_INVALID_PARAMETER;
     if (component == NULL) return all_RC_DLIST_NULL;
 
-    /* Save the pointers to the previous and next components */
-    pCur  = (stack_cmp *)component;
-    pPrev = pCur->prev;
-    pNext = pCur->next;
+    pCur = (stack_cmp *)component;
 
-    /* Update the previous and next components to point to the correct
-       neighbours. The original implementation assumed both neighbours
-       non-NULL; that assumption is not guaranteed when the removed
-       element is at either end of the stack. */
-    if (pPrev != NULL) pPrev->next = pNext;
-    if (pNext != NULL) pNext->prev = pPrev;
-    if (*pph == pCur) *pph = pPrev;
+    /* If the removed element is the current top, move the stack
+       pointer back to the previous element. This must be done before
+       LinkedNodeUnlink clears pCur->prev. */
+    if (*pph == pCur) *pph = pCur->prev;
 
-    /* Remove the current component */
+    /* Unlink the current component, then release it */
+    LinkedNodeUnlink((PLINKED_NODE)pCur);
     node_free(pCur);
 
     return NO_ERROR;
@@ -292,7 +293,7 @@ void *list_get(phList ppl)
  */
 unsigned long list_insert(phList ppl, void *content)
 {
-    stack_cmp *pPrev, *pNext, *pNew;
+    stack_cmp *pPrev, *pNew;
 
     if (ppl == NULL) return ERROR_INVALID_PARAMETER;
 
@@ -309,11 +310,8 @@ unsigned long list_insert(phList ppl, void *content)
         return NO_ERROR;
     }
 
-    pNext = pPrev->next;
-    pNew->next = pNext;
-    pNew->prev = pPrev;
-    pPrev->next = pNew;
-    if (pNext != NULL) pNext->prev = pNew;
+    /* Link the new component after the current element. */
+    LinkedNodeInsertAfter((PLINKED_NODE)pPrev, (PLINKED_NODE)pNew);
     *ppl = pNew;
 
     return NO_ERROR;
@@ -344,18 +342,13 @@ unsigned long list_remove(phList ppl)
     pCur = *ppl;
     if (pCur == NULL) return all_RC_DLIST_NULL;
 
-    /* Save the pointers to the previous and next elements */
+    /* Save the pointers to the previous and next elements. They are
+       needed after LinkedNodeUnlink clears pCur->prev / pCur->next. */
     pPrev = pCur->prev;
     pNext = pCur->next;
 
-    /* Update the previous and next elements to point to the correct
-       neighbours. The original implementation assumed both neighbours
-       non-NULL; that assumption is not guaranteed when the removed
-       element is at either end of the list. */
-    if (pPrev != NULL) pPrev->next = pNext;
-    if (pNext != NULL) pNext->prev = pPrev;
-
-    /* Remove the current element */
+    /* Unlink the current element, then release it */
+    LinkedNodeUnlink((PLINKED_NODE)pCur);
     node_free(pCur);
 
     /* The cursor moves to the next element if present, otherwise to
@@ -402,9 +395,11 @@ unsigned long list_add(phList ppl, void *content)
     pNew = node_alloc(content);
     if (pNew == NULL) return ERROR_NOT_ENOUGH_MEMORY;
 
-    /* Update the pointers */
-    pNew->prev = pPrev;
-    if (pPrev != NULL) pPrev->next = pNew;
+    /* Link the new component after the old tail, if any.
+       On an empty list pNew simply becomes the sole node. */
+    if (pPrev != NULL) {
+        LinkedNodeInsertAfter((PLINKED_NODE)pPrev, (PLINKED_NODE)pNew);
+    }
     *ppl = pNew;
 
     return NO_ERROR;

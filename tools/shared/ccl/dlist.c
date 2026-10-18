@@ -15,7 +15,11 @@
  * The implementation is the work of the osFree Project. The link
  * nodes are shared with the all_dlist module (see
  * linked_list_private.h): LINKED_NODE extends stack_cmp with two
- * extra fields (size, tag) used only here.
+ * extra fields (size, tag) used only here. Link nodes go through
+ * LinkedNodeAlloc/Free, which use the ccl allocator hooks
+ * ((*CclMalloc)/(*CclFree)). Payload, control block and the
+ * temporary arrays in SortList stay on malloc/calloc/free per the
+ * legacy contract (see docs/ccl_conventions.md).
  *
  * @par Pooling
  * When the module is compiled with USE_POOLMAN defined, CreateList
@@ -109,16 +113,22 @@ static PLINKED_NODE find_node(DLISTCTL *pCtl, ADDRESS Handle) {
 /*!
  * @brief Detach a node from the list.
  *
- * Adjusts head, tail and count. Does not free the node or its data.
+ * Repairs the surrounding links through LinkedNodeUnlink and updates
+ * the container bookkeeping (head, tail, count). Does not free the
+ * node or its data.
+ *
+ * The head/tail updates happen before LinkedNodeUnlink because
+ * LinkedNodeUnlink clears pNode->prev and pNode->next; after the
+ * call, pNode->prev and pNode->next are no longer useful for
+ * deciding whether the node was head or tail.
  *
  * @param[in,out] pCtl   Control block.
  * @param[in]     pNode  Node to unlink.
  */
 static void unlink_node(DLISTCTL *pCtl, PLINKED_NODE pNode) {
-    if (pNode->prev) pNode->prev->next = pNode->next;
-    else pCtl->pHead = pNode->next;
-    if (pNode->next) pNode->next->prev = pNode->prev;
-    else pCtl->pTail = pNode->prev;
+    if (pNode == pCtl->pHead) pCtl->pHead = pNode->next;
+    if (pNode == pCtl->pTail) pCtl->pTail = pNode->prev;
+    LinkedNodeUnlink(pNode);
     pCtl->ulCount--;
 }
 
@@ -129,10 +139,13 @@ static void unlink_node(DLISTCTL *pCtl, PLINKED_NODE pNode) {
  * @param[in]     pNode  Node to insert.
  */
 static void insert_at_start(DLISTCTL *pCtl, PLINKED_NODE pNode) {
-    pNode->prev = NULL;
-    pNode->next = pCtl->pHead;
-    if (pCtl->pHead) pCtl->pHead->prev = pNode;
-    else pCtl->pTail = pNode;
+    if (pCtl->pHead) {
+        LinkedNodeInsertBefore(pCtl->pHead, pNode);
+    } else {
+        pNode->prev = NULL;
+        pNode->next = NULL;
+        pCtl->pTail = pNode;
+    }
     pCtl->pHead = pNode;
     pCtl->ulCount++;
     if (pCtl->pCurrent == NULL) pCtl->pCurrent = pNode;
@@ -145,10 +158,13 @@ static void insert_at_start(DLISTCTL *pCtl, PLINKED_NODE pNode) {
  * @param[in]     pNode  Node to insert.
  */
 static void insert_at_end(DLISTCTL *pCtl, PLINKED_NODE pNode) {
-    pNode->prev = pCtl->pTail;
-    pNode->next = NULL;
-    if (pCtl->pTail) pCtl->pTail->next = pNode;
-    else pCtl->pHead = pNode;
+    if (pCtl->pTail) {
+        LinkedNodeInsertAfter(pCtl->pTail, pNode);
+    } else {
+        pNode->prev = NULL;
+        pNode->next = NULL;
+        pCtl->pHead = pNode;
+    }
     pCtl->pTail = pNode;
     pCtl->ulCount++;
     if (pCtl->pCurrent == NULL) pCtl->pCurrent = pNode;
@@ -158,16 +174,13 @@ static void insert_at_end(DLISTCTL *pCtl, PLINKED_NODE pNode) {
  * @brief Insert a node before a reference node.
  *
  * @param[in,out] pCtl   Control block.
- * @param[in]     pRef   Reference node.
+ * @param[in]     pRef   Reference node. Not NULL.
  * @param[in]     pNode  Node to insert.
  */
 static void insert_before(DLISTCTL *pCtl, PLINKED_NODE pRef,
                           PLINKED_NODE pNode) {
-    pNode->next = pRef;
-    pNode->prev = pRef->prev;
-    if (pRef->prev) pRef->prev->next = pNode;
-    else pCtl->pHead = pNode;
-    pRef->prev = pNode;
+    LinkedNodeInsertBefore(pRef, pNode);
+    if (pRef == pCtl->pHead) pCtl->pHead = pNode;
     pCtl->ulCount++;
 }
 
@@ -175,16 +188,13 @@ static void insert_before(DLISTCTL *pCtl, PLINKED_NODE pRef,
  * @brief Insert a node after a reference node.
  *
  * @param[in,out] pCtl   Control block.
- * @param[in]     pRef   Reference node.
+ * @param[in]     pRef   Reference node. Not NULL.
  * @param[in]     pNode  Node to insert.
  */
 static void insert_after(DLISTCTL *pCtl, PLINKED_NODE pRef,
                          PLINKED_NODE pNode) {
-    pNode->prev = pRef;
-    pNode->next = pRef->next;
-    if (pRef->next) pRef->next->prev = pNode;
-    else pCtl->pTail = pNode;
-    pRef->next = pNode;
+    LinkedNodeInsertAfter(pRef, pNode);
+    if (pRef == pCtl->pTail) pCtl->pTail = pNode;
     pCtl->ulCount++;
 }
 
@@ -1680,8 +1690,8 @@ void _System PruneList(DLIST        ListToProcess,
 
     pNode = pCtl->pHead;
     while (pNode) {
-        BOOLEAN    fKill;
-        BOOLEAN    fFree = FALSE;
+        BOOLEAN      fKill;
+        BOOLEAN      fFree = FALSE;
         PLINKED_NODE pNext = pNode->next;
 
         fKill = KillItem(pNode->elemt, (TAG)pNode->tag,
@@ -1693,16 +1703,14 @@ void _System PruneList(DLIST        ListToProcess,
         }
 
         if (fKill) {
+            /* Capture pNode->prev before LinkedNodeUnlink (inside
+               unlink_node) clears it. */
             PLINKED_NODE pPrev = pNode->prev;
-            if (pNode->prev) pNode->prev->next = pNode->next;
-            else pCtl->pHead = pNode->next;
-            if (pNode->next) pNode->next->prev = pNode->prev;
-            else pCtl->pTail = pNode->prev;
-            pCtl->ulCount--;
             if (pCtl->pCurrent == pNode) {
                 if (pNext) pCtl->pCurrent = pNext;
                 else pCtl->pCurrent = pPrev;
             }
+            unlink_node(pCtl, pNode);
             if (fFree && pNode->elemt) free(pNode->elemt);
             LinkedNodeFree(pNode);
         }
@@ -1822,16 +1830,13 @@ void _System TransferItem(DLIST             SourceList,
         if (!pRef) { *Error = DLIST_BAD_HANDLE; return; }
     }
 
-    /* Unlink from source. */
-    if (pNode->prev) pNode->prev->next = pNode->next;
-    else pSrc->pHead = pNode->next;
-    if (pNode->next) pNode->next->prev = pNode->prev;
-    else pSrc->pTail = pNode->prev;
-    pSrc->ulCount--;
+    /* Advance pSrc->pCurrent before unlink_node (LinkedNodeUnlink
+       will clear pNode->next and pNode->prev). */
     if (pSrc->pCurrent == pNode) {
         if (pNode->next) pSrc->pCurrent = pNode->next;
         else pSrc->pCurrent = pNode->prev;
     }
+    unlink_node(pSrc, pNode);
 
     /* Insert into target. */
     switch (TransferMode) {
