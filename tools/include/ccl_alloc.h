@@ -2,41 +2,47 @@
  *
  * @file ccl_alloc.h
  *
- * @brief Public allocator installation contract.
+ * @brief Public allocator contract, modelled after SOMobjects.
  *
  * (c) osFree Project 2026, <http://www.osFree.org>
  * for licence see licence.txt in root directory, or project website
  *
  * Part of the ccl container library. This is a public header.
  *
- * By default ccl allocates through malloc/free. A host environment
- * that provides its own allocator (for example, the SOM runtime with
- * somAlloc/somFree) installs it once at startup with CclSetAllocator,
- * before any ccl container is created. From that point on, every
- * internal ccl allocation goes through the installed hooks.
+ * The allocator is a set of four global function pointers, exactly
+ * like SOMMalloc/SOMCalloc/SOMRealloc/SOMFree in SOMobjects. A host
+ * environment that provides its own allocator (for example, the SOM
+ * runtime) replaces them by direct assignment at startup:
  *
- * The hooks are process-global because ccl is single threaded. The
- * swap is refused if any ccl allocation is currently live, so that a
- * block allocated by one allocator is never released by another.
+ *     CclMalloc  = som_malloc_adapter;
+ *     CclCalloc  = som_calloc_adapter;
+ *     CclRealloc = som_realloc_adapter;
+ *     CclFree    = som_free_adapter;
+ *
+ * There is no setter function. The replacement is the caller's
+ * responsibility and must happen before any ccl container is created.
+ * The hooks are process-global because ccl is single threaded, and a
+ * block allocated by one hook must be released by the matching hook.
+ *
+ * The defaults wrap the C runtime malloc/calloc/realloc/free. The ccl
+ * library itself uses these hooks directly; there are no private
+ * wrappers on top.
  */
 
 #ifndef CCL_ALLOC_H
 #define CCL_ALLOC_H
 
 #include "os2types.h"
-#include "os2err.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /*!
- * @typedef CCL_ALLOC_FN
- * @brief Allocation hook.
+ * @typedef CCL_MALLOC_FN
+ * @brief Allocation hook, modelled after SOMMalloc.
  *
  * Must return a pointer to at least ulSize bytes, or NULL on failure.
- * Must not return NULL for a nonzero request unless allocation
- * actually failed.
  *
  * @param[in] ulSize  Number of bytes to allocate.
  *
@@ -44,49 +50,82 @@ extern "C" {
  *
  * @retval NULL  Allocation failed.
  */
-typedef PVOID (*CCL_ALLOC_FN)(ULONG ulSize);
+typedef PVOID (*CCL_MALLOC_FN)(ULONG ulSize);
+
+/*!
+ * @typedef CCL_CALLOC_FN
+ * @brief Zero-initialising allocation hook, modelled after SOMCalloc.
+ *
+ * Must return a pointer to at least ulNum * ulSize zero-filled bytes,
+ * or NULL on failure.
+ *
+ * @param[in] ulNum   Number of elements.
+ * @param[in] ulSize  Size of one element in bytes.
+ *
+ * @return The allocated block, or NULL on failure.
+ *
+ * @retval NULL  Allocation failed.
+ */
+typedef PVOID (*CCL_CALLOC_FN)(ULONG ulNum, ULONG ulSize);
+
+/*!
+ * @typedef CCL_REALLOC_FN
+ * @brief Resize hook, modelled after SOMRealloc.
+ *
+ * Must return a pointer to at least ulSize bytes holding the same
+ * content as pPtr (up to the smaller of the old and new sizes), or
+ * NULL on failure. On success the original block is consumed. On
+ * failure the original block is unchanged.
+ *
+ * @param[in] pPtr    Previously allocated block, or NULL.
+ * @param[in] ulSize  New size in bytes.
+ *
+ * @return The resized block, or NULL on failure.
+ *
+ * @retval NULL  Allocation failed.
+ */
+typedef PVOID (*CCL_REALLOC_FN)(PVOID pPtr, ULONG ulSize);
 
 /*!
  * @typedef CCL_FREE_FN
- * @brief Release hook.
- *
- * Called with a pointer previously returned by the matching
- * CCL_ALLOC_FN. ccl never passes NULL here.
+ * @brief Release hook, modelled after SOMFree.
  *
  * @param[in] pPtr  Block to release.
  */
-typedef void  (*CCL_FREE_FN) (PVOID pPtr);
+typedef void  (*CCL_FREE_FN)(PVOID pPtr);
 
 /*!
- * @brief Install a custom allocator.
+ * @brief Current allocation hook. Defaults to malloc.
  *
- * Must be called before any ccl container is created. If any ccl
- * allocation is currently live, the call is refused so that a block
- * allocated by one allocator is never released by another.
- *
- * @param[in] pfnAlloc  Allocation hook. Not NULL.
- * @param[in] pfnFree   Release hook. Not NULL.
- *
- * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pfnAlloc or pfnFree is NULL.
- * @retval ERROR_NOT_SUPPORTED      One or more ccl allocations are
- *                                  currently live.
+ * Replaceable by direct assignment before any ccl allocation is
+ * made.
  */
-APIRET APIENTRY CclSetAllocator(CCL_ALLOC_FN pfnAlloc, CCL_FREE_FN pfnFree);
+extern CCL_MALLOC_FN  CclMalloc;
 
 /*!
- * @brief Restore the default malloc/free-backed allocator.
+ * @brief Current zero-initialising allocation hook. Defaults to
+ *        calloc.
  *
- * Same constraints as CclSetAllocator: refused if any ccl
- * allocation is currently live.
- *
- * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_NOT_SUPPORTED      One or more ccl allocations are
- *                                  currently live.
+ * Replaceable by direct assignment before any ccl allocation is
+ * made.
  */
-APIRET APIENTRY CclResetAllocator(void);
+extern CCL_CALLOC_FN  CclCalloc;
+
+/*!
+ * @brief Current resize hook. Defaults to realloc.
+ *
+ * Replaceable by direct assignment before any ccl allocation is
+ * made.
+ */
+extern CCL_REALLOC_FN CclRealloc;
+
+/*!
+ * @brief Current release hook. Defaults to free.
+ *
+ * Replaceable by direct assignment before any ccl allocation is
+ * made.
+ */
+extern CCL_FREE_FN    CclFree;
 
 #ifdef __cplusplus
 }
