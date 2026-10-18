@@ -62,7 +62,7 @@
  * @retval 0  pKey is NULL, or the PCSZ stored at pKey is NULL, or
  *            the string is empty.
  */
-ULONG fnv1a_str(PCVOID pKey, PVOID pCtx) {
+ULONG APIENTRY fnv1a_str(PCVOID pKey, PVOID pCtx) {
     PCSZ  psz;
     ULONG ulHash = 2166136261UL;
 
@@ -109,7 +109,7 @@ ULONG fnv1a_str(PCVOID pKey, PVOID pCtx) {
  * @retval  1  pA is non-NULL and pB is NULL, or pA's string is
  *             non-NULL and pB's is NULL, or strcmp finds pA > pB.
  */
-int strcmp_wrap(PCVOID pA, PCVOID pB, PVOID pCtx) {
+int APIENTRY strcmp_wrap(PCVOID pA, PCVOID pB, PVOID pCtx) {
     PCSZ pszA;
     PCSZ pszB;
 
@@ -146,7 +146,7 @@ int strcmp_wrap(PCVOID pA, PCVOID pB, PVOID pCtx) {
  *
  * @param[in] pElem  Pointer to the stored bytes of a PCSZ.
  */
-void str_free_ccl(PVOID pElem) {
+void APIENTRY str_free_ccl(PVOID pElem) {
     PCSZ psz;
 
     if (!pElem) return;
@@ -174,7 +174,7 @@ void str_free_ccl(PVOID pElem) {
  * @retval NULL  psz is NULL, or allocation through (*CclMalloc)
  *               failed.
  */
-PCSZ str_dup_ccl(PCSZ psz) {
+PCSZ APIENTRY str_dup_ccl(PCSZ psz) {
     size_t cbLen;
     PCSZ   pCopy;
 

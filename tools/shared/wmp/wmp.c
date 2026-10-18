@@ -414,7 +414,7 @@ static APIRET WmpParseSegLine(WMP_HANDLE *pWmp, PCSZ pszLine)
     pSeg->ulBaseOff = ulOff;
     pSeg->ulSize    = ulSize;
     pSeg->ulFlags   = ulFlags;
-    if (VectorCreate(sizeof(WMP_SYMBOL *), &pSeg->hSymbols) != NO_ERROR) {
+    if (VectorCreate(sizeof(WMP_SYMBOL *), 0, NULL, &pSeg->hSymbols) != NO_ERROR) {
         free(pSeg->pszName); free(pSeg->pszClass); free(pSeg->pszGroup);
         free(pSeg);
         return ERROR_NOT_ENOUGH_MEMORY;
@@ -553,7 +553,7 @@ APIRET APIENTRY WmpOpen(PCSZ pszPath, HWMP *phWmp)
     pWmp = (WMP_HANDLE *)calloc(1, sizeof(WMP_HANDLE));
     if (pWmp == NULL) return ERROR_NOT_ENOUGH_MEMORY;
     pWmp->ulMagic = WMP_MAGIC_OPEN;
-    if (VectorCreate(sizeof(WMP_SEGMENT *), &pWmp->hSegments) != NO_ERROR) {
+    if (VectorCreate(sizeof(WMP_SEGMENT *), 0, NULL, &pWmp->hSegments) != NO_ERROR) {
         WmpCloseHandle(pWmp);
         return ERROR_NOT_ENOUGH_MEMORY;
     }

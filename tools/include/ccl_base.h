@@ -58,7 +58,7 @@ extern "C" {
  *
  * @return Negative, zero or positive.
  */
-typedef int   (*CCL_COMPARE_FN)(PCVOID pA, PCVOID pB, PVOID pCtx);
+typedef int   (APIENTRY *CCL_COMPARE_FN)(PCVOID pA, PCVOID pB, PVOID pCtx);
 
 /*!
  * @typedef CCL_HASH_FN
@@ -72,7 +72,7 @@ typedef int   (*CCL_COMPARE_FN)(PCVOID pA, PCVOID pB, PVOID pCtx);
  *
  * @return A 32-bit hash value.
  */
-typedef ULONG (*CCL_HASH_FN)(PCVOID pKey, PVOID pCtx);
+typedef ULONG (APIENTRY *CCL_HASH_FN)(PCVOID pKey, PVOID pCtx);
 
 /*!
  * @typedef CCL_DESTROY_FN
@@ -89,7 +89,7 @@ typedef ULONG (*CCL_HASH_FN)(PCVOID pKey, PVOID pCtx);
  *
  * @param[in] pElem  Pointer to the stored bytes.
  */
-typedef void  (*CCL_DESTROY_FN)(PVOID pElem);
+typedef void  (APIENTRY *CCL_DESTROY_FN)(PVOID pElem);
 
 /*!
  * @typedef CCL_KEY_FN
@@ -103,7 +103,7 @@ typedef void  (*CCL_DESTROY_FN)(PVOID pElem);
  *
  * @return A borrowed pointer to the key bytes.
  */
-typedef PVOID (*CCL_KEY_FN)(PCVOID pElem, PVOID pCtx);
+typedef PVOID (APIENTRY *CCL_KEY_FN)(PCVOID pElem, PVOID pCtx);
 
 /* ==================================================================
  * Option block

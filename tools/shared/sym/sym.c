@@ -468,7 +468,7 @@ static APIRET SymOpenReader(SYM_HANDLE *pSym, FILE *pFile)
         pSeg = (SYM_SEGMENT *)calloc(1, sizeof(*pSeg));
         if (pSeg == NULL) { rc = ERROR_NOT_ENOUGH_MEMORY; break; }
         pSeg->ulFlags = segDef.bFlags;
-        if (VectorCreate(sizeof(SYM_SYMBOL *), &pSeg->hSymbols) != NO_ERROR) {
+        if (VectorCreate(sizeof(SYM_SYMBOL *), 0, NULL, &pSeg->hSymbols) != NO_ERROR) {
             free(pSeg); rc = ERROR_NOT_ENOUGH_MEMORY; break;
         }
         /* NOTE: cbSegName is UCHAR (max 255) and SYM_MAX_SEG_NAME is
@@ -737,7 +737,7 @@ APIRET APIENTRY SymOpen(PCSZ pszPath, HSYMFILE *phSym, ULONG flOpen)
     }
     strcpy(pSym->pszPath, pszPath);
 
-    if (VectorCreate(sizeof(SYM_SEGMENT *), &pSym->hSegments) != NO_ERROR) {
+    if (VectorCreate(sizeof(SYM_SEGMENT *), 0, NULL, &pSym->hSegments) != NO_ERROR) {
         SymCloseHandle(pSym);
         return ERROR_NOT_ENOUGH_MEMORY;
     }
@@ -1303,7 +1303,7 @@ APIRET APIENTRY SymAddSegment(HSYMFILE hSym, PCSZ pszName,
     if (pSeg->pszName == NULL) { free(pSeg); return ERROR_NOT_ENOUGH_MEMORY; }
     strcpy(pSeg->pszName, pszName);
     pSeg->ulFlags = ulFlags;
-    if (VectorCreate(sizeof(SYM_SYMBOL *), &pSeg->hSymbols) != NO_ERROR) {
+    if (VectorCreate(sizeof(SYM_SYMBOL *), 0, NULL, &pSeg->hSymbols) != NO_ERROR) {
         free(pSeg->pszName); free(pSeg);
         return ERROR_NOT_ENOUGH_MEMORY;
     }

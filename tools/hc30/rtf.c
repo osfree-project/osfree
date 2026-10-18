@@ -376,9 +376,9 @@ static void rtf_start_topic(RtfParserCtx* pCtx)
     pTopic = (RtfTopicRec*)malloc(sizeof(RtfTopicRec));
     if (!pTopic) return;
     memset(pTopic, 0, sizeof(*pTopic));
-    rc = VectorCreate(sizeof(RtfFragRec*), &pTopic->vFragments);
+    rc = VectorCreate(sizeof(RtfFragRec*), 0, NULL, &pTopic->vFragments);
     if (rc != NO_ERROR) { free(pTopic); return; }
-    rc = VectorCreate(sizeof(PSZ), &pTopic->vBuildTags);
+    rc = VectorCreate(sizeof(PSZ), 0, NULL, &pTopic->vBuildTags);
     if (rc != NO_ERROR) {
         VectorDestroy(pTopic->vFragments);
         free(pTopic);
@@ -1179,12 +1179,12 @@ APIRET APIENTRY RtfCreateDoc(PHRTFDOC phDoc)
     pDoc = (RtfDocRec*)malloc(sizeof(RtfDocRec));
     if (!pDoc) return ERROR_NOT_ENOUGH_MEMORY;
     memset(pDoc, 0, sizeof(*pDoc));
-    if ((rc = VectorCreate(sizeof(RtfTopicRec*), &pDoc->vTopics)) != NO_ERROR) goto fail;
-    if ((rc = VectorCreate(sizeof(PSZ), &pDoc->vFaceNames)) != NO_ERROR) goto fail;
-    if ((rc = VectorCreate(sizeof(RtfFontDescRec), &pDoc->vFontDesc)) != NO_ERROR) goto fail;
-    if ((rc = VectorCreate(sizeof(RtfColorRec), &pDoc->vColors)) != NO_ERROR) goto fail;
-    if ((rc = VectorCreate(sizeof(RtfEnumRec*), &pDoc->vCursors)) != NO_ERROR) goto fail;
-    if ((rc = VectorCreate(sizeof(PSZ), &pDoc->vActiveTags)) != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(RtfTopicRec*),   0, NULL, &pDoc->vTopics))     != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(PSZ),            0, NULL, &pDoc->vFaceNames))  != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(RtfFontDescRec), 0, NULL, &pDoc->vFontDesc))   != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(RtfColorRec),    0, NULL, &pDoc->vColors))     != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(RtfEnumRec*),    0, NULL, &pDoc->vCursors))    != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(PSZ),            0, NULL, &pDoc->vActiveTags)) != NO_ERROR) goto fail;
     *phDoc = DOC_HANDLE_FROM(pDoc);
     return NO_ERROR;
 fail:
@@ -1283,7 +1283,7 @@ APIRET APIENTRY RtfSetBuildTags(HRTFDOC hDoc, ULONG cTags, PCSZ* apszTags)
         if (s) free(s);
     }
     VectorDestroy(pDoc->vActiveTags);
-    VectorCreate(sizeof(PSZ), &pDoc->vActiveTags);
+    VectorCreate(sizeof(PSZ), 0, NULL, &pDoc->vActiveTags);
     for (i = 0; i < cTags; i++) {
         PSZ s = strdup(apszTags[i]);
         if (s) VectorAdd(pDoc->vActiveTags, &s);

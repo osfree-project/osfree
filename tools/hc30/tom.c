@@ -19,7 +19,7 @@ APIRET APIENTRY TomCreate(PHTOM phTom)
     p = (TomRec*)malloc(sizeof(TomRec));
     if (!p) return ERROR_NOT_ENOUGH_MEMORY;
     memset(p, 0, sizeof(*p));
-    rc = VectorCreate(sizeof(ULONG), &p->vOffsets);
+    rc = VectorCreate(sizeof(ULONG), 0, NULL, &p->vOffsets);
     if (rc != NO_ERROR) { free(p); return rc; }
     *phTom = TOM_HANDLE_FROM(p);
     return NO_ERROR;

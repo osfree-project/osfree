@@ -280,7 +280,7 @@ static APIRET phrenc_build(PhrEncRec* pEnc)
 
     VectorGetCount(v, &n);
     if (n == 0) {
-        rc = VectorCreate(sizeof(PhrCandidateRec), &vKept);
+        rc = VectorCreate(sizeof(PhrCandidateRec), 0, NULL, &vKept);
         if (rc != NO_ERROR) return rc;
         VectorDestroy(v);
         pEnc->vCandidates = vKept;
@@ -316,7 +316,7 @@ static APIRET phrenc_build(PhrEncRec* pEnc)
     /* Sort by count descending and keep the top entries. */
     qsort(aSorted, n, sizeof(PhrCandidateRec), phrenc_cmp_by_count);
 
-    rc = VectorCreate(sizeof(PhrCandidateRec), &vKept);
+    rc = VectorCreate(sizeof(PhrCandidateRec), 0, NULL, &vKept);
     if (rc != NO_ERROR) {
         for (i = 0; i < n; i++) if (aSorted[i].pszText) free(aSorted[i].pszText);
         free(aSorted);
@@ -349,7 +349,7 @@ static APIRET phrenc_build(PhrEncRec* pEnc)
             if (r.pszText) free(r.pszText);
         }
         VectorDestroy(vKept);
-        rc = VectorCreate(sizeof(PhrCandidateRec), &pEnc->vCandidates);
+        rc = VectorCreate(sizeof(PhrCandidateRec), 0, NULL, &pEnc->vCandidates);
         if (rc != NO_ERROR) return rc;
         pEnc->fTableKept = FALSE;
     } else {
@@ -383,9 +383,9 @@ APIRET APIENTRY PhrEncCreate(PHPHRE phEnc)
     p = (PhrEncRec*)malloc(sizeof(PhrEncRec));
     if (!p) return ERROR_NOT_ENOUGH_MEMORY;
     memset(p, 0, sizeof(*p));
-    rc = VectorCreate(sizeof(PhrCandidateRec), &p->vCandidates);
+    rc = VectorCreate(sizeof(PhrCandidateRec), 0, NULL, &p->vCandidates);
     if (rc != NO_ERROR) { free(p); return rc; }
-    rc = VectorCreate(sizeof(PSZ), &p->vCorpus);
+    rc = VectorCreate(sizeof(PSZ), 0, NULL, &p->vCorpus);
     if (rc != NO_ERROR) { VectorDestroy(p->vCandidates); free(p); return rc; }
     *phEnc = ENC_HANDLE_FROM(p);
     return NO_ERROR;

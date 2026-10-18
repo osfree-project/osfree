@@ -21,7 +21,7 @@ APIRET APIENTRY PhrCreate(PHPHR phPhr)
     p = (PhrRec*)malloc(sizeof(PhrRec));
     if (!p) return ERROR_NOT_ENOUGH_MEMORY;
     memset(p, 0, sizeof(*p));
-    rc = VectorCreate(sizeof(PhrPhraseRec), &p->vPhrases);
+    rc = VectorCreate(sizeof(PhrPhraseRec), 0, NULL, &p->vPhrases);
     if (rc != NO_ERROR) { free(p); return rc; }
     *phPhr = PHR_HANDLE_FROM(p);
     return NO_ERROR;

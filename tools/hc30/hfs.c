@@ -84,7 +84,7 @@ APIRET APIENTRY HfsCreate(PHHFS phHfs)
     if (!p) return ERROR_NOT_ENOUGH_MEMORY;
     memset(p, 0, sizeof(*p));
     p->usDirPageSize = HFS_DIR_PAGE_SIZE;
-    rc = VectorCreate(sizeof(HfsFileRec), &p->vFiles);
+    rc = VectorCreate(sizeof(HfsFileRec), 0, NULL, &p->vFiles);
     if (rc != NO_ERROR) { free(p); return rc; }
     *phHfs = HFS_HANDLE_FROM(p);
     return NO_ERROR;

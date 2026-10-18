@@ -43,9 +43,9 @@ APIRET APIENTRY SysCreate(PHSYS phSys)
     p = (SysRec*)malloc(sizeof(SysRec));
     if (!p) return ERROR_NOT_ENOUGH_MEMORY;
     memset(p, 0, sizeof(*p));
-    rc = VectorCreate(sizeof(SysConfigRec), &p->vConfigs);
+    rc = VectorCreate(sizeof(SysConfigRec), 0, NULL, &p->vConfigs);
     if (rc != NO_ERROR) { free(p); return rc; }
-    rc = VectorCreate(sizeof(SysWindowRec), &p->vWindows);
+    rc = VectorCreate(sizeof(SysWindowRec), 0, NULL, &p->vWindows);
     if (rc != NO_ERROR) { VectorDestroy(p->vConfigs); free(p); return rc; }
     *phSys = SYS_HANDLE_FROM(p);
     return NO_ERROR;

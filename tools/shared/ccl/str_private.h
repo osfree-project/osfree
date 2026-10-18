@@ -53,7 +53,7 @@ extern "C" {
  *
  * @return A 32-bit hash value.
  */
-ULONG fnv1a_str(PCVOID pKey, PVOID pCtx);
+ULONG APIENTRY fnv1a_str(PCVOID pKey, PVOID pCtx);
 
 /*!
  * @brief String comparison callback matching CCL_COMPARE_FN.
@@ -70,7 +70,7 @@ ULONG fnv1a_str(PCVOID pKey, PVOID pCtx);
  *
  * @return Negative, zero or positive, following strcmp's contract.
  */
-int strcmp_wrap(PCVOID pA, PCVOID pB, PVOID pCtx);
+int APIENTRY strcmp_wrap(PCVOID pA, PCVOID pB, PVOID pCtx);
 
 /*!
  * @brief Free a string owned by a CCL container.
@@ -88,7 +88,7 @@ int strcmp_wrap(PCVOID pA, PCVOID pB, PVOID pCtx);
  *
  * @param[in] pElem  Pointer to the stored bytes of a PCSZ.
  */
-void str_free_ccl(PVOID pElem);
+void APIENTRY str_free_ccl(PVOID pElem);
 
 /*!
  * @brief Duplicate a string via (*CclMalloc).
@@ -107,7 +107,7 @@ void str_free_ccl(PVOID pElem);
  *
  * @return A pointer to the copy, or NULL on failure or psz == NULL.
  */
-PCSZ str_dup_ccl(PCSZ psz);
+PCSZ APIENTRY str_dup_ccl(PCSZ psz);
 
 #ifdef __cplusplus
 }

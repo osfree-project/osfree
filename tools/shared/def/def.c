@@ -1721,14 +1721,14 @@ APIRET APIENTRY DefOpen(PCSZ pszPath, PHDEFFILE phDef)
     pDef = (PDEFFILE)calloc(1, sizeof(*pDef));
     if (!pDef) { fclose(fp); return ERROR_NOT_ENOUGH_MEMORY; }
 
-    rc = VectorCreate(sizeof(PDEF_SEGMENT), &pDef->hSegments);
+    rc = VectorCreate(sizeof(PDEF_SEGMENT), 0, NULL, &pDef->hSegments);
     if (rc != NO_ERROR) { free(pDef); fclose(fp); return rc; }
-    rc = VectorCreate(sizeof(PDEF_IMP), &pDef->hImports);
+    rc = VectorCreate(sizeof(PDEF_IMP), 0, NULL, &pDef->hImports);
     if (rc != NO_ERROR) {
         VectorDestroy(pDef->hSegments);
         free(pDef); fclose(fp); return rc;
     }
-    rc = VectorCreate(sizeof(PDEF_EXP), &pDef->hExports);
+    rc = VectorCreate(sizeof(PDEF_EXP), 0, NULL, &pDef->hExports);
     if (rc != NO_ERROR) {
         VectorDestroy(pDef->hSegments);
         VectorDestroy(pDef->hImports);

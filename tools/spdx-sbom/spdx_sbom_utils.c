@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include "spdx_sbom_utils.h"
 
-/**
+/*!
  * @file spdx_sbom_utils.c
  * @brief Implementation of the SBOM helper functions.
  */
@@ -15,7 +15,7 @@
 /* Identifier helpers                                                  */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Remove the file extension from a path, in place.
  *
  * @param[in,out] pszPath  Path to modify. Not NULL.
@@ -32,7 +32,7 @@ APIRET APIENTRY SbomRemoveExtension(PSZ pszPath) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Sanitize a string for use as an SPDX identifier fragment.
  *
  * @param[in]  pszSrc     Source string. Not NULL.
@@ -75,7 +75,7 @@ APIRET APIENTRY SbomSanitizeId(PCSZ pszSrc, PSZ pszDst, ULONG ulDstSize) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Build an SPDX package identifier.
  *
  * @param[in]  pszBaseName  Base name. Not NULL.
@@ -114,7 +114,7 @@ APIRET APIENTRY SbomMakePackageId(PCSZ pszBaseName, PCSZ pszSuffix,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Query the SPDX file type for a path.
  *
  * @param[in]  pszFilename  Path. Not NULL.
@@ -177,7 +177,7 @@ APIRET APIENTRY SbomQueryFileType(PCSZ pszFilename, PSZ pszBuf,
 /* Resolved file input list                                            */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Create an empty resolved file input list.
  *
  * @param[out] phList  Receiver for the HVECTOR. Not NULL.
@@ -189,10 +189,10 @@ APIRET APIENTRY SbomQueryFileType(PCSZ pszFilename, PSZ pszBuf,
  */
 APIRET APIENTRY SbomCreateFileInputList(PHVECTOR phList) {
     if (!phList) return ERROR_INVALID_PARAMETER;
-    return VectorCreate((ULONG)sizeof(SPDXFILEINPUT), phList);
+    return VectorCreate((ULONG)sizeof(SPDXFILEINPUT), 0, NULL, phList);
 }
 
-/**
+/*!
  * @brief Append a copy of a resolved file input entry to the list.
  *
  * @param[in] hList  List. Not NULLHANDLE.
@@ -211,7 +211,7 @@ APIRET APIENTRY SbomAddFileInput(HVECTOR hList,
     return VectorAdd(hList, (PCVOID)pIn);
 }
 
-/**
+/*!
  * @brief Release a resolved file input list.
  *
  * @param[in] hList  List. NULLHANDLE is a no-op.
@@ -229,7 +229,7 @@ APIRET APIENTRY SbomFreeFileInputList(HVECTOR hList) {
 /* File list                                                           */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Create an empty file list.
  *
  * @param[out] phList  Receiver for the HVECTOR. Not NULL.
@@ -241,10 +241,10 @@ APIRET APIENTRY SbomFreeFileInputList(HVECTOR hList) {
  */
 APIRET APIENTRY SbomCreateFileList(PHVECTOR phList) {
     if (!phList) return ERROR_INVALID_PARAMETER;
-    return VectorCreate((ULONG)sizeof(SPDXFILEINFO), phList);
+    return VectorCreate((ULONG)sizeof(SPDXFILEINFO), 0, NULL, phList);
 }
 
-/**
+/*!
  * @brief Append a copy of a file entry to the list.
  *
  * @param[in] hList  List. Not NULLHANDLE.
@@ -262,7 +262,7 @@ APIRET APIENTRY SbomAddFile(HVECTOR hList, const SPDXFILEINFO *pInfo) {
     return VectorAdd(hList, (PCVOID)pInfo);
 }
 
-/**
+/*!
  * @brief Release a file list.
  *
  * @param[in] hList  List. NULLHANDLE is a no-op.
@@ -280,7 +280,7 @@ APIRET APIENTRY SbomFreeFileList(HVECTOR hList) {
 /* Snippet list                                                        */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Create an empty snippet list.
  *
  * @param[out] phList  Receiver for the HVECTOR. Not NULL.
@@ -292,10 +292,10 @@ APIRET APIENTRY SbomFreeFileList(HVECTOR hList) {
  */
 APIRET APIENTRY SbomCreateSnippetList(PHVECTOR phList) {
     if (!phList) return ERROR_INVALID_PARAMETER;
-    return VectorCreate((ULONG)sizeof(SPDXSNIPPETINFO), phList);
+    return VectorCreate((ULONG)sizeof(SPDXSNIPPETINFO), 0, NULL, phList);
 }
 
-/**
+/*!
  * @brief Append a copy of a snippet entry to the list.
  *
  * @param[in] hList  List. Not NULLHANDLE.
@@ -314,7 +314,7 @@ APIRET APIENTRY SbomAddSnippet(HVECTOR hList,
     return VectorAdd(hList, (PCVOID)pInfo);
 }
 
-/**
+/*!
  * @brief Release a snippet list.
  *
  * @param[in] hList  List. NULLHANDLE is a no-op.
@@ -332,7 +332,7 @@ APIRET APIENTRY SbomFreeSnippetList(HVECTOR hList) {
 /* Relationship list                                                   */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Create an empty relationship list.
  *
  * @param[out] phList  Receiver for the HVECTOR. Not NULL.
@@ -344,10 +344,10 @@ APIRET APIENTRY SbomFreeSnippetList(HVECTOR hList) {
  */
 APIRET APIENTRY SbomCreateRelationshipList(PHVECTOR phList) {
     if (!phList) return ERROR_INVALID_PARAMETER;
-    return VectorCreate((ULONG)sizeof(SPDXRELATIONSHIP), phList);
+    return VectorCreate((ULONG)sizeof(SPDXRELATIONSHIP), 0, NULL, phList);
 }
 
-/**
+/*!
  * @brief Append a copy of a relationship to the list.
  *
  * @param[in] hList  List. Not NULLHANDLE.
@@ -366,7 +366,7 @@ APIRET APIENTRY SbomAddRelationship(HVECTOR hList,
     return VectorAdd(hList, (PCVOID)pRel);
 }
 
-/**
+/*!
  * @brief Release a relationship list.
  *
  * @param[in] hList  List. NULLHANDLE is a no-op.
@@ -384,7 +384,7 @@ APIRET APIENTRY SbomFreeRelationshipList(HVECTOR hList) {
 /* Extracted license list                                              */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Create an empty extracted license list.
  *
  * @param[out] phList  Receiver for the HVECTOR. Not NULL.
@@ -396,10 +396,10 @@ APIRET APIENTRY SbomFreeRelationshipList(HVECTOR hList) {
  */
 APIRET APIENTRY SbomCreateExtractedList(PHVECTOR phList) {
     if (!phList) return ERROR_INVALID_PARAMETER;
-    return VectorCreate((ULONG)sizeof(SPDXEXTRACTEDLICENSEINFO), phList);
+    return VectorCreate((ULONG)sizeof(SPDXEXTRACTEDLICENSEINFO), 0, NULL, phList);
 }
 
-/**
+/*!
  * @brief Append a copy of an extracted license entry to the list.
  *
  * @param[in] hList  List. Not NULLHANDLE.
@@ -418,7 +418,7 @@ APIRET APIENTRY SbomAddExtractedLicense(
     return VectorAdd(hList, (PCVOID)pInfo);
 }
 
-/**
+/*!
  * @brief Release an extracted license list.
  *
  * Frees every owned string in every entry, then releases the

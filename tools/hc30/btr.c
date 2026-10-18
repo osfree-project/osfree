@@ -93,7 +93,7 @@ APIRET APIENTRY BtrCreate(PHBTR phBtr, USHORT usPageSize, USHORT usFlags,
         strncpy(p->szStructure, pszStructure, 15);
         p->szStructure[15] = '\0';
     }
-    rc = VectorCreate(sizeof(BtrEntryRec), &p->vEntries);
+    rc = VectorCreate(sizeof(BtrEntryRec), 0, NULL, &p->vEntries);
     if (rc != NO_ERROR) { free(p); return rc; }
     *phBtr = BTR_HANDLE_FROM(p);
     return NO_ERROR;

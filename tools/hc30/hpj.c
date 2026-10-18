@@ -608,17 +608,17 @@ APIRET APIENTRY HpjCreateDoc(PHHPJ phDoc)
     if (!pDoc) return ERROR_NOT_ENOUGH_MEMORY;
     memset(pDoc, 0, sizeof(*pDoc));
 
-    if ((rc = VectorCreate(sizeof(HpjOptionRec), &pDoc->vOptions)) != NO_ERROR) goto fail;
-    if ((rc = VectorCreate(sizeof(HpjFileRec), &pDoc->vFiles)) != NO_ERROR) goto fail;
-    if ((rc = VectorCreate(sizeof(HpjAliasRec), &pDoc->vAliases)) != NO_ERROR) goto fail;
-    if ((rc = VectorCreate(sizeof(HpjMapRec), &pDoc->vMaps)) != NO_ERROR) goto fail;
-    if ((rc = VectorCreate(sizeof(HpjDefineRec), &pDoc->vDefines)) != NO_ERROR) goto fail;
-    if ((rc = VectorCreate(sizeof(HpjIncludeRec), &pDoc->vIncludes)) != NO_ERROR) goto fail;
-    if ((rc = VectorCreate(sizeof(HPJWINDOW), &pDoc->vWindows)) != NO_ERROR) goto fail;
-    if ((rc = VectorCreate(sizeof(HpjConfigRec), &pDoc->vConfigs)) != NO_ERROR) goto fail;
-    if ((rc = VectorCreate(sizeof(HpjBitmapRec), &pDoc->vBitmaps)) != NO_ERROR) goto fail;
-    if ((rc = VectorCreate(sizeof(HpjBaggageRec), &pDoc->vBaggage)) != NO_ERROR) goto fail;
-    if ((rc = VectorCreate(sizeof(HpjBuildTagRec), &pDoc->vBuildTags)) != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(HpjOptionRec),   0, NULL, &pDoc->vOptions))   != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(HpjFileRec),     0, NULL, &pDoc->vFiles))     != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(HpjAliasRec),    0, NULL, &pDoc->vAliases))   != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(HpjMapRec),      0, NULL, &pDoc->vMaps))      != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(HpjDefineRec),   0, NULL, &pDoc->vDefines))   != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(HpjIncludeRec),  0, NULL, &pDoc->vIncludes))  != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(HPJWINDOW),      0, NULL, &pDoc->vWindows))   != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(HpjConfigRec),   0, NULL, &pDoc->vConfigs))   != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(HpjBitmapRec),   0, NULL, &pDoc->vBitmaps))   != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(HpjBaggageRec),  0, NULL, &pDoc->vBaggage))   != NO_ERROR) goto fail;
+    if ((rc = VectorCreate(sizeof(HpjBuildTagRec), 0, NULL, &pDoc->vBuildTags)) != NO_ERROR) goto fail;
 
     *phDoc = DOC_HANDLE_FROM(pDoc);
     return NO_ERROR;

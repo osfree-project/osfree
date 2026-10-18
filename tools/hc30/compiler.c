@@ -42,7 +42,7 @@ typedef struct {
  */
 static APIRET cmp_map_create(HVECTOR* phvMap)
 {
-    return VectorCreate(sizeof(CmpContextRec), phvMap);
+    return VectorCreate(sizeof(CmpContextRec), 0, NULL, phvMap);
 }
 
 /*!
@@ -156,7 +156,7 @@ static APIRET cmp_collect_topics(HRTFDOC hDoc, HVECTOR hvMap,
     APIRET   rc;
     ULONG    ulNext = 1;
 
-    rc = VectorCreate(sizeof(CmpTopicRec), phvTopics);
+    rc = VectorCreate(sizeof(CmpTopicRec), 0, NULL, phvTopics);
     if (rc != NO_ERROR) return rc;
 
     rc = RtfFindFirstTopic(hDoc, &hEnum);
@@ -767,7 +767,7 @@ APIRET APIENTRY CmpCompile(HHPJ hHpj, HRTFDOC hDoc, PCSZ pszHpjPath,
     /* Active build tags from HPJ. */
     {
         ULONG n = 0, j;
-        rc = VectorCreate(sizeof(PSZ), &vActive);
+        rc = VectorCreate(sizeof(PSZ), 0, NULL, &vActive);
         if (rc != NO_ERROR) goto fail;
         HpjQueryBuildTagCount(hHpj, &n);
         for (j = 0; j < n; j++) {

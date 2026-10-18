@@ -38,9 +38,9 @@ APIRET APIENTRY FntCreate(PHFNT phFnt)
     p = (FntRec*)malloc(sizeof(FntRec));
     if (!p) return ERROR_NOT_ENOUGH_MEMORY;
     memset(p, 0, sizeof(*p));
-    rc = VectorCreate(sizeof(PSZ), &p->vFaceNames);
+    rc = VectorCreate(sizeof(PSZ), 0, NULL, &p->vFaceNames);
     if (rc != NO_ERROR) { free(p); return rc; }
-    rc = VectorCreate(sizeof(FntDescRec), &p->vDescriptors);
+    rc = VectorCreate(sizeof(FntDescRec), 0, NULL, &p->vDescriptors);
     if (rc != NO_ERROR) { VectorDestroy(p->vFaceNames); free(p); return rc; }
     *phFnt = FNT_HANDLE_FROM(p);
     return NO_ERROR;

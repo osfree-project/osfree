@@ -356,7 +356,7 @@ static APIRET MsParseSegLine(MS_HANDLE *pMap, PCSZ pszLine)
     pSeg->ulBaseOff = ulBaseOff;
     pSeg->ulSize    = ulSize;
     pSeg->ulFlags   = ulFlags;
-    if (VectorCreate(sizeof(MS_SYMBOL *), &pSeg->hSymbols) != NO_ERROR) {
+    if (VectorCreate(sizeof(MS_SYMBOL *), 0, NULL, &pSeg->hSymbols) != NO_ERROR) {
         free(pSeg->pszName); free(pSeg->pszClass); free(pSeg);
         return ERROR_NOT_ENOUGH_MEMORY;
     }
@@ -470,7 +470,7 @@ APIRET APIENTRY MapOpen(PCSZ pszPath, HMAP *phMap)
     pMap = (MS_HANDLE *)calloc(1, sizeof(MS_HANDLE));
     if (pMap == NULL) return ERROR_NOT_ENOUGH_MEMORY;
     pMap->ulMagic = MS_MAGIC_OPEN;
-    if (VectorCreate(sizeof(MS_SEGMENT *), &pMap->hSegments) != NO_ERROR) {
+    if (VectorCreate(sizeof(MS_SEGMENT *), 0, NULL, &pMap->hSegments) != NO_ERROR) {
         MsCloseHandle(pMap);
         return ERROR_NOT_ENOUGH_MEMORY;
     }

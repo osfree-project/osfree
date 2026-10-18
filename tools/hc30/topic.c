@@ -249,7 +249,7 @@ APIRET APIENTRY TopCreate(PHTOP phTop)
     p = (TopRec*)malloc(sizeof(TopRec));
     if (!p) return ERROR_NOT_ENOUGH_MEMORY;
     memset(p, 0, sizeof(*p));
-    rc = VectorCreate(sizeof(TopTopicRec*), &p->vTopics);
+    rc = VectorCreate(sizeof(TopTopicRec*), 0, NULL, &p->vTopics);
     if (rc != NO_ERROR) { free(p); return rc; }
     *phTop = TOP_HANDLE_FROM(p);
     return NO_ERROR;
@@ -332,7 +332,7 @@ APIRET APIENTRY TopAddTopic(HTOP hTop, PCSZ pszTitle, PCSZ pszContext)
     memset(t, 0, sizeof(*t));
     if (pszTitle) t->pszTitle = strdup(pszTitle);
     if (pszContext) t->pszContext = strdup(pszContext);
-    rc = VectorCreate(sizeof(TopFragRec*), &t->vFragments);
+    rc = VectorCreate(sizeof(TopFragRec*), 0, NULL, &t->vFragments);
     if (rc != NO_ERROR) { top_free_topic(t); return rc; }
     rc = VectorAdd(p->vTopics, &t);
     if (rc != NO_ERROR) { top_free_topic(t); return rc; }
@@ -869,10 +869,10 @@ APIRET APIENTRY TopWrite(HTOP hTop, FILE* f, PHVECTOR phvOffsets, HPHRE hEnc)
 
     memset(&flat, 0, sizeof(flat));
 
-    rc = VectorCreate(sizeof(TopLinkOffsetRec), &vLinks);
+    rc = VectorCreate(sizeof(TopLinkOffsetRec), 0, NULL, &vLinks);
     if (rc != NO_ERROR) return rc;
     if (phvOffsets) {
-        rc = VectorCreate(sizeof(ULONG), &vF);
+        rc = VectorCreate(sizeof(ULONG), 0, NULL, &vF);
         if (rc != NO_ERROR) { VectorDestroy(vLinks); return rc; }
     }
 

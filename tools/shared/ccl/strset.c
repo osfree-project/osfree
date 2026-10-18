@@ -239,7 +239,7 @@ APIRET APIENTRY StrSetCreate(PHSTRSET phSet) {
     pCtl = (STRSETCTL *)CclCalloc(1, (ULONG)sizeof(STRSETCTL));
     if (!pCtl) return ERROR_NOT_ENOUGH_MEMORY;
 
-    rc = VectorCreate((ULONG)sizeof(char *), &pCtl->hVector);
+    rc = VectorCreate((ULONG)sizeof(char *), 0, NULL, &pCtl->hVector);
     if (rc != NO_ERROR) {
         CclFree(pCtl);
         return rc;

@@ -777,14 +777,14 @@ int main(int argc, char *argv[])
 
     /* ---- Create CCL vectors ---- */
 
-    ar = VectorCreate(sizeof(apientry), &hvApi);
+    ar = VectorCreate(sizeof(apientry), 0, NULL, &hvApi);
     if (ar != NO_ERROR) {
         printf("Error: Cannot create import vector (%lu)\n",
                (unsigned long)ar);
         return 1;
     }
 
-    ar = VectorCreate(sizeof(modname), &hvMods);
+    ar = VectorCreate(sizeof(modname), 0, NULL, &hvMods);
     if (ar != NO_ERROR) {
         printf("Error: Cannot create module vector (%lu)\n",
                (unsigned long)ar);

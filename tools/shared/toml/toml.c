@@ -310,7 +310,7 @@ static PTOMLTABLE table_new(void) {
     PTOMLTABLE pTable;
     pTable = (PTOMLTABLE)calloc(1, sizeof(TOMLTABLE));
     if (!pTable) return NULL;
-    if (VectorCreate((ULONG)sizeof(TOMLENTRY), &pTable->hEntries)
+    if (VectorCreate((ULONG)sizeof(TOMLENTRY), 0, NULL, &pTable->hEntries)
             != NO_ERROR) {
         free(pTable);
         return NULL;
