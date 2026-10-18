@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "vector.h"
+#include "mem_private.h"
 
 /* ==================================================================
  * Internal control block
@@ -108,13 +109,20 @@ static APIRET vector_reserve(VECTORCTL *pCtl, unsigned long ulNeeded) {
     if (ulNewCapacity > (unsigned long)-1 / pCtl->ulElemSize)
         return ERROR_NOT_ENOUGH_MEMORY;
 
-    pbNew = (unsigned char *)realloc(pCtl->pbData,
-                                     (size_t)ulNewCapacity *
-                                     (size_t)pCtl->ulElemSize);
-    if (!pbNew) return ERROR_NOT_ENOUGH_MEMORY;
+    {
+        ULONG ulNewBytes = ulNewCapacity * pCtl->ulElemSize;
 
-    pCtl->pbData = pbNew;
-    pCtl->ulCapacity = ulNewCapacity;
+        pbNew = (unsigned char *)ccl_mem_alloc(ulNewBytes);
+        if (!pbNew) return ERROR_NOT_ENOUGH_MEMORY;
+
+        if (pCtl->pbData) {
+            ULONG ulOldBytes = pCtl->ulCapacity * pCtl->ulElemSize;
+            memcpy(pbNew, pCtl->pbData, (size_t)ulOldBytes);
+            ccl_mem_free(pCtl->pbData);
+        }
+        pCtl->pbData = pbNew;
+        pCtl->ulCapacity = ulNewCapacity;
+    }
     return NO_ERROR;
 }
 
@@ -144,7 +152,7 @@ APIRET APIENTRY VectorCreate(ULONG ulElemSize, PHVECTOR phVector) {
     if (ulElemSize == 0) return ERROR_INVALID_PARAMETER;
     *phVector = NULLHANDLE;
 
-    pCtl = (VECTORCTL *)calloc(1, sizeof(VECTORCTL));
+    pCtl = (VECTORCTL *)ccl_mem_zalloc((ULONG)sizeof(VECTORCTL));
     if (!pCtl) return ERROR_NOT_ENOUGH_MEMORY;
 
     pCtl->ulMagic = CCL_VECTOR_MAGIC;
@@ -177,9 +185,9 @@ APIRET APIENTRY VectorDestroy(HVECTOR hVector) {
     pCtl = get_ctl(hVector);
     if (!pCtl) return ERROR_INVALID_HANDLE;
 
-    free(pCtl->pbData);
+    ccl_mem_free(pCtl->pbData);
     pCtl->ulMagic = 0;
-    free(pCtl);
+    ccl_mem_free(pCtl);
     return NO_ERROR;
 }
 

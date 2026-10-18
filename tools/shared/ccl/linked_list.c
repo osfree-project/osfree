@@ -14,6 +14,7 @@
 
 #include <stdlib.h>
 #include "linked_list_private.h"
+#include "mem_private.h"
 
 /*!
  * @brief Allocate a detached node.
@@ -33,7 +34,7 @@
 PLINKED_NODE LinkedNodeAlloc(PVOID pElem, ULONG size, ULONG tag) {
     PLINKED_NODE pNode;
 
-    pNode = (PLINKED_NODE)malloc(sizeof(LINKED_NODE));
+    pNode = (PLINKED_NODE)ccl_mem_alloc((ULONG)sizeof(LINKED_NODE));
     if (!pNode) return NULL;
 
     pNode->elemt = pElem;
@@ -53,5 +54,5 @@ PLINKED_NODE LinkedNodeAlloc(PVOID pElem, ULONG size, ULONG tag) {
  * @param[in] pNode  Node to release.
  */
 void LinkedNodeFree(PLINKED_NODE pNode) {
-    free(pNode);
+    ccl_mem_free(pNode);
 }

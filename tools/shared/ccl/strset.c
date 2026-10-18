@@ -16,6 +16,7 @@
 #include <string.h>
 #include "strset.h"
 #include "vector.h"
+#include "mem_private.h"
 
 /* ==================================================================
  * Internal control blocks
@@ -235,12 +236,12 @@ APIRET APIENTRY StrSetCreate(PHSTRSET phSet) {
     if (!phSet) return ERROR_INVALID_PARAMETER;
     *phSet = NULLHANDLE;
 
-    pCtl = (STRSETCTL *)calloc(1, sizeof(STRSETCTL));
+    pCtl = (STRSETCTL *)ccl_mem_zalloc((ULONG)sizeof(STRSETCTL));
     if (!pCtl) return ERROR_NOT_ENOUGH_MEMORY;
 
     rc = VectorCreate((ULONG)sizeof(char *), &pCtl->hVector);
     if (rc != NO_ERROR) {
-        free(pCtl);
+        ccl_mem_free(pCtl);
         return rc;
     }
     pCtl->ulMagic = CCL_STRSET_MAGIC;
@@ -279,7 +280,7 @@ APIRET APIENTRY StrSetDestroy(HSTRSET hSet) {
             STRSETENUM *pNext = pEnum->pNext;
             pEnum->ulMagic = 0;
             pEnum->pSet = NULL;
-            free(pEnum);
+            ccl_mem_free(pEnum);
             pEnum = pNext;
         }
         pCtl->pFirstEnum = NULL;
@@ -289,12 +290,12 @@ APIRET APIENTRY StrSetDestroy(HSTRSET hSet) {
         for (i = 0; i < ulCount; i++) {
             PCSZ pStored = NULL;
             if (get_stored_ptr(pCtl, i, &pStored) == NO_ERROR)
-                free((void *)pStored);
+                ccl_mem_free((void *)pStored);
         }
     }
     VectorDestroy(pCtl->hVector);
     pCtl->ulMagic = 0;
-    free(pCtl);
+    ccl_mem_free(pCtl);
     return NO_ERROR;
 }
 
@@ -321,6 +322,7 @@ APIRET APIENTRY StrSetDestroy(HSTRSET hSet) {
 APIRET APIENTRY StrSetAdd(HSTRSET hSet, PCSZ pszStr) {
     STRSETCTL *pCtl;
     char *copy;
+    size_t n;
     APIRET rc;
 
     if (!pszStr || !pszStr[0]) return NO_ERROR;
@@ -330,12 +332,14 @@ APIRET APIENTRY StrSetAdd(HSTRSET hSet, PCSZ pszStr) {
 
     if (find_string(pCtl, pszStr, NULL)) return NO_ERROR;
 
-    copy = strdup(pszStr);
+    n = strlen(pszStr) + 1;
+    copy = (char *)ccl_mem_alloc((ULONG)n);
     if (!copy) return ERROR_NOT_ENOUGH_MEMORY;
+    memcpy(copy, pszStr, n);
 
     rc = VectorAdd(pCtl->hVector, &copy);
     if (rc != NO_ERROR) {
-        free(copy);
+        ccl_mem_free(copy);
         return rc;
     }
     return NO_ERROR;
@@ -453,7 +457,7 @@ APIRET APIENTRY StrSetEnumFirst(HSTRSET hSet, HSTRSETENUM *phEnum) {
         return ERROR_INVALID_HANDLE;
     if (ulCount == 0) return ERROR_NO_MORE_ITEMS;
 
-    pEnum = (STRSETENUM *)calloc(1, sizeof(STRSETENUM));
+    pEnum = (STRSETENUM *)ccl_mem_zalloc((ULONG)sizeof(STRSETENUM));
     if (!pEnum) return ERROR_NOT_ENOUGH_MEMORY;
 
     pEnum->ulMagic = CCL_STRSETENUM_MAGIC;
@@ -550,6 +554,6 @@ APIRET APIENTRY StrSetEnumClose(HSTRSETENUM hEnum) {
     }
     pEnum->ulMagic = 0;
     pEnum->pSet = NULL;
-    free(pEnum);
+    ccl_mem_free(pEnum);
     return NO_ERROR;
 }
