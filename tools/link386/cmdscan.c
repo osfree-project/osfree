@@ -86,6 +86,7 @@ void CmdScanWhitespace( void )
  * @param[in] ch  Character to recognise.
  * @retval 1  Character matched and consumed.
  * @retval 0  Character did not match.
+ * @return Non-zero if the character was recognised.
  */
 int CmdScanRecogChar( int ch )
 /****************************/
@@ -109,6 +110,7 @@ int CmdScanRecogChar( int ch )
  * @param[in] ch  Character to recognise.
  * @retval 1  Character matched and consumed.
  * @retval 0  Character did not match.
+ * @return Non-zero if the character was recognised.
  */
 int CmdScanRecogCharExact( int ch )
 /*********************************/
@@ -269,6 +271,7 @@ char *CmdScanFileNameWithoutQuotes( void )
  * @param[out] num  Receives the parsed value.
  * @retval 1  A number was parsed.
  * @retval 0  No number was parsed.
+ * @return Non-zero if a number was parsed.
  */
 int CmdScanNumber( unsigned *num )
 /********************************/

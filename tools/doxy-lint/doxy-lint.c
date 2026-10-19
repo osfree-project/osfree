@@ -86,6 +86,13 @@
  *  declarations, and the ';' inside them does not end the
  *  declaration.
  *
+ *  Typedefs of function pointers are recognized, including those
+ *  that carry a calling convention or a qualifier between '*' and
+ *  the name (e.g. "typedef void (*__stdcall NAME)(void);" and
+ *  "typedef void (*const NAME)(void);").  The declarator name is
+ *  the function name for the purposes of @return/@param checks; the
+ *  return type is taken from the tokens before the grouping '('.
+ *
  *  Usage:
  *    doxy-lint <file>... [preprocessor options...]
  *
@@ -664,7 +671,9 @@ static int is_upper_constant(const char *s, int len)
  * tokens of its return type and is not followed by "*".
  *
  *  @param[in] start    Index of the first token of the return type.
- *  @param[in] name_idx Index of the function-name token.
+ *  @param[in] name_idx Index of the token that ends the return type
+ *                      (the function name, or the grouping '(' of a
+ *                      function-pointer typedef).
  *  @return Non-zero if the return type is plain void.
  *  @retval 0 Return type is not plain void.
  *  @retval 1 Return type is plain void.
@@ -1387,8 +1396,8 @@ static int check_defines_raw(const char *fname)
  *                          started on an earlier line.
  *  @param[in,out] in_str   Non-zero while inside a string literal that
  *                          started on an earlier line.
- *  @param[in,out] in_chr   Non-zero while inside a character literal
- *                          that started on an earlier line.
+ *  @param[in,out] in_chr   Non-zero while inside a character literal that
+ *                          started on an earlier line.
  */
 static void strip_comments(char *line, int *in_block,
                            int *in_str, int *in_chr)
@@ -1809,11 +1818,16 @@ static int check_file(const char *fname)
             int last_ident = -1;
             int in_tag = 0;
             int kr_mode = 0;
+            int saw_typedef = 0;
+            int decl_paren = -1;
+            int fn_is_typedef_fn = 0;
 
             while (toks[i].type != T_EOF) {
 
                 if (toks[i].type == T_IDENT) {
-                    if (tok_is(i, "struct") || tok_is(i, "union") ||
+                    if (tok_is(i, "typedef")) {
+                        saw_typedef = 1;
+                    } else if (tok_is(i, "struct") || tok_is(i, "union") ||
                         tok_is(i, "class") || tok_is(i, "namespace")) {
                         has_struct = 1; in_tag = 1;
                     } else if (tok_is(i, "enum")) {
@@ -1831,9 +1845,57 @@ static int check_file(const char *fname)
                     if (bdepth > 0) bdepth--;
                 } else if (tok_punct(i, "(")) {
                     if (pdepth == 0 && bdepth == 0 &&
+                        fn_paren < 0 && !saw_eq && saw_typedef) {
+                        /* Recognize "typedef R (*NAME)(...)".  The
+                         * declarator name is the last non-keyword
+                         * identifier inside the grouping "(...)";
+                         * a calling convention such as __stdcall and
+                         * a qualifier such as const are therefore
+                         * skipped.  Only accept the form when the
+                         * grouping is immediately followed by the
+                         * parameter list '('.  A pointer to array,
+                         * "typedef R (*NAME)[N]", is not a function. */
+                        int k = i + 1;
+                        int recognized = 0;
+                        while (toks[k].type == T_COMMENT ||
+                               toks[k].type == T_PREPROC) k++;
+                        if (tok_punct(k, "*")) {
+                            int depth = 1;
+                            int m = k + 1;
+                            int name_idx = -1;
+                            while (toks[m].type != T_EOF) {
+                                if (tok_punct(m, "(")) {
+                                    depth++;
+                                } else if (tok_punct(m, ")")) {
+                                    if (--depth == 0) break;
+                                } else if (toks[m].type == T_IDENT &&
+                                           !is_keyword(toks[m].p,
+                                                       toks[m].len)) {
+                                    name_idx = m;
+                                }
+                                m++;
+                            }
+                            if (name_idx >= 0 && tok_punct(m, ")")) {
+                                int n = m + 1;
+                                while (toks[n].type == T_COMMENT ||
+                                       toks[n].type == T_PREPROC) n++;
+                                if (tok_punct(n, "(")) {
+                                    fn_name_idx      = name_idx;
+                                    decl_paren       = i;
+                                    fn_is_typedef_fn = 1;
+                                    fn_paren         = n;
+                                    pdepth           = 1;
+                                    i                = n + 1;
+                                    recognized       = 1;
+                                }
+                            }
+                        }
+                        if (recognized) continue;
+                    }
+                    if (pdepth == 0 && bdepth == 0 &&
                         fn_paren < 0 && !saw_eq) {
                         fn_paren = i;
-                        fn_name_idx = last_ident;
+                        if (fn_name_idx < 0) fn_name_idx = last_ident;
                     }
                     pdepth++;
                 } else if (tok_punct(i, ")")) {
@@ -1937,7 +1999,8 @@ static int check_file(const char *fname)
                     has_doc = 1;
                 }
 
-                if (fn_name_idx >= 0 && !saw_eq) {
+                if (fn_name_idx >= 0 && !saw_eq &&
+                    (!saw_typedef || fn_is_typedef_fn)) {
                     char fname_buf[NAMELEN];
                     int nl = toks[fn_name_idx].len;
                     int is_void;
@@ -1990,7 +2053,14 @@ static int check_file(const char *fname)
                             }
                         }
 
-                        is_void = returns_void(dstart, fn_name_idx);
+                        /* For a typedef'd function pointer the return
+                         * type is the token range before the grouping
+                         * '(', not before the declarator name: a '*'
+                         * inside "(*NAME)" is part of the declarator,
+                         * not of the return type. */
+                        is_void = fn_is_typedef_fn
+                                  ? returns_void(dstart, decl_paren)
+                                  : returns_void(dstart, fn_name_idx);
 
                         if (is_void) {
                             if (di.has_return) {

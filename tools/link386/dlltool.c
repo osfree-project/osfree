@@ -88,29 +88,42 @@ typedef char                    WBool;          /* really a C++ 'bool' */
 /*!
  * @typedef GetVerFn
  * @brief Version query entry point.
+ * @return Unsigned DLL version number.
  */
 typedef unsigned IDEDLL_EXPORT  (*GetVerFn)( void );
 /*!
  * @typedef InitDllFn
  * @brief Initialization entry point.
+ * @param[in]  hdl   Caller-supplied handle.
+ * @param[in]  cb    Callback table.
+ * @param[out] info  Receives the DLL-owned handle.
+ * @return Non-zero on success, zero on failure.
  */
 typedef WBool IDEDLL_EXPORT     (*InitDllFn)( IDECBHdl hdl, IDECallBacks *cb,
                                               IDEDllHdl *info );
 /*!
  * @typedef InitInfoFn
  * @brief Init-info entry point.
+ * @param[in] hdl   DLL-owned handle.
+ * @param[in] info  Init-info payload.
+ * @return Non-zero on success, zero on failure.
  */
 typedef WBool IDEDLL_EXPORT     (*InitInfoFn)( IDEDllHdl hdl,
                                                IDEInitInfo *info );
 /*!
  * @typedef RunSelfFn
  * @brief Main-entry-point signature.
+ * @param[in]  hdl       DLL-owned handle.
+ * @param[in]  opts      Command-line options.
+ * @param[out] fatalerr  Set non-zero on fatal error.
+ * @return Non-zero on success, zero on failure.
  */
 typedef WBool IDEDLL_EXPORT     (*RunSelfFn)( IDEDllHdl hdl, const char *opts,
                                               WBool *fatalerr );
 /*!
  * @typedef FiniDllFn
  * @brief Shutdown entry point.
+ * @param[in] hdl  DLL-owned handle.
  */
 typedef void IDEDLL_EXPORT      (*FiniDllFn)( IDEDllHdl hdl );
 /*!
