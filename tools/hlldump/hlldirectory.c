@@ -1,3 +1,8 @@
+/*!
+ * @file hlldirectory.c
+ * @brief Loading and dumping of the HLL debug directory.
+ */
+
 /* functions related to HLL directory loading and dumping */
 
 #include <os2.h>
@@ -11,14 +16,34 @@
 #include "hll.h"
 #pragma pack(pop)
 
+/*!
+ * @brief Buffer holding the whole loaded executable file.
+ */
 extern void *pvFile;
+/*!
+ * @brief Detected debug information format.
+ */
 extern BYTE bDebugFormat; /* debug format */
+/*!
+ * @brief Offset of the debug information within the file.
+ */
 extern ULONG ulDebugOff;
+/*!
+ * @brief Number of modules described in the HLL debug directory.
+ */
 extern ULONG ulModules;
+/*!
+ * @brief Per-module information table.
+ */
 extern MODULE *pModules;
 /*extern ULONG ulDirOffset;
 extern ULONG ulDirEntries;*/
 
+/*!
+ * @brief Parse the HLL directory and populate the module table.
+ * @retval TRUE Always returns TRUE.
+ * @return TRUE on success.
+ */
 BOOL ProcessDirectory()
 {
  const PHLLHDR pHdr= (PHLLHDR)((PBYTE)pvFile + ulDebugOff);

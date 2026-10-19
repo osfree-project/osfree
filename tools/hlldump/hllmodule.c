@@ -1,3 +1,8 @@
+/*!
+ * @file hllmodule.c
+ * @brief Dumping of HLL module structures.
+ */
+
 /* module structure dumping */
 
 #include <os2.h>
@@ -10,12 +15,32 @@
 #include "hll.h"
 #pragma pack(pop)
 
+/*!
+ * @brief Buffer holding the whole loaded executable file.
+ */
 extern void *pvFile;
+/*!
+ * @brief Detected debug information format.
+ */
 extern BYTE bDebugFormat; /* debug format */
+/*!
+ * @brief Offset of the debug information within the file.
+ */
 extern ULONG ulDebugOff;
+/*!
+ * @brief Number of modules described in the HLL debug directory.
+ */
 extern ULONG ulModules;
+/*!
+ * @brief Per-module information table.
+ */
 extern MODULE *pModules;
 
+/*!
+ * @brief Dump HLL module (file) structures and segment info.
+ * @retval TRUE Always returns TRUE.
+ * @return TRUE on success.
+ */
 BOOL ProcessModules()
 {
   ULONG i;
@@ -118,4 +143,3 @@ BOOL ProcessModules()
   printf("--- Processed\n");
   return TRUE;
 };
-

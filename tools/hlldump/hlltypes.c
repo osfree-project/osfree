@@ -1,3 +1,8 @@
+/*!
+ * @file hlltypes.c
+ * @brief Dumping of Microsoft and IBM HLL data types.
+ */
+
 /* MS data types dumping */
 
 #include <os2.h>
@@ -12,19 +17,61 @@
 #include "MAPTYPES.H"
 #pragma pack(pop)
 
+/*!
+ * @brief Buffer holding the whole loaded executable file.
+ */
 extern void *pvFile;
+/*!
+ * @brief Detected debug information format.
+ */
 extern BYTE bDebugFormat; /* debug format */
+/*!
+ * @brief Offset of the debug information within the file.
+ */
 extern ULONG ulDebugOff;
+/*!
+ * @brief Number of modules described in the HLL debug directory.
+ */
 extern ULONG ulModules;
+/*!
+ * @brief Per-module information table.
+ */
 extern MODULE *pModules;
 
 
+/*!
+ * @brief Dump IBM HLL type records for a module.
+ * @param[in] ulModule Module index.
+ * @param[in] dmp Output file.
+ */
 void ProcessHLLTypes(ULONG ulModule,FILE *dmp);
+/*!
+ * @brief Dump Microsoft type records for a module.
+ * @param[in] ulModule Module index.
+ * @param[in] dmp Output file.
+ */
 void ProcessMsTypes(ULONG ulModule,FILE *dmp);
 
+/*!
+ * @brief Print a primitive type name for a type index.
+ * @param[in] n Type index.
+ * @param[in] dmp Output file.
+ */
 void PrintTypeIndex (USHORT n,FILE *dmp);
+/*!
+ * @brief Read an encoded length/offset field from a type record.
+ * @param[in] buffer Pointer to the encoded field.
+ * @param[out] FieldValue Decoded value.
+ * @param[out] FieldLength Size in bytes of the encoded field.
+ * @return Pointer to the first byte after the decoded field.
+ */
 UCHAR *GetField( UCHAR *buffer, void *FieldValue, UINT *FieldLength );
 
+/*!
+ * @brief Dump data types for all modules.
+ * @retval TRUE Always returns TRUE.
+ * @return TRUE on success.
+ */
 BOOL ProcessTypes()
 {
   ULONG i;
@@ -50,6 +97,11 @@ BOOL ProcessTypes()
   return TRUE;
 };
 
+/*!
+ * @brief Dump Microsoft type records for a module.
+ * @param[in] ulModule Module index.
+ * @param[in] dmp Output file.
+ */
 void ProcessMsTypes(ULONG ulModule,FILE *dmp)
 {
   int RecIDLen=1;
@@ -188,9 +240,25 @@ void ProcessMsTypes(ULONG ulModule,FILE *dmp)
      case T_ENTRY:    /* Entry.                     (0x53) */
      case T_FUNCTION: /* Function.                  (0x54) */
      {
+        /*!
+         * @def ARGSRTOL
+         * @brief Calling convention flag: arguments pushed left-to-right.
+         */
         #define  ARGSRTOL   0x01
+        /*!
+         * @def CALLERPOPS
+         * @brief Calling convention flag: caller pops the arguments.
+         */
         #define  CALLERPOPS 0x02
+        /*!
+         * @def FUNC32BIT
+         * @brief Calling convention flag: 32-bit function.
+         */
         #define  FUNC32BIT  0x04
+        /*!
+         * @def FARCALL
+         * @brief Calling convention flag: far call.
+         */
         #define  FARCALL    0x08
 
         UCHAR  CallingConv;
@@ -235,6 +303,10 @@ void ProcessMsTypes(ULONG ulModule,FILE *dmp)
 
      case T_BITFLD: /* Bit Field. */
      {
+      /*!
+       * @def SIGNED_FLAG
+       * @brief Bitfield flag indicating a signed base type.
+       */
       #define SIGNED_FLAG     0x02
       MS_BITFLD *pMSBitfld  = (MS_BITFLD *)((UCHAR *)pType + 3);
 
@@ -296,6 +368,11 @@ void ProcessMsTypes(ULONG ulModule,FILE *dmp)
 
 };
 
+/*!
+ * @brief Dump IBM HLL type records for a module.
+ * @param[in] ulModule Module index.
+ * @param[in] dmp Output file.
+ */
 void ProcessHLLTypes(ULONG ulModule,FILE *dmp)
 {
   int RecIDLen;
@@ -394,6 +471,11 @@ void ProcessHLLTypes(ULONG ulModule,FILE *dmp)
 };
 
 
+/*!
+ * @brief Print a primitive type name for a type index.
+ * @param[in] n Type index.
+ * @param[in] dmp Output file.
+ */
 void PrintTypeIndex (USHORT n,FILE *dmp)
 {
 
@@ -446,6 +528,14 @@ static struct recsymnames
   fprintf(dmp, "%u", n);
 }
 
+/*!
+ * @brief Read an encoded length/offset field from a type record.
+ * @param[in] buffer Pointer to the encoded field.
+ * @param[out] FieldValue Decoded value.
+ * @param[out] FieldLength Size in bytes of the encoded field.
+ * @retval 0 Unrecognized encoding.
+ * @return Pointer to the first byte after the decoded field.
+ */
 UCHAR *GetField( UCHAR *buffer, void *FieldValue, UINT *FieldLength )
 {
   if( *buffer & 0x80 )

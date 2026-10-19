@@ -1,3 +1,8 @@
+/*!
+ * @file hllsymbols.c
+ * @brief Dumping of HLL private symbols.
+ */
+
 /* private symbols dumping */
 
 #include <os2.h>
@@ -11,21 +16,73 @@
 #include "MAPSYMS.H"
 #pragma pack(pop)
 
+/*!
+ * @brief Dump MSC C 6.0 32-bit (CL386) symbol records.
+ * @param[in] ulModule Module index.
+ * @param[in] dmp Output file.
+ */
 void ProcessType104_CL386Syms(ULONG ulModule,FILE *dmp);
+/*!
+ * @brief Dump Microsoft 16-bit symbol records.
+ * @param[in] ulModule Module index.
+ * @param[in] dmp Output file.
+ */
 void ProcessMs16Syms(ULONG ulModule,FILE *dmp);
+/*!
+ * @brief Dump HLL symbol records.
+ * @param[in] ulModule Module index.
+ * @param[in] dmp Output file.
+ */
 void ProcessHlSyms(ULONG ulModule,FILE *dmp);
 
 
+/*!
+ * @brief Read a symbol record type byte, accounting for HL03 long records.
+ * @param[in] Buffer Pointer to the raw record.
+ * @param[in] pModule Module descriptor (debug format flags).
+ * @return Symbol record type.
+ */
 UCHAR  GetRecordType( UCHAR *Buffer, MODULE *pModule );
+/*!
+ * @brief Read a symbol record length, accounting for HL03 long records.
+ * @param[in] Buffer Pointer to the raw record.
+ * @param[in] pModule Module descriptor (debug format flags).
+ * @return Symbol record length.
+ */
 USHORT  GetRecordLength( UCHAR *Buffer, MODULE *pModule );
+/*!
+ * @brief Print a register type mnemonic for the given register code.
+ * @param[in] n Register code.
+ * @param[in] dmp Output file.
+ */
 void PrintRegType (UINT n,FILE *dmp);
 
+/*!
+ * @brief Buffer holding the whole loaded executable file.
+ */
 extern void *pvFile;
+/*!
+ * @brief Detected debug information format.
+ */
 extern BYTE bDebugFormat; /* debug format */
+/*!
+ * @brief Offset of the debug information within the file.
+ */
 extern ULONG ulDebugOff;
+/*!
+ * @brief Number of modules described in the HLL debug directory.
+ */
 extern ULONG ulModules;
+/*!
+ * @brief Per-module information table.
+ */
 extern MODULE *pModules;
 
+/*!
+ * @brief Dump private symbols for all modules.
+ * @retval TRUE Always returns TRUE.
+ * @return TRUE on success.
+ */
 BOOL ProcessSymbols()
 {
   ULONG i;
@@ -74,6 +131,11 @@ BOOL ProcessSymbols()
 
 
 
+/*!
+ * @brief Dump MSC C 6.0 32-bit (CL386) symbol records.
+ * @param[in] ulModule Module index.
+ * @param[in] dmp Output file.
+ */
 /* the following is as is, not finished.. */
 void ProcessType104_CL386Syms(ULONG ulModule,FILE *dmp)
 {
@@ -101,6 +163,11 @@ void ProcessType104_CL386Syms(ULONG ulModule,FILE *dmp)
 
 };
 
+/*!
+ * @brief Dump Microsoft 16-bit symbol records.
+ * @param[in] ulModule Module index.
+ * @param[in] dmp Output file.
+ */
 void ProcessMs16Syms(ULONG ulModule,FILE *dmp)
 {
   SSrec *pType=(SSrec*)((UCHAR*)pvFile+ulDebugOff+pModules[ulModule].Symbols);
@@ -143,6 +210,11 @@ void ProcessMs16Syms(ULONG ulModule,FILE *dmp)
   }; //end:  while( ulLength > 0 )
 };
 
+/*!
+ * @brief Dump HLL symbol records.
+ * @param[in] ulModule Module index.
+ * @param[in] dmp Output file.
+ */
 void ProcessHlSyms(ULONG ulModule,FILE *dmp)
 {
   SSrec *pType=(SSrec*)((UCHAR*)pvFile+ulDebugOff+pModules[ulModule].Symbols);
@@ -303,6 +375,12 @@ void ProcessHlSyms(ULONG ulModule,FILE *dmp)
   }; //END:    while( lLength > 0 )
 };
 
+/*!
+ * @brief Read a symbol record type byte, accounting for HL03 long records.
+ * @param[in] Buffer Pointer to the raw record.
+ * @param[in] pModule Module descriptor (debug format flags).
+ * @return Symbol record type.
+ */
 UCHAR  GetRecordType( UCHAR *Buffer, MODULE *pModule )                  /*809*/
 {
   UCHAR RecordType;
@@ -324,6 +402,12 @@ UCHAR  GetRecordType( UCHAR *Buffer, MODULE *pModule )                  /*809*/
   return( RecordType );
 };
 
+/*!
+ * @brief Read a symbol record length, accounting for HL03 long records.
+ * @param[in] Buffer Pointer to the raw record.
+ * @param[in] pModule Module descriptor (debug format flags).
+ * @return Symbol record length.
+ */
 USHORT  GetRecordLength( UCHAR *Buffer, MODULE *pModule )               /*809*/
 {
   USHORT RecordLength;
@@ -346,6 +430,11 @@ USHORT  GetRecordLength( UCHAR *Buffer, MODULE *pModule )               /*809*/
 };
 
 
+/*!
+ * @brief Print a register type mnemonic for the given register code.
+ * @param[in] n Register code.
+ * @param[in] dmp Output file.
+ */
 void PrintRegType (UINT n,FILE *dmp)
 {
 

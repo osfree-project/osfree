@@ -1,3 +1,12 @@
+/*!
+ * @file hll.c
+ * @brief HLL debug information dumper.
+ *
+ * Loads an LX module into memory and drives the directory, module, public,
+ * line, symbol and type dump passes. Based on IBM sd386 and Knut St.Osmundsen's
+ * dbgLxDumper (Project Odin).
+ */
+
 /*
    HLL debug info dumper
 
@@ -27,20 +36,46 @@
 // -----
 
 
+/*!
+ * @brief Number of modules described in the HLL debug directory.
+ */
 /* modules */
 ULONG ulModules;
+/*!
+ * @brief Per-module information table.
+ */
 MODULE *pModules;
 
+/*!
+ * @brief Number of entries in the HLL debug directory.
+ */
 /* directory */
 ULONG ulDirEntries=0;
+/*!
+ * @brief Offset of the HLL directory within the debug information.
+ */
 extern ULONG ulDirOffset;
 
 
+/*!
+ * @brief Buffer holding the whole loaded executable file.
+ */
 /* general */
 void * pvFile; /* pointer to buffer cointaing file */
+/*!
+ * @brief Detected debug information format.
+ */
 BYTE bDebugFormat; /* debug format */
+/*!
+ * @brief Offset of the debug information within the file.
+ */
 ULONG ulDebugOff;
 
+/*!
+ * @brief Program entry point.
+ * @param[in] argc Argument count.
+ * @param[in] argv Argument vector (argv[1] is the input file name).
+ */
 void main(int argc, char *argv[])
 {
  if (argc==1)
@@ -77,6 +112,10 @@ ok:
 };
 
 
+/*!
+ * @brief Load an entire file into the global buffer @c pvFile.
+ * @param[in] szFileName Name of the file to load.
+ */
 void HllLoadFile(PSZ szFileName)
 {
   FILE *pFile;

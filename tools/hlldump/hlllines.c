@@ -1,3 +1,8 @@
+/*!
+ * @file hlllines.c
+ * @brief Dumping of HL03 and 109_32 line number tables.
+ */
+
 /* HL03 & 109_32 type lines dumping  */
 
 #include <os2.h>
@@ -10,19 +15,49 @@
 #include "hll.h"
 #pragma pack(pop)
 
+/*!
+ * @brief Buffer holding the whole loaded executable file.
+ */
 extern void *pvFile;
+/*!
+ * @brief Detected debug information format.
+ */
 extern BYTE bDebugFormat; /* debug format */
+/*!
+ * @brief Offset of the debug information within the file.
+ */
 extern ULONG ulDebugOff;
+/*!
+ * @brief Number of modules described in the HLL debug directory.
+ */
 extern ULONG ulModules;
+/*!
+ * @brief Per-module information table.
+ */
 extern MODULE *pModules;
 
 /* local functions */
 
+/*!
+ * @brief Dump an HL03-format line number table.
+ * @param[in] ulModule Module index.
+ * @param[in] dmp Output file.
+ */
 void ProcessHL03Lines(ULONG ulModule,FILE *dmp);
+/*!
+ * @brief Dump a 109_32-format line number table.
+ * @param[in] ulModule Module index.
+ * @param[in] dmp Output file.
+ */
 void Process109_32Lines(ULONG ulModule,FILE *dmp);
 
 
 
+/*!
+ * @brief Dump line number information for all modules.
+ * @retval TRUE Always returns TRUE.
+ * @return TRUE on success.
+ */
 BOOL ProcessLines()
 {
   ULONG i;
@@ -57,6 +92,11 @@ BOOL ProcessLines()
   return TRUE;
 };
 
+/*!
+ * @brief Dump an HL03-format line number table.
+ * @param[in] ulModule Module index.
+ * @param[in] dmp Output file.
+ */
 void ProcessHL03Lines(ULONG ulModule,FILE *dmp)
 {
   UCHAR *pLineNumberTable=((UCHAR*)pvFile+ulDebugOff+pModules[ulModule].LineNums);
@@ -117,6 +157,11 @@ void ProcessHL03Lines(ULONG ulModule,FILE *dmp)
 
 };
 
+/*!
+ * @brief Dump a 109_32-format line number table.
+ * @param[in] ulModule Module index.
+ * @param[in] dmp Output file.
+ */
 void Process109_32Lines(ULONG ulModule,FILE *dmp)
 {
   UCHAR *pLineNumberTable=((UCHAR*)pvFile+ulDebugOff+pModules[ulModule].LineNums);

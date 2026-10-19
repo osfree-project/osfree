@@ -1,13 +1,32 @@
+/*!
+ * @file exe.c
+ * @brief LX executable parsing helpers for the HLL dumper.
+ *
+ * Locates the LX extended header and the embedded HLL debug information.
+ */
+
 /* lx-related functions */
 
 #include <os2.h>
 
+/*!
+ * @def FOR_EXEHDR
+ * @brief exe386.h flag requesting the extended EXE header definitions.
+ */
 /* to make some headers happy */
 #define FOR_EXEHDR          1           /* exe386.h flag */
 
 #include <newexe.h>
 #if defined __LINUX__ || defined __OS2__ || defined __NT__
+/*!
+ * @def DWORD
+ * @brief 32-bit unsigned integer type for hosts that do not define it.
+ */
  #define DWORD unsigned long int 
+/*!
+ * @def WORD
+ * @brief 16-bit unsigned integer type for hosts that do not define it.
+ */
  #define WORD unsigned short int 
 #endif
 #include <exe386.h>
@@ -18,13 +37,34 @@
 #include "hll.h"
 #pragma pack(pop)
 
+/*!
+ * @brief Buffer holding the whole loaded executable file.
+ */
 extern void *pvFile;
+/*!
+ * @brief Detected debug information format.
+ */
 extern BYTE bDebugFormat; /* debug format */
+/*!
+ * @brief Offset of the debug information within the file.
+ */
 extern ULONG ulDebugOff;
 
+/*!
+ * @brief Legacy DOS/OS2 EXE header.
+ */
 typedef struct exe_hdr EXEHDR;
+/*!
+ * @brief 32-bit LX extended EXE header.
+ */
 typedef struct e32_exe EXE32HDR;
 
+/*!
+ * @brief Locate and validate the LX extended header, and read debug info.
+ * @retval TRUE Processing succeeded.
+ * @retval FALSE Invalid or missing LX header / debug info.
+ * @return TRUE on success, FALSE on failure.
+ */
 BOOL ProcessLx()
 {
   EXEHDR * fileHdr = (EXEHDR *) pvFile;
