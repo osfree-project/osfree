@@ -13,7 +13,7 @@ SOM_COMPILER = &
   pdl sc somcpp somipc somenv &
   somxh somstars somcorba somhh &
   somkpub idl idl2 &
-# somcprep genh genxh &
+  somcprep genh genxh &
 !ifneq %HOST linux
   ctoi newemit &
   somwm35i somc &
