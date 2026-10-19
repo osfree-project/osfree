@@ -126,13 +126,43 @@
 #  include <unistd.h>
 #  include <sys/types.h>
 #  include <sys/wait.h>
+/*!
+ * @def DIRSEP
+ * @brief Path separator for the target platform.
+ */
 #  define DIRSEP '/'
+/*!
+ * @def PLATFORM_CHDIR
+ * @brief Change the current directory on the target platform.
+ * @param[in] p Path. Not NULL.
+ */
 #  define PLATFORM_CHDIR(p)     chdir(p)
+/*!
+ * @def PLATFORM_GETCWD
+ * @brief Return the current directory on the target platform.
+ * @param[out] b Receiver buffer. Not NULL.
+ * @param[in]  s Size of @a b in bytes.
+ */
 #  define PLATFORM_GETCWD(b,s)  getcwd(b,s)
 #elif defined(__NT__) || defined(__OS2__)
 #  include <direct.h>
+/*!
+ * @def DIRSEP
+ * @brief Path separator for the target platform.
+ */
 #  define DIRSEP '\\'
+/*!
+ * @def PLATFORM_CHDIR
+ * @brief Change the current directory on the target platform.
+ * @param[in] p Path. Not NULL.
+ */
 #  define PLATFORM_CHDIR(p)     _chdir(p)
+/*!
+ * @def PLATFORM_GETCWD
+ * @brief Return the current directory on the target platform.
+ * @param[out] b Receiver buffer. Not NULL.
+ * @param[in]  s Size of @a b in bytes.
+ */
 #  define PLATFORM_GETCWD(b,s)  _getcwd(b,s)
 #else
 #  error "Unsupported target: expected Linux, Win32 or OS/2"
@@ -140,26 +170,106 @@
 
 /* The full preprocessed output includes every #include'd header, so
  * the token budget must cover much more than a single source file. */
+/*!
+ * @def MAXTOK
+ * @brief Maximum number of tokens in one file.
+ */
 #define MAXTOK       524288
+/*!
+ * @def MAXPARAM
+ * @brief Maximum number of parameters per function or macro.
+ */
 #define MAXPARAM     128
+/*!
+ * @def MAXRET
+ * @brief Maximum number of distinct return values tracked per function.
+ */
 #define MAXRET       128
+/*!
+ * @def NAMELEN
+ * @brief Maximum length of an identifier name.
+ */
 #define NAMELEN      64
+/*!
+ * @def EXPRLEN
+ * @brief Maximum length of a return-expression string.
+ */
 #define EXPRLEN      128
+/*!
+ * @def PATHBUF
+ * @brief Size of temporary path buffers.
+ */
 #define PATHBUF      1024
+/*!
+ * @def PRELINE
+ * @brief Size of a single line in the preprocessed stream.
+ */
 #define PRELINE      8192
+/*!
+ * @def MAX_LINE_NO
+ * @brief Maximum source line number tracked in the per-line tables.
+ */
 #define MAX_LINE_NO  65536
+/*!
+ * @def MAXTYPEDEF
+ * @brief Maximum number of "typedef ... void NAME" entries recorded.
+ */
 #define MAXTYPEDEF   1024
 
+/*!
+ * @def T_EOF
+ * @brief Token type: end of input.
+ */
 #define T_EOF           0
+/*!
+ * @def T_IDENT
+ * @brief Token type: identifier or keyword.
+ */
 #define T_IDENT         1
+/*!
+ * @def T_NUMBER
+ * @brief Token type: numeric literal.
+ */
 #define T_NUMBER        2
+/*!
+ * @def T_STRING
+ * @brief Token type: string literal.
+ */
 #define T_STRING        3
+/*!
+ * @def T_CHARLIT
+ * @brief Token type: character literal.
+ */
 #define T_CHARLIT       4
+/*!
+ * @def T_PUNCT
+ * @brief Token type: punctuator.
+ */
 #define T_PUNCT         5
+/*!
+ * @def T_DOC
+ * @brief Token type: Qt-style Doxygen comment ("/*!" or "//!").
+ */
 #define T_DOC           6
+/*!
+ * @def T_COMMENT
+ * @brief Token type: ordinary non-Doxygen comment.
+ */
 #define T_COMMENT       7
+/*!
+ * @def T_PREPROC
+ * @brief Token type: preprocessor directive.
+ */
 #define T_PREPROC       8
+/*!
+ * @def T_DOC_JAVADOC
+ * @brief Token type: Javadoc-style Doxygen comment ("/**" or "///").
+ */
 #define T_DOC_JAVADOC   9
+/*!
+ * @def T_DOC_TRAILING
+ * @brief Token type: Qt-style trailing Doxygen comment ("/*!<" or "//!<").
+ */
 #define T_DOC_TRAILING 10
 
 /*! @brief One lexical token: type, text position and source line. */
@@ -1260,6 +1370,7 @@ static int path_names_match(const char *a, const char *b)
  *  Uses the same extension list as preproc_compiler().
  *
  *  @param[in] fname Source file name. Not NULL.
+ *  @retval 0 The file name does not end in a C++ extension.
  *  @return Non-zero when the file name ends in a C++ extension.
  */
 static int is_cxx_file(const char *fname)
