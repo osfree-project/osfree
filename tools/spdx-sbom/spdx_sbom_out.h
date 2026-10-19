@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-/**
+/*!
  * @file spdx_sbom_out.h
  * @brief Output dispatcher and serializers for the SBOM generator.
  *
@@ -31,7 +31,7 @@ extern "C" {
  * Dispatcher
  * ================================================================== */
 
-/**
+/*!
  * @brief Emit a document in the requested format.
  *
  * @param[in] pDoc       Document to serialize. Not NULL.
@@ -50,7 +50,7 @@ APIRET APIENTRY SbomOutput(const SPDXDOCUMENT *pDoc, PCSZ pszFormat);
  * Serializers
  * ================================================================== */
 
-/**
+/*!
  * @brief Serialize a document as SPDX 2.3 JSON to stdout.
  *
  * Builds the JSON tree with the json module and writes it to
@@ -67,7 +67,7 @@ APIRET APIENTRY SbomOutput(const SPDXDOCUMENT *pDoc, PCSZ pszFormat);
  */
 APIRET APIENTRY SbomOutputJson(const SPDXDOCUMENT *pDoc);
 
-/**
+/*!
  * @brief Serialize a document as SPDX 2.3 tag-value to stdout.
  *
  * Multi-line values are wrapped in <text>...</text> per SPDX 2.3.

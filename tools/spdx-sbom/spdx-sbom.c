@@ -22,7 +22,7 @@
 
 #include "reuse_discover.h"
 
-/**
+/*!
  * @file spdx-sbom.c
  * @brief Command line entry point of the SBOM generator.
  *
@@ -44,7 +44,7 @@
  * Help text
  * ================================================================== */
 
-/**
+/*!
  * @brief Print command line usage to stdout.
  */
 static void print_help(void) {
@@ -88,7 +88,7 @@ static void print_help(void) {
  * Helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Check whether the SBOM describes a binary artifact.
  *
  * Binary mode is enabled when a package purpose other than SOURCE
@@ -106,7 +106,7 @@ static BOOL is_binary_mode(const SBOMOPTIONS *pOpts) {
                ? TRUE : FALSE;
 }
 
-/**
+/*!
  * @brief Resolve the license for the package as a whole.
  *
  * Order of resolution:
@@ -183,7 +183,7 @@ static APIRET resolve_package_license(const SBOMOPTIONS *pOpts,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Resolve licensing information for every discovered file.
  *
  * For each path in @p hPaths, ReuseResolveLicense is called and the
@@ -272,12 +272,14 @@ static APIRET resolve_all_files(HSTRSET hPaths,
  * Entry point
  * ================================================================== */
 
-/**
+/*!
  * @brief Entry point of the SBOM generator.
  *
  * @param[in] argc  Argument count.
  * @param[in] argv  Argument vector.
  *
+ * @retval 0 SBOM generated successfully.
+ * @retval 1 Generation failed.
  * @return 0 on success, 1 on error.
  */
 int main(int argc, char *argv[]) {

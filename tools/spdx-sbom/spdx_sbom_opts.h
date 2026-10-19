@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-/**
+/*!
  * @file spdx_sbom_opts.h
  * @brief Command line parsing for the SBOM generator.
  *
@@ -29,7 +29,7 @@ extern "C" {
  *     https://spdx.github.io/spdx-spec/v2.3/
  */
 
-/**
+/*!
  * @struct _SBOMOPTIONS
  * @brief Parsed command line options.
  *
@@ -79,7 +79,7 @@ typedef struct _SBOMOPTIONS {
  * Lifecycle
  * ================================================================== */
 
-/**
+/*!
  * @brief Parse the command line.
  *
  * Zeroes @p pOpts and fills it from @p argv. Sets defaults:
@@ -102,7 +102,7 @@ typedef struct _SBOMOPTIONS {
 APIRET APIENTRY SbomParseCommandLine(int argc, char *argv[],
                                      PSBOMOPTIONS pOpts);
 
-/**
+/*!
  * @brief Release memory owned by an options structure.
  *
  * Frees the object list, the resource list and the extracted

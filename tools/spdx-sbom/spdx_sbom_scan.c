@@ -11,7 +11,7 @@
 #include "spdx_tag.h"
 #include "sha1.h"
 
-/**
+/*!
  * @file spdx_sbom_scan.c
  * @brief Implementation of the SBOM file and snippet collection.
  */
@@ -20,7 +20,7 @@
 /* Small helpers                                                       */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Copy a NUL-terminated string into a fixed buffer.
  *
  * If @p pszSrc is NULL, the destination is set to an empty string.
@@ -40,7 +40,7 @@ static void copy_field(PSZ pszDst, ULONG ulDstSize, PCSZ pszSrc) {
 /* License validation                                                  */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Validate one SPDX license expression.
  *
  * @param[in] pszLicense  Expression. Not NULL. May be empty.
@@ -68,7 +68,7 @@ static APIRET validate_license(PCSZ pszLicense) {
 /* Snippet collection                                                  */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Collect all snippets of one file into the snippet list.
  *
  * For each snippet, the function requires an SPDX-License-Identifier
@@ -151,7 +151,7 @@ static APIRET collect_file_snippets(PCSZ pszFullPath,
 /* Public API                                                          */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Fill the basic fields of a file entry.
  *
  * @param[in]  pszFullPath     Path to the file on disk. Not NULL.
@@ -195,7 +195,7 @@ APIRET APIENTRY SbomFillFileBasic(
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Process one resolved file entry.
  *
  * @param[in] pIn          Resolved file entry. Not NULL.
@@ -240,7 +240,7 @@ static APIRET process_one_file(
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Collect all files and snippets for the SBOM.
  *
  * @param[in] hResolved   List of SPDXFILEINPUT entries. Not

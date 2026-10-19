@@ -7,7 +7,7 @@
 #include "ccl.h"
 #include "json.h"
 
-/**
+/*!
  * @file spdx_sbom_out_json.c
  * @brief SBOM serialization to SPDX 2.3 JSON.
  *
@@ -26,7 +26,7 @@
 /* Small helpers                                                       */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Add a string field to an object.
  *
  * @param[in] hDoc    Document handle. Not NULLHANDLE.
@@ -46,7 +46,7 @@ static APIRET json_set_string(HJSONDOC hDoc, HJSONNODE hObj,
     return JsonObjectSet(hObj, pszKey, hVal);
 }
 
-/**
+/*!
  * @brief Add a boolean field to an object.
  *
  * @param[in] hDoc    Document handle. Not NULLHANDLE.
@@ -66,7 +66,7 @@ static APIRET json_set_bool(HJSONDOC hDoc, HJSONNODE hObj,
     return JsonObjectSet(hObj, pszKey, hVal);
 }
 
-/**
+/*!
  * @brief Add a numeric field to an object.
  *
  * @param[in] hDoc    Document handle. Not NULLHANDLE.
@@ -86,7 +86,7 @@ static APIRET json_set_number(HJSONDOC hDoc, HJSONNODE hObj,
     return JsonObjectSet(hObj, pszKey, hVal);
 }
 
-/**
+/*!
  * @brief Add a nested object field and return its handle.
  *
  * @param[in]  hDoc     Document handle. Not NULLHANDLE.
@@ -109,7 +109,7 @@ static APIRET json_set_object(HJSONDOC hDoc, HJSONNODE hObj,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Add a nested array field and return its handle.
  *
  * @param[in]  hDoc     Document handle. Not NULLHANDLE.
@@ -132,7 +132,7 @@ static APIRET json_set_array(HJSONDOC hDoc, HJSONNODE hObj,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Append a string to an array.
  *
  * @param[in] hDoc    Document handle. Not NULLHANDLE.
@@ -155,7 +155,7 @@ static APIRET json_append_string(HJSONDOC hDoc, HJSONNODE hArr,
 /* Object builders                                                     */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Build the creationInfo object.
  *
  * @param[in]  hDoc     Document. Not NULLHANDLE.
@@ -185,7 +185,7 @@ static APIRET build_creation_info(HJSONDOC hDoc, PCSZ pszDate,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Build one externalDocumentRefs entry.
  *
  * @param[in]  hDoc  Document. Not NULLHANDLE.
@@ -221,7 +221,7 @@ static APIRET build_external_ref(HJSONDOC hDoc, const SPDXDOCUMENT *pDoc,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Build one hasExtractedLicensingInfos entry.
  *
  * @param[in]  hDoc  Document. Not NULLHANDLE.
@@ -258,7 +258,7 @@ static APIRET build_extracted_license(HJSONDOC hDoc,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Build the package object.
  *
  * @param[in]  hDoc  Document. Not NULLHANDLE.
@@ -356,7 +356,7 @@ static APIRET build_package(HJSONDOC hDoc, const SPDXPACKAGEINFO *pPkg,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Build one files entry.
  *
  * @param[in]  hDoc  Document. Not NULLHANDLE.
@@ -417,7 +417,7 @@ static APIRET build_file(HJSONDOC hDoc, const SPDXFILEINFO *pFi,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Build one snippets entry.
  *
  * @param[in]  hDoc  Document. Not NULLHANDLE.
@@ -481,7 +481,7 @@ static APIRET build_snippet(HJSONDOC hDoc, const SPDXSNIPPETINFO *pS,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Build one relationships entry.
  *
  * @param[in]  hDoc  Document. Not NULLHANDLE.
@@ -516,7 +516,7 @@ static APIRET build_relationship(HJSONDOC hDoc,
 /* Public API                                                          */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Serialize a document as SPDX 2.3 JSON to stdout.
  *
  * @param[in] pDoc  Document to serialize. Not NULL.

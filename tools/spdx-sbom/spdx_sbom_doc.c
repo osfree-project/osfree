@@ -12,7 +12,7 @@
 #include "spdx_db.h"
 #include "sha1.h"
 
-/**
+/*!
  * @file spdx_sbom_doc.c
  * @brief Implementation of the SBOM document construction.
  */
@@ -21,7 +21,7 @@
 /* Small helpers                                                       */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Copy a NUL-terminated string into a fixed buffer.
  *
  * If @p pszSrc is NULL, the destination is set to an empty string.
@@ -37,7 +37,7 @@ static void copy_field(PSZ pszDst, ULONG ulDstSize, PCSZ pszSrc) {
     pszDst[ulDstSize - 1] = '\0';
 }
 
-/**
+/*!
  * @brief qsort comparator for file entries, by name.
  *
  * @param[in] pA  First entry.
@@ -54,7 +54,7 @@ static int cmp_fileinfo(const void *pA, const void *pB) {
 /* Document lifecycle                                                  */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Create an empty SBOM document.
  *
  * @param[out] pDoc           Receiver. Not NULL.
@@ -206,7 +206,7 @@ APIRET APIENTRY SbomCreateDocument(
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Release all resources owned by a document.
  *
  * @param[in,out] pDoc  Document. Not NULL.
@@ -239,7 +239,7 @@ APIRET APIENTRY SbomFreeDocument(SPDXDOCUMENT *pDoc) {
 /* External document reference                                         */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Set the external document reference to a source SBOM.
  *
  * @param[in,out] pDoc               Document. Not NULL.
@@ -275,7 +275,7 @@ APIRET APIENTRY SbomSetDocumentExternalReference(
 /* Package verification                                                */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Compute PackageVerificationCode and license identifiers.
  *
  * @param[in,out] pDoc  Document. Not NULL.
@@ -386,7 +386,7 @@ APIRET APIENTRY SbomComputeVerification(SPDXDOCUMENT *pDoc) {
 /* Relationships                                                       */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Build the relationships list.
  *
  * @param[in,out] pDoc              Document. Not NULL.

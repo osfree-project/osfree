@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-/**
+/*!
  * @file spdx_sbom_doc.h
  * @brief Construction and finalization of the SBOM document.
  *
@@ -30,7 +30,7 @@ extern "C" {
  * relationship can point to the external document.
  *
  * Conforms to:
- *   - SPDX 2.3, §6.5, §6.6, §6.9, §7.9, §11.
+ *   - SPDX 2.3, 6.5, 6.6, 6.9, 7.9, 11.
  *     https://spdx.github.io/spdx-spec/v2.3/
  */
 
@@ -38,7 +38,7 @@ extern "C" {
  * Document lifecycle
  * ================================================================== */
 
-/**
+/*!
  * @brief Create an empty SBOM document.
  *
  * Fills the fixed fields (spdxVersion, document id, creation time,
@@ -86,7 +86,7 @@ APIRET APIENTRY SbomCreateDocument(
     PCSZ pszBinaryFile,
     BOOL fBinaryMode);
 
-/**
+/*!
  * @brief Release all resources owned by a document.
  *
  * Frees the file, snippet, relationship and extracted license
@@ -106,7 +106,7 @@ APIRET APIENTRY SbomFreeDocument(SPDXDOCUMENT *pDoc);
  * External document reference
  * ================================================================== */
 
-/**
+/*!
  * @brief Set the external document reference to a source SBOM.
  *
  * Records the external document id ("DocumentRef-source"), the
@@ -137,10 +137,10 @@ APIRET APIENTRY SbomSetDocumentExternalReference(
  * Package verification
  * ================================================================== */
 
-/**
+/*!
  * @brief Compute PackageVerificationCode and license identifiers.
  *
- * Implements SPDX 2.3 §7.9: the verification code is the SHA-1 of
+ * Implements SPDX 2.3 7.9: the verification code is the SHA-1 of
  * the concatenation of the SHA-1 hashes of every file in the
  * package, sorted by file name. SHA-1 is mandatory here and cannot
  * be replaced with another algorithm.
@@ -167,7 +167,7 @@ APIRET APIENTRY SbomComputeVerification(SPDXDOCUMENT *pDoc);
  * Relationships
  * ================================================================== */
 
-/**
+/*!
  * @brief Build the relationships list.
  *
  * Emits the following relationships in this order:

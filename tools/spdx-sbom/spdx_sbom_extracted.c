@@ -9,7 +9,7 @@
 #include "spdx.h"
 #include "spdx_db.h"
 
-/**
+/*!
  * @file spdx_sbom_extracted.c
  * @brief Implementation of the LicenseRef-* text collection.
  */
@@ -18,14 +18,15 @@
 /* Small helpers                                                       */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Read a whole file into a heap string.
  *
  * Uses the size-query convention of SpdxReadFileAll.
  *
  * @param[in] pszPath  Path. Not NULL.
  *
- * @return malloc'd NUL-terminated content, or NULL on error.
+ * @retval NULL Read error, empty file, or allocation failure.
+ * @return malloc'd NUL-terminated content.
  */
 static PSZ read_file_to_heap(PCSZ pszPath) {
     ULONG ulSize = 0;
@@ -46,15 +47,15 @@ static PSZ read_file_to_heap(PCSZ pszPath) {
 /* Text lookup                                                         */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Look up a LicenseRef text in the command-line sources.
  *
  * @param[in] paExtra      Array of sources, or NULL.
  * @param[in] ulExtraCount Number of entries in @p paExtra.
  * @param[in] pszId        Identifier. Not NULL.
  *
- * @return malloc'd text, or NULL if no source matched or on read
- *         error.
+ * @retval NULL No source matched, or read error.
+ * @return malloc'd text.
  */
 static PSZ find_text_in_extra(
     const SPDXEXTRACTEDLICENSESOURCE *paExtra,
@@ -74,7 +75,7 @@ static PSZ find_text_in_extra(
     return NULL;
 }
 
-/**
+/*!
  * @brief Look up a LicenseRef text under <project_dir>/LICENSES/.
  *
  * Tries four variants: <id>.txt and <id>, each with '/' and '\\'
@@ -83,8 +84,8 @@ static PSZ find_text_in_extra(
  * @param[in] pszProjectDir  Project root. Not NULL.
  * @param[in] pszId          Identifier. Not NULL.
  *
- * @return malloc'd text, or NULL if no variant matched or on read
- *         error.
+ * @retval NULL No variant matched, or read error.
+ * @return malloc'd text.
  */
 static PSZ find_text_in_licenses_dir(PCSZ pszProjectDir, PCSZ pszId) {
     CHAR achPath[2048];
@@ -117,7 +118,7 @@ static PSZ find_text_in_licenses_dir(PCSZ pszProjectDir, PCSZ pszId) {
 /* Expression scanning                                                 */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Collect LicenseRef-* identifiers from one expression.
  *
  * The expression is first passed through SpdxExpressionCollectIds,
@@ -179,7 +180,7 @@ static APIRET scan_expression_ids(PCSZ pszExpr, HSTRSET hIds) {
 /* Public API                                                          */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Collect LicenseRef-* texts for the whole file list.
  *
  * @param[in] hList          Destination list. Not NULLHANDLE.

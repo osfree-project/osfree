@@ -3,12 +3,12 @@
 #include <string.h>
 #include "spdx_sbom_out.h"
 
-/**
+/*!
  * @file spdx_sbom_out.c
  * @brief Implementation of the SBOM output dispatcher.
  */
 
-/**
+/*!
  * @brief Emit a document in the requested format.
  *
  * @param[in] pDoc       Document to serialize. Not NULL.

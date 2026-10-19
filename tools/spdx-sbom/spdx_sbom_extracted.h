@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-/**
+/*!
  * @file spdx_sbom_extracted.h
  * @brief Collection of LicenseRef-* license texts.
  *
@@ -26,7 +26,7 @@ extern "C" {
  * SbomFreeExtractedList.
  *
  * Conforms to:
- *   - SPDX 2.3, §10 (Other Licensing Information Detected).
+ *   - SPDX 2.3, 10 (Other Licensing Information Detected).
  *     https://spdx.github.io/spdx-spec/v2.3/
  */
 
@@ -34,7 +34,7 @@ extern "C" {
  * LicenseRef text collection
  * ================================================================== */
 
-/**
+/*!
  * @brief Collect LicenseRef-* texts for the whole file list.
  *
  * The function performs two phases:

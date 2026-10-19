@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-/**
+/*!
  * @file spdx_sbom_scan.h
  * @brief File and snippet collection for the SBOM generator.
  *
@@ -25,7 +25,7 @@ extern "C" {
  * information arrives pre-resolved through SPDXFILEINPUT.
  *
  * Conforms to:
- *   - SPDX 2.3, §8 (File information), §9 (Snippet information).
+ *   - SPDX 2.3, 8 (File information), 9 (Snippet information).
  *     https://spdx.github.io/spdx-spec/v2.3/
  */
 
@@ -33,7 +33,7 @@ extern "C" {
  * File entry helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Fill the basic fields of a file entry.
  *
  * Computes the SHA-1 of the file at @p pszFullPath, stores the base
@@ -62,7 +62,7 @@ APIRET APIENTRY SbomFillFileBasic(
  * Collection
  * ================================================================== */
 
-/**
+/*!
  * @brief Collect all files and snippets for the SBOM.
  *
  * Iterates over @p hResolved, and for every entry:

@@ -5,7 +5,7 @@
 #include <string.h>
 #include "spdx_sbom_opts.h"
 
-/**
+/*!
  * @file spdx_sbom_opts.c
  * @brief Implementation of the SBOM command line parser.
  */
@@ -14,7 +14,7 @@
 /* List helpers                                                        */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Append a copy of a string range to a string list.
  *
  * @param[in,out] ppapszList  Pointer to the list pointer. Not NULL.
@@ -50,7 +50,7 @@ static APIRET add_list_item(PSZ **ppapszList, PULONG pulCount,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Split a whitespace-separated string into a list of tokens.
  *
  * Tokens are separated by spaces or tabs. Quoting is not supported.
@@ -83,7 +83,7 @@ static APIRET parse_list(PCSZ pszArg, PSZ **ppapszList, PULONG pulCount) {
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Parse the --objects=<list> option.
  *
  * @param[in]     pszArg  Option value. Not NULL.
@@ -98,7 +98,7 @@ static APIRET parse_object_list(PCSZ pszArg, PSBOMOPTIONS pOpts) {
                       &pOpts->ulObjectCount);
 }
 
-/**
+/*!
  * @brief Parse the --res=<list> option.
  *
  * @param[in]     pszArg  Option value. Not NULL.
@@ -113,7 +113,7 @@ static APIRET parse_res_list(PCSZ pszArg, PSBOMOPTIONS pOpts) {
                       &pOpts->ulResCount);
 }
 
-/**
+/*!
  * @brief Parse the --extracted-license=<id>:<path> option.
  *
  * @param[in,out] pOpts   Options structure. Not NULL.
@@ -155,7 +155,7 @@ static APIRET add_extracted(PSBOMOPTIONS pOpts, PCSZ pszArg) {
 /* Public API                                                          */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Parse the command line.
  *
  * @param[in]  argc   Argument count.
@@ -263,7 +263,7 @@ APIRET APIENTRY SbomParseCommandLine(int argc, char *argv[],
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Release memory owned by an options structure.
  *
  * @param[in,out] pOpts  Options. Not NULL.

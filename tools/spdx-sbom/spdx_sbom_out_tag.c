@@ -5,7 +5,7 @@
 #include "spdx_sbom_out.h"
 #include "ccl.h"
 
-/**
+/*!
  * @file spdx_sbom_out_tag.c
  * @brief SBOM serialization to SPDX 2.3 tag-value.
  *
@@ -17,7 +17,7 @@
  * functional output of the serializer.
  */
 
-/**
+/*!
  * @brief Emit a field in "<Tag>: <value>" form.
  *
  * Multi-line values are wrapped in <text>...</text> as required by
@@ -47,7 +47,7 @@ static void print_text_field(PCSZ pszTag, PCSZ pszValue) {
     printf("</text>\n");
 }
 
-/**
+/*!
  * @brief Serialize a document as SPDX 2.3 tag-value to stdout.
  *
  * @param[in] pDoc  Document to serialize. Not NULL.
