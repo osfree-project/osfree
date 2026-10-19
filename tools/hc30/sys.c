@@ -8,6 +8,10 @@
 #include <string.h>
 
 #pragma pack(1)
+/*!
+ * @struct SYSTEMHEADER
+ * @brief On-disk |SYSTEM header (per helpdeco).
+ */
 typedef struct {
     USHORT usMagic, usMinor, usMajor;
     ULONG  ulGenDate;
@@ -15,10 +19,26 @@ typedef struct {
 } SYSTEMHEADER;
 #pragma pack()
 
+/*!
+ * @struct SysRecHdr
+ * @brief Common record header for every |SYSTEM record.
+ */
 typedef struct { USHORT usRecType, usDataSize; } SysRecHdr;
+/*!
+ * @struct SysConfigRec
+ * @brief One [CONFIG] macro line.
+ */
 typedef struct { PSZ pszText; } SysConfigRec;
+/*!
+ * @struct SysWindowRec
+ * @brief One opaque [WINDOWS] window record.
+ */
 typedef struct { PBYTE pbData; ULONG ulSize; } SysWindowRec;
 
+/*!
+ * @struct SysRec
+ * @brief |SYSTEM generator state.
+ */
 typedef struct {
     char   szTitle[33];
     char*  pszCopyright;
@@ -32,9 +52,29 @@ typedef struct {
     HVECTOR vWindows;
 } SysRec;
 
+/*!
+ * @def SYS_FROM_HANDLE
+ * @brief Convert an HSYS handle to its SysRec pointer.
+ * @param[in] h Handle.
+ */
 #define SYS_FROM_HANDLE(h) ((SysRec*)(h))
+/*!
+ * @def SYS_HANDLE_FROM
+ * @brief Convert a SysRec pointer to an HSYS handle.
+ * @param[in] d Record pointer.
+ */
 #define SYS_HANDLE_FROM(d) ((HANDLE)(d))
 
+/*!
+ * @brief Create an empty |SYSTEM generator.
+ *
+ * @param[out] phSys Receiver. Not NULL. Set to NULLHANDLE on error.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a phSys is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY SysCreate(PHSYS phSys)
 {
     SysRec* p; APIRET rc;
@@ -51,6 +91,14 @@ APIRET APIENTRY SysCreate(PHSYS phSys)
     return NO_ERROR;
 }
 
+/*!
+ * @brief Destroy a |SYSTEM generator and release all its data.
+ *
+ * @param[in] hSys Handle. May be NULLHANDLE.
+ *
+ * @return APIRET
+ * @retval NO_ERROR  Success. Also for NULLHANDLE.
+ */
 APIRET APIENTRY SysDestroy(HSYS hSys)
 {
     SysRec* p; ULONG n, i;
@@ -81,6 +129,16 @@ APIRET APIENTRY SysDestroy(HSYS hSys)
     return NO_ERROR;
 }
 
+/*!
+ * @brief Set the help file title.
+ *
+ * @param[in] hSys     Handle. Not NULLHANDLE.
+ * @param[in] pszTitle Title string. May be NULL to clear.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hSys is NULL.
+ */
 APIRET APIENTRY SysSetTitle(HSYS hSys, PCSZ pszTitle)
 {
     SysRec* p;
@@ -95,6 +153,17 @@ APIRET APIENTRY SysSetTitle(HSYS hSys, PCSZ pszTitle)
     return NO_ERROR;
 }
 
+/*!
+ * @brief Set the copyright string.
+ *
+ * @param[in] hSys         Handle. Not NULLHANDLE.
+ * @param[in] pszCopyright Copyright string. May be NULL to clear.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hSys is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY SysSetCopyright(HSYS hSys, PCSZ pszCopyright)
 {
     SysRec* p;
@@ -108,6 +177,16 @@ APIRET APIENTRY SysSetCopyright(HSYS hSys, PCSZ pszCopyright)
     return NO_ERROR;
 }
 
+/*!
+ * @brief Set the contents topic offset.
+ *
+ * @param[in] hSys          Handle. Not NULLHANDLE.
+ * @param[in] ulTopicOffset Offset of the contents topic in |TOPIC.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hSys is NULL.
+ */
 APIRET APIENTRY SysSetContents(HSYS hSys, ULONG ulTopicOffset)
 {
     SysRec* p;
@@ -118,6 +197,17 @@ APIRET APIENTRY SysSetContents(HSYS hSys, ULONG ulTopicOffset)
     return NO_ERROR;
 }
 
+/*!
+ * @brief Set the citation string.
+ *
+ * @param[in] hSys        Handle. Not NULLHANDLE.
+ * @param[in] pszCitation Citation string. May be NULL to clear.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hSys is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY SysSetCitation(HSYS hSys, PCSZ pszCitation)
 {
     SysRec* p;
@@ -131,6 +221,18 @@ APIRET APIENTRY SysSetCitation(HSYS hSys, PCSZ pszCitation)
     return NO_ERROR;
 }
 
+/*!
+ * @brief Set the language, sub-language, and code page.
+ *
+ * @param[in] hSys       Handle. Not NULLHANDLE.
+ * @param[in] usLang     Primary language identifier.
+ * @param[in] usSubLang  Sub-language identifier.
+ * @param[in] usCodePage Code page identifier.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hSys is NULL.
+ */
 APIRET APIENTRY SysSetLcid(HSYS hSys, USHORT usLang, USHORT usSubLang, USHORT usCodePage)
 {
     SysRec* p;
@@ -143,6 +245,17 @@ APIRET APIENTRY SysSetLcid(HSYS hSys, USHORT usLang, USHORT usSubLang, USHORT us
     return NO_ERROR;
 }
 
+/*!
+ * @brief Set the .cnt file name.
+ *
+ * @param[in] hSys   Handle. Not NULLHANDLE.
+ * @param[in] pszCnt Contents file name. May be NULL to clear.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hSys is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY SysSetCnt(HSYS hSys, PCSZ pszCnt)
 {
     SysRec* p;
@@ -156,6 +269,17 @@ APIRET APIENTRY SysSetCnt(HSYS hSys, PCSZ pszCnt)
     return NO_ERROR;
 }
 
+/*!
+ * @brief Append a [CONFIG] macro line.
+ *
+ * @param[in] hSys      Handle. Not NULLHANDLE.
+ * @param[in] pszConfig Macro line. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hSys or @a pszConfig is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY SysAddConfig(HSYS hSys, PCSZ pszConfig)
 {
     SysRec* p; SysConfigRec r;
@@ -166,6 +290,18 @@ APIRET APIENTRY SysAddConfig(HSYS hSys, PCSZ pszConfig)
     return VectorAdd(p->vConfigs, &r);
 }
 
+/*!
+ * @brief Append a secondary window definition.
+ *
+ * @param[in] hSys     Handle. Not NULLHANDLE.
+ * @param[in] pvWindow Pointer to the window record. Not NULL.
+ * @param[in] ulSize   Size of the window record in bytes. Non-zero.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL or @a ulSize is 0.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY SysAddWindow(HSYS hSys, PCVOID pvWindow, ULONG ulSize)
 {
     SysRec* p; SysWindowRec r;
@@ -179,6 +315,14 @@ APIRET APIENTRY SysAddWindow(HSYS hSys, PCVOID pvWindow, ULONG ulSize)
     return VectorAdd(p->vWindows, &r);
 }
 
+/*!
+ * @brief Emit one |SYSTEM record (header plus optional payload).
+ *
+ * @param[in] f    Output stream.
+ * @param[in] type SYS_REC_* record type.
+ * @param[in] data Payload bytes, or NULL.
+ * @param[in] size Payload length in bytes.
+ */
 static VOID sys_emit(FILE* f, USHORT type, PCVOID data, USHORT size)
 {
     SysRecHdr h;
@@ -188,6 +332,16 @@ static VOID sys_emit(FILE* f, USHORT type, PCVOID data, USHORT size)
     if (data && size) fwrite(data, 1, size, f);
 }
 
+/*!
+ * @brief Serialize the |SYSTEM file to a stream.
+ *
+ * @param[in] hSys Handle. Not NULLHANDLE.
+ * @param[in] f    Output stream. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hSys or @a f is NULL.
+ */
 APIRET APIENTRY SysWrite(HSYS hSys, FILE* f)
 {
     SysRec* p; SYSTEMHEADER h; ULONG n, i;

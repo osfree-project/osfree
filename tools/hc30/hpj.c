@@ -19,17 +19,61 @@
  * Internal record types
  * ================================================================== */
 
+/*!
+ * @struct HpjOptionRec
+ * @brief One [OPTIONS] entry.
+ */
 typedef struct { char* pszName; char* pszValue; } HpjOptionRec;
+/*!
+ * @struct HpjFileRec
+ * @brief One [FILES] entry.
+ */
 typedef struct { char* pszFile; }                   HpjFileRec;
+/*!
+ * @struct HpjAliasRec
+ * @brief One [ALIAS] entry.
+ */
 typedef struct { char* pszName; char* pszContext; } HpjAliasRec;
+/*!
+ * @struct HpjMapRec
+ * @brief One numeric [MAP] entry.
+ */
 typedef struct { char* pszContext; ULONG ulNumber; }HpjMapRec;
+/*!
+ * @struct HpjDefineRec
+ * @brief One #define symbol from [MAP].
+ */
 typedef struct { char* pszName; ULONG ulValue; }    HpjDefineRec;
+/*!
+ * @struct HpjIncludeRec
+ * @brief One #include file from [MAP].
+ */
 typedef struct { char* pszFile; }                   HpjIncludeRec;
+/*!
+ * @struct HpjConfigRec
+ * @brief One [CONFIG] macro line.
+ */
 typedef struct { char* pszText; }                   HpjConfigRec;
+/*!
+ * @struct HpjBitmapRec
+ * @brief One [BITMAPS] entry.
+ */
 typedef struct { char* pszFile; }                   HpjBitmapRec;
+/*!
+ * @struct HpjBaggageRec
+ * @brief One [BAGGAGE] entry.
+ */
 typedef struct { char* pszFile; }                   HpjBaggageRec;
+/*!
+ * @struct HpjBuildTagRec
+ * @brief One [BUILDTAGS] entry.
+ */
 typedef struct { char* pszTag; }                    HpjBuildTagRec;
 
+/*!
+ * @struct HpjDocRec
+ * @brief HPJ document state.
+ */
 typedef struct {
     HVECTOR vOptions;
     HVECTOR vFiles;
@@ -45,15 +89,29 @@ typedef struct {
     CHAR    szBaseDir[512];
 } HpjDocRec;
 
+/*!
+ * @def DOC_FROM_HANDLE
+ * @brief Convert an HHPJ handle to its HpjDocRec pointer.
+ * @param[in] h Handle.
+ */
 #define DOC_FROM_HANDLE(h) ((HpjDocRec*)(h))
+/*!
+ * @def DOC_HANDLE_FROM
+ * @brief Convert an HpjDocRec pointer to an HHPJ handle.
+ * @param[in] d Record pointer.
+ */
 #define DOC_HANDLE_FROM(d) ((HANDLE)(d))
 
 /* ==================================================================
  * String helpers
  * ================================================================== */
 
-/* Trim leading and trailing whitespace in place. Returns the new
-   beginning of the string within the same buffer. */
+/*!
+ * @brief Trim leading and trailing whitespace in place.
+ *
+ * @param[in,out] s String to trim. Not NULL.
+ * @return The new beginning of the string within the same buffer.
+ */
 static char* hpj_trim(char* s)
 {
     char* p = s;
@@ -65,7 +123,11 @@ static char* hpj_trim(char* s)
     return p;
 }
 
-/* Remove trailing comment (semicolon) from a line, respecting quotes. */
+/*!
+ * @brief Strip a trailing ';' comment from a line, respecting quotes.
+ *
+ * @param[in,out] s Line to strip. Not NULL.
+ */
 static void hpj_strip_comment(char* s)
 {
     BOOL fInQuote = FALSE;
@@ -77,9 +139,18 @@ static void hpj_strip_comment(char* s)
     }
 }
 
-/* Extract the substring [pBegin, pEnd) into a heap-allocated
-   NUL-terminated string. Needed because OpenWatcom does not provide
-   strndup and strdup only copies the whole string up to NUL. */
+/*!
+ * @brief Copy the substring [pBegin, pEnd) into a heap-allocated string.
+ *
+ * Needed because OpenWatcom does not provide strndup and strdup only
+ * copies the whole string up to NUL.
+ *
+ * @param[in] pBegin Start of the substring.
+ * @param[in] pEnd   End of the substring (exclusive).
+ *
+ * @retval NULL Invalid range or allocation failure.
+ * @return Newly allocated NUL-terminated string.
+ */
 static char* hpj_substr(const char* pBegin, const char* pEnd)
 {
     size_t n;
@@ -93,8 +164,17 @@ static char* hpj_substr(const char* pBegin, const char* pEnd)
     return p;
 }
 
-/* Split a "name=value" line. Both sides are trimmed. Returns 1 on
-   success, 0 on error or missing '='. */
+/*!
+ * @brief Split a "name=value" line, trimming both sides.
+ *
+ * @param[in]  pszLine   Line to split. Not NULL.
+ * @param[out] ppszName  Receiver for the name. Not NULL.
+ * @param[out] ppszValue Receiver for the value. Not NULL.
+ *
+ * @retval 0  No '=' present, or allocation failure.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
+ */
 static int hpj_split_kv(const char* pszLine, char** ppszName, char** ppszValue)
 {
     const char* pEq = strchr(pszLine, '=');
@@ -118,8 +198,14 @@ static int hpj_split_kv(const char* pszLine, char** ppszName, char** ppszValue)
     return 1;
 }
 
-/* Extract the directory part of a path (everything up to and
-   including the last '\\' or '/'). Writes to pszDir. */
+/*!
+ * @brief Extract the directory part of a path (up to and including the
+ *        last '\\' or '/').
+ *
+ * @param[in]  pszPath Path to inspect. Not NULL.
+ * @param[out] pszDir  Output buffer. Not NULL.
+ * @param[in]  cbDir   Size of @a pszDir in bytes.
+ */
 static void hpj_split_dir(const char* pszPath, char* pszDir, size_t cbDir)
 {
     const char* pLast = NULL;
@@ -142,6 +228,11 @@ static void hpj_split_dir(const char* pszPath, char* pszDir, size_t cbDir)
  * Section parsers
  * ================================================================== */
 
+/*!
+ * @brief Parse one [OPTIONS] line into a name/value pair.
+ * @param[in,out] pDoc    Document. Not NULL.
+ * @param[in]     pszLine Line text. Not NULL.
+ */
 static void hpj_parse_options(HpjDocRec* pDoc, const char* pszLine)
 {
     char* pszName = NULL;
@@ -153,6 +244,11 @@ static void hpj_parse_options(HpjDocRec* pDoc, const char* pszLine)
     VectorAdd(pDoc->vOptions, &r);
 }
 
+/*!
+ * @brief Parse one [FILES] line.
+ * @param[in,out] pDoc    Document. Not NULL.
+ * @param[in]     pszLine Line text. Not NULL.
+ */
 static void hpj_parse_files(HpjDocRec* pDoc, const char* pszLine)
 {
     HpjFileRec r;
@@ -161,6 +257,11 @@ static void hpj_parse_files(HpjDocRec* pDoc, const char* pszLine)
     VectorAdd(pDoc->vFiles, &r);
 }
 
+/*!
+ * @brief Parse one [ALIAS] line into a name/context pair.
+ * @param[in,out] pDoc    Document. Not NULL.
+ * @param[in]     pszLine Line text. Not NULL.
+ */
 static void hpj_parse_alias(HpjDocRec* pDoc, const char* pszLine)
 {
     char* pszName = NULL;
@@ -172,7 +273,16 @@ static void hpj_parse_alias(HpjDocRec* pDoc, const char* pszLine)
     VectorAdd(pDoc->vAliases, &r);
 }
 
-/* Look up a previously defined #define symbol. */
+/*!
+ * @brief Look up a previously defined #define symbol.
+ *
+ * @param[in]  pDoc    Document. Not NULL.
+ * @param[in]  pszName Symbol name. Not NULL.
+ * @param[out] pfFound Receiver for the "found" flag. Not NULL.
+ *
+ * @retval 0  Symbol not found.
+ * @return The symbol's numeric value, or 0 if not found.
+ */
 static ULONG hpj_find_define(HpjDocRec* pDoc, const char* pszName, BOOL* pfFound)
 {
     ULONG n = 0, i;
@@ -189,6 +299,15 @@ static ULONG hpj_find_define(HpjDocRec* pDoc, const char* pszName, BOOL* pfFound
     return 0;
 }
 
+/*!
+ * @brief Parse one numeric [MAP] line into a context/number pair.
+ *
+ * The right-hand side may be decimal, 0x-prefixed hexadecimal, or a
+ * previously defined #define symbol.
+ *
+ * @param[in,out] pDoc    Document. Not NULL.
+ * @param[in]     pszLine Line text. Not NULL.
+ */
 static void hpj_parse_map(HpjDocRec* pDoc, const char* pszLine)
 {
     const char* p = pszLine;
@@ -244,6 +363,11 @@ static void hpj_parse_map(HpjDocRec* pDoc, const char* pszLine)
     VectorAdd(pDoc->vMaps, &r);
 }
 
+/*!
+ * @brief Parse one `#define NAME value` line from [MAP].
+ * @param[in,out] pDoc    Document. Not NULL.
+ * @param[in]     pszLine Line text (starting with "#define"). Not NULL.
+ */
 static void hpj_parse_map_define(HpjDocRec* pDoc, const char* pszLine)
 {
     const char* p = pszLine + 7;
@@ -284,6 +408,11 @@ static void hpj_parse_map_define(HpjDocRec* pDoc, const char* pszLine)
     VectorAdd(pDoc->vDefines, &r);
 }
 
+/*!
+ * @brief Parse one `#include "file"` line from [MAP].
+ * @param[in,out] pDoc    Document. Not NULL.
+ * @param[in]     pszLine Line text (starting with "#include"). Not NULL.
+ */
 static void hpj_parse_map_include(HpjDocRec* pDoc, const char* pszLine)
 {
     const char* p = pszLine + 8;
@@ -306,6 +435,11 @@ static void hpj_parse_map_include(HpjDocRec* pDoc, const char* pszLine)
     VectorAdd(pDoc->vIncludes, &r);
 }
 
+/*!
+ * @brief Parse one [WINDOWS] line into an HPJWINDOW structure.
+ * @param[in,out] pDoc    Document. Not NULL.
+ * @param[in]     pszLine Line text. Not NULL.
+ */
 static void hpj_parse_window(HpjDocRec* pDoc, const char* pszLine)
 {
     HPJWINDOW win;
@@ -398,6 +532,11 @@ static void hpj_parse_window(HpjDocRec* pDoc, const char* pszLine)
     VectorAdd(pDoc->vWindows, &win);
 }
 
+/*!
+ * @brief Parse one [CONFIG] line.
+ * @param[in,out] pDoc    Document. Not NULL.
+ * @param[in]     pszLine Line text. Not NULL.
+ */
 static void hpj_parse_config(HpjDocRec* pDoc, const char* pszLine)
 {
     HpjConfigRec r;
@@ -406,6 +545,11 @@ static void hpj_parse_config(HpjDocRec* pDoc, const char* pszLine)
     VectorAdd(pDoc->vConfigs, &r);
 }
 
+/*!
+ * @brief Parse one [BITMAPS] line.
+ * @param[in,out] pDoc    Document. Not NULL.
+ * @param[in]     pszLine Line text. Not NULL.
+ */
 static void hpj_parse_bitmap(HpjDocRec* pDoc, const char* pszLine)
 {
     HpjBitmapRec r;
@@ -414,6 +558,11 @@ static void hpj_parse_bitmap(HpjDocRec* pDoc, const char* pszLine)
     VectorAdd(pDoc->vBitmaps, &r);
 }
 
+/*!
+ * @brief Parse one [BAGGAGE] line.
+ * @param[in,out] pDoc    Document. Not NULL.
+ * @param[in]     pszLine Line text. Not NULL.
+ */
 static void hpj_parse_baggage(HpjDocRec* pDoc, const char* pszLine)
 {
     HpjBaggageRec r;
@@ -422,6 +571,11 @@ static void hpj_parse_baggage(HpjDocRec* pDoc, const char* pszLine)
     VectorAdd(pDoc->vBaggage, &r);
 }
 
+/*!
+ * @brief Parse one [BUILDTAGS] line.
+ * @param[in,out] pDoc    Document. Not NULL.
+ * @param[in]     pszLine Line text. Not NULL.
+ */
 static void hpj_parse_buildtag(HpjDocRec* pDoc, const char* pszLine)
 {
     HpjBuildTagRec r;
@@ -430,6 +584,13 @@ static void hpj_parse_buildtag(HpjDocRec* pDoc, const char* pszLine)
     VectorAdd(pDoc->vBuildTags, &r);
 }
 
+/*!
+ * @brief Dispatch one line to the parser for its current section.
+ *
+ * @param[in,out] pDoc        Document. Not NULL.
+ * @param[in]     pszSection Current section name. Not NULL.
+ * @param[in]     pszLine    Trimmed line text. Not NULL.
+ */
 static void hpj_dispatch(HpjDocRec* pDoc, const char* pszSection,
                          const char* pszLine)
 {
@@ -463,8 +624,28 @@ static void hpj_dispatch(HpjDocRec* pDoc, const char* pszSection,
  * Buffer parser
  * ================================================================== */
 
+/*!
+ * @brief Forward declaration for the recursive file reader.
+ *
+ * @param[in,out] pDoc        Document. Not NULL.
+ * @param[in]     pszFileName File to read. Not NULL.
+ * @param[in]     depth       Current recursion depth.
+ *
+ * @return APIRET
+ */
 static APIRET hpj_read_one(HpjDocRec* pDoc, PCSZ pszFileName, int depth);
 
+/*!
+ * @brief Parse one HPJ buffer, dispatching every line to its section.
+ *
+ * @param[in,out] pDoc    Document. Not NULL.
+ * @param[in]     pszBuf  Buffer. Not NULL.
+ * @param[in]     lSize   Buffer length in bytes.
+ * @param[in]     depth   Current recursion depth (for #include).
+ *
+ * @retval NO_ERROR  Success.
+ * @return APIRET.
+ */
 static APIRET hpj_parse_buffer(HpjDocRec* pDoc, const char* pszBuf,
                                long lSize, int depth)
 {
@@ -562,6 +743,23 @@ static APIRET hpj_parse_buffer(HpjDocRec* pDoc, const char* pszBuf,
     return NO_ERROR;
 }
 
+/*!
+ * @brief Read one HPJ file, then parse it into the document.
+ *
+ * The current base directory is saved, set to the file's own
+ * directory, and restored afterwards so that `#include` paths in
+ * nested files resolve relative to the file that contains them.
+ *
+ * @param[in,out] pDoc        Document. Not NULL.
+ * @param[in]     pszFileName File to read. Not NULL.
+ * @param[in]     depth       Current recursion depth.
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_FILE_NOT_FOUND     File could not be opened.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ * @retval ERROR_READ_FAULT         Read error.
+ * @return APIRET.
+ */
 static APIRET hpj_read_one(HpjDocRec* pDoc, PCSZ pszFileName, int depth)
 {
     FILE* f;
@@ -592,11 +790,20 @@ static APIRET hpj_read_one(HpjDocRec* pDoc, PCSZ pszFileName, int depth)
     free(pszBuf);
     return NO_ERROR;
 }
-
 /* ==================================================================
  * Public API: document lifecycle
  * ================================================================== */
 
+/*!
+ * @brief Create an empty HPJ document.
+ *
+ * @param[out] phDoc Receiver. Not NULL. Set to NULLHANDLE on error.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a phDoc is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY HpjCreateDoc(PHHPJ phDoc)
 {
     HpjDocRec* pDoc;
@@ -638,6 +845,14 @@ fail:
     return rc;
 }
 
+/*!
+ * @brief Destroy an HPJ document and release all its data.
+ *
+ * @param[in] hDoc Document handle. May be NULLHANDLE.
+ *
+ * @return APIRET
+ * @retval NO_ERROR  Success. Also for NULLHANDLE.
+ */
 APIRET APIENTRY HpjDestroyDoc(HHPJ hDoc)
 {
     HpjDocRec* pDoc;
@@ -747,6 +962,19 @@ APIRET APIENTRY HpjDestroyDoc(HHPJ hDoc)
  * Public API: parsing
  * ================================================================== */
 
+/*!
+ * @brief Read one HPJ file and populate the document.
+ *
+ * @param[in] hDoc        Document handle. Not NULLHANDLE.
+ * @param[in] pszFileName NUL-terminated file name. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hDoc or @a pszFileName is NULL.
+ * @retval ERROR_FILE_NOT_FOUND     File could not be opened.
+ * @retval ERROR_READ_FAULT         Read error.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY HpjReadFile(HHPJ hDoc, PCSZ pszFileName)
 {
     HpjDocRec* pDoc;
@@ -755,6 +983,20 @@ APIRET APIENTRY HpjReadFile(HHPJ hDoc, PCSZ pszFileName)
     return hpj_read_one(pDoc, pszFileName, 0);
 }
 
+/*!
+ * @brief Read a list of HPJ files and populate the document.
+ *
+ * @param[in] hDoc      Document handle. Not NULLHANDLE.
+ * @param[in] cFiles    Number of files. Must be > 0.
+ * @param[in] apszFiles Array of NUL-terminated file names. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL or @a cFiles <= 0.
+ * @retval ERROR_FILE_NOT_FOUND     A file could not be opened.
+ * @retval ERROR_READ_FAULT         Read error.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY HpjReadFiles(HHPJ hDoc, int cFiles, PCSZ* apszFiles)
 {
     HpjDocRec* pDoc;
@@ -774,6 +1016,18 @@ APIRET APIENTRY HpjReadFiles(HHPJ hDoc, int cFiles, PCSZ* apszFiles)
  * Generic size-query string return
  * ================================================================== */
 
+/*!
+ * @brief Return a string using the size-query convention.
+ *
+ * @param[in]  psz     Source string, or NULL for an empty string.
+ * @param[out] pszBuf  Output buffer. May be NULL for size query.
+ * @param[in]  ulSize  Size of @a pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR               Success.
+ * @retval ERROR_BUFFER_OVERFLOW  Buffer too small.
+ */
 static APIRET hpj_return_string(const char* psz, PSZ pszBuf,
                                 ULONG ulSize, PULONG pulUsed)
 {
@@ -796,12 +1050,37 @@ static APIRET hpj_return_string(const char* psz, PSZ pszBuf,
  * Public API: options
  * ================================================================== */
 
+/*!
+ * @brief Query the number of [OPTIONS] entries.
+ *
+ * @param[in]  hDoc     Document handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ */
 APIRET APIENTRY HpjQueryOptionCount(HHPJ hDoc, PULONG pulCount)
 {
     if (hDoc == NULLHANDLE || !pulCount) return ERROR_INVALID_PARAMETER;
     return VectorGetCount(DOC_FROM_HANDLE(hDoc)->vOptions, pulCount);
 }
 
+/*!
+ * @brief Query the option name at the given index.
+ *
+ * @param[in]  hDoc    Document handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based index.
+ * @param[out] pszBuf  Output buffer. May be NULL for size query.
+ * @param[in]  ulSize  Size of @a pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hDoc is NULL.
+ * @retval ERROR_NO_MORE_ITEMS      @a ulIndex out of range.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
 APIRET APIENTRY HpjQueryOptionName(HHPJ hDoc, ULONG ulIndex,
                                    PSZ pszBuf, ULONG ulSize, PULONG pulUsed)
 {
@@ -814,6 +1093,23 @@ APIRET APIENTRY HpjQueryOptionName(HHPJ hDoc, ULONG ulIndex,
     return hpj_return_string(r.pszName, pszBuf, ulSize, pulUsed);
 }
 
+/*!
+ * @brief Query an option value by name.
+ *
+ * The name is compared case-insensitively.
+ *
+ * @param[in]  hDoc    Document handle. Not NULLHANDLE.
+ * @param[in]  pszName Option name. Not NULL.
+ * @param[out] pszBuf  Output buffer. May be NULL for size query.
+ * @param[in]  ulSize  Size of @a pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hDoc or @a pszName is NULL.
+ * @retval ERROR_FILE_NOT_FOUND     Option not present.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
 APIRET APIENTRY HpjQueryOptionValue(HHPJ hDoc, PCSZ pszName,
                                     PSZ pszBuf, ULONG ulSize, PULONG pulUsed)
 {
@@ -835,12 +1131,37 @@ APIRET APIENTRY HpjQueryOptionValue(HHPJ hDoc, PCSZ pszName,
  * Public API: files
  * ================================================================== */
 
+/*!
+ * @brief Query the number of files listed in [FILES].
+ *
+ * @param[in]  hDoc     Document handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ */
 APIRET APIENTRY HpjQueryFileCount(HHPJ hDoc, PULONG pulCount)
 {
     if (hDoc == NULLHANDLE || !pulCount) return ERROR_INVALID_PARAMETER;
     return VectorGetCount(DOC_FROM_HANDLE(hDoc)->vFiles, pulCount);
 }
 
+/*!
+ * @brief Query a file name from [FILES] by index.
+ *
+ * @param[in]  hDoc    Document handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based index.
+ * @param[out] pszBuf  Output buffer. May be NULL for size query.
+ * @param[in]  ulSize  Size of @a pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hDoc is NULL.
+ * @retval ERROR_NO_MORE_ITEMS      @a ulIndex out of range.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
 APIRET APIENTRY HpjQueryFileName(HHPJ hDoc, ULONG ulIndex,
                                  PSZ pszBuf, ULONG ulSize, PULONG pulUsed)
 {
@@ -857,12 +1178,37 @@ APIRET APIENTRY HpjQueryFileName(HHPJ hDoc, ULONG ulIndex,
  * Public API: aliases
  * ================================================================== */
 
+/*!
+ * @brief Query the number of alias entries.
+ *
+ * @param[in]  hDoc     Document handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ */
 APIRET APIENTRY HpjQueryAliasCount(HHPJ hDoc, PULONG pulCount)
 {
     if (hDoc == NULLHANDLE || !pulCount) return ERROR_INVALID_PARAMETER;
     return VectorGetCount(DOC_FROM_HANDLE(hDoc)->vAliases, pulCount);
 }
 
+/*!
+ * @brief Query an alias name by index.
+ *
+ * @param[in]  hDoc    Document handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based index.
+ * @param[out] pszBuf  Output buffer. May be NULL for size query.
+ * @param[in]  ulSize  Size of @a pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hDoc is NULL.
+ * @retval ERROR_NO_MORE_ITEMS      @a ulIndex out of range.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
 APIRET APIENTRY HpjQueryAliasName(HHPJ hDoc, ULONG ulIndex,
                                   PSZ pszBuf, ULONG ulSize, PULONG pulUsed)
 {
@@ -875,6 +1221,21 @@ APIRET APIENTRY HpjQueryAliasName(HHPJ hDoc, ULONG ulIndex,
     return hpj_return_string(r.pszName, pszBuf, ulSize, pulUsed);
 }
 
+/*!
+ * @brief Query the context string that an alias points to.
+ *
+ * @param[in]  hDoc    Document handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based index.
+ * @param[out] pszBuf  Output buffer. May be NULL for size query.
+ * @param[in]  ulSize  Size of @a pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hDoc is NULL.
+ * @retval ERROR_NO_MORE_ITEMS      @a ulIndex out of range.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
 APIRET APIENTRY HpjQueryAliasContext(HHPJ hDoc, ULONG ulIndex,
                                      PSZ pszBuf, ULONG ulSize, PULONG pulUsed)
 {
@@ -887,6 +1248,21 @@ APIRET APIENTRY HpjQueryAliasContext(HHPJ hDoc, ULONG ulIndex,
     return hpj_return_string(r.pszContext, pszBuf, ulSize, pulUsed);
 }
 
+/*!
+ * @brief Resolve an alias name to its context string.
+ *
+ * @param[in]  hDoc    Document handle. Not NULLHANDLE.
+ * @param[in]  pszName Alias name. Not NULL.
+ * @param[out] pszBuf  Output buffer. May be NULL for size query.
+ * @param[in]  ulSize  Size of @a pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hDoc or @a pszName is NULL.
+ * @retval ERROR_FILE_NOT_FOUND     Alias not present.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
 APIRET APIENTRY HpjQueryAliasResolve(HHPJ hDoc, PCSZ pszName,
                                      PSZ pszBuf, ULONG ulSize, PULONG pulUsed)
 {
@@ -908,12 +1284,37 @@ APIRET APIENTRY HpjQueryAliasResolve(HHPJ hDoc, PCSZ pszName,
  * Public API: maps
  * ================================================================== */
 
+/*!
+ * @brief Query the number of numeric context mappings.
+ *
+ * @param[in]  hDoc     Document handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ */
 APIRET APIENTRY HpjQueryMapCount(HHPJ hDoc, PULONG pulCount)
 {
     if (hDoc == NULLHANDLE || !pulCount) return ERROR_INVALID_PARAMETER;
     return VectorGetCount(DOC_FROM_HANDLE(hDoc)->vMaps, pulCount);
 }
 
+/*!
+ * @brief Query a context string from [MAP] by index.
+ *
+ * @param[in]  hDoc    Document handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based index.
+ * @param[out] pszBuf  Output buffer. May be NULL for size query.
+ * @param[in]  ulSize  Size of @a pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hDoc is NULL.
+ * @retval ERROR_NO_MORE_ITEMS      @a ulIndex out of range.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
 APIRET APIENTRY HpjQueryMapContext(HHPJ hDoc, ULONG ulIndex,
                                    PSZ pszBuf, ULONG ulSize, PULONG pulUsed)
 {
@@ -926,6 +1327,18 @@ APIRET APIENTRY HpjQueryMapContext(HHPJ hDoc, ULONG ulIndex,
     return hpj_return_string(r.pszContext, pszBuf, ulSize, pulUsed);
 }
 
+/*!
+ * @brief Query the numeric identifier from [MAP] by index.
+ *
+ * @param[in]  hDoc      Document handle. Not NULLHANDLE.
+ * @param[in]  ulIndex   Zero-based index.
+ * @param[out] pulNumber Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_NO_MORE_ITEMS      @a ulIndex out of range.
+ */
 APIRET APIENTRY HpjQueryMapNumber(HHPJ hDoc, ULONG ulIndex, PULONG pulNumber)
 {
     HpjMapRec r;
@@ -938,6 +1351,18 @@ APIRET APIENTRY HpjQueryMapNumber(HHPJ hDoc, ULONG ulIndex, PULONG pulNumber)
     return NO_ERROR;
 }
 
+/*!
+ * @brief Resolve a context string to its numeric identifier.
+ *
+ * @param[in]  hDoc       Document handle. Not NULLHANDLE.
+ * @param[in]  pszContext Context string. Not NULL.
+ * @param[out] pulNumber  Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_FILE_NOT_FOUND     Context not present.
+ */
 APIRET APIENTRY HpjQueryMapResolve(HHPJ hDoc, PCSZ pszContext, PULONG pulNumber)
 {
     HpjDocRec* pDoc;
@@ -961,12 +1386,37 @@ APIRET APIENTRY HpjQueryMapResolve(HHPJ hDoc, PCSZ pszContext, PULONG pulNumber)
  * Public API: defines
  * ================================================================== */
 
+/*!
+ * @brief Query the number of #define symbols found in [MAP].
+ *
+ * @param[in]  hDoc     Document handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ */
 APIRET APIENTRY HpjQueryDefineCount(HHPJ hDoc, PULONG pulCount)
 {
     if (hDoc == NULLHANDLE || !pulCount) return ERROR_INVALID_PARAMETER;
     return VectorGetCount(DOC_FROM_HANDLE(hDoc)->vDefines, pulCount);
 }
 
+/*!
+ * @brief Query a #define symbol name by index.
+ *
+ * @param[in]  hDoc    Document handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based index.
+ * @param[out] pszBuf  Output buffer. May be NULL for size query.
+ * @param[in]  ulSize  Size of @a pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hDoc is NULL.
+ * @retval ERROR_NO_MORE_ITEMS      @a ulIndex out of range.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
 APIRET APIENTRY HpjQueryDefineName(HHPJ hDoc, ULONG ulIndex,
                                    PSZ pszBuf, ULONG ulSize, PULONG pulUsed)
 {
@@ -979,6 +1429,18 @@ APIRET APIENTRY HpjQueryDefineName(HHPJ hDoc, ULONG ulIndex,
     return hpj_return_string(r.pszName, pszBuf, ulSize, pulUsed);
 }
 
+/*!
+ * @brief Query a #define symbol value by index.
+ *
+ * @param[in]  hDoc     Document handle. Not NULLHANDLE.
+ * @param[in]  ulIndex  Zero-based index.
+ * @param[out] pulValue Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_NO_MORE_ITEMS      @a ulIndex out of range.
+ */
 APIRET APIENTRY HpjQueryDefineValue(HHPJ hDoc, ULONG ulIndex, PULONG pulValue)
 {
     HpjDefineRec r;
@@ -995,12 +1457,37 @@ APIRET APIENTRY HpjQueryDefineValue(HHPJ hDoc, ULONG ulIndex, PULONG pulValue)
  * Public API: includes
  * ================================================================== */
 
+/*!
+ * @brief Query the number of #include files found in [MAP].
+ *
+ * @param[in]  hDoc     Document handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ */
 APIRET APIENTRY HpjQueryIncludeCount(HHPJ hDoc, PULONG pulCount)
 {
     if (hDoc == NULLHANDLE || !pulCount) return ERROR_INVALID_PARAMETER;
     return VectorGetCount(DOC_FROM_HANDLE(hDoc)->vIncludes, pulCount);
 }
 
+/*!
+ * @brief Query an #include file name by index.
+ *
+ * @param[in]  hDoc    Document handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based index.
+ * @param[out] pszBuf  Output buffer. May be NULL for size query.
+ * @param[in]  ulSize  Size of @a pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hDoc is NULL.
+ * @retval ERROR_NO_MORE_ITEMS      @a ulIndex out of range.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
 APIRET APIENTRY HpjQueryIncludeName(HHPJ hDoc, ULONG ulIndex,
                                     PSZ pszBuf, ULONG ulSize, PULONG pulUsed)
 {
@@ -1017,12 +1504,34 @@ APIRET APIENTRY HpjQueryIncludeName(HHPJ hDoc, ULONG ulIndex,
  * Public API: windows
  * ================================================================== */
 
+/*!
+ * @brief Query the number of window definitions.
+ *
+ * @param[in]  hDoc     Document handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ */
 APIRET APIENTRY HpjQueryWindowCount(HHPJ hDoc, PULONG pulCount)
 {
     if (hDoc == NULLHANDLE || !pulCount) return ERROR_INVALID_PARAMETER;
     return VectorGetCount(DOC_FROM_HANDLE(hDoc)->vWindows, pulCount);
 }
 
+/*!
+ * @brief Query a window definition by index.
+ *
+ * @param[in]  hDoc    Document handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based index.
+ * @param[out] pWin    Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_NO_MORE_ITEMS      @a ulIndex out of range.
+ */
 APIRET APIENTRY HpjQueryWindow(HHPJ hDoc, ULONG ulIndex, HPJWINDOW* pWin)
 {
     if (hDoc == NULLHANDLE || !pWin) return ERROR_INVALID_PARAMETER;
@@ -1030,6 +1539,18 @@ APIRET APIENTRY HpjQueryWindow(HHPJ hDoc, ULONG ulIndex, HPJWINDOW* pWin)
                          pWin, sizeof(HPJWINDOW), NULL);
 }
 
+/*!
+ * @brief Query a window definition by name.
+ *
+ * @param[in]  hDoc    Document handle. Not NULLHANDLE.
+ * @param[in]  pszName Window name. Not NULL.
+ * @param[out] pWin    Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ * @retval ERROR_FILE_NOT_FOUND     Window not present.
+ */
 APIRET APIENTRY HpjQueryWindowByName(HHPJ hDoc, PCSZ pszName, HPJWINDOW* pWin)
 {
     HpjDocRec* pDoc;
@@ -1049,12 +1570,37 @@ APIRET APIENTRY HpjQueryWindowByName(HHPJ hDoc, PCSZ pszName, HPJWINDOW* pWin)
  * Public API: config
  * ================================================================== */
 
+/*!
+ * @brief Query the number of [CONFIG] macro lines.
+ *
+ * @param[in]  hDoc     Document handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ */
 APIRET APIENTRY HpjQueryConfigCount(HHPJ hDoc, PULONG pulCount)
 {
     if (hDoc == NULLHANDLE || !pulCount) return ERROR_INVALID_PARAMETER;
     return VectorGetCount(DOC_FROM_HANDLE(hDoc)->vConfigs, pulCount);
 }
 
+/*!
+ * @brief Query a [CONFIG] macro line by index.
+ *
+ * @param[in]  hDoc    Document handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based index.
+ * @param[out] pszBuf  Output buffer. May be NULL for size query.
+ * @param[in]  ulSize  Size of @a pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hDoc is NULL.
+ * @retval ERROR_NO_MORE_ITEMS      @a ulIndex out of range.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
 APIRET APIENTRY HpjQueryConfig(HHPJ hDoc, ULONG ulIndex,
                                PSZ pszBuf, ULONG ulSize, PULONG pulUsed)
 {
@@ -1071,12 +1617,37 @@ APIRET APIENTRY HpjQueryConfig(HHPJ hDoc, ULONG ulIndex,
  * Public API: bitmaps
  * ================================================================== */
 
+/*!
+ * @brief Query the number of bitmap file names.
+ *
+ * @param[in]  hDoc     Document handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ */
 APIRET APIENTRY HpjQueryBitmapCount(HHPJ hDoc, PULONG pulCount)
 {
     if (hDoc == NULLHANDLE || !pulCount) return ERROR_INVALID_PARAMETER;
     return VectorGetCount(DOC_FROM_HANDLE(hDoc)->vBitmaps, pulCount);
 }
 
+/*!
+ * @brief Query a bitmap file name by index.
+ *
+ * @param[in]  hDoc    Document handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based index.
+ * @param[out] pszBuf  Output buffer. May be NULL for size query.
+ * @param[in]  ulSize  Size of @a pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hDoc is NULL.
+ * @retval ERROR_NO_MORE_ITEMS      @a ulIndex out of range.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
 APIRET APIENTRY HpjQueryBitmapName(HHPJ hDoc, ULONG ulIndex,
                                    PSZ pszBuf, ULONG ulSize, PULONG pulUsed)
 {
@@ -1093,12 +1664,37 @@ APIRET APIENTRY HpjQueryBitmapName(HHPJ hDoc, ULONG ulIndex,
  * Public API: baggage
  * ================================================================== */
 
+/*!
+ * @brief Query the number of baggage file names.
+ *
+ * @param[in]  hDoc     Document handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ */
 APIRET APIENTRY HpjQueryBaggageCount(HHPJ hDoc, PULONG pulCount)
 {
     if (hDoc == NULLHANDLE || !pulCount) return ERROR_INVALID_PARAMETER;
     return VectorGetCount(DOC_FROM_HANDLE(hDoc)->vBaggage, pulCount);
 }
 
+/*!
+ * @brief Query a baggage file name by index.
+ *
+ * @param[in]  hDoc    Document handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based index.
+ * @param[out] pszBuf  Output buffer. May be NULL for size query.
+ * @param[in]  ulSize  Size of @a pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hDoc is NULL.
+ * @retval ERROR_NO_MORE_ITEMS      @a ulIndex out of range.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
 APIRET APIENTRY HpjQueryBaggageName(HHPJ hDoc, ULONG ulIndex,
                                     PSZ pszBuf, ULONG ulSize, PULONG pulUsed)
 {
@@ -1115,12 +1711,40 @@ APIRET APIENTRY HpjQueryBaggageName(HHPJ hDoc, ULONG ulIndex,
  * Public API: build tags
  * ================================================================== */
 
+/*!
+ * @brief Query the number of build tags.
+ *
+ * @param[in]  hDoc     Document handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ */
 APIRET APIENTRY HpjQueryBuildTagCount(HHPJ hDoc, PULONG pulCount)
 {
     if (hDoc == NULLHANDLE || !pulCount) return ERROR_INVALID_PARAMETER;
     return VectorGetCount(DOC_FROM_HANDLE(hDoc)->vBuildTags, pulCount);
 }
 
+/*!
+ * @brief Query a build tag by index.
+ *
+ * The returned string is the tag name with any leading '+' or '-'
+ * prefix preserved.
+ *
+ * @param[in]  hDoc    Document handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based index.
+ * @param[out] pszBuf  Output buffer. May be NULL for size query.
+ * @param[in]  ulSize  Size of @a pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hDoc is NULL.
+ * @retval ERROR_NO_MORE_ITEMS      @a ulIndex out of range.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
 APIRET APIENTRY HpjQueryBuildTagName(HHPJ hDoc, ULONG ulIndex,
                                      PSZ pszBuf, ULONG ulSize, PULONG pulUsed)
 {
@@ -1137,6 +1761,19 @@ APIRET APIENTRY HpjQueryBuildTagName(HHPJ hDoc, ULONG ulIndex,
  * Testing
  * ================================================================== */
 
+/*!
+ * @brief Compare two HPJ documents for equality.
+ *
+ * Intended for unit tests. Returns TRUE if both documents have the
+ * same sections and entries in the same order.
+ *
+ * @param[in] hDocA First document. Not NULLHANDLE.
+ * @param[in] hDocB Second document. Not NULLHANDLE.
+ *
+ * @retval TRUE   Documents are equal.
+ * @retval FALSE  Documents differ, or a handle is NULL.
+ * @return TRUE if equal, FALSE otherwise.
+ */
 BOOL APIENTRY HpjEquals(HHPJ hDocA, HHPJ hDocB)
 {
     HpjDocRec* pA = DOC_FROM_HANDLE(hDocA);
