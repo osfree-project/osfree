@@ -21,6 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/*!
+ * @file block-qcow.c
+ * @brief QEMU COW block driver with compression and encryption support.
+ *
+ * Implements the QCOW image format, including optional zlib compression and
+ * AES encryption of clusters.
+ */
 #include "vl.h"
 #include "block_int.h"
 #include <zlib.h>
@@ -33,14 +41,39 @@
 /**************************************************************/
 /* QEMU COW block driver with compression and encryption support */
 
+/*!
+ * @def QCOW_MAGIC
+ * @brief Magic number identifying a QCOW image ("QFI\xfb").
+ */
 #define QCOW_MAGIC (('Q' << 24) | ('F' << 16) | ('I' << 8) | 0xfb)
+
+/*!
+ * @def QCOW_VERSION
+ * @brief QCOW format version supported by this driver.
+ */
 #define QCOW_VERSION 1
 
+/*!
+ * @def QCOW_CRYPT_NONE
+ * @brief Crypt method value indicating no encryption.
+ */
 #define QCOW_CRYPT_NONE 0
+
+/*!
+ * @def QCOW_CRYPT_AES
+ * @brief Crypt method value indicating AES encryption.
+ */
 #define QCOW_CRYPT_AES  1
 
+/*!
+ * @def QCOW_OFLAG_COMPRESSED
+ * @brief Cluster offset flag marking a compressed cluster.
+ */
 #define QCOW_OFLAG_COMPRESSED (1LL << 63)
 
+/*!
+ * @brief On-disk QCOW image header.
+ */
 typedef struct QCowHeader {
     uint32_t magic;
     uint32_t version;
@@ -54,8 +87,15 @@ typedef struct QCowHeader {
     uint64_t l1_table_offset;
 } QCowHeader;
 
+/*!
+ * @def L2_CACHE_SIZE
+ * @brief Number of cached level-2 tables.
+ */
 #define L2_CACHE_SIZE 16
 
+/*!
+ * @brief QCOW block driver private state.
+ */
 typedef struct BDRVQcowState {
     int fd;
     int cluster_bits;
@@ -79,8 +119,25 @@ typedef struct BDRVQcowState {
     AES_KEY aes_decrypt_key;
 } BDRVQcowState;
 
+/*!
+ * @brief Decompress a cluster into the cache.
+ * @param[in,out] s QCOW driver state.
+ * @param[in] cluster_offset Offset of the compressed cluster.
+ * @retval -1 Decompression failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int decompress_cluster(BDRVQcowState *s, uint64_t cluster_offset);
 
+/*!
+ * @brief Probe for the QCOW format.
+ * @param[in] buf Image header buffer.
+ * @param[in] buf_size Buffer size.
+ * @param[in] filename Filename (unused).
+ * @retval 100 QCOW magic and version match.
+ * @retval 0 Not a QCOW image.
+ * @return Match score.
+ */
 static int qcow_probe(const uint8_t *buf, int buf_size, const char *filename)
 {
     const QCowHeader *cow_header = (const void *)buf;
@@ -93,6 +150,14 @@ static int qcow_probe(const uint8_t *buf, int buf_size, const char *filename)
         return 0;
 }
 
+/*!
+ * @brief Open a QCOW image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] filename Image filename.
+ * @retval -1 Open or parse failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int qcow_open(BlockDriverState *bs, const char *filename)
 {
     BDRVQcowState *s = bs->opaque;
@@ -182,6 +247,14 @@ static int qcow_open(BlockDriverState *bs, const char *filename)
     return -1;
 }
 
+/*!
+ * @brief Set the decryption key of a QCOW image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] key Password string.
+ * @retval -1 Key setup failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int qcow_set_key(BlockDriverState *bs, const char *key)
 {
     BDRVQcowState *s = bs->opaque;
@@ -224,6 +297,16 @@ static int qcow_set_key(BlockDriverState *bs, const char *key)
     return 0;
 }
 
+/*!
+ * @brief Encrypt or decrypt a range of sectors.
+ * @param[in,out] s QCOW driver state.
+ * @param[in] sector_num First sector number (used as IV seed).
+ * @param[out] out_buf Output buffer (may equal in_buf).
+ * @param[in] in_buf Input buffer.
+ * @param[in] nb_sectors Number of sectors to process.
+ * @param[in] enc Non-zero to encrypt, zero to decrypt.
+ * @param[in] key AES key to use.
+ */
 /* The crypt function is compatible with the linux cryptoloop
    algorithm for < 4 GB images. NOTE: out_buf == in_buf is
    supported */
@@ -249,6 +332,18 @@ static void encrypt_sectors(BDRVQcowState *s, int64_t sector_num,
     }
 }
 
+/*!
+ * @brief Get the offset of a cluster, optionally allocating it.
+ * @param[in,out] bs Block driver state.
+ * @param[in] offset Byte offset within the image.
+ * @param[in] allocate 0 = no allocation, 1 = normal cluster, 2 = compressed cluster.
+ * @param[in] compressed_size Compressed size (for @p allocate == 2).
+ * @param[in] n_start First sector index to be written.
+ * @param[in] n_end End sector index to be written.
+ * @retval 0 Cluster not allocated.
+ * @retval -1 Allocation or write error.
+ * @return Cluster offset, possibly with QCOW_OFLAG_COMPRESSED set.
+ */
 /* 'allocate' is:
  *
  * 0 to not allocate.
@@ -390,6 +485,14 @@ static uint64_t get_cluster_offset(BlockDriverState *bs,
     return cluster_offset;
 }
 
+/*!
+ * @brief Check whether a range of sectors is allocated.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector number.
+ * @param[in] nb_sectors Number of sectors to check.
+ * @param[out] pnum Number of consecutive sectors with the same state.
+ * @return Non-zero if the first sector is allocated.
+ */
 static int qcow_is_allocated(BlockDriverState *bs, int64_t sector_num, 
                              int nb_sectors, int *pnum)
 {
@@ -406,6 +509,16 @@ static int qcow_is_allocated(BlockDriverState *bs, int64_t sector_num,
     return (cluster_offset != 0);
 }
 
+/*!
+ * @brief Decompress a zlib buffer.
+ * @param[out] out_buf Destination buffer.
+ * @param[in] out_buf_size Destination buffer size.
+ * @param[in] buf Compressed input buffer.
+ * @param[in] buf_size Compressed input size.
+ * @retval -1 Decompression failed or size mismatch.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int decompress_buffer(uint8_t *out_buf, int out_buf_size,
                              const uint8_t *buf, int buf_size)
 {
@@ -433,6 +546,14 @@ static int decompress_buffer(uint8_t *out_buf, int out_buf_size,
     return 0;
 }
                               
+/*!
+ * @brief Decompress a compressed cluster into the cache.
+ * @param[in,out] s QCOW driver state.
+ * @param[in] cluster_offset Offset of the compressed cluster.
+ * @retval -1 Read or decompression failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int decompress_cluster(BDRVQcowState *s, uint64_t cluster_offset)
 {
     int ret, csize;
@@ -455,6 +576,16 @@ static int decompress_cluster(BDRVQcowState *s, uint64_t cluster_offset)
     return 0;
 }
 
+/*!
+ * @brief Read sectors from a QCOW image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector number.
+ * @param[out] buf Destination buffer.
+ * @param[in] nb_sectors Number of sectors to read.
+ * @retval -1 Read or decryption failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int qcow_read(BlockDriverState *bs, int64_t sector_num, 
                      uint8_t *buf, int nb_sectors)
 {
@@ -491,6 +622,16 @@ static int qcow_read(BlockDriverState *bs, int64_t sector_num,
     return 0;
 }
 
+/*!
+ * @brief Write sectors to a QCOW image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector number.
+ * @param[in] buf Source buffer.
+ * @param[in] nb_sectors Number of sectors to write.
+ * @retval -1 Allocation, encryption or write failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int qcow_write(BlockDriverState *bs, int64_t sector_num, 
                      const uint8_t *buf, int nb_sectors)
 {
@@ -526,6 +667,10 @@ static int qcow_write(BlockDriverState *bs, int64_t sector_num,
     return 0;
 }
 
+/*!
+ * @brief Close a QCOW image.
+ * @param[in,out] bs Block driver state.
+ */
 static void qcow_close(BlockDriverState *bs)
 {
     BDRVQcowState *s = bs->opaque;
@@ -536,6 +681,16 @@ static void qcow_close(BlockDriverState *bs)
     close(s->fd);
 }
 
+/*!
+ * @brief Create a QCOW image.
+ * @param[in] filename Image filename.
+ * @param[in] total_size Image size in 512-byte sectors.
+ * @param[in] backing_file Optional backing file name.
+ * @param[in] flags Non-zero to enable AES encryption.
+ * @retval -1 Creation failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int qcow_create(const char *filename, int64_t total_size,
                       const char *backing_file, int flags)
 {
@@ -607,6 +762,12 @@ static int qcow_create(const char *filename, int64_t total_size,
     return 0;
 }
 
+/*!
+ * @brief Get the cluster size of a QCOW image.
+ * @param[in] bs Block driver state.
+ * @retval -1 Not a QCOW image.
+ * @return Cluster size in bytes.
+ */
 int qcow_get_cluster_size(BlockDriverState *bs)
 {
     BDRVQcowState *s = bs->opaque;
@@ -615,6 +776,15 @@ int qcow_get_cluster_size(BlockDriverState *bs)
     return s->cluster_size;
 }
 
+/*!
+ * @brief Compress and store a cluster.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector of the cluster.
+ * @param[in] buf Cluster data (cluster_size bytes).
+ * @retval -1 Compression or write failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 /* XXX: put compressed sectors first, then all the cluster aligned
    tables to avoid losing bytes in alignment */
 int qcow_compress_cluster(BlockDriverState *bs, int64_t sector_num, 
@@ -676,6 +846,9 @@ int qcow_compress_cluster(BlockDriverState *bs, int64_t sector_num,
     return 0;
 }
 
+/*!
+ * @brief QCOW block driver descriptor.
+ */
 BlockDriver bdrv_qcow = {
     "qcow",
     sizeof(BDRVQcowState),
@@ -688,5 +861,3 @@ BlockDriver bdrv_qcow = {
     qcow_is_allocated,
     qcow_set_key,
 };
-
-

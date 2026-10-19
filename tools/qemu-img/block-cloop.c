@@ -21,10 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/*!
+ * @file block-cloop.c
+ * @brief QEMU block driver for CLOOP (compressed loop) images.
+ *
+ * Read-only support for the CLOOP V2.0 format, using zlib to decompress
+ * blocks on demand.
+ */
 #include "vl.h"
 #include "block_int.h"
 #include <zlib.h>
 
+/*!
+ * @brief CLOOP block driver private state.
+ */
 typedef struct BDRVCloopState {
     int fd;
     uint32_t block_size;
@@ -37,6 +48,15 @@ typedef struct BDRVCloopState {
     z_stream zstream;
 } BDRVCloopState;
 
+/*!
+ * @brief Probe for the CLOOP V2.0 format.
+ * @param[in] buf Image header buffer.
+ * @param[in] buf_size Buffer size.
+ * @param[in] filename Filename (unused).
+ * @retval 2 CLOOP V2.0 magic matched.
+ * @retval 0 Not a CLOOP image.
+ * @return Match score.
+ */
 static int cloop_probe(const uint8_t *buf, int buf_size, const char *filename)
 {
     const char* magic_version_2_0="#!/bin/sh\n"
@@ -50,6 +70,14 @@ static int cloop_probe(const uint8_t *buf, int buf_size, const char *filename)
     return 0;
 }
 
+/*!
+ * @brief Open a CLOOP image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] filename Image filename.
+ * @retval -1 Open or parse failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int cloop_open(BlockDriverState *bs, const char *filename)
 {
     BDRVCloopState *s = bs->opaque;
@@ -102,6 +130,14 @@ cloop_close:
     return 0;
 }
 
+/*!
+ * @brief Ensure a given block is decompressed into the buffer.
+ * @param[in,out] s CLOOP driver state.
+ * @param[in] block_num Block number to read.
+ * @retval -1 Read or decompression failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static inline int cloop_read_block(BDRVCloopState *s,int block_num)
 {
     if(s->current_block != block_num) {
@@ -129,6 +165,16 @@ static inline int cloop_read_block(BDRVCloopState *s,int block_num)
     return 0;
 }
 
+/*!
+ * @brief Read sectors from a CLOOP image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector number.
+ * @param[out] buf Destination buffer.
+ * @param[in] nb_sectors Number of sectors to read.
+ * @retval -1 Read or decompression failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int cloop_read(BlockDriverState *bs, int64_t sector_num, 
                     uint8_t *buf, int nb_sectors)
 {
@@ -145,6 +191,10 @@ static int cloop_read(BlockDriverState *bs, int64_t sector_num,
     return 0;
 }
 
+/*!
+ * @brief Close a CLOOP image.
+ * @param[in,out] bs Block driver state.
+ */
 static void cloop_close(BlockDriverState *bs)
 {
     BDRVCloopState *s = bs->opaque;
@@ -156,6 +206,9 @@ static void cloop_close(BlockDriverState *bs)
     inflateEnd(&s->zstream);
 }
 
+/*!
+ * @brief CLOOP block driver descriptor.
+ */
 BlockDriver bdrv_cloop = {
     "cloop",
     sizeof(BDRVCloopState),
@@ -165,5 +218,3 @@ BlockDriver bdrv_cloop = {
     NULL,
     cloop_close,
 };
-
-

@@ -21,27 +21,57 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/*!
+ * @file qemu-img.c
+ * @brief QEMU disk image utility.
+ *
+ * Provides command line operations for creating, committing, converting and
+ * inspecting QEMU disk images.
+ */
 #include "vl.h"
 
 #ifdef __WATCOMC__
 #include "porting.h"
 #endif
 
+/*!
+ * @brief Return a suitable address for an mmap() mapping.
+ * @param[in] size Requested mapping size.
+ * @retval NULL Always returns NULL in this implementation.
+ * @return Always NULL.
+ */
 void *get_mmap_addr(unsigned long size)
 {
     return NULL;
 }
 
+/*!
+ * @brief Free memory allocated by qemu_malloc()/qemu_mallocz().
+ * @param[in] ptr Pointer to free.
+ */
 void qemu_free(void *ptr)
 {
     free(ptr);
 }
 
+/*!
+ * @brief Allocate memory.
+ * @param[in] size Number of bytes to allocate.
+ * @retval NULL Allocation failed.
+ * @return Pointer to allocated memory.
+ */
 void *qemu_malloc(size_t size)
 {
     return malloc(size);
 }
 
+/*!
+ * @brief Allocate zero-initialized memory.
+ * @param[in] size Number of bytes to allocate.
+ * @retval NULL Allocation failed.
+ * @return Pointer to allocated memory.
+ */
 void *qemu_mallocz(size_t size)
 {
     void *ptr;
@@ -52,6 +82,12 @@ void *qemu_mallocz(size_t size)
     return ptr;
 }
 
+/*!
+ * @brief Duplicate a string.
+ * @param[in] str String to duplicate.
+ * @retval NULL Allocation failed.
+ * @return Newly allocated copy.
+ */
 char *qemu_strdup(const char *str)
 {
     char *ptr;
@@ -62,6 +98,12 @@ char *qemu_strdup(const char *str)
     return ptr;
 }
 
+/*!
+ * @brief Copy a string with truncation.
+ * @param[out] buf Destination buffer.
+ * @param[in] buf_size Destination buffer size.
+ * @param[in] str Source string.
+ */
 void pstrcpy(char *buf, int buf_size, const char *str)
 {
     int c;
@@ -79,7 +121,13 @@ void pstrcpy(char *buf, int buf_size, const char *str)
     *q = '\0';
 }
 
-/* strcat and truncate. */
+/*!
+ * @brief Concatenate a string with truncation.
+ * @param[in,out] buf Destination buffer.
+ * @param[in] buf_size Destination buffer size.
+ * @param[in] s Source string.
+ * @return Destination buffer.
+ */
 char *pstrcat(char *buf, int buf_size, const char *s)
 {
     int len;
@@ -89,6 +137,15 @@ char *pstrcat(char *buf, int buf_size, const char *s)
     return buf;
 }
 
+/*!
+ * @brief Check whether a string starts with a given prefix.
+ * @param[in] str String to check.
+ * @param[in] val Prefix.
+ * @param[out] ptr Optional pointer to the first character after the prefix.
+ * @retval 0 Prefix does not match.
+ * @retval 1 Prefix matches.
+ * @return Non-zero if the prefix matches, 0 otherwise.
+ */
 int strstart(const char *str, const char *val, const char **ptr)
 {
     const char *p, *q;
@@ -105,6 +162,11 @@ int strstart(const char *str, const char *val, const char **ptr)
     return 1;
 }
 
+/*!
+ * @brief Formatted output to the terminal.
+ * @param[in] fmt Format string.
+ * @param[in] ... Format arguments.
+ */
 void term_printf(const char *fmt, ...)
 {
     va_list ap;
@@ -113,6 +175,11 @@ void term_printf(const char *fmt, ...)
     va_end(ap);
 }
 
+/*!
+ * @brief Print an error message and exit.
+ * @param[in] fmt Format string.
+ * @param[in] ... Format arguments.
+ */
 #ifndef __WATCOMC__
 void __attribute__((noreturn)) error(const char *fmt, ...) 
 #else
@@ -128,11 +195,19 @@ void error(const char *fmt, ...)
     va_end(ap);
 }
 
+/*!
+ * @brief Print a supported image format name.
+ * @param[in] opaque Unused callback data.
+ * @param[in] name Format name.
+ */
 static void format_print(void *opaque, const char *name)
 {
     printf(" %s", name);
 }
 
+/*!
+ * @brief Print qemu-img usage information and exit.
+ */
 void help(void)
 {
     printf("qemu-img version " QEMU_VERSION ", Copyright (c) 2004-2005 Fabrice Bellard\n"
@@ -164,8 +239,18 @@ void help(void)
 }
 
 
+/*!
+ * @def NB_SUFFIXES
+ * @brief Number of human-readable size suffixes.
+ */
 #define NB_SUFFIXES 4
 
+/*!
+ * @brief Format a size in a human-readable form.
+ * @param[out] buf Destination buffer.
+ * @param[in] buf_size Destination buffer size.
+ * @param[in] size Size in bytes.
+ */
 static void get_human_readable_size(char *buf, int buf_size, int64_t size)
 {
     char suffixes[NB_SUFFIXES] = "KMGT";
@@ -194,6 +279,13 @@ static void get_human_readable_size(char *buf, int buf_size, int64_t size)
 }
 
 #if defined(WIN32) || defined(__OS2__) || defined(__NT__)
+/*!
+ * @brief Read a password from the console.
+ * @param[out] buf Destination buffer.
+ * @param[in] buf_size Destination buffer size.
+ * @retval 0 Always returns 0 on success.
+ * @return 0 on success.
+ */
 /* XXX: put correct support for win32/NT */
 static int read_password(char *buf, int buf_size)
 {
@@ -218,11 +310,17 @@ static int read_password(char *buf, int buf_size)
 
 static struct termios oldtty;
 
+/*!
+ * @brief Restore terminal attributes.
+ */
 static void term_exit(void)
 {
     tcsetattr (0, TCSANOW, &oldtty);
 }
 
+/*!
+ * @brief Initialize terminal for password input.
+ */
 static void term_init(void)
 {
     struct termios tty;
@@ -244,6 +342,14 @@ static void term_init(void)
     atexit(term_exit);
 }
 
+/*!
+ * @brief Read a password from the terminal without echo.
+ * @param[out] buf Destination buffer.
+ * @param[in] buf_size Destination buffer size.
+ * @retval 0 Password read successfully.
+ * @retval -1 Read error or EOF.
+ * @return 0 on success, -1 on failure.
+ */
 int read_password(char *buf, int buf_size)
 {
     uint8_t ch;
@@ -281,6 +387,12 @@ int read_password(char *buf, int buf_size)
 }
 #endif
 
+/*!
+ * @brief Open a block device state for a file, optionally decrypting it.
+ * @param[in] filename Image filename.
+ * @param[in] fmt Optional format name.
+ * @return Opened block driver state.
+ */
 static BlockDriverState *bdrv_new_open(const char *filename,
                                        const char *fmt)
 {
@@ -311,6 +423,13 @@ static BlockDriverState *bdrv_new_open(const char *filename,
     return bs;
 }
 
+/*!
+ * @brief Implement the "create" command.
+ * @param[in] argc Argument count.
+ * @param[in] argv Argument vector.
+ * @retval 0 Success.
+ * @return 0 on success.
+ */
 static int img_create(int argc, char **argv)
 {
     int c, ret, encrypted;
@@ -389,6 +508,13 @@ static int img_create(int argc, char **argv)
     return 0;
 }
 
+/*!
+ * @brief Implement the "commit" command.
+ * @param[in] argc Argument count.
+ * @param[in] argv Argument vector.
+ * @retval 0 Success.
+ * @return 0 on success.
+ */
 static int img_commit(int argc, char **argv)
 {
     int c, ret;
@@ -450,6 +576,14 @@ static int img_commit(int argc, char **argv)
     return 0;
 }
 
+/*!
+ * @brief Check whether a memory buffer contains non-zero data.
+ * @param[in] sector Buffer to inspect.
+ * @param[in] len Buffer length in bytes.
+ * @retval 1 At least one non-zero byte found.
+ * @retval 0 All bytes are zero.
+ * @return Non-zero if any byte is non-zero, 0 otherwise.
+ */
 static int is_not_zero(const uint8_t *sector, int len)
 {
     int i;
@@ -461,6 +595,14 @@ static int is_not_zero(const uint8_t *sector, int len)
     return 0;
 }
 
+/*!
+ * @brief Check whether a range of sectors is allocated.
+ * @param[in] buf Sector data.
+ * @param[in] n Number of sectors.
+ * @param[out] pnum Number of consecutive sectors with the same allocation state.
+ * @retval 0 First sector is not allocated.
+ * @return Non-zero if the first sector is allocated.
+ */
 static int is_allocated_sectors(const uint8_t *buf, int n, int *pnum)
 {
     int v, i;
@@ -479,8 +621,19 @@ static int is_allocated_sectors(const uint8_t *buf, int n, int *pnum)
     return v;
 }
 
+/*!
+ * @def IO_BUF_SIZE
+ * @brief I/O buffer size used by the convert command.
+ */
 #define IO_BUF_SIZE 65536
 
+/*!
+ * @brief Implement the "convert" command.
+ * @param[in] argc Argument count.
+ * @param[in] argv Argument vector.
+ * @retval 0 Success.
+ * @return 0 on success.
+ */
 static int img_convert(int argc, char **argv)
 {
     int c, ret, n, n1, compress, cluster_size, cluster_sectors, encrypt;
@@ -604,6 +757,12 @@ static int img_convert(int argc, char **argv)
 }
 
 #if defined(_WIN32) || (defined(__OS2__) && defined(__WATCOMC__))
+/*!
+ * @brief Return the allocated size of a file.
+ * @param[in] filename File name.
+ * @retval -1 Error occurred.
+ * @return File size in bytes.
+ */
 static int64_t get_allocated_file_size(const char *filename)
 {
     struct _stati64 st;
@@ -612,6 +771,12 @@ static int64_t get_allocated_file_size(const char *filename)
     return st.st_size;
 }
 #else
+/*!
+ * @brief Return the allocated size of a file.
+ * @param[in] filename File name.
+ * @retval -1 Error occurred.
+ * @return Allocated size in bytes.
+ */
 static int64_t get_allocated_file_size(const char *filename)
 {
     struct stat st;
@@ -621,6 +786,13 @@ static int64_t get_allocated_file_size(const char *filename)
 }
 #endif
 
+/*!
+ * @brief Implement the "info" command.
+ * @param[in] argc Argument count.
+ * @param[in] argv Argument vector.
+ * @retval 0 Success.
+ * @return 0 on success.
+ */
 static int img_info(int argc, char **argv)
 {
     int c;
@@ -683,6 +855,13 @@ static int img_info(int argc, char **argv)
     return 0;
 }
 
+/*!
+ * @brief qemu-img entry point.
+ * @param[in] argc Argument count.
+ * @param[in] argv Argument vector.
+ * @retval 0 Success.
+ * @return 0 on success.
+ */
 int main(int argc, char **argv)
 {
     const char *cmd;

@@ -21,6 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/*!
+ * @file block-vvfat.c
+ * @brief QEMU block driver for a virtual VFAT filesystem backed by a host directory.
+ *
+ * Exposes a local directory (or its read-write variant) as a FAT16 disk image,
+ * including FAT tables, root directory and file data mappings.
+ */
 #include <sys/stat.h>
 #ifndef __WATCOMC__
 #include <dirent.h>
@@ -48,14 +56,27 @@
 // TODO: when commit_data'ing a direntry and is_consistent, commit_remove
 // TODO: reset MODE_MODIFIED when commit_remove'ing
 
+/*!
+ * @def DEBUG
+ * @brief Enables debug output for the vvfat driver.
+ */
 #define DEBUG
 
 /* dynamic array functions */
+
+/*!
+ * @brief Generic dynamically grown array.
+ */
 typedef struct array_t {
     char* pointer;
     unsigned int size,next,item_size;
 } array_t;
 
+/*!
+ * @brief Initialize an array descriptor.
+ * @param[out] array Array to initialize.
+ * @param[in] item_size Size of a single element in bytes.
+ */
 static inline void array_init(array_t* array,unsigned int item_size)
 {
     array->pointer=0;
@@ -64,6 +85,10 @@ static inline void array_init(array_t* array,unsigned int item_size)
     array->item_size=item_size;
 }
 
+/*!
+ * @brief Free the storage of an array.
+ * @param[in,out] array Array to free.
+ */
 static inline void array_free(array_t* array)
 {
     if(array->pointer)
@@ -71,6 +96,13 @@ static inline void array_free(array_t* array)
     array->size=array->next=0;
 }
 
+/*!
+ * @brief Ensure storage exists for a given index.
+ * @param[in,out] array Array descriptor.
+ * @param[in] index Element index to reserve.
+ * @retval 0 Allocation failed (returns NULL).
+ * @return Pointer to the element.
+ */
 /* make sure that memory is reserved at pointer[index*item_size] */
 static inline void* array_get(array_t* array,unsigned int index) {
     if((index+1)*array->item_size>array->size) {
@@ -84,6 +116,11 @@ static inline void* array_get(array_t* array,unsigned int index) {
     return array->pointer+index*array->item_size;
 }
 
+/*!
+ * @brief Append a new element at the end of the array.
+ * @param[in,out] array Array descriptor.
+ * @return Pointer to the new element or NULL on allocation failure.
+ */
 static inline void* array_get_next(array_t* array) {
     unsigned int next=array->next;
     void* result=array_get(array,next);
@@ -91,6 +128,14 @@ static inline void* array_get_next(array_t* array) {
     return result;
 }
 
+/*!
+ * @brief Insert room for @p count elements at a given index.
+ * @param[in,out] array Array descriptor.
+ * @param[in] index Insertion index.
+ * @param[in] count Number of elements to insert.
+ * @retval 0 Allocation failed (returns NULL).
+ * @return Pointer to the inserted element.
+ */
 static inline void* array_insert(array_t* array,unsigned int index,unsigned int count) {
     if((array->next+count)*array->item_size>array->size) {
 	int increment=count*array->item_size;
@@ -106,6 +151,16 @@ static inline void* array_insert(array_t* array,unsigned int index,unsigned int 
     return array->pointer+index*array->item_size;
 }
 
+/*!
+ * @brief Rotate an element so that @p index_from becomes @p index_to.
+ * @param[in,out] array Array descriptor.
+ * @param[in] index_to Destination index.
+ * @param[in] index_from Source index.
+ * @param[in] count Number of elements to move.
+ * @retval -1 Invalid arguments.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on error.
+ */
 /* this performs a "roll", so that the element which was at index_from becomes
  * index_to, but the order of all other elements is preserved. */
 static inline int array_roll(array_t* array,int index_to,int index_from,int count)
@@ -141,6 +196,14 @@ static inline int array_roll(array_t* array,int index_to,int index_from,int coun
     return 0;
 }
 
+/*!
+ * @brief Remove an element from the array.
+ * @param[in,out] array Array descriptor.
+ * @param[in] index Element index to remove.
+ * @retval -1 Failure.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on error.
+ */
 int array_remove(array_t* array,int index)
 {
     if(array_roll(array,array->next-1,index,1))
@@ -152,6 +215,9 @@ int array_remove(array_t* array,int index)
 /* These structures are used to fake a disk and the VFAT filesystem.
  * For this reason we need to use __attribute__((packed)). */
 
+/*!
+ * @brief FAT boot sector (BPB) structure.
+ */
 #ifdef __WATCOMC__
 typedef _Packed struct bootsector_t {
 #else
@@ -215,6 +281,9 @@ typedef struct bootsector_t {
 } bootsector_t;
 #endif
 
+/*!
+ * @brief MBR partition table entry.
+ */
 #ifdef __WATCOMC__
 typedef _Packed struct partition_t {
 #else
@@ -236,6 +305,9 @@ typedef struct partition_t {
 } partition_t;
 #endif
 
+/*!
+ * @brief Master boot record with partition table.
+ */
 #ifdef __WATCOMC__
 typedef _Packed struct mbr_t {
 #else
@@ -250,6 +322,9 @@ typedef struct mbr_t {
 } mbr_t;
 #endif
 
+/*!
+ * @brief VFAT 8.3 directory entry.
+ */
 #ifdef __WATCOMC__
 typedef _Packed struct direntry_t {
 #else
@@ -275,6 +350,9 @@ typedef struct direntry_t {
 
 /* this structure are used to transparently access the files */
 
+/*!
+ * @brief Mapping of a file (or directory) to disk clusters.
+ */
 typedef struct mapping_t {
     /* begin is the first cluster, end is the last+1,
      * offset is the offset in the file in clusters of this slice */
@@ -289,18 +367,28 @@ typedef struct mapping_t {
 /* this structure is used to hold sectors which need to be written, but it's
  * not known yet where to write them. */
 
+/*!
+ * @brief Pending write for a cluster whose target file is not yet known.
+ */
 typedef struct commit_t {
     uint32_t cluster_num;
     uint8_t* buf;
 } commit_t;
 
 /* write support exists for fat, direntry and file contents */
+
+/*!
+ * @brief Write action types for the vvfat write state machine.
+ */
 typedef enum {
     WRITE_UNDEFINED,WRITE_FAT,WRITE_DIRENTRY,WRITE_DATA
 } write_action_t;
 
 /* here begins the real VVFAT driver */
 
+/*!
+ * @brief VVFAT block driver private state.
+ */
 typedef struct BDRVVVFATState {
     unsigned int first_sectors_number; /* 1 for a single partition, 0x40 for a disk with partition table */
     unsigned char first_sectors[0x40*0x200];
@@ -333,6 +421,15 @@ typedef struct BDRVVVFATState {
 } BDRVVVFATState;
 
 
+/*!
+ * @brief Probe for the vvfat format ("fat:" / "fatrw:" prefixes).
+ * @param[in] buf Image header buffer (unused).
+ * @param[in] buf_size Buffer size (unused).
+ * @param[in] filename Filename to inspect.
+ * @retval 100 "fat:" or "fatrw:" prefix matched.
+ * @retval 0 Otherwise.
+ * @return Match score.
+ */
 static int vvfat_probe(const uint8_t *buf, int buf_size, const char *filename)
 {
     if (strstart(filename, "fat:", NULL) ||
@@ -341,6 +438,10 @@ static int vvfat_probe(const uint8_t *buf, int buf_size, const char *filename)
     return 0;
 }
 
+/*!
+ * @brief Fill in a master boot record with one bootable partition.
+ * @param[in,out] s VVFAT driver state.
+ */
 static void init_mbr(BDRVVVFATState* s)
 {
     /* TODO: if the files mbr.img and bootsect.img exist, use them */
@@ -363,6 +464,12 @@ static void init_mbr(BDRVVVFATState* s)
     real_mbr->magic[0]=0x55; real_mbr->magic[1]=0xaa;
 }
 
+/*!
+ * @brief Convert a host filename to the long-name UTF-16LE on-disk form.
+ * @param[out] dest Destination buffer (must hold at least 258 bytes).
+ * @param[in] src Source filename.
+ * @return Number of bytes written, padded to the next multiple of 26.
+ */
 /* dest is assumed to hold 258 bytes, and pads with 0xffff up to next multiple of 26 */
 static inline int short2long_name(unsigned char* dest,const char* src)
 {
@@ -377,6 +484,12 @@ static inline int short2long_name(unsigned char* dest,const char* src)
     return i;
 }
 
+/*!
+ * @brief Create long-filename directory entries for a host filename.
+ * @param[in,out] s VVFAT driver state.
+ * @param[in] filename Host filename.
+ * @return Pointer to the first long-name entry.
+ */
 static inline direntry_t* create_long_filename(BDRVVVFATState* s,const char* filename)
 {
     char buffer[258];
@@ -404,6 +517,11 @@ static inline direntry_t* create_long_filename(BDRVVVFATState* s,const char* fil
 
 /* fat functions */
 
+/*!
+ * @brief Compute the FAT short-name checksum for a directory entry.
+ * @param[in] entry Directory entry.
+ * @return 8-bit checksum.
+ */
 static inline uint8_t fat_chksum(direntry_t* entry)
 {
     uint8_t chksum=0;
@@ -416,6 +534,12 @@ static inline uint8_t fat_chksum(direntry_t* entry)
     return chksum;
 }
 
+/*!
+ * @brief Convert a time_t to the FAT date or time on-disk format.
+ * @param[in] time Time value.
+ * @param[in] return_time Non-zero to return FAT time, zero for FAT date.
+ * @return FAT date or time (little-endian).
+ */
 /* if return_time==0, this returns the fat_date, else the fat_time */
 static uint16_t fat_datetime(time_t time,int return_time) {
     struct tm* t;
@@ -431,6 +555,12 @@ static uint16_t fat_datetime(time_t time,int return_time) {
     return cpu_to_le16((t->tm_mday)|((t->tm_mon+1)<<5)|((t->tm_year-80)<<9));
 }
 
+/*!
+ * @brief Set a FAT entry to a given value.
+ * @param[in,out] s VVFAT driver state.
+ * @param[in] cluster FAT entry index.
+ * @param[in] value New value.
+ */
 static inline void fat_set(BDRVVVFATState* s,unsigned int cluster,uint32_t value)
 {
     if(s->fat_type==12) {
@@ -444,6 +574,12 @@ static inline void fat_set(BDRVVVFATState* s,unsigned int cluster,uint32_t value
     }
 }
 
+/*!
+ * @brief Read a FAT entry.
+ * @param[in,out] s VVFAT driver state.
+ * @param[in] cluster FAT entry index.
+ * @return FAT entry value.
+ */
 static inline uint32_t fat_get(BDRVVVFATState* s,unsigned int cluster)
 {
     //fprintf(stderr,"want to get fat for cluster %d\n",cluster);
@@ -459,6 +595,14 @@ static inline uint32_t fat_get(BDRVVVFATState* s,unsigned int cluster)
     }
 }
 
+/*!
+ * @brief Check whether a FAT entry denotes an end-of-file marker.
+ * @param[in] s VVFAT driver state.
+ * @param[in] fat_entry FAT entry value.
+ * @retval -1 End-of-file.
+ * @retval 0 Not end-of-file.
+ * @return Non-zero if end-of-file.
+ */
 static inline int fat_eof(BDRVVVFATState* s,uint32_t fat_entry)
 {
     if(fat_entry>s->max_fat_value-8)
@@ -466,6 +610,10 @@ static inline int fat_eof(BDRVVVFATState* s,uint32_t fat_entry)
     return 0;
 }
 
+/*!
+ * @brief Initialize the FAT tables, chaining directory clusters.
+ * @param[in,out] s VVFAT driver state.
+ */
 static inline void init_fat(BDRVVVFATState* s)
 {
     int i;
@@ -488,6 +636,17 @@ static inline void init_fat(BDRVVVFATState* s)
 
 }
 
+/*!
+ * @brief Convert a VFAT long-name sequence to a Unix filename.
+ * @param[out] dest Destination buffer.
+ * @param[in] dest_size Destination buffer size.
+ * @param[in] direntry_short Pointer to the short-name directory entry.
+ * @retval -1 Buffer too small.
+ * @retval -2 Buffer too small.
+ * @retval -3 Malformed long-name sequence.
+ * @retval 0 Success.
+ * @return 0 on success, negative on error.
+ */
 static inline int long2unix_name(unsigned char* dest,int dest_size,direntry_t* direntry_short) {
     int i=-1,j;
     int chksum=fat_chksum(direntry_short);
@@ -528,6 +687,14 @@ static inline int long2unix_name(unsigned char* dest,int dest_size,direntry_t* d
     }
 }
 
+/*!
+ * @brief Create short-name and long-name directory entries for a file.
+ * @param[in,out] s VVFAT driver state.
+ * @param[in] directory_start Index of the first entry of this directory.
+ * @param[in] filename Host filename.
+ * @param[in] is_dot Non-zero for "." / ".." entries.
+ * @return Pointer to the short-name directory entry.
+ */
 static inline direntry_t* create_short_filename(BDRVVVFATState* s,unsigned int directory_start,const char* filename,int is_dot)
 {
     int i,long_index=s->directory.next;
@@ -611,6 +778,15 @@ static inline direntry_t* create_short_filename(BDRVVVFATState* s,unsigned int d
     return entry;
 }
 
+/*!
+ * @brief Recursively read a host directory into the virtual VFAT layout.
+ * @param[in,out] s VVFAT driver state.
+ * @param[in] dirname Host directory name.
+ * @param[in] first_cluster_of_parent First cluster of the parent directory.
+ * @retval -1 Opening the directory failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int read_directory(BDRVVVFATState* s,const char* dirname,
 		int first_cluster_of_parent)
 {
@@ -752,6 +928,14 @@ static int read_directory(BDRVVVFATState* s,const char* dirname,
     return 0;
 }
 
+/*!
+ * @brief Initialize the virtual VFAT filesystem from a host directory.
+ * @param[in,out] s VVFAT driver state.
+ * @param[in] dirname Host directory name.
+ * @retval -1 Directory read or layout failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int init_directory(BDRVVVFATState* s,const char* dirname)
 {
     bootsector_t* bootsector=(bootsector_t*)&(s->first_sectors[(s->first_sectors_number-1)*0x200]);
@@ -871,6 +1055,14 @@ static int init_directory(BDRVVVFATState* s,const char* dirname)
     return 0;
 }
 
+/*!
+ * @brief Open a vvfat block device.
+ * @param[in,out] bs Block driver state.
+ * @param[in] dirname Directory specification ("fat:" or "fatrw:" prefix).
+ * @retval -1 Invalid prefix or layout failure.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int vvfat_open(BlockDriverState *bs, const char* dirname)
 {
     BDRVVVFATState *s = bs->opaque;
@@ -911,6 +1103,10 @@ static int vvfat_open(BlockDriverState *bs, const char* dirname)
     return 0;
 }
 
+/*!
+ * @brief Close the currently open host file, if any.
+ * @param[in,out] s VVFAT driver state.
+ */
 static inline void vvfat_close_current_file(BDRVVVFATState *s)
 {
     if(s->current_mapping) {
@@ -919,6 +1115,14 @@ static inline void vvfat_close_current_file(BDRVVVFATState *s)
     }
 }
 
+/*!
+ * @brief Binary search for the last mapping with @c end > @p cluster_num.
+ * @param[in] s VVFAT driver state.
+ * @param[in] cluster_num Cluster index.
+ * @param[in] index1 Lower bound.
+ * @param[in] index2 Upper bound.
+ * @return Index of the last mapping with @c end > @p cluster_num.
+ */
 /* mappings between index1 and index2-1 are supposed to be ordered
  * return value is the index of the last mapping for which end>cluster_num
  */
@@ -945,6 +1149,13 @@ static inline int find_mapping_for_cluster_aux(BDRVVVFATState* s,int cluster_num
     }
 }
 
+/*!
+ * @brief Find the mapping that contains a given cluster.
+ * @param[in] s VVFAT driver state.
+ * @param[in] cluster_num Cluster index.
+ * @retval 0 No matching mapping.
+ * @return Mapping pointer.
+ */
 static inline mapping_t* find_mapping_for_cluster(BDRVVVFATState* s,int cluster_num)
 {
     int index=find_mapping_for_cluster_aux(s,cluster_num,0,s->mapping.next);
@@ -957,6 +1168,15 @@ static inline mapping_t* find_mapping_for_cluster(BDRVVVFATState* s,int cluster_
     return mapping;
 }
 
+/*!
+ * @brief Open the host file backing a mapping.
+ * @param[in,out] s VVFAT driver state.
+ * @param[in] mapping Mapping to open.
+ * @param[in] flags Open flags (O_RDONLY or O_RDWR).
+ * @retval -1 NULL mapping or open failure.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int open_file(BDRVVVFATState* s,mapping_t* mapping,int flags)
 {
     if(!mapping)
@@ -977,6 +1197,16 @@ static int open_file(BDRVVVFATState* s,mapping_t* mapping,int flags)
     return 0;
 }
 
+/*!
+ * @brief Read a cluster from the host file backing the current mapping.
+ * @param[in,out] s VVFAT driver state.
+ * @param[in] cluster_num Cluster index.
+ * @retval -1 Read failure.
+ * @retval -2 Cannot open mapping.
+ * @retval -3 Seek failure.
+ * @retval 0 Success.
+ * @return 0 on success, negative on error.
+ */
 static inline int read_cluster(BDRVVVFATState *s,int cluster_num)
 {
     if(s->current_cluster != cluster_num) {
@@ -1004,6 +1234,15 @@ static inline int read_cluster(BDRVVVFATState *s,int cluster_num)
     return 0;
 }
 
+/*!
+ * @brief Read sectors from a vvfat device.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector number.
+ * @param[out] buf Destination buffer.
+ * @param[in] nb_sectors Number of sectors to read.
+ * @retval 0 Success.
+ * @return 0 on success.
+ */
 static int vvfat_read(BlockDriverState *bs, int64_t sector_num, 
                     uint8_t *buf, int nb_sectors)
 {
@@ -1038,6 +1277,10 @@ static int vvfat_read(BlockDriverState *bs, int64_t sector_num,
     return 0;
 }
 
+/*!
+ * @brief Print a directory entry to stderr.
+ * @param[in] direntry Directory entry to print.
+ */
 static void print_direntry(direntry_t* direntry)
 {
     if(!direntry)
@@ -1062,6 +1305,12 @@ static void print_direntry(direntry_t* direntry)
     }
 }
 
+/*!
+ * @brief Print a changed sector for debugging.
+ * @param[in] bs Block driver state.
+ * @param[in] sector_num Sector number.
+ * @param[in] buf New sector contents.
+ */
 static void print_changed_sector(BlockDriverState *bs,int64_t sector_num,const uint8_t *buf)
 {
     BDRVVVFATState *s = bs->opaque;
@@ -1098,17 +1347,33 @@ static void print_changed_sector(BlockDriverState *bs,int64_t sector_num,const u
     }
 }
 
+/*!
+ * @brief Check whether a directory entry is free.
+ * @param[in] direntry Directory entry.
+ * @return Non-zero if the entry is free.
+ */
 char direntry_is_free(const direntry_t* direntry)
 {
     return direntry->name[0]==0 || direntry->name[0]==0xe5;
 }
 
+/*!
+ * @brief Get the first cluster of a directory entry.
+ * @param[in] direntry Directory entry.
+ * @return First cluster number.
+ */
 /* TODO: use this everywhere */
 static inline uint32_t begin_of_direntry(direntry_t* direntry)
 {
     return le16_to_cpu(direntry->begin)|(le16_to_cpu(direntry->begin_hi)<<16);
 }
 
+/*!
+ * @brief Check that all FAT chains in the mappings are consistent.
+ * @param[in] s VVFAT driver state.
+ * @retval 0 Success.
+ * @return 0 on success.
+ */
 int consistency_check1(BDRVVVFATState *s) {
     /* check all mappings */
     int i;
@@ -1122,6 +1387,12 @@ int consistency_check1(BDRVVVFATState *s) {
     return 0;
 }
 
+/*!
+ * @brief Check that consecutive FAT entries are contiguous in mappings.
+ * @param[in] s VVFAT driver state.
+ * @retval 0 Success.
+ * @return 0 on success.
+ */
 int consistency_check2(BDRVVVFATState *s) {
     /* check fat entries: consecutive fat entries should be mapped in one mapping */
     int i;
@@ -1136,6 +1407,12 @@ int consistency_check2(BDRVVVFATState *s) {
     return 0;
 }
 
+/*!
+ * @brief Check that mappings do not overlap and have a unique successor.
+ * @param[in] s VVFAT driver state.
+ * @retval 0 Success.
+ * @return 0 on success.
+ */
 int consistency_check3(BDRVVVFATState *s) {
     /* check that for each file there is exactly one mapping per cluster */
     int i,count_non_next=0;
@@ -1162,6 +1439,12 @@ int consistency_check3(BDRVVVFATState *s) {
     return 0;
 }
 
+/*!
+ * @brief Allocate a new pending commit.
+ * @param[in,out] s VVFAT driver state.
+ * @retval 0 Allocation failed (returns NULL).
+ * @return New pending commit.
+ */
 static inline commit_t* commit_get_next(BDRVVVFATState* s)
 {
     commit_t* commit=array_get_next(&(s->commit));
@@ -1173,6 +1456,14 @@ static inline commit_t* commit_get_next(BDRVVVFATState* s)
     return commit;
 }
 
+/*!
+ * @brief Remove a pending commit.
+ * @param[in,out] s VVFAT driver state.
+ * @param[in] commit Commit to remove.
+ * @retval -1 Failure.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on error.
+ */
 int commit_remove(BDRVVVFATState* s,commit_t* commit)
 {
     int index=commit-(commit_t*)s->commit.pointer;
@@ -1218,6 +1509,12 @@ int commit_remove(BDRVVVFATState* s,commit_t* commit)
  *
  */
 
+/*!
+ * @brief Update a mapping after its directory entry changed.
+ * @param[in,out] s VVFAT driver state.
+ * @param[in,out] mapping Mapping to update.
+ * @param[in] direntry Updated directory entry.
+ */
 void mapping_modify_from_direntry(BDRVVVFATState* s,mapping_t* mapping,direntry_t* direntry)
 {
     int begin=le16_to_cpu(direntry->begin),
@@ -1231,6 +1528,13 @@ void mapping_modify_from_direntry(BDRVVVFATState* s,mapping_t* mapping,direntry_
     mapping->end = i;
 }
 
+/*!
+ * @brief Find the mapping that corresponds to a directory entry.
+ * @param[in] s VVFAT driver state.
+ * @param[in] direntry Directory entry.
+ * @retval 0 No matching mapping.
+ * @return Matching mapping.
+ */
 mapping_t* find_mapping_for_direntry(BDRVVVFATState* s,direntry_t* direntry)
 {
     int i;
@@ -1248,16 +1552,35 @@ mapping_t* find_mapping_for_direntry(BDRVVVFATState* s,direntry_t* direntry)
     return 0;
 }
 
+/*!
+ * @brief Convert a sector number to a cluster index.
+ * @param[in] s VVFAT driver state.
+ * @param[in] sector_num Sector number.
+ * @return Cluster index.
+ */
 static inline uint32_t sector2cluster(BDRVVVFATState* s,off_t sector_num)
 {
     return (sector_num-s->first_sectors_number-2*s->sectors_per_fat)/s->sectors_per_cluster;
 }
 
+/*!
+ * @brief Convert a sector number to an offset within its cluster.
+ * @param[in] s VVFAT driver state.
+ * @param[in] sector_num Sector number.
+ * @return Sector offset within its cluster.
+ */
 static inline uint32_t sector_offset_in_cluster(BDRVVVFATState* s,off_t sector_num)
 {
     return (sector_num-s->first_sectors_number-2*s->sectors_per_fat)%s->sectors_per_cluster;
 }
 
+/*!
+ * @brief Get the pending commit for a cluster, if any.
+ * @param[in] s VVFAT driver state.
+ * @param[in] cluster_num Cluster index.
+ * @retval 0 No pending commit.
+ * @return Pending commit.
+ */
 static commit_t* get_commit_for_cluster(BDRVVVFATState* s,uint32_t cluster_num)
 {
     int i;
@@ -1269,6 +1592,12 @@ static commit_t* get_commit_for_cluster(BDRVVVFATState* s,uint32_t cluster_num)
     return 0;
 }
 
+/*!
+ * @brief Get or create the pending commit for a sector's cluster.
+ * @param[in,out] s VVFAT driver state.
+ * @param[in] sector_num Sector number.
+ * @return Pending commit.
+ */
 static inline commit_t* create_or_get_commit_for_sector(BDRVVVFATState* s,off_t sector_num)
 {
     int i;
@@ -1289,6 +1618,13 @@ static inline commit_t* create_or_get_commit_for_sector(BDRVVVFATState* s,off_t 
     return commit;
 }
 
+/*!
+ * @brief Get the directory entry for a mapping, if any.
+ * @param[in] s VVFAT driver state.
+ * @param[in] mapping Mapping.
+ * @retval 0 Undefined mapping or out-of-range directory index.
+ * @return Directory entry.
+ */
 static direntry_t* get_direntry_for_mapping(BDRVVVFATState* s,mapping_t* mapping)
 {
     if(mapping->mode==MODE_UNDEFINED)
@@ -1298,6 +1634,10 @@ static direntry_t* get_direntry_for_mapping(BDRVVVFATState* s,mapping_t* mapping
     return (direntry_t*)(s->directory.pointer+sizeof(direntry_t)*mapping->dir_index);
 }
 
+/*!
+ * @brief Print all mappings to stderr (debug helper).
+ * @param[in] s VVFAT driver state.
+ */
 static void print_mappings(BDRVVVFATState* s)
 {
     int i;
@@ -1314,6 +1654,18 @@ static void print_mappings(BDRVVVFATState* s)
 
 /* TODO: statify all functions */
 
+/*!
+ * @brief Write a cluster back to the host file backing its mapping.
+ * @param[in,out] s VVFAT driver state.
+ * @param[in] cluster_num Cluster index.
+ * @param[in] buf Cluster data.
+ * @retval -1 Cluster not allocated or not a regular file mapping.
+ * @retval -2 Open failure, directory entry missing or write failure.
+ * @retval -3 Seek failure.
+ * @retval -4 Open failure.
+ * @retval 0 Success or nothing to do.
+ * @return 0 on success, negative on error.
+ */
 /* This function is only meant for file contents.
  * It will return an error if used for other sectors. */
 static int write_cluster(BDRVVVFATState* s,uint32_t cluster_num,const uint8_t* buf)
@@ -1371,6 +1723,17 @@ static int write_cluster(BDRVVVFATState* s,uint32_t cluster_num,const uint8_t* b
     return 0;
 }
 
+/*!
+ * @brief Check whether a mapping's data and FAT chain are self-consistent.
+ * @param[in] s VVFAT driver state.
+ * @param[in] mapping Mapping to check.
+ * @retval -1 FAT chain mismatch.
+ * @retval -2 Broken chain (missing mapping).
+ * @retval -3 Size / cluster count mismatch.
+ * @retval -4 No pending commits.
+ * @retval 0 Consistent.
+ * @return 0 if consistent, negative otherwise.
+ */
 /* this function returns !=0 on error */
 int mapping_is_consistent(BDRVVVFATState* s,mapping_t* mapping)
 {
@@ -1426,6 +1789,12 @@ int mapping_is_consistent(BDRVVVFATState* s,mapping_t* mapping)
  * 	- if the last written sector is first_action, and last_action=third_action, clear commit
  */
 
+/*!
+ * @brief Write a pending commit back to its host file.
+ * @param[in,out] s VVFAT driver state.
+ * @param[in] commit Pending commit.
+ * @return Result of write_cluster().
+ */
 static int commit_cluster_aux(BDRVVVFATState* s,commit_t* commit)
 {
     int result=write_cluster(s,commit->cluster_num,commit->buf);
@@ -1433,6 +1802,13 @@ static int commit_cluster_aux(BDRVVVFATState* s,commit_t* commit)
 }
 
 
+/*!
+ * @brief Write the pending commit for a cluster, if any.
+ * @param[in,out] s VVFAT driver state.
+ * @param[in] cluster_num Cluster index.
+ * @retval 0 No pending commit.
+ * @return Result of commit_cluster_aux() or 0.
+ */
 static int commit_cluster(BDRVVVFATState* s,uint32_t cluster_num)
 {
     commit_t* commit;
@@ -1444,6 +1820,15 @@ static int commit_cluster(BDRVVVFATState* s,uint32_t cluster_num)
     return 0;
 }
 
+/*!
+ * @brief Write pending commits for a mapping if its data is consistent.
+ * @param[in,out] s VVFAT driver state.
+ * @param[in] mapping Mapping to commit.
+ * @param[in] action Action that triggered the commit.
+ * @retval 0 No error (even if not consistent).
+ * @retval -1 Commit failure.
+ * @return 0 on success, -1 on error.
+ */
 /* this function checks the consistency for the direntry which belongs to
  * the mapping. if everything is found consistent, the data is committed.
  * this returns 0 if no error occurred (even if inconsistencies were found) */
@@ -1455,6 +1840,11 @@ static inline int commit_data_if_consistent(BDRVVVFATState* s,mapping_t* mapping
 	return 0;
 
     //fprintf(stderr,"7\n");
+/*!
+ * @def d
+ * @brief Debug helper that prints a literal expression to stderr.
+ * @param[in] x Expression to print.
+ */
 #define d(x) fprintf(stderr,#x "\n")
     direntry=get_direntry_for_mapping(s,mapping);
 
@@ -1506,6 +1896,19 @@ static inline int commit_data_if_consistent(BDRVVVFATState* s,mapping_t* mapping
     return 0;
 }
 
+/*!
+ * @brief Write sectors to a vvfat device.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector number.
+ * @param[in] buf Source buffer.
+ * @param[in] nb_sectors Number of sectors to write.
+ * @retval -1 Boot sector, FAT mismatch or allocation failure.
+ * @retval -2 Missing mapping or malformed direntry.
+ * @retval -3 Directory creation failure.
+ * @retval -4 Commit failure.
+ * @retval 0 Success.
+ * @return 0 on success, negative on error.
+ */
 static int vvfat_write(BlockDriverState *bs, int64_t sector_num, 
                     const uint8_t *buf, int nb_sectors)
 {
@@ -1681,8 +2084,16 @@ static int vvfat_write(BlockDriverState *bs, int64_t sector_num,
 			/* new file/directory */
 			if(new_[j].attributes&0x10) {
 #if defined(_WIN32) || defined(__OS2__)
+/*!
+ * @def SEVENFIVEFIVE
+ * @brief Extra mode argument for mkdir() (empty when the host has no POSIX modes).
+ */
 #define SEVENFIVEFIVE
 #else
+/*!
+ * @def SEVENFIVEFIVE
+ * @brief Extra mode argument for mkdir() (POSIX mode 0755).
+ */
 #define SEVENFIVEFIVE ,0755
 #endif
 			    if(mkdir(buffer SEVENFIVEFIVE))
@@ -1775,6 +2186,10 @@ static int vvfat_write(BlockDriverState *bs, int64_t sector_num,
     return 0;
 }
 
+/*!
+ * @brief Close a vvfat device.
+ * @param[in,out] bs Block driver state.
+ */
 static void vvfat_close(BlockDriverState *bs)
 {
     BDRVVVFATState *s = bs->opaque;
@@ -1787,6 +2202,9 @@ static void vvfat_close(BlockDriverState *bs)
         free(s->cluster);
 }
 
+/*!
+ * @brief VVFAT block driver descriptor.
+ */
 BlockDriver bdrv_vvfat = {
     "vvfat",
     sizeof(BDRVVVFATState),
@@ -1796,5 +2214,3 @@ BlockDriver bdrv_vvfat = {
     vvfat_write,
     vvfat_close,
 };
-
-

@@ -22,20 +22,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/*!
+ * @file block-bochs.c
+ * @brief QEMU block driver for Bochs disk images.
+ *
+ * Read-only support for Bochs "growing" (redolog) disk images.
+ */
 #include "vl.h"
 #include "block_int.h"
 
 /**************************************************************/
 
+/*!
+ * @def HEADER_MAGIC
+ * @brief Magic string identifying a Bochs image header.
+ */
 #define HEADER_MAGIC "Bochs Virtual HD Image"
+
+/*!
+ * @def HEADER_VERSION
+ * @brief Supported Bochs header version.
+ */
 #define HEADER_VERSION 0x00010000
+
+/*!
+ * @def HEADER_SIZE
+ * @brief Size in bytes of the Bochs header.
+ */
 #define HEADER_SIZE 512
 
+/*!
+ * @def REDOLOG_TYPE
+ * @brief Type string for redolog images.
+ */
 #define REDOLOG_TYPE "Redolog"
+
+/*!
+ * @def GROWING_TYPE
+ * @brief Subtype string for growing images.
+ */
 #define GROWING_TYPE "Growing"
 
 // not allocated: 0xffffffff
 
+/*!
+ * @brief On-disk Bochs image header (always little-endian).
+ */
 // always little-endian
 struct bochs_header {
     char magic[32]; // "Bochs Virtual HD Image"
@@ -56,6 +89,9 @@ struct bochs_header {
     } extra;
 };
 
+/*!
+ * @brief Bochs block driver private state.
+ */
 typedef struct BDRVBochsState {
     int fd;
 
@@ -69,6 +105,15 @@ typedef struct BDRVBochsState {
     int extent_size;
 } BDRVBochsState;
 
+/*!
+ * @brief Probe for the Bochs format.
+ * @param[in] buf Image header buffer.
+ * @param[in] buf_size Buffer size.
+ * @param[in] filename Filename (unused).
+ * @retval 100 Matching Bochs growing redolog header.
+ * @retval 0 Not a Bochs image.
+ * @return Match score.
+ */
 static int bochs_probe(const uint8_t *buf, int buf_size, const char *filename)
 {
     const struct bochs_header *bochs = (const void *)buf;
@@ -85,6 +130,14 @@ static int bochs_probe(const uint8_t *buf, int buf_size, const char *filename)
     return 0;
 }
 
+/*!
+ * @brief Open a Bochs image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] filename Image filename.
+ * @retval -1 Open or parse failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int bochs_open(BlockDriverState *bs, const char *filename)
 {
     BDRVBochsState *s = bs->opaque;
@@ -140,6 +193,14 @@ static int bochs_open(BlockDriverState *bs, const char *filename)
     return -1;
 }
 
+/*!
+ * @brief Seek to a sector within the image.
+ * @param[in] bs Block driver state.
+ * @param[in] sector_num Sector number to seek to.
+ * @retval -1 Sector not allocated.
+ * @retval 0 Success, file position set to the sector.
+ * @return 0 on success, -1 if not allocated.
+ */
 static inline int seek_to_sector(BlockDriverState *bs, int64_t sector_num)
 {
     BDRVBochsState *s = bs->opaque;
@@ -184,6 +245,16 @@ static inline int seek_to_sector(BlockDriverState *bs, int64_t sector_num)
     return 0;
 }
 
+/*!
+ * @brief Read sectors from a Bochs image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector number.
+ * @param[out] buf Destination buffer.
+ * @param[in] nb_sectors Number of sectors to read.
+ * @retval -1 Read failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int bochs_read(BlockDriverState *bs, int64_t sector_num, 
                     uint8_t *buf, int nb_sectors)
 {
@@ -206,6 +277,10 @@ static int bochs_read(BlockDriverState *bs, int64_t sector_num,
     return 0;
 }
 
+/*!
+ * @brief Close a Bochs image.
+ * @param[in,out] bs Block driver state.
+ */
 static void bochs_close(BlockDriverState *bs)
 {
     BDRVBochsState *s = bs->opaque;
@@ -213,6 +288,9 @@ static void bochs_close(BlockDriverState *bs)
     close(s->fd);
 }
 
+/*!
+ * @brief Bochs block driver descriptor.
+ */
 BlockDriver bdrv_bochs = {
     "bochs",
     sizeof(BDRVBochsState),

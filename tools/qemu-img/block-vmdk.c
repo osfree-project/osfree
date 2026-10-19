@@ -22,6 +22,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/*!
+ * @file block-vmdk.c
+ * @brief QEMU block driver for the VMDK format.
+ *
+ * Supports VMDK3 ("COWD") and VMDK4 ("KDMV") monolithic sparse images,
+ * including cluster allocation and backup grain directory maintenance.
+ */
 #include "vl.h"
 #include "block_int.h"
 
@@ -29,9 +37,21 @@
 #include "porting.h"
 #endif
 
+/*!
+ * @def VMDK3_MAGIC
+ * @brief Magic number identifying a VMDK3 image ("COWD").
+ */
 #define VMDK3_MAGIC (('C' << 24) | ('O' << 16) | ('W' << 8) | 'D')
+
+/*!
+ * @def VMDK4_MAGIC
+ * @brief Magic number identifying a VMDK4 image ("KDMV").
+ */
 #define VMDK4_MAGIC (('K' << 24) | ('D' << 16) | ('M' << 8) | 'V')
 
+/*!
+ * @brief On-disk VMDK3 header.
+ */
 typedef struct {
     uint32_t version;
     uint32_t flags;
@@ -46,6 +66,9 @@ typedef struct {
 } VMDK3Header;
 
 #ifndef __WATCOMC__
+/*!
+ * @brief On-disk VMDK4 header.
+ */
 typedef struct {
     uint32_t version;
     uint32_t flags;
@@ -61,6 +84,9 @@ typedef struct {
     char check_bytes[4];
 } __attribute__((packed)) VMDK4Header;
 #else
+/*!
+ * @brief On-disk VMDK4 header (Watcom packed variant).
+ */
 typedef _Packed struct {
     uint32_t version;
     uint32_t flags;
@@ -77,8 +103,15 @@ typedef _Packed struct {
 } VMDK4Header;
 #endif
 
+/*!
+ * @def L2_CACHE_SIZE
+ * @brief Number of cached level-2 tables.
+ */
 #define L2_CACHE_SIZE 16
 
+/*!
+ * @brief VMDK block driver private state.
+ */
 typedef struct BDRVVmdkState {
     int fd;
     int64_t l1_table_offset;
@@ -96,6 +129,15 @@ typedef struct BDRVVmdkState {
     unsigned int cluster_sectors;
 } BDRVVmdkState;
 
+/*!
+ * @brief Probe for the VMDK format.
+ * @param[in] buf Image header buffer.
+ * @param[in] buf_size Buffer size.
+ * @param[in] filename Filename (unused).
+ * @retval 100 VMDK3 or VMDK4 magic matched.
+ * @retval 0 Not a VMDK image.
+ * @return Match score.
+ */
 static int vmdk_probe(const uint8_t *buf, int buf_size, const char *filename)
 {
     uint32_t magic;
@@ -110,6 +152,14 @@ static int vmdk_probe(const uint8_t *buf, int buf_size, const char *filename)
         return 0;
 }
 
+/*!
+ * @brief Open a VMDK image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] filename Image filename.
+ * @retval -1 Open or parse failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int vmdk_open(BlockDriverState *bs, const char *filename)
 {
     BDRVVmdkState *s = bs->opaque;
@@ -196,6 +246,14 @@ static int vmdk_open(BlockDriverState *bs, const char *filename)
     return -1;
 }
 
+/*!
+ * @brief Get the offset of a cluster, optionally allocating it.
+ * @param[in,out] bs Block driver state.
+ * @param[in] offset Byte offset within the image.
+ * @param[in] allocate Non-zero to allocate a cluster when not present.
+ * @retval 0 Cluster not allocated or allocation failed.
+ * @return Cluster byte offset.
+ */
 static uint64_t get_cluster_offset(BlockDriverState *bs,
                                    uint64_t offset, int allocate)
 {
@@ -266,6 +324,14 @@ static uint64_t get_cluster_offset(BlockDriverState *bs,
     return cluster_offset;
 }
 
+/*!
+ * @brief Check whether a range of sectors is allocated.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector number.
+ * @param[in] nb_sectors Number of sectors to check.
+ * @param[out] pnum Number of consecutive sectors with the same state.
+ * @return Non-zero if the first sector is allocated.
+ */
 static int vmdk_is_allocated(BlockDriverState *bs, int64_t sector_num,
                              int nb_sectors, int *pnum)
 {
@@ -282,6 +348,16 @@ static int vmdk_is_allocated(BlockDriverState *bs, int64_t sector_num,
     return (cluster_offset != 0);
 }
 
+/*!
+ * @brief Read sectors from a VMDK image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector number.
+ * @param[out] buf Destination buffer.
+ * @param[in] nb_sectors Number of sectors to read.
+ * @retval -1 Read failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int vmdk_read(BlockDriverState *bs, int64_t sector_num,
                     uint8_t *buf, int nb_sectors)
 {
@@ -310,6 +386,16 @@ static int vmdk_read(BlockDriverState *bs, int64_t sector_num,
     return 0;
 }
 
+/*!
+ * @brief Write sectors to a VMDK image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector number.
+ * @param[in] buf Source buffer.
+ * @param[in] nb_sectors Number of sectors to write.
+ * @retval -1 Allocation or write failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int vmdk_write(BlockDriverState *bs, int64_t sector_num,
                      const uint8_t *buf, int nb_sectors)
 {
@@ -336,6 +422,16 @@ static int vmdk_write(BlockDriverState *bs, int64_t sector_num,
     return 0;
 }
 
+/*!
+ * @brief Create a VMDK4 monolithic sparse image.
+ * @param[in] filename Image filename.
+ * @param[in] total_size Image size in 512-byte sectors.
+ * @param[in] backing_file Backing file name (unsupported).
+ * @param[in] flags Creation flags (unused).
+ * @retval -1 Creation failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int vmdk_create(const char *filename, int64_t total_size,
                        const char *backing_file, int flags)
 {
@@ -439,6 +535,10 @@ static int vmdk_create(const char *filename, int64_t total_size,
     return 0;
 }
 
+/*!
+ * @brief Close a VMDK image.
+ * @param[in,out] bs Block driver state.
+ */
 static void vmdk_close(BlockDriverState *bs)
 {
     BDRVVmdkState *s = bs->opaque;
@@ -447,6 +547,9 @@ static void vmdk_close(BlockDriverState *bs)
     close(s->fd);
 }
 
+/*!
+ * @brief VMDK block driver descriptor.
+ */
 BlockDriver bdrv_vmdk = {
     "vmdk",
     sizeof(BDRVVmdkState),

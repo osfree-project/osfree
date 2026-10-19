@@ -21,6 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/*!
+ * @file block.c
+ * @brief QEMU block driver core and raw block driver.
+ *
+ * Provides the generic block driver registry, image format probing and the
+ * "raw" block driver implementation.
+ */
 #include "vl.h"
 #include "block_int.h"
 
@@ -36,15 +44,32 @@
 #include <sys/disk.h>
 #endif
 
+/*!
+ * @brief First block driver state in the global list.
+ */
 static BlockDriverState *bdrv_first;
+
+/*!
+ * @brief First registered block driver in the global list.
+ */
 static BlockDriver *first_drv;
 
+/*!
+ * @brief Register a block driver.
+ * @param[in,out] bdrv Driver to register.
+ */
 void bdrv_register(BlockDriver *bdrv)
 {
     bdrv->next = first_drv;
     first_drv = bdrv;
 }
 
+/*!
+ * @brief Create a new block device state.
+ * @param[in] device_name Device name (may be empty).
+ * @retval NULL Allocation failed.
+ * @return Newly allocated block driver state.
+ */
 /* create a new block device (by default it is empty) */
 BlockDriverState *bdrv_new(const char *device_name)
 {
@@ -64,6 +89,12 @@ BlockDriverState *bdrv_new(const char *device_name)
     return bs;
 }
 
+/*!
+ * @brief Find a block driver by format name.
+ * @param[in] format_name Format name to look up.
+ * @retval NULL Driver not found.
+ * @return Matching driver.
+ */
 BlockDriver *bdrv_find_format(const char *format_name)
 {
     BlockDriver *drv1;
@@ -74,6 +105,16 @@ BlockDriver *bdrv_find_format(const char *format_name)
     return NULL;
 }
 
+/*!
+ * @brief Create a disk image using the given driver.
+ * @param[in] drv Block driver to use.
+ * @param[in] filename Image filename.
+ * @param[in] size_in_sectors Image size in 512-byte sectors.
+ * @param[in] backing_file Optional backing file name.
+ * @param[in] flags Driver-specific creation flags.
+ * @retval -ENOTSUP Creation not supported by the driver.
+ * @return 0 on success, negative error code otherwise.
+ */
 int bdrv_create(BlockDriver *drv, 
                 const char *filename, int64_t size_in_sectors,
                 const char *backing_file, int flags)
@@ -84,12 +125,22 @@ int bdrv_create(BlockDriver *drv,
 }
 
 #ifndef _WIN32
+/*!
+ * @brief Generate a temporary filename.
+ * @param[out] filename Destination buffer.
+ * @param[in] size Destination buffer size.
+ */
 static void get_tmp_filename(char *filename, int size)
 {
     /* XXX: find a better function */
     tmpnam(filename);
 }
 #else
+/*!
+ * @brief Generate a temporary filename.
+ * @param[out] filename Destination buffer.
+ * @param[in] size Destination buffer size.
+ */
 static void get_tmp_filename(char *filename, int size)
 {
     int fd;
@@ -100,6 +151,12 @@ static void get_tmp_filename(char *filename, int size)
 }
 #endif
 
+/*!
+ * @brief Probe the image format of a file.
+ * @param[in] filename Filename to inspect.
+ * @retval NULL No matching format or read error.
+ * @return Best matching block driver.
+ */
 /* XXX: force raw format if block or character device ? It would
    simplify the BSD case */
 static BlockDriver *find_image_format(const char *filename)
@@ -147,11 +204,28 @@ static BlockDriver *find_image_format(const char *filename)
     return drv;
 }
 
+/*!
+ * @brief Open a block device state using automatic format detection.
+ * @param[in,out] bs Block driver state.
+ * @param[in] filename Image filename.
+ * @param[in] snapshot Non-zero to open as a temporary snapshot.
+ * @return 0 on success, -1 on failure.
+ */
 int bdrv_open(BlockDriverState *bs, const char *filename, int snapshot)
 {
     return bdrv_open2(bs, filename, snapshot, NULL);
 }
 
+/*!
+ * @brief Open a block device state.
+ * @param[in,out] bs Block driver state.
+ * @param[in] filename Image filename.
+ * @param[in] snapshot Non-zero to open as a temporary snapshot.
+ * @param[in] drv Optional block driver (auto-detected if NULL).
+ * @retval -1 Open failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 int bdrv_open2(BlockDriverState *bs, const char *filename, int snapshot,
                BlockDriver *drv)
 {
@@ -233,6 +307,10 @@ int bdrv_open2(BlockDriverState *bs, const char *filename, int snapshot,
     return 0;
 }
 
+/*!
+ * @brief Close a block device state.
+ * @param[in,out] bs Block driver state.
+ */
 void bdrv_close(BlockDriverState *bs)
 {
     if (bs->inserted) {
@@ -255,6 +333,10 @@ void bdrv_close(BlockDriverState *bs)
     }
 }
 
+/*!
+ * @brief Close and free a block device state.
+ * @param[in,out] bs Block driver state.
+ */
 void bdrv_delete(BlockDriverState *bs)
 {
     /* XXX: remove the driver list */
@@ -262,6 +344,16 @@ void bdrv_delete(BlockDriverState *bs)
     qemu_free(bs);
 }
 
+/*!
+ * @brief Commit a COW image into its backing file.
+ * @param[in,out] bs Block driver state.
+ * @retval -ENOENT No image inserted.
+ * @retval -EACCES Image is read-only.
+ * @retval -ENOTSUP No backing file.
+ * @retval -EIO I/O error occurred.
+ * @retval 0 Success.
+ * @return 0 on success, negative error code otherwise.
+ */
 /* commit COW file into the raw image */
 int bdrv_commit(BlockDriverState *bs)
 {
@@ -299,6 +391,16 @@ int bdrv_commit(BlockDriverState *bs)
     return 0;
 }
 
+/*!
+ * @brief Read sectors from a block device.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector number.
+ * @param[out] buf Destination buffer.
+ * @param[in] nb_sectors Number of sectors to read.
+ * @retval -1 Error or no media inserted.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 /* return -1 if error */
 int bdrv_read(BlockDriverState *bs, int64_t sector_num, 
               uint8_t *buf, int nb_sectors)
@@ -338,6 +440,15 @@ int bdrv_read(BlockDriverState *bs, int64_t sector_num,
     return 0;
 }
 
+/*!
+ * @brief Write sectors to a block device.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector number.
+ * @param[in] buf Source buffer.
+ * @param[in] nb_sectors Number of sectors to write.
+ * @retval -1 Error, no media inserted or read-only media.
+ * @return 0 on success.
+ */
 /* return -1 if error */
 int bdrv_write(BlockDriverState *bs, int64_t sector_num, 
                const uint8_t *buf, int nb_sectors)
@@ -349,11 +460,22 @@ int bdrv_write(BlockDriverState *bs, int64_t sector_num,
     return bs->drv->bdrv_write(bs, sector_num, buf, nb_sectors);
 }
 
+/*!
+ * @brief Get the geometry of a block device.
+ * @param[in] bs Block driver state.
+ * @param[out] nb_sectors_ptr Number of sectors in the device.
+ */
 void bdrv_get_geometry(BlockDriverState *bs, int64_t *nb_sectors_ptr)
 {
     *nb_sectors_ptr = bs->total_sectors;
 }
 
+/*!
+ * @brief Force a given boot sector.
+ * @param[in,out] bs Block driver state.
+ * @param[in] data Boot sector data.
+ * @param[in] size Data size in bytes (truncated to 512).
+ */
 /* force a given boot sector. */
 void bdrv_set_boot_sector(BlockDriverState *bs, const uint8_t *data, int size)
 {
@@ -364,6 +486,13 @@ void bdrv_set_boot_sector(BlockDriverState *bs, const uint8_t *data, int size)
     memset(bs->boot_sector_data + size, 0, 512 - size);
 }
 
+/*!
+ * @brief Set the geometry hint of a block device.
+ * @param[in,out] bs Block driver state.
+ * @param[in] cyls Cylinders.
+ * @param[in] heads Heads.
+ * @param[in] secs Sectors per track.
+ */
 void bdrv_set_geometry_hint(BlockDriverState *bs, 
                             int cyls, int heads, int secs)
 {
@@ -372,6 +501,11 @@ void bdrv_set_geometry_hint(BlockDriverState *bs,
     bs->secs = secs;
 }
 
+/*!
+ * @brief Set the type hint of a block device.
+ * @param[in,out] bs Block driver state.
+ * @param[in] type Device type (BDRV_TYPE_HD, BDRV_TYPE_CDROM, ...).
+ */
 void bdrv_set_type_hint(BlockDriverState *bs, int type)
 {
     bs->type = type;
@@ -379,11 +513,23 @@ void bdrv_set_type_hint(BlockDriverState *bs, int type)
                       type == BDRV_TYPE_FLOPPY));
 }
 
+/*!
+ * @brief Set the translation hint of a block device.
+ * @param[in,out] bs Block driver state.
+ * @param[in] translation Translation mode.
+ */
 void bdrv_set_translation_hint(BlockDriverState *bs, int translation)
 {
     bs->translation = translation;
 }
 
+/*!
+ * @brief Get the geometry hint of a block device.
+ * @param[in] bs Block driver state.
+ * @param[out] pcyls Cylinders.
+ * @param[out] pheads Heads.
+ * @param[out] psecs Sectors per track.
+ */
 void bdrv_get_geometry_hint(BlockDriverState *bs, 
                             int *pcyls, int *pheads, int *psecs)
 {
@@ -392,41 +538,82 @@ void bdrv_get_geometry_hint(BlockDriverState *bs,
     *psecs = bs->secs;
 }
 
+/*!
+ * @brief Get the type hint of a block device.
+ * @param[in] bs Block driver state.
+ * @return Device type.
+ */
 int bdrv_get_type_hint(BlockDriverState *bs)
 {
     return bs->type;
 }
 
+/*!
+ * @brief Get the translation hint of a block device.
+ * @param[in] bs Block driver state.
+ * @return Translation mode.
+ */
 int bdrv_get_translation_hint(BlockDriverState *bs)
 {
     return bs->translation;
 }
 
+/*!
+ * @brief Check whether a block device is removable.
+ * @param[in] bs Block driver state.
+ * @return Non-zero if removable.
+ */
 int bdrv_is_removable(BlockDriverState *bs)
 {
     return bs->removable;
 }
 
+/*!
+ * @brief Check whether a block device is read-only.
+ * @param[in] bs Block driver state.
+ * @return Non-zero if read-only.
+ */
 int bdrv_is_read_only(BlockDriverState *bs)
 {
     return bs->read_only;
 }
 
+/*!
+ * @brief Check whether media is inserted.
+ * @param[in] bs Block driver state.
+ * @return Non-zero if inserted.
+ */
 int bdrv_is_inserted(BlockDriverState *bs)
 {
     return bs->inserted;
 }
 
+/*!
+ * @brief Check whether media is locked.
+ * @param[in] bs Block driver state.
+ * @return Non-zero if locked.
+ */
 int bdrv_is_locked(BlockDriverState *bs)
 {
     return bs->locked;
 }
 
+/*!
+ * @brief Set the locked state of media.
+ * @param[in,out] bs Block driver state.
+ * @param[in] locked Non-zero to lock the media.
+ */
 void bdrv_set_locked(BlockDriverState *bs, int locked)
 {
     bs->locked = locked;
 }
 
+/*!
+ * @brief Register a media change callback.
+ * @param[in,out] bs Block driver state.
+ * @param[in] change_cb Callback function.
+ * @param[in] opaque Callback opaque data.
+ */
 void bdrv_set_change_cb(BlockDriverState *bs, 
                         void (*change_cb)(void *opaque), void *opaque)
 {
@@ -434,6 +621,13 @@ void bdrv_set_change_cb(BlockDriverState *bs,
     bs->change_opaque = opaque;
 }
 
+/*!
+ * @brief Check whether a block device is encrypted.
+ * @param[in] bs Block driver state.
+ * @retval 1 Encrypted (directly or via backing file).
+ * @retval 0 Not encrypted.
+ * @return Non-zero if encrypted.
+ */
 int bdrv_is_encrypted(BlockDriverState *bs)
 {
     if (bs->backing_hd && bs->backing_hd->encrypted)
@@ -441,6 +635,14 @@ int bdrv_is_encrypted(BlockDriverState *bs)
     return bs->encrypted;
 }
 
+/*!
+ * @brief Set the decryption key of a block device.
+ * @param[in,out] bs Block driver state.
+ * @param[in] key Password string.
+ * @retval -1 No key required or unsupported.
+ * @retval 0 Success.
+ * @return 0 on success, negative error code otherwise.
+ */
 int bdrv_set_key(BlockDriverState *bs, const char *key)
 {
     int ret;
@@ -456,6 +658,12 @@ int bdrv_set_key(BlockDriverState *bs, const char *key)
     return bs->drv->bdrv_set_key(bs, key);
 }
 
+/*!
+ * @brief Get the format name of a block device.
+ * @param[in] bs Block driver state.
+ * @param[out] buf Destination buffer.
+ * @param[in] buf_size Destination buffer size.
+ */
 void bdrv_get_format(BlockDriverState *bs, char *buf, int buf_size)
 {
     if (!bs->inserted || !bs->drv) {
@@ -465,6 +673,12 @@ void bdrv_get_format(BlockDriverState *bs, char *buf, int buf_size)
     }
 }
 
+/*!
+ * @brief Iterate over all registered format names.
+ * @param[in] it Callback function.
+ * @param[in] opaque Callback opaque data.
+ * @param[in] name Format name passed to the callback.
+ */
 void bdrv_iterate_format(void (*it)(void *opaque, const char *name), 
                          void *opaque)
 {
@@ -475,6 +689,12 @@ void bdrv_iterate_format(void (*it)(void *opaque, const char *name),
     }
 }
 
+/*!
+ * @brief Find a block device by name.
+ * @param[in] name Device name.
+ * @retval NULL Device not found.
+ * @return Matching block device state.
+ */
 BlockDriverState *bdrv_find(const char *name)
 {
     BlockDriverState *bs;
@@ -486,6 +706,12 @@ BlockDriverState *bdrv_find(const char *name)
     return NULL;
 }
 
+/*!
+ * @brief Iterate over all block devices.
+ * @param[in] it Callback function.
+ * @param[in] opaque Callback opaque data.
+ * @param[in] name Device name passed to the callback.
+ */
 void bdrv_iterate(void (*it)(void *opaque, const char *name), void *opaque)
 {
     BlockDriverState *bs;
@@ -495,11 +721,19 @@ void bdrv_iterate(void (*it)(void *opaque, const char *name), void *opaque)
     }
 }
 
+/*!
+ * @brief Get the device name of a block device.
+ * @param[in] bs Block driver state.
+ * @return Device name.
+ */
 const char *bdrv_get_device_name(BlockDriverState *bs)
 {
     return bs->device_name;
 }
 
+/*!
+ * @brief Print information about all block devices.
+ */
 void bdrv_info(void)
 {
     BlockDriverState *bs;
@@ -541,15 +775,34 @@ void bdrv_info(void)
 /**************************************************************/
 /* RAW block driver */
 
+/*!
+ * @brief Raw block driver private state.
+ */
 typedef struct BDRVRawState {
     int fd;
 } BDRVRawState;
 
+/*!
+ * @brief Probe for the raw format.
+ * @param[in] buf Image header buffer (unused).
+ * @param[in] buf_size Buffer size (unused).
+ * @param[in] filename Filename (unused).
+ * @retval 1 Always matches weakly.
+ * @return 1.
+ */
 static int raw_probe(const uint8_t *buf, int buf_size, const char *filename)
 {
     return 1; /* maybe */
 }
 
+/*!
+ * @brief Open a raw image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] filename Image filename.
+ * @retval -1 Open failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int raw_open(BlockDriverState *bs, const char *filename)
 {
     BDRVRawState *s = bs->opaque;
@@ -588,6 +841,16 @@ static int raw_open(BlockDriverState *bs, const char *filename)
     return 0;
 }
 
+/*!
+ * @brief Read sectors from a raw image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector number.
+ * @param[out] buf Destination buffer.
+ * @param[in] nb_sectors Number of sectors to read.
+ * @retval -1 Read failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int raw_read(BlockDriverState *bs, int64_t sector_num, 
                     uint8_t *buf, int nb_sectors)
 {
@@ -601,6 +864,16 @@ static int raw_read(BlockDriverState *bs, int64_t sector_num,
     return 0;
 }
 
+/*!
+ * @brief Write sectors to a raw image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector number.
+ * @param[in] buf Source buffer.
+ * @param[in] nb_sectors Number of sectors to write.
+ * @retval -1 Write failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int raw_write(BlockDriverState *bs, int64_t sector_num, 
                      const uint8_t *buf, int nb_sectors)
 {
@@ -614,12 +887,27 @@ static int raw_write(BlockDriverState *bs, int64_t sector_num,
     return 0;
 }
 
+/*!
+ * @brief Close a raw image.
+ * @param[in,out] bs Block driver state.
+ */
 static void raw_close(BlockDriverState *bs)
 {
     BDRVRawState *s = bs->opaque;
     close(s->fd);
 }
 
+/*!
+ * @brief Create a raw image.
+ * @param[in] filename Image filename.
+ * @param[in] total_size Image size in 512-byte sectors.
+ * @param[in] backing_file Backing file name (must be NULL).
+ * @param[in] flags Creation flags (must be 0).
+ * @retval -ENOTSUP Backing file or flags not supported.
+ * @retval -EIO File creation failed.
+ * @retval 0 Success.
+ * @return 0 on success, negative error code otherwise.
+ */
 static int raw_create(const char *filename, int64_t total_size,
                       const char *backing_file, int flags)
 {
@@ -637,6 +925,9 @@ static int raw_create(const char *filename, int64_t total_size,
     return 0;
 }
 
+/*!
+ * @brief Raw block driver descriptor.
+ */
 BlockDriver bdrv_raw = {
     "raw",
     sizeof(BDRVRawState),
@@ -648,6 +939,9 @@ BlockDriver bdrv_raw = {
     raw_create,
 };
 
+/*!
+ * @brief Register all built-in block drivers.
+ */
 void bdrv_init(void)
 {
     bdrv_register(&bdrv_raw);

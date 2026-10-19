@@ -21,11 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/*!
+ * @file block-dmg.c
+ * @brief QEMU block driver for DMG (Apple disk image) files.
+ *
+ * Read-only support for compressed DMG images, including zlib-compressed,
+ * raw-copy and zero-filled chunks.
+ */
 #include "vl.h"
 #include "block_int.h"
 #include "bswap.h"
 #include <zlib.h>
 
+/*!
+ * @brief DMG block driver private state.
+ *
+ * Each chunk contains a certain number of sectors:
+ * @c offsets[i] is the offset in the .dmg file, @c lengths[i] is the length
+ * of the compressed chunk, @c sectors[i] is the sector beginning at
+ * @c offsets[i], and @c sectorcounts[i] is the number of sectors in that
+ * chunk. The sectors array is ordered, with 0 <= i < n_chunks.
+ */
 typedef struct BDRVDMGState {
     int fd;
     
@@ -49,6 +66,15 @@ typedef struct BDRVDMGState {
     z_stream zstream;
 } BDRVDMGState;
 
+/*!
+ * @brief Probe for the DMG format.
+ * @param[in] buf Image header buffer (unused).
+ * @param[in] buf_size Buffer size (unused).
+ * @param[in] filename Filename to inspect.
+ * @retval 2 Filename ends in ".dmg".
+ * @retval 0 Otherwise.
+ * @return Match score.
+ */
 static int dmg_probe(const uint8_t *buf, int buf_size, const char *filename)
 {
     int len=strlen(filename);
@@ -57,6 +83,12 @@ static int dmg_probe(const uint8_t *buf, int buf_size, const char *filename)
     return 0;
 }
 
+/*!
+ * @brief Read a big-endian 64-bit value from a file.
+ * @param[in] fd File descriptor.
+ * @retval 0 Read failed.
+ * @return Big-endian host-converted value.
+ */
 static off_t read_off(int fd)
 {
 	uint64_t buffer;
@@ -65,6 +97,12 @@ static off_t read_off(int fd)
 	return be64_to_cpu(buffer);
 }
 
+/*!
+ * @brief Read a big-endian 32-bit value from a file.
+ * @param[in] fd File descriptor.
+ * @retval 0 Read failed.
+ * @return Big-endian host-converted value.
+ */
 static off_t read_uint32(int fd)
 {
 	uint32_t buffer;
@@ -73,6 +111,14 @@ static off_t read_uint32(int fd)
 	return be32_to_cpu(buffer);
 }
 
+/*!
+ * @brief Open a DMG image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] filename Image filename.
+ * @retval -1 Open or parse failed; caller may fall back to raw.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int dmg_open(BlockDriverState *bs, const char *filename)
 {
     BDRVDMGState *s = bs->opaque;
@@ -171,6 +217,15 @@ dmg_close:
     return 0;
 }
 
+/*!
+ * @brief Check whether a sector lies within a given chunk.
+ * @param[in] s DMG driver state.
+ * @param[in] chunk_num Chunk index.
+ * @param[in] sector_num Sector number.
+ * @retval -1 Sector is inside the chunk.
+ * @retval 0 Sector is outside the chunk.
+ * @return Non-zero if inside.
+ */
 static inline int is_sector_in_chunk(BDRVDMGState* s,
 		uint32_t chunk_num,int sector_num)
 {
@@ -181,6 +236,12 @@ static inline int is_sector_in_chunk(BDRVDMGState* s,
 	return -1;
 }
 
+/*!
+ * @brief Binary-search the chunk containing a sector.
+ * @param[in] s DMG driver state.
+ * @param[in] sector_num Sector number.
+ * @return Chunk index, or @c n_chunks on error.
+ */
 static inline uint32_t search_chunk(BDRVDMGState* s,int sector_num)
 {
     /* binary search */
@@ -197,6 +258,14 @@ static inline uint32_t search_chunk(BDRVDMGState* s,int sector_num)
     return s->n_chunks; /* error */
 }
 
+/*!
+ * @brief Decompress a chunk into the buffer.
+ * @param[in,out] s DMG driver state.
+ * @param[in] sector_num Sector within the chunk to read.
+ * @retval -1 Read, decompression or lookup failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static inline int dmg_read_chunk(BDRVDMGState *s,int sector_num)
 {
     if(!is_sector_in_chunk(s,s->current_chunk,sector_num)) {
@@ -253,6 +322,16 @@ static inline int dmg_read_chunk(BDRVDMGState *s,int sector_num)
     return 0;
 }
 
+/*!
+ * @brief Read sectors from a DMG image.
+ * @param[in,out] bs Block driver state.
+ * @param[in] sector_num First sector number.
+ * @param[out] buf Destination buffer.
+ * @param[in] nb_sectors Number of sectors to read.
+ * @retval -1 Read or decompression failed.
+ * @retval 0 Success.
+ * @return 0 on success, -1 on failure.
+ */
 static int dmg_read(BlockDriverState *bs, int64_t sector_num, 
                     uint8_t *buf, int nb_sectors)
 {
@@ -269,6 +348,10 @@ static int dmg_read(BlockDriverState *bs, int64_t sector_num,
     return 0;
 }
 
+/*!
+ * @brief Close a DMG image.
+ * @param[in,out] bs Block driver state.
+ */
 static void dmg_close(BlockDriverState *bs)
 {
     BDRVDMGState *s = bs->opaque;
@@ -285,6 +368,9 @@ static void dmg_close(BlockDriverState *bs)
     inflateEnd(&s->zstream);
 }
 
+/*!
+ * @brief DMG block driver descriptor.
+ */
 BlockDriver bdrv_dmg = {
     "dmg",
     sizeof(BDRVDMGState),
@@ -294,4 +380,3 @@ BlockDriver bdrv_dmg = {
     NULL,
     dmg_close,
 };
-
