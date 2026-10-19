@@ -7,12 +7,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Local fallback: os2types.h does not provide VOID on host builds. */
-#ifndef VOID
-#define VOID void
-#endif
-
 #pragma pack(1)
+/*!
+ * @struct BTREEHEADER
+ * @brief On-disk B-tree file header (per helpdeco).
+ */
 typedef struct {
     USHORT usMagic, usFlags, usPageSize;
     UCHAR  abStructure[16];
@@ -20,16 +19,32 @@ typedef struct {
            usTotalPages, usNLevels;
     ULONG  ulTotalBtreeEntries;
 } BTREEHEADER;
+/*!
+ * @struct BTREENODEHEADER
+ * @brief Header at the start of a B-tree leaf page.
+ */
 typedef struct {
     USHORT usUnknown, usNEntries, usPreviousPage, usNextPage;
 } BTREENODEHEADER;
+/*!
+ * @struct BTREEINDEXHEADER
+ * @brief Header at the start of a B-tree index page.
+ */
 typedef struct {
     USHORT usUnknown, usNEntries, usPreviousPage;
 } BTREEINDEXHEADER;
 #pragma pack()
 
+/*!
+ * @struct BtrEntryRec
+ * @brief In-memory key/value entry.
+ */
 typedef struct { PSZ pszKey; ULONG ulValue; } BtrEntryRec;
 
+/*!
+ * @struct BtrRec
+ * @brief B-tree generator state.
+ */
 typedef struct {
     USHORT  usPageSize;
     USHORT  usFlags;
@@ -37,6 +52,10 @@ typedef struct {
     HVECTOR vEntries;
 } BtrRec;
 
+/*!
+ * @struct BtrPageRec
+ * @brief One leaf or index page description (in-memory).
+ */
 typedef struct {
     USHORT usPageNum, usIsLeaf;
     PSZ    pszFirstKey;
@@ -45,39 +64,102 @@ typedef struct {
     ULONG  ulFirstChild, ulLastChild;
 } BtrPageRec;
 
+/*!
+ * @def BTR_MAX_LEVELS
+ * @brief Maximum number of B-tree levels built by BtrWrite.
+ */
 #define BTR_MAX_LEVELS 8
+/*!
+ * @def BTR_FROM_HANDLE
+ * @brief Convert an HBTR handle to its BtrRec pointer.
+ * @param[in] h Handle.
+ */
 #define BTR_FROM_HANDLE(h) ((BtrRec*)(h))
+/*!
+ * @def BTR_HANDLE_FROM
+ * @brief Convert a BtrRec pointer to an HBTR handle.
+ * @param[in] d Record pointer.
+ */
 #define BTR_HANDLE_FROM(d) ((HANDLE)(d))
 
+/*!
+ * @brief qsort() comparator for BtrEntryRec by key.
+ * @param[in] a First entry.
+ * @param[in] b Second entry.
+ * @return strcmp() result of the two keys.
+ */
 static int btr_cmp(const void* a, const void* b)
 {
     return strcmp(((const BtrEntryRec*)a)->pszKey,
                   ((const BtrEntryRec*)b)->pszKey);
 }
+/*!
+ * @brief Compute the serialized size of one leaf entry.
+ * @param[in] e Entry.
+ * @return Size in bytes (key + NUL + 4-byte value).
+ */
 static ULONG btr_leaf_size(const BtrEntryRec* e)
 {
     return (ULONG)strlen(e->pszKey) + 1 + 4;
 }
+/*!
+ * @brief Compute the serialized size of one index entry.
+ * @param[in] k Key.
+ * @return Size in bytes (key + NUL + 2-byte page number).
+ */
 static ULONG btr_idx_size(PCSZ k)
 {
     return (ULONG)strlen(k) + 1 + 2;
 }
+/*!
+ * @brief Pad a page with NUL bytes up to the configured page size.
+ * @param[in] f           Output stream.
+ * @param[in] lStart      Start offset of the page.
+ * @param[in] usPageSize  Page size in bytes.
+ */
 static VOID btr_pad(FILE* f, LONG lStart, USHORT usPageSize)
 {
     LONG lPos = ftell(f), lEnd = lStart + (LONG)usPageSize;
     while (lPos < lEnd) { fputc(0, f); lPos++; }
 }
+/*!
+ * @brief Write a key plus a 32-bit value to a stream.
+ * @param[in] f Stream.
+ * @param[in] k NUL-terminated key.
+ * @param[in] v 32-bit value.
+ */
 static VOID btr_kv(FILE* f, PCSZ k, ULONG v)
 {
     fwrite(k, strlen(k) + 1, 1, f);
     fwrite(&v, 4, 1, f);
 }
+/*!
+ * @brief Write a key plus a 16-bit value to a stream.
+ * @param[in] f Stream.
+ * @param[in] k NUL-terminated key.
+ * @param[in] v 16-bit value.
+ */
 static VOID btr_kw(FILE* f, PCSZ k, USHORT v)
 {
     fwrite(k, strlen(k) + 1, 1, f);
     fwrite(&v, 2, 1, f);
 }
 
+/*!
+ * @brief Create a B-tree.
+ *
+ * @param[out] phBtr        Receiver. Not NULL. Set to NULLHANDLE on error.
+ * @param[in]  usPageSize   Page size in bytes. Pass 0 to select 2048.
+ * @param[in]  usFlags      BTR_FLAG_DIRECTORY | BTR_FLAG_ALWAYS for the
+ *                          directory index.
+ * @param[in]  pszStructure Structure tag up to 15 characters written to
+ *                          the BTREEHEADER. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a phBtr is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY BtrCreate(PHBTR phBtr, USHORT usPageSize, USHORT usFlags,
                           PCSZ pszStructure)
 {
@@ -99,6 +181,14 @@ APIRET APIENTRY BtrCreate(PHBTR phBtr, USHORT usPageSize, USHORT usFlags,
     return NO_ERROR;
 }
 
+/*!
+ * @brief Destroy a B-tree and release all its keys.
+ *
+ * @param[in] hBtr B-tree handle. May be NULLHANDLE.
+ *
+ * @return APIRET
+ * @retval NO_ERROR  Success. Also for NULLHANDLE.
+ */
 APIRET APIENTRY BtrDestroy(HBTR hBtr)
 {
     BtrRec* p; ULONG n, i;
@@ -117,6 +207,19 @@ APIRET APIENTRY BtrDestroy(HBTR hBtr)
     return NO_ERROR;
 }
 
+/*!
+ * @brief Append a key/value pair.
+ *
+ * @param[in] hBtr    B-tree handle. Not NULLHANDLE.
+ * @param[in] pszKey  NUL-terminated key. Not NULL.
+ * @param[in] ulValue Value associated with the key.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hBtr or @a pszKey is NULL, or
+ *                                  the key is already present.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY BtrAddEntry(HBTR hBtr, PCSZ pszKey, ULONG ulValue)
 {
     BtrRec* p; BtrEntryRec e; ULONG n, i;
@@ -135,6 +238,16 @@ APIRET APIENTRY BtrAddEntry(HBTR hBtr, PCSZ pszKey, ULONG ulValue)
     return VectorAdd(p->vEntries, &e);
 }
 
+/*!
+ * @brief Query an upper-bound size for the serialized B-tree image.
+ *
+ * @param[in]  hBtr    B-tree handle. Not NULLHANDLE.
+ * @param[out] pulSize Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hBtr or @a pulSize is NULL.
+ */
 APIRET APIENTRY BtrQuerySize(HBTR hBtr, PULONG pulSize)
 {
     BtrRec* p; ULONG n = 0;
@@ -151,6 +264,17 @@ APIRET APIENTRY BtrQuerySize(HBTR hBtr, PULONG pulSize)
     return NO_ERROR;
 }
 
+/*!
+ * @brief Split a sorted entry array into leaf pages.
+ * @param[in]  a    Sorted entries.
+ * @param[in]  n    Number of entries.
+ * @param[in]  ps   Page size in bytes.
+ * @param[out] pp   Receiver for the page array. Not NULL.
+ * @param[out] pc   Receiver for the page count. Not NULL.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 static APIRET btr_leaves(BtrEntryRec* a, ULONG n, USHORT ps,
                          BtrPageRec** pp, ULONG* pc)
 {
@@ -186,6 +310,17 @@ static APIRET btr_leaves(BtrEntryRec* a, ULONG n, USHORT ps,
     return NO_ERROR;
 }
 
+/*!
+ * @brief Build one index level from the level below.
+ * @param[in]  a    Sorted page array.
+ * @param[in]  n    Number of pages.
+ * @param[in]  ps   Page size in bytes.
+ * @param[out] pp   Receiver for the new page array. Not NULL.
+ * @param[out] pc   Receiver for the new page count. Not NULL.
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 static APIRET btr_index(BtrPageRec* a, ULONG n, USHORT ps,
                         BtrPageRec** pp, ULONG* pc)
 {
@@ -216,6 +351,17 @@ static APIRET btr_index(BtrPageRec* a, ULONG n, USHORT ps,
     return NO_ERROR;
 }
 
+/*!
+ * @brief Serialize the B-tree to a stream.
+ *
+ * @param[in] hBtr B-tree handle. Not NULLHANDLE.
+ * @param[in] f    Output stream. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hBtr or @a f is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY BtrWrite(HBTR hBtr, FILE* f)
 {
     BtrRec* p; ULONG n, i;

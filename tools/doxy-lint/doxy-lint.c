@@ -34,6 +34,14 @@
  *  #include'd header are dropped.  Function and variable declarations
  *  are located in this pass.
  *
+ *  The preprocessed output is read in full once, before the #line
+ *  filter, to collect typedefs that resolve to "void".  The
+ *  preprocessor inlines #include, so typedefs from os2.h and other
+ *  headers are visible here even though the raw file (pass 1) cannot
+ *  see them.  The resulting table lets returns_void() treat an OS/2
+ *  "VOID" return type exactly like "void"; no hard-coded list of
+ *  typedef names is needed.
+ *
  *  The command line sent to the preprocessor is built from the raw
  *  command line of doxy-lint itself, obtained with getcmd().  The
  *  tokens that begin with '-' are forwarded verbatim, quotes and all,
@@ -76,8 +84,11 @@
  *             expressions are not checked.  @retval is not applicable
  *             to void functions and is reported as an error.
  *
- *  A function is considered to return void when the keyword "void"
- *  occurs in the return type and is not followed by "*".
+ *  A function is considered to return void when the keyword "void",
+ *  or a typedef that resolves to "void", occurs in the return type
+ *  and is not followed by "*".  The set of void typedefs is collected
+ *  from the full preprocessed output (headers included), so typedefs
+ *  such as OS/2's "VOID" are recognized without a hard-coded list.
  *
  *  K&R-style function definitions are recognized.  After the closing
  *  ')' of the parameter name list, if the next meaningful token is
@@ -127,7 +138,9 @@
 #  error "Unsupported target: expected Linux, Win32 or OS/2"
 #endif
 
-#define MAXTOK       65536
+/* The full preprocessed output includes every #include'd header, so
+ * the token budget must cover much more than a single source file. */
+#define MAXTOK       524288
 #define MAXPARAM     128
 #define MAXRET       128
 #define NAMELEN      64
@@ -135,6 +148,7 @@
 #define PATHBUF      1024
 #define PRELINE      8192
 #define MAX_LINE_NO  65536
+#define MAXTYPEDEF   1024
 
 #define T_EOF           0
 #define T_IDENT         1
@@ -187,6 +201,20 @@ static char raw_opts[PRELINE];
  * line; a second simple return on the same line is ignored.
  */
 static char *raw_returns[MAX_LINE_NO];
+
+/*! @brief Names of typedefs that resolve to a bare "void".
+ *
+ * Filled from the full preprocessed output (headers included) before
+ * the file is filtered.  Used by returns_void() to recognize types
+ * such as OS/2's "VOID", which the preprocessor does not expand
+ * because it is a typedef, not a macro.  Names are added in source
+ * order, so a chain such as "typedef void VOID; typedef VOID VOID2;"
+ * resolves correctly.
+ */
+static char typedef_void_names[MAXTYPEDEF][NAMELEN];
+
+/*! @brief Number of entries in typedef_void_names[]. */
+static int ntypedefs = 0;
 
 /*! @brief Counter used to build unique temporary file names. */
 static int temp_counter = 0;
@@ -601,6 +629,124 @@ static int is_keyword(const char *s, int len)
     return 0;
 }
 
+/*! @brief Tests whether a name is a typedef that resolves to void.
+ *
+ * Looks the name up in typedef_void_names[], which is filled from the
+ * full preprocessed output.  Handles chains such as
+ * "typedef void VOID; typedef VOID VOID2;" because names are added
+ * in source order and a typedef must be declared before use in C.
+ *
+ *  @param[in] name Identifier text.
+ *  @param[in] len  Length in bytes.
+ *  @return Non-zero when the name is a known void typedef.
+ *  @retval 0 Not a void typedef.
+ *  @retval 1 Void typedef.
+ */
+static int typedef_resolves_to_void(const char *name, int len)
+{
+    int k;
+    for (k = 0; k < ntypedefs; k++) {
+        int nlen = (int)strlen(typedef_void_names[k]);
+        if (nlen == len && memcmp(typedef_void_names[k], name, len) == 0)
+            return 1;
+    }
+    return 0;
+}
+
+/*! @brief Collects "typedef ... void NAME;" from toks[].
+ *
+ * Walks the token array produced from the *full* preprocessed output
+ * (before #line filtering), so typedefs from #include'd headers are
+ * seen too.  A typedef is recorded when its type is a bare "void"
+ * (at parenthesis depth zero, so a "void" in the parameter list of a
+ * function-pointer declarator does not count) or another already-
+ * recorded void typedef, with no '*' after it, no function-pointer
+ * declarator, and no struct/union/enum/class tag.
+ *
+ * Order matters: C requires a typedef to be declared before use, so
+ * a single forward scan resolves chains.
+ *
+ * Multi-declarator statements such as "typedef void VOID, *PVOID;"
+ * are not handled: only the last declarator is considered and the
+ * pointer star disqualifies it.  Such forms are rare for void
+ * typedefs; missing one only leads to a spurious @return warning,
+ * which is a false positive on a rare construct, not a correctness
+ * failure of the tool.
+ */
+static void collect_typedefs_from_tokens(void)
+{
+    int i = 0;
+
+    while (toks[i].type != T_EOF) {
+        if (toks[i].type == T_IDENT && tok_is(i, "typedef")) {
+            int j = i + 1;
+            int saw_void = 0;
+            int star_after_void = 0;
+            int is_funcptr = 0;
+            int has_tag = 0;
+            int depth_paren = 0;
+            int depth_brace = 0;
+            int name_idx = -1;
+            int name_in_paren = -1;
+
+            while (toks[j].type != T_EOF) {
+                if (depth_brace == 0 && depth_paren == 0 &&
+                    tok_punct(j, ";")) {
+                    break;
+                }
+                if (tok_punct(j, "{")) { depth_brace++; j++; continue; }
+                if (tok_punct(j, "}")) {
+                    if (depth_brace > 0) depth_brace--;
+                    j++; continue;
+                }
+                if (depth_brace > 0) { j++; continue; }
+                if (tok_punct(j, "(")) {
+                    if (depth_paren == 0 && tok_punct(j + 1, "*"))
+                        is_funcptr = 1;
+                    depth_paren++;
+                    j++; continue;
+                }
+                if (tok_punct(j, ")")) {
+                    if (depth_paren > 0) depth_paren--;
+                    j++; continue;
+                }
+                if (toks[j].type == T_IDENT) {
+                    if (tok_is(j, "struct") || tok_is(j, "union") ||
+                        tok_is(j, "enum") || tok_is(j, "class")) {
+                        has_tag = 1;
+                    } else if (depth_paren == 0 &&
+                               (tok_is(j, "void") ||
+                                typedef_resolves_to_void(toks[j].p,
+                                                         toks[j].len))) {
+                        saw_void = 1;
+                    } else if (!is_keyword(toks[j].p, toks[j].len)) {
+                        if (depth_paren > 0) name_in_paren = j;
+                        else                 name_idx = j;
+                    }
+                }
+                if (tok_punct(j, "*") && saw_void) star_after_void = 1;
+                j++;
+            }
+
+            if (is_funcptr && name_in_paren >= 0) name_idx = name_in_paren;
+
+            if (name_idx >= 0 && saw_void && !star_after_void &&
+                !is_funcptr && !has_tag) {
+                int len = toks[name_idx].len;
+                if (len > 0 && len < NAMELEN && ntypedefs < MAXTYPEDEF) {
+                    memcpy(typedef_void_names[ntypedefs],
+                           toks[name_idx].p, len);
+                    typedef_void_names[ntypedefs][len] = 0;
+                    ntypedefs++;
+                }
+            }
+            i = j + 1;
+            continue;
+        }
+        i++;
+    }
+}
+
 /*! @brief Tests whether a token can begin a parameter declaration.
  *
  *  Used by the K&R detection to tell a parameter declaration (which
@@ -667,8 +813,9 @@ static int is_upper_constant(const char *s, int len)
 
 /*! @brief Checks whether the return type is plain "void".
  *
- * A function returns void when the keyword "void" appears among the
- * tokens of its return type and is not followed by "*".
+ * A function returns void when the keyword "void", or a typedef that
+ * resolves to void (such as OS/2's "VOID"), appears in the return
+ * type and is not followed by "*".
  *
  *  @param[in] start    Index of the first token of the return type.
  *  @param[in] name_idx Index of the token that ends the return type
@@ -685,7 +832,12 @@ static int returns_void(int start, int name_idx)
     int star_after_void = 0;
 
     for (j = start; j < name_idx; j++) {
-        if (tok_is(j, "void")) { saw_void = 1; continue; }
+        if (tok_is(j, "void") ||
+            (toks[j].type == T_IDENT &&
+             typedef_resolves_to_void(toks[j].p, toks[j].len))) {
+            saw_void = 1;
+            continue;
+        }
         if (saw_void && tok_punct(j, "*")) { star_after_void = 1; }
     }
     return saw_void && !star_after_void;
@@ -1471,6 +1623,11 @@ static void strip_comments(char *line, int *in_block,
  * options and #include "..." behave exactly as in the project's
  * makefiles.
  *
+ *  Before the #line filter runs, the full preprocessed text is read
+ *  once to collect typedefs that resolve to void.  The preprocessor
+ *  inlines #include, so typedefs from os2.h and other headers are
+ *  visible here and feed typedef_void_names[].
+ *
  *  @param[in]  fname   Source file to preprocess. Not NULL.
  *  @param[out] out_len Receives the buffer length in bytes.
  *  @return Buffer, or NULL when preprocessing is unavailable or fails.
@@ -1569,6 +1726,33 @@ static char *preprocess_file(const char *fname, long *out_len)
         return NULL;
     }
     remove(tmperr);
+
+    /* Collect void typedefs from the *full* preprocessed text before
+     * filtering.  The preprocessor inlines #include, so typedefs from
+     * os2.h and other headers are visible here even though pass 1
+     * (the raw file) cannot see them.  This must run before the
+     * #line filter drops the header lines, and before any use of
+     * returns_void() for this file.  src/srclen/ntok are restored to
+     * their pre-call state so the caller can tokenize the filtered
+     * buffer fresh. */
+    {
+        char *saved_src = src;
+        long saved_srclen = srclen;
+        int saved_ntok = ntok;
+        long fulllen = 0;
+        char *full = slurp(tmpout, &fulllen);
+        if (full != NULL) {
+            src = full;
+            srclen = fulllen;
+            ntok = 0;
+            tokenize();
+            collect_typedefs_from_tokens();
+            free(full);
+        }
+        src = saved_src;
+        srclen = saved_srclen;
+        ntok = saved_ntok;
+    }
 
     fp = fopen(tmpout, "rb");
     if (fp == NULL) {
@@ -1690,6 +1874,7 @@ static int check_file(const char *fname)
     int pending_bad_style;
     int saw_file_doc;
 
+    ntypedefs = 0;
     raw_returns_reset();
     src = slurp(fname, &srclen);
     if (src == NULL) {

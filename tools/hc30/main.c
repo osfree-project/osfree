@@ -12,6 +12,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*!
+ * @brief Command-line entry point.
+ *
+ * Reads an HPJ file, activates any build tags requested by it, reads
+ * the referenced RTF topic files, compiles everything into an HLP
+ * container, and writes the container to disk.
+ *
+ * @param[in] argc Argument count.
+ * @param[in] argv Argument vector: `argv[1]` is the HPJ path,
+ *                 `argv[2]` is the output HLP path.
+ * @retval 0  Success.
+ * @retval 1  Usage error or runtime failure (already reported).
+ * @return Process exit status.
+ */
 int main(int argc, char* argv[])
 {
     HHPJ    hHpj = NULLHANDLE;

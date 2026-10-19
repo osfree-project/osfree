@@ -8,11 +8,19 @@
 #include <string.h>
 
 #pragma pack(1)
+/*!
+ * @struct FONTHEADER
+ * @brief On-disk |FONT header (per helpdeco).
+ */
 typedef struct {
     USHORT usNumFacenames, usNumDescriptors, usFacenamesOffset,
            usDescriptorsOffset, usNumFormats, usFormatsOffset,
            usNumCharmaps, usCharmapsOffset;
 } FONTHEADER;
+/*!
+ * @struct OLDFONT
+ * @brief On-disk font descriptor (per helpdeco).
+ */
 typedef struct {
     UCHAR bAttributes, bHalfPoints, bFontFamily;
     USHORT usFontName;
@@ -20,16 +28,48 @@ typedef struct {
 } OLDFONT;
 #pragma pack()
 
+/*!
+ * @def FNT_FACENAME_LEN
+ * @brief Fixed-length face-name field width in |FONT.
+ */
 #define FNT_FACENAME_LEN 20
+/*!
+ * @struct FntDescRec
+ * @brief In-memory font descriptor.
+ */
 typedef struct {
     ULONG ulFaceIndex, ulHalfPoints, ulAttributes, ulFamily;
     UCHAR abFGRGB[3], abBGRGB[3];
 } FntDescRec;
+/*!
+ * @struct FntRec
+ * @brief |FONT generator state.
+ */
 typedef struct { HVECTOR vFaceNames, vDescriptors; } FntRec;
 
+/*!
+ * @def FNT_FROM_HANDLE
+ * @brief Convert an HFNT handle to its FntRec pointer.
+ * @param[in] h Handle.
+ */
 #define FNT_FROM_HANDLE(h) ((FntRec*)(h))
+/*!
+ * @def FNT_HANDLE_FROM
+ * @brief Convert an FntRec pointer to an HFNT handle.
+ * @param[in] d Record pointer.
+ */
 #define FNT_HANDLE_FROM(d) ((HANDLE)(d))
 
+/*!
+ * @brief Create an empty |FONT generator.
+ *
+ * @param[out] phFnt Receiver. Not NULL. Set to NULLHANDLE on error.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a phFnt is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY FntCreate(PHFNT phFnt)
 {
     FntRec* p; APIRET rc;
@@ -46,6 +86,14 @@ APIRET APIENTRY FntCreate(PHFNT phFnt)
     return NO_ERROR;
 }
 
+/*!
+ * @brief Destroy a |FONT generator and release all its data.
+ *
+ * @param[in] hFnt Handle. May be NULLHANDLE.
+ *
+ * @return APIRET
+ * @retval NO_ERROR  Success. Also for NULLHANDLE.
+ */
 APIRET APIENTRY FntDestroy(HFNT hFnt)
 {
     FntRec* p; ULONG n, i;
@@ -65,6 +113,18 @@ APIRET APIENTRY FntDestroy(HFNT hFnt)
     return NO_ERROR;
 }
 
+/*!
+ * @brief Add a face name and return its index.
+ *
+ * @param[in]  hFnt     Handle. Not NULLHANDLE.
+ * @param[in]  pszName  Face name. Not NULL.
+ * @param[out] pulIndex Optional. Receives the index of the new face.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hFnt or @a pszName is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY FntAddFaceName(HFNT hFnt, PCSZ pszName, PULONG pulIndex)
 {
     FntRec* p; PSZ c; ULONG n = 0; APIRET rc;
@@ -79,6 +139,25 @@ APIRET APIENTRY FntAddFaceName(HFNT hFnt, PCSZ pszName, PULONG pulIndex)
     return NO_ERROR;
 }
 
+/*!
+ * @brief Query or create a font descriptor.
+ *
+ * @param[in]  hFnt         Handle. Not NULLHANDLE.
+ * @param[in]  ulFaceIndex  Face index returned by FntAddFaceName.
+ * @param[in]  ulHalfPoints Size in half-points.
+ * @param[in]  ulAttributes Bit mask; see FNT_ATTR_*.
+ * @param[in]  pbFGRGB      Optional. 3 bytes foreground RGB. NULL
+ *                          selects black.
+ * @param[in]  pbBGRGB      Optional. 3 bytes background RGB. NULL
+ *                          selects white.
+ * @param[in]  ulFamily     Font family code.
+ * @param[out] pulIndex     Optional. Receives the descriptor index.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hFnt is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY FntGetOrCreateDescriptor(HFNT hFnt, ULONG ulFaceIndex,
                                          ULONG ulHalfPoints, ULONG ulAttributes,
                                          PBYTE pbFGRGB, PBYTE pbBGRGB,
@@ -116,12 +195,37 @@ APIRET APIENTRY FntGetOrCreateDescriptor(HFNT hFnt, ULONG ulFaceIndex,
     return NO_ERROR;
 }
 
+/*!
+ * @brief Query the number of face names.
+ *
+ * @param[in]  hFnt     Handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ */
 APIRET APIENTRY FntQueryFaceCount(HFNT hFnt, PULONG pulCount)
 {
     if (hFnt == NULLHANDLE || !pulCount) return ERROR_INVALID_PARAMETER;
     return VectorGetCount(FNT_FROM_HANDLE(hFnt)->vFaceNames, pulCount);
 }
 
+/*!
+ * @brief Query a face name by index.
+ *
+ * @param[in]  hFnt    Handle. Not NULLHANDLE.
+ * @param[in]  ulIndex Zero-based index.
+ * @param[out] pszBuf  Output buffer. May be NULL for size query.
+ * @param[in]  ulSize  Size of @a pszBuf in bytes.
+ * @param[out] pulUsed Optional. May be NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hFnt is NULL.
+ * @retval ERROR_FILE_NOT_FOUND     No face at @a ulIndex.
+ * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
+ */
 APIRET APIENTRY FntQueryFaceName(HFNT hFnt, ULONG ulIndex,
                                  PSZ pszBuf, ULONG ulSize, PULONG pulUsed)
 {
@@ -139,12 +243,33 @@ APIRET APIENTRY FntQueryFaceName(HFNT hFnt, ULONG ulIndex,
     return NO_ERROR;
 }
 
+/*!
+ * @brief Query the number of descriptors.
+ *
+ * @param[in]  hFnt     Handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ */
 APIRET APIENTRY FntQueryDescriptorCount(HFNT hFnt, PULONG pulCount)
 {
     if (hFnt == NULLHANDLE || !pulCount) return ERROR_INVALID_PARAMETER;
     return VectorGetCount(FNT_FROM_HANDLE(hFnt)->vDescriptors, pulCount);
 }
 
+/*!
+ * @brief Serialize the |FONT file to a stream.
+ *
+ * @param[in] hFnt Handle. Not NULLHANDLE.
+ * @param[in] f    Output stream. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hFnt or @a f is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed for defaults.
+ */
 APIRET APIENTRY FntWrite(HFNT hFnt, FILE* f)
 {
     FntRec* p; FONTHEADER h; ULONG nf = 0, nd = 0, i;

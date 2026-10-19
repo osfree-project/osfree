@@ -7,12 +7,40 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*!
+ * @struct PhrPhraseRec
+ * @brief One stored phrase: bytes plus length.
+ */
 typedef struct { PBYTE pbData; ULONG ulLen; } PhrPhraseRec;
+/*!
+ * @struct PhrRec
+ * @brief |Phrases generator state.
+ */
 typedef struct { HVECTOR vPhrases; } PhrRec;
 
+/*!
+ * @def PHR_FROM_HANDLE
+ * @brief Convert an HPHR handle to its PhrRec pointer.
+ * @param[in] h Handle.
+ */
 #define PHR_FROM_HANDLE(h) ((PhrRec*)(h))
+/*!
+ * @def PHR_HANDLE_FROM
+ * @brief Convert a PhrRec pointer to an HPHR handle.
+ * @param[in] d Record pointer.
+ */
 #define PHR_HANDLE_FROM(d) ((HANDLE)(d))
 
+/*!
+ * @brief Create an empty |Phrases generator.
+ *
+ * @param[out] phPhr Receiver. Not NULL. Set to NULLHANDLE on error.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a phPhr is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY PhrCreate(PHPHR phPhr)
 {
     PhrRec* p; APIRET rc;
@@ -27,6 +55,14 @@ APIRET APIENTRY PhrCreate(PHPHR phPhr)
     return NO_ERROR;
 }
 
+/*!
+ * @brief Destroy a |Phrases generator.
+ *
+ * @param[in] hPhr Handle. May be NULLHANDLE.
+ *
+ * @return APIRET
+ * @retval NO_ERROR  Success. Also for NULLHANDLE.
+ */
 APIRET APIENTRY PhrDestroy(HPHR hPhr)
 {
     PhrRec* p; ULONG n, i;
@@ -45,6 +81,18 @@ APIRET APIENTRY PhrDestroy(HPHR hPhr)
     return NO_ERROR;
 }
 
+/*!
+ * @brief Append a phrase.
+ *
+ * @param[in] hPhr   Handle. Not NULLHANDLE.
+ * @param[in] pvData Phrase bytes. Not NULL.
+ * @param[in] ulLen  Length in bytes. Must be non-zero.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL or @a ulLen is 0.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY PhrAddPhrase(HPHR hPhr, PCVOID pvData, ULONG ulLen)
 {
     PhrRec* p; PhrPhraseRec r;
@@ -58,12 +106,33 @@ APIRET APIENTRY PhrAddPhrase(HPHR hPhr, PCVOID pvData, ULONG ulLen)
     return VectorAdd(p->vPhrases, &r);
 }
 
+/*!
+ * @brief Query the number of phrases.
+ *
+ * @param[in]  hPhr     Handle. Not NULLHANDLE.
+ * @param[out] pulCount Receiver. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
+ */
 APIRET APIENTRY PhrQueryPhraseCount(HPHR hPhr, PULONG pulCount)
 {
     if (hPhr == NULLHANDLE || !pulCount) return ERROR_INVALID_PARAMETER;
     return VectorGetCount(PHR_FROM_HANDLE(hPhr)->vPhrases, pulCount);
 }
 
+/*!
+ * @brief Serialize the |Phrases file to a stream.
+ *
+ * @param[in] hPhr Handle. Not NULLHANDLE.
+ * @param[in] f    Output stream. Not NULL.
+ *
+ * @return APIRET
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  @a hPhr or @a f is NULL.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failed.
+ */
 APIRET APIENTRY PhrWrite(HPHR hPhr, FILE* f)
 {
     PhrRec* p; ULONG n = 0, i;
