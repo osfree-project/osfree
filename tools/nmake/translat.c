@@ -24,10 +24,14 @@
 *
 *  ========================================================================
 *
-* Description:  Translate Microsoft NMAKE to Watcom options.
+* Description:  Translate Microsoft NMAKE options to Watcom options.
 *
 ****************************************************************************/
 
+/*!
+ * @file translat.c
+ * @brief Translate Microsoft NMAKE options to Watcom wmake options.
+ */
 
 #include <stdlib.h>
 #include <string.h>
@@ -39,11 +43,18 @@
 #include "translat.h"
 #include "system.h"
 
+/*!
+ * @def UNSUPPORTED_STR_SIZE
+ * @brief Size of the buffer that accumulates unsupported option names.
+ */
 #define UNSUPPORTED_STR_SIZE    256
 
 
-/*
- * Add one more unsupported option to optStr.
+/*!
+ * @brief Append one unsupported option name to the accumulated string.
+ *
+ * @param[in,out] optStr  Accumulated option string.  Not NULL.
+ * @param[in]     opt     One-character option name.  Not NULL.
  */
 static void append_unsupported( char *optStr, char *opt )
 /*******************************************************/
@@ -57,8 +68,9 @@ static void append_unsupported( char *optStr, char *opt )
 }
 
 
-/*
- * Parse unsupported options.
+/*!
+ * @brief Warn about unsupported Microsoft NMAKE options that were used.
+ * @param[in] cmdOpts  Parsed options.  Not NULL.
  */
 static void unsupported_opts( OPT_STORAGE *cmdOpts )
 /**************************************************/
@@ -82,8 +94,11 @@ static void unsupported_opts( OPT_STORAGE *cmdOpts )
 }
 
 
-/*
- * Parse NMAKE options, targets and macros.
+/*!
+ * @brief Translate supported NMAKE options, targets and macros to wmake.
+ *
+ * @param[in] cmdOpts  Parsed options.  Not NULL.
+ * @param[in,out] cmdLine  Command-line accumulator.  Not NULL.
  */
 static void nmake_opts( OPT_STORAGE *cmdOpts, CmdLine *cmdLine )
 /************************************************************/
@@ -145,8 +160,10 @@ static void nmake_opts( OPT_STORAGE *cmdOpts, CmdLine *cmdLine )
 }
 
 
-/*
- * Activate options which are always to be turned on.
+/*!
+ * @brief Activate options which are always on by default.
+ * @param[in] cmdOpts      Parsed options.  Not NULL.
+ * @param[in,out] cmdLine  Command-line accumulator.  Not NULL.
  */
 static void default_opts( OPT_STORAGE *cmdOpts, CmdLine *cmdLine )
 /**************************************************************/
@@ -160,8 +177,10 @@ static void default_opts( OPT_STORAGE *cmdOpts, CmdLine *cmdLine )
 }
 
 
-/*
- * Add any options meant for the Watcom tools.
+/*!
+ * @brief Forward any caller-supplied wmake options verbatim.
+ * @param[in] cmdOpts      Parsed options.  Not NULL.
+ * @param[in,out] cmdLine  Command-line accumulator.  Not NULL.
  */
 static void watcom_opts( OPT_STORAGE *cmdOpts, CmdLine *cmdLine )
 /**************************************************************/
@@ -179,8 +198,15 @@ static void watcom_opts( OPT_STORAGE *cmdOpts, CmdLine *cmdLine )
 }
 
 
-/*
- * Translate scanned MS options to Watcom options.
+/*!
+ * @brief Translate parsed Microsoft NMAKE options into Watcom wmake options.
+ *
+ * Handles /nologo, /help and /? directly, then calls the helpers that
+ * add default, unsupported, supported and pass-through options to
+ * @p cmdLine.
+ *
+ * @param[in]     cmdOpts  Parsed options.  Not NULL.
+ * @param[in,out] cmdLine  Command-line accumulator.  Not NULL.
  */
 void OptionsTranslate( OPT_STORAGE *cmdOpts, CmdLine *cmdLine )
 /*************************************************************/

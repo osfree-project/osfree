@@ -28,6 +28,14 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file nmake.c
+ * @brief Microsoft NMAKE clone front-end.
+ *
+ * Parses the NMAKE-style command line (including the NMAKE_OPTIONS and
+ * NMAKE environment variables), translates it to wmake options via
+ * OptionsTranslate(), and spawns wmake.
+ */
 
 #include <process.h>
 #include <stdio.h>
@@ -44,22 +52,36 @@
 #include "system.h"
 
 
-#if defined(__TARGET_386__)
-    #define MAKE                "wmake"
-#elif defined(__TARGET_AXP__)
-    #define MAKE                "wmake"
-#elif defined(__TARGET_PPC__)
+#if defined(__TARGET_386__) || defined(__TARGET_AXP__) || defined(__TARGET_PPC__)
+/*!
+ * @def MAKE
+ * @brief Underlying make program that receives the translated options.
+ */
     #define MAKE                "wmake"
 #else
     #error Unrecognized CPU type
 #endif
 
+/*!
+ * @def NMAKE_SUCCESS
+ * @brief Exit status returned by nmake() on success.
+ */
 #define NMAKE_SUCCESS           0
+/*!
+ * @def NMAKE_ERROR
+ * @brief Exit status returned by nmake() when wmake reported an error.
+ */
 #define NMAKE_ERROR             (-2)
 
 
-/*
- * Top-level parsing routine.  Returns the number of items parsed.
+/*!
+ * @brief Top-level parsing routine.
+ *
+ * Processes, in order, the NMAKE_OPTIONS environment variable, the
+ * NMAKE environment variable, and the command line.
+ *
+ * @param[in,out] cmdOpts  Option storage.  Not NULL.
+ * @return Number of items parsed.
  */
 static int do_parsing( OPT_STORAGE *cmdOpts )
 /*******************************************/
@@ -84,10 +106,17 @@ static int do_parsing( OPT_STORAGE *cmdOpts )
 }
 
 
-/*
- * Spawn the Watcom wmake.  Returns NMAKE_ERROR if wmake returned a bad
- * status code or if it could not be spawned, or else NMAKE_SUCCESS if
- * everything went smoothly.
+/*!
+ * @brief Spawn the Watcom wmake with the translated options.
+ *
+ * Builds the MAKE/MAKEDIR/MAKEFLAGS built-in macros and appends them
+ * to the command line, then invokes wmake with P_WAIT.
+ *
+ * @param[in] cmdOpts      Parsed options.  Not NULL.
+ * @param[in,out] cmdLine  Command-line accumulator.  Not NULL.
+ * @retval NMAKE_SUCCESS  wmake ran and returned success.
+ * @retval NMAKE_ERROR    wmake ran but reported a non-zero exit status.
+ * @return NMAKE_SUCCESS on success, NMAKE_ERROR on a reported failure.
  */
 static int nmake( const OPT_STORAGE *cmdOpts, CmdLine *cmdLine )
 /**************************************************************/
@@ -146,8 +175,15 @@ static int nmake( const OPT_STORAGE *cmdOpts, CmdLine *cmdLine )
 }
 
 
-/*
- * Program entry point.
+/*!
+ * @brief Program entry point.
+ *
+ * Installs the banner function, initializes the option and command-line
+ * accumulators, parses the command line, translates the options, spawns
+ * wmake, and exits.
+ *
+ * @param[in] argc  Argument count (unused).
+ * @param[in] argv  Argument vector (unused).
  */
 void main( int argc, char *argv[] )
 /*********************************/

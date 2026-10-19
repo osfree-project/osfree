@@ -24,20 +24,28 @@
 *
 *  ========================================================================
 *
-* Description:  WHEN YOU FIGURE OUT WHAT THIS FILE DOES, PLEASE
-*               DESCRIBE IT HERE!
+* Description:  Memory allocation and string duplication helpers.
 *
 ****************************************************************************/
 
+/*!
+ * @file memory.c
+ * @brief Memory allocation and string duplication wrappers.
+ *
+ * All allocation routines abort the program on failure, so callers
+ * never need to check for NULL results.
+ */
 
 #include <stdlib.h>
 #include <string.h>
 #include "error.h"
 
 
-/*
- * Allocate a block of memory, aborting program execution with an error
- * message if there is insufficient memory.
+/*!
+ * @brief Allocate a block of memory, aborting on failure.
+ *
+ * @param[in] bytes  Size in bytes.  Must be non-zero.
+ * @return Pointer to the new block.  Never NULL.
  */
 void *AllocMem( size_t bytes )
 /****************************/
@@ -51,9 +59,12 @@ void *AllocMem( size_t bytes )
 }
 
 
-/*
- * Reallocate a block of memory, aborting program execution with an error
- * message if there is insufficient memory.
+/*!
+ * @brief Resize an allocated block, aborting on failure.
+ *
+ * @param[in] buf    Existing block (may be NULL).
+ * @param[in] bytes  New size in bytes.
+ * @return Pointer to the resized block.  Never NULL.
  */
 void *ReallocMem( void *buf, size_t bytes )
 /*****************************************/
@@ -66,8 +77,10 @@ void *ReallocMem( void *buf, size_t bytes )
 }
 
 
-/*
- * Free a block of memory.
+/*!
+ * @brief Free a block of memory.
+ *
+ * @param[in] buf  Block to free.  May be NULL.
  */
 void FreeMem( void *buf )
 /***********************/
@@ -76,9 +89,16 @@ void FreeMem( void *buf )
 }
 
 
-/*
- * Duplicate a quoted string.
- * Add quotes if there aren't any there.
+/*!
+ * @brief Duplicate a string, adding surrounding quotes if needed.
+ *
+ * If @p quote is non-zero and @p str is not already quoted with
+ * matching double or single quotes, the result is wrapped in
+ * @p quote characters.
+ *
+ * @param[in] str    Source string.  Not NULL.
+ * @param[in] quote  Quote character, or zero for no quoting.
+ * @return Newly allocated copy.
  */
 char *DupQuoteStrMem( const char *str, char quote )
 /*************************************************/
@@ -109,8 +129,11 @@ char *DupQuoteStrMem( const char *str, char quote )
 }
 
 
-/*
- * Duplicate a string.
+/*!
+ * @brief Duplicate a string.
+ *
+ * @param[in] str  Source string.  Not NULL.
+ * @return Newly allocated copy.
  */
 char *DupStrMem( const char *str )
 /********************************/

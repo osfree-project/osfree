@@ -24,11 +24,14 @@
 *
 *  ========================================================================
 *
-* Description:  WHEN YOU FIGURE OUT WHAT THIS FILE DOES, PLEASE
-*               DESCRIBE IT HERE!
+* Description:  Banner, help and diagnostic messages for the NMAKE clone.
 *
 ****************************************************************************/
 
+/*!
+ * @file message.c
+ * @brief Banner, help and diagnostic messages for the NMAKE clone.
+ */
 
 #include <conio.h>
 #include <stdio.h>
@@ -38,16 +41,22 @@
 #include "system.h"
 
 
+/*!
+ * @brief One line of usage text (see usagemsg.gh).
+ */
 static char *           usageMsg[] = {
     #include "usagemsg.gh"
     NULL
 };
 
+/*!
+ * @brief Non-zero after QuietModeMessage() has been called.
+ */
 static int              quietMode = 0;
 
 
-/*
- * Print the copyright banner.
+/*!
+ * @brief Print the copyright banner once.
  */
 void BannerMessage( void )
 /************************/
@@ -67,8 +76,13 @@ void BannerMessage( void )
 }
 
 
-/*
- * Read a key from the console.
+/*!
+ * @brief Read a key from the console.
+ *
+ * Extended keys (prefixed by a zero byte) are folded into a single
+ * return value.
+ *
+ * @return The key pressed.
  */
 static int get_key( void )
 /************************/
@@ -82,8 +96,10 @@ static int get_key( void )
     return( ch );
 }
 
-/*
- * Print a help message.
+/*!
+ * @brief Print the full usage message.
+ *
+ * Pauses every 15 lines and stops early if the user presses 'q'.
  */
 void PrintHelpMessage( void )
 /***************************/
@@ -108,9 +124,10 @@ void PrintHelpMessage( void )
 }
 
 
-/*
- * Print a message listing unsupported options which were used (using the
- * opts string) and a complete list of unsupported options.
+/*!
+ * @brief Warn about one or more unsupported options.
+ *
+ * @param[in] opts  Space-separated list of unsupported options used.
  */
 void UnsupportedOptsMessage( const char *opts )
 /*********************************************/
@@ -119,8 +136,8 @@ void UnsupportedOptsMessage( const char *opts )
 }
 
 
-/*
- * Disable printing of the copyright banner.
+/*!
+ * @brief Disable printing of the copyright banner.
  */
 void QuietModeMessage( void )
 /***************************/

@@ -28,6 +28,14 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file parse.c
+ * @brief Command-line parsing for the NMAKE clone tool.
+ *
+ * Provides the option-parsing entry points invoked from the shared
+ * optparsc.gh driver, plus helpers for reading option arguments from
+ * the current context (command line, environment variable or file).
+ */
 
 #include <stdio.h>
 #include <ctype.h>
@@ -44,8 +52,9 @@
 #include "parse.h"
 
 
-/*
- * Initialize the OPT_STORAGE structure.
+/*!
+ * @brief Initialize the OPT_STORAGE structure.
+ * @param[out] cmdOpts  Option storage to initialise.  Not NULL.
  */
 void InitParse( OPT_STORAGE *cmdOpts )
 /************************************/
@@ -54,8 +63,9 @@ void InitParse( OPT_STORAGE *cmdOpts )
 }
 
 
-/*
- * Destroy the OPT_STORAGE structure.
+/*!
+ * @brief Destroy the OPT_STORAGE structure.
+ * @param[in,out] cmdOpts  Option storage to release.  Not NULL.
  */
 void FiniParse( OPT_STORAGE *cmdOpts )
 /************************************/
@@ -64,8 +74,15 @@ void FiniParse( OPT_STORAGE *cmdOpts )
 }
 
 
-/*
- * Add another string to an OPT_STRING.
+/*!
+ * @brief Append a string to an OPT_STRING list.
+ *
+ * If @p quote is non-zero and @p str is not already quoted with
+ * matching quotes, it is wrapped in @p quote characters.
+ *
+ * @param[in,out] p      List head; updated if the list is empty.
+ * @param[in]     str    String to append.  Not NULL.
+ * @param[in]     quote  Quote character, or zero for no quoting.
  */
 static void add_string( OPT_STRING **p, char *str, char quote )
 /*************************************************************/
@@ -107,8 +124,11 @@ static void add_string( OPT_STRING **p, char *str, char quote )
 }
 
 
-/*
- * Gripe about a command line error.
+/*!
+ * @brief Report a command-line error and continue.
+ *
+ * Reads the offending token from the current context and issues a
+ * warning.
  */
 static void cmd_line_error( void )
 /********************************/
@@ -121,8 +141,14 @@ static void cmd_line_error( void )
 }
 
 
-/*
- * Parse the command string contained in the current context.
+/*!
+ * @brief Parse the command string contained in the current context.
+ *
+ * Handles switches ('-' or '/'), command files ('@') and targets and
+ * macros, incrementing @p itemsParsed for every item consumed.
+ *
+ * @param[in,out] cmdOpts      Option storage.  Not NULL.
+ * @param[in,out] itemsParsed  Item counter.  Not NULL.
  */
 void CmdStringParse( OPT_STORAGE *cmdOpts, int *itemsParsed )
 /***********************************************************/
@@ -172,8 +198,11 @@ void CmdStringParse( OPT_STORAGE *cmdOpts, int *itemsParsed )
 }
 
 
-/*
- * Suppress warning messages.
+/*!
+ * @brief Handle /NOWARN by disabling warning output.
+ *
+ * @param[in,out] cmdOpts  Option storage.  Not NULL.
+ * @param[in]     x        Ignored (present for option-table signature).
  */
 static void handle_nowwarn( OPT_STORAGE *cmdOpts, int x )
 /*******************************************************/
@@ -185,8 +214,12 @@ static void handle_nowwarn( OPT_STORAGE *cmdOpts, int x )
 
 
 
-/*
- * Takes care of the t010101010101 option.
+/*!
+ * @brief Handle the t010101010101 option (stored target/macro list).
+ *
+ * @param[in,out] p  Option list.  Unused.
+ * @retval 1  Always succeeds.
+ * @return 1.
  */
 static int parse_t010101010101( OPT_STRING **p )
 /******************************************/
@@ -195,8 +228,9 @@ static int parse_t010101010101( OPT_STRING **p )
 }
 
 
-/*
- * Destroy an OPT_STRING.
+/*!
+ * @brief Destroy an OPT_STRING list.
+ * @param[in,out] p  List head; set to NULL.  Not NULL.
  */
 static void OPT_CLEAN_STRING( OPT_STRING **p )
 /********************************************/
@@ -211,11 +245,19 @@ static void OPT_CLEAN_STRING( OPT_STRING **p )
 }
 
 
-/*
- * For the /optName option, read in :string and store the string into the
- * given OPT_STRING.  If onlyOne is non-zero, any previous string in p will
- * be deleted.  If quote is non-zero, make sure the string is quoted.
- * Use quote if there aren't any quotes already.
+/*!
+ * @brief Common helper for options of the form `:string`.
+ *
+ * If @p onlyOne is non-zero, any previous string in @p p is removed
+ * first.  If @p quote is non-zero, the argument is stored quoted.
+ *
+ * @param[in,out] p        Option list to append to.  Not NULL.
+ * @param[in]     optName  Option name used in error messages.  Not NULL.
+ * @param[in]     onlyOne  Non-zero to replace existing strings.
+ * @param[in]     quote    Quote character, or zero for no quoting.
+ * @retval 0  Parsing failed (fatal error already issued).
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int do_string_parse( OPT_STRING **p, char *optName, int onlyOne,
 /*********************************************************************/
@@ -235,8 +277,12 @@ static int do_string_parse( OPT_STRING **p, char *optName, int onlyOne,
 }
 
 
-/*
- * Parse the /F option.
+/*!
+ * @brief Parse the /F option.
+ * @param[in,out] p  Option list to replace.  Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_F( OPT_STRING **p )
 /******************************************/
@@ -244,8 +290,12 @@ static int parse_F( OPT_STRING **p )
     return( do_string_parse( p, "F", 1, 0 ) );
 }
 
-/*
- * Parse the /X option.
+/*!
+ * @brief Parse the /X option.
+ * @param[in,out] p  Option list to replace.  Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_X( OPT_STRING **p )
 /******************************************/
@@ -253,8 +303,19 @@ static int parse_X( OPT_STRING **p )
     return( do_string_parse( p, "X", 1, 0 ) );
 }
 
-/*
- * Parse combining parameters
+/*!
+ * @brief Parse a run of combined single-letter options.
+ *
+ * Combined options are recognized by the absence of a '-' or '/'
+ * prefix on subsequent characters.  Notably, `-L` must be handled
+ * specially because it may be translated to `-NOLOGO` if it was the
+ * first (or only) parameter on the command line.
+ *
+ * @param[in,out] cmdOpts  Option storage.  Not NULL.
+ * @param[in]     x        Ignored (present for option-table signature).
+ * @retval 1  Parsing completed, or terminated by whitespace.
+ * @retval 0  Unknown option character.
+ * @return 1 on success, 0 on unknown option.
  */
 static int parse_combining( OPT_STORAGE *cmdOpts, int x )
 /******************************************/
@@ -307,8 +368,16 @@ static int parse_combining( OPT_STORAGE *cmdOpts, int x )
     return 1;
 }
 
-/*
- * Parse the /passwopts option.
+/*!
+ * @brief Parse the /passwopts option.
+ *
+ * If the argument is wrapped in double quotes they are stripped before
+ * storing.
+ *
+ * @param[in,out] p  Option list to append to.  Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_passwopts( OPT_STRING **p )
 {
@@ -353,9 +422,14 @@ static int parse_passwopts( OPT_STRING **p )
 } /* parse_passwopts() */
 
 
-/*
- * Return the next character (forced to lowercase since LINK's options are
- * not case-sensitive) and advance to the next one.
+/*!
+ * @brief Return the next character, converted to lowercase.
+ *
+ * LINK's options are not case-sensitive, so callers routinely
+ * convert the returned character to lowercase.  Advances the
+ * context to the next character.
+ *
+ * @return The next character converted to lowercase.
  */
 static int OPT_GET_LOWER( void )
 /******************************/
@@ -364,10 +438,17 @@ static int OPT_GET_LOWER( void )
 }
 
 
-/*
- * If the next character is ch (in either uppercase or lowercase form), it
+/*!
+ * @brief Recognise a character in either case.
+ *
+ * If the next character is @p ch in either uppercase or lowercase, it
  * is consumed and a non-zero value is returned; otherwise, it is not
  * consumed and zero is returned.
+ *
+ * @param[in] ch  Character to recognise.
+ * @retval 1  Character matched and consumed.
+ * @retval 0  Character did not match.
+ * @return Non-zero if the character was recognised.
  */
 static int OPT_RECOG_LOWER( int ch )
 /**********************************/
@@ -376,8 +457,8 @@ static int OPT_RECOG_LOWER( int ch )
 }
 
 
-/*
- * Back up one character.
+/*!
+ * @brief Back up one character in the current context.
  */
 static void OPT_UNGET( void )
 /***************************/

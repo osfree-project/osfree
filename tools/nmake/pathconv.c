@@ -24,11 +24,17 @@
 *
 *  ========================================================================
 *
-* Description:  String utilities to convert filenames to more usable format.
-*               
+* Description:  Filename string conversion utilities.
 *
 ****************************************************************************/
 
+/*!
+ * @file pathconv.c
+ * @brief Filename string conversion utilities.
+ *
+ * Normalises forward slashes to backslashes and, optionally, quotes
+ * the entire filename if it contains whitespace or quote characters.
+ */
 
 #include <mbstring.h>
 #include <string.h>
@@ -36,8 +42,16 @@
 #include "pathconv.h"
 
 
-/*
- * Translate  foo/dir1\\dir2" \\"bar"grok  -->  "foo\\dir1\\dir2 \\"bargrok".
+/*!
+ * @brief Normalise a filename and optionally surround it with quotes.
+ *
+ * Converts unquoted forward slashes to backslashes and, if @p quote is
+ * non-zero and the path contains spaces, tabs or quote characters,
+ * wraps the whole result in @p quote characters.
+ *
+ * @param[in] pathname  Input filename.  Not NULL.
+ * @param[in] quote     Quote character, or zero for no quoting.
+ * @return Newly allocated converted string.
  */
 char *PathConvert( const char *pathname, char quote )
 /***************************************************/
@@ -106,8 +120,14 @@ char *PathConvert( const char *pathname, char quote )
     return( out );
 }
 
-/*
- * Translate  foo/dir1\\dir2" \\"bar"grok  -->  foo\\dir1\\dir2 \\"bargrok.
+/*!
+ * @brief Normalise a filename without adding quotes.
+ *
+ * Converts unquoted forward slashes to backslashes, but does not
+ * surround the result with quote characters.
+ *
+ * @param[in] path  Input filename.  Not NULL.
+ * @return Newly allocated converted string.
  */
 char *PathConvertWithoutQuotes( const char *path )
 /***********************************************/
@@ -150,7 +170,7 @@ char *PathConvertWithoutQuotes( const char *path )
             backslash = 0;
         } else {
             /* copy an ordinary character */
-            _mbccpy( (unsigned char *)p, (unsigned char *)path );     /* copy an ordinary character */
+            _mbccpy( (unsigned char *)p, (unsigned char *)path );
             p = (char *)_mbsinc( (unsigned char *)p );
             backslash = 0;
         }
