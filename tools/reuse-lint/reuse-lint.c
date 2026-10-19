@@ -1,4 +1,18 @@
 /* reuse-lint.c - REUSE / SPDX compliance checker (C89, OpenWatcom) */
+/*!
+ * @file reuse-lint.c
+ * @brief REUSE / SPDX compliance checker.
+ *
+ * Walks the project, resolves the license and copyright of every
+ * file, validates SPDX expressions against the SPDX License List,
+ * and verifies the LICENSES/ directory.
+ *
+ * Conforms to:
+ *   - REUSE Specification 3.3.
+ *     https://reuse.software/spec-3.3/
+ *   - SPDX 2.3, Annex D (license expression grammar).
+ *     https://spdx.github.io/spdx-spec/v2.3/
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,26 +36,24 @@
 #include "spdx_tag.h"
 #include "git.h"
 
-/**
- * @file reuse-lint.c
- * @brief REUSE / SPDX compliance checker.
- *
- * Walks the project, resolves the license and copyright of every
- * file, validates SPDX expressions against the SPDX License List,
- * and verifies the LICENSES/ directory.
- *
- * Conforms to:
- *   - REUSE Specification 3.3.
- *     https://reuse.software/spec-3.3/
- *   - SPDX 2.3, Annex D (license expression grammar).
- *     https://spdx.github.io/spdx-spec/v2.3/
- */
 
+/*!
+ * @def PATH_BUF
+ * @brief Maximum size in bytes of a path buffer used by the linter.
+ */
 #define PATH_BUF 1024
 
 #ifdef __LINUX__
+/*!
+ * @def WCC_CMD
+ * @brief Build command wrapper used on Linux hosts.
+ */
 #define WCC_CMD "_wcc.sh"
 #else
+/*!
+ * @def WCC_CMD
+ * @brief Build command wrapper used on non-Linux hosts.
+ */
 #define WCC_CMD "_wcc.cmd"
 #endif
 
@@ -49,25 +61,55 @@
 /* Global state                                                        */
 /* ------------------------------------------------------------------ */
 
+/*!
+ * @brief Number of errors reported so far.
+ */
 static ULONG       g_ulErrorCount = 0;
+/*!
+ * @brief Number of warnings reported so far.
+ */
 static ULONG       g_ulWarningCount = 0;
 
+/*!
+ * @brief Default SPDX license identifier used as a fallback.
+ */
 static PCSZ        g_pszDefaultLicense = NULL;
+/*!
+ * @brief Default copyright text used as a fallback.
+ */
 static PCSZ        g_pszDefaultCopyright = NULL;
 
+/*!
+ * @brief Total number of files walked.
+ */
 static ULONG       g_ulTotalFiles = 0;
+/*!
+ * @brief Number of files whose license was resolved from the file itself.
+ */
 static ULONG       g_ulFilesWithLicense = 0;
+/*!
+ * @brief Number of files whose copyright was resolved from the file itself.
+ */
 static ULONG       g_ulFilesWithCopyright = 0;
+/*!
+ * @brief Number of files that could not be read.
+ */
 static ULONG       g_ulReadErrors = 0;
 
+/*!
+ * @brief Total number of SPDX snippets encountered.
+ */
 static ULONG       g_ulTotalSnippets = 0;
+/*!
+ * @brief Number of SPDX snippets that carry a license identifier.
+ */
 static ULONG       g_ulSnippetsWithLicense = 0;
 
 /* ------------------------------------------------------------------ */
 /* Small helpers                                                       */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Print the offending token of an SPDX expression to stderr.
  *
  * @param[in] pszStart  Start of the token. May be NULL.
@@ -81,7 +123,7 @@ static void PrintBadToken(PCSZ pszStart) {
     fwrite(pszStart, 1, (size_t)(pszPos - pszStart), stderr);
 }
 
-/**
+/*!
  * @brief Human-readable text for a LICENSES/ reason code.
  *
  * @param[in] ulCode  One of REUSE_LICENSES_*.
@@ -125,7 +167,7 @@ static PCSZ LicensesReasonText(ULONG ulCode) {
     }
 }
 
-/**
+/*!
  * @brief Specification reference for a LICENSES/ reason code.
  *
  * @param[in] ulCode  One of REUSE_LICENSES_*.
@@ -158,7 +200,7 @@ static PCSZ LicensesSpecRef(ULONG ulCode) {
     }
 }
 
-/**
+/*!
  * @brief Print every record of a LICENSES/ report to stderr.
  *
  * @param[in]  hReport      Report handle, or NULLHANDLE.
@@ -224,7 +266,7 @@ static void PrintLicensesReport(HREUSELICENSEREPORT hReport,
 /* Expression validation                                               */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Validate one SPDX expression and collect its identifiers.
  *
  * @param[in] pszFullPath  File path used in diagnostics. Not NULL.
@@ -307,7 +349,7 @@ static void CheckLicenseExpression(PCSZ pszFullPath, PCSZ pszLicense,
 /* Snippets                                                            */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Check every SPDX snippet of one file.
  *
  * @param[in] pszFullPath    File path used in diagnostics. Not NULL.
@@ -369,7 +411,7 @@ static void ProcessSnippets(PCSZ pszFullPath, HSTRSET hUsedLicenses) {
 /* Per-file processing                                                 */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Process one file: resolve, validate, count.
  *
  * @param[in] pszFullPath     File path. Not NULL.
@@ -495,12 +537,14 @@ static void ProcessFile(PCSZ pszFullPath, HREUSETREE hTree,
 /* Entry point                                                         */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Entry point of the REUSE linter.
  *
  * @param[in] argc  Argument count.
  * @param[in] argv  Argument vector.
  *
+ * @retval 0 Lint completed without errors.
+ * @retval 1 Lint completed with errors.
  * @return 0 on success, 1 on error.
  */
 int main(int argc, char *argv[]) {

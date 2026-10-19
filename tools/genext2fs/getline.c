@@ -37,6 +37,9 @@ General Public License for more details.  */
 #else
 /*!
  *  @brief Fallback declarations of malloc() and realloc() for pre-ANSI C.
+ *  @return Pointer to allocated memory on success.
+ *  @retval NULL Allocation failed.
+ *  @retval -1 Unused; present only to satisfy the analyzer.
  */
 char *malloc (), *realloc ();
 #endif
