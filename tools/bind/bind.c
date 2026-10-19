@@ -119,14 +119,24 @@ HVECTOR hvApi = NULLHANDLE;     /*!< Vector of apientry. */
 opts options;                   /*!< Global binder options. */
 
 /* Forward declarations of file-local helpers. */
+
+/*! @brief Print command-line usage information. */
 void printhlp(void);
+/*! @brief Verify that the build environment is usable. */
 int check_environment(void);
+/*! @brief Add an imported function to the global vector. */
 int addtolist(char * mod, char * func);
+/*! @brief Bind the DOS stub and the NE image into a FamilyAPI file. */
 int bind(char * fname);
+/*! @brief Search for a library file along a search path. */
 int searchlib(char * libname, char * fullpath);
+/*! @brief Append a path separator to a buffer. */
 char * addpathsep(char * buf);
+/*! @brief Create and return a unique temporary directory path. */
 char * mktmpdir(char *tmpdir);
+/*! @brief Generate the temporary import object file (tmp.obj). */
 void generate_imptable(void);
+/*! @brief Generate the WLINK response file (bind.lnk). */
 void generate_lnk(void);
 
 /* ------------------------------------------------------------------ */
@@ -152,7 +162,8 @@ char * addpathsep(char * buf)
  *
  *  @param[out] tmpdir  Buffer of at least _MAX_PATH bytes. Not NULL.
  *
- *  @return @p tmpdir on success, or NULL on failure.
+ *  @retval NULL Creation of the temporary directory failed.
+ *  @return @p tmpdir on success.
  */
 char * mktmpdir(char *tmpdir)
 {
@@ -419,6 +430,8 @@ void generate_imptable(void)
  *  @param[in] mod   Module name. Not NULL.
  *  @param[in] func  Function name. Not NULL.
  *
+ *  @retval -1 Failure (NULL vector, vector access error, or add error).
+ *  @retval 0 Success (entry added or already present).
  *  @return 0 on success, -1 on failure.
  */
 int addtolist(char * mod, char * func)
@@ -459,6 +472,8 @@ int addtolist(char * mod, char * func)
  *
  *  @param[in] fname  Path to the NE executable to bind. Not NULL.
  *
+ *  @retval 1 Failure (temp directory, NeBind, or rename error).
+ *  @retval 0 Success.
  *  @return 0 on success, 1 on failure.
  */
 int bind(char * fname)
@@ -519,6 +534,8 @@ int searchlib(char * libname, char * fullpath)
 
 /*! @brief Verify that the build environment is usable.
  *
+ *  @retval 1 Environment is not usable (missing variable, tool, or library).
+ *  @retval 0 Environment is usable.
  *  @return 0 if usable, 1 otherwise.
  */
 int check_environment(void)
@@ -627,7 +644,14 @@ void printhlp(void)
  *  @param[in] argc  Argument count.
  *  @param[in] argv  Argument vector. Not NULL.
  *
- *  @return Process exit status.
+ *  @retval 1 Failure (environment not configured, missing input file,
+ *            vector creation error, NE open error, MZ/NE header read
+ *            error, non-OS/2 target, library open error, module count
+ *            error, module name read error, vector add error, segment
+ *            count error, segment read error, relocation table size
+ *            error, relocation read error, name relocation encountered,
+ *            or the bind step itself failed).
+ *  @return Process exit status (0 on success, non-zero on failure).
  */
 int main(int argc, char *argv[])
 {

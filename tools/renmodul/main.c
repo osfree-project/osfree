@@ -1,8 +1,18 @@
+/*!
+ * @file main.c
+ * @brief Command-line front end for the renmodul utility.
+ */
+
 #include <stdio.h>
 #include <string.h>
 
 #include "renmodul.h"
 
+/*!
+ * @brief Print command-line usage information.
+ * @retval RC_PARAM_ERROR Always returns RC_PARAM_ERROR.
+ * @return RC_PARAM_ERROR.
+ */
 int ShowUsage()
 {
   printf( "Usage: [/r | /i ] <filename> [<old module name> <new module name]>\n" );
@@ -12,6 +22,13 @@ int ShowUsage()
   return RC_PARAM_ERROR;
 }
 
+/*!
+ * @brief Program entry point.
+ * @param[in] argc Argument count.
+ * @param[in] argv Argument vector.
+ * @retval RC_PARAM_ERROR Invalid arguments or usage requested.
+ * @return Return code from RenameModule() or RC_PARAM_ERROR.
+ */
 int main( int argc, char** argv )
 {
   /* Get and check arguments */

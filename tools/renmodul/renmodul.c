@@ -1,3 +1,16 @@
+/*!
+ * @file renmodul.c
+ * @brief OS/2 module (EXE/DLL) renaming utility.
+ *
+ * Renames OS/2 modules (EXE or DLL). Partial rewrite by Aaron Lawrence,
+ * based on RNDLL by Harald Pollack.
+ *
+ * 1989 08 23 h.p.
+ * 1990 11 19 h.p.
+ * 1997 05 24 h.p.
+ * 1999 09 08 h.p.
+ */
+
 /********************************
 *
 * REName MODULe
@@ -22,6 +35,10 @@
 #pragma pack(1)
 
 /* Module header structure */
+
+/*!
+ * @brief DOS (MZ) executable header.
+ */
 typedef struct
 {
   /* sign1, 2 */  /* 00 */
@@ -43,6 +60,10 @@ typedef struct
 } MZ_HEADER;
 
 /* LX (new) header */
+
+/*!
+ * @brief OS/2 LX (linear executable) header (relevant fields only).
+ */
 typedef struct
 {
   char unk1[6];
@@ -62,6 +83,13 @@ typedef struct
   /* plus more stuff we don't care about */
 } LX_HEADER;
 
+/*!
+ * @brief Print an error message and close the file.
+ * @param[in] rc Return code to return.
+ * @param[in] message Error message.
+ * @param[in,out] f Open file to close.
+ * @return @p rc.
+ */
 int error( int rc, char* message, FILE* f )
 {
   fclose( f );
@@ -69,6 +97,22 @@ int error( int rc, char* message, FILE* f )
   return rc;
 }
 
+/*!
+ * @brief Rename an OS/2 module or list/rename its imported module names.
+ * @param[in] Filename Path to the module file.
+ * @param[in] action Action to perform (rename module, rename imported module, list names).
+ * @param[in] OldModuleName Old module name (for rename actions).
+ * @param[in] NewModuleName New module name (for rename actions).
+ * @retval RC_PARAM_ERROR Invalid arguments.
+ * @retval RC_NAME_LENGTHS_DIFFERENT Old and new names differ in length.
+ * @retval RC_FILE_ERROR File could not be opened.
+ * @retval RC_INVALID_FORMAT File is not a valid MZ/LX module.
+ * @retval RC_WRONG_FORMAT Not an OS/2 module.
+ * @retval RC_NAME_MISMATCH Specified old name does not match actual module name.
+ * @retval RC_WRITE_ERROR File write or seek failure.
+ * @retval 0 Success.
+ * @return 0 on success, non-zero return code on error.
+ */
 /* _System == APIENTRY */
 int _System RenameModule( char* Filename,
                           RenameAction action,
