@@ -644,7 +644,17 @@ APIRET APIENTRY ReuseDiscoverFromArtifacts(PSZ *papszObjectFiles,
     if (hOut == NULLHANDLE) return ERROR_INVALID_PARAMETER;
 
     for (ulIdx = 0; ulIdx < ulObjectCount; ulIdx++) {
-        APIRET rc = OmfQuerySources(papszObjectFiles[ulIdx], hOut);
+        HOMFFILE hOmf = NULLHANDLE;
+        APIRET rc;
+
+        rc = OmfOpen(papszObjectFiles[ulIdx], &hOmf,
+                     OMF_OPEN_READ | OMF_OPEN_EXISTING);
+        if (rc == ERROR_NOT_ENOUGH_MEMORY) return rc;
+        if (rc != NO_ERROR) continue;
+
+        rc = OmfQuerySources(hOmf, hOut);
+        OmfClose(hOmf);
+
         if (rc == NO_ERROR) {
             fAny = TRUE;
         } else if (rc == ERROR_NOT_ENOUGH_MEMORY) {

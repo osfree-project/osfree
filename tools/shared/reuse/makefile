@@ -5,4 +5,5 @@
 ADD_COPT  = -i=$(MYDIR)..$(SEP)..$(SEP)include
 TARGET_CLASS = LIBRARY
 LIBS = dep5 toml git path omf res ccl git spdx ccl
+
 !include $(%ROOT)tools/mk/build.mk
