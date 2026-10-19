@@ -1,5 +1,22 @@
 /* reuse-annotate.c - SPDX tag annotation tool (C89) */
 
+/*!
+ * @file reuse-annotate.c
+ * @brief SPDX tag annotation tool.
+ *
+ * Walks the project tree, resolves license and copyright for each
+ * file (REUSE.toml, sidecar, in-file tags), and writes the missing
+ * SPDX headers. Sidecar files are created for binary files. The
+ * LICENSES/ directory is populated with the license texts declared
+ * by the project.
+ *
+ * Conforms to:
+ *   - REUSE Specification 3.3.
+ *     https://reuse.software/spec-3.3/
+ *   - SPDX 2.3, Annex D (license expression grammar).
+ *     https://spdx.github.io/spdx-spec/v2.3/
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,32 +38,29 @@
 #include "spdx_tag.h"
 #include "reuse_lic.h"
 
-/**
- * @file reuse-annotate.c
- * @brief SPDX tag annotation tool.
- *
- * Walks the project tree, resolves license and copyright for each
- * file (REUSE.toml, sidecar, in-file tags), and writes the missing
- * SPDX headers. Sidecar files are created for binary files. The
- * LICENSES/ directory is populated with the license texts declared
- * by the project.
- *
- * Conforms to:
- *   - REUSE Specification 3.3.
- *     https://reuse.software/spec-3.3/
- *   - SPDX 2.3, Annex D (license expression grammar).
- *     https://spdx.github.io/spdx-spec/v2.3/
+/*!
+ * @def MAX_LINE
+ * @brief Maximum length in bytes of a single input line.
  */
-
 #define MAX_LINE     4096
+
+/*!
+ * @def BINARY_PROBE
+ * @brief Number of leading bytes inspected to decide whether a file is binary.
+ */
 #define BINARY_PROBE 8192
+
+/*!
+ * @def PATH_BUF
+ * @brief Maximum length in bytes of a path buffer used by the tool.
+ */
 #define PATH_BUF     1024
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @enum _COMMENTSTYLE
  * @brief Comment style used when writing SPDX tags.
  */
@@ -58,7 +72,7 @@ typedef enum _COMMENTSTYLE {
     STYLE_UNKNOWN     /**< Unrecognized file type.           */
 } COMMENTSTYLE;
 
-/**
+/*!
  * @struct _STYLEOVERRIDE
  * @brief One --comment-style override entry.
  */
@@ -71,21 +85,29 @@ typedef struct _STYLEOVERRIDE {
 /* Global state                                                        */
 /* ------------------------------------------------------------------ */
 
+/*!
+ * @brief Array of user-supplied comment style overrides.
+ */
 static PSTYLEOVERRIDE g_paStyleOverrides = NULL;
+
+/*!
+ * @brief Number of entries in @c g_paStyleOverrides.
+ */
 static ULONG          g_ulStyleOverrideCount = 0;
 
 /* ------------------------------------------------------------------ */
 /* Heap helpers                                                        */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Read a whole file into a heap string.
  *
  * Uses the size-query convention of SpdxReadFileAll.
  *
  * @param[in] pszPath  Path. Not NULL.
  *
- * @return malloc'd NUL-terminated content, or NULL on error.
+ * @retval NULL Read error, empty file, or allocation failure.
+ * @return malloc'd NUL-terminated content.
  */
 static PSZ read_file_to_heap(PCSZ pszPath) {
     ULONG ulSize = 0;
@@ -102,14 +124,15 @@ static PSZ read_file_to_heap(PCSZ pszPath) {
     return pszOut;
 }
 
-/**
+/*!
  * @brief Normalize text into a heap string.
  *
  * Uses the size-query convention of SpdxNormalizeText.
  *
  * @param[in] pszSrc  Source text. Not NULL.
  *
- * @return malloc'd normalized text, or NULL on error.
+ * @retval NULL Read error, empty result, or allocation failure.
+ * @return malloc'd normalized text.
  */
 static PSZ normalize_to_heap(PCSZ pszSrc) {
     ULONG ulSize = 0;
@@ -130,7 +153,7 @@ static PSZ normalize_to_heap(PCSZ pszSrc) {
 /* Filesystem helpers                                                  */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Query whether a path exists.
  *
  * @param[in] pszPath  Path. Not NULL.
@@ -145,12 +168,14 @@ static BOOL FileExists(PCSZ pszPath) {
 #endif
 }
 
-/**
+/*!
  * @brief Query whether a file contains a NUL byte in its first
  *        BINARY_PROBE bytes.
  *
  * @param[in] pszPath  Path to the file. Not NULL.
  *
+ * @retval TRUE  File is binary (contains a NUL byte in the probe).
+ * @retval FALSE File is text, empty, or cannot be read.
  * @return TRUE if binary, FALSE if text or unreadable.
  */
 static BOOL IsBinaryFile(PCSZ pszPath) {
@@ -171,12 +196,17 @@ static BOOL IsBinaryFile(PCSZ pszPath) {
 /* Comment style handling                                              */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Translate a --comment-style value into a COMMENTSTYLE.
  *
  * @param[in] pszName  Style name. Not NULL.
  *
- * @return The matching COMMENTSTYLE, or STYLE_UNKNOWN.
+ * @retval STYLE_C       "c" or "slash" was passed.
+ * @retval STYLE_HASH    "hash" was passed.
+ * @retval STYLE_REM     "rem" or "cmd" was passed.
+ * @retval STYLE_SIDECAR "binary" or "sidecar" was passed.
+ * @retval STYLE_UNKNOWN Unrecognized style name.
+ * @return The matching COMMENTSTYLE.
  */
 static COMMENTSTYLE ParseStyleName(PCSZ pszName) {
     if (strcmp(pszName, "c") == 0 || strcmp(pszName, "slash") == 0)
@@ -191,7 +221,7 @@ static COMMENTSTYLE ParseStyleName(PCSZ pszName) {
     return STYLE_UNKNOWN;
 }
 
-/**
+/*!
  * @brief Append one --comment-style override.
  *
  * On error prints a diagnostic and exits with EXIT_FAILURE.
@@ -237,12 +267,17 @@ static void AddStyleOverride(PCSZ pszArg) {
     g_ulStyleOverrideCount++;
 }
 
-/**
+/*!
  * @brief Query the comment style for a file name.
  *
  * @param[in] pszFilename  File name. Not NULL.
  *
- * @return The matching COMMENTSTYLE, or STYLE_UNKNOWN.
+ * @retval STYLE_C       Extension is a C-style source/header.
+ * @retval STYLE_HASH    Extension or base name is a hash-comment file.
+ * @retval STYLE_REM     Extension is a REM-comment script.
+ * @retval STYLE_SIDECAR Extension is a known binary artifact.
+ * @retval STYLE_UNKNOWN No rule matched.
+ * @return The matching COMMENTSTYLE.
  */
 static COMMENTSTYLE DetectStyle(PCSZ pszFilename) {
     PCSZ pszBase = SpdxGetFileName(pszFilename);
@@ -304,7 +339,7 @@ static COMMENTSTYLE DetectStyle(PCSZ pszFilename) {
     return STYLE_UNKNOWN;
 }
 
-/**
+/*!
  * @brief Human-readable name of a comment style.
  *
  * @param[in] style  Comment style.
@@ -325,7 +360,7 @@ static PCSZ StyleName(COMMENTSTYLE style) {
 /* Insertion block                                                     */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Build the SPDX header block for a file.
  *
  * @param[in] style            Comment style. Not STYLE_UNKNOWN.
@@ -333,7 +368,8 @@ static PCSZ StyleName(COMMENTSTYLE style) {
  * @param[in] pszCopyright     Copyright text, or NULL.
  * @param[in] fEchoOffPresent  TRUE if a leading @echo off was found.
  *
- * @return malloc'd block, or NULL on OOM.
+ * @retval NULL Allocation failure.
+ * @return malloc'd block.
  */
 static PSZ BuildInsertion(COMMENTSTYLE style,
                           PCSZ pszLicense,
@@ -493,7 +529,7 @@ static PSZ BuildInsertion(COMMENTSTYLE style,
     return pszBuf;
 }
 
-/**
+/*!
  * @brief Print a multi-line block with an indent.
  *
  * @param[in] pszText    Text to print. Not NULL.
@@ -513,7 +549,7 @@ static void PrintBlock(PCSZ pszText, PCSZ pszIndent) {
     }
 }
 
-/**
+/*!
  * @brief Query whether the first line is a shebang.
  *
  * @param[in] pszLine  First line. Not NULL.
@@ -524,12 +560,14 @@ static BOOL FirstLineIsShebang(PCSZ pszLine) {
     return (pszLine[0] == '#' && pszLine[1] == '!') ? TRUE : FALSE;
 }
 
-/**
+/*!
  * @brief Query whether the first line is an @echo off statement.
  *
  * @param[in] pszLine  First line. Not NULL.
  *
- * @return TRUE if the line is "@echo off" or "echo off".
+ * @retval TRUE  The line is "@echo off" or "echo off".
+ * @retval FALSE The line is something else.
+ * @return TRUE if the line is an @echo off statement.
  */
 static BOOL FirstLineIsEchoOff(PCSZ pszLine) {
     PCSZ pszPos = pszLine;
@@ -561,7 +599,7 @@ static BOOL FirstLineIsEchoOff(PCSZ pszLine) {
 /* Per-file annotation                                                 */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Annotate one file with SPDX tags.
  *
  * @param[in] pszFilename   File path. Not NULL.
@@ -800,7 +838,7 @@ static APIRET AnnotateOne(PCSZ pszFilename,
 /* LICENSES/ report printing                                           */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Human-readable text for a LICENSES/ reason code.
  *
  * @param[in] ulCode  One of REUSE_LICENSES_*.
@@ -842,7 +880,7 @@ static PCSZ LicensesReasonText(ULONG ulCode) {
     }
 }
 
-/**
+/*!
  * @brief Print every record of a LICENSES/ report to stdout.
  *
  * @param[in]  hReport      Report handle, or NULLHANDLE.
@@ -903,12 +941,14 @@ static void PrintLicensesReport(HREUSELICENSEREPORT hReport,
 /* Entry point                                                         */
 /* ------------------------------------------------------------------ */
 
-/**
+/*!
  * @brief Entry point of the annotate tool.
  *
  * @param[in] argc  Argument count.
  * @param[in] argv  Argument vector.
  *
+ * @retval 0 Success.
+ * @retval 1 Error.
  * @return 0 on success, 1 on error.
  */
 int main(int argc, char *argv[]) {

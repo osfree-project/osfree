@@ -1,5 +1,19 @@
 /* spdx-merge.c - merge SPDX JSON documents (C89, OpenWatcom) */
 
+/*!
+ * @file spdx-merge.c
+ * @brief Merge SPDX JSON documents.
+ *
+ * The merge walks externalDocumentRefs recursively, verifies each
+ * checksum, resolves SPDXID collisions by renaming, and outputs the
+ * merged document as SPDX 2.3 JSON.
+ *
+ * Conforms to:
+ *   - SPDX 2.3, §6.6 (external document references), §11
+ *     (relationships), Annex I (checksum algorithms).
+ *     https://spdx.github.io/spdx-spec/v2.3/
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,34 +29,25 @@
 #include "ccl.h"
 #include "path.h"
 
-/**
- * @file spdx-merge.c
- * @brief Merge SPDX JSON documents.
- *
- * The merge walks externalDocumentRefs recursively, verifies each
- * checksum, resolves SPDXID collisions by renaming, and outputs the
- * merged document as SPDX 2.3 JSON.
- *
- * Conforms to:
- *   - SPDX 2.3, §6.6 (external document references), §11
- *     (relationships), Annex I (checksum algorithms).
- *     https://spdx.github.io/spdx-spec/v2.3/
+/*!
+ * @def MAX_DOCS
+ * @brief Upper bound on the number of external documents merged into one.
  */
-
 #define MAX_DOCS 100
 
 /* ==================================================================
  * File helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Read a whole file into a heap string.
  *
  * Uses the size-query convention of SpdxReadFileAll.
  *
  * @param[in] pszPath  Path. Not NULL.
  *
- * @return malloc'd NUL-terminated content, or NULL on error.
+ * @retval NULL Read error, empty file, or allocation failure.
+ * @return malloc'd NUL-terminated content.
  */
 static PSZ read_file_to_heap(PCSZ pszPath) {
     ULONG ulSize = 0;
@@ -63,7 +68,7 @@ static PSZ read_file_to_heap(PCSZ pszPath) {
  * Processed / Rename
  * ================================================================== */
 
-/**
+/*!
  * @struct _SPDXPROCESSEDLIST
  * @brief List of already-processed file paths.
  */
@@ -72,7 +77,7 @@ typedef struct _SPDXPROCESSEDLIST {
     ULONG ulCount;
 } SPDXPROCESSEDLIST, *PSPDXPROCESSEDLIST;
 
-/**
+/*!
  * @struct _SPDXRENAMEMAP
  * @brief Parallel arrays of old and new SPDX identifiers.
  */
@@ -82,12 +87,14 @@ typedef struct _SPDXRENAMEMAP {
     ULONG ulCount;
 } SPDXRENAMEMAP, *PSPDXRENAMEMAP;
 
-/**
+/*!
  * @brief Query whether a path has already been processed.
  *
  * @param[in] pList    List. Not NULL.
  * @param[in] pszPath  Path. Not NULL.
  *
+ * @retval TRUE  Path is already in the processed list.
+ * @retval FALSE Path is not in the processed list.
  * @return TRUE if already processed.
  */
 static BOOL IsProcessed(const SPDXPROCESSEDLIST *pList, PCSZ pszPath) {
@@ -97,7 +104,7 @@ static BOOL IsProcessed(const SPDXPROCESSEDLIST *pList, PCSZ pszPath) {
     return FALSE;
 }
 
-/**
+/*!
  * @brief Record a path as processed.
  *
  * Terminates the process on limit overflow or allocation failure.
@@ -117,14 +124,14 @@ static void AddProcessed(SPDXPROCESSEDLIST *pList, PCSZ pszPath) {
     pList->ulCount++;
 }
 
-/**
+/*!
  * @brief Build a unique replacement for a colliding SPDXID.
  *
  * @param[in] pszBase     Base identifier. Not NULL.
  * @param[in] ulCounter   Disambiguating counter.
  *
- * @return malloc'd identifier owned by the caller, or NULL on
- *         allocation failure.
+ * @retval NULL Allocation failure.
+ * @return malloc'd identifier owned by the caller.
  */
 static PSZ MakeUniqueId(PCSZ pszBase, ULONG ulCounter) {
     PSZ pszResult = (PSZ)malloc(strlen(pszBase) + 24);
@@ -134,7 +141,7 @@ static PSZ MakeUniqueId(PCSZ pszBase, ULONG ulCounter) {
     return pszResult;
 }
 
-/**
+/*!
  * @brief Record a rename.
  *
  * @param[in,out] pMap        Map. Not NULL.
@@ -151,13 +158,14 @@ static void AddRename(SPDXRENAMEMAP *pMap, PCSZ pszOldId, PCSZ pszNewId) {
     pMap->ulCount++;
 }
 
-/**
+/*!
  * @brief Query the new identifier for an old one.
  *
  * @param[in] pMap      Map. Not NULL.
  * @param[in] pszOldId  Old identifier. Not NULL.
  *
- * @return New identifier, or NULL if no rename recorded.
+ * @retval NULL No rename recorded for this identifier.
+ * @return New identifier.
  */
 static PCSZ QueryRenamed(const SPDXRENAMEMAP *pMap, PCSZ pszOldId) {
     ULONG ulIdx;
@@ -167,7 +175,7 @@ static PCSZ QueryRenamed(const SPDXRENAMEMAP *pMap, PCSZ pszOldId) {
     return NULL;
 }
 
-/**
+/*!
  * @brief Release all memory owned by a rename map.
  *
  * @param[in,out] pMap  Map. Not NULL.
@@ -187,7 +195,7 @@ static void FreeRenameMap(SPDXRENAMEMAP *pMap) {
  * JSON read helpers
  * ================================================================== */
 
-/**
+/*!
  * @brief Read a string field into a fixed-size buffer.
  *
  * @param[in]  hNode    Node handle, or NULLHANDLE.
@@ -209,7 +217,7 @@ static APIRET ReadJsonString(HJSONNODE hNode, PSZ pszBuf, ULONG ulSize) {
  * DocumentRef- handling
  * ================================================================== */
 
-/**
+/*!
  * @brief Strip a leading "DocumentRef-<id>:" prefix in place.
  *
  * @param[in,out] pszStr  String to modify. Not NULL.
@@ -223,7 +231,7 @@ static void StripDocumentRef(PSZ pszStr) {
     }
 }
 
-/**
+/*!
  * @brief Recursively replace renamed SPDXIDs inside a subtree.
  *
  * Only string nodes whose key is one of the ID-carrying fields are
@@ -286,7 +294,7 @@ static void ReplaceIdsInNode(HJSONNODE hNode, const SPDXRENAMEMAP *pMap) {
  * Checksum verification
  * ================================================================== */
 
-/**
+/*!
  * @brief Verify a checksum against the file content.
  *
  * Terminates the process on any mismatch or I/O error.
@@ -361,7 +369,7 @@ static void VerifyChecksum(PCSZ pszFilePath, HJSONNODE hChecksumNode) {
  * Document validation
  * ================================================================== */
 
-/**
+/*!
  * @brief Collect all local SPDXIDs from packages, files and snippets.
  *
  * @param[in] hRoot   Document root. Not NULLHANDLE.
@@ -394,7 +402,7 @@ static void CollectLocalIds(HJSONNODE hRoot, HSTRSET hKnown) {
     }
 }
 
-/**
+/*!
  * @brief Collect all externalDocumentIds from a document.
  *
  * @param[in] hRoot        Document root. Not NULLHANDLE.
@@ -422,12 +430,14 @@ static void CollectExternalIds(HJSONNODE hRoot, HSTRSET hExternalIds) {
     }
 }
 
-/**
+/*!
  * @brief Query whether a string is present in a set.
  *
  * @param[in] hSet    Set. May be NULLHANDLE.
  * @param[in] pszStr  String. Not NULL.
  *
+ * @retval TRUE  String is present in the set.
+ * @retval FALSE String is absent or the set is NULLHANDLE.
  * @return TRUE if present.
  */
 static BOOL SetContains(HSTRSET hSet, PCSZ pszStr) {
@@ -437,7 +447,7 @@ static BOOL SetContains(HSTRSET hSet, PCSZ pszStr) {
     return fFound ? TRUE : FALSE;
 }
 
-/**
+/*!
  * @brief Validate relationships in a document.
  *
  * Terminates the process on any inconsistency.
@@ -540,7 +550,7 @@ static void ValidateRelationships(HJSONNODE hRoot, PCSZ pszFilePath,
     }
 }
 
-/**
+/*!
  * @brief Validate one SPDX license expression in a document field.
  *
  * Terminates the process on any violation.
@@ -580,7 +590,7 @@ static void ValidateLicenseField(PCSZ pszFilePath, PCSZ pszField,
     }
 }
 
-/**
+/*!
  * @brief Validate one whole document.
  *
  * Terminates the process on any inconsistency.
@@ -671,7 +681,7 @@ static void ValidateDocument(HJSONNODE hRoot, PCSZ pszFilePath) {
  * Merge
  * ================================================================== */
 
-/**
+/*!
  * @brief Ensure that a merged array exists at a section.
  *
  * @param[in]  hDocMerged    Merged document. Not NULLHANDLE.
@@ -695,7 +705,7 @@ static APIRET EnsureMergedArray(HJSONDOC hDocMerged,
     return JsonObjectSet(hMergedRoot, pszSection, *phMergedArr);
 }
 
-/**
+/*!
  * @brief Merge one source subtree array into the destination array.
  *
  * Each source element is checked for SPDXID collision against the
@@ -796,7 +806,7 @@ static APIRET MergeSection(HJSONDOC hDocMerged, HJSONNODE hSrcArr,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Merge relationships from a source document.
  *
  * @param[in] hDocMerged   Merged document. Not NULLHANDLE.
@@ -833,7 +843,7 @@ static APIRET MergeRelationships(HJSONDOC hDocMerged, HJSONNODE hSrcRoot,
     return NO_ERROR;
 }
 
-/**
+/*!
  * @brief Recursively process one SPDX document.
  *
  * Terminates the process on any error.
@@ -1073,7 +1083,7 @@ static void ProcessDocument(PCSZ pszFilePath, HJSONNODE hRoot,
  * CLI
  * ================================================================== */
 
-/**
+/*!
  * @brief Print command line usage.
  */
 static void PrintHelp(void) {
@@ -1099,12 +1109,14 @@ static void PrintHelp(void) {
            "checksum, and resolves SPDXID collisions by renaming.\n");
 }
 
-/**
+/*!
  * @brief Entry point of the SPDX merge tool.
  *
  * @param[in] argc  Argument count.
  * @param[in] argv  Argument vector.
  *
+ * @retval 0 Success.
+ * @retval 1 Error.
  * @return 0 on success, 1 on error.
  */
 int main(int argc, char *argv[]) {
