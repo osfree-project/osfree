@@ -29,5 +29,10 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file xlate386.c
+ * @brief Build translat.c for a 386 target.
+ */
+
 #define __TARGET_386__
 #include "translat.c"

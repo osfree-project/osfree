@@ -29,6 +29,10 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file elfentr.h
+ * @brief Entry-point declarations for the ELF reader.
+ */
 
 #ifndef ELF_ENTRY_INCLUDED
 #define ELF_ENTRY_INCLUDED

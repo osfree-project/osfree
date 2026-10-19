@@ -29,41 +29,52 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file deffile.h
+ * @brief Microsoft LINK .def file parser declarations.
+ */
 
 #ifndef _DEFFILE_H
 #define _DEFFILE_H
 
 #include "system.h"
 
-/*
- * Data type for handling options which can take several values.  Similar
- * to the OPT_STRING type.
+/*!
+ * @struct StringList
+ * @brief Singly-linked list of strings.
+ *
+ * Data type for handling options which can take several values.
+ * Similar to the OPT_STRING type.
  */
 typedef struct StringList {
-    struct StringList * next;
-    char *              str;
+    struct StringList * next;   /*!< Next list element, or NULL. */
+    char *              str;    /*!< The string. */
 } StringList;
 
 
-/*
- * Define the .def file info structure.
+/*!
+ * @struct DefInfo
+ * @brief Parsed contents of a .def file.
  */
 typedef struct DefInfo {
-    char *              name;
-    int                 makeDll;
-    char *              internalDllName;
-    char *              baseAddr;
-    char *              stub;
-    StringList *        description;
-    StringList *        exports;
-    char *              stacksize;
-    char *              heapsize;
-    char *              version;
+    char *              name;            /*!< NAME directive (application name). */
+    int                 makeDll;         /*!< Non-zero if the DLL flag was set. */
+    char *              internalDllName; /*!< LIBRARY directive (DLL internal name). */
+    char *              baseAddr;        /*!< BASE directive (preferred load address). */
+    char *              stub;            /*!< STUB directive (DOS stub image). */
+    StringList *        description;     /*!< DESCRIPTION directive texts. */
+    StringList *        exports;         /*!< EXPORTS/EXPORT directive entries. */
+    char *              stacksize;       /*!< STACKSIZE directive. */
+    char *              heapsize;        /*!< HEAPSIZE directive. */
+    char *              version;         /*!< VERSION directive. */
 } DefInfo;
 
 
-/*
- * Function prototypes.
+/*!
+ * @brief Parse a .def file.
+ * @param[in] filename  Path to the .def file. Not NULL.
+ * @retval NULL Parse error or file could not be opened.
+ * @return The parsed DefInfo.
  */
 #ifdef __TARGET_AXP__
     extern DefInfo *ParseDefFile( const char *filename, int dofuzzylink );
@@ -71,6 +82,10 @@ typedef struct DefInfo {
     extern DefInfo *ParseDefFile( const char *filename );
 #endif
 
+/*!
+ * @brief Release the memory owned by a DefInfo.
+ * @param[in] p  DefInfo to free. Not NULL.
+ */
 extern void     FreeDefInfo( DefInfo *p );
 
 #endif

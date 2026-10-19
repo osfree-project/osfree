@@ -29,12 +29,23 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file omfflhn.c
+ * @brief Link/unlink OMF file handles in the OMF handle's list, and
+ *        release all per-file resources.
+ */
 
 #include <assert.h>
 
 #include "omfflhn.h"
 #include "orlhash.h"
 
+/*!
+ * @brief Free every allocation owned by an OMF file handle.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @retval ORL_OKAY Always returns ORL_OKAY.
+ * @return ORL_OKAY.
+ */
 static orl_return       freeFileHandle( omf_file_handle ofh )
 {
     omf_sec_handle      sh;
@@ -145,6 +156,11 @@ static orl_return       freeFileHandle( omf_file_handle ofh )
     return( ORL_OKAY );
 }
 
+/*!
+ * @brief Push a new OMF file handle onto the head of the OMF handle list.
+ * @param[in,out] oh   OMF handle. Not NULL.
+ * @param[in,out] ofh  File handle to link. Not NULL.
+ */
 void OmfAddFileLinks( omf_handle oh, omf_file_handle ofh )
 {
     assert( oh );
@@ -155,6 +171,12 @@ void OmfAddFileLinks( omf_handle oh, omf_file_handle ofh )
     oh->first_file_hnd = ofh;
 }
 
+/*!
+ * @brief Unlink an OMF file handle from its OMF handle and free it.
+ * @param[in,out] ofh  File handle to remove. Not NULL.
+ * @retval ORL_OKAY Always returns ORL_OKAY.
+ * @return ORL_OKAY.
+ */
 orl_return OmfRemoveFileLinks( omf_file_handle ofh )
 {
     omf_handle                          oh;

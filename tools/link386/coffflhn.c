@@ -24,15 +24,30 @@
 *
 *  ========================================================================
 *
-* Description:  WHEN YOU FIGURE OUT WHAT THIS FILE DOES, PLEASE
-*               DESCRIBE IT HERE!
+* Description:  COFF file-handle link management.
 *
 ****************************************************************************/
 
+/*!
+ * @file coffflhn.c
+ * @brief Maintain the linked list of COFF file handles.
+ *
+ * Each COFF handle keeps a singly-linked list of the COFF files opened
+ * through it.  These routines add entries to and remove entries from
+ * that list, freeing everything the file handle owns on removal.
+ */
 
 #include "coffflhn.h"
 #include "orlhash.h"
 
+/*!
+ * @brief Free a COFF file handle and all of its owned resources.
+ *
+ * Releases sections, symbols, string tables, hash tables and any
+ * import-library scratch data, then frees the handle itself.
+ *
+ * @param[in] coff_file_hnd  File handle to free.  Not NULL.
+ */
 static void free_coff_file_hnd( coff_file_handle coff_file_hnd )
 {
     int                 loop;
@@ -72,6 +87,12 @@ static void free_coff_file_hnd( coff_file_handle coff_file_hnd )
     _ClientFree( coff_file_hnd, coff_file_hnd );
 }
 
+/*!
+ * @brief Insert a file handle at the head of the COFF handle's list.
+ *
+ * @param[in,out] coff_hnd       COFF handle.  Not NULL.
+ * @param[in]     coff_file_hnd  File handle to insert.  Not NULL.
+ */
 void CoffAddFileLinks( coff_handle coff_hnd, coff_file_handle coff_file_hnd )
 {
     coff_file_hnd->next = coff_hnd->first_file_hnd;
@@ -79,6 +100,14 @@ void CoffAddFileLinks( coff_handle coff_hnd, coff_file_handle coff_file_hnd )
     coff_hnd->first_file_hnd = coff_file_hnd;
 }
 
+/*!
+ * @brief Remove and free a file handle from its COFF handle's list.
+ *
+ * @param[in] coff_file_hnd  File handle to remove.  Not NULL.
+ * @retval ORL_OKAY   Removed successfully.
+ * @retval ORL_ERROR  Handle not found in the list.
+ * @return ORL_OKAY on success.
+ */
 orl_return CoffRemoveFileLinks( coff_file_handle coff_file_hnd )
 {
     coff_handle                         coff_hnd;

@@ -29,8 +29,18 @@
 *               in source .LIB file for each entry.
 *               Emulated data is saved into coff_file_hnd structure.
 *
-****************************************************************************/
+**************************************************************************/
 
+/*!
+ * @file coffimpl.c
+ * @brief In-memory emulation of long-format COFF import library members.
+ *
+ * Each short import library member encountered while reading a COFF
+ * input file is expanded on the fly into an equivalent long-format
+ * COFF object.  The resulting bytes are cached in
+ * @c coff_file_hnd->implib_data and replayed to the normal COFF reader
+ * via the ImportLibData callback table.
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -38,67 +48,108 @@
 
 #include "coffimpl.h"
 
-/* note before you use this for anything make sure that the values below
-are large enough for your purposes (particularly the num sections and symbols.
-I put in some saftey code in the string table because if the user declares
-long function names (very long like > 512) it is possible that 1k will not
-suffice for the string table size in import libraries.  the number of sections
-and symbols however are fixed and suffice for import libraries  */
-
+/*!
+ * @def MAX_NUM_COFF_LIB_SECTIONS
+ * @brief Maximum number of sections in an emulated import library member.
+ *
+ * Note before you use this for anything make sure that the values below
+ * are large enough for your purposes (particularly the num sections and
+ * symbols).  I put in some safety code in the string table because if the
+ * user declares long function names (very long like > 512) it is possible
+ * that 1k will not suffice for the string table size in import libraries.
+ * The number of sections and symbols however are fixed and suffice for
+ * import libraries.
+ */
 #define MAX_NUM_COFF_LIB_SECTIONS       8
+/*!
+ * @def MAX_NUM_COFF_LIB_SYMBOLS
+ * @brief Maximum number of symbols in an emulated import library member.
+ */
 #define MAX_NUM_COFF_LIB_SYMBOLS        32
+/*!
+ * @def INIT_MAX_SIZE_COFF_STRING_TABLE
+ * @brief Initial string-table capacity (grows as needed).
+ */
 #define INIT_MAX_SIZE_COFF_STRING_TABLE 1024
 
+/*!
+ * @struct coff_lib_file
+ * @brief Scratch state used while building an emulated COFF object.
+ */
 typedef struct {
-    coff_file_header    header;
-    coff_section_header section[MAX_NUM_COFF_LIB_SECTIONS];
-    coff_symbol         symbol[MAX_NUM_COFF_LIB_SYMBOLS];
-    unsigned_32         string_table_size;
-    unsigned_32         max_string_table_size;
-    char                *string_table;
-    coff_file_handle    coff_file_hnd;
+    coff_file_header    header;         /*!< File header being built. */
+    coff_section_header section[MAX_NUM_COFF_LIB_SECTIONS]; /*!< Section headers. */
+    coff_symbol         symbol[MAX_NUM_COFF_LIB_SYMBOLS];   /*!< Symbol records. */
+    unsigned_32         string_table_size;      /*!< Current string table size. */
+    unsigned_32         max_string_table_size;  /*!< Allocated string table size. */
+    char                *string_table;          /*!< String table buffer. */
+    coff_file_handle    coff_file_hnd;          /*!< Owner COFF file handle. */
 } coff_lib_file;
 
+/*!
+ * @enum importType
+ * @brief Import member naming convention.
+ */
 typedef enum {
-    IMPORT_DESCRIPTOR,
-    NULL_IMPORT_DESCRIPTOR,
-    NULL_THUNK_DATA,
-    ORDINAL,    // ordinal and name
-    NAMED,      // name only
-    ELF,        // name only or name and ordinal
-    ELFRENAMED, // renamed entry,
+    IMPORT_DESCRIPTOR,      /*!< Import descriptor record. */
+    NULL_IMPORT_DESCRIPTOR, /*!< Null import descriptor. */
+    NULL_THUNK_DATA,        /*!< Null thunk data. */
+    ORDINAL,                /*!< Import by ordinal and name. */
+    NAMED,                  /*!< Import by name only. */
+    ELF,                    /*!< ELF-style name only or name and ordinal. */
+    ELFRENAMED,             /*!< ELF renamed entry. */
 } importType;
 
+/*!
+ * @struct import_sym
+ * @brief One short-format import library member, decoded.
+ */
 typedef struct {
-    importType  type;
-    short       processor;
-    char        *DLLName;
-    long        ordinal;
-    char        *symName;
-    char        *exportedName;
-    uint_32     time_date_stamp;
+    importType  type;           /*!< Naming convention. */
+    short       processor;      /*!< Target CPU. */
+    char        *DLLName;       /*!< Source DLL name. */
+    long        ordinal;        /*!< Import ordinal. */
+    char        *symName;       /*!< Imported symbol name. */
+    char        *exportedName;  /*!< Exported (public) name. */
+    uint_32     time_date_stamp;/*!< COFF time-date stamp. */
 } import_sym;
 
 //IMPORT_DESCRIPT optional header
 
+/*!
+ * @brief Alpha import thunk code (12 bytes).
+ */
 static unsigned_8 CoffImportAxpText[] = {
  0x00,0x00,0x7F,0x27,0x00,0x00,0x7B,0xA3,0x00,0x00,0xFB,0x6B
 };
 
+/*!
+ * @brief PowerPC import thunk code (24 bytes).
+ */
 static unsigned_8 CoffImportPpcText[] = {
  0x00,0x00,0x62,0x81,0x00,0x00,0x8B,0x81,0x04,0x00,0x41,0x90,0xA6,0x03,0x89,0x7D,
  0x04,0x00,0x4B,0x80,0x20,0x04,0x80,0x4E
 };
 
+/*!
+ * @brief PowerPC `.pdata` unwind entry (20 bytes).
+ */
 static unsigned_8 CoffImportPpcPdata[] = {
  0x00,0x00,0x00,0x00,0x18,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x03,0x00,0x00,0x00,
  0x0D,0x00,0x00,0x00
 };
 
+/*!
+ * @brief x86 import thunk code (6 bytes).
+ */
 static unsigned_8 CoffImportX86Text[] = {
  0xFF,0x25,0x00,0x00,0x00,0x00
 };
 
+/*!
+ * @brief Initialise scratch state for an emulated COFF object.
+ * @param[in,out] c_file  Scratch structure. Not NULL.
+ */
 static void InitCoffFile( coff_lib_file *c_file )
 {
     c_file->string_table = _ClientAlloc( c_file->coff_file_hnd, INIT_MAX_SIZE_COFF_STRING_TABLE );
@@ -106,6 +157,13 @@ static void InitCoffFile( coff_lib_file *c_file )
 
 }
 
+/*!
+ * @brief Initialise an emulated COFF file header.
+ * @param[in,out] c_file       Scratch structure. Not NULL.
+ * @param[in]     processor    Target CPU.
+ * @param[in]     time_stamp   COFF time-date stamp.
+ * @param[in]     opt_hdr_size Size of the optional header.
+ */
 static void SetCoffFile( coff_lib_file *c_file, short processor,
      unsigned_32 time_stamp, unsigned_16 opt_hdr_size)
 {
@@ -118,11 +176,24 @@ static void SetCoffFile( coff_lib_file *c_file, short processor,
     c_file->string_table_size = 0;
 }
 
+/*!
+ * @brief Release scratch state for an emulated COFF object.
+ * @param[in,out] c_file  Scratch structure. Not NULL.
+ */
 static void FiniCoffLibFile( coff_lib_file *c_file )
 {
     _ClientFree( c_file->coff_file_hnd, c_file->string_table );
 }
 
+/*!
+ * @brief Append a NUL-terminated string to the string table.
+ *
+ * Grows the string table by doubling when needed.
+ *
+ * @param[in,out] c_file  Scratch structure. Not NULL.
+ * @param[in]     name    String to append. Not NULL.
+ * @param[in]     len     Length excluding the terminating NUL.
+ */
 static void AddCoffString( coff_lib_file  *c_file, char *name, int len )
 {
     char    *x;
@@ -141,6 +212,18 @@ static void AddCoffString( coff_lib_file  *c_file, char *name, int len )
     c_file->string_table_size += len;
 }
 
+/*!
+ * @brief Append a section header to an emulated COFF object.
+ *
+ * Section numbering has index base 1.
+ *
+ * @param[in,out] c_file      Scratch structure. Not NULL.
+ * @param[in]     name        Section name. Not NULL.
+ * @param[in]     size        Section size in bytes.
+ * @param[in]     num_relocs  Number of relocations.
+ * @param[in]     flags       COFF section flags.
+ * @return The one-based index of the new section.
+ */
 static int AddCoffSection( coff_lib_file *c_file, char *name, unsigned_32 size,
     unsigned_16 num_relocs, unsigned_32 flags )
 {
@@ -165,6 +248,20 @@ static int AddCoffSection( coff_lib_file *c_file, char *name, unsigned_32 size,
     return ++(c_file->header.num_sections);
 }
 
+/*!
+ * @brief Append a symbol record to an emulated COFF object.
+ *
+ * Symbol numbering has index base 0.
+ *
+ * @param[in,out] c_file     Scratch structure. Not NULL.
+ * @param[in]     name       Symbol name. Not NULL.
+ * @param[in]     value      Symbol value (offset).
+ * @param[in]     sec_num    One-based section number, or a special value.
+ * @param[in]     type       COFF symbol type.
+ * @param[in]     class      COFF storage class.
+ * @param[in]     num_aux    Number of auxiliary records that follow.
+ * @return The zero-based index of the new symbol.
+ */
 static int AddCoffSymbol( coff_lib_file *c_file, char *name, unsigned_32 value,
     signed_16 sec_num,  unsigned_16 type, unsigned_8 class, unsigned_8 num_aux )
 {
@@ -191,6 +288,13 @@ static int AddCoffSymbol( coff_lib_file *c_file, char *name, unsigned_32 value,
     return c_file->header.num_symbols++;
 }
 
+/*!
+ * @brief Append a section symbol (with auxiliary record) to the object.
+ * @param[in,out] c_file     Scratch structure. Not NULL.
+ * @param[in]     selection  COMDAT selection code.
+ * @param[in]     sec        One-based section index.
+ * @return The zero-based index of the section symbol.
+ */
 static int AddCoffSymSec( coff_lib_file *c_file, unsigned_8 selection, int sec )
 {
     coff_sym_section    *sym;
@@ -218,10 +322,29 @@ static int AddCoffSymSec( coff_lib_file *c_file, unsigned_8 selection, int sec )
     return symbol_no;
 }
 
+/*!
+ * @def IMPLIB_LEN
+ * @brief Total byte length of the emulated import library buffer.
+ */
 #define IMPLIB_LEN      (*((int*)coff_file_hnd->implib_data))
+/*!
+ * @def IMPLIB_POS
+ * @brief Current read offset within the emulated import library buffer.
+ */
 #define IMPLIB_POS      (*((long*)(coff_file_hnd->implib_data + sizeof(int))))
+/*!
+ * @def IMPLIB_DATA
+ * @brief Pointer to the first byte of the emulated import library payload.
+ */
 #define IMPLIB_DATA     (coff_file_hnd->implib_data + sizeof(int) + sizeof(long))
 
+/*!
+ * @brief Allocate the emulated import library buffer if necessary.
+ * @param[in,out] coff_file_hnd  COFF file handle. Not NULL.
+ * @retval ORL_OKAY            Buffer ready.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 static int DataImpLibInit( coff_file_handle coff_file_hnd )
 {
     if (coff_file_hnd->implib_data == NULL) {
@@ -234,6 +357,15 @@ static int DataImpLibInit( coff_file_handle coff_file_hnd )
     return( ORL_OKAY );
 }
 
+/*!
+ * @brief Append a chunk of data to the emulated import library buffer.
+ * @param[in,out] coff_file_hnd  COFF file handle. Not NULL.
+ * @param[in]     buff           Data to append. Not NULL.
+ * @param[in]     len            Length in bytes.
+ * @retval ORL_OKAY            Appended.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 static int AddDataImpLib( coff_file_handle coff_file_hnd, void * buff, int len )
 {
     char    *x;
@@ -249,6 +381,12 @@ static int AddDataImpLib( coff_file_handle coff_file_hnd, void * buff, int len )
     return( ORL_OKAY );
 }
 
+/*!
+ * @brief Read callback for the emulated import library.
+ * @param[in] _coff_file_hnd  COFF file handle (as void pointer).
+ * @param[in] len             Number of bytes to read.
+ * @return Pointer to the read data.
+ */
 static void * ImportLibRead(void * _coff_file_hnd, size_t len)
 {
     coff_file_handle coff_file_hnd = _coff_file_hnd;
@@ -256,6 +394,13 @@ static void * ImportLibRead(void * _coff_file_hnd, size_t len)
     return IMPLIB_DATA + IMPLIB_POS - len;
 }
 
+/*!
+ * @brief Seek callback for the emulated import library.
+ * @param[in] _coff_file_hnd  COFF file handle (as void pointer).
+ * @param[in] pos             Offset to seek to.
+ * @param[in] where           One of SEEK_SET, SEEK_CUR, SEEK_END.
+ * @return The new read position.
+ */
 static long ImportLibSeek(void * _coff_file_hnd, long pos, int where)
 {
     coff_file_handle coff_file_hnd = _coff_file_hnd;
@@ -270,6 +415,14 @@ static long ImportLibSeek(void * _coff_file_hnd, long pos, int where)
 }
 
 
+/*!
+ * @brief Append the constructed file header to the emulated object.
+ *
+ * Also computes raw-data and reloc pointers for each section.
+ *
+ * @param[in,out] coff_file_hnd  COFF file handle. Not NULL.
+ * @param[in]     c_file         Scratch structure. Not NULL.
+ */
 static void CreateCoffFileHeader( coff_file_handle coff_file_hnd, coff_lib_file *c_file )
 {
     unsigned    i;
@@ -286,16 +439,33 @@ static void CreateCoffFileHeader( coff_file_handle coff_file_hnd, coff_lib_file 
     AddDataImpLib( coff_file_hnd, &( c_file->header ), sizeof(coff_file_header) );
 }
 
+/*!
+ * @brief Append the section header table to the emulated object.
+ * @param[in,out] coff_file_hnd  COFF file handle. Not NULL.
+ * @param[in]     c_file         Scratch structure. Not NULL.
+ */
 static void CreateCoffSections( coff_file_handle coff_file_hnd, coff_lib_file *c_file )
 {
     AddDataImpLib( coff_file_hnd, c_file->section, c_file->header.num_sections * COFF_SECTION_HEADER_SIZE );
 }
 
+/*!
+ * @brief Append the symbol table to the emulated object.
+ * @param[in,out] coff_file_hnd  COFF file handle. Not NULL.
+ * @param[in]     c_file         Scratch structure. Not NULL.
+ */
 static void CreateCoffSymbols( coff_file_handle coff_file_hnd, coff_lib_file *c_file )
 {
     AddDataImpLib( coff_file_hnd, c_file->symbol, c_file->header.num_symbols * COFF_SYM_SIZE );
 }
 
+/*!
+ * @brief Append one COFF relocation record to the emulated object.
+ * @param[in,out] coff_file_hnd  COFF file handle. Not NULL.
+ * @param[in]     offset         Relocation offset.
+ * @param[in]     sym_tab_index  Symbol table index.
+ * @param[in]     type           COFF relocation type.
+ */
 static void CreateCoffReloc( coff_file_handle coff_file_hnd, unsigned_32 offset, unsigned_32 sym_tab_index, unsigned_16 type )
 {
     //output is buffered so no point in putting COFF_RELOC struct
@@ -304,6 +474,11 @@ static void CreateCoffReloc( coff_file_handle coff_file_hnd, unsigned_32 offset,
     AddDataImpLib( coff_file_hnd, &type, sizeof( type ) );
 }
 
+/*!
+ * @brief Append the string table to the emulated object.
+ * @param[in,out] coff_file_hnd  COFF file handle. Not NULL.
+ * @param[in]     c_file         Scratch structure. Not NULL.
+ */
 static void CreateCoffStringTable( coff_file_handle coff_file_hnd, coff_lib_file *c_file )
 {
     c_file->string_table_size += 4;
@@ -311,6 +486,32 @@ static void CreateCoffStringTable( coff_file_handle coff_file_hnd, coff_lib_file
     AddDataImpLib( coff_file_hnd, c_file->string_table, c_file->string_table_size - 4 );
 }
 
+/*!
+ * @brief Strip name decoration according to an import name type.
+ *
+ * I got following information from Microsoft about name type and name
+ * conversion.
+ * @code
+ *  IMPORT_OBJECT_ORDINAL = 0,          // Import by ordinal
+ *  IMPORT_OBJECT_NAME = 1,             // Import name == public symbol name.
+ *  IMPORT_OBJECT_NAME_NO_PREFIX = 2,   // Import name == public symbol name skipping leading ?, @, or optionally _.
+ *  IMPORT_OBJECT_NAME_UNDECORATE = 3,  // Import name == public symbol name skipping leading ?, @, or optionally _
+ *                                      // and truncating at first @
+ * @endcode
+ *
+ * Note:
+ * - IMPORT_OBJECT_NAME_NO_PREFIX is used for C symbols with underscore as prefix
+ * - IMPORT_OBJECT_NAME_UNDECORATE is used for __stdcall and __fastcall name mangling
+ * - __stdcall uses underscore as prefix and @nn as suffix
+ * - __fastcall uses @ as prefix and @nn as suffix
+ *
+ * This solution is stupid, probably it needs improvement;
+ * there is no more information from Microsoft.
+ *
+ * @param[in,out] src   Name buffer. Modified in place.
+ * @param[in]     type  Import name type.
+ * @return Pointer into @p src at the public symbol name.
+ */
 char * getImportName(char * src, int type){
     char    *end;
 
@@ -360,6 +561,14 @@ I got following information from Microsoft about name type and name conversion.
     return( src );
 }
 
+/*!
+ * @brief Expand one decoded short import library member into COFF bytes.
+ * @param[in,out] coff_file_hnd  COFF file handle. Not NULL.
+ * @param[in]     import         Decoded import member. Not NULL.
+ * @retval ORL_OKAY            Success.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 static int CoffCreateImport( coff_file_handle coff_file_hnd, import_sym * import )
 {
     unsigned_16     type;
@@ -547,6 +756,19 @@ static int CoffCreateImport( coff_file_handle coff_file_hnd, import_sym * import
     return ORL_OKAY;
 }
 
+/*!
+ * @brief Convert a short import library member into a long COFF object.
+ *
+ * Reads the short member header and data, expands it via
+ * CoffCreateImport(), and installs ImportLibData as the file's
+ * read/seek callbacks so the normal COFF reader can consume the
+ * emulated bytes.
+ *
+ * @param[in,out] coff_file_hnd  COFF file handle. Not NULL.
+ * @retval ORL_OKAY            Success.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 int convert_import_library(coff_file_handle coff_file_hnd)
 {
     coff_import_object_header   *i_hdr;
@@ -567,4 +789,7 @@ int convert_import_library(coff_file_handle coff_file_hnd)
     return( CoffCreateImport( coff_file_hnd, &sym ) );
 }
 
+/*!
+ * @brief Read/seek callback table for the emulated import library buffer.
+ */
 orl_funcs ImportLibData = {ImportLibRead, ImportLibSeek, NULL, NULL};

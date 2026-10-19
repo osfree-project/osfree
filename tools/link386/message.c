@@ -29,6 +29,10 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file message.c
+ * @brief Banner, help and diagnostic printing for the linker clone.
+ */
 
 #include <conio.h>
 #include <stdio.h>
@@ -38,16 +42,22 @@
 #include "system.h"
 
 
+/*!
+ * @brief NULL-terminated usage lines shown by PrintHelpMessage().
+ */
 static char *           usageMsg[] = {
     #include "usagemsg.gh"
     NULL
 };
 
+/*!
+ * @brief Non-zero when QuietModeMessage() has been called.
+ */
 static int              quietMode = 0;
 
 
-/*
- * Print the copyright banner.
+/*!
+ * @brief Print the copyright banner once.
  */
 void BannerMessage( void )
 /************************/
@@ -68,8 +78,9 @@ void BannerMessage( void )
 }
 
 
-/*
- * Read a key from the console.
+/*!
+ * @brief Read a console key, folding extended keys into a single value.
+ * @return The key code, or the extended-key code.
  */
 static int get_key( void )
 /************************/
@@ -84,8 +95,8 @@ static int get_key( void )
 }
 
 
-/*
- * Print a help message.
+/*!
+ * @brief Print the long help message, pausing every screenful.
  */
 void PrintHelpMessage( void )
 /***************************/
@@ -110,9 +121,9 @@ void PrintHelpMessage( void )
 }
 
 
-/*
- * Print a message listing unsupported options which were used (using the
- * opts string) and a complete list of unsupported options.
+/*!
+ * @brief Warn about unsupported options that were ignored.
+ * @param[in] opts  String listing the offending options. Not NULL.
  */
 void UnsupportedOptsMessage( const char *opts )
 /*********************************************/
@@ -121,8 +132,8 @@ void UnsupportedOptsMessage( const char *opts )
 }
 
 
-/*
- * Disable printing of the copyright banner.
+/*!
+ * @brief Disable the copyright banner for subsequent runs.
  */
 void QuietModeMessage( void )
 /***************************/

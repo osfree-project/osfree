@@ -28,6 +28,14 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file omfdrctv.c
+ * @brief OMF comment parsing.
+ *
+ * Iterates the comment records of a note section, dispatching default
+ * library directives and disassembly scan-table directives to the
+ * caller's callback table.
+ */
 
 #include <assert.h>
 #include <stdlib.h>
@@ -41,6 +49,14 @@
 #include "pcobj.h"
 
 
+/*!
+ * @brief Parse the comment records of an OMF note section.
+ * @param[in] sh      Note section handle. Not NULL.
+ * @param[in] cb      Note callback table. Not NULL.
+ * @param[in] cookie  Callback cookie.
+ * @retval ORL_OKAY   All comments parsed.
+ * @return The first callback error, or ORL_OKAY.
+ */
 orl_return      OmfParseComments( omf_sec_handle sh, orl_note_callbacks *cb,
                                   void *cookie )
 {

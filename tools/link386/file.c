@@ -24,11 +24,18 @@
 *
 *  ========================================================================
 *
-* Description:  WHEN YOU FIGURE OUT WHAT THIS FILE DOES, PLEASE
-*               DESCRIBE IT HERE!
+* Description:  Input file list management and file-type detection.
 *
 ****************************************************************************/
 
+/*!
+ * @file file.c
+ * @brief Input file list management and file-type detection.
+ *
+ * Maintains the ordered list of files supplied on the command line,
+ * classifies them by extension (or by an explicitly forced language),
+ * and hands them out one at a time to the linker's subsystems.
+ */
 
 #include <stdarg.h>
 #include <stdlib.h>
@@ -40,36 +47,85 @@
 #include "pathconv.h"
 
 
-/*
- * Define the ListElem structure.
+/*!
+ * @struct ListElem
+ * @brief One node of the pending input file list.
  */
 struct ListElem {
-    int                 type;       /* file type */
-    char *              filename;   /* name of the file to handle */
-    struct ListElem *   next;       /* next item in the list */
+    int                 type;       /*!< File type constant. */
+    char *              filename;   /*!< Name of the file to handle. */
+    struct ListElem *   next;       /*!< Next item in the list. */
 };
 
+/*!
+ * @brief Head of the pending input file list.
+ */
 static struct ListElem *fileList = NULL;
 
+/*!
+ * @brief Default file type used when the extension is unknown.
+ */
 static int              defaultType = TYPE_INVALID_FILE;
+/*!
+ * @brief Human-readable name for @ref defaultType.
+ */
 static const char *     defaultName = NULL;
 
+/*!
+ * @brief Non-zero when .c files are accepted as input.
+ */
 static int              allowC = 0;
+/*!
+ * @brief Non-zero when C++ source files are accepted as input.
+ */
 static int              allowCPP = 0;
+/*!
+ * @brief Non-zero when .def files are accepted as input.
+ */
 static int              allowDEF = 0;
+/*!
+ * @brief Non-zero when .lib files are accepted as input.
+ */
 static int              allowLIB = 0;
+/*!
+ * @brief Non-zero when .obj files are accepted as input.
+ */
 static int              allowOBJ = 0;
+/*!
+ * @brief Non-zero when .rc files are accepted as input.
+ */
 static int              allowRC = 0;
+/*!
+ * @brief Non-zero when .res files are accepted as input.
+ */
 static int              allowRES = 0;
+/*!
+ * @brief Non-zero when .rbj files are accepted as input.
+ */
 static int              allowRBJ = 0;
+/*!
+ * @brief Non-zero when .rs files are accepted as input.
+ */
 static int              allowRS = 0;
+/*!
+ * @brief Non-zero when .exp files are accepted as input.
+ */
 static int              allowEXP = 0;
 
+/*!
+ * @brief Language forced by the user, or FORCE_NONE.
+ */
 static int              languageToForce = FORCE_NONE;
 
-/*
- * Examine a file's extension to determine what type of file it is.  If the
- * file has no extension, a warning is issued and TYPE_ASSUME_FILE is assumed.
+/*!
+ * @brief Examine a filename's extension to determine its file type.
+ *
+ * If the extension is not recognised and no default type has been
+ * configured, aborts with Zoinks().  Otherwise issues a warning and
+ * falls back to @ref defaultType.
+ *
+ * @param[in] filename  Filename, possibly quoted.  Not NULL.
+ * @return One of the TYPE_* constants.
  */
 static int file_type( const char *filename )
 /******************************************/
@@ -137,9 +193,14 @@ static int file_type( const char *filename )
 }
 
 
-/*
- * Add a file to the list.  If its type is TYPE_DEFAULT_FILE, then file_type
- * will be called to determine the file's type.
+/*!
+ * @brief Append a file to the pending input list.
+ *
+ * If @p type is TYPE_DEFAULT_FILE, file_type() is invoked to determine
+ * the actual type from the filename's extension.
+ *
+ * @param[in] type      File type, or TYPE_DEFAULT_FILE.
+ * @param[in] filename  Filename as supplied by the user.  Not NULL.
  */
 void AddFile( int type, const char *filename )
 /********************************************/
@@ -170,14 +231,19 @@ void AddFile( int type, const char *filename )
 }
 
 
-/*
- * Searches the file list for the next file of the given type.  If such a
- * file is found, a pointer to its filename is returned (this memory can
- * be freed by the caller) and its entry is removed from the file list.  If
- * no such file is found, NULL is returned.  Any additional types to match
- * may optionally be specified after type, in which case TYPE_INVALID_FILE
- * should be the last item passed.  If typeBuf is non-NULL, the file's type
- * is stored there.
+/*!
+ * @brief Remove and return the next file of one of the accepted types.
+ *
+ * Searches the pending list for the first entry whose type matches
+ * @p type or any of the following types up to TYPE_INVALID_FILE.  If
+ * @p typeBuf is non-NULL, the chosen entry's type is stored there.
+ *
+ * @param[out] typeBuf  Optional receiver for the chosen file's type.
+ * @param[in]  type     First accepted file type.
+ * @param[in]  ...      Additional accepted types, terminated by
+ *                      TYPE_INVALID_FILE.
+ * @retval NULL  No matching file remained.
+ * @return The matching filename.  Caller must FreeMem() it.
  */
 char *GetNextFile( int *typeBuf, int type, ... )
 /**********************************************/
@@ -227,8 +293,12 @@ char *GetNextFile( int *typeBuf, int type, ... )
 }
 
 
-/*
- * Set the default file type and default type description.
+/*!
+ * @brief Set the default file type and its human-readable name.
+ *
+ * @param[in] type  TYPE_* constant used when the extension is unknown.
+ * @param[in] name  Description used in the "unrecognized file type"
+ *                  warning.
  */
 void SetDefaultFile( int type, const char *name )
 /***********************************************/
@@ -238,10 +308,15 @@ void SetDefaultFile( int type, const char *name )
 }
 
 
-/*
- * Add the specified types to the list of those which are allowed.  The
- * last item must be TYPE_INVALID_FILE.  Use TYPE_DEFAULT_FILE to disallow
- * all file types.  Arguments are processed from left to right.
+/*!
+ * @brief Enable a set of file types for input.
+ *
+ * Each type named in the argument list sets its corresponding "allow"
+ * flag.  TYPE_DEFAULT_FILE clears all of them.  TYPE_INVALID_FILE
+ * terminates the list.
+ *
+ * @param[in] type  First type to enable or disable.
+ * @param[in] ...   Additional types, terminated by TYPE_INVALID_FILE.
  */
 void AllowTypeFile( int type, ... )
 /*********************************/
@@ -313,8 +388,12 @@ void AllowTypeFile( int type, ... )
 }
 
 
-/*
- * Force compilation using the specified language.
+/*!
+ * @brief Force all files to be treated as a given language.
+ *
+ * Also updates @ref defaultType accordingly.
+ *
+ * @param[in] language  FORCE_C_COMPILE or FORCE_CPP_COMPILE.
  */
 void ForceLanguage( int language )
 {

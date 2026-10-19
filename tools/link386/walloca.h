@@ -28,6 +28,10 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file walloca.h
+ * @brief Include the appropriate header that defines alloca().
+ */
 
 #ifndef WALLOCA_H_INCLUDED
 #define WALLOCA_H_INCLUDED

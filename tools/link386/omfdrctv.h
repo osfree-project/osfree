@@ -29,6 +29,10 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file omfdrctv.h
+ * @brief Declaration of the OMF comment parser.
+ */
 
 #ifndef OMF_DIRECTIVE_INCLUDED
 #define OMF_DIRECTIVE_INCLUDED
@@ -36,6 +40,14 @@
 #include "omfglbl.h"
 #include "omftype.h"
 
+/*!
+ * @brief Parse the comment records of an OMF note section.
+ * @param[in] sh      Note section handle. Not NULL.
+ * @param[in] cb      Note callback table. Not NULL.
+ * @param[in] cookie  Callback cookie.
+ * @retval ORL_OKAY   All comments parsed.
+ * @return The first callback error, or ORL_OKAY.
+ */
 orl_return      OmfParseComments(omf_sec_handle, orl_note_callbacks *, void *);
 
 #endif

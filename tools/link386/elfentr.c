@@ -29,6 +29,14 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file elfentr.c
+ * @brief ELF entry points for the Object Reader Library.
+ *
+ * Implements the ELF-specific implementation of the ORL entry points:
+ * file/segment/symbol accessors over the internal ELF handle structures
+ * built by elfload.c and elflwlv.c.
+ */
 
 #include "elfentr.h"
 #include "elfload.h"
@@ -36,6 +44,12 @@
 #include "elflwlv.h"
 #include "orlhash.h"
 
+/*!
+ * @brief Create a new ELF handle.
+ * @param[in] funcs  Allocator/reader callback table. Not NULL.
+ * @retval NULL Allocation failure.
+ * @return The new ELF handle.
+ */
 elf_handle ELFENTRY ElfInit( orl_funcs * funcs )
 {
     elf_handle                                  elf_hnd;
@@ -47,6 +61,12 @@ elf_handle ELFENTRY ElfInit( orl_funcs * funcs )
     return( elf_hnd );
 }
 
+/*!
+ * @brief Destroy an ELF handle and all of its file handles.
+ * @param[in,out] elf_hnd  ELF handle. Not NULL.
+ * @retval ORL_OKAY   Success.
+ * @return ORL_OKAY on success, or the first error from unlinking.
+ */
 orl_return ELFENTRY ElfFini( elf_handle elf_hnd )
 {
     orl_return                                  error;
@@ -59,6 +79,13 @@ orl_return ELFENTRY ElfFini( elf_handle elf_hnd )
     return( ORL_OKAY );
 }
 
+/*!
+ * @brief Open an ELF file and parse its structure.
+ * @param[in,out] elf_hnd  ELF handle. Not NULL.
+ * @param[in]     file     Caller's file object passed to the callbacks.
+ * @retval NULL Allocation failure, or the file is not valid ELF.
+ * @return The new file handle.
+ */
 elf_file_handle ELFENTRY ElfFileInit( elf_handle elf_hnd, void *file )
 {
     elf_file_handle                             elf_file_hnd;
@@ -78,11 +105,24 @@ elf_file_handle ELFENTRY ElfFileInit( elf_handle elf_hnd, void *file )
     return( elf_file_hnd );
 }
 
+/*!
+ * @brief Close an ELF file handle and free it.
+ * @param[in,out] elf_file_hnd  ELF file handle. Not NULL.
+ * @return Result of ElfRemoveFileLinks().
+ */
 orl_return ELFENTRY ElfFileFini( elf_file_handle elf_file_hnd )
 {
     return( ElfRemoveFileLinks( elf_file_hnd ) );
 }
 
+/*!
+ * @brief Scan sections (or sections matching a name) of an ELF file.
+ * @param[in,out] elf_file_hnd  ELF file handle. Not NULL.
+ * @param[in]     desired       Desired section name, or NULL for all.
+ * @param[in]     return_func   Callback invoked for each matching section.
+ * @retval ORL_OKAY  Scan completed.
+ * @return ORL_OKAY on success, or the callback's error code.
+ */
 orl_return ELFENTRY ElfFileScan( elf_file_handle elf_file_hnd, char *desired, orl_sec_return_func return_func )
 {
     orl_hash_data_struct *              data_struct;
@@ -110,61 +150,122 @@ orl_return ELFENTRY ElfFileScan( elf_file_handle elf_file_hnd, char *desired, or
     return( ORL_OKAY );
 }
 
+/*!
+ * @brief Get the machine type of an ELF file.
+ * @param[in] elf_file_hnd  ELF file handle. Not NULL.
+ * @return The machine type.
+ */
 orl_machine_type ELFENTRY ElfFileGetMachineType( elf_file_handle elf_file_hnd )
 {
     return( elf_file_hnd->machine_type );
 }
 
+/*!
+ * @brief Get the file flags of an ELF file.
+ * @param[in] elf_file_hnd  ELF file handle. Not NULL.
+ * @return The file flags.
+ */
 orl_file_flags ELFENTRY ElfFileGetFlags( elf_file_handle elf_file_hnd )
 {
     return( elf_file_hnd->flags );
 }
 
+/*!
+ * @brief Get the file type of an ELF file.
+ * @param[in] elf_file_hnd  ELF file handle. Not NULL.
+ * @return The file type.
+ */
 orl_file_type ELFENTRY ElfFileGetType( elf_file_handle elf_file_hnd )
 {
     return( elf_file_hnd->type );
 }
 
+/*!
+ * @brief Get the file size of an ELF file.
+ * @param[in] elf_file_hnd  ELF file handle. Not NULL.
+ * @return The file size in bytes.
+ */
 orl_file_size ELFENTRY ElfFileGetSize( elf_file_handle elf_file_hnd )
 {
     return( elf_file_hnd->size );
 }
 
+/*!
+ * @brief Get the symbol table section of an ELF file.
+ * @param[in] elf_file_hnd  ELF file handle. Not NULL.
+ * @return The symbol table section handle, or NULL.
+ */
 elf_sec_handle ELFENTRY ElfFileGetSymbolTable( elf_file_handle elf_file_hnd )
 {
     return( elf_file_hnd->symbol_table );
 }
 
+/*!
+ * @brief Get the name of an ELF section.
+ * @param[in] elf_sec_hnd  Section handle. Not NULL.
+ * @return NUL-terminated section name.
+ */
 char * ELFENTRY ElfSecGetName( elf_sec_handle elf_sec_hnd )
 {
     return( elf_sec_hnd->name );
 }
 
+/*!
+ * @brief Get the base address of an ELF section.
+ * @param[in] elf_sec_hnd  Section handle. Not NULL.
+ * @return The base address.
+ */
 orl_sec_offset ELFENTRY ElfSecGetBase( elf_sec_handle elf_sec_hnd )
 {
     return( elf_sec_hnd->base );
 }
 
+/*!
+ * @brief Get the declared size of an ELF section.
+ * @param[in] elf_sec_hnd  Section handle. Not NULL.
+ * @return The section size in bytes.
+ */
 orl_sec_size ELFENTRY ElfSecGetSize( elf_sec_handle elf_sec_hnd )
 {
     return( elf_sec_hnd->size );
 }
 
+/*!
+ * @brief Get the type of an ELF section.
+ * @param[in] elf_sec_hnd  Section handle. Not NULL.
+ * @return The section type.
+ */
 orl_sec_type ELFENTRY ElfSecGetType( elf_sec_handle elf_sec_hnd )
 {
     return( elf_sec_hnd->type );
 }
 
+/*!
+ * @brief Get the flags of an ELF section.
+ * @param[in] elf_sec_hnd  Section handle. Not NULL.
+ * @return The section flags.
+ */
 orl_sec_flags ELFENTRY ElfSecGetFlags( elf_sec_handle elf_sec_hnd )
 {
     return( elf_sec_hnd->flags );
 }
 
+/*!
+ * @brief Get the alignment of an ELF section.
+ * @param[in] elf_sec_hnd  Section handle. Not NULL.
+ * @return Log2 of the alignment in bytes.
+ */
 orl_sec_alignment ELFENTRY ElfSecGetAlignment( elf_sec_handle elf_sec_hnd )
 {
     return( elf_sec_hnd->alignment );
 }
 
+/*!
+ * @brief Get the string table section linked to an ELF section.
+ * @param[in] elf_sec_hnd  Section handle. Not NULL.
+ * @retval NULL The section does not have an associated string table.
+ * @return The string table section handle, or NULL.
+ */
 elf_sec_handle ELFENTRY ElfSecGetStringTable( elf_sec_handle elf_sec_hnd )
 {
     switch( elf_sec_hnd->type ) {
@@ -178,6 +279,12 @@ elf_sec_handle ELFENTRY ElfSecGetStringTable( elf_sec_handle elf_sec_hnd )
     }
 }
 
+/*!
+ * @brief Get the symbol table section linked to an ELF section.
+ * @param[in] elf_sec_hnd  Section handle. Not NULL.
+ * @retval NULL The section does not have an associated symbol table.
+ * @return The symbol table section handle, or NULL.
+ */
 elf_sec_handle ELFENTRY ElfSecGetSymbolTable( elf_sec_handle elf_sec_hnd )
 {
     switch( elf_sec_hnd->type ) {
@@ -191,6 +298,12 @@ elf_sec_handle ELFENTRY ElfSecGetSymbolTable( elf_sec_handle elf_sec_hnd )
     }
 }
 
+/*!
+ * @brief Get the reloc table section linked to an ELF section.
+ * @param[in] elf_sec_hnd  Section handle. Not NULL.
+ * @retval NULL The section has no associated reloc table.
+ * @return The reloc section handle, or NULL.
+ */
 elf_sec_handle ELFENTRY ElfSecGetRelocTable( elf_sec_handle elf_sec_hnd )
 {
     switch( elf_sec_hnd->type ) {
@@ -206,6 +319,14 @@ elf_sec_handle ELFENTRY ElfSecGetRelocTable( elf_sec_handle elf_sec_hnd )
     }
 }
 
+/*!
+ * @brief Get the contents buffer of an ELF section.
+ * @param[in,out] elf_sec_hnd  Section handle. Not NULL.
+ * @param[out]    buffer       Receiver for the contents pointer. Not NULL.
+ * @retval ORL_OKAY   Contents available.
+ * @retval ORL_ERROR  Section has no contents.
+ * @return ORL_OKAY on success.
+ */
 orl_return ELFENTRY ElfSecGetContents( elf_sec_handle elf_sec_hnd, char **buffer )
 {
     if( elf_sec_hnd->contents != NULL ) {
@@ -215,6 +336,14 @@ orl_return ELFENTRY ElfSecGetContents( elf_sec_handle elf_sec_hnd, char **buffer
     return( ORL_ERROR );
 }
 
+/*!
+ * @brief Scan relocations of an ELF section at a specific offset.
+ * @param[in] elf_sec_hnd  Section handle. Not NULL.
+ * @param[in] sec_offset   Offset to match.
+ * @param[in] return_func  Callback invoked for each matching relocation.
+ * @retval ORL_ERROR  Section is not a program-bits section.
+ * @return Callback result, ORL_FALSE if no match.
+ */
 orl_return ELFENTRY ElfSecQueryReloc( elf_sec_handle elf_sec_hnd, elf_sec_offset sec_offset, orl_reloc_return_func return_func )
 {
     int                                         index;
@@ -241,6 +370,13 @@ orl_return ELFENTRY ElfSecQueryReloc( elf_sec_handle elf_sec_hnd, elf_sec_offset
     return( return_val );
 }
 
+/*!
+ * @brief Scan all relocations of an ELF section.
+ * @param[in] elf_sec_hnd  Section handle. Not NULL.
+ * @param[in] return_func  Callback invoked for each relocation.
+ * @retval ORL_ERROR  Section is not a program-bits section.
+ * @return Callback result, or ORL_TRUE if none.
+ */
 orl_return ELFENTRY ElfSecScanReloc( elf_sec_handle elf_sec_hnd, orl_reloc_return_func return_func )
 {
     int                                         index;
@@ -268,8 +404,16 @@ orl_return ELFENTRY ElfSecScanReloc( elf_sec_handle elf_sec_hnd, orl_reloc_retur
     return( ORL_TRUE );
 }
 
-// One of these should be implimented O(1), but the section handles
-// get reordered in ElfLoad.
+/*!
+ * @brief Convert an ELF section handle to its index.
+ *
+ * One of these should be implemented O(1), but the section handles
+ * get reordered in ElfLoad.
+ *
+ * @param[in] shdl  Section handle. Not NULL.
+ * @retval 0  Section handle not found in the file.
+ * @return The section index, or 0 if not found.
+ */
 orl_table_index ELFENTRY ElfCvtSecHdlToIdx( elf_sec_handle shdl )
 {
     orl_table_index     index;
@@ -286,6 +430,13 @@ orl_table_index ELFENTRY ElfCvtSecHdlToIdx( elf_sec_handle shdl )
     return 0;
 }
 
+/*!
+ * @brief Convert an ELF index to a section handle.
+ * @param[in] fhdl  File handle. Not NULL.
+ * @param[in] idx   Section index.
+ * @retval 0  Index not found.
+ * @return The matching section handle, or NULL.
+ */
 elf_sec_handle ELFENTRY ElfCvtIdxToSecHdl( elf_file_handle fhdl,
                                               orl_table_index idx )
 {
@@ -301,6 +452,13 @@ elf_sec_handle ELFENTRY ElfCvtIdxToSecHdl( elf_file_handle fhdl,
     return 0;
 }
 
+/*!
+ * @brief Scan a reloc section's relocation entries.
+ * @param[in] elf_sec_hnd  Reloc section handle. Not NULL.
+ * @param[in] return_func  Callback invoked for each relocation.
+ * @retval ORL_ERROR  Section is not a reloc section.
+ * @return Callback result, or ORL_TRUE if none.
+ */
 orl_return ELFENTRY ElfRelocSecScan( elf_sec_handle elf_sec_hnd, orl_reloc_return_func return_func )
 {
     int                                         index;
@@ -322,6 +480,13 @@ orl_return ELFENTRY ElfRelocSecScan( elf_sec_handle elf_sec_hnd, orl_reloc_retur
     return( ORL_TRUE );
 }
 
+/*!
+ * @brief Scan a symbol table section's symbols.
+ * @param[in] elf_sec_hnd  Symbol table section handle. Not NULL.
+ * @param[in] return_func  Callback invoked for each symbol.
+ * @retval ORL_ERROR  Section is not a symbol table.
+ * @return Callback result.
+ */
 orl_return ELFENTRY ElfSymbolSecScan( elf_sec_handle elf_sec_hnd, orl_symbol_return_func return_func )
 {
     int                                         index;
@@ -348,6 +513,15 @@ orl_return ELFENTRY ElfSymbolSecScan( elf_sec_handle elf_sec_hnd, orl_symbol_ret
     return( ORL_OKAY );
 }
 
+/*!
+ * @brief Scan a note section's directive records.
+ * @param[in] hnd     Note section handle. Not NULL.
+ * @param[in] cb      Note callback table. Not NULL.
+ * @param[in] cookie  Callback cookie.
+ * @retval ORL_OKAY   Section is not a directive note, or parsing completed.
+ * @retval ORL_ERROR  Section is not a note section.
+ * @return Result of ElfParseDrectve().
+ */
 orl_return ELFENTRY ElfNoteSecScan( elf_sec_handle hnd,
                                     orl_note_callbacks *cb, void *cookie )
 /**************************************************************************/
@@ -358,31 +532,62 @@ orl_return ELFENTRY ElfNoteSecScan( elf_sec_handle hnd,
     return( ElfParseDrectve( hnd->contents, hnd->size, cb, cookie ) );
 }
 
+/*!
+ * @brief Get the name of an ELF symbol.
+ * @param[in] elf_symbol_hnd  Symbol handle. Not NULL.
+ * @return NUL-terminated symbol name, or NULL.
+ */
 char * ELFENTRY ElfSymbolGetName( elf_symbol_handle elf_symbol_hnd )
 {
     return( elf_symbol_hnd->name );
 }
 
+/*!
+ * @brief Get the value (offset) of an ELF symbol.
+ * @param[in] elf_symbol_hnd  Symbol handle. Not NULL.
+ * @return The symbol value.
+ */
 orl_symbol_value ELFENTRY ElfSymbolGetValue( elf_symbol_handle elf_symbol_hnd )
 {
     return( elf_symbol_hnd->value );
 }
 
+/*!
+ * @brief Get the binding of an ELF symbol.
+ * @param[in] elf_symbol_hnd  Symbol handle. Not NULL.
+ * @return The symbol binding.
+ */
 orl_symbol_binding ELFENTRY ElfSymbolGetBinding( elf_symbol_handle elf_symbol_hnd )
 {
     return( elf_symbol_hnd->binding );
 }
 
+/*!
+ * @brief Get the type flags of an ELF symbol.
+ * @param[in] elf_symbol_hnd  Symbol handle. Not NULL.
+ * @return The symbol type flags.
+ */
 orl_symbol_type ELFENTRY ElfSymbolGetType( elf_symbol_handle elf_symbol_hnd )
 {
     return( elf_symbol_hnd->type );
 }
 
+/*!
+ * @brief Get the raw info byte of an ELF symbol.
+ * @param[in] elf_symbol_hnd  Symbol handle. Not NULL.
+ * @return The raw st_info byte.
+ */
 unsigned char ELFENTRY ElfSymbolGetRawInfo( elf_symbol_handle elf_symbol_hnd )
 {
     return( elf_symbol_hnd->info );
 }
 
+/*!
+ * @brief Get the section that contains an ELF symbol.
+ * @param[in] elf_symbol_hnd  Symbol handle. Not NULL.
+ * @retval NULL Symbol is absolute, common or undefined.
+ * @return The containing section handle, or NULL.
+ */
 elf_sec_handle ELFENTRY ElfSymbolGetSecHandle( elf_symbol_handle elf_symbol_hnd )
 {
     switch( elf_symbol_hnd->shndx ) {
@@ -395,6 +600,11 @@ elf_sec_handle ELFENTRY ElfSymbolGetSecHandle( elf_symbol_handle elf_symbol_hnd 
     }
 }
 
+/*!
+ * @brief Get the symbol referenced by an ELF symbol.
+ * @param[in] elf_symbol_hnd  Symbol handle. Not NULL.
+ * @return Always the same handle (ELF has no separate weak target).
+ */
 elf_symbol_handle ELFENTRY ElfSymbolGetAssociated( elf_symbol_handle elf_symbol_hnd )
 {
     return elf_symbol_hnd;

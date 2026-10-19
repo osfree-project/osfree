@@ -29,6 +29,10 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file dlltool.h
+ * @brief Loader for IDE-style tool DLLs (e.g. WLIB) used by the link clone.
+ */
 
 #ifndef _DLLTOOL_H
 #define _DLLTOOL_H
@@ -40,29 +44,70 @@
 /*
  * Defines for specifying which tool to use.
  */
+
+/*!
+ * @def DLLTOOL_WLIB
+ * @brief Selects the WLIB DLL (the only supported tool).
+ */
 #define DLLTOOL_WLIB    0
 
 
 /*
  * Define some types.
  */
+
+/*!
+ * @typedef IDEMsgInfo2Fn
+ * @brief Version-2 structured message callback signature.
+ * @param[in] hdl   Caller handle.
+ * @param[in] info  Structured message. Not NULL.
+ * @retval 0  Message not consumed.
+ * @retval non-zero Message consumed.
+ * @return Non-zero when the message was consumed.
+ */
 typedef IDEBool __stdcall (*IDEMsgInfo2Fn)( IDECBHdl hdl, IDEMsgInfo2 *info );
 
+/*!
+ * @struct DllToolCallbacks
+ * @brief Caller-supplied callback table used by InitDllTool().
+ */
 typedef struct {
-    IDEPrintMsgFn       printmessage;
-    IDEPrintMsgFn       printmessageCRLF;
-    IDEMsgInfo2Fn       printwithinfo2;
-    IDEMsgInfoFn        printwithinfo;
-    void *              cookie;             /* passed to callback routines */
+    IDEPrintMsgFn       printmessage;       /*!< Plain message sink. May be NULL. */
+    IDEPrintMsgFn       printmessageCRLF;   /*!< Plain message sink with CRLF. May be NULL. */
+    IDEMsgInfo2Fn       printwithinfo2;     /*!< Structured message sink (v2). May be NULL. */
+    IDEMsgInfoFn        printwithinfo;      /*!< Structured message sink (v3+). May be NULL. */
+    void *              cookie;             /*!< Passed to callback routines. */
 } DllToolCallbacks;
 
 
 /*
  * Function prototypes.
  */
+
+/*!
+ * @brief Load and initialize an IDE tool DLL.
+ * @param[in] whichtool  One of the DLLTOOL_* constants.
+ * @param[in] callbacks  Callback table. Not NULL.
+ * @retval NULL Load or initialization failed.
+ * @return Opaque tool handle.
+ */
 extern void *   InitDllTool( int whichtool,
                              const DllToolCallbacks *callbacks );
+
+/*!
+ * @brief Unload a tool DLL previously opened with InitDllTool().
+ * @param[in] tool  Opaque tool handle. Not NULL.
+ */
 extern void     FiniDllTool( void *tool );
+
+/*!
+ * @brief Run the tool DLL with a command line.
+ * @param[in] tool     Opaque tool handle. Not NULL.
+ * @param[in] cmdline  Command line. Not NULL.
+ * @retval 0  Tool reported failure.
+ * @retval 1  Tool succeeded.
+ * @return 1 on success, 0 on failure.
+ */
 extern int      RunDllTool( void *tool, const char *cmdline );
 
 

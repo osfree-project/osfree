@@ -28,14 +28,33 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file cofflwlv.c
+ * @brief COFF symbol table and relocation processing.
+ *
+ * Builds ORL symbol handles, section-name hash tables and relocation
+ * records from a loaded COFF file, converts COFF line-number records,
+ * and parses `.drectve` comment payloads.
+ */
 
 #include "cofflwlv.h"
 #include "orlhash.h"
 #include "walloca.h"
 #ifdef _BSD_SOURCE
+/*!
+ * @def stricmp
+ * @brief Case-insensitive string comparison alias for BSD hosts.
+ */
 #define stricmp strcasecmp
 #endif
 
+/*!
+ * @brief Build ORL symbol handles from a COFF symbol table.
+ * @param[in,out] file_hnd  COFF file handle. Not NULL.
+ * @retval ORL_OKAY            Success.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return CoffCreateSymbolHandles( coff_file_handle file_hnd )
 {
     int                 loop;
@@ -193,6 +212,13 @@ orl_return CoffCreateSymbolHandles( coff_file_handle file_hnd )
     return( ORL_OKAY );
 }
 
+/*!
+ * @brief Build the section-name hash table of a COFF file.
+ * @param[in,out] coff_file_hnd  COFF file handle. Not NULL.
+ * @retval ORL_OKAY            Success.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return CoffBuildSecNameHashTable( coff_file_handle coff_file_hnd )
 {
     int                                         loop;
@@ -209,6 +235,12 @@ orl_return CoffBuildSecNameHashTable( coff_file_handle coff_file_hnd )
     return( ORL_OKAY );
 }
 
+/*!
+ * @brief Translate a COFF relocation type to an ORL relocation type.
+ * @param[in] coff_file_hnd  COFF file handle (carries machine type).
+ * @param[in] coff_type      COFF relocation type.
+ * @return The corresponding ORL relocation type.
+ */
 orl_reloc_type CoffConvertRelocType( coff_file_handle coff_file_hnd, coff_reloc_type coff_type ) {
     if( coff_file_hnd->machine_type == ORL_MACHINE_TYPE_ALPHA ) {
         switch( coff_type ) {
@@ -357,6 +389,14 @@ orl_reloc_type CoffConvertRelocType( coff_file_handle coff_file_hnd, coff_reloc_
     return( 0 );
 }
 
+/*!
+ * @brief Build ORL relocation records from a COFF reloc section.
+ * @param[in]     orig_sec   Section the relocations apply to. Not NULL.
+ * @param[in,out] reloc_sec  Reloc section. Not NULL.
+ * @retval ORL_OKAY            Success.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return CoffCreateRelocs( coff_sec_handle orig_sec, coff_sec_handle reloc_sec )
 {
     orl_return  return_val;
@@ -401,6 +441,19 @@ orl_return CoffCreateRelocs( coff_sec_handle orig_sec, coff_sec_handle reloc_sec
     return( ORL_OKAY );
 }
 
+/*!
+ * @brief Convert a COFF section's line-number records to ORL form.
+ *
+ * Rewrites the line-number array in place.  Line-0 records (which
+ * carry function-symbol indices) are resolved to their function's
+ * value and their `.bf` line-number base is applied to the following
+ * line records.
+ *
+ * @param[in,out] hdl       Section handle. Not NULL.
+ * @param[in]     numlines  Number of line records.
+ * @retval NULL  Symbol handles could not be built.
+ * @return Pointer to the converted line-number array.
+ */
 orl_linnum * CoffConvertLines( coff_sec_handle hdl, orl_table_index numlines )
 /****************************************************************************/
 {
@@ -443,6 +496,13 @@ orl_linnum * CoffConvertLines( coff_sec_handle hdl, orl_table_index numlines )
     return (orl_linnum *) linestart;
 }
 
+/*!
+ * @brief Find the first byte in @p s that occurs in @p charset.
+ * @param[in] s        String to scan. Not NULL.
+ * @param[in] charset  NUL-terminated set of stop characters. Not NULL.
+ * @param[in] len      Maximum number of bytes to scan.
+ * @return Index of the first matching byte, or @p len.
+ */
 static size_t strncspn( char *s, char *charset, int len) {
     char chartable[32];
     int i;
@@ -462,12 +522,24 @@ static size_t strncspn( char *s, char *charset, int len) {
     return i;
 }
 
+/*!
+ * @brief Advance @p s past bytes matching @p charset and update @p len.
+ * @param[in] s        String. Not NULL.
+ * @param[in] charset  Stop-character set. Not NULL.
+ * @param[in,out] len  Remaining length; decremented by the skipped count.
+ * @return Pointer to the first non-matching byte.
+ */
 static char *pstrncspn( char *s, char *charset, int *len ) {
     int l = strncspn(s, charset, *len);
     *len -= l;
     return s + l;
 }
 
+/*!
+ * @brief Skip whitespace, '=' and ',' separators in a directive buffer.
+ * @param[in,out] contents  Buffer pointer; advanced past the skipped bytes.
+ * @param[in,out] len       Remaining length; decremented accordingly.
+ */
 static void EatWhite( char **contents, int *len )
 /***********************************************/
 {
@@ -480,6 +552,14 @@ static void EatWhite( char **contents, int *len )
     }
 }
 
+/*!
+ * @brief Parse and dispatch one `-export:` argument from a directive.
+ * @param[in,out] contents  Buffer pointer. Not NULL.
+ * @param[in,out] len       Remaining length. Not NULL.
+ * @param[in]     cb        Note callback table. Not NULL.
+ * @param[in]     cookie    Callback cookie.
+ * @return Result of @c cb->export_fn().
+ */
 static orl_return ParseExport( char **contents, int *len,
                                 orl_note_callbacks *cb, void *cookie )
 /********************************************************************/
@@ -496,6 +576,14 @@ static orl_return ParseExport( char **contents, int *len,
 }
 
 
+/*!
+ * @brief Parse one or more `-defaultlib:` / `-entry:` arguments.
+ * @param[in,out] contents        Buffer pointer. Not NULL.
+ * @param[in,out] len             Remaining length. Not NULL.
+ * @param[in]     deflibentry_fn  Callback invoked per argument.
+ * @param[in]     cookie          Callback cookie.
+ * @return Result of @p deflibentry_fn, or ORL_ERROR on parse failure.
+ */
 static orl_return ParseDefLibEntry( char **contents, int *len,
     orl_return  (*deflibentry_fn)( char *, void * ), void *cookie )
 /************************************************************************/
@@ -519,6 +607,15 @@ static orl_return ParseDefLibEntry( char **contents, int *len,
     return retval;
 }
 
+/*!
+ * @brief Parse a `.drectve` comment payload from a COFF note section.
+ * @param[in] contents  Directive payload. Not NULL.
+ * @param[in] len       Payload length in bytes.
+ * @param[in] cb        Note callback table. Not NULL.
+ * @param[in] cookie    Callback cookie.
+ * @retval ORL_OKAY  Parsing completed.
+ * @return ORL_OKAY (or the callback's error code if parsing aborts).
+ */
 orl_return CoffParseDrectve( char *contents, int len, orl_note_callbacks *cb,
                              void *cookie)
 /*******************************************************************/

@@ -29,6 +29,10 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file message.h
+ * @brief Public message helpers shared by the linker clone tools.
+ */
 
 #ifndef _MESSAGES_H
 #define _MESSAGES_H
@@ -37,9 +41,23 @@
 /*
  * Function prototypes.
  */
+
+/*!
+ * @brief Print the copyright banner once.
+ */
 extern void     BannerMessage( void );
+/*!
+ * @brief Print the long help message, pausing every screenful.
+ */
 extern void     PrintHelpMessage( void );
+/*!
+ * @brief Warn about unsupported options that were ignored.
+ * @param[in] opts  String listing the offending options. Not NULL.
+ */
 extern void     UnsupportedOptsMessage( const char *opts );
+/*!
+ * @brief Disable the copyright banner for subsequent runs.
+ */
 extern void     QuietModeMessage( void );
 
 

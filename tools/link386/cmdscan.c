@@ -28,6 +28,14 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file cmdscan.c
+ * @brief Low-level token scanners driven by a context stream.
+ *
+ * Implements whitespace skipping, character recognition, string and
+ * file name scanning, and number scanning.  All reads go through the
+ * current context (command line, environment variable, or file).
+ */
 
 #include <ctype.h>
 #include <stddef.h>
@@ -36,13 +44,25 @@
 #include "pathconv.h"
 
 
+/*!
+ * @brief Append a character to a dynamically grown string.
+ * @param[in] buf      Current buffer.
+ * @param[in,out] bufsize  Allocated size of @p buf.
+ * @param[in] offset   Insertion offset.
+ * @param[in] ch       Character to append.
+ * @return Pointer to the (possibly reallocated) buffer.
+ */
 static char *   got_char( char *buf, size_t *bufsize, size_t offset, char ch );
 
+/*!
+ * @brief Non-zero while inside a quoted string in CmdScanString.
+ */
 int Quoted = 0;
 
-/*
- * Skip all whitespace characters, such that the next read will retrieve the
- * first non-whitespace character.
+/*!
+ * @brief Skip all whitespace characters.
+ *
+ * The next read will retrieve the first non-whitespace character.
  */
 void CmdScanWhitespace( void )
 /****************************/
@@ -56,10 +76,16 @@ void CmdScanWhitespace( void )
 }
 
 
-/*
- * If the next character is ch (in either uppercase or lowercase form), it
- * is consumed and a non-zero value is returned; otherwise, it is not
- * consumed and zero is returned.
+/*!
+ * @brief Recognise a character in either case.
+ *
+ * If the next character is @p ch (in either uppercase or lowercase
+ * form), it is consumed and a non-zero value is returned; otherwise,
+ * it is not consumed and zero is returned.
+ *
+ * @param[in] ch  Character to recognise.
+ * @retval 1  Character matched and consumed.
+ * @retval 0  Character did not match.
  */
 int CmdScanRecogChar( int ch )
 /****************************/
@@ -73,9 +99,16 @@ int CmdScanRecogChar( int ch )
 }
 
 
-/*
- * If the next character is ch, it is consumed and a non-zero value is
- * returned; otherwise, it is not consumed and zero is returned.
+/*!
+ * @brief Recognise an exact character.
+ *
+ * If the next character is @p ch, it is consumed and a non-zero
+ * value is returned; otherwise, it is not consumed and zero is
+ * returned.
+ *
+ * @param[in] ch  Character to recognise.
+ * @retval 1  Character matched and consumed.
+ * @retval 0  Character did not match.
  */
 int CmdScanRecogCharExact( int ch )
 /*********************************/
@@ -89,11 +122,17 @@ int CmdScanRecogCharExact( int ch )
 }
 
 
-/*
- * Scan a string.  No leading whitespace is allowed.  Returns a pointer
- * to newly allocated memory containing the string.  If leading whitespace
- * is found, returns NULL.  Quotes embedded within a string must be escaped
- * by a preceding backslash; two consecutive backslashes are reduced to one.
+/*!
+ * @brief Scan a string.
+ *
+ * No leading whitespace is allowed.  Returns a pointer to newly
+ * allocated memory containing the string.  If leading whitespace
+ * is found, returns NULL.  Quotes embedded within a string must be
+ * escaped by a preceding backslash; two consecutive backslashes are
+ * reduced to one.
+ *
+ * @retval NULL  Leading whitespace or no more data.
+ * @return A newly allocated NUL-terminated string.
  */
 char *CmdScanString( void )
 /*************************/
@@ -169,11 +208,15 @@ char *CmdScanString( void )
 }
 
 
-/*
- * Scan a filename.  No leading whitespace is allowed.  Returns a pointer
- * to newly allocated memory containing the filename string.  If filename
- * contained a quote character, returned string contains quotes. If leading
+/*!
+ * @brief Scan a filename.
+ *
+ * No leading whitespace is allowed.  If the filename contained a
+ * quote character, the returned string contains quotes.  If leading
  * whitespace is found, returns NULL.
+ *
+ * @retval NULL  Leading whitespace or no more data.
+ * @return A newly allocated NUL-terminated filename string.
  */
 char *CmdScanFileName( void )
 /***************************/
@@ -191,10 +234,14 @@ char *CmdScanFileName( void )
     return( newstr );
 }
 
-/*
- * Scan a filename without quotes.  No leading whitespace is allowed.  Returns a pointer
- * to newly allocated memory containing the filename string.  If leading
- * whitespace is found, returns NULL.
+/*!
+ * @brief Scan a filename without quote processing.
+ *
+ * No leading whitespace is allowed.  If leading whitespace is found,
+ * returns NULL.
+ *
+ * @retval NULL  Leading whitespace or no more data.
+ * @return A newly allocated NUL-terminated filename string.
  */
 char *CmdScanFileNameWithoutQuotes( void )
 /***************************/
@@ -213,9 +260,15 @@ char *CmdScanFileNameWithoutQuotes( void )
 }
 
 
-/*
- * Scan a number.  No leading whitespace is allowed.  Returns true if a
- * number was successfully parsed, or zero on error.
+/*!
+ * @brief Scan a number.
+ *
+ * No leading whitespace is allowed.  Recognises decimal and 0x-prefixed
+ * hexadecimal forms.
+ *
+ * @param[out] num  Receives the parsed value.
+ * @retval 1  A number was parsed.
+ * @retval 0  No number was parsed.
  */
 int CmdScanNumber( unsigned *num )
 /********************************/
@@ -269,10 +322,16 @@ int CmdScanNumber( unsigned *num )
 }
 
 
-/*
- * Append a character to a dynamically allocated string, increasing the
- * buffer size if necessary.  Returns a pointer to a buffer containing the
- * new data.
+/*!
+ * @brief Append a character to a dynamically allocated string.
+ *
+ * Increases the buffer size if necessary.
+ *
+ * @param[in] buf      Current buffer.
+ * @param[in,out] bufsize  Allocated size of @p buf.
+ * @param[in] offset   Insertion offset.
+ * @param[in] ch       Character to append.
+ * @return Pointer to the (possibly reallocated) buffer.
  */
 static char *got_char( char *buf, size_t *bufsize, size_t offset, char ch )
 /*************************************************************************/

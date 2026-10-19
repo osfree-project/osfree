@@ -29,6 +29,10 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file system.h
+ * @brief Target CPU name string used in banners.
+ */
 
 #ifndef _SYSTEM_H
 #define _SYSTEM_H
@@ -37,10 +41,22 @@
  * Define the CPU name string.
  */
 #if defined(__TARGET_386__)
+    /*!
+     * @def CPU_NAME
+     * @brief CPU name string for 386 targets.
+     */
     #define CPU_NAME            "386"
 #elif defined(__TARGET_AXP__)
+    /*!
+     * @def CPU_NAME
+     * @brief CPU name string for Alpha (AXP) targets.
+     */
     #define CPU_NAME            "AXP"
 #elif defined(__TARGET_PPC__)
+    /*!
+     * @def CPU_NAME
+     * @brief CPU name string for PowerPC targets.
+     */
     #define CPU_NAME            "PPC"
 #else
     #error Unrecognized CPU type

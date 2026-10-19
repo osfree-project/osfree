@@ -29,6 +29,10 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file hash.c
+ * @brief Generic chained hash table.
+ */
 
 #include "error.h"
 #include "hash.h"
@@ -38,21 +42,36 @@
 /*
  * Define some types.
  */
+
+/*!
+ * @struct ListElem
+ * @brief One element in a hash bucket's chain.
+ */
 typedef struct _ListElem {
-    const void *        data;
-    struct _ListElem *  next;
+    const void *        data;       /*!< The stored item. */
+    struct _ListElem *  next;       /*!< Next chain element, or NULL. */
 } ListElem;
 
+/*!
+ * @struct Hash
+ * @brief Internal hash table state.
+ */
 typedef struct _Hash {
-    unsigned            numbuckets;
-    HashFunction        hashfunc;
-    HashCompareFunction comparefunc;
-    ListElem **         buckets;
+    unsigned            numbuckets; /*!< Number of buckets. */
+    HashFunction        hashfunc;   /*!< Hash function. */
+    HashCompareFunction comparefunc;/*!< Equality predicate. */
+    ListElem **         buckets;    /*!< Bucket array. */
 } Hash;
 
 
-/*
- * Return non-zero if the given item is in the given bucket.
+/*!
+ * @brief Test whether an item is present in a given bucket.
+ * @param[in] table   Hash table. Not NULL.
+ * @param[in] item    Item to test. Not NULL.
+ * @param[in] bucket  Bucket index.
+ * @retval 0  Not present.
+ * @retval 1  Present.
+ * @return 1 if the item is already in the bucket.
  */
 static int is_in_bucket( const Hash *table, const void *item,
                          unsigned bucket )
@@ -72,10 +91,13 @@ static int is_in_bucket( const Hash *table, const void *item,
 }
 
 
-/*
- * Create a new hash table.  Note that 'hashfunc' will return a hash value
- * given an element, and 'comparefunc' will return non-zero iff the two
- * elements passed to it are equal.
+/*!
+ * @brief Create an empty hash table.
+ * @param[in] numbuckets   Number of buckets (must be > 0).
+ * @param[in] hashfunc     Hash function. Not NULL.
+ * @param[in] comparefunc  Equality predicate. Not NULL.
+ * @retval NULL Allocation failure.
+ * @return The new hash table.
  */
 HashTable InitHash( unsigned numbuckets, HashFunction hashfunc,
                     HashCompareFunction comparefunc )
@@ -97,9 +119,10 @@ HashTable InitHash( unsigned numbuckets, HashFunction hashfunc,
 }
 
 
-/*
- * Destroy a hash table.  If 'freeitems' is nonzero, FreeMem will be
- * called on each element before it is removed from the hash table.
+/*!
+ * @brief Destroy a hash table.
+ * @param[in] _table     Table to destroy. Not NULL.
+ * @param[in] freeitems  Non-zero to also free the items via FreeMem().
  */
 void FiniHash( HashTable _table, int freeitems )
 /**********************************************/
@@ -123,8 +146,10 @@ void FiniHash( HashTable _table, int freeitems )
 }
 
 
-/*
- * Insert an item into a hash table.  Duplicates are ignored.
+/*!
+ * @brief Insert an item into a hash table. Duplicates are ignored.
+ * @param[in,out] _table  Hash table. Not NULL.
+ * @param[in]     item    Item to insert. Not NULL.
  */
 void InsertHash( HashTable *_table, const void *item )
 /***************************************************/
@@ -144,11 +169,12 @@ void InsertHash( HashTable *_table, const void *item )
 }
 
 
-/*
- * Walk through the bucket to which 'item' hashes.  For each element in
- * the bucket, 'callback' will be called with a pointer to the item and
- * 'cookie', which can be useful for tracking progress or whatever.  The
- * walk will cease early if 'callback' returns zero.
+/*!
+ * @brief Walk the bucket that a given item would hash to.
+ * @param[in,out] _table    Hash table. Not NULL.
+ * @param[in]     item      Item that determines the bucket. Not NULL.
+ * @param[in]     callback  Walk callback. Not NULL.
+ * @param[in]     cookie    Caller-supplied context. May be NULL.
  */
 void WalkBucketHash( HashTable *_table, const void *item,
                      HashWalkCallback callback, void *cookie )

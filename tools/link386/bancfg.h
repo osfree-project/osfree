@@ -28,8 +28,28 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file bancfg.h
+ * @brief Banner version configuration macros.
+ */
 
+/*!
+ * @def _BANVER
+ * @brief Numeric banner version (e.g. 2000 for 2.0).
+ */
 #define _BANVER     2000
+/*!
+ * @def _BETAVER
+ * @brief Non-zero beta number for this build, or undefined for release.
+ */
 #define _BETAVER    1
+/*!
+ * @def _BANEXTRA
+ * @brief Extra text appended to the version string for beta builds.
+ */
 #define _BANEXTRA   " Limited Availability"
+/*!
+ * @def _BANEXSHORT
+ * @brief Short extra text appended to the version string.
+ */
 #define _BANEXSHORT " LA"

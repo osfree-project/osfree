@@ -29,13 +29,28 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file elfflhn.h
+ * @brief Link/unlink ELF file handles in the ELF handle's list.
+ */
 
 #ifndef ELF_FLHN_INCLUDED
 #define ELF_FLHN_INCLUDED
 
 #include "elfglbl.h"
 
+/*!
+ * @brief Push a new ELF file handle onto the head of the ELF handle list.
+ * @param[in,out] hnd       ELF handle. Not NULL.
+ * @param[in,out] file_hnd  File handle to link. Not NULL.
+ */
 extern void                     ElfAddFileLinks( elf_handle, elf_file_handle );
+
+/*!
+ * @brief Unlink an ELF file handle and free it.
+ * @param[in,out] file_hnd  File handle to remove. Not NULL.
+ * @return ORL_OKAY.
+ */
 extern orl_return               ElfRemoveFileLinks( elf_file_handle );
 
 #endif

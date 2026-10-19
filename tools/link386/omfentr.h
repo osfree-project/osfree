@@ -29,6 +29,14 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file omfentr.h
+ * @brief OMF entry point declarations.
+ *
+ * The actual prototypes live in omforl.h; this header merely
+ * provides the shared OMF globals to the entry point translation
+ * unit.
+ */
 
 #ifndef OMF_ENTRY_INCLUDED
 #define OMF_ENTRY_INCLUDED

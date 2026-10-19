@@ -29,13 +29,29 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file omfflhn.h
+ * @brief Link/unlink OMF file handles in the OMF handle's list.
+ */
 
 #ifndef OMF_FILE_HANDLES_INCLUDED
 #define OMF_FILE_HANDLES_INCLUDED
 
 #include "omfglbl.h"
 
+/*!
+ * @brief Push a new OMF file handle onto the head of the OMF handle list.
+ * @param[in,out] oh   OMF handle. Not NULL.
+ * @param[in,out] ofh  File handle to link. Not NULL.
+ */
 void                    OmfAddFileLinks( omf_handle oh, omf_file_handle ofh );
+
+/*!
+ * @brief Unlink an OMF file handle from its OMF handle and free it.
+ * @param[in,out] ofh  File handle to remove. Not NULL.
+ * @retval ORL_OKAY Always returns ORL_OKAY.
+ * @return ORL_OKAY.
+ */
 orl_return              OmfRemoveFileLinks( omf_file_handle ofh );
 
 #endif

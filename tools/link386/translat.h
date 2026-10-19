@@ -29,6 +29,10 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file translat.h
+ * @brief Microsoft LINK to Watcom option translator.
+ */
 
 #ifndef _TRANSLAT_H
 #define _TRANSLAT_H
@@ -39,6 +43,12 @@
 
 /*
  * Function prototypes.
+ */
+
+/*!
+ * @brief Translate the scanned MS LINK options into Watcom linker options.
+ * @param[in,out] cmdOpts  Scanned options. Not NULL.
+ * @param[in,out] cmdLine  CmdLine to fill. Not NULL.
  */
 extern void     OptionsTranslate( OPT_STORAGE *cmdOpts, CmdLine *cmdLine );
 

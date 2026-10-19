@@ -29,5 +29,10 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file deff386.c
+ * @brief Build deffile.c for a 386 target.
+ */
+
 #define __TARGET_386__
 #include "deffile.c"

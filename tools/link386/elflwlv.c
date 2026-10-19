@@ -28,15 +28,32 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file elflwlv.c
+ * @brief ELF format low-level processing of symbols and relocations.
+ *
+ * Byte-swaps ELF symbol and relocation records, builds ORL symbol
+ * handles, builds section-name hash tables, translates per-architecture
+ * relocation types and parses `.drectve` comment payloads.
+ */
 
 #include <assert.h>
 #include "walloca.h"
 #include "elflwlv.h"
 #include "orlhash.h"
 #ifdef _BSD_SOURCE
+/*!
+ * @def stricmp
+ * @brief Case-insensitive string comparison alias for BSD hosts.
+ */
 #define stricmp strcasecmp
 #endif
 
+/*!
+ * @brief Convert a 32-bit ELF symbol record from file to host order.
+ * @param[in]     elf_file_hnd  ELF file handle (carries byte-order flag).
+ * @param[in,out] e_sym         ELF32 symbol to convert.
+ */
 static void fix_sym_byte_order( elf_file_handle elf_file_hnd, Elf32_Sym *e_sym )
 {
     // note that one of the branches will always get compiled out,
@@ -55,6 +72,11 @@ static void fix_sym_byte_order( elf_file_handle elf_file_hnd, Elf32_Sym *e_sym )
 }
 
 
+/*!
+ * @brief Convert a 64-bit ELF symbol record from file to host order.
+ * @param[in]     elf_file_hnd  ELF file handle (carries byte-order flag).
+ * @param[in,out] e_sym         ELF64 symbol to convert.
+ */
 static void fix_sym64_byte_order( elf_file_handle elf_file_hnd, Elf64_Sym *e_sym )
 {
     // note that one of the branches will always get compiled out,
@@ -73,6 +95,11 @@ static void fix_sym64_byte_order( elf_file_handle elf_file_hnd, Elf64_Sym *e_sym
 }
 
 
+/*!
+ * @brief Convert a 32-bit ELF REL record from file to host order.
+ * @param[in]     elf_file_hnd  ELF file handle (carries byte-order flag).
+ * @param[in,out] e_rel         ELF32 REL record to convert.
+ */
 static void fix_rel_byte_order( elf_file_handle elf_file_hnd, Elf32_Rel *e_rel )
 {
     // note that one of the branches will always get compiled out,
@@ -87,6 +114,11 @@ static void fix_rel_byte_order( elf_file_handle elf_file_hnd, Elf32_Rel *e_rel )
 }
 
 
+/*!
+ * @brief Convert a 32-bit ELF RELA record from file to host order.
+ * @param[in]     elf_file_hnd  ELF file handle (carries byte-order flag).
+ * @param[in,out] e_rela        ELF32 RELA record to convert.
+ */
 static void fix_rela_byte_order( elf_file_handle elf_file_hnd, Elf32_Rela *e_rela )
 {
     // note that one of the branches will always get compiled out,
@@ -103,6 +135,11 @@ static void fix_rela_byte_order( elf_file_handle elf_file_hnd, Elf32_Rela *e_rel
 }
 
 
+/*!
+ * @brief Convert a 64-bit ELF REL record from file to host order.
+ * @param[in]     elf_file_hnd  ELF file handle (carries byte-order flag).
+ * @param[in,out] e_rel         ELF64 REL record to convert.
+ */
 static void fix_rel64_byte_order( elf_file_handle elf_file_hnd, Elf64_Rel *e_rel )
 {
     // note that one of the branches will always get compiled out,
@@ -117,6 +154,11 @@ static void fix_rel64_byte_order( elf_file_handle elf_file_hnd, Elf64_Rel *e_rel
 }
 
 
+/*!
+ * @brief Convert a 64-bit ELF RELA record from file to host order.
+ * @param[in]     elf_file_hnd  ELF file handle (carries byte-order flag).
+ * @param[in,out] e_rela        ELF64 RELA record to convert.
+ */
 static void fix_rela64_byte_order( elf_file_handle elf_file_hnd, Elf64_Rela *e_rela )
 {
     // note that one of the branches will always get compiled out,
@@ -133,6 +175,13 @@ static void fix_rela64_byte_order( elf_file_handle elf_file_hnd, Elf64_Rela *e_r
 }
 
 
+/*!
+ * @brief Build ORL symbol handles from an ELF symbol table section.
+ * @param[in,out] elf_sec_hnd  Symbol table section. Not NULL.
+ * @retval ORL_OKAY            Success.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return ElfCreateSymbolHandles( elf_sec_handle elf_sec_hnd )
 {
     int                 loop;
@@ -221,6 +270,13 @@ orl_return ElfCreateSymbolHandles( elf_sec_handle elf_sec_hnd )
 }
 
 
+/*!
+ * @brief Build the section-name hash table of an ELF file.
+ * @param[in,out] elf_file_hnd  ELF file handle. Not NULL.
+ * @retval ORL_OKAY            Success.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return ElfBuildSecNameHashTable( elf_file_handle elf_file_hnd )
 {
     int             loop;
@@ -239,6 +295,11 @@ orl_return ElfBuildSecNameHashTable( elf_file_handle elf_file_hnd )
 }
 
 
+/*!
+ * @brief Translate a PowerPC ELF relocation type to an ORL type.
+ * @param[in] elf_type  ELF relocation type.
+ * @return The corresponding ORL relocation type.
+ */
 static orl_reloc_type convertPPCReloc( elf_reloc_type elf_type )
 {
     switch( elf_type ) {
@@ -311,6 +372,11 @@ static orl_reloc_type convertPPCReloc( elf_reloc_type elf_type )
 }
 
 
+/*!
+ * @brief Translate an i386 ELF relocation type to an ORL type.
+ * @param[in] elf_type  ELF relocation type.
+ * @return The corresponding ORL relocation type.
+ */
 static orl_reloc_type convert386Reloc( elf_reloc_type elf_type )
 {
     switch( elf_type ) {
@@ -336,6 +402,11 @@ static orl_reloc_type convert386Reloc( elf_reloc_type elf_type )
 }
 
 
+/*!
+ * @brief Translate an AMD64 ELF relocation type to an ORL type.
+ * @param[in] elf_type  ELF relocation type.
+ * @return The corresponding ORL relocation type.
+ */
 static orl_reloc_type convertAMD64Reloc( elf_reloc_type elf_type )
 {
     switch( elf_type ) {
@@ -363,6 +434,11 @@ static orl_reloc_type convertAMD64Reloc( elf_reloc_type elf_type )
 }
 
 
+/*!
+ * @brief Translate a SPARC ELF relocation type to an ORL type.
+ * @param[in] elf_type  ELF relocation type.
+ * @return The corresponding ORL relocation type.
+ */
 static orl_reloc_type convertSPARCReloc( elf_reloc_type elf_type )
 {
     switch( elf_type ) {
@@ -388,6 +464,11 @@ static orl_reloc_type convertSPARCReloc( elf_reloc_type elf_type )
 }
 
 
+/*!
+ * @brief Translate a MIPS ELF relocation type to an ORL type.
+ * @param[in] elf_type  ELF relocation type.
+ * @return The corresponding ORL relocation type.
+ */
 static orl_reloc_type convertMIPSReloc( elf_reloc_type elf_type )
 {
     switch( elf_type ) {
@@ -418,6 +499,11 @@ static orl_reloc_type convertMIPSReloc( elf_reloc_type elf_type )
 }
 
 
+/*!
+ * @brief Translate an Alpha ELF relocation type to an ORL type.
+ * @param[in] elf_type  ELF relocation type.
+ * @return The corresponding ORL relocation type.
+ */
 static orl_reloc_type convertAlphaReloc( elf_reloc_type elf_type )
 {
     switch( elf_type ) {
@@ -440,6 +526,12 @@ static orl_reloc_type convertAlphaReloc( elf_reloc_type elf_type )
 }
 
 
+/*!
+ * @brief Translate an ELF relocation type to an ORL type by machine type.
+ * @param[in] elf_file_hnd  ELF file handle (carries machine type).
+ * @param[in] elf_type      ELF relocation type.
+ * @return The corresponding ORL relocation type.
+ */
 orl_reloc_type ElfConvertRelocType( elf_file_handle elf_file_hnd, elf_reloc_type elf_type )
 {
     switch( elf_file_hnd->machine_type ) {
@@ -464,6 +556,14 @@ orl_reloc_type ElfConvertRelocType( elf_file_handle elf_file_hnd, elf_reloc_type
 }
 
 
+/*!
+ * @brief Build ORL relocation records from an ELF relocation section.
+ * @param[in] orig_sec   Section the relocations apply to. Not NULL.
+ * @param[in,out] reloc_sec  Reloc section. Not NULL.
+ * @retval ORL_OKAY            Success.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return ElfCreateRelocs( elf_sec_handle orig_sec, elf_sec_handle reloc_sec )
 {
     orl_return          return_val;
@@ -545,6 +645,13 @@ orl_return ElfCreateRelocs( elf_sec_handle orig_sec, elf_sec_handle reloc_sec )
     return( ORL_OKAY );
 }
 
+/*!
+ * @brief Find the first byte in @p s that occurs in @p charset.
+ * @param[in] s        String to scan. Not NULL.
+ * @param[in] charset  NUL-terminated set of stop characters. Not NULL.
+ * @param[in] len      Maximum number of bytes to scan.
+ * @return Index of the first matching byte, or @p len.
+ */
 static size_t strncspn( char *s, char *charset, int len)
 {
     char            chartable[32];
@@ -565,6 +672,13 @@ static size_t strncspn( char *s, char *charset, int len)
     return( i );
 }
 
+/*!
+ * @brief Advance @p s past bytes matching @p charset and update @p len.
+ * @param[in] s        String. Not NULL.
+ * @param[in] charset  Stop-character set. Not NULL.
+ * @param[in,out] len  Remaining length; decremented by the skipped count.
+ * @return Pointer to the first non-matching byte.
+ */
 static char *pstrncspn( char *s, char *charset, int *len )
 {
     int     l = strncspn( s, charset, *len );
@@ -573,6 +687,11 @@ static char *pstrncspn( char *s, char *charset, int *len )
     return( s + l );
 }
 
+/*!
+ * @brief Skip whitespace, '=' and ',' separators in a directive buffer.
+ * @param[in,out] contents  Buffer pointer; advanced past the skipped bytes.
+ * @param[in,out] len       Remaining length; decremented accordingly.
+ */
 static void EatWhite( char **contents, int *len )
 /***********************************************/
 {
@@ -585,6 +704,14 @@ static void EatWhite( char **contents, int *len )
     }
 }
 
+/*!
+ * @brief Parse and dispatch one `-export:` argument from a directive.
+ * @param[in,out] contents  Buffer pointer. Not NULL.
+ * @param[in,out] len       Remaining length. Not NULL.
+ * @param[in]     cb        Note callback table. Not NULL.
+ * @param[in]     cookie    Callback cookie.
+ * @return Result of @c cb->export_fn().
+ */
 static orl_return ParseExport( char **contents, int *len,
                                orl_note_callbacks *cb, void *cookie )
 /********************************************************************/
@@ -602,6 +729,14 @@ static orl_return ParseExport( char **contents, int *len,
 }
 
 
+/*!
+ * @brief Parse one or more `-defaultlib:` / `-entry:` arguments.
+ * @param[in,out] contents        Buffer pointer. Not NULL.
+ * @param[in,out] len             Remaining length. Not NULL.
+ * @param[in]     deflibentry_fn  Callback invoked per argument.
+ * @param[in]     cookie          Callback cookie.
+ * @return Result of @p deflibentry_fn, or ORL_ERROR on parse failure.
+ */
 static orl_return ParseDefLibEntry( char **contents, int *len,
     orl_return  (*deflibentry_fn)( char *, void * ), void *cookie )
 /*****************************************************************/
@@ -626,6 +761,15 @@ static orl_return ParseDefLibEntry( char **contents, int *len,
     return( retval );
 }
 
+/*!
+ * @brief Parse a `.drectve` comment payload from an ELF note section.
+ * @param[in] contents  Directive payload. Not NULL.
+ * @param[in] len       Payload length in bytes.
+ * @param[in] cb        Note callback table. Not NULL.
+ * @param[in] cookie    Callback cookie.
+ * @retval ORL_OKAY  Parsing completed.
+ * @return ORL_OKAY (or the callback's error code if parsing aborts).
+ */
 orl_return ElfParseDrectve( char *contents, int len, orl_note_callbacks *cb,
                             void *cookie)
 /**************************************************************************/

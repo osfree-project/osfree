@@ -28,6 +28,10 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file optparse.h
+ * @brief Prototypes for the generated parsing routine and its helpers.
+ */
 
 #ifndef OPTPARSE_H_INCLUDED
 #define OPTPARSE_H_INCLUDED
@@ -35,8 +39,23 @@
 
 #include "optparsh.gh"
 
+/*!
+ * @brief Initialize an OPT_STORAGE structure.
+ * @param[out] data  Storage to initialize. Not NULL.
+ */
 void    OPT_INIT( OPT_STORAGE *data );
+/*!
+ * @brief Release any resources owned by an OPT_STORAGE structure.
+ * @param[in,out] data  Storage to release. Not NULL.
+ */
 void    OPT_FINI( OPT_STORAGE *data );
+/*!
+ * @brief Parse the next linker option from the current context.
+ * @param[in,out] data  Storage to fill. Not NULL.
+ * @retval 0  Option parsed.
+ * @retval non-zero  Unrecognized option.
+ * @return 0 on success, non-zero on error.
+ */
 int     OPT_PROCESS( OPT_STORAGE *data );
 
 

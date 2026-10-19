@@ -28,11 +28,23 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file elfload.c
+ * @brief Top-level ELF loading code.
+ *
+ * Reads the ELF file header and section header table, classifies the
+ * file, and builds the in-memory section handle array used by the rest
+ * of the ORL ELF reader.
+ */
 
 #include "elfload.h"
 
+/*!
+ * @brief Convert a 32-bit ELF header from file byte order to host order.
+ * @param[in]     elf_file_hnd  ELF file handle (carries byte-order flag).
+ * @param[in,out] e_hdr         ELF32 file header to convert.
+ */
 // fixme: finish making ELF SPECIFIC (see next fixme)
-
 static void fix_ehdr_byte_order( elf_file_handle elf_file_hnd, Elf32_Ehdr *e_hdr )
 {
     // note that one of the branches will always get compiled out,
@@ -69,6 +81,11 @@ static void fix_ehdr_byte_order( elf_file_handle elf_file_hnd, Elf32_Ehdr *e_hdr
 }
 
 
+/*!
+ * @brief Convert a 64-bit ELF header from file byte order to host order.
+ * @param[in]     elf_file_hnd  ELF file handle (carries byte-order flag).
+ * @param[in,out] e_hdr         ELF64 file header to convert.
+ */
 static void fix_ehdr64_byte_order( elf_file_handle elf_file_hnd, Elf64_Ehdr *e_hdr )
 {
     // note that one of the branches will always get compiled out,
@@ -105,6 +122,11 @@ static void fix_ehdr64_byte_order( elf_file_handle elf_file_hnd, Elf64_Ehdr *e_h
 }
 
 
+/*!
+ * @brief Convert a 32-bit ELF section header from file to host order.
+ * @param[in]     elf_file_hnd  ELF file handle (carries byte-order flag).
+ * @param[in,out] e_shdr        ELF32 section header to convert.
+ */
 static void fix_shdr_byte_order( elf_file_handle elf_file_hnd, Elf32_Shdr *e_shdr )
 {
     // note that one of the branches will always get compiled out,
@@ -135,6 +157,11 @@ static void fix_shdr_byte_order( elf_file_handle elf_file_hnd, Elf32_Shdr *e_shd
 }
 
 
+/*!
+ * @brief Convert a 64-bit ELF section header from file to host order.
+ * @param[in]     elf_file_hnd  ELF file handle (carries byte-order flag).
+ * @param[in,out] e_shdr        ELF64 section header to convert.
+ */
 static void fix_shdr64_byte_order( elf_file_handle elf_file_hnd, Elf64_Shdr *e_shdr )
 {
     // note that one of the branches will always get compiled out,
@@ -165,8 +192,15 @@ static void fix_shdr64_byte_order( elf_file_handle elf_file_hnd, Elf64_Shdr *e_s
 }
 
 
-// This function needs to be run before anything else, because it determines
-// how the rest of the data is to be interpreted
+/*!
+ * @brief Determine the class (byte order and 32/64-bit) of an ELF file.
+ *
+ * This function must be run before anything else, because it determines
+ * how the rest of the data is to be interpreted.
+ *
+ * @param[in,out] elf_file_hnd  ELF file handle to update.
+ * @param[in]     e_hdr         ELF32 file header with ident bytes readable.
+ */
 static void determine_file_class( elf_file_handle elf_file_hnd, Elf32_Ehdr *e_hdr )
 {
     elf_file_hnd->flags = 0;
@@ -189,6 +223,11 @@ static void determine_file_class( elf_file_handle elf_file_hnd, Elf32_Ehdr *e_hd
 }
 
 
+/*!
+ * @brief Derive machine type and file type from an ELF header.
+ * @param[in,out] elf_file_hnd  ELF file handle to update.
+ * @param[in]     e_hdr         ELF32 file header (already byte-swapped).
+ */
 static void determine_file_specs( elf_file_handle elf_file_hnd, Elf32_Ehdr *e_hdr )
 {
     switch( e_hdr->e_machine ) {
@@ -249,6 +288,12 @@ static void determine_file_specs( elf_file_handle elf_file_hnd, Elf32_Ehdr *e_hd
 }
 
 
+/*!
+ * @brief Translate an ELF section header into ORL section type and flags.
+ * @param[in,out] elf_sec_hnd  ELF section handle to update.
+ * @param[in]     sh_type      ELF sh_type value.
+ * @param[in]     sh_flags     ELF sh_flags value.
+ */
 static void determine_section_specs( elf_sec_handle elf_sec_hnd, int sh_type,
                                      unsigned long long sh_flags )
 {
@@ -319,6 +364,11 @@ static void determine_section_specs( elf_sec_handle elf_sec_hnd, int sh_type,
 }
 
 
+/*!
+ * @brief Free the partially-built section handle array on error.
+ * @param[in] elf_file_hnd  ELF file handle being torn down.
+ * @param[in] num_alloced   Number of section handles successfully allocated.
+ */
 static void free_elf_sec_handles( elf_file_handle elf_file_hnd, int num_alloced )
 {
     int         loop;
@@ -337,6 +387,15 @@ static void free_elf_sec_handles( elf_file_handle elf_file_hnd, int num_alloced 
 }
 
 
+/*!
+ * @brief Build the array of ELF section handles from the raw section table.
+ * @param[in,out] elf_file_hnd  ELF file handle. Not NULL.
+ * @param[out]    name_index    Receiver for each section's sh_name index.
+ * @param[in]     s_hdr         Raw section header table buffer.
+ * @retval ORL_OKAY            Success.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 static orl_return load_elf_sec_handles( elf_file_handle elf_file_hnd, orl_sec_offset *name_index, char *s_hdr )
 {
     Elf32_Shdr          *s_hdr32;
@@ -510,6 +569,15 @@ static orl_return load_elf_sec_handles( elf_file_handle elf_file_hnd, orl_sec_of
 }
 
 
+/*!
+ * @brief qsort() comparator: sort section handles by file offset.
+ * @param[in] _first_sec   First section handle pointer.
+ * @param[in] _second_sec  Second section handle pointer.
+ * @retval -1  First offset is smaller.
+ * @retval  0  Offsets are equal.
+ * @retval  1  First offset is larger.
+ * @return Comparison result.
+ */
 static int sec_compare( const void *_first_sec, const void *_second_sec )
 {
     const elf_sec_handle *first_sec = _first_sec;
@@ -525,6 +593,14 @@ static int sec_compare( const void *_first_sec, const void *_second_sec )
 }
 
 
+/*!
+ * @brief Load an entire ELF file structure into memory.
+ * @param[in,out] elf_file_hnd  ELF file handle. Not NULL.
+ * @retval ORL_OKAY            Success.
+ * @retval ORL_ERROR           Truncated or malformed file.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return ElfLoadFileStructure( elf_file_handle elf_file_hnd )
 {
     orl_return          error;

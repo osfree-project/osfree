@@ -28,11 +28,23 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file coffload.c
+ * @brief Load a COFF object file into memory for processing.
+ *
+ * Reads file and optional headers, section header table and section
+ * data, then builds the ORL section handle array (including synthetic
+ * reloc, symbol and string table sections) used by the COFF reader.
+ */
 
 #include "coffload.h"
 #include "coffimpl.h"
 
-/* This is a hack for a flaw in wlib. Because wlib does not keep track
+/*!
+ * @def MAX_STRTAB_SIZE
+ * @brief Upper bound for a plausible COFF string table size.
+ *
+ * This is a hack for a flaw in wlib. Because wlib does not keep track
  * of member sizes, one can't tell if a read past the end of file occurred.
  * Unfortunately for COFF, it is impossible to tell whether a string table
  * is present or not except by attempting to read its size. If we read
@@ -40,9 +52,21 @@
  */
 #define MAX_STRTAB_SIZE     0x1000000   /* 16MB */
 
+/*!
+ * @brief Names used for the synthetic reloc, symbol and string tables.
+ */
 static char SectionNames[3][COFF_SEC_NAME_LEN] =
     { ".rel", ".symtab", ".strtab" };
 
+/*!
+ * @brief Derive machine type, file type, flags and import-library status.
+ *
+ * @param[in,out] coff_file_hnd  COFF file handle to update.
+ * @param[in]     f_hdr          Raw file header (already read from file).
+ * @retval 0  Ordinary COFF object.
+ * @retval 1  Short import library header recognised.
+ * @return 1 if the file is an import library member, 0 otherwise.
+ */
 static int determine_file_specs( coff_file_handle coff_file_hnd,
                                  coff_file_header *f_hdr )
 /**************************************************************/
@@ -157,6 +181,11 @@ static int determine_file_specs( coff_file_handle coff_file_hnd,
     return( flag_import_library );
 }
 
+/*!
+ * @brief Derive ORL section type and flags from a COFF section header.
+ * @param[in,out] coff_sec_hnd  Section handle to update.
+ * @param[in]     s_hdr         Raw COFF section header.
+ */
 static void determine_section_specs( coff_sec_handle coff_sec_hnd,
                                      coff_section_header *s_hdr )
 /****************************************************************/
@@ -221,6 +250,11 @@ static void determine_section_specs( coff_sec_handle coff_sec_hnd,
     }
 }
 
+/*!
+ * @brief Free a partially-built COFF section handle array.
+ * @param[in] coff_file_hnd  COFF file handle being torn down.
+ * @param[in] num_alloced    Number of section handles successfully allocated.
+ */
 static void free_coff_sec_handles( coff_file_handle coff_file_hnd,
                                    int num_alloced )
 /****************************************************************/
@@ -244,6 +278,18 @@ static void free_coff_sec_handles( coff_file_handle coff_file_hnd,
     _ClientFree( coff_file_hnd, coff_file_hnd->orig_sec_hnd );
 }
 
+/*!
+ * @brief Build the array of COFF section handles.
+ *
+ * Creates one handle per real section, plus one per section with
+ * relocations, plus a symbol table and a string table handle.
+ *
+ * @param[in,out] coff_file_hnd  COFF file handle. Not NULL.
+ * @param[in]     f_hdr          Raw file header.
+ * @retval ORL_OKAY            Success.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 static orl_return load_coff_sec_handles( coff_file_handle coff_file_hnd,
                                          coff_file_header * f_hdr )
 /**********************************************************************/
@@ -413,6 +459,19 @@ static orl_return load_coff_sec_handles( coff_file_handle coff_file_hnd,
     return( ORL_OKAY );
 }
 
+/*!
+ * @brief Load a COFF file structure into memory.
+ *
+ * Reads the optional PE header, section headers, all referenced
+ * section data, the symbol table and the string table, and builds
+ * the section handle array.
+ *
+ * @param[in,out] coff_file_hnd  COFF file handle. Not NULL.
+ * @retval ORL_OKAY            Success.
+ * @retval ORL_ERROR           Truncated or malformed file.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return CoffLoadFileStructure( coff_file_handle coff_file_hnd )
 /****************************************************************/
 {

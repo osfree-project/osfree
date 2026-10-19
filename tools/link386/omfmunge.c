@@ -29,12 +29,23 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file omfmunge.c
+ * @brief Conversion of OMF records into the internal ORL representation.
+ *
+ * Each OmfAdd* routine turns one parsed OMF record into the
+ * corresponding section, symbol or relocation entry.
+ */
 
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #ifdef _BSD_SOURCE
+/*!
+ * @def stricmp
+ * @brief Case-insensitive string comparison alias for BSD hosts.
+ */
 #define stricmp strcasecmp
 #endif
 
@@ -45,12 +56,31 @@
 
 /* Local definitions
  */
+
+/*!
+ * @def STD_INC
+ * @brief Default growth increment for allocated arrays.
+ */
 #define STD_INC         256
+/*!
+ * @def STD_CODE_SIZE
+ * @brief Initial allocation size in bytes for section contents.
+ */
 #define STD_CODE_SIZE   4096
 
+/*!
+ * @def _IsSymPub
+ * @brief True when a symbol type is a published (defined or absolute) one.
+ * @param[in] t  Symbol type flags to test.
+ */
 #define _IsSymPub( t )  ( t & ( ORL_SYM_TYPE_DEFINED | ORL_SYM_TYPE_ABSOLUTE ) )
 
 
+/*!
+ * @brief Translate an OMF combine code to an ORL combine value.
+ * @param[in] combine  OMF combine code.
+ * @return ORL combine value.
+ */
 static orl_sec_combine getCombine( int combine )
 {
     switch( combine ) {
@@ -68,6 +98,15 @@ static orl_sec_combine getCombine( int combine )
     }
 }
 
+/*!
+ * @brief Compare two OMF long names.
+ * @param[in] ofh  OMF file handle. Not NULL.
+ * @param[in] n1   First name index. Non-zero.
+ * @param[in] n2   Second name index. Non-zero.
+ * @retval 0 Names are equal.
+ * @retval 1 Names differ or either lookup failed.
+ * @return 0 if equal, 1 otherwise.
+ */
 static int nameCmp( omf_file_handle ofh, omf_idx n1, omf_idx n2 )
 {
     char        name1[257];
@@ -88,6 +127,16 @@ static int nameCmp( omf_file_handle ofh, omf_idx n1, omf_idx n2 )
 }
 
 
+/*!
+ * @brief Grow a zero-initialised allocated array when needed.
+ * @param[in] ofh      OMF file handle. Not NULL.
+ * @param[in] old_arr  Current array pointer (may be NULL).
+ * @param[in] num      Current number of elements.
+ * @param[in] inc      Growth increment.
+ * @param[in] elem     Size of one element in bytes.
+ * @retval NULL Allocation failure.
+ * @return The (possibly reallocated) array pointer.
+ */
 static void             *checkArraySize( omf_file_handle ofh, void *old_arr,
                                          long num, long inc, long elem )
 {
@@ -116,6 +165,13 @@ static void             *checkArraySize( omf_file_handle ofh, void *old_arr,
 }
 
 
+/*!
+ * @brief Look up an external definition symbol by index.
+ * @param[in] ofh  OMF file handle. Not NULL.
+ * @param[in] ext  External index. Zero means "no symbol".
+ * @retval NULL Not found.
+ * @return The matching symbol.
+ */
 static omf_symbol_handle findExtDefSym( omf_file_handle ofh, omf_idx ext )
 {
     omf_sec_handle              sh;
@@ -148,6 +204,13 @@ static omf_symbol_handle findExtDefSym( omf_file_handle ofh, omf_idx ext )
 }
 
 
+/*!
+ * @brief Look up a group by its index.
+ * @param[in] ofh  OMF file handle. Not NULL.
+ * @param[in] grp  Group index. Zero means "no group".
+ * @retval NULL Not found.
+ * @return The matching group handle.
+ */
 static omf_grp_handle   findGroup( omf_file_handle ofh, omf_idx grp )
 {
     assert( ofh );
@@ -158,6 +221,13 @@ static omf_grp_handle   findGroup( omf_file_handle ofh, omf_idx grp )
 }
 
 
+/*!
+ * @brief Look up a COMDAT section by its index.
+ * @param[in] ofh  OMF file handle. Not NULL.
+ * @param[in] seg  COMDAT index. Zero means "no COMDAT".
+ * @retval NULL Not found.
+ * @return The matching section handle.
+ */
 static omf_sec_handle   findComDat( omf_file_handle ofh, omf_idx seg )
 {
     assert( ofh );
@@ -167,6 +237,13 @@ static omf_sec_handle   findComDat( omf_file_handle ofh, omf_idx seg )
     return( ofh->comdats[seg-1] );
 }
 
+/*!
+ * @brief Look up a COMDAT section by its LNAME index.
+ * @param[in] ofh      OMF file handle. Not NULL.
+ * @param[in] nameidx  COMDAT name index. Zero means "no name".
+ * @retval NULL Not found.
+ * @return The matching section handle.
+ */
 static omf_sec_handle   findComDatByName( omf_file_handle ofh, omf_idx nameidx )
 {
     unsigned    index;
@@ -184,6 +261,13 @@ static omf_sec_handle   findComDatByName( omf_file_handle ofh, omf_idx nameidx )
 }
 
 
+/*!
+ * @brief Look up a normal segment by its index.
+ * @param[in] ofh  OMF file handle. Not NULL.
+ * @param[in] seg  Segment index. Zero means "no segment".
+ * @retval NULL Not found.
+ * @return The matching section handle.
+ */
 static omf_sec_handle   findSegment( omf_file_handle ofh, omf_idx seg )
 {
     assert( ofh );
@@ -194,6 +278,15 @@ static omf_sec_handle   findSegment( omf_file_handle ofh, omf_idx seg )
 }
 
 
+/*!
+ * @brief Allocate and initialise a new symbol.
+ * @param[in] ofh  OMF file handle. Not NULL.
+ * @param[in] typ  Symbol type flags.
+ * @param[in] name Symbol name. Not NULL.
+ * @param[in] len  Name length in bytes.
+ * @retval NULL Allocation failure.
+ * @return The new symbol.
+ */
 static omf_symbol_handle newSymbol( omf_file_handle ofh, orl_symbol_type typ,
                                    char *name, int len )
 {
@@ -216,6 +309,14 @@ static omf_symbol_handle newSymbol( omf_file_handle ofh, orl_symbol_type typ,
 }
 
 
+/*!
+ * @brief Allocate a new section and link it into the file's section list.
+ * @param[in] ofh  OMF file handle. Not NULL.
+ * @param[in] idx  Requested section index, or OMF_SEC_NEXT_AVAILABLE.
+ * @param[in] typ  Section type.
+ * @retval NULL Allocation failure.
+ * @return The new section.
+ */
 static omf_sec_handle   newSection( omf_file_handle ofh, omf_quantity idx,
                                         orl_sec_type typ )
 {
@@ -255,6 +356,12 @@ static omf_sec_handle   newSection( omf_file_handle ofh, omf_quantity idx,
 }
 
 
+/*!
+ * @brief Allocate and register a new COMDAT section.
+ * @param[in] ofh  OMF file handle. Not NULL.
+ * @retval NULL Allocation failure.
+ * @return The new COMDAT section.
+ */
 static omf_sec_handle   newComDatSection( omf_file_handle ofh )
 {
     omf_sec_handle      sh;
@@ -276,6 +383,13 @@ static omf_sec_handle   newComDatSection( omf_file_handle ofh )
 }
 
 
+/*!
+ * @brief Allocate and register a new normal segment.
+ * @param[in] ofh  OMF file handle. Not NULL.
+ * @param[in] typ  Section type.
+ * @retval NULL Allocation failure.
+ * @return The new segment section.
+ */
 static omf_sec_handle   newSegSection( omf_file_handle ofh, orl_sec_type typ )
 {
     omf_sec_handle      sh;
@@ -297,6 +411,12 @@ static omf_sec_handle   newSegSection( omf_file_handle ofh, orl_sec_type typ )
 }
 
 
+/*!
+ * @brief Allocate and register a new group.
+ * @param[in] ofh  OMF file handle. Not NULL.
+ * @retval NULL Allocation failure.
+ * @return The new group handle.
+ */
 static omf_grp_handle   newGroup( omf_file_handle ofh )
 {
     omf_grp_handle      gr;
@@ -321,6 +441,12 @@ static omf_grp_handle   newGroup( omf_file_handle ofh )
 }
 
 
+/*!
+ * @brief Read a little-endian unsigned word of the given size.
+ * @param[in] buffer    Buffer. Not NULL.
+ * @param[in] wordsize  Word size in bytes (2 or 4).
+ * @return The decoded value.
+ */
 static orl_sec_offset   getUWord( omf_bytes buffer, int wordsize )
 {
     orl_sec_offset      result = 0;
@@ -340,6 +466,13 @@ static orl_sec_offset   getUWord( omf_bytes buffer, int wordsize )
 }
 
 
+/*!
+ * @brief Look up a string-table entry by index.
+ * @param[in] sh   String table section. Not NULL.
+ * @param[in] idx  Zero-based string index.
+ * @retval NULL Index out of range.
+ * @return The string entry.
+ */
 static omf_string_struct *getIdx2String( omf_sec_handle sh, omf_idx idx )
 {
     assert( sh );
@@ -351,6 +484,13 @@ static omf_string_struct *getIdx2String( omf_sec_handle sh, omf_idx idx )
 }
 
 
+/*!
+ * @brief Create a new string-table section.
+ * @param[in] ofh  OMF file handle. Not NULL.
+ * @param[in] idx  Section index.
+ * @retval NULL Allocation failure.
+ * @return The new string table.
+ */
 static omf_sec_handle   newStringTable( omf_file_handle ofh, omf_quantity idx )
 {
     omf_sec_handle      sh;
@@ -365,6 +505,15 @@ static omf_sec_handle   newStringTable( omf_file_handle ofh, omf_quantity idx )
 }
 
 
+/*!
+ * @brief Append a string to a string table.
+ * @param[in,out] sh      String table section. Not NULL.
+ * @param[in]     buffer  String bytes. Not NULL.
+ * @param[in]     len     Length in bytes.
+ * @retval ORL_OKAY            Appended.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success, ORL_OUT_OF_MEMORY on failure.
+ */
 static orl_return       addString( omf_sec_handle sh, omf_bytes buffer,
                                    unsigned int len )
 {
@@ -397,6 +546,14 @@ static orl_return       addString( omf_sec_handle sh, omf_bytes buffer,
 }
 
 
+/*!
+ * @brief Append a symbol to the file's symbol table.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     sym  Symbol to add. Not NULL.
+ * @retval ORL_OKAY            Appended.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success, ORL_OUT_OF_MEMORY on failure.
+ */
 static orl_return       addToSymbolTable( omf_file_handle ofh,
                                           omf_symbol_handle sym )
 {
@@ -430,6 +587,14 @@ static orl_return       addToSymbolTable( omf_file_handle ofh,
 }
 
 
+/*!
+ * @brief Append a relocation to the file's reloc section.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     orh  Relocation to add. Not NULL.
+ * @retval ORL_OKAY            Appended.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success, ORL_OUT_OF_MEMORY on failure.
+ */
 static orl_return       addReloc( omf_file_handle ofh, omf_reloc_handle orh )
 {
     omf_sec_handle      sh;
@@ -457,6 +622,14 @@ static orl_return       addReloc( omf_file_handle ofh, omf_reloc_handle orh )
 }
 
 
+/*!
+ * @brief Find a pending fixup that falls within a range.
+ * @param[in] tf  First fixup in the queue, or NULL.
+ * @param[in] lo  Low offset (inclusive).
+ * @param[in] hi  High offset (inclusive).
+ * @retval NULL No fixup in the range.
+ * @return The first matching fixup.
+ */
 static omf_tmp_fixup    findMatchingFixup( omf_tmp_fixup tf, int lo, int hi )
 {
     if( hi < lo ) {
@@ -472,6 +645,16 @@ static omf_tmp_fixup    findMatchingFixup( omf_tmp_fixup tf, int lo, int hi )
 }
 
 
+/*!
+ * @brief Expand an LIDATA record and rewrite its fixups as LEDATA fixups.
+ * @param[in,out] ofh     OMF file handle. Not NULL.
+ * @param[in]     sh      Destination section. Not NULL.
+ * @param[in]     buffer  Working buffer with the LIDATA payload. Not NULL.
+ * @retval ORL_OKAY            Success.
+ * @retval ORL_ERROR           Malformed LIDATA.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 static orl_return       writeAndFixupLIData( omf_file_handle ofh,
                                              omf_sec_handle sh,
                                              omf_bytes buffer )
@@ -582,6 +765,14 @@ static orl_return       writeAndFixupLIData( omf_file_handle ofh,
 }
 
 
+/*!
+ * @brief Expand the deferred LIDATA record of the current file.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @retval ORL_OKAY            Success.
+ * @retval ORL_ERROR           Malformed LIDATA.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 static orl_return       expandPrevLIData( omf_file_handle ofh )
 {
     omf_sec_handle      sh;
@@ -654,6 +845,13 @@ static orl_return       expandPrevLIData( omf_file_handle ofh )
 }
 
 
+/*!
+ * @brief Apply pending BAKPAT/NBKPAT records to their sections.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @retval ORL_OKAY   Success.
+ * @retval ORL_ERROR  Malformed backpatch record.
+ * @return ORL_OKAY on success.
+ */
 static orl_return       applyBakpats( omf_file_handle ofh )
 {
     omf_sec_handle      sh;
@@ -717,6 +915,13 @@ static orl_return       applyBakpats( omf_file_handle ofh )
 }
 
 
+/*!
+ * @brief Flush any deferred LIDATA or BAKPAT work.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @retval ORL_OKAY   Success.
+ * @retval ORL_ERROR  Malformed record.
+ * @return ORL_OKAY on success.
+ */
 static orl_return       finishPrevWork( omf_file_handle ofh )
 {
     orl_return  err = ORL_OKAY;
@@ -741,6 +946,14 @@ static orl_return       finishPrevWork( omf_file_handle ofh )
 }
 
 
+/*!
+ * @brief Compute the expanded size of an LIDATA record.
+ * @param[in]     is32   Non-zero for a 32-bit record.
+ * @param[in,out] input  Pointer to the buffer pointer.
+ * @param[in,out] len    Pointer to the remaining length.
+ * @retval 0  Malformed or empty record.
+ * @return Expanded size in bytes.
+ */
 static orl_sec_offset   calcLIDataLength( int is32, omf_bytes *input, int *len )
 {
     int         size;
@@ -789,6 +1002,15 @@ static orl_sec_offset   calcLIDataLength( int is32, omf_bytes *input, int *len )
 }
 
 
+/*!
+ * @brief Ensure a section's data buffer is large enough for an offset.
+ * @param[in,out] sh   Section. Not NULL.
+ * @param[in]     max  Required size in bytes.
+ * @retval ORL_OKAY            Enough space.
+ * @retval ORL_ERROR           Requested size exceeds declared size.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 static orl_return       checkSegmentLength( omf_sec_handle sh, uint_32 max )
 {
     omf_bytes   conts;
@@ -813,6 +1035,12 @@ static orl_return       checkSegmentLength( omf_sec_handle sh, uint_32 max )
 }
 
 
+/*!
+ * @brief Uppercase a string in place.
+ * @param[in,out] str  String. Not NULL.
+ * @param[in]     len  Length in bytes.
+ * @return @p str.
+ */
 static char             *strNUpper( char *str, int len )
 {
     assert( str );
@@ -826,6 +1054,16 @@ static char             *strNUpper( char *str, int len )
 }
 
 
+/*!
+ * @brief Derive a section's permission flags from its name and class.
+ * @param[in] ofh      OMF file handle. Not NULL.
+ * @param[in] name     Segment name index.
+ * @param[in] class    Segment class index.
+ * @param[in] align    Alignment value (unused).
+ * @param[in] combine  Combine code (unused).
+ * @param[in] use32    Non-zero if the segment uses 32-bit addressing.
+ * @return ORL section flags.
+ */
 static orl_sec_flags    getSegSecFlags( omf_file_handle ofh, omf_idx name,
                                         omf_idx class, orl_sec_alignment align,
                                         int combine, int use32 )
@@ -890,6 +1128,15 @@ static orl_sec_flags    getSegSecFlags( omf_file_handle ofh, omf_idx name,
 }
 
 
+/*!
+ * @brief Add a source file name symbol.
+ * @param[in,out] ofh   OMF file handle. Not NULL.
+ * @param[in]     name  File name. Not NULL.
+ * @param[in]     len   Name length in bytes.
+ * @retval ORL_OKAY            Appended.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 static orl_return   OmfAddFileName( omf_file_handle ofh, char *name, unsigned int len )
 {
     omf_symbol_handle   sym;
@@ -904,6 +1151,20 @@ static orl_return   OmfAddFileName( omf_file_handle ofh, char *name, unsigned in
 }
 
 
+/*!
+ * @brief Add a deferred LIDATA record to the current file.
+ * @param[in,out] ofh     OMF file handle. Not NULL.
+ * @param[in]     is32    Non-zero for a 32-bit record.
+ * @param[in]     seg     Segment or COMDAT index. Non-zero.
+ * @param[in]     offset  Offset within the section.
+ * @param[in]     buffer  LIDATA payload. Not NULL.
+ * @param[in]     len     Payload length.
+ * @param[in]     comdat  Non-zero when @p seg indexes a COMDAT.
+ * @retval ORL_OKAY            Added.
+ * @retval ORL_ERROR           Malformed payload or section lookup failed.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return              OmfAddLIData( omf_file_handle ofh, int is32,
                                       omf_idx seg, orl_sec_offset offset,
                                       omf_bytes buffer, long len, int comdat )
@@ -968,6 +1229,20 @@ orl_return              OmfAddLIData( omf_file_handle ofh, int is32,
 }
 
 
+/*!
+ * @brief Add a LEDATA record to the current file.
+ * @param[in,out] ofh     OMF file handle. Not NULL.
+ * @param[in]     is32    Non-zero for a 32-bit record (unused).
+ * @param[in]     seg     Segment or COMDAT index. Non-zero.
+ * @param[in]     offset  Offset within the section.
+ * @param[in]     buffer  LEDATA payload. Not NULL.
+ * @param[in]     len     Payload length.
+ * @param[in]     comdat  Non-zero when @p seg indexes a COMDAT.
+ * @retval ORL_OKAY            Added.
+ * @retval ORL_ERROR           Section lookup failed or payload too large.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return              OmfAddLEData( omf_file_handle ofh, int is32,
                                       omf_idx seg, orl_sec_offset offset,
                                       omf_bytes buffer, long len, int comdat )
@@ -1002,6 +1277,16 @@ orl_return              OmfAddLEData( omf_file_handle ofh, int is32,
 }
 
 
+/*!
+ * @brief Add an LNAME record.
+ * @param[in,out] ofh     OMF file handle. Not NULL.
+ * @param[in]     buffer  LNAME payload. Not NULL.
+ * @param[in]     len     Payload length.
+ * @param[in]     typ     Record type (unused).
+ * @retval ORL_OKAY            Added.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return              OmfAddLName( omf_file_handle ofh, omf_bytes buffer,
                                      unsigned int len, omf_rectyp typ )
 {
@@ -1019,6 +1304,19 @@ orl_return              OmfAddLName( omf_file_handle ofh, omf_bytes buffer,
 }
 
 
+/*!
+ * @brief Add a BAKPAT/NBKPAT record to the deferred backpatch queue.
+ * @param[in,out] ofh        OMF file handle. Not NULL.
+ * @param[in]     loctype    Location type.
+ * @param[in]     location   Offset within the target section.
+ * @param[in]     segidx     Target segment index (BAKPAT), or zero.
+ * @param[in]     symidx     Target COMDAT name index (NBKPAT), or zero.
+ * @param[in]     disp       Displacement to apply.
+ * @retval ORL_OKAY            Queued.
+ * @retval ORL_ERROR           Unknown location type.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return              OmfAddBakpat( omf_file_handle ofh, uint_8 loctype,
                                       orl_sec_offset location, omf_idx segidx,
                                       omf_idx symidx, orl_sec_offset disp )
@@ -1078,6 +1376,23 @@ orl_return              OmfAddBakpat( omf_file_handle ofh, uint_8 loctype,
 }
 
 
+/*!
+ * @brief Add one FIXUPP subrecord.
+ * @param[in,out] ofh       OMF file handle. Not NULL.
+ * @param[in]     is32      Non-zero for a 32-bit record.
+ * @param[in]     mode      Segment-relative (1) or self-relative (0).
+ * @param[in]     location  OMF location specifier.
+ * @param[in]     offset    Offset within the section.
+ * @param[in]     fmethod   Frame method.
+ * @param[in]     fidx      Frame index.
+ * @param[in]     tmethod   Target method.
+ * @param[in]     tidx      Target index.
+ * @param[in]     disp      Displacement.
+ * @retval ORL_OKAY            Added.
+ * @retval ORL_ERROR           Unknown location or target/frame lookup failed.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return              OmfAddFixupp( omf_file_handle ofh, int is32, int mode,
                                       int location, orl_sec_offset offset,
                                       int fmethod, omf_idx fidx, int tmethod,
@@ -1249,6 +1564,16 @@ orl_return              OmfAddFixupp( omf_file_handle ofh, int is32, int mode,
 }
 
 
+/*!
+ * @brief Add an EXTDEF/LEXTDEF/LEXTDEF32/COMDEF/LCOMDEF record.
+ * @param[in,out] ofh     OMF file handle. Not NULL.
+ * @param[in]     buffer  Name bytes. Not NULL.
+ * @param[in]     len     Name length in bytes.
+ * @param[in]     typ     Record type.
+ * @retval ORL_OKAY            Added.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return              OmfAddExtDef( omf_file_handle ofh, omf_bytes buffer,
                                       unsigned int len, omf_rectyp typ )
 {
@@ -1296,6 +1621,26 @@ orl_return              OmfAddExtDef( omf_file_handle ofh, omf_bytes buffer,
 }
 
 
+/*!
+ * @brief Add a COMDAT/COMDAT32 record.
+ * @param[in,out] ofh     OMF file handle. Not NULL.
+ * @param[in]     is32    Non-zero for a 32-bit record.
+ * @param[in]     flags   COMDAT flags byte.
+ * @param[in]     attr    COMDAT attribute byte.
+ * @param[in]     align   Alignment value, or -1 to inherit from SEGDEF.
+ * @param[in]     offset  Offset within the COMDAT.
+ * @param[in]     seg     Explicit allocation segment index, or zero.
+ * @param[in]     group   Explicit allocation group index, or zero.
+ * @param[in]     frame   Explicit allocation absolute frame, or zero.
+ * @param[in]     name    COMDAT name index.
+ * @param[in]     buffer  Payload. Not NULL.
+ * @param[in]     len     Payload length.
+ * @param[in]     typ     Record type (unused).
+ * @retval ORL_OKAY            Added.
+ * @retval ORL_ERROR           Malformed record or lookup failed.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return              OmfAddComDat( omf_file_handle ofh, int is32, int flags,
                                       int attr, int align,
                                       orl_sec_offset offset, omf_idx seg,
@@ -1436,6 +1781,15 @@ orl_return              OmfAddComDat( omf_file_handle ofh, int is32, int flags,
 }
 
 
+/*!
+ * @brief Add one LINNUM record to a section.
+ * @param[in,out] sh      Section. Not NULL.
+ * @param[in]     line    Line number.
+ * @param[in]     offset  Offset within the section.
+ * @retval ORL_OKAY            Appended.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 extern orl_return       OmfAddLineNum( omf_sec_handle sh, unsigned_16 line,
                                        unsigned_32 offset )
 {
@@ -1453,6 +1807,23 @@ extern orl_return       OmfAddLineNum( omf_sec_handle sh, unsigned_16 line,
 }
 
 
+/*!
+ * @brief Add a SEGDEF/SEGDEF32 record.
+ * @param[in,out] ofh     OMF file handle. Not NULL.
+ * @param[in]     is32    Non-zero for a 32-bit record.
+ * @param[in]     align   Alignment.
+ * @param[in]     combine Combine code.
+ * @param[in]     use32   Non-zero if the segment uses 32-bit addressing.
+ * @param[in]     max     Non-zero if the segment is exactly 64K / 4G.
+ * @param[in]     frame   Absolute frame, or ORL_SEC_NO_ABS_FRAME.
+ * @param[in]     size    Declared size in bytes.
+ * @param[in]     name    Segment name index.
+ * @param[in]     class   Segment class index.
+ * @retval ORL_OKAY            Added.
+ * @retval ORL_ERROR           Lookup failed.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return              OmfAddSegDef( omf_file_handle ofh, int is32,
                                       orl_sec_alignment align, int combine,
                                       int use32, int max, orl_sec_frame frame,
@@ -1516,6 +1887,22 @@ orl_return              OmfAddSegDef( omf_file_handle ofh, int is32,
 }
 
 
+/*!
+ * @brief Add a PUBDEF/PUBDEF32/LPUBDEF/LPUBDEF32 record.
+ * @param[in,out] ofh     OMF file handle. Not NULL.
+ * @param[in]     is32    Non-zero for a 32-bit record (unused).
+ * @param[in]     group   Group index, or zero.
+ * @param[in]     seg     Segment index, or zero for absolute.
+ * @param[in]     frame   Absolute frame, or zero.
+ * @param[in]     name    Symbol name. Not NULL.
+ * @param[in]     len     Name length in bytes.
+ * @param[in]     offset  Symbol offset.
+ * @param[in]     typ     Record type.
+ * @retval ORL_OKAY            Added.
+ * @retval ORL_ERROR           Unsupported combination.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return              OmfAddPubDef( omf_file_handle ofh, int is32,
                                       omf_idx group, omf_idx seg,
                                       omf_frame frame, char *name, int len,
@@ -1561,6 +1948,17 @@ orl_return              OmfAddPubDef( omf_file_handle ofh, int is32,
 }
 
 
+/*!
+ * @brief Add a GRPDEF record.
+ * @param[in,out] ofh   OMF file handle. Not NULL.
+ * @param[in]     name  Group name index. Non-zero.
+ * @param[in]     segs  Array of segment indices. Not NULL.
+ * @param[in]     size  Number of entries in @p segs.
+ * @retval ORL_OKAY            Added.
+ * @retval ORL_ERROR           Lookup failed.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return              OmfAddGrpDef( omf_file_handle ofh, omf_idx name,
                                       omf_idx *segs, int size )
 {
@@ -1604,6 +2002,13 @@ orl_return              OmfAddGrpDef( omf_file_handle ofh, omf_idx name,
 }
 
 
+/*!
+ * @brief Finish work deferred by a MODEND record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @retval ORL_OKAY   Success.
+ * @retval ORL_ERROR  Malformed record.
+ * @return ORL_OKAY on success.
+ */
 orl_return      OmfModEnd( omf_file_handle ofh )
 {
     orl_return          err;
@@ -1615,6 +2020,17 @@ orl_return      OmfModEnd( omf_file_handle ofh )
 }
 
 
+/*!
+ * @brief Add a COMENT record.
+ * @param[in,out] ofh    OMF file handle. Not NULL.
+ * @param[in]     class  Comment class.
+ * @param[in]     flags  Comment flags byte.
+ * @param[in]     buff   Comment payload. Not NULL.
+ * @param[in]     len    Payload length.
+ * @retval ORL_OKAY            Added.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 extern orl_return       OmfAddComment( omf_file_handle ofh, uint_8 class,
                                        uint_8 flags, omf_bytes buff, long len )
 {
@@ -1654,6 +2070,14 @@ extern orl_return       OmfAddComment( omf_file_handle ofh, uint_8 class,
 }
 
 
+/*!
+ * @brief Copy an LNAME string into a caller-supplied buffer.
+ * @param[in]  lnames  String table. Not NULL.
+ * @param[in]  idx     One-based name index.
+ * @param[out] name    Destination buffer. Not NULL.
+ * @retval -1 Lookup failed.
+ * @return Length of the name in bytes.
+ */
 int             OmfGetLName( omf_sec_handle lnames, omf_idx idx, char *name )
 {
     omf_string_struct   *tmp;
@@ -1678,6 +2102,13 @@ int             OmfGetLName( omf_sec_handle lnames, omf_idx idx, char *name )
 }
 
 
+/*!
+ * @brief Return a pointer to an LNAME string.
+ * @param[in] ofh  OMF file handle. Not NULL.
+ * @param[in] idx  One-based name index.
+ * @retval NULL Lookup failed.
+ * @return Pointer to the NUL-terminated name.
+ */
 char                    *OmfGetPtrToLName( omf_file_handle ofh, omf_idx idx )
 {
     omf_string_struct   *tmp;
@@ -1694,6 +2125,14 @@ char                    *OmfGetPtrToLName( omf_file_handle ofh, omf_idx idx )
 }
 
 
+/*!
+ * @brief Find a segment or COMDAT section.
+ * @param[in] ofh           OMF file handle. Not NULL.
+ * @param[in] seg           Segment index, or zero for a COMDAT.
+ * @param[in] comdat_lname  COMDAT name index when @p seg is zero.
+ * @retval NULL Not found.
+ * @return The matching section.
+ */
 omf_sec_handle          OmfFindSegOrComdat( omf_file_handle ofh, omf_idx seg,
                                             omf_idx comdat_lname )
 {
@@ -1716,6 +2155,13 @@ omf_sec_handle          OmfFindSegOrComdat( omf_file_handle ofh, omf_idx seg,
 }
 
 
+/*!
+ * @brief Ensure a section's contents buffer covers its declared size.
+ * @param[in,out] sh  Section. Not NULL.
+ * @retval ORL_OKAY            Buffer allocated.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return      OmfExportSegmentContents( omf_sec_handle sh )
 {
     assert( sh );
@@ -1727,6 +2173,13 @@ orl_return      OmfExportSegmentContents( omf_sec_handle sh )
 }
 
 
+/*!
+ * @brief Record the source file name from a THEADR record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @retval ORL_OKAY   Recorded.
+ * @retval ORL_ERROR  Malformed record.
+ * @return ORL_OKAY on success.
+ */
 orl_return      OmfTheadr( omf_file_handle ofh )
 {
     orl_return          err;

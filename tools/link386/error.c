@@ -24,29 +24,50 @@
 *
 *  ========================================================================
 *
-* Description:  WHEN YOU FIGURE OUT WHAT THIS FILE DOES, PLEASE
-*               DESCRIBE IT HERE!
+* Description:  Error, warning and informational message output.
 *
 ****************************************************************************/
 
+/*!
+ * @file error.c
+ * @brief Diagnostic message output for the link clone.
+ *
+ * Provides printf-style fatal-error, internal-error, warning and
+ * informational routines.  A caller-supplied banner function is
+ * invoked before each message; warnings and informational messages
+ * can be globally suppressed with DisableWarnings().
+ */
 
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "error.h"
 
+/*!
+ * @brief Default banner function.  Does nothing.
+ */
 static void     do_nothing( void );
 
 
+/*!
+ * @brief Banner function invoked before every message.
+ */
 static void             (*bannerFunc)( void ) = do_nothing;
+/*!
+ * @brief Non-zero while warnings and informational messages are displayed.
+ */
 static int              displayWarnings = 1;
 
 
-/*
- * If format==NULL, a default error message is displayed using perror().
- * Otherwise, format is treated as the format string, and passed to
- * vfprintf() with any arguments specified after it.  This function
- * terminates the program, returning exit status EXIT_FAILURE.
+/*!
+ * @brief Report a fatal error and terminate the program.
+ *
+ * If @p format is NULL, a default message is produced with perror().
+ * Otherwise @p format and the variable arguments are formatted with
+ * vfprintf().  Always exits with EXIT_FAILURE.
+ *
+ * @param[in] format  printf-style format string, or NULL.
+ * @param[in] ...     Arguments for @p format.
  */
 void FatalError( const char *format, ... )
 /****************************************/
@@ -68,8 +89,13 @@ void FatalError( const char *format, ... )
 }
 
 
-/*
- * Point out the offending location and exit with status EXIT_FAILURE.
+/*!
+ * @brief Report an internal error and terminate the program.
+ *
+ * Used for consistency checks that should never fail.
+ *
+ * @param[in] line  Source line number of the check.
+ * @param[in] file  Source file name of the check.
  */
 void InternalError( int line, const char *file )
 /**********************************************/
@@ -81,8 +107,13 @@ void InternalError( int line, const char *file )
 }
 
 
-/*
- * Print a warning message.
+/*!
+ * @brief Print a warning message.
+ *
+ * Ignored when warnings have been disabled with DisableWarnings().
+ *
+ * @param[in] format  printf-style format string.
+ * @param[in] ...     Arguments for @p format.
  */
 void Warning( const char *format, ... )
 /*************************************/
@@ -100,8 +131,13 @@ void Warning( const char *format, ... )
 }
 
 
-/*
- * Print an information message.  Obeys DisableWarnings.
+/*!
+ * @brief Print an informational message.
+ *
+ * Obeys the same suppression flag as Warning().
+ *
+ * @param[in] format  printf-style format string.
+ * @param[in] ...     Arguments for @p format.
  */
 void Information( const char *format, ... )
 /*****************************************/
@@ -119,8 +155,10 @@ void Information( const char *format, ... )
 }
 
 
-/*
- * Enables warnings if yesno is zero, and disables them if non-zero.
+/*!
+ * @brief Enable or disable warnings and informational messages.
+ *
+ * @param[in] yesno  Zero enables output, non-zero disables it.
  */
 void DisableWarnings( int yesno )
 /*******************************/
@@ -129,8 +167,10 @@ void DisableWarnings( int yesno )
 }
 
 
-/*
- * Set the function used to output the banner.
+/*!
+ * @brief Install a banner function invoked before every message.
+ *
+ * @param[in] func  Banner function.  Not NULL.
  */
 void SetBannerFuncError( void (*func)( void ) )
 /*********************************************/
@@ -139,8 +179,8 @@ void SetBannerFuncError( void (*func)( void ) )
 }
 
 
-/*
- * Default banner-drawing function, which does nothing.
+/*!
+ * @brief Default banner function.  Does nothing.
  */
 static void do_nothing( void )
 /****************************/

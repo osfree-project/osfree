@@ -29,6 +29,14 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file deffile.c
+ * @brief Microsoft LINK .def file parser.
+ *
+ * Tokenizes and interprets a .def file, returning a DefInfo structure
+ * with the relevant directives. Unsupported directives are reported
+ * via UnsupportedOptsMessage().
+ */
 
 #include <ctype.h>
 #include <stdio.h>
@@ -41,10 +49,26 @@
 #include "message.h"
 
 
+/*!
+ * @def TRUE
+ * @brief Boolean true, used internally by this parser.
+ */
 #define TRUE                    1
+/*!
+ * @def FALSE
+ * @brief Boolean false, used internally by this parser.
+ */
 #define FALSE                   0
 
+/*!
+ * @def SET_ERROR
+ * @brief Signal a parse error to the surrounding state machine.
+ */
 #define SET_ERROR               error = TRUE
+/*!
+ * @def CLEAR_GOT_FLAGS
+ * @brief Reset all per-directive "got" flags.
+ */
 #define CLEAR_GOT_FLAGS         exportsGotEntryName = FALSE;    \
                                 exportsGotInternalName = FALSE; \
                                 exportsGotOrdinal = FALSE;      \
@@ -59,43 +83,79 @@
                                 versionGotMinor = FALSE;
 
 
+/*!
+ * @brief Read and classify the next token from the current context.
+ * @param[in]  state        Current parser state.
+ * @param[out] newCmd       Optional. Set non-zero if the token begins a new command.
+ * @param[out] newLine      Optional. Set non-zero if a newline was consumed.
+ * @param[in]  fileCharsOk  Non-zero to accept ':' and '.' inside a filename token.
+ * @param[in]  atCharsOk    Non-zero to accept '@' inside a token.
+ * @return The new state.
+ */
 static int      next_token( int state, int *newCmd, int *newLine, int fileCharsOk, int atCharsOk );
+/*!
+ * @brief Extract the next whitespace-separated word (currently unused).
+ * @return A newly allocated word, or NULL.
+ */
 static char *   get_word( void );
+/*!
+ * @brief Remove leading and trailing whitespace and double quotes.
+ * @param[in,out] str  String to trim in place.
+ */
 static void     strip_quotes( char *str );
+/*!
+ * @brief Skip whitespace and comment characters.
+ * @param[out] newLine  Set non-zero if a newline was consumed.
+ * @retval 0  End of file reached.
+ * @retval 1  More data remains.
+ * @return Non-zero if more input is available.
+ */
 static int      eat_comments( int *newLine );
+/*!
+ * @brief Convert a string containing quotes into an escaped form.
+ * @param[in] str  Source string. Not NULL.
+ * @return Newly allocated converted string.
+ */
 static char *   string_convert( const char *str );
 
 
+/*!
+ * @enum state_t
+ * @brief Parser states used by the .def state machine.
+ */
 enum {
-    STATE_CLEAR,                        /* general states */
-    STATE_EOF,
-    STATE_BASE,                         /* keyword states */
-    STATE_DESCRIPTION,
-    STATE_EXETYPE,
-    STATE_EXPORT,
-    STATE_EXPORTS,
-    STATE_HEAPSIZE,
-    STATE_LIBRARY,
-    STATE_NAME,
-    STATE_SECTIONS,
-    STATE_SEGMENTS,
-    STATE_STACKSIZE,
-    STATE_STUB,
-    STATE_VERSION,
-    STATE_PRIVATE,
-    STATE_PROTMODE,                     /* unsupported states */
-    STATE_CODE,
-    STATE_DATA,
-    STATE_NONAME,
-    STATE_RESIDENTNAME,
-    STATE_AT,                           /* separator states, they must be together !!! */
-    STATE_COMMA,
-    STATE_EQUAL,
-    STATE_PERIOD,
-    STATE_STRING                        /* option value states */
+    STATE_CLEAR,                        /*!< General states. */
+    STATE_EOF,                          /*!< End of input. */
+    STATE_BASE,                         /*!< Keyword states. */
+    STATE_DESCRIPTION,                  /*!< DESCRIPTION directive. */
+    STATE_EXETYPE,                      /*!< EXETYPE directive. */
+    STATE_EXPORT,                       /*!< EXPORT directive (single). */
+    STATE_EXPORTS,                      /*!< EXPORTS directive. */
+    STATE_HEAPSIZE,                     /*!< HEAPSIZE directive. */
+    STATE_LIBRARY,                      /*!< LIBRARY directive. */
+    STATE_NAME,                         /*!< NAME directive. */
+    STATE_SECTIONS,                     /*!< SECTIONS directive. */
+    STATE_SEGMENTS,                     /*!< SEGMENTS directive. */
+    STATE_STACKSIZE,                    /*!< STACKSIZE directive. */
+    STATE_STUB,                         /*!< STUB directive. */
+    STATE_VERSION,                      /*!< VERSION directive. */
+    STATE_PRIVATE,                      /*!< PRIVATE attribute. */
+    STATE_PROTMODE,                     /*!< Unsupported states. */
+    STATE_CODE,                         /*!< Unsupported. */
+    STATE_DATA,                         /*!< Unsupported. */
+    STATE_NONAME,                       /*!< Unsupported. */
+    STATE_RESIDENTNAME,                 /*!< RESIDENTNAME attribute. */
+    STATE_AT,                           /*!< Separator states, they must be together !!! */
+    STATE_COMMA,                        /*!< Comma separator. */
+    STATE_EQUAL,                        /*!< Equals sign. */
+    STATE_PERIOD,                       /*!< Period. */
+    STATE_STRING                        /*!< Option value states. */
 };
 
 
+/*!
+ * @brief States that break a command (begin a new command).
+ */
 static int          breakStates[] = {   /* break a command on these */
     STATE_CLEAR,
     STATE_EOF,
@@ -117,10 +177,17 @@ static int          breakStates[] = {   /* break a command on these */
     -1
 };
 
+/*!
+ * @brief Current token text.
+ */
 static char *       curToken = NULL;
 
 
 #ifdef __TARGET_AXP__
+/*!
+ * @brief Strip leading '_' and trailing '@nn' from stdcall names on Alpha.
+ * @param[in,out] name  Name to mangle in place. Not NULL.
+ */
 /*
  *  Strip leading _ and @nn from stdcall names when alpha
  */
@@ -153,8 +220,10 @@ void FuzzyMassageAXPStdcall( char *name ) {
 #endif
 
 
-/*
- * Add another string to a StringList.
+/*!
+ * @brief Append a string to a StringList.
+ * @param[in,out] p    Pointer to the list head. Not NULL.
+ * @param[in]     str  String to append. Not NULL.
  */
 static void add_string( StringList **p, char *str )
 /*************************************************/
@@ -178,8 +247,11 @@ static void add_string( StringList **p, char *str )
 }
 
 
-/*
- * Parse a .def file.  Returns NULL on error, or a DefInfo* on success.
+/*!
+ * @brief Parse a .def file.
+ * @param[in] filename  Path to the .def file. Not NULL.
+ * @retval NULL Parse error or file could not be opened.
+ * @return Parsed DefInfo, or NULL on failure.
  */
 #ifdef __TARGET_AXP__
     DefInfo *ParseDefFile( const char *filename, int dofuzzylink )
@@ -741,8 +813,14 @@ static void add_string( StringList **p, char *str )
 }
 
 
-/*
- * Get the next token, returning the new state.
+/*!
+ * @brief Read and classify the next token from the current context.
+ * @param[in]  state        Current parser state.
+ * @param[out] newCmd       Optional. Set non-zero if the token begins a new command.
+ * @param[out] newLine      Optional. Set non-zero if a newline was consumed.
+ * @param[in]  fileCharsOk  Non-zero to accept ':' and '.' inside a filename token.
+ * @param[in]  atCharsOk    Non-zero to accept '@' inside a token.
+ * @return The new state.
  */
 static int next_token( int state, int *newCmd, int *newLine, int fileCharsOk, int atCharsOk )
 /*******************************************************************************************/
@@ -919,8 +997,9 @@ static int next_token( int state, int *newCmd, int *newLine, int fileCharsOk, in
 }
 
 
-/*
- * Strip leading and trailing whitespace and double quotes from string.
+/*!
+ * @brief Remove leading and trailing whitespace and double quotes.
+ * @param[in,out] str  String to trim in place. Not NULL.
  */
 static void strip_quotes( char *str )
 /***********************************/
@@ -946,9 +1025,9 @@ static void strip_quotes( char *str )
 }
 
 
-/*
- * Skip all whitespace characters, such that the next read will retrieve the
- * first non-whitespace character.
+/*!
+ * @brief Skip all whitespace characters except newlines.
+ * @param[out] newLine  Set non-zero if a newline was consumed.
  */
 static void ScanWhitespace( int *newLine )
 /**********************************/
@@ -963,8 +1042,12 @@ static void ScanWhitespace( int *newLine )
 }
 
 
-/*
- * Skip comment(s) and whitespace.  Returns non-zero if not yet at EOF.
+/*!
+ * @brief Skip comments and whitespace.
+ * @param[out] newLine  Set non-zero if a newline was consumed.
+ * @retval 0  End of file reached.
+ * @retval 1  More data remains.
+ * @return Non-zero if more input is available.
  */
 static int eat_comments( int *newLine )
 /*************************************/
@@ -995,8 +1078,10 @@ static int eat_comments( int *newLine )
 }
 
 
-/*
- * Convert strings like "foo ' bar" to "foo \' bar" form.
+/*!
+ * @brief Convert strings like "foo ' bar" to "foo \' bar" form.
+ * @param[in] str  Source string. Not NULL.
+ * @return Newly allocated converted string.
  */
 static char *string_convert( const char *str )
 /********************************************/
@@ -1031,8 +1116,9 @@ static char *string_convert( const char *str )
 }
 
 
-/*
- * Destroy a StringList.
+/*!
+ * @brief Destroy a StringList.
+ * @param[in,out] p  Pointer to the list head. Not NULL.
  */
 static void FreeStringList( StringList **p )
 /******************************************/
@@ -1047,8 +1133,9 @@ static void FreeStringList( StringList **p )
 }
 
 
-/*
- * Destroy a DefInfo structure.
+/*!
+ * @brief Destroy a DefInfo structure.
+ * @param[in] p  DefInfo to free. Not NULL.
  */
 void FreeDefInfo( DefInfo *p )
 /****************************/

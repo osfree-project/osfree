@@ -29,24 +29,64 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file cmdscan.h
+ * @brief Low-level token scanners driven by a context stream.
+ */
 
 #ifndef _CMDSCAN_H
 #define _CMDSCAN_H
 
 
-/*
- * Function prototypes.
+/*!
+ * @brief Skip whitespace in the current context.
  */
 extern void     CmdScanWhitespace( void );
 
+/*!
+ * @brief Recognise a character in either case.
+ * @param[in] ch  Character to recognise.
+ * @retval 1  Matched and consumed.
+ * @retval 0  Not matched.
+ */
 extern int      CmdScanRecogChar( int ch );
+/*!
+ * @brief Recognise a character exactly.
+ * @param[in] ch  Character to recognise.
+ * @retval 1  Matched and consumed.
+ * @retval 0  Not matched.
+ */
 extern int      CmdScanRecogCharExact( int ch );
 
+/*!
+ * @brief Scan a (possibly quoted) string.
+ * @retval NULL  No string (leading whitespace or EOF).
+ * @return Newly allocated string.
+ */
 extern char *   CmdScanString( void );
+/*!
+ * @brief Scan a filename with quote processing.
+ * @retval NULL  No filename.
+ * @return Newly allocated filename.
+ */
 extern char *   CmdScanFileName( void );
+/*!
+ * @brief Scan a filename without quote processing.
+ * @retval NULL  No filename.
+ * @return Newly allocated filename.
+ */
 extern char *   CmdScanFileNameWithoutQuotes( void );
+/*!
+ * @brief Scan a number (decimal or 0x-prefixed hexadecimal).
+ * @param[out] num  Receives the parsed value.
+ * @retval 1  Number parsed.
+ * @retval 0  No number.
+ */
 extern int      CmdScanNumber( unsigned *num );
 
+/*!
+ * @brief Non-zero while inside a quoted string.
+ */
 extern int      Quoted;
 
 #endif

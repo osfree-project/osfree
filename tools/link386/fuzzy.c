@@ -29,6 +29,15 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file fuzzy.c
+ * @brief Fuzzy linker-symbol matching.
+ *
+ * Collects external symbols from the objects and libraries being
+ * linked, then attempts to resolve mismatched symbol names (e.g.
+ * decorated vs. undecorated, with or without leading underscore,
+ * stdcall at-number suffix).
+ */
 
 #include <ctype.h>
 #include <fcntl.h>
@@ -43,40 +52,87 @@
 #include "memory.h"
 #include "orl.h"                /* from riscdev project */
 
+/*!
+ * @def HASH_TABLE_SIZE
+ * @brief Number of buckets in the symbol hash table.
+ */
 #define HASH_TABLE_SIZE         2111
+/*!
+ * @def MAX_SYMBOL_LEN
+ * @brief Maximum length of a symbol name handled by the matcher.
+ */
 #define MAX_SYMBOL_LEN          512
 
+/*!
+ * @def MATCH_MODE_EXACT
+ * @brief Match mode: exact name.
+ */
 #define MATCH_MODE_EXACT                        1
+/*!
+ * @def MATCH_MODE_UNDERBAR_SYMBOL
+ * @brief Match mode: "_symbol".
+ */
 #define MATCH_MODE_UNDERBAR_SYMBOL              2
+/*!
+ * @def MATCH_MODE_SYMBOL_UNDERBAR
+ * @brief Match mode: "symbol_".
+ */
 #define MATCH_MODE_SYMBOL_UNDERBAR              3
+/*!
+ * @def MATCH_MODE_UNDERBAR_SYMBOL_AT_NUMBER
+ * @brief Match mode: "_symbol@<number>".
+ */
 #define MATCH_MODE_UNDERBAR_SYMBOL_AT_NUMBER    4
 
 
 /*
  * Types.
  */
+
+/*!
+ * @struct _ListElem
+ * @brief One element in a singly-linked string list.
+ */
 typedef struct _ListElem {
-    struct _ListElem *  next;
-    char                buff[1];
+    struct _ListElem *  next;       /*!< Next element, or NULL. */
+    char                buff[1];    /*!< NUL-terminated string. */
 } ListElem;
 
+/*!
+ * @struct _MatchingInfo
+ * @brief Context passed to the bucket walk callback.
+ */
 typedef struct _MatchingInfo {
-    char *              basename;
-    int                 findmode;
-    ListElem *          found;
+    char *              basename;   /*!< Entry name to match. Not NULL. */
+    int                 findmode;   /*!< One of MATCH_MODE_*. */
+    ListElem *          found;      /*!< Matched symbols so far, or NULL. */
 } MatchingInfo;
 
 
 /*
  * Static data.
  */
+
+/*!
+ * @brief Hash table of collected symbols.
+ */
 static HashTable        hashtable = NULL;
+/*!
+ * @brief Pool of ORL-allocated buffers to release after scanning.
+ */
 static ListElem *       bufflist = NULL;
+/*!
+ * @brief Loaded WLIB DLL handle, or NULL.
+ */
 static void *           dllhandle = NULL;
 
 
-/*
- * Determine if a symbol's name is mangled.
+/*!
+ * @brief Determine whether a symbol's name is mangled.
+ * @param[in] symbol  Symbol name. Not NULL.
+ * @retval 1  Symbol is a mangled C++ name.
+ * @retval 0  Symbol is not mangled (or uses an unsupported mangling).
+ * @return Non-zero if the name is mangled.
  */
 static int is_name_mangled( const char *symbol )
 /**********************************************/
@@ -90,8 +146,13 @@ static int is_name_mangled( const char *symbol )
 }
 
 
-/*
- * Hash comparison callback function.
+/*!
+ * @brief Hash comparison callback.
+ * @param[in] item1  First item. Not NULL.
+ * @param[in] item2  Second item. Not NULL.
+ * @retval 1  Items are equal strings.
+ * @retval 0  Items differ.
+ * @return Non-zero if the two strings are equal.
  */
 static int hash_compare( const void *item1, const void *item2 )
 /*************************************************************/
@@ -100,8 +161,11 @@ static int hash_compare( const void *item1, const void *item2 )
 }
 
 
-/*
- * Hash a symbol name.
+/*!
+ * @brief Hash a symbol name, ignoring leading underscores and trailing
+ *        "@<number>"/"_" decorations.
+ * @param[in] symbol  Symbol name. Not NULL.
+ * @return The hash value.
  */
 static unsigned hash_symbol_name( const void *symbol )
 /****************************************************/
@@ -170,8 +234,12 @@ static unsigned hash_symbol_name( const void *symbol )
 }
 
 
-/*
- * Used by ORL.
+/*!
+ * @brief ORL read callback.
+ * @param[in] hdl  File descriptor wrapped as a void pointer.
+ * @param[in] len  Number of bytes to read.
+ * @retval NULL Read failure.
+ * @return Pointer into the read buffer.
  */
 static void *obj_read( void *hdl, size_t len )
 /*****************************************/
@@ -189,8 +257,12 @@ static void *obj_read( void *hdl, size_t len )
 }
 
 
-/*
- * Used by ORL.
+/*!
+ * @brief ORL seek callback.
+ * @param[in] hdl    File descriptor wrapped as a void pointer.
+ * @param[in] pos    Offset to seek to.
+ * @param[in] where  One of SEEK_SET/SEEK_CUR/SEEK_END.
+ * @return The new file position.
  */
 static long obj_seek( void *hdl, long pos, int where )
 /****************************************************/
@@ -199,8 +271,9 @@ static long obj_seek( void *hdl, long pos, int where )
 }
 
 
-/*
- * Free a list of ListElem's.
+/*!
+ * @brief Free a list of ListElem allocations.
+ * @param[in] liststart  First element in the list, or NULL.
  */
 static void free_list( ListElem *liststart )
 /******************************************/
@@ -218,8 +291,11 @@ static void free_list( ListElem *liststart )
 }
 
 
-/*
- * Add one more symbol.
+/*!
+ * @brief Add one more symbol to the hash table.
+ * @param[in] o_symbol  ORL symbol handle. Not NULL.
+ * @retval ORL_OKAY Always returns ORL_OKAY.
+ * @return ORL_OKAY.
  */
 static orl_return do_orl_symbol( orl_symbol_handle o_symbol )
 /***********************************************************/
@@ -238,8 +314,13 @@ static orl_return do_orl_symbol( orl_symbol_handle o_symbol )
 }
 
 
-/*
- * Collect all external symbols from an object file.  Returns 0 on error.
+/*!
+ * @brief Collect external symbols from an object file.
+ * @param[in] filename  Object file path. Not NULL.
+ * @param[in] o_hnd     ORL handle. Not NULL.
+ * @retval 1  Symbols collected.
+ * @retval 0  File could not be opened or is not an object file.
+ * @return 1 on success, 0 on failure.
  */
 static int handle_obj_file( const char *filename, orl_handle o_hnd )
 /******************************************************************/
@@ -294,10 +375,12 @@ static int handle_obj_file( const char *filename, orl_handle o_hnd )
 }
 
 
-/*
- * Returns the actual name of 'filename', searching 'libpaths' if necessary.
- * The caller is responsible for freeing the returned memory.  If the file
- * cannot be found, NULL is returned.
+/*!
+ * @brief Locate a file along the library search paths.
+ * @param[in] filename  File name to locate. Not NULL.
+ * @param[in] libpaths  NULL-terminated search path array. May be NULL.
+ * @retval NULL File not found.
+ * @return Newly allocated full path to the file.
  */
 static char *find_file( const char *filename, const char *libpaths[] )
 /********************************************************************/
@@ -348,8 +431,13 @@ static char *find_file( const char *filename, const char *libpaths[] )
 }
 
 
-/*
- * Collect all external symbols from a library file.  Returns 0 on error.
+/*!
+ * @brief Collect external symbols from a library file by running WLIB.
+ * @param[in] filename  Library file name. Not NULL.
+ * @param[in] libpaths  NULL-terminated search path array. May be NULL.
+ * @retval 1  Symbols collected.
+ * @retval 0  File could not be found or WLIB failed.
+ * @return 1 on success, 0 on failure.
  */
 static int handle_lib_file( const char *filename, const char *libpaths[] )
 /************************************************************************/
@@ -380,8 +468,12 @@ static int handle_lib_file( const char *filename, const char *libpaths[] )
 }
 
 
-/*
- * Process output from the WLIB DLL.
+/*!
+ * @brief Process one line of output from the WLIB DLL.
+ * @param[in] text  Output line. Not NULL.
+ * @retval 1  Line was consumed (or was a non-fatal message).
+ * @retval 0  Line was a diagnostic and has been reported.
+ * @return 1 to continue, 0 on error.
  */
 static int wlib_output( const char *text )
 /****************************************/
@@ -405,27 +497,56 @@ static int wlib_output( const char *text )
 }
 
 
-/*
- * WLIB DLL output callback functions.
+/*!
+ * @brief WLIB DLL plain-message (with CRLF) callback.
+ * @param[in] hdl   Caller handle (unused).
+ * @param[in] text  Output line. Not NULL.
+ * @retval 0  Line was a diagnostic.
+ * @retval non-zero Line was consumed.
+ * @return Non-zero to continue.
  */
 static IDEBool __stdcall print_message_crlf( IDECBHdl hdl, const char *text )
 {
     return( (IDEBool)wlib_output( text ) );
 }
+
+/*!
+ * @brief WLIB DLL structured-message (v2) callback.
+ * @param[in] hdl   Caller handle (unused).
+ * @param[in] info  Structured output. Not NULL.
+ * @retval 0  Line was a diagnostic.
+ * @retval non-zero Line was consumed.
+ * @return Non-zero to continue.
+ */
 static IDEBool __stdcall print_with_info2( IDECBHdl hdl, IDEMsgInfo2 *info )
 {
     return( (IDEBool)wlib_output( info->msg ) );
 }
+
+/*!
+ * @brief WLIB DLL structured-message (v3+) callback.
+ * @param[in] hdl   Caller handle (unused).
+ * @param[in] info  Structured output. Not NULL.
+ * @retval 0  Line was a diagnostic.
+ * @retval non-zero Line was consumed.
+ * @return Non-zero to continue.
+ */
 static IDEBool __stdcall print_with_info( IDECBHdl hdl, IDEMsgInfo *info )
 {
     return( (IDEBool)wlib_output( info->msg ) );
 }
 
 
-/*
- * Given a set of object and library files, prepare to use fuzzy linking.
- * If symbols cannot be collected from a file, 'callback' will be called
- * with the name of the offending file.
+/*!
+ * @brief Initialize fuzzy matching from object and library files.
+ * @param[in] objs      Linked object files, NULL-terminated. May be NULL.
+ * @param[in] libs      Linked libraries, NULL-terminated. May be NULL.
+ * @param[in] libpaths  Library search paths, NULL-terminated. May be NULL.
+ * @param[in] callback  Callback invoked on extraction failures. Not NULL.
+ *
+ * If symbols cannot be collected from a file, @p callback is called
+ * with the name of the offending file. If it returns zero,
+ * initialization is abandoned.
  */
 void InitFuzzy( const char *objs[], const char *libs[],
                 const char *libpaths[], FuzzyInitCallback callback )
@@ -493,8 +614,8 @@ void InitFuzzy( const char *objs[], const char *libs[],
 }
 
 
-/*
- * Disable the fuzzy linking module, freeing any allocated resources.
+/*!
+ * @brief Deinitialize the fuzzy matching module.
  */
 void FiniFuzzy( void )
 /********************/
@@ -505,8 +626,13 @@ void FiniFuzzy( void )
 }
 
 
-/*
- * Check a hash table element during a walk of a hash table bucket.
+/*!
+ * @brief Bucket-walk callback: test one symbol against a match mode.
+ * @param[in] name_  Candidate symbol name. Not NULL.
+ * @param[in] info_  MatchingInfo context. Not NULL.
+ * @retval 0  Unique match achieved (stop walking).
+ * @retval 1  Continue walking.
+ * @return Zero to stop walking, non-zero to continue.
  */
 static int matching_callback( const void *name_, void *info_ )
 /************************************************************/
@@ -577,11 +703,16 @@ static int matching_callback( const void *name_, void *info_ )
 }
 
 
-/*
- * Perform fuzzy matching on the given symbol.  If exactly one match is
- * found, a pointer to the real symbol name (in ' quotes) is returned;
- * the caller is responsible for freeing this memory.  In all other cases,
- * NULL is returned.
+/*!
+ * @brief Fuzzy-match a symbol against the collected symbol tables.
+ * @param[in] entryname  Entry name (optionally single-quoted). Not NULL.
+ *
+ * If exactly one match is found, a pointer to the real symbol name
+ * (in single quotes) is returned; the caller owns the returned
+ * memory. In all other cases NULL is returned.
+ *
+ * @retval NULL No match, or more than one match was found.
+ * @return Newly allocated single-quoted matched symbol name.
  */
 char *MatchFuzzy( const char *entryname )
 /***************************************/

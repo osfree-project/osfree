@@ -29,10 +29,18 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file elfflhn.c
+ * @brief Link/unlink ELF file handles in the ELF handle's list.
+ */
 
 #include "elfflhn.h"
 #include "orlhash.h"
 
+/*!
+ * @brief Free all memory owned by an ELF file handle.
+ * @param[in,out] elf_file_hnd  File handle to free. Not NULL.
+ */
 static void free_elf_file_hnd( elf_file_handle elf_file_hnd )
 {
     int                         loop;
@@ -68,6 +76,11 @@ static void free_elf_file_hnd( elf_file_handle elf_file_hnd )
     _ClientFree( elf_file_hnd, elf_file_hnd );
 }
 
+/*!
+ * @brief Push a new ELF file handle onto the head of the ELF handle list.
+ * @param[in,out] elf_hnd       ELF handle. Not NULL.
+ * @param[in,out] elf_file_hnd  File handle to link. Not NULL.
+ */
 void ElfAddFileLinks( elf_handle elf_hnd, elf_file_handle elf_file_hnd )
 {
     elf_file_hnd->next = elf_hnd->first_file_hnd;
@@ -75,6 +88,13 @@ void ElfAddFileLinks( elf_handle elf_hnd, elf_file_handle elf_file_hnd )
     elf_hnd->first_file_hnd = elf_file_hnd;
 }
 
+/*!
+ * @brief Unlink an ELF file handle and free it.
+ * @param[in,out] elf_file_hnd  File handle to remove. Not NULL.
+ * @retval ORL_OKAY   Removed.
+ * @retval ORL_ERROR  Handle was not found in the list.
+ * @return ORL_OKAY on success, ORL_ERROR otherwise.
+ */
 orl_return ElfRemoveFileLinks( elf_file_handle elf_file_hnd )
 {
     elf_handle                          elf_hnd;

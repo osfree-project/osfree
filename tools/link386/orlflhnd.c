@@ -24,20 +24,38 @@
 *
 *  ========================================================================
 *
-* Description:  WHEN YOU FIGURE OUT WHAT THIS FILE DOES, PLEASE
-*               DESCRIBE IT HERE!
+* Description:  Maintenance of the ORL handle's linked list of file handles.
 *
 ****************************************************************************/
 
+/*!
+ * @file orlflhnd.c
+ * @brief Maintain the linked list of ORL file handles.
+ *
+ * Each ORL handle keeps a singly-linked list of the files opened
+ * through it.  These routines add entries to and remove entries from
+ * that list.
+ */
 
 #include "orllevel.h"
 #include "orlflhnd.h"
 
+/*!
+ * @brief Free a file handle previously linked with ORLAddFileLinks().
+ *
+ * @param[in] orl_file_hnd  File handle to free.  Not NULL.
+ */
 static void free_orl_file_hnd( orl_file_handle orl_file_hnd )
 {
     orl_file_hnd->orl_hnd->funcs->free( orl_file_hnd );
 }
 
+/*!
+ * @brief Insert a file handle at the head of the ORL handle's list.
+ *
+ * @param[in,out] orl_hnd       ORL handle.  Not NULL.
+ * @param[in]     orl_file_hnd  File handle to insert.  Not NULL.
+ */
 void ORLAddFileLinks( orl_handle orl_hnd, orl_file_handle orl_file_hnd )
 {
     orl_file_hnd->next = orl_hnd->first_file_hnd;
@@ -45,6 +63,14 @@ void ORLAddFileLinks( orl_handle orl_hnd, orl_file_handle orl_file_hnd )
     orl_hnd->first_file_hnd = orl_file_hnd;
 }
 
+/*!
+ * @brief Remove and free a file handle from its ORL handle's list.
+ *
+ * @param[in] orl_file_hnd  File handle to remove.  Not NULL.
+ * @retval ORL_OKAY   Removed successfully.
+ * @retval ORL_ERROR  Handle not found in the list.
+ * @return ORL_OKAY on success.
+ */
 orl_return ORLRemoveFileLinks( orl_file_handle orl_file_hnd )
 {
     orl_handle                          orl_hnd;

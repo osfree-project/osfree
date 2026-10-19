@@ -29,7 +29,19 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file dm_pts.h
+ * @brief Demangler callback event codes.
+ *
+ * The DM_DEFS macro expands the list of every event code. Each entry
+ * is expanded by the includer as DM_DEF(name) to build a matching
+ * enum member, array entry, or string.
+ */
 
+/*!
+ * @def DM_DEFS
+ * @brief X-macro list of every demangler event code.
+ */
 #define DM_DEFS \
     DM_DEF( BASIC_TYPE ) \
     DM_DEF( CHAR_ENCODING ) \
@@ -93,6 +105,10 @@
     DM_DEF( DECLSPEC_IMPORT ) \
     DM_DEF( INVALID )
 
+/*!
+ * @enum dm_pts
+ * @brief Demangler callback event codes.
+ */
 typedef enum {
     #define DM_DEF( id )        DM_##id,
     DM_DEFS

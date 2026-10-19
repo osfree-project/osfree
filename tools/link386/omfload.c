@@ -28,6 +28,14 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file omfload.c
+ * @brief OMF record decoding and file loading.
+ *
+ * Reads OMF records from the file, validates checksums (where the
+ * producer supplies them), and dispatches each record to the
+ * corresponding OmfAdd* routine in omfmunge.c.
+ */
 
 #include <assert.h>
 #include <stdlib.h>
@@ -40,10 +48,23 @@
 
 /* Local definitions
  */
+
+/*!
+ * @def MAX_REC_SIZE
+ * @brief Upper bound on an OMF record length in bytes.
+ */
 #define MAX_REC_SIZE    65536
+/*!
+ * @def TWO_BYTE_MASK
+ * @brief Bit set in an index byte indicating a two-byte index follows.
+ */
 #define TWO_BYTE_MASK   0x80
 
 
+/*!
+ * @brief Initialize per-file parsing state to defaults.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ */
 static void             setInitialData( omf_file_handle ofh )
 {
     assert( ofh );
@@ -59,6 +80,11 @@ static void             setInitialData( omf_file_handle ofh )
 }
 
 
+/*!
+ * @brief Return the word size for an OMF record.
+ * @param[in] is32  Non-zero for a 32-bit record.
+ * @return 4 for 32-bit, 2 for 16-bit.
+ */
 int                     OmfGetWordSize( int is32 )
 {
     if( is32 ) {
@@ -69,6 +95,12 @@ int                     OmfGetWordSize( int is32 )
 }
 
 
+/*!
+ * @brief Read an unsigned word of the given size from a buffer.
+ * @param[in] buffer    Buffer. Not NULL.
+ * @param[in] wordsize  Word size in bytes (2 or 4).
+ * @return The decoded value.
+ */
 static orl_sec_offset   getUWord( omf_bytes buffer, int wordsize )
 {
     orl_sec_offset      result = 0;
@@ -88,6 +120,12 @@ static orl_sec_offset   getUWord( omf_bytes buffer, int wordsize )
 }
 
 
+/*!
+ * @brief Decide whether a record is 32-bit.
+ * @param[in] ofh  OMF file handle. Not NULL.
+ * @param[in] typ  Record type.
+ * @return Non-zero if the record is 32-bit.
+ */
 static int              check32Bit( omf_file_handle ofh, omf_rectyp typ )
 {
     int is32;
@@ -97,6 +135,11 @@ static int              check32Bit( omf_file_handle ofh, omf_rectyp typ )
 }
 
 
+/*!
+ * @brief Translate an OMF alignment code to an ORL alignment.
+ * @param[in] val  OMF alignment code.
+ * @return ORL alignment value (log2 of alignment in bytes).
+ */
 static orl_sec_alignment getAlignment( int val )
 {
     switch( val ) {
@@ -125,6 +168,17 @@ static orl_sec_alignment getAlignment( int val )
 }
 
 
+/*!
+ * @brief Read the next record from the file into the parse buffer.
+ *
+ * Verifies the record checksum when the producer supplied a
+ * non-zero checksum byte.
+ *
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @retval ORL_OKAY   Record loaded.
+ * @retval ORL_ERROR  Read failure or checksum mismatch.
+ * @return ORL_OKAY on success, ORL_ERROR on failure.
+ */
 static orl_return       loadRecord( omf_file_handle ofh )
 {
     long                len;
@@ -158,6 +212,12 @@ static orl_return       loadRecord( omf_file_handle ofh )
 }
 
 
+/*!
+ * @brief Read an OMF index (1 or 2 bytes) from a buffer.
+ * @param[in,out] buffer  Pointer to the buffer pointer. Not NULL.
+ * @param[in,out] len     Pointer to the remaining length. Not NULL.
+ * @return The decoded index.
+ */
 omf_idx loadIndex( omf_bytes *buffer, long *len )
 {
     omf_bytes           deref;
@@ -186,6 +246,16 @@ omf_idx loadIndex( omf_bytes *buffer, long *len )
 }
 
 
+/*!
+ * @brief Decode one explicit FIXUPP subrecord.
+ * @param[in,out] ofh     OMF file handle. Not NULL.
+ * @param[in]     is32    Non-zero for a 32-bit record.
+ * @param[in,out] buffer  Pointer to the buffer pointer. Not NULL.
+ * @param[in,out] cur     Pointer to the remaining length. Not NULL.
+ * @retval ORL_OKAY   Subrecord decoded.
+ * @retval ORL_ERROR  Malformed subrecord.
+ * @return ORL_OKAY on success, ORL_ERROR on failure.
+ */
 static orl_return       processExplicitFixup( omf_file_handle ofh, int is32,
                                             omf_bytes *buffer, long *cur )
 {
@@ -276,6 +346,13 @@ static orl_return       processExplicitFixup( omf_file_handle ofh, int is32,
 }
 
 
+/*!
+ * @brief Decode one THRED subrecord.
+ * @param[in,out] ofh     OMF file handle. Not NULL.
+ * @param[in,out] buffer  Pointer to the buffer pointer. Not NULL.
+ * @param[in,out] cur     Pointer to the remaining length. Not NULL.
+ * @return ORL_OKAY.
+ */
 static orl_return       processThreadFixup( omf_file_handle ofh,
                                             omf_bytes *buffer, long *cur )
 {
@@ -324,6 +401,11 @@ static orl_return       processThreadFixup( omf_file_handle ofh,
 }
 
 
+/*!
+ * @brief Handle a THEADR record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @return Result of OmfTheadr().
+ */
 static orl_return       doTHEADR( omf_file_handle ofh )
 {
     orl_return          err;
@@ -337,6 +419,11 @@ static orl_return       doTHEADR( omf_file_handle ofh )
 }
 
 
+/*!
+ * @brief Handle a COMENT record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @return Result of OmfAddComment().
+ */
 static orl_return       doCOMENT( omf_file_handle ofh )
 {
     orl_return          err;
@@ -420,6 +507,12 @@ static orl_return       doCOMENT( omf_file_handle ofh )
 }
 
 
+/*!
+ * @brief Handle a MODEND or MODEND32 record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     typ  Record type.
+ * @return Result of OmfModEnd().
+ */
 static orl_return       doMODEND( omf_file_handle ofh, omf_rectyp typ )
 {
     orl_return  err;
@@ -434,6 +527,12 @@ static orl_return       doMODEND( omf_file_handle ofh, omf_rectyp typ )
 }
 
 
+/*!
+ * @brief Handle an EXTDEF/LEXTDEF/LEXTDEF32 record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     typ  Record type.
+ * @return ORL_OKAY, or the first error.
+ */
 static orl_return       doEXTDEF( omf_file_handle ofh, omf_rectyp typ )
 {
     orl_return          err;
@@ -466,6 +565,12 @@ static orl_return       doEXTDEF( omf_file_handle ofh, omf_rectyp typ )
 }
 
 
+/*!
+ * @brief Handle a CEXTDF record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     typ  Record type.
+ * @return ORL_OKAY, or the first error.
+ */
 static orl_return       doCEXTDEF( omf_file_handle ofh, omf_rectyp typ )
 {
     orl_return          err;
@@ -495,6 +600,12 @@ static orl_return       doCEXTDEF( omf_file_handle ofh, omf_rectyp typ )
 }
 
 
+/*!
+ * @brief Handle a COMDEF/LCOMDEF record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     typ  Record type.
+ * @return ORL_OKAY, or the first error.
+ */
 static orl_return       doCOMDEF( omf_file_handle ofh, omf_rectyp typ )
 {
     orl_return          err;
@@ -556,6 +667,12 @@ static orl_return       doCOMDEF( omf_file_handle ofh, omf_rectyp typ )
     return( err );
 }
 
+/*!
+ * @brief Handle a LINNUM/LINNUM32/LINSYM/LINSYM32 record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     typ  Record type.
+ * @return ORL_OKAY, or the first error.
+ */
 static orl_return       doLINNUM( omf_file_handle ofh, omf_rectyp typ )
 {
     orl_return          err;
@@ -631,6 +748,12 @@ static orl_return       doLINNUM( omf_file_handle ofh, omf_rectyp typ )
 }
 
 
+/*!
+ * @brief Handle a PUBDEF/PUBDEF32/LPUBDEF/LPUBDEF32 record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     typ  Record type.
+ * @return ORL_OKAY, or the first error.
+ */
 static orl_return       doPUBDEF( omf_file_handle ofh, omf_rectyp typ )
 {
     orl_return          err;
@@ -687,6 +810,12 @@ static orl_return       doPUBDEF( omf_file_handle ofh, omf_rectyp typ )
 }
 
 
+/*!
+ * @brief Handle an LNAMES/LLNAME record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     typ  Record type.
+ * @return ORL_OKAY, or the first error.
+ */
 static orl_return       doLNAMES( omf_file_handle ofh, omf_rectyp typ )
 {
     orl_return          err;
@@ -715,6 +844,12 @@ static orl_return       doLNAMES( omf_file_handle ofh, omf_rectyp typ )
 }
 
 
+/*!
+ * @brief Handle a SEGDEF/SEGDEF32 record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     typ  Record type.
+ * @return Result of OmfAddSegDef().
+ */
 static orl_return       doSEGDEF( omf_file_handle ofh, omf_rectyp typ )
 {
     orl_return          err;
@@ -805,6 +940,11 @@ static orl_return       doSEGDEF( omf_file_handle ofh, omf_rectyp typ )
 }
 
 
+/*!
+ * @brief Handle a GRPDEF record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @return Result of OmfAddGrpDef().
+ */
 static orl_return       doGRPDEF( omf_file_handle ofh )
 {
     orl_return          err;
@@ -845,6 +985,12 @@ static orl_return       doGRPDEF( omf_file_handle ofh )
 }
 
 
+/*!
+ * @brief Handle a FIXUPP/FIXUPP32 record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     typ  Record type.
+ * @return ORL_OKAY, or the first error.
+ */
 static orl_return       doFIXUPP( omf_file_handle ofh, omf_rectyp typ )
 {
     orl_return          err;
@@ -882,6 +1028,12 @@ static orl_return       doFIXUPP( omf_file_handle ofh, omf_rectyp typ )
 }
 
 
+/*!
+ * @brief Handle a BAKPAT/BAKPAT32/NBKPAT/NBKPAT32 record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     typ  Record type.
+ * @return Result of OmfAddBakpat(), or an error.
+ */
 static orl_return       doBAKPAT( omf_file_handle ofh, omf_rectyp typ )
 {
     orl_return          err;
@@ -950,6 +1102,12 @@ static orl_return       doBAKPAT( omf_file_handle ofh, omf_rectyp typ )
 }
 
 
+/*!
+ * @brief Handle an LEDATA/LEDATA32 record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     typ  Record type.
+ * @return Result of OmfAddLEData(), or an error.
+ */
 static orl_return       doLEDATA( omf_file_handle ofh, omf_rectyp typ )
 {
     orl_return          err;
@@ -981,6 +1139,12 @@ static orl_return       doLEDATA( omf_file_handle ofh, omf_rectyp typ )
 }
 
 
+/*!
+ * @brief Handle an LIDATA/LIDATA32 record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     typ  Record type.
+ * @return Result of OmfAddLIData(), or an error.
+ */
 static orl_return       doLIDATA( omf_file_handle ofh, omf_rectyp typ )
 {
     orl_return          err;
@@ -1017,6 +1181,12 @@ static orl_return       doLIDATA( omf_file_handle ofh, omf_rectyp typ )
 }
 
 
+/*!
+ * @brief Handle a COMDAT/COMDAT32 record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     typ  Record type.
+ * @return Result of OmfAddComDat(), or an error.
+ */
 static orl_return       doCOMDAT( omf_file_handle ofh, omf_rectyp typ )
 {
     orl_return          err;
@@ -1077,6 +1247,14 @@ static orl_return       doCOMDAT( omf_file_handle ofh, omf_rectyp typ )
 }
 
 
+/*!
+ * @brief Dispatch one OMF record.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @param[in]     typ  Record type.
+ * @retval ORL_OKAY   Record handled.
+ * @retval ORL_ERROR  Unknown record type.
+ * @return ORL_OKAY on success, ORL_ERROR otherwise.
+ */
 static orl_return       procRecord( omf_file_handle ofh, omf_rectyp typ )
 {
     assert( ofh );
@@ -1179,6 +1357,13 @@ static orl_return       procRecord( omf_file_handle ofh, omf_rectyp typ )
     }
 }
 
+/*!
+ * @brief Load the whole structure of an OMF file.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @retval ORL_OKAY   File parsed.
+ * @retval ORL_ERROR  Malformed file or read error.
+ * @return ORL_OKAY on success, ORL_ERROR on failure.
+ */
 orl_return OmfLoadFileStructure( omf_file_handle ofh )
 {
     orl_return  err = ORL_OKAY;
@@ -1208,6 +1393,15 @@ orl_return OmfLoadFileStructure( omf_file_handle ofh )
     return( err );
 }
 
+/*!
+ * @brief Parse a scan-table disassembly directive.
+ * @param[in]  buffer  Directive payload. Not NULL.
+ * @param[in]  len     Payload length in bytes.
+ * @param[out] entry   Receiver for the parsed entry. Not NULL.
+ * @retval ORL_OKAY   Parsed successfully.
+ * @retval ORL_ERROR  Malformed directive.
+ * @return ORL_OKAY on success, ORL_ERROR on failure.
+ */
 orl_return      OmfParseScanTab( omf_bytes buffer, long len,
                                  omf_scan_tab_struct *entry )
 {

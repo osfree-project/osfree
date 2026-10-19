@@ -28,10 +28,29 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file demangle.c
+ * @brief C++ name demangling for Watcom-mangled symbols.
+ *
+ * Implements the parser and output engine used by the link clone to
+ * turn Watcom C++ mangled names back into human-readable form.  The
+ * parser walks the mangled string, invoking the output callback
+ * (@c outfunPtr) with DM_* events that describe the structure of the
+ * name.  Multiple drivers (simple text demangler, callback-based
+ * structure extractor, and self-tests) reuse the same parser.
+ */
 
+/*!
+ * @def __DIP__
+ * @brief Enables the callback-driven parser mode in TEST builds.
+ */
 #ifdef TEST
 #define __DIP__
 #endif
+/*!
+ * @def __NO_STACK_CHECKING__
+ * @brief Disables recursion-depth probes in DIP builds.
+ */
 #ifdef __DIP__
 #define __NO_STACK_CHECKING__
 #endif
@@ -47,136 +66,434 @@
 #include "watcom.h"
 #include "demangle.h"
 
+/*!
+ * @def _WCI86FAR
+ * @brief Fallback for the Watcom far-pointer qualifier.
+ */
 #ifndef _WCI86FAR
 #define _WCI86FAR
 #endif
 
+/*!
+ * @def IMPORT_PREFIX_STR
+ * @brief Prefix added by `__declspec(dllimport)` to imported symbols.
+ */
 #define IMPORT_PREFIX_STR       "__imp_"
+/*!
+ * @def IMPORT_PREFIX_LEN
+ * @brief Length of @ref IMPORT_PREFIX_STR.
+ */
 #define IMPORT_PREFIX_LEN       ( sizeof( IMPORT_PREFIX_STR ) - 1 )
 
 #undef  TRUE
 #undef  FALSE
+/*!
+ * @def TRUE
+ * @brief Boolean true used throughout the demangler.
+ */
 #define TRUE                    (1)
+/*!
+ * @def FALSE
+ * @brief Boolean false used throughout the demangler.
+ */
 #define FALSE                   (0)
+/*!
+ * @def RECURSE_CHECK
+ * @brief Stack bytes consumed per recursion check in @c check_recurse.
+ */
 #define RECURSE_CHECK           (100*sizeof(int))
+/*!
+ * @def AUTO_BUFFER_SIZE
+ * @brief Size of the on-stack buffer used for recursive sub-names.
+ */
 #define AUTO_BUFFER_SIZE        80
+/*!
+ * @def SUPPRESS_LIMIT
+ * @brief Baseline value of @c suppress_output; deeper values suppress output.
+ */
 #define SUPPRESS_LIMIT          2
+/*!
+ * @def NULL_CHAR
+ * @brief C string terminator.
+ */
 #define NULL_CHAR               '\0'
 
+/*!
+ * @def TRUNCATED_HASH_LEN
+ * @brief Number of hash characters in a truncated (compressed) mangled name.
+ */
 #define TRUNCATED_HASH_LEN      4
 
+/*!
+ * @def TRUNCATED_PREFIX1
+ * @brief First character of a truncated (compressed) mangled name.
+ */
 #define TRUNCATED_PREFIX1       'T'
+/*!
+ * @def MANGLE_PREFIX1
+ * @brief First character of a normal mangled name.
+ */
 #define MANGLE_PREFIX1          'W'
+/*!
+ * @def MANGLE_PREFIX2
+ * @brief Second character of a normal mangled name.
+ */
 #define MANGLE_PREFIX2          '?'
+/*!
+ * @def PREFIX_EMBEDDED
+ * @brief Introduces an embedded (recursive) mangled name.
+ */
 #define PREFIX_EMBEDDED         '?'
+/*!
+ * @def MEMBER_POINTER
+ * @brief Marks a pointer-to-member encoding.
+ */
 #define MEMBER_POINTER          'M'
+/*!
+ * @def UNDERSCORE
+ * @brief Literal '_' character.
+ */
 #define UNDERSCORE              '_'
+/*!
+ * @def PERIOD
+ * @brief Literal '.' character.
+ */
 #define PERIOD                  '.'
+/*!
+ * @def SCOPE_PREFIX
+ * @brief Introduces a scope-qualified name component.
+ */
 #define SCOPE_PREFIX            ':'
+/*!
+ * @def TEMPLATE_PREFIX
+ * @brief Introduces a template-argument list.
+ */
 #define TEMPLATE_PREFIX         ':'
+/*!
+ * @def TEMPLATE_INT
+ * @brief Template argument is an integer.
+ */
 #define TEMPLATE_INT            '0'
+/*!
+ * @def TEMPLATE_TYPE
+ * @brief Template argument is a type.
+ */
 #define TEMPLATE_TYPE           '1'
+/*!
+ * @def POSITIVE_INT
+ * @brief Marks a non-negative template integer.
+ */
 #define POSITIVE_INT            'Z'
+/*!
+ * @def NEGATIVE_INT
+ * @brief Marks a negative template integer.
+ */
 #define NEGATIVE_INT            'Y'
+/*!
+ * @def OPNAME_PREFIX
+ * @brief Introduces an operator-name encoding.
+ */
 #define OPNAME_PREFIX           '$'
+/*!
+ * @def SYMBOL_SUFFIX
+ * @brief Terminates an identifier.
+ */
 #define SYMBOL_SUFFIX           '$'
+/*!
+ * @def MANGLE_RECURSE_SUFFIX
+ * @brief Terminates a recursive mangled-name clause.
+ */
 #define MANGLE_RECURSE_SUFFIX   '$'
+/*!
+ * @def TYPE_NAME_PREFIX
+ * @brief Introduces a type name.
+ */
 #define TYPE_NAME_PREFIX        '$'
+/*!
+ * @def TYPE_NAME_SUFFIX
+ * @brief Terminates a type name.
+ */
 #define TYPE_NAME_SUFFIX        '$'
+/*!
+ * @def THIS_QUAL_PREFIX
+ * @brief Introduces a this-qualified function type.
+ */
 #define THIS_QUAL_PREFIX        '.'
+/*!
+ * @def ARRAY_PREFIX
+ * @brief Introduces an array dimension list.
+ */
 #define ARRAY_PREFIX            '['
+/*!
+ * @def ARRAY_SUFFIX
+ * @brief Terminates an array dimension.
+ */
 #define ARRAY_SUFFIX            ']'
+/*!
+ * @def FUNCTION_PREFIX
+ * @brief Introduces a function parameter list.
+ */
 #define FUNCTION_PREFIX         '('
+/*!
+ * @def FUNCTION_SUFFIX
+ * @brief Terminates a function parameter list.
+ */
 #define FUNCTION_SUFFIX         ')'
+/*!
+ * @def OP_FUN_PREFIX
+ * @brief Introduces a plain operator function.
+ */
 #define OP_FUN_PREFIX           'o'
+/*!
+ * @def REL_FUN_PREFIX
+ * @brief Introduces a relational operator function.
+ */
 #define REL_FUN_PREFIX          'r'
+/*!
+ * @def SPEC_TYPE_PREFIX
+ * @brief Introduces a special type (e.g. anonymous enum).
+ */
 #define SPEC_TYPE_PREFIX        't'
+/*!
+ * @def WAT_FUN_PREFIX
+ * @brief Introduces a Watcom-specific internal object.
+ */
 #define WAT_FUN_PREFIX          'w'
+/*!
+ * @def ASGN_FUN_PREFIX
+ * @brief Introduces an assignment operator function.
+ */
 #define ASGN_FUN_PREFIX         'a'
 
+/*!
+ * @typedef realloc_fn_t
+ * @brief Reallocation callback used to grow the output buffer.
+ */
 typedef char *(*realloc_fn_t)( char *, size_t );
 
+/*!
+ * @def MAX_REPLICATE
+ * @brief Number of distinct identifiers remembered for back-reference.
+ */
 #define MAX_REPLICATE   10
+/*!
+ * @struct replicate_desc
+ * @brief One remembered identifier for back-referencing (digit references).
+ */
 typedef struct replicate_desc {
-    char const      *ptr;
-    size_t          len;
+    char const      *ptr;   /*!< Identifier text. */
+    size_t          len;    /*!< Identifier length in bytes. */
 } replicate_desc;
 
 // static R/W data
+/*!
+ * @brief User-supplied output-buffer reallocator, or NULL.
+ */
 static realloc_fn_t user_realloc;
+/*!
+ * @brief Ring buffer of identifiers remembered for back-reference.
+ */
 static replicate_desc replicate[MAX_REPLICATE];
+/*!
+ * @brief Next slot in @ref replicate to be filled.
+ */
 static int            next_replicate;
 
+/*!
+ * @struct output_desc
+ * @brief Parser/output state shared across the whole demangle run.
+ */
 typedef struct output_desc {
-    outfunPtr       outfun;
-    void            *cookie;
-    char const      *input;
-    char const      *end;
-    char const      *scope_ptr;
-    char            *output;
-    size_t          size;
-    size_t          count;
-    size_t          index;
-    size_t          pending_loc;
-    size_t          scope_len;
-    int             suppress_output;
-    int             scope_index;
-    unsigned        ctdt_pending : 1;
-    unsigned        cv_pending : 1;
-    unsigned        scope_name : 1;
-    unsigned        base_name : 1;
-    unsigned        dllimport : 1;
+    outfunPtr       outfun;         /*!< Output callback. */
+    void            *cookie;        /*!< Opaque cookie passed to @c outfun. */
+    char const      *input;         /*!< Current position in mangled input. */
+    char const      *end;           /*!< End of mangled input. */
+    char const      *scope_ptr;     /*!< Remembered scope-name pointer. */
+    char            *output;        /*!< Output buffer, or NULL in count mode. */
+    size_t          size;           /*!< Size of @c output. */
+    size_t          count;          /*!< Characters emitted so far. */
+    size_t          index;          /*!< Current insertion index in @c output. */
+    size_t          pending_loc;    /*!< Saved index for ctor/dtor name. */
+    size_t          scope_len;      /*!< Length of the remembered scope name. */
+    int             suppress_output;/*!< Non-zero while output is suppressed. */
+    int             scope_index;    /*!< Current scope level being extracted. */
+    unsigned        ctdt_pending : 1;   /*!< Ctor/dtor name pending. */
+    unsigned        cv_pending : 1;     /*!< const/volatile suffix pending. */
+    unsigned        scope_name : 1;     /*!< Collecting scope names. */
+    unsigned        base_name : 1;      /*!< Emitting base name only. */
+    unsigned        dllimport : 1;      /*!< Name had __imp_ prefix. */
 } output_desc;
 
 // the simple demangler uses these to output & count chars in the output buffer
 // the parser callback uses these to extract the structure of the name
+/*!
+ * @def _output1
+ * @brief Invoke the output callback with a single argument.
+ * @param[in] _a  DM_* event code.
+ */
 #define _output1( _a         ) (data->outfun)( &(data->cookie), _a,  0,  0 )
+/*!
+ * @def _output2
+ * @brief Invoke the output callback with an event code and an integer argument.
+ * @param[in] _a  DM_* event code.
+ * @param[in] _b  Integer argument.
+ */
 #define _output2( _a, _b     ) (data->outfun)( &(data->cookie), _a, _b,  0 )
+/*!
+ * @def _output3
+ * @brief Invoke the output callback with an event code, integer and pointer.
+ * @param[in] _a  DM_* event code.
+ * @param[in] _b  Integer argument.
+ * @param[in] _c  Pointer argument.
+ */
 #define _output3( _a, _b, _c ) (data->outfun)( &(data->cookie), _a, _b, _c )
 
+/*!
+ * @struct state_desc
+ * @brief Parser state passed down between type-encoding productions.
+ */
 typedef struct state_desc {
-    size_t          prefix;
-    size_t          suffix;
-    char            right : 1;
+    size_t          prefix; /*!< Insertion index for prefixes. */
+    size_t          suffix; /*!< Reset distance from the output end. */
+    char            right : 1;  /*!< Right-side parens must be inserted. */
 } state_desc;
 
+/*!
+ * @brief Literal '~' used to start a destructor name.
+ */
 static char const _WCI86FAR dtorChar = '~';
+/*!
+ * @brief Literal '('.
+ */
 static char const _WCI86FAR openParen = '(';
+/*!
+ * @brief Literal ')'.
+ */
 static char const _WCI86FAR closeParen = ')';
+/*!
+ * @brief Text emitted for a `signed` character type.
+ */
 static char const _WCI86FAR signedPrefix[] = "signed ";
+/*!
+ * @brief Text emitted before an operator name.
+ */
 static char const _WCI86FAR operatorName[] = "operator ";
+/*!
+ * @brief Name of the scalar `delete` operator.
+ */
 static char const _WCI86FAR deleteFunction[] = "delete";
+/*!
+ * @brief Name of the array `delete[]` operator.
+ */
 static char const _WCI86FAR deleteArrayFunction[] = "delete []";
+/*!
+ * @brief Text emitted for an anonymous enum type.
+ */
 static char const _WCI86FAR anonymousEnum[] = "__anonymous_enum ";
+/*!
+ * @brief Name of the scalar `new` operator.
+ */
 static char const _WCI86FAR newFunction[] = "new";
+/*!
+ * @brief Name of the array `new[]` operator.
+ */
 static char const _WCI86FAR newArrayFunction[] = "new []";
+/*!
+ * @brief Scope separator text.
+ */
 static char const _WCI86FAR scopeSeparator[] = "::";
+/*!
+ * @brief Template argument list opener.
+ */
 static char const _WCI86FAR templatePrefix[] = "<";
+/*!
+ * @brief Template argument list closer.
+ */
 static char const _WCI86FAR templateSuffix[] = ">";
+/*!
+ * @brief Template argument separator.
+ */
 static char const _WCI86FAR templateSeparator[] = ",";
+/*!
+ * @brief Array dimension opener.
+ */
 static char const _WCI86FAR arrayPrefix[] = "[";
+/*!
+ * @brief Array dimension closer.
+ */
 static char const _WCI86FAR arraySuffix[] = "]";
+/*!
+ * @brief Function parameter list opener.
+ */
 static char const _WCI86FAR functionPrefix[] = "( ";
+/*!
+ * @brief Function parameter list closer.
+ */
 static char const _WCI86FAR functionSuffix[] = ")";
+/*!
+ * @brief Function parameter separator.
+ */
 static char const _WCI86FAR functionSeparator[] = ", ";
+/*!
+ * @brief Based-pointer closing suffix.
+ */
 static char const _WCI86FAR basedSuffix[] = ") ";
+/*!
+ * @brief Based-string opening quote.
+ */
 static char const _WCI86FAR basedStrPrefix[] = "\"";
+/*!
+ * @brief Based-string closing quote.
+ */
 static char const _WCI86FAR basedStrSuffix[] = "\"";
+/*!
+ * @brief Text emitted for a `__self` based pointer.
+ */
 static char const _WCI86FAR basedSelf[] = "__self";
+/*!
+ * @brief Text emitted for a `__based(void)` pointer.
+ */
 static char const _WCI86FAR basedVoid[] = "void";
 
 // mangled character translations
+/*!
+ * @struct table_t
+ * @brief One entry of a mangled-character translation table.
+ */
 typedef struct table_t {
-    char const _WCI86FAR        *string;    // translated string
-    char                        grouping;   // flavour of character
+    char const _WCI86FAR        *string;    /*!< Translated string. */
+    char                        grouping;   /*!< Flavour of character. */
 } table_t;
 
+/*!
+ * @def LOWER_TABLE_LIMIT
+ * @brief First character code covered by @ref translate_type_encoding.
+ */
 #define LOWER_TABLE_LIMIT           'A'
 
+/*!
+ * @brief Translation of one mangled character code in a type encoding.
+ */
 static table_t const _WCI86FAR translate_type_encoding[] = {
+/*!
+ * @def CHAR_UNUSED
+ * @brief Character code has no type meaning.
+ */
 #define CHAR_UNUSED         0
+/*!
+ * @def CHAR_BASIC_TYPE
+ * @brief Character code denotes a basic type.
+ */
 #define CHAR_BASIC_TYPE     1
+/*!
+ * @def CHAR_POINTER
+ * @brief Character code denotes a pointer-like type.
+ */
 #define CHAR_POINTER        2
+/*!
+ * @def CHAR_MODIFIER
+ * @brief Character code denotes a type modifier.
+ */
 #define CHAR_MODIFIER       3
     /* 'A' */   { "char ",      CHAR_BASIC_TYPE },
     /* 'B' */   { "float ",     CHAR_BASIC_TYPE },
@@ -211,6 +528,9 @@ static table_t const _WCI86FAR translate_type_encoding[] = {
     /* '_' */   { "",           CHAR_BASIC_TYPE } // for ctor/dtor return type
 };
 
+/*!
+ * @brief Translation of one-argument operator function letters.
+ */
 static char _WCI86FAR * const _WCI86FAR operatorFunction[] = {
     /* A */ ">>",
     /* B */ "<<",
@@ -234,6 +554,9 @@ static char _WCI86FAR * const _WCI86FAR operatorFunction[] = {
     /* T */ "&&",
     /* U */ "||"
 };
+/*!
+ * @brief Translation of one-argument relational operator function letters.
+ */
 static char const _WCI86FAR * const _WCI86FAR relationalFunction[] = {
     /* A */ "==",
     /* B */ "!=",
@@ -242,6 +565,9 @@ static char const _WCI86FAR * const _WCI86FAR relationalFunction[] = {
     /* E */ ">",
     /* F */ ">="
 };
+/*!
+ * @brief Translation of one-argument assignment operator function letters.
+ */
 static char const _WCI86FAR * const _WCI86FAR assignmentFunction[] = {
     /* A */ "=",
     /* B */ "*=",
@@ -255,17 +581,33 @@ static char const _WCI86FAR * const _WCI86FAR assignmentFunction[] = {
     /* J */ "|=",
     /* K */ "^="
 };
+/*!
+ * @def num_elements
+ * @brief Number of elements in a static array.
+ * @param[in] __a  Array expression.
+ */
 #define num_elements( __a ) (sizeof(__a) / sizeof(__a[0]))
 
+/*!
+ * @union key_desc
+ * @brief Two-character lookup key used for Watcom-object matching.
+ */
 typedef union key_desc {
-    char        str[2];
-    short       val;
+    char        str[2];     /*!< Key bytes. */
+    short       val;        /*!< Key value for fast comparison. */
 } key_desc;
+/*!
+ * @struct assoc_desc
+ * @brief One Watcom-object name entry.
+ */
 typedef struct assoc_desc {
-    key_desc            u;
-    char _WCI86FAR      *name;
+    key_desc            u;      /*!< Lookup key. */
+    char _WCI86FAR      *name;  /*!< Emitted name. */
 } assoc_desc;
 
+/*!
+ * @brief Mapping of two-character keys to Watcom-object names.
+ */
 static assoc_desc const _WCI86FAR watcomObject[] = {
     { {"A*"},  "__internal" },
     { {"BI"},  "__onceonly" },
@@ -287,6 +629,10 @@ static assoc_desc const _WCI86FAR watcomObject[] = {
     { {"CM"},  "__stattabcmd" },
     { {"UN"},  "<unique>" },
 };
+/*!
+ * @def MAX_WATCOM_OBJECT
+ * @brief Number of entries in @ref watcomObject.
+ */
 #define MAX_WATCOM_OBJECT       num_elements( watcomObject )
 
 #if 0 || defined(TEST) || defined(DUMP)
@@ -294,11 +640,44 @@ int no_errors;
 unsigned errors;
 #endif
 
+/*!
+ * @brief Parse a scope-qualified name.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int scoped_name( output_desc *data, state_desc *state );
+/*!
+ * @brief Parse a type encoding.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int type_encoding( output_desc *data, state_desc *state );
+/*!
+ * @brief Parse an embedded (recursive) mangled name.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int recursive_mangled_name( output_desc *data, state_desc *state );
+/*!
+ * @brief Terminate the output buffer (append NUL, trim trailing space).
+ * @param[in,out] data  Parser/output state. Not NULL.
+ * @return Length of the terminated output, excluding the NUL.
+ */
 static size_t terminateOutput( output_desc *data );
 
+/*!
+ * @brief Remove a single trailing space from the output buffer.
+ * @param[in,out] data  Parser/output state. Not NULL.
+ */
 static void zapSpace( output_desc *data )
 {
     if( data->output == NULL ) {
@@ -323,8 +702,21 @@ static void zapSpace( output_desc *data )
     data->index--;
 }
 
+/*!
+ * @def START_ADJUST
+ * @brief Initial amount by which the output buffer is grown on overflow.
+ */
 #define START_ADJUST    ( 1 << 8 )
 
+/*!
+ * @brief Append one character to the output buffer.
+ *
+ * Grows the buffer through @ref user_realloc if needed.  Honours
+ * output suppression.
+ *
+ * @param[in,out] data  Parser/output state. Not NULL.
+ * @param[in]     c     Character to append.
+ */
 static void emitChar( output_desc *data, char c )
 {
     size_t adjust_size;
@@ -367,6 +759,11 @@ static void emitChar( output_desc *data, char c )
     }
 }
 
+/*!
+ * @brief Append a NUL-terminated string to the output buffer.
+ * @param[in,out] data  Parser/output state. Not NULL.
+ * @param[in]     p     String to append. May be NULL.
+ */
 static void emitStr( output_desc *data, const char _WCI86FAR *p )
 {
     if( p ) {
@@ -377,8 +774,19 @@ static void emitStr( output_desc *data, const char _WCI86FAR *p )
     }
 }
 
+/*!
+ * @def setEmitIndex
+ * @brief Set the current insertion index of the output buffer.
+ * @param[in] data  Parser/output state.
+ * @param[in] idx   New insertion index.
+ */
 #define setEmitIndex( data, idx ) ((data)->index = (idx))
 
+/*!
+ * @brief Reset the insertion index relative to the current output end.
+ * @param[in,out] data              Parser/output state. Not NULL.
+ * @param[in]     offset_from_end   Distance back from the current end.
+ */
 static void resetEmitIndex( output_desc *data, size_t offset_from_end )
 {
     size_t index;
@@ -391,6 +799,10 @@ static void resetEmitIndex( output_desc *data, size_t offset_from_end )
     }
 }
 
+/*!
+ * @brief Enter one level of output suppression.
+ * @param[in,out] data  Parser/output state. Not NULL.
+ */
 static void setSuppression( output_desc *data )
 {
     if( data->suppress_output ) {
@@ -398,6 +810,10 @@ static void setSuppression( output_desc *data )
     }
 }
 
+/*!
+ * @brief Leave one level of output suppression.
+ * @param[in,out] data  Parser/output state. Not NULL.
+ */
 static void resetSuppression( output_desc *data )
 {
     if( data->suppress_output ) {
@@ -405,6 +821,10 @@ static void resetSuppression( output_desc *data )
     }
 }
 
+/*!
+ * @brief Force output suppression above the base limit.
+ * @param[in,out] data  Parser/output state. Not NULL.
+ */
 static void forceSuppression( output_desc *data )
 {
     if( data->suppress_output <= SUPPRESS_LIMIT ) {
@@ -412,6 +832,10 @@ static void forceSuppression( output_desc *data )
     }
 }
 
+/*!
+ * @brief Undo a previous forceSuppression() call.
+ * @param[in,out] data  Parser/output state. Not NULL.
+ */
 static void unforceSuppression( output_desc *data )
 {
     if( data->suppress_output > SUPPRESS_LIMIT ) {
@@ -419,6 +843,17 @@ static void unforceSuppression( output_desc *data )
     }
 }
 
+/*!
+ * @brief Output callback invoked by the parser for each DM_* event.
+ *
+ * Dispatches on the event code and updates the output buffer (or the
+ * character count, in count-only mode).
+ *
+ * @param[in,out] cookie  Pointer to the current @c output_desc.
+ * @param[in]     dp      DM_* event code.
+ * @param[in]     value   Integer argument (event-specific).
+ * @param[in]     ptr     Pointer argument (event-specific, may be NULL).
+ */
 static void demangleEmit( void **cookie, dm_pts dp, int value, char const *ptr )
 {
     output_desc *data = *((output_desc **)cookie);
@@ -602,7 +1037,14 @@ static void demangleEmit( void **cookie, dm_pts dp, int value, char const *ptr )
 // ==========================================================================
 // everything before this point deals with output to the demangled name
 // ==========================================================================
-
+/*!
+ * @brief Test whether a mangled character code belongs to a group.
+ * @param[in] c         Character code (already uppercased, adjusted later).
+ * @param[in] grouping  CHAR_* group to test against.
+ * @retval 1  Character belongs to @p grouping.
+ * @retval 0  Character does not belong, or the code is out of range.
+ * @return 1 if the character belongs to the group.
+ */
 static int typeChar( int c, int grouping )
 {
     c -= LOWER_TABLE_LIMIT;
@@ -612,6 +1054,14 @@ static int typeChar( int c, int grouping )
     return( FALSE );
 }
 
+/*!
+ * @brief Probe the stack to guard against runaway recursion.
+ *
+ * In `__NO_STACK_CHECKING__` builds the probe is a no-op returning 1.
+ *
+ * @retval 1  There is still room to recurse.
+ * @return 1 if recursion may continue.
+ */
 static int check_recurse( void ) {
 #ifdef __NO_STACK_CHECKING__
     return( 1 );
@@ -620,6 +1070,11 @@ static int check_recurse( void ) {
 #endif
 }
 
+/*!
+ * @brief Read the previous input character, uppercased.
+ * @param[in] data  Parser/output state. Not NULL.
+ * @return The uppercased character before @c data->input.
+ */
 static char prevChar( output_desc *data )
 {
     char c;
@@ -628,6 +1083,14 @@ static char prevChar( output_desc *data )
     return( toupper( c ) );
 }
 
+/*!
+ * @brief Read the current input character, uppercased.
+ *
+ * Returns `NULL_CHAR` at end of input.
+ *
+ * @param[in] data  Parser/output state. Not NULL.
+ * @return The uppercased current character, or `NULL_CHAR`.
+ */
 static char nextChar( output_desc *data )
 {
     char c;
@@ -641,6 +1104,10 @@ static char nextChar( output_desc *data )
     return( c );
 }
 
+/*!
+ * @brief Advance the input pointer if more data is available.
+ * @param[in,out] data  Parser/output state. Not NULL.
+ */
 static void advanceChar( output_desc *data )
 {
     if( data->input != data->end && *data->input ) {
@@ -648,6 +1115,18 @@ static void advanceChar( output_desc *data )
     }
 }
 
+/*!
+ * @brief Case-insensitively match a literal string at the input.
+ *
+ * On success, advances @c data->input past the matched text.
+ *
+ * @param[in,out] data  Parser/output state. Not NULL.
+ * @param[in]     str   Literal string to match. Not NULL.
+ * @param[in]     len   Length of @p str in bytes.
+ * @retval 1  String matched and consumed.
+ * @retval 0  String did not match, or input was too short.
+ * @return 1 on match.
+ */
 #ifndef __LIB__
 static int strRecog( output_desc *data, char *str, unsigned len )
 {
@@ -662,6 +1141,13 @@ static int strRecog( output_desc *data, char *str, unsigned len )
 }
 #endif
 
+/*!
+ * @brief Test whether a character can appear in a mangled identifier.
+ * @param[in] c  Character to test.
+ * @retval 1  Character is an identifier character.
+ * @retval 0  Character is not.
+ * @return 1 if @p c is alphanumeric, '_' or '.'.
+ */
 static int is_identifier( char c )
 {
     if( isalnum( c ) || c == UNDERSCORE || c == PERIOD ) {
@@ -671,6 +1157,11 @@ static int is_identifier( char c )
     }
 }
 
+/*!
+ * @brief Convert a single character to its base-36 digit value.
+ * @param[in] c  Character to convert.
+ * @return Digit value 0..35, or (unsigned)-1 for non-digits.
+ */
 static unsigned char_to_digit( char c )
 {
     if( c >= '0' && c <= '9' ) return( c - '0' );
@@ -679,6 +1170,11 @@ static unsigned char_to_digit( char c )
     return( -1 );
 }
 
+/*!
+ * @brief Convert a single character to its base-62 digit value.
+ * @param[in] c  Character to convert.
+ * @return Digit value 0..61, or (unsigned)-1 for non-digits.
+ */
 static unsigned char_to_digit_62( char c )
 {
     if( c >= '0' && c <= '9' ) return( c - '0' );
@@ -687,6 +1183,13 @@ static unsigned char_to_digit_62( char c )
     return( -1 );
 }
 
+/*!
+ * @brief Parse a base-32 number from the input.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[out]    value  Receiver for the parsed value. Not NULL.
+ * @retval 1  Always returns 1.
+ * @return 1.
+ */
 static int base_32_num( output_desc *data, int *value )
 {
     unsigned    dig;
@@ -703,6 +1206,13 @@ static int base_32_num( output_desc *data, int *value )
     return( TRUE );
 }
 
+/*!
+ * @brief Parse a base-10 number from the input.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[out]    value  Receiver for the parsed value. Not NULL.
+ * @retval 1  Always returns 1.
+ * @return 1.
+ */
 static int base_10_num( output_desc *data, int *value )
 {
     unsigned    dig;
@@ -739,6 +1249,14 @@ static int base_36_2digit( output_desc *data, size_t *value )
 }
 #endif
 
+/*!
+ * @brief Parse a two-digit base-62 number from the input.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[out]    value  Receiver for the parsed value. Not NULL.
+ * @retval 1  Number parsed successfully.
+ * @retval 0  Number could not be parsed (input was not base-62 digits).
+ * @return 1 on success.
+ */
 static int base_62_2digit( output_desc *data, size_t *value )
 {
     unsigned    first;
@@ -757,6 +1275,14 @@ static int base_62_2digit( output_desc *data, size_t *value )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse a basic type.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int basic_type( output_desc *data, state_desc *state )
 {
     char  c;
@@ -777,6 +1303,14 @@ static int basic_type( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse a pointer (or pointer-to-member) type.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int pointer( output_desc *data, state_desc *state )
 {
     char  c;
@@ -807,6 +1341,14 @@ static int pointer( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse a single array dimension.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int dimension( output_desc *data, state_desc *state )
 {
     char c;
@@ -826,6 +1368,14 @@ static int dimension( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse an array type.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int array( output_desc *data, state_desc *state )
 {
     char c;
@@ -851,6 +1401,14 @@ static int array( output_desc *data, state_desc *state )
     return( type_encoding( data, state ) );
 }
 
+/*!
+ * @brief Parse a function type.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int function( output_desc *data, state_desc *state )
 {
     auto state_desc new_state;
@@ -911,6 +1469,14 @@ static int function( output_desc *data, state_desc *state )
     }
 }
 
+/*!
+ * @brief Parse a this-qualified function type.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int tq_function( output_desc *data, state_desc *state )
 {
     char c;
@@ -944,6 +1510,14 @@ static int tq_function( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse an unmodified type (no leading modifiers).
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int unmodified_type( output_desc *data, state_desc *state )
 {
     char c;
@@ -978,6 +1552,14 @@ static int unmodified_type( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse a `__based(...)` encoding.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int based_encoding( output_desc *data, state_desc *state )
 {
     char   c;
@@ -1033,6 +1615,14 @@ static int based_encoding( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse a list of type modifiers.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int modifier_list( output_desc *data, state_desc *state )
 {
     char c;
@@ -1057,6 +1647,14 @@ static int modifier_list( output_desc *data, state_desc *state )
     return( TRUE );
 }
 
+/*!
+ * @brief Parse a complete type encoding.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int type_encoding( output_desc *data, state_desc *state )
 {
     int ret;
@@ -1082,6 +1680,14 @@ static int type_encoding( output_desc *data, state_desc *state )
     return( ret );
 }
 
+/*!
+ * @brief Parse one template argument.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int template_arg( output_desc *data, state_desc *state )
 {
     char c;
@@ -1117,6 +1723,14 @@ static int template_arg( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse a template argument list.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int template_name( output_desc *data, state_desc *state )
 {
     auto state_desc new_state;
@@ -1149,6 +1763,14 @@ static int template_name( output_desc *data, state_desc *state )
     return( TRUE );
 }
 
+/*!
+ * @brief Parse a Watcom-specific internal object name.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int watcom_object( output_desc *data, state_desc *state )
 {
     key_desc srch;
@@ -1194,6 +1816,14 @@ static int watcom_object( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse a special type name (currently only anonymous enums).
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int special_type_names( output_desc *data, state_desc *state )
 {
     char c;
@@ -1217,6 +1847,14 @@ static int special_type_names( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse a plain operator function name.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int operator_function( output_desc *data, state_desc *state )
 {
     char c;
@@ -1232,6 +1870,14 @@ static int operator_function( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse a relational operator function name.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int relational_function( output_desc *data, state_desc *state )
 {
     char c;
@@ -1247,6 +1893,14 @@ static int relational_function( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse an assignment operator function name.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int assignment_function( output_desc *data, state_desc *state )
 {
     char c;
@@ -1262,6 +1916,14 @@ static int assignment_function( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse an `operator new` / `operator new[]` name.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int op_new( output_desc *data, state_desc *state )
 {
     if( nextChar( data ) == 'W' ) {
@@ -1281,6 +1943,14 @@ static int op_new( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse a destructor or `operator delete` name.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int dtor_or_delete( output_desc *data, state_desc *state )
 {
     char c;
@@ -1311,6 +1981,14 @@ static int dtor_or_delete( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse a constructor or conversion-operator name.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int ctor_or_convert( output_desc *data, state_desc *state )
 {
     char c;
@@ -1333,6 +2011,14 @@ static int ctor_or_convert( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse an operator name (dispatch on the operator kind letter).
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int op_name( output_desc *data, state_desc *state )
 {
     char c;
@@ -1375,6 +2061,21 @@ static int op_name( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse a plain identifier.
+ *
+ * Identifiers come in two flavours:
+ * - A digit `0`..`9`, referring back to a previously remembered
+ *   identifier (up to @ref MAX_REPLICATE distinct ones).
+ * - A run of identifier characters terminated by @ref SYMBOL_SUFFIX.
+ *   The identifier is remembered for later digit references.
+ *
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int name( output_desc *data, state_desc *state )
 {
     int c;
@@ -1443,7 +2144,14 @@ static int name( output_desc *data, state_desc *state )
     }
     return( FALSE );
 }
-
+/*!
+ * @brief Parse a symbol name (plain name or operator name).
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int sym_name( output_desc *data, state_desc *state )
 {
     _output1( DM_NAME );
@@ -1455,6 +2163,20 @@ static int sym_name( output_desc *data, state_desc *state )
     }
 }
 
+/*!
+ * @brief Parse one component of a scope-qualified name.
+ *
+ * Handles embedded recursive names, template names, and ordinary
+ * names.  @p symbol_length is updated to reflect the length of the
+ * emitted symbol name.
+ *
+ * @param[in,out] data           Parser/output state. Not NULL.
+ * @param[in,out] state          Type-encoding state. Not NULL.
+ * @param[in,out] symbol_length  Current symbol name length. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int scope( output_desc *data, state_desc *state, size_t *symbol_length )
 {
     char c;
@@ -1483,6 +2205,14 @@ static int scope( output_desc *data, state_desc *state, size_t *symbol_length )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse a scope-qualified name (`a::b::c`, possibly templated).
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int scoped_name( output_desc *data, state_desc *state )
 {
     size_t symbol_length;
@@ -1506,6 +2236,13 @@ static int scoped_name( output_desc *data, state_desc *state )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse a fully-mangled name: scoped name followed by type encoding.
+ * @param[in,out] data  Parser/output state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure.
+ * @return 1 on success.
+ */
 static int mangled_name( output_desc *data )
 {
     auto state_desc new_state;
@@ -1522,6 +2259,17 @@ static int mangled_name( output_desc *data )
     return( FALSE );
 }
 
+/*!
+ * @brief Parse a full mangled name, including the `W?`/`T?` prefix.
+ *
+ * On success, @c data->input points just past the mangled name and
+ * @c data->dllimport is set if the name had an `__imp_` prefix.
+ *
+ * @param[in,out] data  Parser/output state. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @retval 0  Parse failure (not a mangled name).
+ * @return 1 on success.
+ */
 #ifndef __LIB__
 static int full_mangled_name( output_desc *data )
 {
@@ -1552,6 +2300,10 @@ static int full_mangled_name( output_desc *data )
     return( FALSE );
 }
 
+/*!
+ * @brief Demangle the name described by @c data->input into @c data->output.
+ * @param[in,out] data  Parser/output state. Not NULL.
+ */
 static void do_demangle( output_desc *data )
 {
     #if 0 || defined(TEST)
@@ -1580,6 +2332,10 @@ static void do_demangle( output_desc *data )
     }
 }
 
+/*!
+ * @brief Copy an unmangled name verbatim into the output buffer.
+ * @param[in,out] data  Parser/output state. Not NULL.
+ */
 static void do_copy( output_desc *data )
 {
     char const *ptr;
@@ -1599,12 +2355,26 @@ static void do_copy( output_desc *data )
 }
 #endif
 
+/*!
+ * @brief Reset the module-level demangler state before a new run.
+ * @param[in] reallocator  Output-buffer reallocator, or NULL.
+ */
 static void init_globals( realloc_fn_t reallocator )
 {
     next_replicate = 0;
     user_realloc = reallocator;
 }
 
+/*!
+ * @brief Initialise an @c output_desc for one demangle run.
+ * @param[out] data    Structure to initialise. Not NULL.
+ * @param[in]  ofn     Output callback. Not NULL.
+ * @param[in]  cookie  Opaque cookie passed to @p ofn.
+ * @param[in]  input   Mangled input. Not NULL.
+ * @param[in]  len     Input length, or 0 to run until NUL.
+ * @param[in]  output  Output buffer, or NULL for count-only mode.
+ * @param[in]  size    Size of @p output.
+ */
 static void init_descriptor( output_desc *data,
                              outfunPtr ofn, void *cookie,
                              char const *input, size_t len,
@@ -1634,6 +2404,15 @@ static void init_descriptor( output_desc *data,
     data->dllimport = 0;
 }
 
+/*!
+ * @brief Terminate the output buffer.
+ *
+ * Trims a trailing space and writes a NUL terminator.  In count-only
+ * mode, just returns the accumulated count.
+ *
+ * @param[in,out] data  Parser/output state. Not NULL.
+ * @return The final output length, excluding the NUL.
+ */
 static size_t terminateOutput( output_desc *data )
 {
     size_t outlen;
@@ -1655,6 +2434,18 @@ static size_t terminateOutput( output_desc *data )
     return( outlen );
 }
 
+/*!
+ * @brief Demangle an embedded mangled name into a caller-supplied buffer.
+ *
+ * Used for recursive names inside template arguments and pointer-to-
+ * member types.  Uses a NULL user reallocator, so the buffer must be
+ * large enough.
+ *
+ * @param[in]  input   Mangled sub-name. Not NULL.
+ * @param[out] output  Destination buffer. Not NULL.
+ * @param[in]  size    Size of @p output.
+ * @return Number of input bytes consumed.
+ */
 static size_t demangle_recursive( char const *input, char *output, size_t size )
 {
     realloc_fn_t save_reallocator;
@@ -1675,6 +2466,13 @@ static size_t demangle_recursive( char const *input, char *output, size_t size )
     return( data.input - input );
 }
 
+/*!
+ * @brief Demangle an embedded recursive mangled name into a temp buffer.
+ * @param[in,out] data   Parser/output state. Not NULL.
+ * @param[in,out] state  Type-encoding state. Not NULL.
+ * @retval 1  Always returns 1.
+ * @return 1.
+ */
 static int recursive_mangled_name( output_desc *data, state_desc *state )
 {
     auto char buff[AUTO_BUFFER_SIZE];
@@ -1687,6 +2485,14 @@ static int recursive_mangled_name( output_desc *data, state_desc *state )
     return( TRUE );
 }
 
+/*!
+ * @brief Demangle a C++ type encoding.
+ * @param[in]  input   Mangled C++ type. Not NULL.
+ * @param[in]  len     Length of @p input, or 0 to run until NUL.
+ * @param[out] output  Destination buffer. Not NULL.
+ * @param[in]  size    Size of @p output.
+ * @return Length of the terminated output, excluding the NUL.
+ */
 #ifdef __LIB__
 _WCRTLINK
 #endif
@@ -1712,6 +2518,14 @@ size_t __demangle_t(                            // DEMANGLE A C++ TYPE
     return( outlen );
 }
 
+/*!
+ * @brief Demangle a C++ mangled name into a fixed-size buffer.
+ * @param[in]  input   Mangled C++ name. Not NULL.
+ * @param[in]  len     Length of @p input, or 0 to run until NUL.
+ * @param[out] output  Destination buffer. Not NULL.
+ * @param[in]  size    Size of @p output.
+ * @return Length of the terminated output, excluding the NUL.
+ */
 #ifndef __LIB__
 size_t __demangle_l(                            // DEMANGLE A C++ NAME
     char const *input,                          // - mangled C++ name
@@ -1736,6 +2550,15 @@ size_t __demangle_l(                            // DEMANGLE A C++ NAME
     return( outlen );
 }
 
+/*!
+ * @brief Demangle a C++ mangled name into a reallocatable buffer.
+ * @param[in]     input    Mangled C++ name. Not NULL.
+ * @param[in]     len      Length of @p input, or 0 to run until NUL.
+ * @param[in,out] output   Buffer pointer. May be NULL on entry.
+ * @param[in]     size     Current size of @p *output.
+ * @param[in]     realloc  Buffer reallocator. Not NULL.
+ * @return Length of the terminated output, excluding the NUL.
+ */
 size_t __demangle_r(                            // DEMANGLE A C++ NAME
     char const *input,                          // - mangled C++ name
     size_t len,                                 // - length of mangled name
@@ -1769,6 +2592,17 @@ size_t __demangle_r(                            // DEMANGLE A C++ NAME
     return( outlen );
 }
 
+/*!
+ * @brief Extract one component of a C++ scope-qualified name.
+ * @param[in]  input  Mangled C++ name. Not NULL.
+ * @param[in]  len    Length of @p input, or 0 to run until NUL.
+ * @param[in]  index  Scope component index (0 = innermost name).
+ * @param[out] scope  Receiver for the scope component pointer. Not NULL.
+ * @param[out] size   Receiver for the scope component length. Not NULL.
+ * @retval 1  Scope component found.
+ * @retval 0  Name is not mangled, or index out of range.
+ * @return 1 on success.
+ */
 int __scope_name(                               // EXTRACT A C++ SCOPE
     char const *input,                          // - mangled C++ name
     size_t len,                                 // - length of mangled name
@@ -1798,6 +2632,16 @@ int __scope_name(                               // EXTRACT A C++ SCOPE
     return( FALSE );
 }
 
+/*!
+ * @brief Return the number of bytes to skip to reach the mangled body.
+ *
+ * Recognises the `W?`, `T?` and `__imp_` prefixes.  Returns 0 if the
+ * name is not mangled.
+ *
+ * @param[in] name  Symbol name. Not NULL.
+ * @param[in] len   Symbol name length (currently ignored).
+ * @return Offset of the mangled body, or 0 if not mangled.
+ */
 int __is_mangled( char const *name, size_t len )
 {
     int offset;
@@ -1821,6 +2665,12 @@ int __is_mangled( char const *name, size_t len )
     return( 0 );
 }
 
+/*!
+ * @brief Classify a mangled symbol body as internal, ctor, dtor or plain.
+ * @param[in] n  Mangled body (after the `W?`/`T?` prefix). Not NULL.
+ * @return One of @c __MANGLED_INTERNAL, @c __MANGLED_CTOR,
+ *         @c __MANGLED_DTOR or @c __MANGLED.
+ */
 static int checkInternal( char const *n )
 {
     if( n[0] == '.' || (n[0] == OPNAME_PREFIX && tolower(n[1]) == WAT_FUN_PREFIX)) {
@@ -1835,6 +2685,16 @@ static int checkInternal( char const *n )
     return( __MANGLED );
 }
 
+/*!
+ * @brief Classify a mangled symbol body.
+ *
+ * Same as __is_mangled_internal() but returns a classification code
+ * instead of an offset.
+ *
+ * @param[in] name  Symbol name. Not NULL.
+ * @param[in] len   Symbol name length (currently ignored).
+ * @return One of the @c __MANGLED_* / @c __NOT_MANGLED constants.
+ */
 int __is_mangled_internal( char const *name, size_t len )
 {
     unsigned offset;
@@ -1854,6 +2714,17 @@ int __is_mangled_internal( char const *name, size_t len )
     return( __NOT_MANGLED );
 }
 
+/*!
+ * @brief Locate the unmangled base name within a mangled symbol name.
+ *
+ * @param[in]  name  Symbol name. Not NULL.
+ * @param[in]  len   Symbol name length, or 0 to run until NUL.
+ * @param[out] base  Receiver for the base-name pointer. Not NULL.
+ * @param[out] size  Receiver for the base-name length. Not NULL.
+ * @retval 1  Name is mangled; @p base and @p size updated.
+ * @retval 0  Name is not mangled.
+ * @return 1 if the name is mangled.
+ */
 int __unmangled_name(                           // FIND UNMANGLED BASE NAME
     char const *name,                           // - mangled C++ name
     size_t len,                                 // - length of mangled name
@@ -1893,6 +2764,14 @@ int __unmangled_name(                           // FIND UNMANGLED BASE NAME
 
 
 
+/*!
+ * @brief Demangle only the base name of a C++ mangled name.
+ * @param[in]  input   Mangled C++ name. Not NULL.
+ * @param[in]  len     Length of @p input, or 0 to run until NUL.
+ * @param[out] output  Destination buffer. Not NULL.
+ * @param[in]  size    Size of @p output.
+ * @return Length of the terminated output, excluding the NUL.
+ */
 size_t __demangled_basename(                    // CREATE DEMANGLED BASE NAME
     char const *input,                          // - mangled C++ name
     size_t len,                                 // - length of mangled name
@@ -1920,6 +2799,17 @@ size_t __demangled_basename(                    // CREATE DEMANGLED BASE NAME
 
 #ifdef __DIP__
 
+/*!
+ * @brief Parse a mangled name, invoking a callback for each DM_* event.
+ *
+ * Used by clients that want the structural events of the name rather
+ * than a rendered string.
+ *
+ * @param[in] input   Mangled C++ name. Not NULL.
+ * @param[in] len     Length of @p input, or 0 to run until NUL.
+ * @param[in] cookie  Opaque cookie passed to @p ofn.
+ * @param[in] ofn     Output callback. Not NULL.
+ */
 void __parse_mangled_name(                      // PARSE MANGLED NAME
     char const *input,                          // - mangled C++ name
     size_t len,                                 // - length of mangled name
@@ -1941,6 +2831,18 @@ void __parse_mangled_name(                      // PARSE MANGLED NAME
 }
 
 
+/*!
+ * @brief Mangle an operator token back into the encoded form.
+ *
+ * Recognises the plain, relational and assignment operator
+ * vocabularies.  The result is `$o<c>`, `$r<c>` or `$a<c>` where `<c>`
+ * is the lowercase operator index.
+ *
+ * @param[in]  op      Operator token. Not NULL.
+ * @param[in]  len     Length of @p op, or 0 to run until NUL.
+ * @param[out] result  Destination buffer for 3 characters. Not NULL.
+ * @return The number of bytes written (0 or 3).
+ */
 size_t __mangle_operator(                       // MANGLE OPERATOR NAME
     char const *op,                             // - operator token
     size_t len,                                 // - length of operator token
@@ -2024,9 +2926,25 @@ void dump( output_desc *data )
 #endif
 
 #if 0 || defined(TEST)
+/*!
+ * @def TRUNC_BUFFER
+ * @brief Size of the truncation-test buffer.
+ */
 #define TRUNC_BUFFER    256
+/*!
+ * @def GUARD_CHAR
+ * @brief Guard byte used to detect buffer overruns.
+ */
 #define GUARD_CHAR      '@'
+/*!
+ * @def ALLOC_SIZE
+ * @brief Initial size of the reallocatable test buffer.
+ */
 #define ALLOC_SIZE      2
+/*!
+ * @def BUF_SIZE
+ * @brief Size of the small test buffer.
+ */
 #define BUF_SIZE        256
 
 typedef struct test_stream {
@@ -2320,6 +3238,11 @@ void testEmit( void **cookie, dm_pts dp, int value, char const *ptr )
 {
     unsigned **argc = cookie;
     static const char *names[] = {
+        /*!
+         * @def DM_DEF
+         * @brief Emit one DM_* event name format string.
+         * @param[in] id  DM_* identifier.
+         */
         #define DM_DEF( id )    "\tDM_" #id ": %d\n",
         DM_DEFS
         #undef DM_DEF
@@ -2516,6 +3439,10 @@ void main( int argc )
 
 #if 0 || defined(UTIL)
 
+/*!
+ * @def BUF_SIZE
+ * @brief Size of the command-line demangle buffer.
+ */
 #define BUF_SIZE 4096
 
 void main( int argc, char **argv )

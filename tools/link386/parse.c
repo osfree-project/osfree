@@ -28,6 +28,14 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file parse.c
+ * @brief Command-line parsing for the LINK clone tool.
+ *
+ * Provides the option-parsing entry points invoked from the shared
+ * optparsc.gh driver, plus helpers for reading option arguments from
+ * the current context (command line, environment variable or file).
+ */
 
 #include <stdio.h>
 #include <ctype.h>
@@ -44,8 +52,9 @@
 #include "parse.h"
 
 
-/*
- * Initialize the OPT_STORAGE structure.
+/*!
+ * @brief Initialize the OPT_STORAGE structure.
+ * @param[out] cmdOpts  Option storage to initialise. Not NULL.
  */
 void InitParse( OPT_STORAGE *cmdOpts )
 /************************************/
@@ -54,8 +63,9 @@ void InitParse( OPT_STORAGE *cmdOpts )
 }
 
 
-/*
- * Destroy the OPT_STORAGE structure.
+/*!
+ * @brief Destroy the OPT_STORAGE structure.
+ * @param[in,out] cmdOpts  Option storage to release. Not NULL.
  */
 void FiniParse( OPT_STORAGE *cmdOpts )
 /************************************/
@@ -64,8 +74,11 @@ void FiniParse( OPT_STORAGE *cmdOpts )
 }
 
 
-/*
- * Gripe about a command line error.
+/*!
+ * @brief Report a command-line error and continue.
+ *
+ * Reads the offending token from the current context and issues a
+ * warning.
  */
 static void cmd_line_error( void )
 /********************************/
@@ -78,8 +91,14 @@ static void cmd_line_error( void )
 }
 
 
-/*
- * Parse the command string contained in the current context.
+/*!
+ * @brief Parse the command string contained in the current context.
+ *
+ * Handles switches ('-' or '/'), command files ('@') and input
+ * filenames, incrementing @p itemsParsed for every item consumed.
+ *
+ * @param[in,out] cmdOpts      Option storage. Not NULL.
+ * @param[in,out] itemsParsed  Item counter. Not NULL.
  */
 void CmdStringParse( OPT_STORAGE *cmdOpts, int *itemsParsed )
 /***********************************************************/
@@ -120,8 +139,13 @@ void CmdStringParse( OPT_STORAGE *cmdOpts, int *itemsParsed )
 }
 
 
-/*
- * Ensure argument to /ALIGN was valid.
+/*!
+ * @brief Ensure the argument to /ALIGN is a power of two.
+ *
+ * Issues a warning and substitutes 4096 if @p *p is not a power of
+ * two.
+ *
+ * @param[in,out] p  Value to validate; replaced on error. Not NULL.
  */
 static void check_align( unsigned *p )
 /************************************/
@@ -143,11 +167,28 @@ static void check_align( unsigned *p )
 }
 
 
+/*!
+ * @def skip_white
+ * @brief Advance @c s past whitespace characters.
+ * @param[in] s  String expression to advance.
+ */
 #define skip_white(s)      while (*s && isspace(*s)) ++s;
+/*!
+ * @def skip_nonwhite
+ * @brief Advance @c s past non-whitespace characters.
+ * @param[in] s  String expression to advance.
+ */
 #define skip_nonwhite(s)   while (*s && !isspace(*s)) ++s;
 
-/*
- * Add another string to an OPT_STRING.
+/*!
+ * @brief Append a string to an OPT_STRING list.
+ *
+ * If @p quote is non-zero and @p str is not already quoted with
+ * matching quotes, it is wrapped in @p quote characters.
+ *
+ * @param[in,out] p      List head; updated if the list is empty.
+ * @param[in]     str    String to append. Not NULL.
+ * @param[in]     quote  Quote character, or zero for no quoting.
  */
 static void add_string( OPT_STRING **p, char *str, char quote )
 /*************************************************************/
@@ -189,8 +230,9 @@ static void add_string( OPT_STRING **p, char *str, char quote )
 }
 
 
-/*
- * Destroy an OPT_STRING.
+/*!
+ * @brief Destroy an OPT_STRING list.
+ * @param[in,out] p  List head; set to NULL. Not NULL.
  */
 static void OPT_CLEAN_STRING( OPT_STRING **p )
 /********************************************/
@@ -205,8 +247,17 @@ static void OPT_CLEAN_STRING( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /BASE:@{filename} option.
+/*!
+ * @brief Parse the /BASE:@{filename} option.
+ *
+ * Reads the named file, finds the line beginning with the requested
+ * keyword, and stores the keyword's numeric value in @p p.
+ *
+ * @param[in,out] p    Option list to replace. Not NULL.
+ * @param[in]     str  Buffer starting after the '@'. Not NULL.
+ * @retval 0  Parsing failed (fatal error already issued).
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_base_from_file(OPT_STRING **p, char *str)
 {
@@ -285,8 +336,12 @@ static int parse_base_from_file(OPT_STRING **p, char *str)
 } /* parse_base_from_file() */
 
 
-/*
- * Parse the /BASE option.
+/*!
+ * @brief Parse the /BASE option.
+ * @param[in,out] p  Option list to append to. Not NULL.
+ * @retval 0  Parsing failed (fatal error already issued).
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_base( OPT_STRING **p )
 /*************************************/
@@ -320,11 +375,19 @@ static int parse_base( OPT_STRING **p )
 } /* parse_base() */
 
 
-/*
- * For the /optName option, read in :string and store the string into the
- * given OPT_STRING.  If onlyOne is non-zero, any previous string in p will
- * be deleted.  If quote is non-zero, make sure the string is quoted.
- * Use quote if there aren't any quotes already.
+/*!
+ * @brief Common helper for options of the form `:string`.
+ *
+ * If @p onlyOne is non-zero, any previous string in @p p is removed
+ * first.  If @p quote is non-zero, the argument is stored quoted.
+ *
+ * @param[in,out] p        Option list to append to. Not NULL.
+ * @param[in]     optName  Option name used in error messages. Not NULL.
+ * @param[in]     onlyOne  Non-zero to replace existing strings.
+ * @param[in]     quote    Quote character, or zero for no quoting.
+ * @retval 0  Parsing failed (fatal error already issued).
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int do_string_parse( OPT_STRING **p, char *optName, int onlyOne,
 /*********************************************************************/
@@ -347,8 +410,12 @@ static int do_string_parse( OPT_STRING **p, char *optName, int onlyOne,
 }
 
 
-/*
- * Parse the /COMMENT option.
+/*!
+ * @brief Parse the /COMMENT option.
+ * @param[in,out] p  Option list to append to. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_comment( OPT_STRING **p )
 /****************************************/
@@ -357,8 +424,14 @@ static int parse_comment( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /DEBUG option.
+/*!
+ * @brief Parse the /DEBUG option.
+ *
+ * The `:<type>` argument is optional; if present it is stored.
+ *
+ * @param[in,out] p  Option list to append to. Not NULL.
+ * @retval 1  Parsed successfully (the option is always accepted).
+ * @return 1.
  */
 static int parse_debug( OPT_STRING **p )
 /**************************************/
@@ -383,8 +456,12 @@ static int parse_debug( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /DEBUGTYPE option.
+/*!
+ * @brief Parse the /DEBUGTYPE option.
+ * @param[in,out] p  Option list to append to. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_debugtype( OPT_STRING **p )
 /******************************************/
@@ -393,8 +470,12 @@ static int parse_debugtype( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /DEF option.
+/*!
+ * @brief Parse the /DEF option.
+ * @param[in,out] p  Option list to replace. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_def( OPT_STRING **p )
 /************************************/
@@ -403,8 +484,12 @@ static int parse_def( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /DEFAULTLIB option.
+/*!
+ * @brief Parse the /DEFAULTLIB option.
+ * @param[in,out] p  Option list to append to. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_defaultlib( OPT_STRING **p )
 /*******************************************/
@@ -413,8 +498,12 @@ static int parse_defaultlib( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /ENTRY option.
+/*!
+ * @brief Parse the /ENTRY option.
+ * @param[in,out] p  Option list to replace. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_entry( OPT_STRING **p )
 /**************************************/
@@ -423,8 +512,12 @@ static int parse_entry( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /EXETYPE option.
+/*!
+ * @brief Parse the /EXETYPE option.
+ * @param[in,out] p  Option list to replace. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_exetype( OPT_STRING **p )
 /****************************************/
@@ -433,9 +526,17 @@ static int parse_exetype( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /EXPORT option, which is of the form
- *      /EXPORT:entryname[=internalname][,@ordinal[,NONAME]][,DATA]
+/*!
+ * @brief Parse the /EXPORT option.
+ *
+ * Accepts both Microsoft-style syntax
+ * `/EXPORT:entryname[=internalname][,@ordinal[,NONAME]][,DATA]` and
+ * Watcom-style syntax `entryName[.ordinal][=internalName]`.
+ *
+ * @param[in,out] optStr  Option list to append to. Not NULL.
+ * @retval 0  Parsing failed (missing or malformed argument).
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_export( OPT_STRING **optStr )
 /********************************************/
@@ -565,8 +666,12 @@ static int parse_export( OPT_STRING **optStr )
 }
 
 
-/*
- * Parse the /HEAP option.
+/*!
+ * @brief Parse the /HEAP option.
+ * @param[in,out] p  Option list to replace. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_heap( OPT_STRING **p )
 /*************************************/
@@ -575,8 +680,12 @@ static int parse_heap( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /IMPLIB option.
+/*!
+ * @brief Parse the /IMPLIB option.
+ * @param[in,out] p  Option list to replace. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_implib( OPT_STRING **p )
 /***************************************/
@@ -585,8 +694,12 @@ static int parse_implib( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /INCLUDE option.
+/*!
+ * @brief Parse the /INCLUDE option.
+ * @param[in,out] p  Option list to append to. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_include( OPT_STRING **p )
 /****************************************/
@@ -595,8 +708,15 @@ static int parse_include( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /INCREMENTAL option.
+/*!
+ * @brief Parse the /INCREMENTAL option.
+ *
+ * Accepts only `:yes` or `:no`.
+ *
+ * @param[in,out] p  Option list to append to. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_incremental( OPT_STRING **p )
 /********************************************/
@@ -622,8 +742,12 @@ static int parse_incremental( OPT_STRING **p )
 }
 
 
-/*
- * Parse the undocumented /INTERNALDLLNAME_ option.
+/*!
+ * @brief Parse the undocumented /INTERNALDLLNAME_ option.
+ * @param[in,out] p  Option list to replace. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_internaldllname_( OPT_STRING **p )
 /*************************************************/
@@ -632,8 +756,12 @@ static int parse_internaldllname_( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /MACHINE option.
+/*!
+ * @brief Parse the /MACHINE option.
+ * @param[in,out] p  Option list to append to. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_machine( OPT_STRING **p )
 /****************************************/
@@ -642,8 +770,14 @@ static int parse_machine( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /MAP option.
+/*!
+ * @brief Parse the /MAP option.
+ *
+ * The filename argument is optional.
+ *
+ * @param[in,out] p  Option list to append to. Not NULL.
+ * @retval 1  Parsed successfully.
+ * @return 1.
  */
 static int parse_map( OPT_STRING **p )
 /************************************/
@@ -659,8 +793,12 @@ static int parse_map( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /ORDER option.
+/*!
+ * @brief Parse the /ORDER option.
+ * @param[in,out] p  Option list to append to. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_order( OPT_STRING **p )
 /**************************************/
@@ -669,8 +807,12 @@ static int parse_order( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /OUT option.
+/*!
+ * @brief Parse the /OUT option.
+ * @param[in,out] p  Option list to replace. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_out( OPT_STRING **p )
 /************************************/
@@ -679,8 +821,16 @@ static int parse_out( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /passwopts option.
+/*!
+ * @brief Parse the /passwopts option.
+ *
+ * If the argument is wrapped in double quotes they are stripped before
+ * storing.
+ *
+ * @param[in,out] p  Option list to append to. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_passwopts( OPT_STRING **p )
 {
@@ -725,8 +875,12 @@ static int parse_passwopts( OPT_STRING **p )
 } /* parse_passwopts() */
 
 
-/*
- * Parse the /PDB option.
+/*!
+ * @brief Parse the /PDB option.
+ * @param[in,out] p  Option list to append to. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_pdb( OPT_STRING **p )
 /************************************/
@@ -735,8 +889,12 @@ static int parse_pdb( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /SECTION option.
+/*!
+ * @brief Parse the /SECTION option.
+ * @param[in,out] p  Option list to replace. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_section( OPT_STRING **p )
 /****************************************/
@@ -745,8 +903,12 @@ static int parse_section( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /STACK option.
+/*!
+ * @brief Parse the /STACK option.
+ * @param[in,out] p  Option list to replace. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_stack( OPT_STRING **p )
 /**************************************/
@@ -755,8 +917,12 @@ static int parse_stack( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /STUB option.
+/*!
+ * @brief Parse the /STUB option.
+ * @param[in,out] p  Option list to replace. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_stub( OPT_STRING **p )
 /*************************************/
@@ -765,8 +931,12 @@ static int parse_stub( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /SUBSYSTEM option.
+/*!
+ * @brief Parse the /SUBSYSTEM option.
+ * @param[in,out] p  Option list to replace. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_subsystem( OPT_STRING **p )
 /******************************************/
@@ -775,8 +945,12 @@ static int parse_subsystem( OPT_STRING **p )
 }
 
 
-/*
- * Parse the /VERSION option.
+/*!
+ * @brief Parse the /VERSION option.
+ * @param[in,out] p  Option list to replace. Not NULL.
+ * @retval 0  Parsing failed.
+ * @retval 1  Parsed successfully.
+ * @return 1 on success.
  */
 static int parse_version( OPT_STRING **p )
 /****************************************/
@@ -785,8 +959,11 @@ static int parse_version( OPT_STRING **p )
 }
 
 
-/*
- * Set /OPT:NOREF when /DEBUG is used.
+/*!
+ * @brief Handle /DEBUG by implying /OPT:NOREF.
+ *
+ * @param[in,out] cmdOpts  Option storage. Not NULL.
+ * @param[in]     x        Ignored (present for option-table signature).
  */
 static void handle_debug( OPT_STORAGE *cmdOpts, int x )
 /*****************************************************/
@@ -803,8 +980,11 @@ static void handle_debug( OPT_STORAGE *cmdOpts, int x )
 }
 
 
-/*
- * Suppress warning messages.
+/*!
+ * @brief Handle /NOWARN by disabling warning output.
+ *
+ * @param[in,out] cmdOpts  Option storage. Not NULL.
+ * @param[in]     x        Ignored (present for option-table signature).
  */
 static void handle_nowwarn( OPT_STORAGE *cmdOpts, int x )
 /*******************************************************/
@@ -815,9 +995,14 @@ static void handle_nowwarn( OPT_STORAGE *cmdOpts, int x )
 }
 
 
-/*
- * Return the next character (forced to lowercase since LINK's options are
- * not case-sensitive) and advance to the next one.
+/*!
+ * @brief Return the next character, converted to lowercase.
+ *
+ * LINK's options are not case-sensitive, so callers routinely
+ * convert the returned character to lowercase.  Advances the
+ * context to the next character.
+ *
+ * @return The next character converted to lowercase.
  */
 static int OPT_GET_LOWER( void )
 /******************************/
@@ -826,10 +1011,17 @@ static int OPT_GET_LOWER( void )
 }
 
 
-/*
- * If the next character is ch (in either uppercase or lowercase form), it
+/*!
+ * @brief Recognise a character in either case.
+ *
+ * If the next character is @p ch in either uppercase or lowercase, it
  * is consumed and a non-zero value is returned; otherwise, it is not
  * consumed and zero is returned.
+ *
+ * @param[in] ch  Character to recognise.
+ * @retval 1  Character matched and consumed.
+ * @retval 0  Character did not match.
+ * @return Non-zero if the character was recognised.
  */
 static int OPT_RECOG_LOWER( int ch )
 /**********************************/
@@ -838,8 +1030,8 @@ static int OPT_RECOG_LOWER( int ch )
 }
 
 
-/*
- * Back up one character.
+/*!
+ * @brief Back up one character in the current context.
  */
 static void OPT_UNGET( void )
 /***************************/
@@ -848,8 +1040,15 @@ static void OPT_UNGET( void )
 }
 
 
-/*
- * Scan a number.  No leading whitespace is permitted.
+/*!
+ * @brief Scan a ':'-prefixed number from the current context.
+ *
+ * No leading whitespace is permitted.
+ *
+ * @param[out] p  Receiver for the parsed value. Not NULL.
+ * @retval 1  A number was parsed.
+ * @retval 0  No number was parsed.
+ * @return 1 on success.
  */
 static int OPT_GET_NUMBER( unsigned *p )
 /**************************************/

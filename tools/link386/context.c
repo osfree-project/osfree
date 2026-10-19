@@ -29,6 +29,15 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file context.c
+ * @brief Command line, environment, and file parsing contexts.
+ *
+ * A context is a source of characters.  At most one context is
+ * current; additional contexts may be pushed onto a fixed-size
+ * stack.  The token scanners in cmdscan.c read characters through
+ * this module.
+ */
 
 #include <process.h>
 #include <stdio.h>
@@ -38,32 +47,50 @@
 #include "error.h"
 #include "memory.h"
 
+/*!
+ * @def MAX_INDIRECTIONS
+ * @brief Maximum depth of the context indirection stack.
+ */
 #define MAX_INDIRECTIONS        8
 
 
-/*
- * Define the context data structure
+/*!
+ * @struct Context
+ * @brief One active or suspended parsing context.
  */
 struct Context {
-    int                 type;           /* context type */
-    FILE *              fp;             /* for parsing data on disk */
-    char *              data;           /* for parsing data in memory */
-    char *              dataStart;      /* for parsing data in memory */
-    unsigned            dataLen;        /* for parsing data in memory */
-    long                markPos;        /* position of the context's mark */
+    int                 type;           /*!< context type */
+    FILE *              fp;             /*!< for parsing data on disk */
+    char *              data;           /*!< for parsing data in memory */
+    char *              dataStart;      /*!< for parsing data in memory */
+    unsigned            dataLen;        /*!< for parsing data in memory */
+    long                markPos;        /*!< position of the context's mark */
 };
 
 
+/*!
+ * @brief Currently active context.
+ */
 static struct Context   curContext;
+/*!
+ * @brief Non-zero when @c curContext has been initialised.
+ */
 static int              curContextInitialized = 0;
 
+/*!
+ * @brief Saved contexts for nested indirection.
+ */
 static struct Context   stack[MAX_INDIRECTIONS];
+/*!
+ * @brief Number of entries currently on @c stack.
+ */
 static int              stackItems = 0;
 
 
 
-/*
- * Clear the specified context to an uninitialized state.
+/*!
+ * @brief Clear the specified context to an uninitialized state.
+ * @param[out] context  Context to clear.
  */
 static void clear_context( struct Context *context )
 /**************************************************/
@@ -73,8 +100,9 @@ static void clear_context( struct Context *context )
 }
 
 
-/*
- * Open a new command line context.
+/*!
+ * @brief Open a new command line context.
+ * @return 0 on success.
  */
 int OpenCmdLineContext( void )
 /****************************/
@@ -97,8 +125,11 @@ int OpenCmdLineContext( void )
 }
 
 
-/*
- * Open a new environment variable context.
+/*!
+ * @brief Open a new environment variable context.
+ * @param[in] envVar  Name of the environment variable.
+ * @retval 0  Context opened.
+ * @retval 1  Variable not set.
  */
 int OpenEnvironContext( const char *envVar )
 /******************************************/
@@ -117,8 +148,11 @@ int OpenEnvironContext( const char *envVar )
 }
 
 
-/*
- * Open a new file context.
+/*!
+ * @brief Open a new file context.
+ * @param[in] filename  File to open in text mode.
+ * @retval 0  Context opened.
+ * @retval 1  File could not be opened.
  */
 int OpenFileContext( const char *filename )
 /*****************************************/
@@ -135,8 +169,8 @@ int OpenFileContext( const char *filename )
 }
 
 
-/*
- * Close the current context.
+/*!
+ * @brief Close the current context.
  */
 void CloseContext( void )
 /***********************/
@@ -160,9 +194,10 @@ void CloseContext( void )
 }
 
 
-/*
- * Push the current context onto the context stack; the current context
- * is disabled, but not closed.
+/*!
+ * @brief Push the current context onto the context stack.
+ *
+ * The current context is disabled, but not closed.
  */
 void PushContext( void )
 /**********************/
@@ -177,9 +212,10 @@ void PushContext( void )
 }
 
 
-/*
- * Pop the top context off the context stack, and make it the current
- * context.  The current context must be closed before calling PopContext.
+/*!
+ * @brief Pop the top context off the context stack.
+ *
+ * The current context must be closed before calling PopContext.
  */
 void PopContext( void )
 /*********************/
@@ -192,9 +228,9 @@ void PopContext( void )
 }
 
 
-/*
- * Get a character from the current context.  Returns a null byte if the
- * end of the context has been reached.
+/*!
+ * @brief Get a character from the current context.
+ * @return The character, or NUL at end of context.
  */
 int GetCharContext( void )
 /************************/
@@ -224,8 +260,8 @@ int GetCharContext( void )
 }
 
 
-/*
- * Unget a character back into the current context.
+/*!
+ * @brief Unget a character back into the current context.
  */
 void UngetCharContext( void )
 /***************************/
@@ -235,9 +271,11 @@ void UngetCharContext( void )
 }
 
 
-/*
- * Mark the current position in the current context.  Only one mark at a
- * time is stored; use GoToMarkContext to return to it.
+/*!
+ * @brief Mark the current position in the current context.
+ *
+ * Only one mark at a time is stored; use GoToMarkContext to return
+ * to it.
  */
 void MarkPosContext( void )
 /*************************/
@@ -247,9 +285,9 @@ void MarkPosContext( void )
 }
 
 
-/*
- * Back up the current position in the current context to the last place
- * marked by MarkPosContext.
+/*!
+ * @brief Back up the current position to the last place marked by
+ *        MarkPosContext.
  */
 void GoToMarkContext( void )
 /**************************/
@@ -260,8 +298,9 @@ void GoToMarkContext( void )
 }
 
 
-/*
- * Get the current position within the current context.
+/*!
+ * @brief Get the current position within the current context.
+ * @return The zero-based byte offset.
  */
 int GetPosContext( void )
 /***********************/
@@ -283,8 +322,9 @@ int GetPosContext( void )
 }
 
 
-/*
- * Set the current position within the current context.
+/*!
+ * @brief Set the current position within the current context.
+ * @param[in] pos  New zero-based byte offset.
  */
 void SetPosContext( int pos )
 /***************************/

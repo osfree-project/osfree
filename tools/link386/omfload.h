@@ -29,6 +29,10 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file omfload.h
+ * @brief OMF record decoding and file loading.
+ */
 
 #ifndef OMF_LOAD_INCLUDED
 #define OMF_LOAD_INCLUDED
@@ -36,9 +40,32 @@
 #include "omfglbl.h"
 #include "omftype.h"
 
+/*!
+ * @brief Return the word size for an OMF record.
+ * @param[in] is32  Non-zero for a 32-bit record.
+ * @return 4 for 32-bit, 2 for 16-bit.
+ */
 extern int              OmfGetWordSize( int is32 );
+
+/*!
+ * @brief Parse a scan-table disassembly directive.
+ * @param[in]  buffer  Directive payload. Not NULL.
+ * @param[in]  len     Payload length in bytes.
+ * @param[out] entry   Receiver for the parsed entry. Not NULL.
+ * @retval ORL_OKAY   Parsed successfully.
+ * @retval ORL_ERROR  Malformed directive.
+ * @return ORL_OKAY on success, ORL_ERROR on failure.
+ */
 extern orl_return       OmfParseScanTab( omf_bytes buffer, long len,
                                          omf_scan_tab_struct *entry );
+
+/*!
+ * @brief Load the whole structure of an OMF file.
+ * @param[in,out] ofh  OMF file handle. Not NULL.
+ * @retval ORL_OKAY   File parsed.
+ * @retval ORL_ERROR  Malformed file or read error.
+ * @return ORL_OKAY on success, ORL_ERROR on failure.
+ */
 orl_return              OmfLoadFileStructure( omf_file_handle ofh );
 
 #endif

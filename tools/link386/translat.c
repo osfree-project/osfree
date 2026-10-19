@@ -28,6 +28,15 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file translat.c
+ * @brief Translate scanned Microsoft LINK options to Watcom options.
+ *
+ * The scanned OPT_STORAGE is inspected and the corresponding
+ * wlink options are emitted into a CmdLine. Some Microsoft options
+ * are silently ignored; others are translated with best-effort
+ * semantic mapping.
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -44,43 +53,109 @@
 #include "translat.h"
 #include "system.h"
 
+/*!
+ * @def UNSUPPORTED_STR_SIZE
+ * @brief Size of the buffer listing unsupported options.
+ */
 #define UNSUPPORTED_STR_SIZE    512
 
 #if defined(__TARGET_386__)
+    /*!
+     * @def SYS_NT_CHARMODE
+     * @brief Watcom system name for 386 character-mode NT programs.
+     */
     #define SYS_NT_CHARMODE     "nt"
+    /*!
+     * @def SYS_NT_WINDOWED
+     * @brief Watcom system name for 386 windowed NT programs.
+     */
     #define SYS_NT_WINDOWED     "nt_win"
+    /*!
+     * @def SYS_NT_DLL
+     * @brief Watcom system name for 386 NT DLLs.
+     */
     #define SYS_NT_DLL          "nt_dll"
+    /*!
+     * @def LIBDIR_SUFFIX
+     * @brief WATCOM-relative library directory suffix for 386.
+     */
     #define LIBDIR_SUFFIX       "\\lib386"
+    /*!
+     * @def NT_LIBDIR_SUFFIX
+     * @brief WATCOM-relative NT-specific library directory suffix for 386.
+     */
     #define NT_LIBDIR_SUFFIX    "\\lib386\\nt"
 #elif defined(__TARGET_AXP__)
+    /*!
+     * @def SYS_NT_CHARMODE
+     * @brief Watcom system name for Alpha character-mode NT programs.
+     */
     #define SYS_NT_CHARMODE     "ntaxp"
+    /*!
+     * @def SYS_NT_WINDOWED
+     * @brief Watcom system name for Alpha windowed NT programs.
+     */
     #define SYS_NT_WINDOWED     "ntaxp_win"
+    /*!
+     * @def SYS_NT_DLL
+     * @brief Watcom system name for Alpha NT DLLs.
+     */
     #define SYS_NT_DLL          "ntaxp_dll"
+    /*!
+     * @def LIBDIR_SUFFIX
+     * @brief WATCOM-relative library directory suffix for Alpha.
+     */
     #define LIBDIR_SUFFIX       "\\libaxp"
+    /*!
+     * @def NT_LIBDIR_SUFFIX
+     * @brief WATCOM-relative NT-specific library directory suffix for Alpha.
+     */
     #define NT_LIBDIR_SUFFIX    "\\libaxp\\nt"
 #elif defined(__TARGET_PPC__)
+    /*!
+     * @def SYS_NT_CHARMODE
+     * @brief Watcom system name for PowerPC character-mode NT programs.
+     */
     #define SYS_NT_CHARMODE     "ntppc"
+    /*!
+     * @def SYS_NT_WINDOWED
+     * @brief Watcom system name for PowerPC windowed NT programs.
+     */
     #define SYS_NT_WINDOWED     "ntppc_win"
+    /*!
+     * @def SYS_NT_DLL
+     * @brief Watcom system name for PowerPC NT DLLs.
+     */
     #define SYS_NT_DLL          "ntppc_dll"
+    /*!
+     * @def LIBDIR_SUFFIX
+     * @brief WATCOM-relative library directory suffix for PowerPC.
+     */
     #define LIBDIR_SUFFIX       "\\libppc"
+    /*!
+     * @def NT_LIBDIR_SUFFIX
+     * @brief WATCOM-relative NT-specific library directory suffix for PowerPC.
+     */
     #define NT_LIBDIR_SUFFIX    "\\libppc\\nt"
 #else
     #error Unrecognized CPU type
 #endif
 
 
-/*
- * Various flags to keep in mind while translating options.
+/*!
+ * @struct XlatStatus
+ * @brief Flags tracked while translating options.
  */
 static struct XlatStatus {
-    int     dll                 : 1;    /* we're building a DLL */
-    int     exp                 : 1;    /* there is an .exp file */
+    int     dll                 : 1;    /*!< We're building a DLL. */
+    int     exp                 : 1;    /*!< There is an .exp file. */
 } status;
 
 
 
-/*
- * Initialize a struct XlatStatus.
+/*!
+ * @brief Initialize a struct XlatStatus.
+ * @param[out] status  Status to clear. Not NULL.
  */
 static void init_status( struct XlatStatus *status )
 /**************************************************/
@@ -89,8 +164,10 @@ static void init_status( struct XlatStatus *status )
 }
 
 
-/*
- * Add one more unsupported option to optStr.
+/*!
+ * @brief Append one more unsupported option to @p optStr.
+ * @param[in,out] optStr  Destination buffer. Not NULL.
+ * @param[in]     opt     Option name without the leading slash. Not NULL.
  */
 static void append_unsupported( char *optStr, char *opt )
 /*******************************************************/
@@ -104,8 +181,9 @@ static void append_unsupported( char *optStr, char *opt )
 }
 
 
-/*
- * Parse unsupported options.
+/*!
+ * @brief Warn about every unsupported MS LINK option that was used.
+ * @param[in] cmdOpts  Scanned options. Not NULL.
  */
 static void unsupported_opts( const OPT_STORAGE *cmdOpts )
 /********************************************************/
@@ -134,8 +212,10 @@ static void unsupported_opts( const OPT_STORAGE *cmdOpts )
 }
 
 
-/*
- * Add another string to an OPT_STRING.
+/*!
+ * @brief Append a copy of @p str to an OPT_STRING list.
+ * @param[in,out] p    Pointer to the list head. Not NULL.
+ * @param[in]     str  String to append. Not NULL.
  */
 static void add_string( OPT_STRING **p, char *str )
 /*************************************************/
@@ -159,8 +239,9 @@ static void add_string( OPT_STRING **p, char *str )
 }
 
 
-/*
- * Parse a .def file if necessary.
+/*!
+ * @brief Parse the .def file (if any) and merge its directives.
+ * @param[in,out] cmdOpts  Scanned options. Not NULL.
  */
 static void def_file_opts( OPT_STORAGE *cmdOpts )
 /***********************************************/
@@ -254,8 +335,11 @@ static void def_file_opts( OPT_STORAGE *cmdOpts )
 }
 
 
-/*
- * Called by InitFuzzy when an error occurs.
+/*!
+ * @brief Callback used by InitFuzzy() to report extraction errors.
+ * @param[in] filename  File that could not be inspected. Not NULL.
+ * @retval 1  Always continue.
+ * @return 1.
  */
 static int fuzzy_init_callback( const char *filename )
 /****************************************************/
@@ -266,10 +350,11 @@ static int fuzzy_init_callback( const char *filename )
 }
 
 
-/*
- * Given a symbol, fuzzy match it and create an export directive.
- * Returns a pointer to a newly allocated buffer, which the caller is
- * responsible for freeing.  This function was formerly ExportFuzzy().
+/*!
+ * @brief Fuzzy-match a symbol and rewrite its export directive.
+ * @param[in] export  Original export directive. Not NULL.
+ * @return Newly allocated rewritten directive, or @p export when
+ *         no change is required.
  */
 static char *fuzzy_export( char *export )
 /***************************************/
@@ -362,8 +447,11 @@ static char *fuzzy_export( char *export )
 }
 
 
-/*
- * Initialize fuzzy linking.
+/*!
+ * @brief Prepare the fuzzy matching module with objects and libraries.
+ * @param[in] objs         Linked object files, or NULL.
+ * @param[in] libs         Linked libraries, or NULL.
+ * @param[in] defaultlibs  Default libraries, or NULL.
  */
 static void init_fuzzy( OPT_STRING *objs, OPT_STRING *libs,
                         OPT_STRING *defaultlibs )
@@ -476,8 +564,11 @@ static void init_fuzzy( OPT_STRING *objs, OPT_STRING *libs,
 }
 
 
-/*
- * Determine the name of the executable, and place it in the given buffer.
+/*!
+ * @brief Derive the output executable name from the options and first object.
+ * @param[in]  cmdOpts   Scanned options. Not NULL.
+ * @param[in]  firstObj  First object file name. Not NULL.
+ * @param[out] executable  Destination buffer. Not NULL.
  */
 static void get_executable_name( const OPT_STORAGE *cmdOpts, char *firstObj,
                                  char *executable )
@@ -500,8 +591,9 @@ static void get_executable_name( const OPT_STORAGE *cmdOpts, char *firstObj,
 }
 
 
-/*
- * Destroy an OPT_STRING.
+/*!
+ * @brief Destroy an OPT_STRING list.
+ * @param[in,out] p  Pointer to the list head. Not NULL.
  */
 static void del_string( OPT_STRING **p )
 /**************************************/
@@ -516,8 +608,11 @@ static void del_string( OPT_STRING **p )
 }
 
 
-/*
- * Parse linker options.
+/*!
+ * @brief Emit the object/library/exp/resource and other wlink options.
+ * @param[in,out] status   Translation status flags. Not NULL.
+ * @param[in]     cmdOpts  Scanned options. Not NULL.
+ * @param[in,out] cmdLine  CmdLine to fill. Not NULL.
  */
 static void linker_opts( struct XlatStatus *status,
                          const OPT_STORAGE *cmdOpts, CmdLine *cmdLine )
@@ -807,8 +902,11 @@ static void linker_opts( struct XlatStatus *status,
 }
 
 
-/*
- * Activate default options.
+/*!
+ * @brief Activate default options.
+ * @param[in,out] status   Translation status flags. Not NULL.
+ * @param[in]     cmdOpts  Scanned options. Not NULL.
+ * @param[in,out] cmdLine  CmdLine to fill. Not NULL.
  */
 static void default_opts( struct XlatStatus *status,
                           const OPT_STORAGE *cmdOpts, CmdLine *cmdLine )
@@ -820,8 +918,11 @@ static void default_opts( struct XlatStatus *status,
 } /* default_opts() */
 
 
-/*
- * Activate options which have been parsed but not yet turned on.
+/*!
+ * @brief Emit the system selection and any pass-through options.
+ * @param[in]     status   Translation status flags. Not NULL.
+ * @param[in]     cmdOpts  Scanned options. Not NULL.
+ * @param[in,out] cmdLine  CmdLine to fill. Not NULL.
  */
 static void merge_opts( struct XlatStatus *status, const OPT_STORAGE *cmdOpts,
                         CmdLine *cmdLine )
@@ -864,8 +965,10 @@ static void merge_opts( struct XlatStatus *status, const OPT_STORAGE *cmdOpts,
 }
 
 
-/*
- * Translate scanned MS options to Watcom options.
+/*!
+ * @brief Translate scanned MS LINK options into Watcom linker options.
+ * @param[in,out] cmdOpts  Scanned options. Not NULL.
+ * @param[in,out] cmdLine  CmdLine to fill. Not NULL.
  */
 void OptionsTranslate( OPT_STORAGE *cmdOpts, CmdLine *cmdLine )
 /*************************************************************/

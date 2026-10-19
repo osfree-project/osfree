@@ -29,6 +29,10 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file elfglbl.h
+ * @brief Global macros shared by the ELF reader.
+ */
 
 #ifndef ELF_GLOBAL_INCLUDED
 #define ELF_GLOBAL_INCLUDED
@@ -36,15 +40,51 @@
 #include "orlintnl.h"
 #include "elftype.h"
 
+/*!
+ * @def _ClientRead
+ * @brief Read @p b bytes from the current ELF file handle.
+ */
 #define _ClientRead( a, b )             ((a)->elf_hnd->funcs->read( a->file, b ))
+/*!
+ * @def _ClientSeek
+ * @brief Seek within the current ELF file handle.
+ */
 #define _ClientSeek( a, b, c )          ((a)->elf_hnd->funcs->seek( a->file, b, c ))
+/*!
+ * @def _ClientAlloc
+ * @brief Allocate memory through the current ELF file handle.
+ */
 #define _ClientAlloc( a, b )            ((a)->elf_hnd->funcs->alloc( b ))
+/*!
+ * @def _ClientFree
+ * @brief Free memory through the current ELF file handle.
+ */
 #define _ClientFree( a, b )             ((a)->elf_hnd->funcs->free( b ))
+/*!
+ * @def _ClientReAlloc
+ * @brief Reallocate memory through the current ELF file handle.
+ */
 #define _ClientReAlloc( a, b, c )       ((a)->elf_hnd->funcs->realloc( b, c ))
 
+/*!
+ * @def _ClientSecRead
+ * @brief Read @p b bytes from a section's owning ELF file handle.
+ */
 #define _ClientSecRead( a, b, c )       ((a)->elf_file_hnd->elf_hnd->funcs->read( a->elf_file_hnd->file, b, c ))
+/*!
+ * @def _ClientSecSeek
+ * @brief Seek within a section's owning ELF file handle.
+ */
 #define _ClientSecSeek( a, b, c )       ((a)->elf_file_hnd->elf_hnd->funcs->seek( a->elf_file_hnd->file, b, c ))
+/*!
+ * @def _ClientSecAlloc
+ * @brief Allocate memory associated with a section.
+ */
 #define _ClientSecAlloc( a, b )         ((a)->elf_file_hnd->elf_hnd->funcs->alloc( b ))
+/*!
+ * @def _ClientSecFree
+ * @brief Free memory associated with a section.
+ */
 #define _ClientSecFree( a, b )          ((a)->elf_file_hnd->elf_hnd->funcs->free( b ))
 
 #endif

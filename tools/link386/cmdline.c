@@ -29,6 +29,15 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file cmdline.c
+ * @brief Per-section command line argument storage and merging.
+ *
+ * A CmdLine holds a fixed number of independent sections, each of
+ * which is a NULL-terminated argument vector.  Arguments can be
+ * appended to a section, the whole set can be cloned, and selected
+ * sections can be merged into a single vector.
+ */
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -38,14 +47,28 @@
 #include "error.h"
 #include "memory.h"
 
+/*!
+ * @def GRANULARITY
+ * @brief Number of additional argument slots allocated on grow.
+ */
 #define GRANULARITY     30
+/*!
+ * @def BUFFER_SIZE
+ * @brief Size of the local formatting buffer used by AppendFmtCmdLine.
+ */
 #define BUFFER_SIZE     1024
 
 
-/*
- * Initialize the command line sections.  Use AppendCmdLine to insert
- * an item into any of these sections, and MergeCmdLine to merge them all
- * together.  Valid sections will be in the range [0,sections-1].
+/*!
+ * @brief Initialize a set of command line sections.
+ *
+ * Use AppendCmdLine to insert an item into any of these sections,
+ * and MergeCmdLine to merge them all together.  Valid sections will
+ * be in the range [0,sections-1].
+ *
+ * @param[in] sections  Number of sections.  Must be >= 1.
+ *
+ * @return The newly allocated CmdLine.
  */
 CmdLine *InitCmdLine( int sections )
 /**********************************/
@@ -70,8 +93,12 @@ CmdLine *InitCmdLine( int sections )
 }
 
 
-/*
- * Make a completely separate copy of a CmdLine.
+/*!
+ * @brief Make a completely separate copy of a CmdLine.
+ *
+ * @param[in] oldCmdLine  CmdLine to copy.
+ *
+ * @return The new CmdLine.
  */
 CmdLine *CloneCmdLine( const CmdLine *oldCmdLine )
 /************************************************/
@@ -91,8 +118,10 @@ CmdLine *CloneCmdLine( const CmdLine *oldCmdLine )
 }
 
 
-/*
- * Free all memory occupied by a CmdLine, invalidating it for future use.
+/*!
+ * @brief Free all memory occupied by a CmdLine, invalidating it for future use.
+ *
+ * @param[in,out] cmdLine  CmdLine to destroy.
  */
 void DestroyCmdLine( CmdLine *cmdLine )
 /*************************************/
@@ -110,9 +139,15 @@ void DestroyCmdLine( CmdLine *cmdLine )
 }
 
 
-/*
- * Add one more parameter to the section specified by block.  Reallocates
- * memory if necessary, and does all necessary bookkeeping.
+/*!
+ * @brief Add one more parameter to the section specified by block.
+ *
+ * Reallocates memory if necessary, and does all necessary
+ * bookkeeping.
+ *
+ * @param[in,out] cmdLine  CmdLine to modify.
+ * @param[in]     section  Section index.  Must be in range.
+ * @param[in]     parm     Parameter string, or NULL for a NULL slot.
  */
 void AppendCmdLine( CmdLine *cmdLine, int section, const char *parm )
 /*******************************************************************/
@@ -132,11 +167,16 @@ void AppendCmdLine( CmdLine *cmdLine, int section, const char *parm )
 }
 
 
-/*
- * Add one more parameter to the section specified by block.  Reallocates
- * memory if necessary, and does all necessary bookkeeping.  The stored
- * string is generated using the printf-style format string and any
- * additional parmameters.
+/*!
+ * @brief Add one more parameter to the section specified by block.
+ *
+ * The stored string is generated using the printf-style format
+ * string and any additional parameters.
+ *
+ * @param[in,out] cmdLine  CmdLine to modify.
+ * @param[in]     section  Section index.  Must be in range.
+ * @param[in]     format   printf-style format string.
+ * @param[in]     ...      Format arguments.
  */
 void AppendFmtCmdLine( CmdLine *cmdLine, int section, const char *format, ... )
 /*****************************************************************************/
@@ -153,14 +193,24 @@ void AppendFmtCmdLine( CmdLine *cmdLine, int section, const char *format, ... )
 }
 
 
-/*
- * Merge all the sections together.  Returns a pointer to the resulting
- * argument vector; the caller should not modify its contents.  Any call
- * to this function invalidates any pointer it returned previously for
- * the same CmdLine.  If section==INVALID_MERGE_CMDLINE, then all sections
- * are merged in order.  Otherwise, section is the first item in a
- * INVALID_MERGE_CMDLINE-terminated list of section numbers; the merged
- * command line will consist of items from the specified sections, in order.
+/*!
+ * @brief Merge all the sections together.
+ *
+ * Returns a pointer to the resulting argument vector; the caller
+ * should not modify its contents.  Any call to this function
+ * invalidates any pointer it returned previously for the same
+ * CmdLine.  If @p section == INVALID_MERGE_CMDLINE, then all
+ * sections are merged in order.  Otherwise @p section is the first
+ * item in an INVALID_MERGE_CMDLINE-terminated list of section
+ * numbers; the merged command line consists of items from the
+ * specified sections, in order.
+ *
+ * @param[in,out] cmdLine  CmdLine to merge.
+ * @param[in]     section  First section or INVALID_MERGE_CMDLINE.
+ * @param[in]     ...      Additional sections, terminated by
+ *                         INVALID_MERGE_CMDLINE.
+ *
+ * @return The merged NULL-terminated argument vector.
  */
 char **MergeCmdLine( CmdLine *cmdLine, int section, ... )
 /*******************************************************/

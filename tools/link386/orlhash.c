@@ -24,11 +24,18 @@
 *
 *  ========================================================================
 *
-* Description:  WHEN YOU FIGURE OUT WHAT THIS FILE DOES, PLEASE
-*               DESCRIBE IT HERE!
+* Description:  Generic hash table used by the ORL readers.
 *
 ****************************************************************************/
 
+/*!
+ * @file orlhash.c
+ * @brief Generic hash table used by the ORL readers.
+ *
+ * Provides string-keyed and number-keyed hash tables.  All memory
+ * allocation and key comparison go through callbacks supplied by the
+ * caller.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,15 +43,46 @@
 #include "orllevel.h"
 #include "orlhash.h"
 
+/*!
+ * @def _HashAlloc
+ * @brief Allocate memory through the table's allocator.
+ * @param[in] a  Hash table.
+ * @param[in] b  Number of bytes to allocate.
+ */
 #define _HashAlloc( a, b ) a->funcs->alloc( b )
+/*!
+ * @def _HashFree
+ * @brief Free memory through the table's allocator.
+ * @param[in] a  Hash table.
+ * @param[in] b  Block to free.
+ */
 #define _HashFree( a, b ) a->funcs->free( b )
+/*!
+ * @def _HashCompare
+ * @brief Invoke the table's key comparison callback.
+ * @param[in] a  Hash table.
+ * @param[in] b  First key.
+ * @param[in] c  Second key.
+ */
 #define _HashCompare( a, b, c ) a->compare( b, c )
 
+/*!
+ * @brief Compare two numeric hash keys.
+ * @param[in] n1  First key.
+ * @param[in] n2  Second key.
+ * @retval 0  Keys are equal.
+ * @return Non-zero when the keys differ.
+ */
 int ORLNumberCmp( orl_hash_value n1, orl_hash_value n2 )
 {
     return( n1 - n2 );
 }
 
+/*!
+ * @brief Compute a hash value for a NUL-terminated string.
+ * @param[in] string  String to hash.  Not NULL.
+ * @return The hash value.
+ */
 static orl_hash_value orlStringEncode( const char *string )
 {
     const char          *p;
@@ -61,11 +99,30 @@ static orl_hash_value orlStringEncode( const char *string )
     return( h );
 }
 
+/*!
+ * @brief Reduce a hash value to a bucket index.
+ * @param[in] hash_table  Hash table.  Not NULL.
+ * @param[in] key         Hash value.
+ * @return Bucket index in the range [0, hash_table->size).
+ */
 static orl_hash_value orlHash( orl_hash_table hash_table, orl_hash_value key )
 {
     return( key % hash_table->size );
 }
 
+/*!
+ * @brief Insert a key/data pair into a hash table.
+ *
+ * If @p key already exists, @p data is appended to the existing data
+ * list for that key.
+ *
+ * @param[in,out] hash_table  Hash table.  Not NULL.
+ * @param[in]     key         Key.  Not NULL for string tables.
+ * @param[in]     data        Data to associate with @p key.
+ * @retval ORL_OKAY            Inserted.
+ * @retval ORL_OUT_OF_MEMORY   Allocation failure.
+ * @return ORL_OKAY on success.
+ */
 orl_return ORLHashTableInsert( orl_hash_table hash_table, orl_hash_value key, orl_hash_data data )
 {
     orl_hash_value              hash_value = 0;
@@ -107,6 +164,13 @@ orl_return ORLHashTableInsert( orl_hash_table hash_table, orl_hash_value key, or
     return( ORL_OKAY );
 }
 
+/*!
+ * @brief Look up all data associated with a key.
+ * @param[in] hash_table  Hash table.  Not NULL.
+ * @param[in] key         Key to search for.
+ * @retval NULL  Key not found.
+ * @return Linked list of data entries for @p key.
+ */
 orl_hash_data_struct *ORLHashTableQuery( orl_hash_table hash_table, orl_hash_value key )
 {
     orl_hash_value      hash_value = 0;
@@ -128,6 +192,15 @@ orl_hash_data_struct *ORLHashTableQuery( orl_hash_table hash_table, orl_hash_val
     return( NULL );
 }
 
+/*!
+ * @brief Create a new hash table.
+ * @param[in] funcs    Allocator callback table.  Not NULL.
+ * @param[in] size     Number of buckets.
+ * @param[in] type     Key type (string or number).
+ * @param[in] compare  Key comparison callback.  Not NULL.
+ * @retval NULL  Allocation failure.
+ * @return The new hash table.
+ */
 orl_hash_table ORLHashTableCreate( orl_funcs * funcs, orl_hash_table_size size, orl_hash_table_type type, orl_hash_comparison_func compare )
 {
     orl_hash_table      hash_table;
@@ -150,6 +223,10 @@ orl_hash_table ORLHashTableCreate( orl_funcs * funcs, orl_hash_table_size size, 
     return( hash_table );
 }
 
+/*!
+ * @brief Free a hash table and all of its entries.
+ * @param[in] hash_table  Hash table to free.  Not NULL.
+ */
 void ORLHashTableFree( orl_hash_table hash_table )
 {
     int                         loop;

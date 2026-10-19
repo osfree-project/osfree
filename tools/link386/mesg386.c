@@ -29,5 +29,10 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file mesg386.c
+ * @brief Build message.c for a 386 target.
+ */
+
 #define __TARGET_386__
 #include "message.c"

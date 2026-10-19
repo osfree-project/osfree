@@ -29,5 +29,13 @@
 *
 ****************************************************************************/
 
+/*!
+ * @file link386.c
+ * @brief 386-target instantiation of the link clone.
+ *
+ * Defines __TARGET_386__ and includes the shared implementation from
+ * link.c so that a 386-specific linker executable can be produced.
+ */
+
 #define __TARGET_386__
 #include "link.c"
