@@ -122,17 +122,36 @@ opts options;                   /*!< Global binder options. */
 
 /*! @brief Print command-line usage information. */
 void printhlp(void);
-/*! @brief Verify that the build environment is usable. */
+/*! @brief Verify that the build environment is usable.
+ *  @return 0 if usable, 1 otherwise.
+ */
 int check_environment(void);
-/*! @brief Add an imported function to the global vector. */
+/*! @brief Add an imported function to the global vector.
+ *  @param[in] mod   Module name. Not NULL.
+ *  @param[in] func  Function name. Not NULL.
+ *  @return 0 on success, -1 on failure.
+ */
 int addtolist(char * mod, char * func);
-/*! @brief Bind the DOS stub and the NE image into a FamilyAPI file. */
+/*! @brief Bind the DOS stub and the NE image into a FamilyAPI file.
+ *  @param[in] fname  Path to the NE executable to bind. Not NULL.
+ *  @return 0 on success, 1 on failure.
+ */
 int bind(char * fname);
-/*! @brief Search for a library file along a search path. */
+/*! @brief Search for a library file along a search path.
+ *  @param[in]  libname   Library file name.
+ *  @param[out] fullpath  Receives the full path, or an empty string.
+ *  @return 1 if found, 0 otherwise.
+ */
 int searchlib(char * libname, char * fullpath);
-/*! @brief Append a path separator to a buffer. */
+/*! @brief Append a path separator to a buffer.
+ *  @param[in,out] buf  Buffer to append to. Not NULL.
+ *  @return @p buf, for convenient chaining.
+ */
 char * addpathsep(char * buf);
-/*! @brief Create and return a unique temporary directory path. */
+/*! @brief Create and return a unique temporary directory path.
+ *  @param[out] tmpdir  Buffer of at least _MAX_PATH bytes. Not NULL.
+ *  @return @p tmpdir on success, NULL on failure.
+ */
 char * mktmpdir(char *tmpdir);
 /*! @brief Generate the temporary import object file (tmp.obj). */
 void generate_imptable(void);
