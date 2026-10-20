@@ -11,11 +11,11 @@
 # 3. doxy-lint comes first to start doxygen checks as fast as possible
 # 4. dos2unix comes second because needed for PORTS
 
-DIRS = doxy-lint dos2unix yacc lex awk shared sed UNI &
+DIRS = doxy-lint dos2unix yacc lex awk shared reuse-lint sed UNI &
        jwasm &
        mkmsgf msgextrt exehdr bin2c mkctxt genext2fs &
        qemu-img hlldump mapsym renmodul &
-       target emxdoc bind reuse-lint &
+       target emxdoc bind &
        spdx-sbom reuse-annotate spdx-merge &
        link386 nmake mapsym hc30 dll2abi lib2abi
 
