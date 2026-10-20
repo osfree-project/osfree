@@ -8,9 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "os2types.h"
-#include "os2err.h"
-#include "reuse_comments.h"
+#include "reuse.h"
 #include "reuse_glob.h"
 #include "path.h"
 #include "toml.h"
@@ -415,8 +413,8 @@ static APIRET find_style_index(PREUSECOMMENTSCFG pCfg, PCSZ pszName,
 }
 
 /*!
- * @brief Parse all [[map]] entries, resolving each [[map]].style name
- *        to a style index.
+ * @brief Parse all [[map]] entries, resolving each style name to a
+ *        style index.
  *
  * @param[in]  hDoc  TOML document. Not NULLHANDLE.
  * @param[out] pCfg  Config. Not NULL.

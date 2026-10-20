@@ -35,8 +35,6 @@
 #include "dep5.h"
 #include "git.h"
 #include "path.h"
-#include "spdx_tag.h"
-#include "reuse_glob.h"
 
 /* ==================================================================
  * Small helpers
@@ -62,9 +60,10 @@ static void safe_free(void **pp) {
  *
  * @param[in] pszPath  Path to the file. Not NULL.
  *
- * @return malloc'd value, or NULL on failure.
+ * @return PSZ
  *
  * @retval NULL  Tag absent or allocation failure.
+ * @return       malloc'd value owned by the caller.
  */
 static PSZ query_file_license(PCSZ pszPath) {
     ULONG ulSize = 0;
@@ -86,12 +85,12 @@ static PSZ query_file_license(PCSZ pszPath) {
  * @brief Query and allocate the SPDX-FileCopyrightText value.
  *
  * Counterpart of query_file_license for the copyright tag.
- *
  * @param[in] pszPath  Path to the file. Not NULL.
  *
- * @return malloc'd value, or NULL on failure.
+ * @return PSZ
  *
  * @retval NULL  Tag absent or allocation failure.
+ * @return       malloc'd value owned by the caller.
  */
 static PSZ query_file_copyright(PCSZ pszPath) {
     ULONG ulSize = 0;
@@ -121,7 +120,7 @@ static PSZ query_file_copyright(PCSZ pszPath) {
  * @param[in] nA  First character.
  * @param[in] nB  Second character.
  *
- * @return 1 if equal, 0 otherwise.
+ * @return int
  *
  * @retval 1  Equal under the platform rules.
  * @retval 0  Otherwise.
@@ -141,7 +140,7 @@ static int path_char_eq(int nA, int nB) {
  * @param[in] pszPrefix  Prefix. Not NULL.
  * @param[in] cbLen      Prefix length.
  *
- * @return 1 if @p pszStr starts with @p pszPrefix, 0 otherwise.
+ * @return int
  *
  * @retval 1  Prefix matches.
  * @retval 0  Otherwise.
@@ -165,6 +164,8 @@ static int path_prefix_eq(PCSZ pszStr, PCSZ pszPrefix, size_t cbLen) {
  * @param[in] pszBase      Base directory. May be NULL or empty.
  * @param[in] pszFilename  Full path. Not NULL.
  *
+ * @return PCSZ
+ *
  * @return Pointer to the relative part, or @p pszFilename unchanged.
  */
 static PCSZ rel_to_dir(PCSZ pszBase, PCSZ pszFilename) {
@@ -182,7 +183,7 @@ static PCSZ rel_to_dir(PCSZ pszBase, PCSZ pszFilename) {
 }
 
 /* ==================================================================
- * Pattern matching (* and **)
+ * Pattern matching (* and **) — DEP5 only
  * ================================================================== */
 
 /*!
@@ -194,7 +195,7 @@ static PCSZ rel_to_dir(PCSZ pszBase, PCSZ pszFilename) {
  * @param[in] pszPat  Pattern component. Not NULL.
  * @param[in] pszStr  String component. Not NULL.
  *
- * @return 1 on match, 0 otherwise.
+ * @return int
  *
  * @retval 1  Match.
  * @retval 0  No match.
@@ -223,7 +224,7 @@ static int match_component(PCSZ pszPat, PCSZ pszStr) {
  * @param[in] pszPat   Pattern. Not NULL.
  * @param[in] pszPath  Path. Not NULL.
  *
- * @return 1 on match, 0 otherwise.
+ * @return int
  *
  * @retval 1  Match.
  * @retval 0  No match.
@@ -273,7 +274,7 @@ static int match_path(PCSZ pszPat, PCSZ pszPath) {
  * @param[in] pszPattern   Pattern. Not NULL.
  * @param[in] pszFilename  Path. Not NULL.
  *
- * @return 1 on match, 0 otherwise.
+ * @return int
  *
  * @retval 1  Match.
  * @retval 0  No match.
@@ -296,7 +297,7 @@ static int matches_pattern(PCSZ pszPattern, PCSZ pszFilename) {
  * @param[in]     ulLine      Source line, 0 if not applicable.
  * @param[in]     pszDetail   Short human-readable detail, or NULL.
  *
- * @return 0 on success, -1 on allocation failure.
+ * @return int
  *
  * @retval 0   Success.
  * @retval -1  Allocation failed.
@@ -338,7 +339,7 @@ static int err_add(PREUSETREE pd, ULONG ulCode, ULONG ulSeverity,
  * @param[in]     hToml         TOML handle, or NULLHANDLE.
  * @param[in]     hDep5         DEP5 handle, or NULLHANDLE.
  *
- * @return 0 on success, -1 on allocation failure.
+ * @return int
  *
  * @retval 0   Success.
  * @retval -1  Allocation failed.
@@ -380,6 +381,9 @@ static void cfg_free(REUSECFG *pCfg) {
 /*!
  * @brief Release a project handle and all owned resources.
  *
+ * Closes the attached comments.toml and the accumulated tag warnings
+ * report, if any.
+ *
  * @param[in] pd  Project handle. May be NULL.
  */
 static void doc_free(PREUSETREE pd) {
@@ -391,6 +395,8 @@ static void doc_free(PREUSETREE pd) {
     free(pd->paErrors);
     free(pd->pszProjectDir);
     free(pd->pszRepoRoot);
+    if (pd->hComments != NULLHANDLE) ReuseCloseComments(pd->hComments);
+    if (pd->hReport != NULLHANDLE) ReuseCloseTagsReport(pd->hReport);
     free(pd);
 }
 
@@ -410,8 +416,7 @@ static void doc_free(PREUSETREE pd) {
  * @param[in]     pszSourceDir  Directory containing the file.
  * @param[in]     nDepth        Depth from the repository root.
  *
- * @return 0 on success or recorded parse failure, -1 on fatal
- *         error.
+ * @return int
  *
  * @retval 0   Success, or parse failure recorded.
  * @retval -1  Allocation failed.
@@ -463,8 +468,7 @@ static int try_add_toml(PREUSETREE pd, PCSZ pszPath,
 }
 
 /*!
- * @brief Discover REUSE.toml files from the repo root down to
- *        target.
+ * @brief Discover REUSE.toml files from the repo root down to target.
  *
  * Files are registered in increasing depth order so that the
  * "closest wins" rule can be applied later.
@@ -473,7 +477,7 @@ static int try_add_toml(PREUSETREE pd, PCSZ pszPath,
  * @param[in]     pszRepoRoot  Repository root, or NULL.
  * @param[in]     pszTarget    Target directory. Not NULL.
  *
- * @return 0 on success, -1 on fatal error.
+ * @return int
  *
  * @retval 0   Success.
  * @retval -1  Allocation failed.
@@ -545,7 +549,7 @@ static int discover_tomls(PREUSETREE pd, PCSZ pszRepoRoot, PCSZ pszTarget) {
  * @param[in,out] pd           Project handle. Not NULL.
  * @param[in]     pszRepoRoot  Repository root, or NULL.
  *
- * @return 0 on success, -1 on fatal error.
+ * @return int
  *
  * @retval 0   Success, or no DEP5 file found.
  * @retval -1  Allocation failed.
@@ -644,7 +648,7 @@ static void match_clear(MATCH *pMatch) {
  * @param[in] pA  Candidate. Not NULL.
  * @param[in] pB  Current best. Not NULL.
  *
- * @return 1 if @p pA is better than @p pB, 0 otherwise.
+ * @return int
  *
  * @retval 1  pA outranks pB.
  * @retval 0  Otherwise.
@@ -684,9 +688,10 @@ typedef ULONG (APIENTRY *REUSEANNSTRFN)(HREUSEANN, PSZ, ULONG, PULONG);
  * @param[in] hAnn  Annotation handle. Not NULLHANDLE.
  * @param[in] fn    Field accessor.
  *
- * @return malloc'd value, or NULL on failure.
+ * @return PSZ
  *
  * @retval NULL  Field absent or allocation failure.
+ * @return       malloc'd value owned by the caller.
  */
 static PSZ ann_get_str(HREUSEANN hAnn, REUSEANNSTRFN fn) {
     ULONG ulSize = 0;
@@ -710,7 +715,7 @@ static PSZ ann_get_str(HREUSEANN hAnn, REUSEANNSTRFN fn) {
  * @param[in]  nOrder  Order of the annotation inside the file.
  * @param[out] pMatch  Receiver. Not NULL.
  *
- * @return 0 on success.
+ * @return int
  *
  * @retval 0  Always.
  */
@@ -773,7 +778,7 @@ static int match_from_toml(HREUSEANN hAnn, int nDepth, int nOrder,
  * @param[in]  pszRel   Path relative to the source directory.
  * @param[out] pMatch   Receiver. Not NULL.
  *
- * @return 0 if at least one annotation matched, -1 otherwise.
+ * @return int
  *
  * @retval 0   Match found.
  * @retval -1  No match.
@@ -802,10 +807,9 @@ static int toml_find_best(HREUSETOML hToml, int nDepth,
             BOOL fMatched = FALSE;
 
             if (ReuseAnnGetPath(hAnn, ulJ, achPat, sizeof(achPat), &ulUsed)
-                    != NO_ERROR)
+                != NO_ERROR)
                 continue;
-            if (ReuseQueryGlobMatch(achPat, pszRel, &fMatched)
-                    != NO_ERROR)
+            if (ReuseQueryGlobMatch(achPat, pszRel, &fMatched) != NO_ERROR)
                 continue;
             if (fMatched) { fMatch = 1; break; }
         }
@@ -836,9 +840,10 @@ static int toml_find_best(HREUSETOML hToml, int nDepth,
  * @param[in] hFind     Cursor. Not NULLHANDLE.
  * @param[in] pszField  Field name. Not NULL.
  *
- * @return malloc'd value, or NULL on failure.
+ * @return PSZ
  *
  * @retval NULL  Field absent or allocation failure.
+ * @return       malloc'd value owned by the caller.
  */
 static PSZ dep5_get_field(HDEP5FIND hFind, PCSZ pszField) {
     ULONG ulSize = 0;
@@ -864,7 +869,7 @@ static PSZ dep5_get_field(HDEP5FIND hFind, PCSZ pszField) {
  * @param[in]  nOrder  Order of the stanza inside the file.
  * @param[out] pMatch  Receiver. Not NULL.
  *
- * @return 0 on success.
+ * @return int
  *
  * @retval 0  Always.
  */
@@ -889,7 +894,7 @@ static int match_from_dep5(HDEP5FIND hFind, int nDepth, int nOrder,
  * @param[in]  pszRel  Path relative to the source directory.
  * @param[out] pMatch  Receiver. Not NULL.
  *
- * @return 0 if at least one stanza matched, -1 otherwise.
+ * @return int
  *
  * @retval 0   Match found.
  * @retval -1  No match.
@@ -944,20 +949,24 @@ static int dep5_find_best(HDEP5DOC hDep5, int nDepth,
  * @param[in]  pszPath  Path to the file. Not NULL.
  * @param[out] pMatch   Receiver. Not NULL.
  *
- * @return 0 if a match was found, -1 otherwise.
+ * @return int
  *
  * @retval 0   Match found.
  * @retval -1  No match.
  */
 static int cfg_find_best(REUSECFG *pCfg, PCSZ pszPath, MATCH *pMatch) {
     PCSZ pszRel = rel_to_dir(pCfg->pszSourceDir, pszPath);
+    CHAR achNorm[2048];
+    size_t cbLen, i;
 
     if (!pszRel) return -1;
 
     if (pCfg->nKind == REUSECFG_KIND_TOML) {
-        CHAR achNorm[2048];
-        APIRET rc = PathNormalize(pszRel, achNorm, sizeof(achNorm), NULL);
-        if (rc != NO_ERROR) return -1;
+        cbLen = strlen(pszRel);
+        if (cbLen >= sizeof(achNorm)) return -1;
+        for (i = 0; i < cbLen; i++)
+            achNorm[i] = (pszRel[i] == '\\') ? '/' : pszRel[i];
+        achNorm[cbLen] = '\0';
         return toml_find_best(pCfg->hToml, pCfg->nDepth, achNorm, pMatch);
     }
     if (pCfg->nKind == REUSECFG_KIND_DEP5)
@@ -975,9 +984,10 @@ static int cfg_find_best(REUSECFG *pCfg, PCSZ pszPath, MATCH *pMatch) {
  * @param[in] pszA  First expression, or NULL.
  * @param[in] pszB  Second expression, or NULL.
  *
- * @return malloc'd combination, or NULL on failure.
+ * @return PSZ
  *
  * @retval NULL  Allocation failure.
+ * @return       malloc'd combination owned by the caller.
  */
 static PSZ aggregate_licenses(PCSZ pszA, PCSZ pszB) {
     size_t cbALen, cbBLen;
@@ -998,9 +1008,10 @@ static PSZ aggregate_licenses(PCSZ pszA, PCSZ pszB) {
  * @param[in] pszA  First text, or NULL.
  * @param[in] pszB  Second text, or NULL.
  *
- * @return malloc'd combination, or NULL on failure.
+ * @return PSZ
  *
  * @retval NULL  Allocation failure.
+ * @return       malloc'd combination owned by the caller.
  */
 static PSZ aggregate_copyrights(PCSZ pszA, PCSZ pszB) {
     size_t cbALen, cbBLen;
@@ -1022,7 +1033,7 @@ static PSZ aggregate_copyrights(PCSZ pszA, PCSZ pszB) {
  * @param[in] pszNeedle  Line to look for. Not NULL.
  * @param[in] cbLen      Length of @p pszNeedle.
  *
- * @return 1 if found, 0 otherwise.
+ * @return int
  *
  * @retval 1  Line present.
  * @retval 0  Not present.
@@ -1042,15 +1053,15 @@ static int contains_line(PCSZ pszHay, PCSZ pszNeedle, size_t cbLen) {
 }
 
 /*!
- * @brief Append lines of @p pszB to @p pszA, dropping duplicate
- *        lines.
+ * @brief Append lines of @p pszB to @p pszA, dropping duplicates.
  *
  * @param[in] pszA  First text, or NULL.
  * @param[in] pszB  Second text, or NULL.
  *
- * @return malloc'd combination, or NULL on failure.
+ * @return PSZ
  *
  * @retval NULL  Allocation failure.
+ * @return       malloc'd combination owned by the caller.
  */
 static PSZ join_lines_dedup(PCSZ pszA, PCSZ pszB) {
     size_t cbALen, cbBLen, cbOutLen, cbCap;
@@ -1111,9 +1122,10 @@ static PSZ join_lines_dedup(PCSZ pszA, PCSZ pszB) {
  * @param[in] pd       Project handle. Not NULL.
  * @param[in] pszPath  Path to the file. Not NULL.
  *
- * @return Freshly allocated file handle, or NULL on failure.
+ * @return PREUSETREEFILE
  *
  * @retval NULL  Allocation failure.
+ * @return       Freshly allocated per-file result.
  */
 static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
     PREUSETREEFILE pFile;
@@ -1323,14 +1335,14 @@ static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
  * ================================================================== */
 
 /*!
- * @brief Translate a public project handle into the internal
- *        pointer.
+ * @brief Translate a public project handle into the internal pointer.
  *
  * @param[in] hDoc  Handle. May be NULLHANDLE.
  *
- * @return Internal pointer, or NULL on failure.
+ * @return PREUSETREE
  *
  * @retval NULL  hDoc is NULLHANDLE.
+ * @return       Internal pointer.
  */
 PREUSETREE ReuseInternalGetDoc(HREUSETREE hDoc) {
     return (PREUSETREE)hDoc;
@@ -1341,9 +1353,10 @@ PREUSETREE ReuseInternalGetDoc(HREUSETREE hDoc) {
  *
  * @param[in] hFile  Handle. May be NULLHANDLE.
  *
- * @return Internal pointer, or NULL on failure.
+ * @return PREUSETREEFILE
  *
  * @retval NULL  hFile is NULLHANDLE.
+ * @return       Internal pointer.
  */
 PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile) {
     return (PREUSETREEFILE)hFile;
@@ -1364,26 +1377,31 @@ PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile) {
  * Parse errors in discovered files are recorded as REUSEERR
  * entries in the project handle; the offending source is skipped.
  *
- * @param[in]  pszDir  Target directory. Not NULL.
- * @param[out] phDoc   Handle receiver. Not NULL. Set to NULLHANDLE
- *                     on error.
+ * @param[in]  pszDir             Target directory. Not NULL.
+ * @param[in]  pszCommentsConfig  Path to comments.toml, or NULL.
+ * @param[out] phTree             Handle receiver. Not NULL. Set to
+ *                                NULLHANDLE on error.
  *
  * @return APIRET
  *
- * @retval NO_ERROR                 Success (possibly with recorded
- *                                  diagnostics).
- * @retval ERROR_INVALID_PARAMETER  pszDir or phDoc is NULL.
- * @retval ERROR_OPEN_FAILED        Directory cannot be opened.
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pszDir or phTree is NULL.
+ * @retval ERROR_OPEN_FAILED        Directory or comments.toml cannot be
+ *                                  opened.
+ * @retval ERROR_INVALID_DATA       comments.toml parse error.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
  *
  * @see ReuseTreeGetError, ReuseTreeClose
  */
-APIRET APIENTRY ReuseTreeOpen(PCSZ pszDir, HREUSETREE *phDoc) {
+APIRET APIENTRY ReuseOpenTree(PCSZ pszDir,
+                              PCSZ pszCommentsConfig,
+                              HREUSETREE *phTree) {
     PREUSETREE pd;
     PSZ pszRepoRoot = NULL;
+    APIRET rc;
 
-    if (!pszDir || !phDoc) return ERROR_INVALID_PARAMETER;
-    *phDoc = NULLHANDLE;
+    if (!pszDir || !phTree) return ERROR_INVALID_PARAMETER;
+    *phTree = NULLHANDLE;
 
     pd = (PREUSETREE)calloc(1, sizeof(REUSETREE));
     if (!pd) return ERROR_NOT_ENOUGH_MEMORY;
@@ -1396,6 +1414,20 @@ APIRET APIENTRY ReuseTreeOpen(PCSZ pszDir, HREUSETREE *phDoc) {
 
     /* Two-phase GitFindRepoRoot call: first query the size, then
      * allocate and query the value. */
+    rc = ReuseCreateTagsReport(&pd->hReport);
+    if (rc != NO_ERROR) {
+        doc_free(pd);
+        return rc;
+    }
+
+    if (pszCommentsConfig != NULL) {
+        rc = ReuseOpenComments(pszCommentsConfig, &pd->hComments);
+        if (rc != NO_ERROR) {
+            doc_free(pd);
+            return rc;
+        }
+    }
+
     {
         ULONG ulSize = 0;
         if (GitFindRepoRoot(pszDir, NULL, 0, &ulSize) == NO_ERROR &&
@@ -1410,7 +1442,7 @@ APIRET APIENTRY ReuseTreeOpen(PCSZ pszDir, HREUSETREE *phDoc) {
             }
         }
     }
-    pd->pszRepoRoot = pszRepoRoot; /* may be NULL */
+    pd->pszRepoRoot = pszRepoRoot;
 
     if (discover_tomls(pd, pszRepoRoot, pszDir) != 0) {
         doc_free(pd);
@@ -1421,7 +1453,7 @@ APIRET APIENTRY ReuseTreeOpen(PCSZ pszDir, HREUSETREE *phDoc) {
         return ERROR_NOT_ENOUGH_MEMORY;
     }
 
-    *phDoc = (HREUSETREE)pd;
+    *phTree = (HREUSETREE)pd;
     return NO_ERROR;
 }
 
@@ -1430,32 +1462,79 @@ APIRET APIENTRY ReuseTreeOpen(PCSZ pszDir, HREUSETREE *phDoc) {
  *
  * All HREUSETREEFILE handles and REUSEERR records obtained from
  * this project become invalid.
- *
- * @param[in] hDoc  Handle. NULLHANDLE is a no-op.
+ * @param[in] hTree  Handle. NULLHANDLE is a no-op.
  *
  * @return APIRET
  *
- * @retval NO_ERROR                 Success. Also for NULLHANDLE.
- * @retval ERROR_INVALID_HANDLE     Handle not recognized.
- *
- * @warning Do not call ReuseTreeClose twice with the same handle.
+ * @retval NO_ERROR               Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE   Handle not recognized.
  */
-APIRET APIENTRY ReuseTreeClose(HREUSETREE hDoc) {
-    PREUSETREE pd = ReuseInternalGetDoc(hDoc);
-    if (hDoc == NULLHANDLE) return NO_ERROR;
+APIRET APIENTRY ReuseCloseTree(HREUSETREE hTree) {
+    PREUSETREE pd = ReuseInternalGetDoc(hTree);
+    if (hTree == NULLHANDLE) return NO_ERROR;
     if (!pd) return ERROR_INVALID_HANDLE;
     doc_free(pd);
     return NO_ERROR;
 }
 
 /*!
+ * @brief Resolve the comment style for a file.
+ *
+ * @param[in]  hTree         Handle. Not NULLHANDLE.
+ * @param[in]  pszFilePath   Path to the file. Not NULL.
+ * @param[out] pfFound       Receiver. Not NULL.
+ * @param[out] phStyle       Borrowed style handle, or NULLHANDLE.
+ *                           Not NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Check completed.
+ * @retval ERROR_INVALID_PARAMETER  Bad argument.
+ * @retval ERROR_INVALID_HANDLE     hTree is not recognized.
+ */
+APIRET APIENTRY ReuseQueryTreeCommentStyle(HREUSETREE hTree,
+                                           PCSZ pszFilePath,
+                                           PBOOL pfFound,
+                                           HREUSECOMMENTSTYLE *phStyle) {
+    PREUSETREE pd = ReuseInternalGetDoc(hTree);
+
+    if (pd == NULL || pszFilePath == NULL || pfFound == NULL ||
+        phStyle == NULL)
+        return ERROR_INVALID_PARAMETER;
+
+    *pfFound = FALSE;
+    *phStyle = NULLHANDLE;
+    if (pd->hComments == NULLHANDLE) return NO_ERROR;
+    return ReuseQueryCommentStyle(pd->hComments, pszFilePath,
+                                  pfFound, phStyle);
+}
+
+/*!
+ * @brief Query the accumulated in-file tag warnings report.
+ *
+ * @param[in]  hTree     Handle. Not NULLHANDLE.
+ * @param[out] phReport  Receiver. Not NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  Bad argument.
+ * @retval ERROR_INVALID_HANDLE     hTree is not recognized.
+ */
+APIRET APIENTRY ReuseQueryTreeTagsReport(HREUSETREE hTree,
+                                         HREUSETAGSREPORT *phReport) {
+    PREUSETREE pd = ReuseInternalGetDoc(hTree);
+
+    if (pd == NULL || phReport == NULL) return ERROR_INVALID_PARAMETER;
+    *phReport = pd->hReport;
+    return NO_ERROR;
+}
+
+/*!
  * @brief Number of REUSEERR records stored in the project.
  *
- * Errors, warnings and informational records are counted together.
- * Use ReuseTreeGetError to inspect severity.
- *
- * @param[in]  hDoc     Handle. Not NULLHANDLE.
- * @param[out] pulCount Receiver. Not NULL.
+ * @param[in]  hTree     Handle. Not NULLHANDLE.
+ * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
  *
@@ -1463,8 +1542,8 @@ APIRET APIENTRY ReuseTreeClose(HREUSETREE hDoc) {
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
-APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hDoc, PULONG pulCount) {
-    PREUSETREE pd = ReuseInternalGetDoc(hDoc);
+APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hTree, PULONG pulCount) {
+    PREUSETREE pd = ReuseInternalGetDoc(hTree);
     if (!pd || !pulCount) return ERROR_INVALID_PARAMETER;
     *pulCount = pd->ulErrorCount;
     return NO_ERROR;
@@ -1477,10 +1556,9 @@ APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hDoc, PULONG pulCount) {
  * owned by the project handle and remain valid until
  * ReuseTreeClose.
  *
- * @param[in]  hDoc    Handle. Not NULLHANDLE.
- * @param[in]  ulIndex Zero-based index, <
- *                     ReuseTreeGetErrorCount.
- * @param[out] pErr    Receiver. Not NULL.
+ * @param[in]  hTree    Handle. Not NULLHANDLE.
+ * @param[in]  ulIndex  Zero-based index.
+ * @param[out] pErr     Receiver. Not NULL.
  *
  * @return APIRET
  *
@@ -1489,9 +1567,9 @@ APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hDoc, PULONG pulCount) {
  * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  * @retval ERROR_NO_MORE_ITEMS      Index out of range.
  */
-APIRET APIENTRY ReuseTreeGetError(HREUSETREE hDoc, ULONG ulIndex,
+APIRET APIENTRY ReuseTreeGetError(HREUSETREE hTree, ULONG ulIndex,
                                   PREUSEERR pErr) {
-    PREUSETREE pd = ReuseInternalGetDoc(hDoc);
+    PREUSETREE pd = ReuseInternalGetDoc(hTree);
     if (!pd || !pErr) return ERROR_INVALID_PARAMETER;
     if (ulIndex >= pd->ulErrorCount) return ERROR_NO_MORE_ITEMS;
     *pErr = pd->paErrors[ulIndex];
@@ -1514,25 +1592,22 @@ APIRET APIENTRY ReuseTreeGetError(HREUSETREE hDoc, ULONG ulIndex,
  * information. Use ReuseTreeFileGetHasReuse to distinguish "no
  * sources matched" from "sources matched but were empty".
  *
- * @param[in]  hDoc    Handle. Not NULLHANDLE.
- * @param[in]  pszPath Path to the file. May be absolute or relative.
- * @param[out] phFile  Handle receiver. Not NULL. Set to NULLHANDLE
- *                     on error.
- * @param[out] pErr    Optional. May be NULL. If not NULL and a
- *                     file-specific diagnostic occurred, the first
- *                     such record is stored here.
+ * @param[in]  hTree    Handle. Not NULLHANDLE.
+ * @param[in]  pszPath  Path to the file. Not NULL.
+ * @param[out] phFile   Handle receiver. Not NULL.
+ * @param[out] pErr     Optional. May be NULL.
  *
  * @return APIRET
  *
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  hDoc, pszPath or phFile is NULL.
+ * @retval ERROR_INVALID_PARAMETER  hTree, pszPath or phFile is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
  */
-APIRET APIENTRY ReuseTreeResolveFile(HREUSETREE hDoc, PCSZ pszPath,
+APIRET APIENTRY ReuseTreeResolveFile(HREUSETREE hTree, PCSZ pszPath,
                                      HREUSETREEFILE *phFile,
                                      PREUSEERR pErr) {
-    PREUSETREE pd = ReuseInternalGetDoc(hDoc);
+    PREUSETREE pd = ReuseInternalGetDoc(hTree);
     PREUSETREEFILE pFile;
 
     if (!pd || !pszPath || !phFile) return ERROR_INVALID_PARAMETER;
@@ -1553,8 +1628,8 @@ APIRET APIENTRY ReuseTreeResolveFile(HREUSETREE hDoc, PCSZ pszPath,
  *
  * @return APIRET
  *
- * @retval NO_ERROR                 Success. Also for NULLHANDLE.
- * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval NO_ERROR               Success. Also for NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE   Handle not recognized.
  */
 APIRET APIENTRY ReuseTreeFileClose(HREUSETREEFILE hFile) {
     PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
@@ -1593,8 +1668,7 @@ APIRET APIENTRY ReuseTreeFileClose(HREUSETREEFILE hFile) {
  *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_FILE_NOT_FOUND     pszVal is NULL.
- * @retval ERROR_INVALID_PARAMETER  pszBuf is NULL without
- *                                  size-query.
+ * @retval ERROR_INVALID_PARAMETER  pszBuf is NULL without size-query.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
 static APIRET copy_out(PCSZ pszVal, PSZ pszBuf, ULONG ulSize,
@@ -1788,8 +1862,7 @@ APIRET APIENTRY ReuseTreeFileGetPackageComment(HREUSETREEFILE hFile,
  * @brief Retrieve the precedence of the winning source.
  *
  * @param[in]  hFile          Handle. Not NULLHANDLE.
- * @param[out] pulPrecedence  Receiver: one of REUSE_PRECEDENCE_*.
- *                            Not NULL.
+ * @param[out] pulPrecedence  Receiver. Not NULL.
  *
  * @return APIRET
  *
@@ -1809,8 +1882,7 @@ APIRET APIENTRY ReuseTreeFileGetPrecedence(HREUSETREEFILE hFile,
  *        file.
  *
  * @param[in]  hFile       Handle. Not NULLHANDLE.
- * @param[out] pfHasReuse  Receiver: TRUE if at least one source
- *                         matched; FALSE otherwise. Not NULL.
+ * @param[out] pfHasReuse  Receiver. Not NULL.
  *
  * @return APIRET
  *
