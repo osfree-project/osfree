@@ -36,6 +36,7 @@
 #include "git.h"
 #include "path.h"
 #include "spdx_tag.h"
+#include "reuse_glob.h"
 
 /* ==================================================================
  * Small helpers
@@ -798,10 +799,15 @@ static int toml_find_best(HREUSETOML hToml, int nDepth,
         for (ulJ = 0; ulJ < ulPatCount; ulJ++) {
             CHAR achPat[1024];
             ULONG ulUsed = 0;
+            BOOL fMatched = FALSE;
+
             if (ReuseAnnGetPath(hAnn, ulJ, achPat, sizeof(achPat), &ulUsed)
-                != NO_ERROR)
+                    != NO_ERROR)
                 continue;
-            if (matches_pattern(achPat, pszRel)) { fMatch = 1; break; }
+            if (ReuseQueryGlobMatch(achPat, pszRel, &fMatched)
+                    != NO_ERROR)
+                continue;
+            if (fMatched) { fMatch = 1; break; }
         }
 
         if (fMatch) {
@@ -945,8 +951,15 @@ static int dep5_find_best(HDEP5DOC hDep5, int nDepth,
  */
 static int cfg_find_best(REUSECFG *pCfg, PCSZ pszPath, MATCH *pMatch) {
     PCSZ pszRel = rel_to_dir(pCfg->pszSourceDir, pszPath);
-    if (pCfg->nKind == REUSECFG_KIND_TOML)
-        return toml_find_best(pCfg->hToml, pCfg->nDepth, pszRel, pMatch);
+
+    if (!pszRel) return -1;
+
+    if (pCfg->nKind == REUSECFG_KIND_TOML) {
+        CHAR achNorm[2048];
+        APIRET rc = PathNormalize(pszRel, achNorm, sizeof(achNorm), NULL);
+        if (rc != NO_ERROR) return -1;
+        return toml_find_best(pCfg->hToml, pCfg->nDepth, achNorm, pMatch);
+    }
     if (pCfg->nKind == REUSECFG_KIND_DEP5)
         return dep5_find_best(pCfg->hDep5, pCfg->nDepth, pszRel, pMatch);
     return -1;
