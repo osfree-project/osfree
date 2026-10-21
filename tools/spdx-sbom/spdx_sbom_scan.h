@@ -5,6 +5,7 @@
 #include "os2types.h"
 #include "os2err.h"
 #include "ccl.h"
+#include <reuse.h>
 #include "spdx_sbom_types.h"
 
 #ifdef __cplusplus
@@ -21,8 +22,10 @@ extern "C" {
  * and appends a SPDXFILEINFO entry to the file list. For each file,
  * SPDX snippets are extracted and appended to the snippet list.
  *
- * The module does not depend on the REUSE resolver. Licensing
- * information arrives pre-resolved through SPDXFILEINPUT.
+ * The module does not depend on the REUSE resolver directly; it
+ * accepts the REUSE tree handle so that snippet extraction can use
+ * the comment style resolved from the attached comments.toml and
+ * honour the REUSE-IgnoreStart/End regions.
  *
  * Conforms to:
  *   - SPDX 2.3, 8 (File information), 9 (Snippet information).
@@ -69,10 +72,14 @@ APIRET APIENTRY SbomFillFileBasic(
  *   1. fills a SPDXFILEINFO entry via SbomFillFileBasic;
  *   2. validates the license expression;
  *   3. appends the entry to @p hFiles;
- *   4. extracts SPDX snippets and appends them to @p hSnippets.
+ *   4. resolves the comment style via ReuseQueryTreeCommentStyle
+ *      and, if @p hSnippets is not NULLHANDLE, extracts SPDX
+ *      snippets via ReuseQueryFileSnippets.
  *
  * The function stops at the first error and returns the
- * corresponding APIRET.
+ * corresponding APIRET. When the comment style for a file cannot
+ * be determined and snippets are requested, the function returns
+ * REUSE_ERROR_NO_COMMENT_STYLE.
  *
  * @param[in]  hResolved   List of SPDXFILEINPUT entries produced by
  *                         the CLI after ReuseResolveLicense. Not
@@ -82,20 +89,32 @@ APIRET APIENTRY SbomFillFileBasic(
  *                         SbomCreateFileList.
  * @param[in]  hSnippets   Destination snippet list, or NULLHANDLE
  *                         to skip snippet collection.
+ * @param[in]  hTree       REUSE tree handle. Used only for snippet
+ *                         extraction. Not NULLHANDLE when
+ *                         @p hSnippets is not NULLHANDLE.
+ * @param[in]  hReport     Tag warnings report, or NULLHANDLE.
  *
  * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  hResolved or hFiles is NULLHANDLE.
- * @retval ERROR_INVALID_HANDLE     hResolved or hFiles is not
- *                                  recognized.
- * @retval ERROR_FILE_NOT_FOUND     A file has no license information.
- * @retval ERROR_INVALID_DATA       A license expression is invalid.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval NO_ERROR                     Success.
+ * @retval ERROR_INVALID_PARAMETER      hResolved or hFiles is
+ *                                      NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE         hResolved or hFiles is not
+ *                                      recognized.
+ * @retval ERROR_FILE_NOT_FOUND         A file has no license
+ *                                      information.
+ * @retval ERROR_INVALID_DATA           A license expression is
+ *                                      invalid.
+ * @retval REUSE_ERROR_NO_COMMENT_STYLE
+ *                                      No [[map]] entry in
+ *                                      comments.toml matches a file.
+ * @retval ERROR_NOT_ENOUGH_MEMORY      Allocation failure.
  */
 APIRET APIENTRY SbomCollectFiles(
     HVECTOR hResolved,
     HVECTOR hFiles,
-    HVECTOR hSnippets);
+    HVECTOR hSnippets,
+    HREUSETREE hTree,
+    HREUSETAGSREPORT hReport);
 
 #ifdef __cplusplus
 }

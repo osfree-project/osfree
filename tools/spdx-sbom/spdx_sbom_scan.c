@@ -6,6 +6,7 @@
 #include "spdx_sbom_scan.h"
 #include "spdx_sbom_utils.h"
 #include "ccl.h"
+#include <reuse.h>
 #include "spdx.h"
 #include "spdx_db.h"
 #include "spdx_tag.h"
@@ -83,6 +84,9 @@ static APIRET validate_license(PCSZ pszLicense) {
  * @param[in] pszDisplayName  Base name to store. Not NULL.
  * @param[in] hSnippets       Destination snippet list. Not
  *                            NULLHANDLE.
+ * @param[in] hStyle          Comment style for the file. Not
+ *                            NULLHANDLE.
+ * @param[in] hReport         Tag warnings report, or NULLHANDLE.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success (possibly no snippets).
@@ -94,12 +98,14 @@ static APIRET validate_license(PCSZ pszLicense) {
  */
 static APIRET collect_file_snippets(PCSZ pszFullPath,
                                     PCSZ pszDisplayName,
-                                    HVECTOR hSnippets) {
+                                    HVECTOR hSnippets,
+                                    HREUSECOMMENTSTYLE hStyle,
+                                    HREUSETAGSREPORT hReport) {
     SPDXSNIPPETLIST raw;
     APIRET rc;
     ULONG ulIdx;
 
-    rc = SpdxQueryFileSnippets(pszFullPath, &raw);
+    rc = ReuseQueryFileSnippets(pszFullPath, hStyle, hReport, &raw);
     if (rc != NO_ERROR) {
         /* Parse error, unreadable file, or OOM: propagate. A file
          * with no snippets at all is NOT an error and is handled
@@ -201,17 +207,28 @@ APIRET APIENTRY SbomFillFileBasic(
  * @param[in] pIn          Resolved file entry. Not NULL.
  * @param[in] hFiles       Destination file list.
  * @param[in] hSnippets    Destination snippet list, or NULLHANDLE.
+ * @param[in] hTree        REUSE tree handle. Used only when
+ *                         @p hSnippets is not NULLHANDLE. Not
+ *                         NULLHANDLE in that case.
+ * @param[in] hReport      Tag warnings report, or NULLHANDLE.
  *
  * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_FILE_NOT_FOUND     File has no license information.
- * @retval ERROR_INVALID_DATA       License expression is invalid.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval NO_ERROR                     Success.
+ * @retval ERROR_FILE_NOT_FOUND         File has no license
+ *                                      information.
+ * @retval ERROR_INVALID_DATA           License expression is invalid.
+ * @retval REUSE_ERROR_NO_COMMENT_STYLE
+ *                                      No [[map]] entry in
+ *                                      comments.toml matches the
+ *                                      file.
+ * @retval ERROR_NOT_ENOUGH_MEMORY      Allocation failure.
  */
 static APIRET process_one_file(
     const SPDXFILEINPUT *pIn,
     HVECTOR hFiles,
-    HVECTOR hSnippets)
+    HVECTOR hSnippets,
+    HREUSETREE hTree,
+    HREUSETAGSREPORT hReport)
 {
     SPDXFILEINFO info;
     PCSZ pszDisplayName;
@@ -233,8 +250,17 @@ static APIRET process_one_file(
     if (rc != NO_ERROR) return rc;
 
     if (hSnippets != NULLHANDLE) {
+        HREUSECOMMENTSTYLE hStyle = NULLHANDLE;
+        BOOL fStyleFound = FALSE;
+
+        rc = ReuseQueryTreeCommentStyle(hTree, pIn->achFullPath,
+                                        &fStyleFound, &hStyle);
+        if (rc != NO_ERROR) return rc;
+        if (!fStyleFound || hStyle == NULLHANDLE)
+            return REUSE_ERROR_NO_COMMENT_STYLE;
+
         rc = collect_file_snippets(pIn->achFullPath, pszDisplayName,
-                                   hSnippets);
+                                   hSnippets, hStyle, hReport);
         if (rc != NO_ERROR) return rc;
     }
     return NO_ERROR;
@@ -247,20 +273,31 @@ static APIRET process_one_file(
  *                        NULLHANDLE.
  * @param[in] hFiles      Destination file list. Not NULLHANDLE.
  * @param[in] hSnippets   Destination snippet list, or NULLHANDLE.
+ * @param[in] hTree       REUSE tree handle. Used only when
+ *                        @p hSnippets is not NULLHANDLE.
+ * @param[in] hReport     Tag warnings report, or NULLHANDLE.
  *
  * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  hResolved or hFiles is NULLHANDLE.
- * @retval ERROR_INVALID_HANDLE     hResolved or hFiles is not
- *                                  recognized.
- * @retval ERROR_FILE_NOT_FOUND     A file has no license information.
- * @retval ERROR_INVALID_DATA       A license expression is invalid.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval NO_ERROR                     Success.
+ * @retval ERROR_INVALID_PARAMETER      hResolved or hFiles is
+ *                                      NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE         hResolved or hFiles is not
+ *                                      recognized.
+ * @retval ERROR_FILE_NOT_FOUND         A file has no license
+ *                                      information.
+ * @retval ERROR_INVALID_DATA           A license expression is
+ *                                      invalid.
+ * @retval REUSE_ERROR_NO_COMMENT_STYLE
+ *                                      No [[map]] entry in
+ *                                      comments.toml matches a file.
+ * @retval ERROR_NOT_ENOUGH_MEMORY      Allocation failure.
  */
 APIRET APIENTRY SbomCollectFiles(
     HVECTOR hResolved,
     HVECTOR hFiles,
-    HVECTOR hSnippets)
+    HVECTOR hSnippets,
+    HREUSETREE hTree,
+    HREUSETAGSREPORT hReport)
 {
     ULONG ulCount = 0;
     ULONG ulIdx;
@@ -279,7 +316,7 @@ APIRET APIENTRY SbomCollectFiles(
                           (ULONG)sizeof(input), NULL) != NO_ERROR)
             continue;
 
-        rc = process_one_file(&input, hFiles, hSnippets);
+        rc = process_one_file(&input, hFiles, hSnippets, hTree, hReport);
         if (rc != NO_ERROR) return rc;
     }
 

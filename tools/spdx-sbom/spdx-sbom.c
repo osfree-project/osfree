@@ -308,6 +308,7 @@ int main(int argc, char *argv[]) {
     SBOMOPTIONS opts;
     SPDXDOCUMENT doc;
     HREUSETREE hTree = NULLHANDLE;
+    HREUSETAGSREPORT hTagsReport = NULLHANDLE;
     HSTRSET hPaths = NULLHANDLE;
     HVECTOR hResolved = NULLHANDLE;
     REUSEDISCOVEROPTIONS walk_opts;
@@ -416,6 +417,9 @@ int main(int argc, char *argv[]) {
             goto cleanup;
         }
     }
+
+    if (ReuseQueryTreeTagsReport(hTree, &hTagsReport) != NO_ERROR)
+        hTagsReport = NULLHANDLE;
 
     if (!opts.fNoGitignore) {
         if (GitCollectGitignores(pszRepoRoot, opts.pszDir,
@@ -536,7 +540,11 @@ int main(int argc, char *argv[]) {
                     "information).\n", (unsigned long)ulSkipped);
         }
 
-        rc = SbomCollectFiles(hResolved, doc.hFiles, doc.hSnippets);
+        rc = SbomCollectFiles(hResolved, doc.hFiles, doc.hSnippets,
+                              hTree, hTagsReport);
+        if (rc == REUSE_ERROR_NO_COMMENT_STYLE) {
+            goto cleanup;
+        }
         if (rc != NO_ERROR) {
             fprintf(stderr,
                     "ERROR: failed to collect files for the SBOM "
