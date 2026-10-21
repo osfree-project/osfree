@@ -226,6 +226,8 @@ APIRET APIENTRY SbomParseCommandLine(int argc, char *argv[],
             pOpts->pszSpdxDbRoot = pszArg + 10;
         else if (strncmp(pszArg, "--cache=", 8) == 0)
             pOpts->pszCacheFile = pszArg + 8;
+        else if (strncmp(pszArg, "--comments-config=", 18) == 0)          /* P2 */
+            pOpts->pszCommentsConfig = pszArg + 18;                        /* P2 */
         else if (strncmp(pszArg, "--extracted-license=", 20) == 0) {
             APIRET rc = add_extracted(pOpts, pszArg + 20);
             if (rc != NO_ERROR) {

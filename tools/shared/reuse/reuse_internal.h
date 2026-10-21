@@ -104,12 +104,11 @@ struct _REUSETREE {
  * One resolution result.
  *
  * All string fields are owned by this structure and released by
- * ReuseTreeFileClose. They are NULL when the corresponding field was
+ * ReuseCloseFile. They are NULL when the corresponding field was
  * not resolved.
  *
  * ulPrecedence is 0 when nothing matched; otherwise it is one of
- * REUSE_PRECEDENCE_*. bHasReuse is TRUE when at least one source
- * matched the file (even if only sidecar or tag data was found).
+ * REUSE_PRECEDENCE_*. nSource is one of REUSE_LICENSE_SRC_*.
  * ------------------------------------------------------------------ */
 
 /*!
@@ -125,7 +124,7 @@ struct _REUSETREEFILE {
     PSZ         pszPackageDownloadLocation;/*!< Download location.   */
     PSZ         pszPackageComment;         /*!< Package comment.     */
     ULONG       ulPrecedence;              /*!< REUSE_PRECEDENCE_*.  */
-    BOOL        bHasReuse;                 /*!< Any source matched.  */
+    int         nSource;                   /*!< REUSE_LICENSE_SRC_*. */
 };
 
 /* ------------------------------------------------------------------

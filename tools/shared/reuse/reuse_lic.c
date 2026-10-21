@@ -4,6 +4,13 @@
  * @brief Implementation of the per-file license resolution.
  *
  * Per-file license/copyright resolution (C89).
+ *
+ * P1: sidecar and in-file tags are no longer read by this module.
+ * They are read by the resolver (ReuseOpenFile -> resolve_file ->
+ * ReuseQueryFileTags). This module is a thin wrapper that copies
+ * the resolved fields, applies the --default-* CLI fallbacks,
+ * canonicalizes the license expression, and forwards
+ * REUSE_ERROR_NO_COMMENT_STYLE as-is.
  */
 
 #include <stdio.h>
@@ -84,141 +91,13 @@ static void strip_trailing_comments(PSZ pszStr) {
 }
 
 /* ------------------------------------------------------------------ */
-/* In-file sources                                                     */
-/* ------------------------------------------------------------------ */
-
-/*!
- * @brief Read the license tag from a file into a heap buffer.
- *
- * Uses the size-query convention of SpdxQueryFileLicense.
- *
- * @param[in] pszPath  Path to the file. Not NULL.
- *
- * @return malloc'd value, or NULL if absent or on error.
- *
- * @retval NULL  Tag absent or allocation failure.
- */
-static PSZ read_license_value(PCSZ pszPath) {
-    ULONG ulSize = 0;
-    PSZ pszOut;
-    if (SpdxQueryFileLicense(pszPath, NULL, 0, &ulSize) != NO_ERROR)
-        return NULL;
-    if (ulSize == 0) return NULL;
-    pszOut = (PSZ)malloc(ulSize);
-    if (!pszOut) return NULL;
-    if (SpdxQueryFileLicense(pszPath, pszOut, ulSize, NULL) != NO_ERROR) {
-        free(pszOut);
-        return NULL;
-    }
-    if (pszOut[0] == '\0') { free(pszOut); return NULL; }
-    return pszOut;
-}
-
-/*!
- * @brief Read the copyright tags from a file into a heap buffer.
- *
- * Uses the size-query convention of SpdxQueryFileCopyright.
- *
- * @param[in] pszPath  Path to the file. Not NULL.
- *
- * @return malloc'd value, or NULL if absent or on error.
- *
- * @retval NULL  Tag absent or allocation failure.
- */
-static PSZ read_copyright_value(PCSZ pszPath) {
-    ULONG ulSize = 0;
-    PSZ pszOut;
-    if (SpdxQueryFileCopyright(pszPath, NULL, 0, &ulSize) != NO_ERROR)
-        return NULL;
-    if (ulSize == 0) return NULL;
-    pszOut = (PSZ)malloc(ulSize);
-    if (!pszOut) return NULL;
-    if (SpdxQueryFileCopyright(pszPath, pszOut, ulSize, NULL) != NO_ERROR) {
-        free(pszOut);
-        return NULL;
-    }
-    if (pszOut[0] == '\0') { free(pszOut); return NULL; }
-    return pszOut;
-}
-
-/*!
- * @brief Read the adjacent <file>.license sidecar.
- *
- * @param[in]  pszFullPath     File path. Not NULL.
- * @param[out] ppszLicense     Receiver for the license, or NULL.
- *                             Set to NULL on failure.
- * @param[out] ppszCopyright   Receiver for the copyright, or NULL.
- *                             Set to NULL on failure.
- *
- * @return APIRET
- *
- * @retval NO_ERROR             At least one field was read.
- * @retval ERROR_FILE_NOT_FOUND Sidecar absent or empty.
- */
-static APIRET read_sidecar(PCSZ pszFullPath,
-                           PSZ *ppszLicense, PSZ *ppszCopyright) {
-    CHAR achSidecar[1024];
-    BOOL fExists;
-    PSZ pszLic = NULL, pszCop = NULL;
-
-    *ppszLicense = NULL;
-    *ppszCopyright = NULL;
-
-    snprintf(achSidecar, sizeof(achSidecar), "%s.license", pszFullPath);
-#ifdef __LINUX__
-    fExists = (access(achSidecar, F_OK) == 0) ? TRUE : FALSE;
-#else
-    fExists = (_access(achSidecar, 0) == 0) ? TRUE : FALSE;
-#endif
-    if (!fExists) return ERROR_FILE_NOT_FOUND;
-
-    pszLic = read_license_value(achSidecar);
-    pszCop = read_copyright_value(achSidecar);
-
-    *ppszLicense = pszLic;
-    *ppszCopyright = pszCop;
-
-    if (!*ppszLicense && !*ppszCopyright) return ERROR_FILE_NOT_FOUND;
-    return NO_ERROR;
-}
-
-/*!
- * @brief Read in-file SPDX tags.
- *
- * @param[in]  pszFullPath     File path. Not NULL.
- * @param[out] ppszLicense     Receiver for the license, or NULL.
- * @param[out] ppszCopyright   Receiver for the copyright, or NULL.
- *
- * @return APIRET
- *
- * @retval NO_ERROR             At least one tag was read.
- * @retval ERROR_FILE_NOT_FOUND No tags present.
- */
-static APIRET read_tags(PCSZ pszFullPath,
-                        PSZ *ppszLicense, PSZ *ppszCopyright) {
-    PSZ pszLic = NULL, pszCop = NULL;
-
-    *ppszLicense = NULL;
-    *ppszCopyright = NULL;
-
-    pszLic = read_license_value(pszFullPath);
-    pszCop = read_copyright_value(pszFullPath);
-
-    *ppszLicense = pszLic;
-    *ppszCopyright = pszCop;
-
-    if (!*ppszLicense && !*ppszCopyright) return ERROR_FILE_NOT_FOUND;
-    return NO_ERROR;
-}
-
-/* ------------------------------------------------------------------ */
 /* Resolver field extraction                                           */
 /* ------------------------------------------------------------------ */
 
 /*!
  * @brief Field accessor signature for resolver getters.
  *
- * Each implementation is one of the ReuseTreeFileGet* functions and
+ * Each implementation is one of the ReuseQueryFile* functions and
  * follows the size-query convention.
  *
  * @param[in] REUSEFIELDFN  Function-pointer type name.
@@ -281,6 +160,11 @@ static void copy_file_field(HREUSETREEFILE hFile, REUSEFIELDFN fnField,
 /*!
  * @brief Resolve license and copyright for one file.
  *
+ * Thin wrapper over ReuseOpenFile. Sidecar and in-file tags are read
+ * by the resolver (see reuse.h). This module copies the resolved
+ * fields, applies --default-* fallbacks, canonicalizes the license
+ * expression, and forwards REUSE_ERROR_NO_COMMENT_STYLE as-is.
+ *
  * @param[in]  hTree                Project handle, or NULLHANDLE.
  * @param[in]  pszFullPath          File to resolve. Not NULL.
  * @param[in]  pszDefaultLicense    CLI fallback, or NULL.
@@ -291,7 +175,11 @@ static void copy_file_field(HREUSETREEFILE hFile, REUSEFIELDFN fnField,
  *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pszFullPath or pOut is NULL.
- * @retval ERROR_FILE_NOT_FOUND     No source matched.
+ * @retval ERROR_FILE_NOT_FOUND     No source matched and no default
+ *                                  was provided.
+ * @retval REUSE_ERROR_NO_COMMENT_STYLE
+ *                                  comments.toml not supplied, or no
+ *                                  [[map]] entry for the file.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
@@ -299,12 +187,8 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
                                     PCSZ pszDefaultLicense,
                                     PCSZ pszDefaultCopyright,
                                     PREUSELICENSEINFO pOut) {
-    PSZ pszSideLicense = NULL;
-    PSZ pszSideCopyright = NULL;
-    PSZ pszTagLicense = NULL;
-    PSZ pszTagCopyright = NULL;
     HREUSETREEFILE hFile = NULLHANDLE;
-    BOOL fHasReuse = FALSE;
+    ULONG ulSource = REUSE_LICENSE_SRC_NONE;
     ULONG ulPrecedence = 0;
     PSZ pszCanonical = NULL;
     ULONG ulCanonSize = 0;
@@ -332,55 +216,45 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
     pOut->fPackageDownloadLocationTruncated = FALSE;
     pOut->fPackageCommentTruncated = FALSE;
 
-    /* 1. Read in-file sources. They are needed by the resolver for
-     *    aggregation. Even if a matched annotation has override
-     *    precedence, reading them is safe: override ignores in-file
-     *    sources. */
-    read_sidecar(pszFullPath, &pszSideLicense, &pszSideCopyright);
-    read_tags(pszFullPath, &pszTagLicense, &pszTagCopyright);
-
-    /* 2. Resolve REUSE.toml + in-file sources. The precedence rules
-     *    (override > aggregate > closest) and aggregation are handled
-     *    inside the resolver (see reuse.c). */
+    /* 1. Ask the resolver. */
     if (hTree != NULLHANDLE) {
-        rc = ReuseTreeResolveFile(hTree, pszFullPath, &hFile, NULL);
-        if (rc != NO_ERROR) hFile = NULLHANDLE;
+        rc = ReuseOpenFile(hTree, pszFullPath, &hFile, NULL);
+        if (rc != NO_ERROR) return rc;
     }
 
-    /* 3. Copy fields from the resolver handle. */
+    /* 2. Copy fields from the resolver handle. */
     if (hFile != NULLHANDLE) {
-        copy_file_field(hFile, ReuseTreeFileGetLicense,
+        copy_file_field(hFile, ReuseQueryFileLicense,
                         pOut->achLicense, sizeof(pOut->achLicense),
                         &pOut->fLicenseTruncated);
-        copy_file_field(hFile, ReuseTreeFileGetCopyright,
+        copy_file_field(hFile, ReuseQueryFileCopyright,
                         pOut->achCopyright, sizeof(pOut->achCopyright),
                         &pOut->fCopyrightTruncated);
-        copy_file_field(hFile, ReuseTreeFileGetContributors,
+        copy_file_field(hFile, ReuseQueryFileContributors,
                         pOut->achContributors, sizeof(pOut->achContributors),
                         &pOut->fContributorsTruncated);
-        copy_file_field(hFile, ReuseTreeFileGetPackageName,
+        copy_file_field(hFile, ReuseQueryFilePackageName,
                         pOut->achPackageName, sizeof(pOut->achPackageName),
                         &pOut->fPackageNameTruncated);
-        copy_file_field(hFile, ReuseTreeFileGetPackageSupplier,
+        copy_file_field(hFile, ReuseQueryFilePackageSupplier,
                         pOut->achPackageSupplier,
                         sizeof(pOut->achPackageSupplier),
                         &pOut->fPackageSupplierTruncated);
-        copy_file_field(hFile, ReuseTreeFileGetPackageDownloadLocation,
+        copy_file_field(hFile, ReuseQueryFilePackageDownloadLocation,
                         pOut->achPackageDownloadLocation,
                         sizeof(pOut->achPackageDownloadLocation),
                         &pOut->fPackageDownloadLocationTruncated);
-        copy_file_field(hFile, ReuseTreeFileGetPackageComment,
+        copy_file_field(hFile, ReuseQueryFilePackageComment,
                         pOut->achPackageComment,
                         sizeof(pOut->achPackageComment),
                         &pOut->fPackageCommentTruncated);
 
-        if (ReuseTreeFileGetPrecedence(hFile, &ulPrecedence)
-                != NO_ERROR)
+        if (ReuseQueryFilePrecedence(hFile, &ulPrecedence) != NO_ERROR)
             ulPrecedence = 0;
-        if (ReuseTreeFileGetHasReuse(hFile, &fHasReuse) != NO_ERROR)
-            fHasReuse = FALSE;
+        if (ReuseQueryFileSource(hFile, &ulSource) != NO_ERROR)
+            ulSource = REUSE_LICENSE_SRC_NONE;
 
-        ReuseTreeFileClose(hFile);
+        ReuseCloseFile(hFile);
     }
 
     if (pOut->achPackageName[0] || pOut->achPackageSupplier[0] ||
@@ -388,22 +262,11 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
         pOut->fHasPackageInfo = TRUE;
     }
 
-    /* 4. Determine the source.
-     *
-     * The resolver's bHasReuse is TRUE if any source matched, including
-     * sidecar and in-file tags. To attribute a specific origin, prefer
-     * the more specific sidecar/tag over a REUSE.toml annotation when
-     * sidecar or tag content was found, and fall back to REUSE when
-     * only a config matched. */
-    if (pszSideLicense || pszSideCopyright) {
-        pOut->source = REUSE_LICENSE_SRC_SIDECAR;
-    } else if (pszTagLicense || pszTagCopyright) {
-        pOut->source = REUSE_LICENSE_SRC_TAG;
-    } else if (fHasReuse) {
-        pOut->source = REUSE_LICENSE_SRC_REUSE;
-    }
+    /* 3. Record the source reported by the resolver. */
+    pOut->source = (REUSELICENSESOURCE)ulSource;
 
-    /* 5. Fallback to --default-*. */
+    /* 4. Fallback to --default-* only when the resolver produced
+     *    nothing for the corresponding field. */
     if (pOut->achLicense[0] == '\0' &&
         pszDefaultLicense && pszDefaultLicense[0]) {
         copy_field(pOut->achLicense, sizeof(pOut->achLicense),
@@ -421,7 +284,7 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
             pOut->source = REUSE_LICENSE_SRC_DEFAULT;
     }
 
-    /* 6. Normalize the SPDX expression (canonical case). */
+    /* 5. Normalize the SPDX expression (canonical case). */
     if (pOut->achLicense[0] != '\0') {
         rc = SpdxQueryExpressionCanonical(pOut->achLicense, NULL, 0,
                                           &ulCanonSize);
@@ -445,12 +308,6 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
     /* Defensive cleanup of trailing markers (sidecar with a comment). */
     strip_trailing_comments(pOut->achLicense);
     strip_trailing_comments(pOut->achCopyright);
-
-    /* 7. Release temporaries. */
-    if (pszSideLicense) free(pszSideLicense);
-    if (pszSideCopyright) free(pszSideCopyright);
-    if (pszTagLicense) free(pszTagLicense);
-    if (pszTagCopyright) free(pszTagCopyright);
 
     if (pOut->achLicense[0] == '\0' && pOut->achCopyright[0] == '\0')
         return ERROR_FILE_NOT_FOUND;

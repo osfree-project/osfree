@@ -399,7 +399,9 @@ static APIRET snippetlist_append(SPDXSNIPPETLIST *pList,
  * @brief Read the file-level license and copyright of a file.
  *
  * @param[in]  pszPath       Path to the file. Not NULL.
- * @param[in]  hStyle        Comment style. Not NULLHANDLE.
+ * @param[in]  hStyle        Comment style, or NULLHANDLE for a
+ *                           sidecar file (raw tag-value, no comment
+ *                           marker stripping).
  * @param[out] pszLicense    License buffer. Not NULL unless size-query.
  * @param[in]  ulLicSize     Size of pszLicense in bytes.
  * @param[out] pulLicUsed    Optional. Receives the used size.
@@ -412,7 +414,7 @@ static APIRET snippetlist_append(SPDXSNIPPETLIST *pList,
  *
  * @retval NO_ERROR                 At least one tag was found.
  * @retval ERROR_INVALID_PARAMETER  Bad argument.
- * @retval ERROR_INVALID_HANDLE     hStyle or hReport is not recognized.
+ * @retval ERROR_INVALID_HANDLE     hReport is not recognized.
  * @retval ERROR_OPEN_FAILED        File cannot be opened.
  * @retval ERROR_FILE_NOT_FOUND     No licensing information found.
  * @retval ERROR_BUFFER_OVERFLOW    A buffer is too small.
@@ -476,9 +478,14 @@ APIRET APIENTRY ReuseQueryFileTags(PCSZ pszPath,
         }
         trim_trailing(achLine);
 
-        rcLocal = ReuseQueryCommentBody(hStyle, achLine, &ulOffset);
-        if (rcLocal == ERROR_FILE_NOT_FOUND) continue;
-        if (rcLocal != NO_ERROR) { rc = rcLocal; goto done; }
+        /* P1: sidecar mode when hStyle is NULLHANDLE. */
+        if (hStyle == NULLHANDLE) {
+            ulOffset = 0;
+        } else {
+            rcLocal = ReuseQueryCommentBody(hStyle, achLine, &ulOffset);
+            if (rcLocal == ERROR_FILE_NOT_FOUND) continue;
+            if (rcLocal != NO_ERROR) { rc = rcLocal; goto done; }
+        }
         pszBody = achLine + ulOffset;
 
         nMarker = ignore_marker(pszBody);
@@ -619,7 +626,7 @@ done:
  *        outside a REUSE-IgnoreStart/End block.
  *
  * @param[in]  pszPath  Path to the file. Not NULL.
- * @param[in]  hStyle   Comment style. Not NULLHANDLE.
+ * @param[in]  hStyle   Comment style, or NULLHANDLE for a sidecar.
  * @param[out] pfHas    Receiver. Not NULL.
  *
  * @return APIRET
@@ -660,9 +667,13 @@ APIRET APIENTRY ReuseQueryFileHasTag(PCSZ pszPath,
         }
         trim_trailing(achLine);
 
-        rcLocal = ReuseQueryCommentBody(hStyle, achLine, &ulOffset);
-        if (rcLocal == ERROR_FILE_NOT_FOUND) continue;
-        if (rcLocal != NO_ERROR) { rc = rcLocal; break; }
+        if (hStyle == NULLHANDLE) {
+            ulOffset = 0;
+        } else {
+            rcLocal = ReuseQueryCommentBody(hStyle, achLine, &ulOffset);
+            if (rcLocal == ERROR_FILE_NOT_FOUND) continue;
+            if (rcLocal != NO_ERROR) { rc = rcLocal; break; }
+        }
         pszBody = achLine + ulOffset;
 
         nMarker = ignore_marker(pszBody);
@@ -754,9 +765,13 @@ APIRET APIENTRY ReuseQueryFileSnippets(PCSZ pszPath,
         }
         trim_trailing(achLine);
 
-        rcLocal = ReuseQueryCommentBody(hStyle, achLine, &ulOffset);
-        if (rcLocal == ERROR_FILE_NOT_FOUND) continue;
-        if (rcLocal != NO_ERROR) { rc = rcLocal; goto done; }
+        if (hStyle == NULLHANDLE) {
+            ulOffset = 0;
+        } else {
+            rcLocal = ReuseQueryCommentBody(hStyle, achLine, &ulOffset);
+            if (rcLocal == ERROR_FILE_NOT_FOUND) continue;
+            if (rcLocal != NO_ERROR) { rc = rcLocal; goto done; }
+        }
         pszBody = achLine + ulOffset;
 
         nMarker = ignore_marker(pszBody);

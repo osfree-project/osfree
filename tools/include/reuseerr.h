@@ -69,6 +69,15 @@ extern "C" {
  */
 #define REUSE_ERROR_ANNOT_BAD_FIELD    0xFF07
 
+/* P1 */
+/**
+ * @def REUSE_ERROR_NO_COMMENT_STYLE
+ * @brief Comment style for the file is not defined: comments.toml
+ *        not supplied, or has no [[map]] entry matching the file.
+ *        REUSE 3.3 §4.1.3. User range 0xFF08.
+ */
+#define REUSE_ERROR_NO_COMMENT_STYLE   0xFF08
+
 /* ==================================================================
  * LICENSES/ diagnostic codes (used by reuse_licenses.h)
  * ================================================================== */
@@ -193,7 +202,7 @@ extern "C" {
 
 /**
  * @struct _REUSEERR
- * @brief One diagnostic emitted during ReuseOpen, ReuseResolveFile,
+ * @brief One diagnostic emitted during ReuseOpen, ReuseOpenFile,
  *        or LICENSES/ validation.
  *
  * String fields are NUL-terminated and owned by the issuing handle

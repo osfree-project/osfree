@@ -147,7 +147,7 @@ typedef struct _REUSECOMMENTSTYLEINFO {
  * @retval ERROR_INVALID_DATA       comments.toml parse error.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
  *
- * @see ReuseTreeGetError, ReuseTreeClose
+ * @see ReuseCloseTree
  */
 APIRET APIENTRY ReuseOpenTree(PCSZ pszDir,
                               PCSZ pszCommentsConfig,
@@ -165,7 +165,8 @@ APIRET APIENTRY ReuseOpenTree(PCSZ pszDir,
  *
  * @retval NO_ERROR               Success. Also for NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE   Handle not recognized.
- * @warning Do not call ReuseTreeClose twice with the same handle.
+ *
+ * @warning Do not call ReuseCloseTree twice with the same handle.
  */
 APIRET APIENTRY ReuseCloseTree(HREUSETREE hTree);
 
@@ -176,7 +177,8 @@ APIRET APIENTRY ReuseCloseTree(HREUSETREE hTree);
 /**
  * @brief Number of REUSEERR records stored in the project.
  *
- * Only records produced during discovery of REUSE.toml and .reuse/dep5.
+ * Only records produced during discovery of REUSE.toml and
+ * .reuse/dep5.
  *
  * @param[in]  hTree     Handle. Not NULLHANDLE.
  * @param[out] pulCount  Receiver. Not NULL.
@@ -193,7 +195,7 @@ APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hTree, PULONG pulCount);
  * @brief Retrieve one diagnostic record by index.
  *
  * The returned REUSEERR is a snapshot; string fields point to data
- * owned by the project handle and remain valid until ReuseTreeClose.
+ * owned by the project handle and remain valid until ReuseCloseTree.
  *
  * @param[in]  hTree    Handle. Not NULLHANDLE.
  * @param[in]  ulIndex  Zero-based index.
@@ -429,7 +431,9 @@ APIRET APIENTRY ReuseQueryShebang(HREUSECOMMENTSTYLE hStyle,
  * @brief Read the file-level license and copyright of a file.
  *
  * @param[in]  pszPath       Path to the file. Not NULL.
- * @param[in]  hStyle        Comment style. Not NULLHANDLE.
+ * @param[in]  hStyle        Comment style, or NULLHANDLE for a
+ *                           sidecar file (raw tag-value, no comment
+ *                           marker stripping).
  * @param[out] pszLicense    License buffer. Not NULL unless size-query.
  * @param[in]  ulLicSize     Size of pszLicense in bytes.
  * @param[out] pulLicUsed    Optional. Receives the used size.
@@ -442,7 +446,7 @@ APIRET APIENTRY ReuseQueryShebang(HREUSECOMMENTSTYLE hStyle,
  *
  * @retval NO_ERROR                 At least one tag was found.
  * @retval ERROR_INVALID_PARAMETER  Bad argument.
- * @retval ERROR_INVALID_HANDLE     hStyle or hReport is not recognized.
+ * @retval ERROR_INVALID_HANDLE     hReport is not recognized.
  * @retval ERROR_OPEN_FAILED        File cannot be opened.
  * @retval ERROR_FILE_NOT_FOUND     No licensing information found.
  * @retval ERROR_BUFFER_OVERFLOW    A buffer is too small.
@@ -461,7 +465,7 @@ APIRET APIENTRY ReuseQueryFileTags(PCSZ pszPath,
  * @brief Query whether a file has any SPDX-License-Identifier tag.
  *
  * @param[in]  pszPath  Path to the file. Not NULL.
- * @param[in]  hStyle   Comment style. Not NULLHANDLE.
+ * @param[in]  hStyle   Comment style, or NULLHANDLE for a sidecar.
  * @param[out] pfHas    Receiver. Not NULL.
  *
  * @return APIRET
@@ -503,18 +507,20 @@ APIRET APIENTRY ReuseQueryFileSnippets(PCSZ pszPath,
  * ================================================================== */
 
 /**
- * @brief Resolve licensing information for one file.
+ * @brief Open a resolved file record.
  *
-  * Algorithm (REUSE 3.3 §4.1.2, §4.1.3):
- *   1. Read the adjacent <file>.license sidecar, if present.
- *   2. Read SPDX tags inside the file (outside REUSE-IgnoreStart/End
- *      regions; snippet bodies are not treated as file-level tags).
- *   3. Apply precedence across all discovered REUSE.toml files that
- *      match the file, using sidecar/tag data as the in-file source.
- *   4. Aggregate results as prescribed by the winning precedence.
+ * Reads the adjacent <file>.license sidecar (if present), the
+ * in-file SPDX tags (using the comment style resolved from the
+ * attached comments.toml), and combines them with the matching
+ * REUSE.toml / DEP5 annotations according to the precedence rules
+ * of REUSE 3.3 §4.1.2, §4.1.3.
  *
- * A successful resolution does not imply the file had any licensing
- * information. Use ReuseTreeFileGetHasReuse to distinguish "no sources
+ * Returns REUSE_ERROR_NO_COMMENT_STYLE when comments.toml was not
+ * supplied to ReuseOpenTree, or when it has no [[map]] entry
+ * matching pszPath. In that case the file cannot be processed.
+ *
+ * A successful return does not imply the file had any licensing
+ * information. Use ReuseQueryFileSource to distinguish "no sources
  * matched" from "sources matched but were empty".
  *
  * @param[in]  hTree    Handle. Not NULLHANDLE.
@@ -524,20 +530,22 @@ APIRET APIENTRY ReuseQueryFileSnippets(PCSZ pszPath,
  *
  * @return APIRET
  *
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  hTree, pszPath or phFile is NULL.
- * @retval ERROR_INVALID_HANDLE     Handle not recognized.
- * @retval ERROR_OPEN_FAILED        File cannot be opened.
- * @retval ERROR_READ_FAULT         Read error.
- * @retval REUSE_ERROR_SYNTAX       Sidecar contains a syntax error.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
+ * @retval NO_ERROR                  Success.
+ * @retval ERROR_INVALID_PARAMETER   hTree, pszPath or phFile is NULL.
+ * @retval ERROR_INVALID_HANDLE      Handle not recognized.
+ * @retval ERROR_OPEN_FAILED         File cannot be opened.
+ * @retval ERROR_READ_FAULT          Read error.
+ * @retval REUSE_ERROR_NO_COMMENT_STYLE
+ *                                   comments.toml not supplied, or no
+ *                                   [[map]] entry for the file.
+ * @retval ERROR_NOT_ENOUGH_MEMORY   Memory allocation failure.
  */
-APIRET APIENTRY ReuseTreeResolveFile(HREUSETREE hTree, PCSZ pszPath,
-                                     HREUSETREEFILE *phFile,
-                                     PREUSEERR pErr);
+APIRET APIENTRY ReuseOpenFile(HREUSETREE hTree, PCSZ pszPath,
+                              HREUSETREEFILE *phFile,
+                              PREUSEERR pErr);
 
 /**
- * @brief Release a resolution handle.
+ * @brief Release a file record.
  *
  * @param[in] hFile  Handle. NULLHANDLE is a no-op.
  *
@@ -546,7 +554,7 @@ APIRET APIENTRY ReuseTreeResolveFile(HREUSETREE hTree, PCSZ pszPath,
  * @retval NO_ERROR               Success. Also for NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE   Handle not recognized.
  */
-APIRET APIENTRY ReuseTreeFileClose(HREUSETREEFILE hFile);
+APIRET APIENTRY ReuseCloseFile(HREUSETREEFILE hFile);
 
 /* ==================================================================
  * Resolution field accessors
@@ -566,9 +574,9 @@ APIRET APIENTRY ReuseTreeFileClose(HREUSETREEFILE hFile);
  * @return ERROR_FILE_NOT_FOUND if the winning sources define no
  *         license.
  */
-APIRET APIENTRY ReuseTreeFileGetLicense(HREUSETREEFILE hFile,
-                                        PSZ pszBuf, ULONG ulSize,
-                                        PULONG pulUsed);
+APIRET APIENTRY ReuseQueryFileLicense(HREUSETREEFILE hFile,
+                                      PSZ pszBuf, ULONG ulSize,
+                                      PULONG pulUsed);
 
 /**
  * @brief Retrieve the resolved copyright text.
@@ -578,9 +586,9 @@ APIRET APIENTRY ReuseTreeFileGetLicense(HREUSETREEFILE hFile,
  * @return ERROR_FILE_NOT_FOUND if the winning sources define no
  *         copyright.
  */
-APIRET APIENTRY ReuseTreeFileGetCopyright(HREUSETREEFILE hFile,
-                                          PSZ pszBuf, ULONG ulSize,
-                                          PULONG pulUsed);
+APIRET APIENTRY ReuseQueryFileCopyright(HREUSETREEFILE hFile,
+                                        PSZ pszBuf, ULONG ulSize,
+                                        PULONG pulUsed);
 
 /**
  * @brief Retrieve the resolved SPDX-FileContributor list.
@@ -589,30 +597,30 @@ APIRET APIENTRY ReuseTreeFileGetCopyright(HREUSETREEFILE hFile,
  *
  * @return ERROR_FILE_NOT_FOUND if no contributor was defined.
  */
-APIRET APIENTRY ReuseTreeFileGetContributors(HREUSETREEFILE hFile,
-                                             PSZ pszBuf, ULONG ulSize,
-                                             PULONG pulUsed);
+APIRET APIENTRY ReuseQueryFileContributors(HREUSETREEFILE hFile,
+                                           PSZ pszBuf, ULONG ulSize,
+                                           PULONG pulUsed);
 
 /** @brief Retrieve SPDX-PackageName. */
-APIRET APIENTRY ReuseTreeFileGetPackageName(HREUSETREEFILE hFile,
-                                            PSZ pszBuf, ULONG ulSize,
-                                            PULONG pulUsed);
+APIRET APIENTRY ReuseQueryFilePackageName(HREUSETREEFILE hFile,
+                                          PSZ pszBuf, ULONG ulSize,
+                                          PULONG pulUsed);
 
 /** @brief Retrieve SPDX-PackageSupplier. */
-APIRET APIENTRY ReuseTreeFileGetPackageSupplier(HREUSETREEFILE hFile,
-                                                PSZ pszBuf, ULONG ulSize,
-                                                PULONG pulUsed);
+APIRET APIENTRY ReuseQueryFilePackageSupplier(HREUSETREEFILE hFile,
+                                              PSZ pszBuf, ULONG ulSize,
+                                              PULONG pulUsed);
 
 /** @brief Retrieve SPDX-PackageDownloadLocation. */
-APIRET APIENTRY ReuseTreeFileGetPackageDownloadLocation(HREUSETREEFILE hFile,
-                                                        PSZ pszBuf,
-                                                        ULONG ulSize,
-                                                        PULONG pulUsed);
+APIRET APIENTRY ReuseQueryFilePackageDownloadLocation(HREUSETREEFILE hFile,
+                                                      PSZ pszBuf,
+                                                      ULONG ulSize,
+                                                      PULONG pulUsed);
 
 /** @brief Retrieve SPDX-PackageComment. */
-APIRET APIENTRY ReuseTreeFileGetPackageComment(HREUSETREEFILE hFile,
-                                               PSZ pszBuf, ULONG ulSize,
-                                               PULONG pulUsed);
+APIRET APIENTRY ReuseQueryFilePackageComment(HREUSETREEFILE hFile,
+                                             PSZ pszBuf, ULONG ulSize,
+                                             PULONG pulUsed);
 
 /* ==================================================================
  * Resolution metadata
@@ -630,23 +638,31 @@ APIRET APIENTRY ReuseTreeFileGetPackageComment(HREUSETREEFILE hFile,
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
-APIRET APIENTRY ReuseTreeFileGetPrecedence(HREUSETREEFILE hFile,
-                                           PULONG pulPrecedence);
+APIRET APIENTRY ReuseQueryFilePrecedence(HREUSETREEFILE hFile,
+                                         PULONG pulPrecedence);
 
 /**
- * @brief Whether any REUSE.toml, DEP5, sidecar or tag matched the file.
+ * @brief Retrieve the source of the resolved record.
+ *
+ * Returns one of REUSE_LICENSE_SRC_* (see reuse_lic.h):
+ *   REUSE_LICENSE_SRC_NONE     — no source matched the file;
+ *   REUSE_LICENSE_SRC_TAG      — in-file SPDX tag;
+ *   REUSE_LICENSE_SRC_SIDECAR  — adjacent .license sidecar;
+ *   REUSE_LICENSE_SRC_REUSE    — REUSE.toml or DEP5 annotation.
+ *
+ * Replaces the former ReuseTreeFileGetHasReuse: a non-NONE value
+ * means at least one source matched.
  *
  * @param[in]  hFile      Handle. Not NULLHANDLE.
- * @param[out] pfHasReuse Receiver: TRUE if at least one source
- *                        matched; FALSE otherwise. Not NULL.
+ * @param[out] pulSource  Receiver. Not NULL.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
-APIRET APIENTRY ReuseTreeFileGetHasReuse(HREUSETREEFILE hFile,
-                                         PBOOL pfHasReuse);
+APIRET APIENTRY ReuseQueryFileSource(HREUSETREEFILE hFile,
+                                     PULONG pulSource);
 
 #ifdef __cplusplus
 }

@@ -64,6 +64,7 @@ typedef struct _SBOMOPTIONS {
 
     PCSZ  pszSpdxDbRoot;             /**< SPDX database root.      */
     PCSZ  pszCacheFile;              /**< Cache file, or NULL.     */
+    PCSZ  pszCommentsConfig;         /**< comments.toml, or NULL.  */   /* P2 */
 
     PSPDXEXTRACTEDLICENSESOURCE paExtractedSources;
                                      /**< LicenseRef sources.      */
@@ -93,6 +94,7 @@ typedef struct _SBOMOPTIONS {
  * @param[out] pOpts  Receiver. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success, or help was requested.
  * @retval ERROR_INVALID_PARAMETER  pOpts is NULL, an option is
  *                                  rejected, or a required option
@@ -111,6 +113,7 @@ APIRET APIENTRY SbomParseCommandLine(int argc, char *argv[],
  * @param[in,out] pOpts  Options. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  pOpts is NULL.
  */

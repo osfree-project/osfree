@@ -59,6 +59,9 @@ static void print_help(void) {
            "exceptions/)\n"
            "\n"
            "Optional:\n"
+           "  --comments-config=<path>   comments.toml describing comment "
+           "styles\n"
+           "                             for in-file SPDX tags\n"
            "  --version=<ver>            Package version\n"
            "  --supplier=<name>          Package supplier\n"
            "  --creator=<name>           SBOM creator\n"
@@ -127,6 +130,7 @@ static BOOL is_binary_mode(const SBOMOPTIONS *pOpts) {
  *                         allocated and must be freed. Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  A parameter is NULL.
  * @retval ERROR_FILE_NOT_FOUND     No license available.
@@ -147,15 +151,15 @@ static APIRET resolve_package_license(const SBOMOPTIONS *pOpts,
 
     if (!pszLic && hTree != NULLHANDLE) {
         HREUSETREEFILE hFile = NULLHANDLE;
-        rc = ReuseTreeResolveFile(hTree, "**", &hFile, NULL);
+        rc = ReuseOpenFile(hTree, "**", &hFile, NULL);
         if (rc == NO_ERROR && hFile != NULLHANDLE) {
             ULONG ulSize = 0;
-            rc = ReuseTreeFileGetLicense(hFile, NULL, 0, &ulSize);
+            rc = ReuseQueryFileLicense(hFile, NULL, 0, &ulSize);
             if (rc == NO_ERROR && ulSize > 0) {
                 PSZ pszBuf = (PSZ)malloc(ulSize);
                 if (pszBuf) {
-                    rc = ReuseTreeFileGetLicense(hFile, pszBuf, ulSize,
-                                                 NULL);
+                    rc = ReuseQueryFileLicense(hFile, pszBuf, ulSize,
+                                               NULL);
                     if (rc == NO_ERROR && pszBuf[0] != '\0') {
                         pszHeap = pszBuf;
                         pszLic = pszHeap;
@@ -164,7 +168,7 @@ static APIRET resolve_package_license(const SBOMOPTIONS *pOpts,
                     }
                 }
             }
-            ReuseTreeFileClose(hFile);
+            ReuseCloseFile(hFile);
         }
     }
     if (!pszLic || !pszLic[0]) {
@@ -201,6 +205,7 @@ static APIRET resolve_package_license(const SBOMOPTIONS *pOpts,
  *                        Not NULL.
  *
  * @return APIRET
+ *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  A parameter is NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE     A container is not recognized.
@@ -367,7 +372,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    rc = ReuseOpenTree(opts.pszDir, NULL, &hTree);
+    rc = ReuseOpenTree(opts.pszDir, opts.pszCommentsConfig, &hTree);
     if (rc != NO_ERROR) {
         fprintf(stderr,
                 "ERROR: cannot open REUSE project at %s\n"

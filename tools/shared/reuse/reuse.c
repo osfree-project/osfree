@@ -35,6 +35,7 @@
 #include "dep5.h"
 #include "git.h"
 #include "path.h"
+#include "reuse_lic.h"   /* P1: REUSE_LICENSE_SRC_* */
 
 /* ==================================================================
  * Small helpers
@@ -52,60 +53,61 @@ static void safe_free(void **pp) {
 }
 
 /*!
- * @brief Query and allocate the SPDX-License-Identifier value.
+ * @brief Read in-file or sidecar tags via ReuseQueryFileTags.
  *
- * Uses the size-query convention of SpdxQueryFileLicense: first a
- * size query, then a fetch into a malloc'd buffer. Returns NULL if
- * the tag is absent or on any error.
+ * Two-pass: size query, then fetch. A file with no tags yields
+ * *ppszLicense == *ppszCopyright == NULL and NO_ERROR.
  *
- * @param[in] pszPath  Path to the file. Not NULL.
+ * Replaces the former query_file_license / query_file_copyright
+ * helpers that opened the file directly (legacy SpdxQueryFile*).
  *
- * @return PSZ
+ * @param[in]  pszPath       File. Not NULL.
+ * @param[in]  hStyle        Comment style, or NULLHANDLE for a
+ *                           sidecar (raw tag-value).
+ * @param[in]  hReport       Tag report, or NULLHANDLE.
+ * @param[out] ppszLicense   Receiver. Not NULL.
+ * @param[out] ppszCopyright Receiver. Not NULL.
  *
- * @retval NULL  Tag absent or allocation failure.
- * @return       malloc'd value owned by the caller.
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success (possibly no tags).
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval (other)                  Propagated from ReuseQueryFileTags.
  */
-static PSZ query_file_license(PCSZ pszPath) {
-    ULONG ulSize = 0;
-    PSZ pszOut;
-    if (SpdxQueryFileLicense(pszPath, NULL, 0, &ulSize) != NO_ERROR)
-        return NULL;
-    if (ulSize == 0) return NULL;
-    pszOut = (PSZ)malloc(ulSize);
-    if (!pszOut) return NULL;
-    if (SpdxQueryFileLicense(pszPath, pszOut, ulSize, NULL) != NO_ERROR) {
-        free(pszOut);
-        return NULL;
-    }
-    if (pszOut[0] == '\0') { free(pszOut); return NULL; }
-    return pszOut;
-}
+static APIRET read_tags_via_reuse(PCSZ pszPath, HREUSECOMMENTSTYLE hStyle,
+                                  HREUSETAGSREPORT hReport,
+                                  PSZ *ppszLicense, PSZ *ppszCopyright) {
+    ULONG ulLicSize = 0, ulCopSize = 0;
+    PSZ pszLic = NULL, pszCop = NULL;
+    APIRET rc;
 
-/*!
- * @brief Query and allocate the SPDX-FileCopyrightText value.
- *
- * Counterpart of query_file_license for the copyright tag.
- * @param[in] pszPath  Path to the file. Not NULL.
- *
- * @return PSZ
- *
- * @retval NULL  Tag absent or allocation failure.
- * @return       malloc'd value owned by the caller.
- */
-static PSZ query_file_copyright(PCSZ pszPath) {
-    ULONG ulSize = 0;
-    PSZ pszOut;
-    if (SpdxQueryFileCopyright(pszPath, NULL, 0, &ulSize) != NO_ERROR)
-        return NULL;
-    if (ulSize == 0) return NULL;
-    pszOut = (PSZ)malloc(ulSize);
-    if (!pszOut) return NULL;
-    if (SpdxQueryFileCopyright(pszPath, pszOut, ulSize, NULL) != NO_ERROR) {
-        free(pszOut);
-        return NULL;
+    *ppszLicense = NULL;
+    *ppszCopyright = NULL;
+
+    rc = ReuseQueryFileTags(pszPath, hStyle, NULL, 0, &ulLicSize,
+                            NULL, 0, &ulCopSize, hReport);
+    if (rc == ERROR_FILE_NOT_FOUND) return NO_ERROR;
+    if (rc != NO_ERROR) return rc;
+
+    if (ulLicSize == 0) ulLicSize = 1;
+    if (ulCopSize == 0) ulCopSize = 1;
+
+    pszLic = (PSZ)malloc(ulLicSize);
+    if (!pszLic) return ERROR_NOT_ENOUGH_MEMORY;
+    pszCop = (PSZ)malloc(ulCopSize);
+    if (!pszCop) { free(pszLic); return ERROR_NOT_ENOUGH_MEMORY; }
+
+    rc = ReuseQueryFileTags(pszPath, hStyle, pszLic, ulLicSize, NULL,
+                            pszCop, ulCopSize, NULL, hReport);
+    if (rc != NO_ERROR) {
+        free(pszLic);
+        free(pszCop);
+        return rc;
     }
-    if (pszOut[0] == '\0') { free(pszOut); return NULL; }
-    return pszOut;
+
+    if (pszLic[0] != '\0') *ppszLicense = pszLic; else free(pszLic);
+    if (pszCop[0] != '\0') *ppszCopyright = pszCop; else free(pszCop);
+    return NO_ERROR;
 }
 
 /* ==================================================================
@@ -1119,15 +1121,24 @@ static PSZ join_lines_dedup(PCSZ pszA, PCSZ pszB) {
  *      (override > aggregate > closest).
  *   5. Aggregate in-file sources with the closest/aggregate match.
  *
- * @param[in] pd       Project handle. Not NULL.
- * @param[in] pszPath  Path to the file. Not NULL.
+ * P1: the sidecar is read via ReuseQueryFileTags with a NULLHANDLE
+ * style (raw tag-value); the in-file tags are read via
+ * ReuseQueryFileTags with the style resolved from the attached
+ * comments.toml. When comments.toml was not supplied, or it has no
+ * [[map]] entry for the file, REUSE_ERROR_NO_COMMENT_STYLE is
+ * returned and the file cannot be processed.
+ *
+ * @param[in]  pd       Project handle. Not NULL.
+ * @param[in]  pszPath  Path to the file. Not NULL.
+ * @param[out] pulErr   Receiver for the error code. Not NULL.
  *
  * @return PREUSETREEFILE
  *
- * @retval NULL  Allocation failure.
+ * @retval NULL  *pulErr describes the failure.
  * @return       Freshly allocated per-file result.
  */
-static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
+static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath,
+                                   PULONG pulErr) {
     PREUSETREEFILE pFile;
     CHAR achSidecar[1200];
     PSZ pszTagLicense = NULL;
@@ -1136,37 +1147,57 @@ static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
     PSZ pszSideCopyright = NULL;
     PCSZ pszInLicense = NULL;
     PCSZ pszInCopyright = NULL;
+    HREUSECOMMENTSTYLE hStyle = NULLHANDLE;
+    BOOL fFound = FALSE;
     MATCH bestOverride, bestAggregate, bestClosest;
     int fHaveOverride = 0, fHaveAggregate = 0, fHaveClosest = 0;
+    BOOL fHasReuse = FALSE;
     ULONG ulIdx;
+    APIRET rc;
 
-    memset(&bestOverride, 0, sizeof(bestOverride));
+    *pulErr = NO_ERROR;
+
+    if (pd->hComments == NULLHANDLE) {
+        *pulErr = REUSE_ERROR_NO_COMMENT_STYLE;
+        return NULL;
+    }
+
+    rc = ReuseQueryCommentStyle(pd->hComments, pszPath, &fFound, &hStyle);
+    if (rc != NO_ERROR) { *pulErr = rc; return NULL; }
+    if (!fFound) {
+        *pulErr = REUSE_ERROR_NO_COMMENT_STYLE;
+        return NULL;
+    }
+
+    memset(&bestOverride,  0, sizeof(bestOverride));
     memset(&bestAggregate, 0, sizeof(bestAggregate));
-    memset(&bestClosest, 0, sizeof(bestClosest));
+    memset(&bestClosest,   0, sizeof(bestClosest));
 
     pFile = (PREUSETREEFILE)calloc(1, sizeof(REUSETREEFILE));
-    if (!pFile) return NULL;
+    if (!pFile) { *pulErr = ERROR_NOT_ENOUGH_MEMORY; return NULL; }
 
-    /* 1. Read sidecar (REUSE 3.3 §4.1.3): <file>.license */
+    /* 1. Sidecar — raw tag-value, no comment style. */
     snprintf(achSidecar, sizeof(achSidecar), "%s.license", pszPath);
     {
         FILE *fp = fopen(achSidecar, "rb");
         if (fp) {
             fclose(fp);
-            pszSideLicense = query_file_license(achSidecar);
-            pszSideCopyright = query_file_copyright(achSidecar);
+            rc = read_tags_via_reuse(achSidecar, NULLHANDLE, NULLHANDLE,
+                                     &pszSideLicense, &pszSideCopyright);
+            if (rc != NO_ERROR) { *pulErr = rc; goto fail; }
         }
     }
 
-    /* 2. Read tags inside the file */
-    pszTagLicense = query_file_license(pszPath);
-    pszTagCopyright = query_file_copyright(pszPath);
+    /* 2. In-file — via comment style. */
+    rc = read_tags_via_reuse(pszPath, hStyle, pd->hReport,
+                             &pszTagLicense, &pszTagCopyright);
+    if (rc != NO_ERROR) { *pulErr = rc; goto fail; }
 
-    /* 3. Sidecar takes precedence over in-file tags */
-    pszInLicense = pszSideLicense ? pszSideLicense : pszTagLicense;
+    /* 3. Sidecar takes precedence over in-file tags. */
+    pszInLicense   = pszSideLicense   ? pszSideLicense   : pszTagLicense;
     pszInCopyright = pszSideCopyright ? pszSideCopyright : pszTagCopyright;
 
-    if (pszInLicense || pszInCopyright) pFile->bHasReuse = TRUE;
+    if (pszInLicense || pszInCopyright) fHasReuse = TRUE;
 
     /* 4. For each config, find the best matching annotation, then
      *    classify it by precedence into override/aggregate/closest. */
@@ -1174,7 +1205,7 @@ static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
         MATCH m;
         memset(&m, 0, sizeof(m));
         if (cfg_find_best(&pd->paCfgs[ulIdx], pszPath, &m) != 0) continue;
-        pFile->bHasReuse = TRUE;
+        fHasReuse = TRUE;
 
         switch (m.nPrecedence) {
             case REUSE_PRECEDENCE_OVERRIDE:
@@ -1318,16 +1349,35 @@ static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath) {
         }
     }
 
+    /* 6. Source. */
+    if (pszSideLicense || pszSideCopyright)
+        pFile->nSource = REUSE_LICENSE_SRC_SIDECAR;
+    else if (pszTagLicense || pszTagCopyright)
+        pFile->nSource = REUSE_LICENSE_SRC_TAG;
+    else if (fHasReuse)
+        pFile->nSource = REUSE_LICENSE_SRC_REUSE;
+    else
+        pFile->nSource = REUSE_LICENSE_SRC_NONE;
+
     match_clear(&bestOverride);
     match_clear(&bestAggregate);
     match_clear(&bestClosest);
-
     free(pszTagLicense);
     free(pszTagCopyright);
     free(pszSideLicense);
     free(pszSideCopyright);
-
     return pFile;
+
+fail:
+    match_clear(&bestOverride);
+    match_clear(&bestAggregate);
+    match_clear(&bestClosest);
+    free(pszTagLicense);
+    free(pszTagCopyright);
+    free(pszSideLicense);
+    free(pszSideCopyright);
+    free(pFile);
+    return NULL;
 }
 
 /* ==================================================================
@@ -1391,7 +1441,7 @@ PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile) {
  * @retval ERROR_INVALID_DATA       comments.toml parse error.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
  *
- * @see ReuseTreeGetError, ReuseTreeClose
+ * @see ReuseTreeGetError, ReuseCloseTree
  */
 APIRET APIENTRY ReuseOpenTree(PCSZ pszDir,
                               PCSZ pszCommentsConfig,
@@ -1577,20 +1627,21 @@ APIRET APIENTRY ReuseTreeGetError(HREUSETREE hTree, ULONG ulIndex,
 }
 
 /*!
- * @brief Resolve licensing information for one file.
+ * @brief Open a resolved file record.
  *
- * Algorithm (REUSE 3.3 §4.1.2, §4.1.3):
- *   1. Read the adjacent <file>.license sidecar, if present.
- *   2. Read SPDX tags inside the file (outside
- *      REUSE-IgnoreStart/End regions; snippet bodies are not
- *      treated as file-level tags).
- *   3. Apply precedence across all discovered REUSE.toml files that
- *      match the file, using sidecar/tag data as the in-file source.
- *   4. Aggregate results as prescribed by the winning precedence.
+ * Reads the adjacent <file>.license sidecar (if present), the
+ * in-file SPDX tags (using the comment style resolved from the
+ * attached comments.toml), and combines them with the matching
+ * REUSE.toml / DEP5 annotations according to the precedence rules
+ * of REUSE 3.3 §4.1.2, §4.1.3.
  *
- * A successful resolution does not imply the file had any licensing
- * information. Use ReuseTreeFileGetHasReuse to distinguish "no
- * sources matched" from "sources matched but were empty".
+ * Returns REUSE_ERROR_NO_COMMENT_STYLE when comments.toml was not
+ * supplied to ReuseOpenTree, or when it has no [[map]] entry
+ * matching pszPath. In that case the file cannot be processed.
+ *
+ * A successful return does not imply the file had any licensing
+ * information. Use ReuseQueryFileSource to distinguish "no sources
+ * matched" from "sources matched but were empty".
  *
  * @param[in]  hTree    Handle. Not NULLHANDLE.
  * @param[in]  pszPath  Path to the file. Not NULL.
@@ -1599,25 +1650,42 @@ APIRET APIENTRY ReuseTreeGetError(HREUSETREE hTree, ULONG ulIndex,
  *
  * @return APIRET
  *
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  hTree, pszPath or phFile is NULL.
- * @retval ERROR_INVALID_HANDLE     Handle not recognized.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
+ * @retval NO_ERROR                  Success.
+ * @retval ERROR_INVALID_PARAMETER   hTree, pszPath or phFile is NULL.
+ * @retval ERROR_INVALID_HANDLE      Handle not recognized.
+ * @retval ERROR_OPEN_FAILED         File cannot be opened.
+ * @retval ERROR_READ_FAULT          Read error.
+ * @retval REUSE_ERROR_NO_COMMENT_STYLE
+ *                                   comments.toml not supplied, or no
+ *                                   [[map]] entry for the file.
+ * @retval ERROR_NOT_ENOUGH_MEMORY   Memory allocation failure.
  */
-APIRET APIENTRY ReuseTreeResolveFile(HREUSETREE hTree, PCSZ pszPath,
-                                     HREUSETREEFILE *phFile,
-                                     PREUSEERR pErr) {
+APIRET APIENTRY ReuseOpenFile(HREUSETREE hTree, PCSZ pszPath,
+                              HREUSETREEFILE *phFile,
+                              PREUSEERR pErr) {
     PREUSETREE pd = ReuseInternalGetDoc(hTree);
     PREUSETREEFILE pFile;
+    ULONG ulErr = NO_ERROR;
 
     if (!pd || !pszPath || !phFile) return ERROR_INVALID_PARAMETER;
     *phFile = NULLHANDLE;
 
-    pFile = resolve_file(pd, pszPath);
-    if (!pFile) return ERROR_NOT_ENOUGH_MEMORY;
+    pFile = resolve_file(pd, pszPath, &ulErr);
+    if (!pFile) {
+        if (pErr) {
+            memset(pErr, 0, sizeof(*pErr));
+            pErr->ulCode = ulErr;
+            pErr->ulSeverity = REUSE_SEV_ERROR;
+            strncpy(pErr->achFile, pszPath, sizeof(pErr->achFile) - 1);
+            if (ulErr == REUSE_ERROR_NO_COMMENT_STYLE)
+                strncpy(pErr->achDetail,
+                        "no comment style for this file",
+                        sizeof(pErr->achDetail) - 1);
+        }
+        return ulErr;
+    }
 
     *phFile = (HREUSETREEFILE)pFile;
-    (void)pErr;
     return NO_ERROR;
 }
 
@@ -1631,7 +1699,7 @@ APIRET APIENTRY ReuseTreeResolveFile(HREUSETREE hTree, PCSZ pszPath,
  * @retval NO_ERROR               Success. Also for NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE   Handle not recognized.
  */
-APIRET APIENTRY ReuseTreeFileClose(HREUSETREEFILE hFile) {
+APIRET APIENTRY ReuseCloseFile(HREUSETREEFILE hFile) {
     PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
     if (hFile == NULLHANDLE) return NO_ERROR;
     if (!pFile) return ERROR_INVALID_HANDLE;
@@ -1707,9 +1775,9 @@ static APIRET copy_out(PCSZ pszVal, PSZ pszBuf, ULONG ulSize,
  *                                  license.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-APIRET APIENTRY ReuseTreeFileGetLicense(HREUSETREEFILE hFile,
-                                        PSZ pszBuf, ULONG ulSize,
-                                        PULONG pulUsed) {
+APIRET APIENTRY ReuseQueryFileLicense(HREUSETREEFILE hFile,
+                                      PSZ pszBuf, ULONG ulSize,
+                                      PULONG pulUsed) {
     PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile) return ERROR_INVALID_PARAMETER;
     return copy_out(pFile->pszLicense, pszBuf, ulSize, pulUsed);
@@ -1733,9 +1801,9 @@ APIRET APIENTRY ReuseTreeFileGetLicense(HREUSETREEFILE hFile,
  *                                  copyright.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-APIRET APIENTRY ReuseTreeFileGetCopyright(HREUSETREEFILE hFile,
-                                          PSZ pszBuf, ULONG ulSize,
-                                          PULONG pulUsed) {
+APIRET APIENTRY ReuseQueryFileCopyright(HREUSETREEFILE hFile,
+                                        PSZ pszBuf, ULONG ulSize,
+                                        PULONG pulUsed) {
     PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile) return ERROR_INVALID_PARAMETER;
     return copy_out(pFile->pszCopyright, pszBuf, ulSize, pulUsed);
@@ -1758,9 +1826,9 @@ APIRET APIENTRY ReuseTreeFileGetCopyright(HREUSETREEFILE hFile,
  * @retval ERROR_FILE_NOT_FOUND     No contributor was defined.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-APIRET APIENTRY ReuseTreeFileGetContributors(HREUSETREEFILE hFile,
-                                             PSZ pszBuf, ULONG ulSize,
-                                             PULONG pulUsed) {
+APIRET APIENTRY ReuseQueryFileContributors(HREUSETREEFILE hFile,
+                                           PSZ pszBuf, ULONG ulSize,
+                                           PULONG pulUsed) {
     PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile) return ERROR_INVALID_PARAMETER;
     return copy_out(pFile->pszContributors, pszBuf, ulSize, pulUsed);
@@ -1781,9 +1849,9 @@ APIRET APIENTRY ReuseTreeFileGetContributors(HREUSETREEFILE hFile,
  * @retval ERROR_FILE_NOT_FOUND     Field absent.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-APIRET APIENTRY ReuseTreeFileGetPackageName(HREUSETREEFILE hFile,
-                                            PSZ pszBuf, ULONG ulSize,
-                                            PULONG pulUsed) {
+APIRET APIENTRY ReuseQueryFilePackageName(HREUSETREEFILE hFile,
+                                          PSZ pszBuf, ULONG ulSize,
+                                          PULONG pulUsed) {
     PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile) return ERROR_INVALID_PARAMETER;
     return copy_out(pFile->pszPackageName, pszBuf, ulSize, pulUsed);
@@ -1804,9 +1872,9 @@ APIRET APIENTRY ReuseTreeFileGetPackageName(HREUSETREEFILE hFile,
  * @retval ERROR_FILE_NOT_FOUND     Field absent.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-APIRET APIENTRY ReuseTreeFileGetPackageSupplier(HREUSETREEFILE hFile,
-                                                PSZ pszBuf, ULONG ulSize,
-                                                PULONG pulUsed) {
+APIRET APIENTRY ReuseQueryFilePackageSupplier(HREUSETREEFILE hFile,
+                                              PSZ pszBuf, ULONG ulSize,
+                                              PULONG pulUsed) {
     PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile) return ERROR_INVALID_PARAMETER;
     return copy_out(pFile->pszPackageSupplier, pszBuf, ulSize, pulUsed);
@@ -1827,8 +1895,9 @@ APIRET APIENTRY ReuseTreeFileGetPackageSupplier(HREUSETREEFILE hFile,
  * @retval ERROR_FILE_NOT_FOUND     Field absent.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-APIRET APIENTRY ReuseTreeFileGetPackageDownloadLocation(
-    HREUSETREEFILE hFile, PSZ pszBuf, ULONG ulSize, PULONG pulUsed) {
+APIRET APIENTRY ReuseQueryFilePackageDownloadLocation(HREUSETREEFILE hFile,
+                                                      PSZ pszBuf, ULONG ulSize,
+                                                      PULONG pulUsed) {
     PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile) return ERROR_INVALID_PARAMETER;
     return copy_out(pFile->pszPackageDownloadLocation, pszBuf, ulSize,
@@ -1850,9 +1919,9 @@ APIRET APIENTRY ReuseTreeFileGetPackageDownloadLocation(
  * @retval ERROR_FILE_NOT_FOUND     Field absent.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-APIRET APIENTRY ReuseTreeFileGetPackageComment(HREUSETREEFILE hFile,
-                                               PSZ pszBuf, ULONG ulSize,
-                                               PULONG pulUsed) {
+APIRET APIENTRY ReuseQueryFilePackageComment(HREUSETREEFILE hFile,
+                                             PSZ pszBuf, ULONG ulSize,
+                                             PULONG pulUsed) {
     PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile) return ERROR_INVALID_PARAMETER;
     return copy_out(pFile->pszPackageComment, pszBuf, ulSize, pulUsed);
@@ -1869,8 +1938,8 @@ APIRET APIENTRY ReuseTreeFileGetPackageComment(HREUSETREEFILE hFile,
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hFile or pulPrecedence is NULL.
  */
-APIRET APIENTRY ReuseTreeFileGetPrecedence(HREUSETREEFILE hFile,
-                                           PULONG pulPrecedence) {
+APIRET APIENTRY ReuseQueryFilePrecedence(HREUSETREEFILE hFile,
+                                         PULONG pulPrecedence) {
     PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile || !pulPrecedence) return ERROR_INVALID_PARAMETER;
     *pulPrecedence = pFile->ulPrecedence;
@@ -1878,21 +1947,29 @@ APIRET APIENTRY ReuseTreeFileGetPrecedence(HREUSETREEFILE hFile,
 }
 
 /*!
- * @brief Whether any REUSE.toml, DEP5, sidecar or tag matched the
- *        file.
+ * @brief Retrieve the source of the resolved record.
  *
- * @param[in]  hFile       Handle. Not NULLHANDLE.
- * @param[out] pfHasReuse  Receiver. Not NULL.
+ * Returns one of REUSE_LICENSE_SRC_* (see reuse_lic.h):
+ *   REUSE_LICENSE_SRC_NONE     — no source matched the file;
+ *   REUSE_LICENSE_SRC_TAG      — in-file SPDX tag;
+ *   REUSE_LICENSE_SRC_SIDECAR  — adjacent .license sidecar;
+ *   REUSE_LICENSE_SRC_REUSE    — REUSE.toml or DEP5 annotation.
+ *
+ * Replaces the former ReuseTreeFileGetHasReuse: a non-NONE value
+ * means at least one source matched.
+ *
+ * @param[in]  hFile      Handle. Not NULLHANDLE.
+ * @param[out] pulSource  Receiver. Not NULL.
  *
  * @return APIRET
  *
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  hFile or pfHasReuse is NULL.
+ * @retval ERROR_INVALID_PARAMETER  hFile or pulSource is NULL.
  */
-APIRET APIENTRY ReuseTreeFileGetHasReuse(HREUSETREEFILE hFile,
-                                         PBOOL pfHasReuse) {
+APIRET APIENTRY ReuseQueryFileSource(HREUSETREEFILE hFile,
+                                     PULONG pulSource) {
     PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
-    if (!pFile || !pfHasReuse) return ERROR_INVALID_PARAMETER;
-    *pfHasReuse = pFile->bHasReuse;
+    if (!pFile || !pulSource) return ERROR_INVALID_PARAMETER;
+    *pulSource = (ULONG)pFile->nSource;
     return NO_ERROR;
 }
