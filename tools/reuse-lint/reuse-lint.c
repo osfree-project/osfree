@@ -262,6 +262,75 @@ static void PrintLicensesReport(HREUSELICENSEREPORT hReport,
     }
 }
 
+/*!
+ * @brief Human-readable text for a REUSE_TAGS_* reason code.
+ *
+ * @param[in] ulCode  One of REUSE_TAGS_*.
+ *
+ * @return Static description.
+ */
+static PCSZ TagsReasonText(ULONG ulCode) {
+    switch (ulCode) {
+    case REUSE_TAGS_DEPRECATED:
+        return "deprecated SPDX tag";
+    case REUSE_TAGS_NON_ANNEX_FORM:
+        return "Clause 8/9 form in source file; "
+               "use the Annex H spelling";
+    case REUSE_TAGS_LONG_LINE:
+        return "tag value truncated";
+    default:
+        return "tag warning";
+    }
+}
+
+/*!
+ * @brief Print every record of an in-file tags warning report.
+ *
+ * @param[in]  hReport      Report handle, or NULLHANDLE.
+ * @param[out] pulErrors    Receiver for the error count. Not NULL.
+ * @param[out] pulWarnings  Receiver for the warning count. Not NULL.
+ */
+static void PrintTagsReport(HREUSETAGSREPORT hReport,
+                            PULONG pulErrors, PULONG pulWarnings) {
+    ULONG ulCount = 0, ulIdx;
+
+    *pulErrors = 0;
+    *pulWarnings = 0;
+
+    if (hReport == NULLHANDLE) return;
+    if (ReuseQueryTagsReportCount(hReport, &ulCount) != NO_ERROR)
+        return;
+
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
+        REUSEERR err;
+        PCSZ pszSev;
+        PCSZ pszReason;
+
+        if (ReuseQueryTagsReport(hReport, ulIdx, &err) != NO_ERROR)
+            continue;
+
+        switch (err.ulSeverity) {
+        case REUSE_SEV_ERROR:
+            pszSev = "ERROR"; (*pulErrors)++; break;
+        case REUSE_SEV_WARNING:
+            pszSev = "WARNING"; (*pulWarnings)++; break;
+        default:
+            pszSev = "INFO"; break;
+        }
+
+        pszReason = TagsReasonText(err.ulCode);
+
+        if (err.achFile[0] && err.achDetail[0])
+            fprintf(stderr, "%s: %s:%lu: %s (%s)\n",
+                    pszSev, err.achFile, (unsigned long)err.ulLine,
+                    pszReason, err.achDetail);
+        else if (err.achFile[0])
+            fprintf(stderr, "%s: %s:%lu: %s\n",
+                    pszSev, err.achFile, (unsigned long)err.ulLine,
+                    pszReason);
+    }
+}
+
 /* ------------------------------------------------------------------ */
 /* Expression validation                                               */
 /* ------------------------------------------------------------------ */
@@ -551,6 +620,7 @@ int main(int argc, char *argv[]) {
     PCSZ pszDir = ".";
     PCSZ pszSpdxDbRoot = NULL;
     PCSZ pszCacheFile = NULL;
+    PCSZ pszCommentsConfig = NULL;
     BOOL fNoGitignore = FALSE;
     int i;
     HREUSETREE hTree = NULLHANDLE;
@@ -574,6 +644,9 @@ int main(int argc, char *argv[]) {
                    "                             exceptions.json, details/, "
                    "exceptions/)\n"
                    "  --cache=<path>             SPDX database cache file\n"
+                   "  --comments-config=<path>   comments.toml describing "
+                   "comment styles\n"
+                   "                             for in-file SPDX tags\n"
                    "  --default-license=<id>     Fallback license "
                    "identifier\n"
                    "  --default-copyright=<text> Fallback copyright text\n"
@@ -587,6 +660,8 @@ int main(int argc, char *argv[]) {
             pszSpdxDbRoot = argv[i] + 10;
         else if (strncmp(argv[i], "--cache=", 8) == 0)
             pszCacheFile = argv[i] + 8;
+        else if (strncmp(argv[i], "--comments-config=", 18) == 0)
+            pszCommentsConfig = argv[i] + 18;
         else if (strncmp(argv[i], "--default-license=", 18) == 0)
             g_pszDefaultLicense = argv[i] + 18;
         else if (strncmp(argv[i], "--default-copyright=", 20) == 0)
@@ -655,7 +730,7 @@ int main(int argc, char *argv[]) {
     }
 
     {
-        APIRET rc = ReuseTreeOpen(pszDir, &hTree);
+        APIRET rc = ReuseOpenTree(pszDir, pszCommentsConfig, &hTree);
         if (rc != NO_ERROR) {
             fprintf(stderr,
                     "ERROR: cannot open REUSE project at %s. "
@@ -684,7 +759,7 @@ int main(int argc, char *argv[]) {
 
     if (StrSetCreate(&hUsedLicenses) != NO_ERROR) {
         fprintf(stderr, "ERROR: out of memory [not in spec]\n");
-        ReuseTreeClose(hTree);
+        ReuseCloseTree(hTree);
         GitIgnoreListFree(&gitignore_rules);
         free(pszRepoRoot);
         SpdxCloseDatabase();
@@ -702,7 +777,7 @@ int main(int argc, char *argv[]) {
     if (StrSetCreate(&hPaths) != NO_ERROR) {
         fprintf(stderr, "ERROR: out of memory [not in spec]\n");
         StrSetDestroy(hUsedLicenses);
-        ReuseTreeClose(hTree);
+        ReuseCloseTree(hTree);
         GitIgnoreListFree(&gitignore_rules);
         free(pszRepoRoot);
         SpdxCloseDatabase();
@@ -717,7 +792,7 @@ int main(int argc, char *argv[]) {
                 pszDir);
         StrSetDestroy(hPaths);
         StrSetDestroy(hUsedLicenses);
-        ReuseTreeClose(hTree);
+        ReuseCloseTree(hTree);
         GitIgnoreListFree(&gitignore_rules);
         free(pszRepoRoot);
         SpdxCloseDatabase();
@@ -737,6 +812,18 @@ int main(int argc, char *argv[]) {
         }
     }
     StrSetDestroy(hPaths);
+
+    fprintf(stderr, "\n=== Tags ===\n");
+    {
+        HREUSETAGSREPORT hTagsReport = NULLHANDLE;
+        ULONG ulTagErrors = 0;
+        ULONG ulTagWarnings = 0;
+        if (ReuseQueryTreeTagsReport(hTree, &hTagsReport) == NO_ERROR) {
+            PrintTagsReport(hTagsReport, &ulTagErrors, &ulTagWarnings);
+            g_ulErrorCount += ulTagErrors;
+            g_ulWarningCount += ulTagWarnings;
+        }
+    }
 
     fprintf(stderr, "\n=== LICENSES/ ===\n");
     if (ReuseLicensesReportCreate(&hLicReport) == NO_ERROR) {
@@ -801,7 +888,7 @@ int main(int argc, char *argv[]) {
             (unsigned long)g_ulWarningCount);
 
     StrSetDestroy(hUsedLicenses);
-    ReuseTreeClose(hTree);
+    ReuseCloseTree(hTree);
     GitIgnoreListFree(&gitignore_rules);
     free(pszRepoRoot);
     SpdxCloseDatabase();

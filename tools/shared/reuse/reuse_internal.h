@@ -83,16 +83,21 @@ struct _REUSECFG {
  * @brief Open project handle.
  */
 struct _REUSETREE {
-    REUSECFG   *paCfgs;            /*!< Configuration sources.    */
-    ULONG       ulCount;           /*!< Number of used entries.   */
-    ULONG       ulCapacity;        /*!< Allocated capacity.       */
+    REUSECFG             *paCfgs;            /*!< Configuration sources.    */
+    ULONG                 ulCount;           /*!< Number of used entries.   */
+    ULONG                 ulCapacity;        /*!< Allocated capacity.       */
 
-    REUSEERR   *paErrors;          /*!< Recorded diagnostics.     */
-    ULONG       ulErrorCount;      /*!< Number of used entries.   */
-    ULONG       ulErrorCapacity;   /*!< Allocated capacity.       */
+    REUSEERR             *paErrors;          /*!< Recorded diagnostics.     */
+    ULONG                 ulErrorCount;      /*!< Number of used entries.   */
+    ULONG                 ulErrorCapacity;   /*!< Allocated capacity.       */
 
-    PSZ         pszProjectDir;     /*!< Argument to ReuseTreeOpen.*/
-    PSZ         pszRepoRoot;       /*!< Git repo root, or NULL.   */
+    PSZ                   pszProjectDir;     /*!< Argument to ReuseOpenTree.*/
+    PSZ                   pszRepoRoot;       /*!< Git repo root, or NULL.   */
+
+    HREUSECOMMENTSCFG     hComments;         /*!< Attached comments.toml,
+                                                  or NULLHANDLE.            */
+    HREUSETAGSREPORT      hReport;           /*!< Tag warnings report, or
+                                                  NULLHANDLE.               */
 };
 
 /* ------------------------------------------------------------------
@@ -132,9 +137,10 @@ struct _REUSETREEFILE {
  *
  * @param[in] hDoc  Handle. May be NULLHANDLE.
  *
- * @return Internal pointer, or NULL on failure.
+ * @return PREUSETREE
  *
  * @retval NULL  hDoc is NULLHANDLE.
+ * @return       Internal pointer.
  */
 PREUSETREE ReuseInternalGetDoc(HREUSETREE hDoc);
 
@@ -143,9 +149,10 @@ PREUSETREE ReuseInternalGetDoc(HREUSETREE hDoc);
  *
  * @param[in] hFile  Handle. May be NULLHANDLE.
  *
- * @return Internal pointer, or NULL on failure.
+ * @return PREUSETREEFILE
  *
  * @retval NULL  hFile is NULLHANDLE.
+ * @return       Internal pointer.
  */
 PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile);
 

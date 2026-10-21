@@ -367,7 +367,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    rc = ReuseTreeOpen(opts.pszDir, &hTree);
+    rc = ReuseOpenTree(opts.pszDir, NULL, &hTree);
     if (rc != NO_ERROR) {
         fprintf(stderr,
                 "ERROR: cannot open REUSE project at %s\n"
@@ -601,7 +601,7 @@ cleanup:
     if (hPaths != NULLHANDLE) StrSetDestroy(hPaths);
     if (hResolved != NULLHANDLE) SbomFreeFileInputList(hResolved);
     if (fPkgLicenseIsHeap) free(pszPkgLicense);
-    if (hTree != NULLHANDLE) ReuseTreeClose(hTree);
+    if (hTree != NULLHANDLE) ReuseCloseTree(hTree);
     GitIgnoreListFree(&gitignore_rules);
     free(pszRepoRoot);
     SpdxCloseDatabase();

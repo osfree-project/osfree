@@ -1092,7 +1092,7 @@ int main(int argc, char *argv[]) {
     }
 
     {
-        APIRET rc = ReuseTreeOpen(pszDir, &hTree);
+        APIRET rc = ReuseOpenTree(pszDir, NULL, &hTree);
         if (rc != NO_ERROR) {
             printf("ERROR: cannot open REUSE project at %s\n"
                    "       The directory is missing or unreadable.\n",
@@ -1135,7 +1135,7 @@ int main(int argc, char *argv[]) {
     if (StrSetCreate(&hPaths) != NO_ERROR) {
         printf("ERROR: out of memory\n");
         StrSetDestroy(hUsedLicenses);
-        ReuseTreeClose(hTree);
+        ReuseCloseTree(hTree);
         GitIgnoreListFree(&gitignore_rules);
         free(pszRepoRoot);
         SpdxCloseDatabase();
@@ -1149,7 +1149,7 @@ int main(int argc, char *argv[]) {
                pszDir);
         StrSetDestroy(hPaths);
         StrSetDestroy(hUsedLicenses);
-        ReuseTreeClose(hTree);
+        ReuseCloseTree(hTree);
         GitIgnoreListFree(&gitignore_rules);
         free(pszRepoRoot);
         SpdxCloseDatabase();
@@ -1342,7 +1342,7 @@ int main(int argc, char *argv[]) {
     }
 
     StrSetDestroy(hUsedLicenses);
-    ReuseTreeClose(hTree);
+    ReuseCloseTree(hTree);
     GitIgnoreListFree(&gitignore_rules);
     free(pszRepoRoot);
     SpdxCloseDatabase();

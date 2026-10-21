@@ -8,11 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "os2types.h"
-#include "os2err.h"
-#include "reuse_tags.h"
-#include "reuse_comments.h"
-#include "reuse_licenses.h"
+#include "reuse.h"
 #include "spdx_tag.h"
 
 /*!
@@ -122,7 +118,7 @@ static APIRET tags_report_append(HREUSETAGSREPORT hReport,
  * @retval ERROR_INVALID_PARAMETER  phReport is NULL.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-APIRET APIENTRY ReuseTagsReportCreate(PHREUSETAGSREPORT phReport) {
+APIRET APIENTRY ReuseCreateTagsReport(PHREUSETAGSREPORT phReport) {
     PREUSETAGSREPORT pCtl;
 
     if (phReport == NULL) return ERROR_INVALID_PARAMETER;
@@ -136,7 +132,7 @@ APIRET APIENTRY ReuseTagsReportCreate(PHREUSETAGSREPORT phReport) {
 }
 
 /*!
- * @brief Release a report.
+ * @brief Close a report.
  *
  * @param[in] hReport  Handle. NULLHANDLE is a no-op.
  *
@@ -145,7 +141,7 @@ APIRET APIENTRY ReuseTagsReportCreate(PHREUSETAGSREPORT phReport) {
  * @retval NO_ERROR               Success. Also for NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE   Handle is not recognized.
  */
-APIRET APIENTRY ReuseTagsReportFree(HREUSETAGSREPORT hReport) {
+APIRET APIENTRY ReuseCloseTagsReport(HREUSETAGSREPORT hReport) {
     PREUSETAGSREPORT pCtl;
 
     if (hReport == NULLHANDLE) return NO_ERROR;
@@ -169,8 +165,8 @@ APIRET APIENTRY ReuseTagsReportFree(HREUSETAGSREPORT hReport) {
  * @retval ERROR_INVALID_PARAMETER  hReport or pulCount is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
  */
-APIRET APIENTRY ReuseTagsReportGetCount(HREUSETAGSREPORT hReport,
-                                        PULONG pulCount)
+APIRET APIENTRY ReuseQueryTagsReportCount(HREUSETAGSREPORT hReport,
+                                          PULONG pulCount)
 {
     PREUSETAGSREPORT pCtl = as_tags_report(hReport);
     if (pCtl == NULL || pulCount == NULL) return ERROR_INVALID_PARAMETER;
@@ -192,9 +188,9 @@ APIRET APIENTRY ReuseTagsReportGetCount(HREUSETAGSREPORT hReport,
  * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
  * @retval ERROR_NO_MORE_ITEMS      ulIndex is out of range.
  */
-APIRET APIENTRY ReuseTagsReportGet(HREUSETAGSREPORT hReport,
-                                   ULONG ulIndex,
-                                   PREUSEERR pErr)
+APIRET APIENTRY ReuseQueryTagsReport(HREUSETAGSREPORT hReport,
+                                     ULONG ulIndex,
+                                     PREUSEERR pErr)
 {
     PREUSETAGSREPORT pCtl = as_tags_report(hReport);
     if (pCtl == NULL || pErr == NULL) return ERROR_INVALID_PARAMETER;
@@ -454,7 +450,7 @@ APIRET APIENTRY ReuseQueryFileTags(PCSZ pszPath,
     if (pszCopyright == NULL && ulCopSize != 0) return ERROR_INVALID_PARAMETER;
 
     if (hReport != NULLHANDLE) {
-        if (ReuseTagsReportGetCount(hReport, &ulProbe) != NO_ERROR)
+        if (ReuseQueryTagsReportCount(hReport, &ulProbe) != NO_ERROR)
             return ERROR_INVALID_HANDLE;
     }
 
@@ -733,7 +729,7 @@ APIRET APIENTRY ReuseQueryFileSnippets(PCSZ pszPath,
     if (pszPath == NULL || pOut == NULL) return ERROR_INVALID_PARAMETER;
 
     if (hReport != NULLHANDLE) {
-        if (ReuseTagsReportGetCount(hReport, &ulProbe) != NO_ERROR)
+        if (ReuseQueryTagsReportCount(hReport, &ulProbe) != NO_ERROR)
             return ERROR_INVALID_HANDLE;
     }
 
