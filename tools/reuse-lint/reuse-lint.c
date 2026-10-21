@@ -421,14 +421,29 @@ static void CheckLicenseExpression(PCSZ pszFullPath, PCSZ pszLicense,
 /*!
  * @brief Check every SPDX snippet of one file.
  *
+ * Reads the snippets through the REUSE layer
+ * (ReuseQueryFileSnippets), so comment markers are stripped according
+ * to the file's comment style and REUSE-IgnoreStart/End regions are
+ * honoured.
+ *
  * @param[in] pszFullPath    File path used in diagnostics. Not NULL.
  * @param[in] hUsedLicenses  Set of used identifiers. Not NULLHANDLE.
+ * @param[in] hStyle         Comment style. Not NULLHANDLE.
+ * @param[in] hReport        Tag warnings report, or NULLHANDLE.
  */
-static void ProcessSnippets(PCSZ pszFullPath, HSTRSET hUsedLicenses) {
+static void ProcessSnippets(PCSZ pszFullPath, HSTRSET hUsedLicenses,
+                            HREUSECOMMENTSTYLE hStyle,
+                            HREUSETAGSREPORT hReport) {
     SPDXSNIPPETLIST snippets;
     ULONG ulIdx;
+    APIRET rc;
 
-    if (SpdxQueryFileSnippets(pszFullPath, &snippets) != NO_ERROR) {
+    rc = ReuseQueryFileSnippets(pszFullPath, hStyle, hReport, &snippets);
+    if (rc != NO_ERROR) {
+        fprintf(stderr,
+                "ERROR: %s: cannot read SPDX snippets (code %lu). "
+                "[not in spec]\n",
+                pszFullPath, (unsigned long)rc);
         g_ulErrorCount++;
         return;
     }
@@ -486,10 +501,14 @@ static void ProcessSnippets(PCSZ pszFullPath, HSTRSET hUsedLicenses) {
  * @param[in] pszFullPath     File path. Not NULL.
  * @param[in] hTree           REUSE project handle. Not NULLHANDLE.
  * @param[in] hUsedLicenses   Set of used identifiers. Not NULLHANDLE.
+ * @param[in] hTagsReport     Tag warnings report, or NULLHANDLE.
  */
 static void ProcessFile(PCSZ pszFullPath, HREUSETREE hTree,
-                        HSTRSET hUsedLicenses) {
+                        HSTRSET hUsedLicenses,
+                        HREUSETAGSREPORT hTagsReport) {
     REUSELICENSEINFO lic;
+    HREUSECOMMENTSTYLE hStyle = NULLHANDLE;
+    BOOL fStyleFound = FALSE;
     FILE *fp;
     APIRET rcResolve;
 
@@ -613,7 +632,12 @@ static void ProcessFile(PCSZ pszFullPath, HREUSETREE hTree,
         CheckLicenseExpression(pszFullPath, lic.achLicense, hUsedLicenses);
     }
 
-    ProcessSnippets(pszFullPath, hUsedLicenses);
+    if (ReuseQueryTreeCommentStyle(hTree, pszFullPath,
+                                   &fStyleFound, &hStyle) != NO_ERROR)
+        fStyleFound = FALSE;
+    if (fStyleFound && hStyle != NULLHANDLE) {
+        ProcessSnippets(pszFullPath, hUsedLicenses, hStyle, hTagsReport);
+    }
 }
 
 /* ------------------------------------------------------------------ */
@@ -641,6 +665,7 @@ int main(int argc, char *argv[]) {
     HSTRSET hUsedLicenses = NULLHANDLE;
     HSTRSET hPaths = NULLHANDLE;
     HREUSELICENSEREPORT hLicReport = NULLHANDLE;
+    HREUSETAGSREPORT hTagsReport = NULLHANDLE;
     APIRET rcDb;
     REUSEDISCOVEROPTIONS walk_opts;
     PSZ pszRepoRoot = NULL;
@@ -775,6 +800,9 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    if (ReuseQueryTreeTagsReport(hTree, &hTagsReport) != NO_ERROR)
+        hTagsReport = NULLHANDLE;
+
     if (!fNoGitignore) {
         if (GitCollectGitignores(pszRepoRoot, pszDir,
                                  &gitignore_rules) == NO_ERROR &&
@@ -832,7 +860,7 @@ int main(int argc, char *argv[]) {
                 if (StrSetEnumGet(hEnum, achFull, sizeof(achFull), NULL)
                         != NO_ERROR)
                     continue;
-                ProcessFile(achFull, hTree, hUsedLicenses);
+                ProcessFile(achFull, hTree, hUsedLicenses, hTagsReport);
             } while (StrSetEnumNext(hEnum) == NO_ERROR);
             StrSetEnumClose(hEnum);
         }
@@ -841,14 +869,11 @@ int main(int argc, char *argv[]) {
 
     fprintf(stderr, "\n=== Tags ===\n");
     {
-        HREUSETAGSREPORT hTagsReport = NULLHANDLE;
         ULONG ulTagErrors = 0;
         ULONG ulTagWarnings = 0;
-        if (ReuseQueryTreeTagsReport(hTree, &hTagsReport) == NO_ERROR) {
-            PrintTagsReport(hTagsReport, &ulTagErrors, &ulTagWarnings);
-            g_ulErrorCount += ulTagErrors;
-            g_ulWarningCount += ulTagWarnings;
-        }
+        PrintTagsReport(hTagsReport, &ulTagErrors, &ulTagWarnings);
+        g_ulErrorCount += ulTagErrors;
+        g_ulWarningCount += ulTagWarnings;
     }
 
     fprintf(stderr, "\n=== LICENSES/ ===\n");
