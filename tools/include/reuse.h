@@ -349,6 +349,50 @@ APIRET APIENTRY ReuseOpenComments(PCSZ pszConfigPath,
 APIRET APIENTRY ReuseCloseComments(HREUSECOMMENTSCFG hCfg);
 
 /**
+ * @brief Resolve the comment style for a file using a config handle.
+ *
+ * Matches [[map]].glob first by base name, then by normalized full
+ * path. The order of [[map]] entries is the order of checking; the
+ * first match wins.
+ *
+ * @param[in]  hCfg         Config. Not NULLHANDLE.
+ * @param[in]  pszFilePath  Path to the file. Not NULL.
+ * @param[out] pfFound      TRUE if a [[map]] matched. Not NULL.
+ * @param[out] phStyle      Borrowed style handle on match. Not NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Check completed.
+ * @retval ERROR_INVALID_PARAMETER  Any argument is NULL.
+ * @retval ERROR_INVALID_HANDLE     hCfg is not recognized.
+ * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure while
+ *                                  normalizing the path.
+ */
+APIRET APIENTRY ReuseQueryCommentStyle(HREUSECOMMENTSCFG hCfg,
+                                       PCSZ pszFilePath,
+                                       PBOOL pfFound,
+                                       HREUSECOMMENTSTYLE *phStyle);
+
+/**
+ * @brief Resolve a style by its configured name.
+ *
+ * @param[in]  hCfg     Config. Not NULLHANDLE.
+ * @param[in]  pszName  Style name. Not NULL.
+ * @param[out] pfFound  TRUE if the name is defined. Not NULL.
+ * @param[out] phStyle  Borrowed style handle on match. Not NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Check completed.
+ * @retval ERROR_INVALID_PARAMETER  Any argument is NULL.
+ * @retval ERROR_INVALID_HANDLE     hCfg is not recognized.
+ */
+APIRET APIENTRY ReuseQueryCommentStyleByName(HREUSECOMMENTSCFG hCfg,
+                                             PCSZ pszName,
+                                             PBOOL pfFound,
+                                             HREUSECOMMENTSTYLE *phStyle);
+
+/**
  * @brief Query static properties of a comment style.
  *
  * @param[in]  hStyle  Borrowed style. Not NULLHANDLE.

@@ -31,6 +31,7 @@
 
 #include "reuse.h"
 #include "reuse_internal.h"
+#include "reuse_glob.h"      /* P1: ReuseQueryGlobMatch */
 #include "reuse_toml.h"
 #include "dep5.h"
 #include "git.h"
