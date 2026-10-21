@@ -6,9 +6,10 @@ SPDX_SBOM     = spdx-sbom.exe
 SPDX_MERGE    = spdx-merge.exe
 
 SPDX_DB       = $(ROOT)licenses_db
+COMMENTS      = $(ROOT)comments.toml
 
 !ifndef COPYRIGHT
-COPYRIGHT = Copyright (C) 2026 osFree Project
+COPYRIGHT = (C) 2026 osFree Project
 !endif
 
 !ifndef LICENSE
@@ -21,7 +22,7 @@ LICENSE = BSD-3-Clause
 # и автоматические (spdx-lint, spdx-sbom).
 # ------------------------------------------------------------
 
-SPDX_ARGS = --spdx-db="$(SPDX_DB)"
+SPDX_ARGS = --spdx-db="$(SPDX_DB)" --comments-config=$(COMMENTS)
 
 !ifdef BLD
 SPDX_ARGS = $(SPDX_ARGS) --cache="$(BLD)spdx_db.cache"
