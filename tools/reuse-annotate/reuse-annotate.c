@@ -961,6 +961,7 @@ int main(int argc, char *argv[]) {
     PCSZ pszCopyrightOverride = NULL;
     PCSZ pszSpdxDbRoot = NULL;
     PCSZ pszCacheFile = NULL;
+    PCSZ pszCommentsConfig = NULL;
     HREUSETREE hTree = NULLHANDLE;
     APIRET rcDb;
     HSTRSET hUsedLicenses = NULLHANDLE;
@@ -996,6 +997,10 @@ int main(int argc, char *argv[]) {
                    "files\n"
                    "  --spdx-db=<path>           SPDX database root "
                    "(required)\n"
+                   "  --comments-config=<path>   comments.toml describing "
+                   "comment styles\n"
+                   "                             for in-file SPDX tags "
+                   "(required)\n"
                    "  --cache=<path>             SPDX database cache "
                    "file\n"
                    "  --comment-style=<ext>=<style>\n"
@@ -1025,6 +1030,8 @@ int main(int argc, char *argv[]) {
             pszSpdxDbRoot = argv[i] + 10;
         } else if (strncmp(argv[i], "--cache=", 8) == 0) {
             pszCacheFile = argv[i] + 8;
+        } else if (strncmp(argv[i], "--comments-config=", 18) == 0) {
+            pszCommentsConfig = argv[i] + 18;
         } else if (strncmp(argv[i], "--comment-style=", 16) == 0) {
             AddStyleOverride(argv[i] + 16);
         } else if (argv[i][0] != '-') {
@@ -1092,7 +1099,18 @@ int main(int argc, char *argv[]) {
     }
 
     {
-        APIRET rc = ReuseOpenTree(pszDir, NULL, &hTree);
+        APIRET rc = ReuseOpenTree(pszDir, pszCommentsConfig, &hTree);
+        if (rc == REUSE_ERROR_NO_COMMENT_STYLE) {
+            printf("ERROR: --comments-config=<path> is required.\n"
+                   "       It defines the comment styles used to read "
+                   "in-file SPDX tags.\n"
+                   "       Run 'reuse-annotate --help' for usage.\n");
+            StrSetDestroy(hUsedLicenses);
+            GitIgnoreListFree(&gitignore_rules);
+            free(pszRepoRoot);
+            SpdxCloseDatabase();
+            return 1;
+        }
         if (rc != NO_ERROR) {
             printf("ERROR: cannot open REUSE project at %s\n"
                    "       The directory is missing or unreadable.\n",
@@ -1183,10 +1201,20 @@ int main(int argc, char *argv[]) {
 
                 {
                     REUSELICENSEINFO resolved;
+                    APIRET rcResolve;
                     memset(&resolved, 0, sizeof(resolved));
-                    if (ReuseResolveLicense(hTree, achFullPath,
-                                            NULL, NULL, &resolved)
-                            == NO_ERROR) {
+                    rcResolve = ReuseResolveLicense(hTree, achFullPath,
+                                                    NULL, NULL, &resolved);
+                    if (rcResolve == REUSE_ERROR_NO_COMMENT_STYLE) {
+                        printf("ERROR: %s: no [[map]] entry in "
+                               "comments.toml matches this file.\n"
+                               "       Add a [[map]] entry "
+                               "(e.g. glob = \"*.<ext>\", style = ...).\n",
+                               achFullPath);
+                        ulTotalErrors++;
+                        continue;
+                    }
+                    if (rcResolve == NO_ERROR) {
                         if (resolved.achLicense[0]) {
                             size_t cbN = strlen(resolved.achLicense);
                             pszReuseLicense = (PSZ)malloc(cbN + 1);

@@ -127,25 +127,29 @@ typedef struct _REUSECOMMENTSTYLEINFO {
  * increasing depth order. Also reads .reuse/dep5 at the repository
  * root, if present.
  *
- * When pszCommentsConfig is non-NULL, the given comments.toml is
- * parsed and attached to the tree. When NULL, in-file SPDX tags are
- * not read.
+ * pszCommentsConfig is required. A project opened without a
+ * comments.toml cannot process in-file SPDX tags, so ReuseOpenTree
+ * returns REUSE_ERROR_NO_COMMENT_STYLE when pszCommentsConfig is
+ * NULL.
  *
  * Parse errors in discovered files are recorded as REUSEERR entries
  * in the project handle; the offending source is skipped.
  *
  * @param[in]  pszDir             Target directory. Not NULL.
- * @param[in]  pszCommentsConfig  Path to comments.toml, or NULL.
- * @param[out] phTree             Handle receiver. Not NULL.
+ * @param[in]  pszCommentsConfig  Path to comments.toml. Not NULL.
+ * @param[out] phTree             Handle receiver. Not NULL. Set to
+ *                                NULLHANDLE on error.
  *
  * @return APIRET
  *
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszDir or phTree is NULL.
- * @retval ERROR_OPEN_FAILED        Directory or comments.toml cannot be
- *                                  opened.
- * @retval ERROR_INVALID_DATA       comments.toml parse error.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
+ * @retval NO_ERROR                  Success.
+ * @retval ERROR_INVALID_PARAMETER   pszDir or phTree is NULL.
+ * @retval REUSE_ERROR_NO_COMMENT_STYLE
+ *                                   pszCommentsConfig is NULL.
+ * @retval ERROR_OPEN_FAILED         Directory or comments.toml cannot
+ *                                   be opened.
+ * @retval ERROR_INVALID_DATA        comments.toml parse error.
+ * @retval ERROR_NOT_ENOUGH_MEMORY   Memory allocation failure.
  *
  * @see ReuseCloseTree
  */
@@ -559,9 +563,9 @@ APIRET APIENTRY ReuseQueryFileSnippets(PCSZ pszPath,
  * REUSE.toml / DEP5 annotations according to the precedence rules
  * of REUSE 3.3 §4.1.2, §4.1.3.
  *
- * Returns REUSE_ERROR_NO_COMMENT_STYLE when comments.toml was not
- * supplied to ReuseOpenTree, or when it has no [[map]] entry
- * matching pszPath. In that case the file cannot be processed.
+ * Returns REUSE_ERROR_NO_COMMENT_STYLE when the attached
+ * comments.toml has no [[map]] entry matching pszPath. In that
+ * case the file cannot be processed.
  *
  * A successful return does not imply the file had any licensing
  * information. Use ReuseQueryFileSource to distinguish "no sources
@@ -580,8 +584,7 @@ APIRET APIENTRY ReuseQueryFileSnippets(PCSZ pszPath,
  * @retval ERROR_OPEN_FAILED         File cannot be opened.
  * @retval ERROR_READ_FAULT          Read error.
  * @retval REUSE_ERROR_NO_COMMENT_STYLE
- *                                   comments.toml not supplied, or no
- *                                   [[map]] entry for the file.
+ *                                   no [[map]] entry for the file.
  * @retval ERROR_NOT_ENOUGH_MEMORY   Memory allocation failure.
  */
 APIRET APIENTRY ReuseOpenFile(HREUSETREE hTree, PCSZ pszPath,

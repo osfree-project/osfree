@@ -491,6 +491,7 @@ static void ProcessFile(PCSZ pszFullPath, HREUSETREE hTree,
                         HSTRSET hUsedLicenses) {
     REUSELICENSEINFO lic;
     FILE *fp;
+    APIRET rcResolve;
 
     g_ulTotalFiles++;
 
@@ -505,9 +506,22 @@ static void ProcessFile(PCSZ pszFullPath, HREUSETREE hTree,
     }
     fclose(fp);
 
-    if (ReuseResolveLicense(hTree, pszFullPath,
-                            g_pszDefaultLicense, g_pszDefaultCopyright,
-                            &lic) != NO_ERROR) {
+    rcResolve = ReuseResolveLicense(hTree, pszFullPath,
+                                    g_pszDefaultLicense,
+                                    g_pszDefaultCopyright, &lic);
+
+    if (rcResolve == REUSE_ERROR_NO_COMMENT_STYLE) {
+        fprintf(stderr,
+                "ERROR: %s: no [[map]] entry in comments.toml matches "
+                "this file.\n"
+                "       Add a [[map]] entry (e.g. glob = \"*.<ext>\", "
+                "style = ...).\n",
+                pszFullPath);
+        g_ulErrorCount++;
+        return;
+    }
+
+    if (rcResolve != NO_ERROR) {
         fprintf(stderr,
                 "ERROR: %s: license and copyright are missing.\n"
                 "       Run '%s annotate' to write the license\n"
@@ -643,10 +657,11 @@ int main(int argc, char *argv[]) {
                    "(licenses.json,\n"
                    "                             exceptions.json, details/, "
                    "exceptions/)\n"
-                   "  --cache=<path>             SPDX database cache file\n"
                    "  --comments-config=<path>   comments.toml describing "
                    "comment styles\n"
-                   "                             for in-file SPDX tags\n"
+                   "                             for in-file SPDX tags "
+                   "(required)\n"
+                   "  --cache=<path>             SPDX database cache file\n"
                    "  --default-license=<id>     Fallback license "
                    "identifier\n"
                    "  --default-copyright=<text> Fallback copyright text\n"
@@ -731,6 +746,17 @@ int main(int argc, char *argv[]) {
 
     {
         APIRET rc = ReuseOpenTree(pszDir, pszCommentsConfig, &hTree);
+        if (rc == REUSE_ERROR_NO_COMMENT_STYLE) {
+            fprintf(stderr,
+                    "ERROR: --comments-config=<path> is required.\n"
+                    "       It defines the comment styles used to read "
+                    "in-file SPDX tags.\n"
+                    "       Run 'reuse-lint --help' for usage.\n");
+            GitIgnoreListFree(&gitignore_rules);
+            free(pszRepoRoot);
+            SpdxCloseDatabase();
+            return 1;
+        }
         if (rc != NO_ERROR) {
             fprintf(stderr,
                     "ERROR: cannot open REUSE project at %s. "

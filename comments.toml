@@ -1,0 +1,208 @@
+[[style]]
+name = "c"
+single = "//"
+indent_after_single = " "
+multi_start = "/*"
+multi_middle = "*"
+multi_end = "*/"
+indent_before_middle = " "
+indent_after_middle = " "
+indent_before_end = " "
+shebangs = ["#!", "<?php"]
+
+[[style]]
+name = "cppsingle"
+single = "//"
+indent_after_single = " "
+shebangs = ["#!"]
+
+[[style]]
+name = "batch"
+single_line_regexp = "^@?rem\\b"
+case_insensitive = true
+indent_after_single = " "
+
+[[style]]
+name = "hash"
+single = "#"
+indent_after_single = " "
+shebangs = ["#!"]
+
+[[style]]
+name = "julia"
+single = "#"
+indent_after_single = " "
+multi_start = "#="
+multi_end = "=#"
+shebangs = ["#!"]
+
+[[style]]
+name = "tex"
+single = "%"
+indent_after_single = " "
+shebangs = ["% !TEX", "%!TEX", "#!"]
+
+[[style]]
+name = "bibtex"
+multi_start = "@Comment{"
+multi_end = "}"
+shebangs = ["% !BIB", "%!BIB"]
+
+[[style]]
+name = "haskell"
+single = "--"
+indent_after_single = " "
+shebangs = ["cabal-version:"]
+
+[[style]]
+name = "html"
+multi_start = "<!--"
+multi_end = "-->"
+shebangs = ["<?xml"]
+
+[[style]]
+name = "uncommentable"
+
+[[map]]
+glob = "*.c"
+style = "c"
+
+[[map]]
+glob = "*.h"
+style = "c"
+
+[[map]]
+glob = "*.cpp"
+style = "c"
+
+[[map]]
+glob = "*.cc"
+style = "c"
+
+[[map]]
+glob = "*.cxx"
+style = "c"
+
+[[map]]
+glob = "*.hpp"
+style = "c"
+
+[[map]]
+glob = "*.rc"
+style = "c"
+
+[[map]]
+glob = "*.cmd"
+style = "batch"
+
+[[map]]
+glob = "*.bat"
+style = "batch"
+
+[[map]]
+glob = "*.btm"
+style = "batch"
+
+[[map]]
+glob = "Makefile"
+style = "hash"
+
+[[map]]
+glob = "makefile"
+style = "hash"
+
+[[map]]
+glob = "*.sh"
+style = "hash"
+
+[[map]]
+glob = "*.py"
+style = "hash"
+
+[[map]]
+glob = "*.pl"
+style = "hash"
+
+[[map]]
+glob = "*.rb"
+style = "hash"
+
+[[map]]
+glob = "*.toml"
+style = "hash"
+
+[[map]]
+glob = "*.yml"
+style = "hash"
+
+[[map]]
+glob = "*.yaml"
+style = "hash"
+
+[[map]]
+glob = "*.jl"
+style = "julia"
+
+[[map]]
+glob = "*.tex"
+style = "tex"
+
+[[map]]
+glob = "*.bib"
+style = "bibtex"
+
+[[map]]
+glob = "*.hs"
+style = "haskell"
+
+[[map]]
+glob = "*.html"
+style = "html"
+
+[[map]]
+glob = "*.htm"
+style = "html"
+
+[[map]]
+glob = "*.xml"
+style = "html"
+
+[[map]]
+glob = "*.md"
+style = "html"
+
+[[map]]
+glob = "*.png"
+style = "uncommentable"
+
+[[map]]
+glob = "*.jpg"
+style = "uncommentable"
+
+[[map]]
+glob = "*.gif"
+style = "uncommentable"
+
+[[map]]
+glob = "*.ico"
+style = "uncommentable"
+
+[[map]]
+glob = "*.exe"
+style = "uncommentable"
+
+[[map]]
+glob = "*.dll"
+style = "uncommentable"
+
+[[map]]
+glob = "*.obj"
+style = "uncommentable"
+
+[[map]]
+glob = "*.lib"
+style = "uncommentable"
+
+[[map]]
+glob = "*.res"
+style = "uncommentable"

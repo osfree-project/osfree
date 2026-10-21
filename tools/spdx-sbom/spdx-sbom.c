@@ -57,11 +57,11 @@ static void print_help(void) {
            "(licenses.json,\n"
            "                             exceptions.json, details/, "
            "exceptions/)\n"
-           "\n"
-           "Optional:\n"
            "  --comments-config=<path>   comments.toml describing comment "
            "styles\n"
            "                             for in-file SPDX tags\n"
+           "\n"
+           "Optional:\n"
            "  --version=<ver>            Package version\n"
            "  --supplier=<name>          Package supplier\n"
            "  --creator=<name>           SBOM creator\n"
@@ -195,6 +195,10 @@ static APIRET resolve_package_license(const SBOMOPTIONS *pOpts,
  * file with no licensing information at all is reported to stderr
  * and skipped; the SBOM layer would reject it anyway.
  *
+ * REUSE_ERROR_NO_COMMENT_STYLE from ReuseResolveLicense is
+ * propagated to the caller; a file for which the comment style
+ * cannot be determined invalidates the whole SBOM.
+ *
  * @param[in]  hPaths     Set of file paths. Not NULLHANDLE.
  * @param[in]  hTree      Project handle. May be NULLHANDLE.
  * @param[in]  pszDefLic  Fallback license, or NULL.
@@ -206,10 +210,13 @@ static APIRET resolve_package_license(const SBOMOPTIONS *pOpts,
  *
  * @return APIRET
  *
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  A parameter is NULLHANDLE.
- * @retval ERROR_INVALID_HANDLE     A container is not recognized.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
+ * @retval NO_ERROR                     Success.
+ * @retval ERROR_INVALID_PARAMETER      A parameter is NULLHANDLE.
+ * @retval ERROR_INVALID_HANDLE         A container is not recognized.
+ * @retval REUSE_ERROR_NO_COMMENT_STYLE
+ *                                      No [[map]] entry in
+ *                                      comments.toml matches a file.
+ * @retval ERROR_NOT_ENOUGH_MEMORY      Allocation failure.
  */
 static APIRET resolve_all_files(HSTRSET hPaths,
                                 HREUSETREE hTree,
@@ -239,6 +246,16 @@ static APIRET resolve_all_files(HSTRSET hPaths,
 
         rc = ReuseResolveLicense(hTree, achFull, pszDefLic, pszDefCop,
                                  &lic);
+        if (rc == REUSE_ERROR_NO_COMMENT_STYLE) {
+            fprintf(stderr,
+                    "ERROR: %s: no [[map]] entry in comments.toml "
+                    "matches this file.\n"
+                    "       Add a [[map]] entry "
+                    "(e.g. glob = \"*.<ext>\", style = ...).\n",
+                    achFull);
+            StrSetEnumClose(hEnum);
+            return REUSE_ERROR_NO_COMMENT_STYLE;
+        }
         if (rc != NO_ERROR) {
             fprintf(stderr,
                     "WARNING: %s: no licensing information, skipped.\n"
@@ -373,6 +390,14 @@ int main(int argc, char *argv[]) {
     }
 
     rc = ReuseOpenTree(opts.pszDir, opts.pszCommentsConfig, &hTree);
+    if (rc == REUSE_ERROR_NO_COMMENT_STYLE) {
+        fprintf(stderr,
+                "ERROR: --comments-config=<path> is required.\n"
+                "       It defines the comment styles used to read "
+                "in-file SPDX tags.\n"
+                "       Run 'spdx-sbom --help' for usage.\n");
+        goto cleanup;
+    }
     if (rc != NO_ERROR) {
         fprintf(stderr,
                 "ERROR: cannot open REUSE project at %s\n"
@@ -496,6 +521,9 @@ int main(int argc, char *argv[]) {
                                opts.pszDefaultLicense,
                                opts.pszDefaultCopyright,
                                hResolved, &ulSkipped);
+        if (rc == REUSE_ERROR_NO_COMMENT_STYLE) {
+            goto cleanup;
+        }
         if (rc != NO_ERROR) {
             fprintf(stderr,
                     "ERROR: cannot resolve licensing information "

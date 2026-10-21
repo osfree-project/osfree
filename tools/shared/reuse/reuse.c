@@ -31,12 +31,12 @@
 
 #include "reuse.h"
 #include "reuse_internal.h"
-#include "reuse_glob.h"      /* P1: ReuseQueryGlobMatch */
+#include "reuse_glob.h"
 #include "reuse_toml.h"
 #include "dep5.h"
 #include "git.h"
 #include "path.h"
-#include "reuse_lic.h"   /* P1: REUSE_LICENSE_SRC_* */
+#include "reuse_lic.h"
 
 /* ==================================================================
  * Small helpers
@@ -1425,22 +1425,29 @@ PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile) {
  * pszDir, in increasing depth order. Also reads .reuse/dep5 at the
  * repository root, if present.
  *
+ * pszCommentsConfig is required. A project opened without a
+ * comments.toml cannot process in-file SPDX tags, so ReuseOpenTree
+ * returns REUSE_ERROR_NO_COMMENT_STYLE when pszCommentsConfig is
+ * NULL.
+ *
  * Parse errors in discovered files are recorded as REUSEERR
  * entries in the project handle; the offending source is skipped.
  *
  * @param[in]  pszDir             Target directory. Not NULL.
- * @param[in]  pszCommentsConfig  Path to comments.toml, or NULL.
+ * @param[in]  pszCommentsConfig  Path to comments.toml. Not NULL.
  * @param[out] phTree             Handle receiver. Not NULL. Set to
  *                                NULLHANDLE on error.
  *
  * @return APIRET
  *
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszDir or phTree is NULL.
- * @retval ERROR_OPEN_FAILED        Directory or comments.toml cannot be
- *                                  opened.
- * @retval ERROR_INVALID_DATA       comments.toml parse error.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
+ * @retval NO_ERROR                  Success.
+ * @retval ERROR_INVALID_PARAMETER   pszDir or phTree is NULL.
+ * @retval REUSE_ERROR_NO_COMMENT_STYLE
+ *                                   pszCommentsConfig is NULL.
+ * @retval ERROR_OPEN_FAILED         Directory or comments.toml cannot
+ *                                   be opened.
+ * @retval ERROR_INVALID_DATA        comments.toml parse error.
+ * @retval ERROR_NOT_ENOUGH_MEMORY   Memory allocation failure.
  *
  * @see ReuseTreeGetError, ReuseCloseTree
  */
@@ -1453,6 +1460,8 @@ APIRET APIENTRY ReuseOpenTree(PCSZ pszDir,
 
     if (!pszDir || !phTree) return ERROR_INVALID_PARAMETER;
     *phTree = NULLHANDLE;
+
+    if (pszCommentsConfig == NULL) return REUSE_ERROR_NO_COMMENT_STYLE;
 
     pd = (PREUSETREE)calloc(1, sizeof(REUSETREE));
     if (!pd) return ERROR_NOT_ENOUGH_MEMORY;
@@ -1471,12 +1480,10 @@ APIRET APIENTRY ReuseOpenTree(PCSZ pszDir,
         return rc;
     }
 
-    if (pszCommentsConfig != NULL) {
-        rc = ReuseOpenComments(pszCommentsConfig, &pd->hComments);
-        if (rc != NO_ERROR) {
-            doc_free(pd);
-            return rc;
-        }
+    rc = ReuseOpenComments(pszCommentsConfig, &pd->hComments);
+    if (rc != NO_ERROR) {
+        doc_free(pd);
+        return rc;
     }
 
     {
@@ -1636,9 +1643,9 @@ APIRET APIENTRY ReuseTreeGetError(HREUSETREE hTree, ULONG ulIndex,
  * REUSE.toml / DEP5 annotations according to the precedence rules
  * of REUSE 3.3 §4.1.2, §4.1.3.
  *
- * Returns REUSE_ERROR_NO_COMMENT_STYLE when comments.toml was not
- * supplied to ReuseOpenTree, or when it has no [[map]] entry
- * matching pszPath. In that case the file cannot be processed.
+ * Returns REUSE_ERROR_NO_COMMENT_STYLE when the attached
+ * comments.toml has no [[map]] entry matching pszPath. In that
+ * case the file cannot be processed.
  *
  * A successful return does not imply the file had any licensing
  * information. Use ReuseQueryFileSource to distinguish "no sources
@@ -1657,8 +1664,7 @@ APIRET APIENTRY ReuseTreeGetError(HREUSETREE hTree, ULONG ulIndex,
  * @retval ERROR_OPEN_FAILED         File cannot be opened.
  * @retval ERROR_READ_FAULT          Read error.
  * @retval REUSE_ERROR_NO_COMMENT_STYLE
- *                                   comments.toml not supplied, or no
- *                                   [[map]] entry for the file.
+ *                                   no [[map]] entry for the file.
  * @retval ERROR_NOT_ENOUGH_MEMORY   Memory allocation failure.
  */
 APIRET APIENTRY ReuseOpenFile(HREUSETREE hTree, PCSZ pszPath,
@@ -1680,7 +1686,8 @@ APIRET APIENTRY ReuseOpenFile(HREUSETREE hTree, PCSZ pszPath,
             strncpy(pErr->achFile, pszPath, sizeof(pErr->achFile) - 1);
             if (ulErr == REUSE_ERROR_NO_COMMENT_STYLE)
                 strncpy(pErr->achDetail,
-                        "no comment style for this file",
+                        "no [[map]] entry in comments.toml matches "
+                        "this file",
                         sizeof(pErr->achDetail) - 1);
         }
         return ulErr;

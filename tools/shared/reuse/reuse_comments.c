@@ -37,6 +37,7 @@ typedef struct _REUSECOMMENTSTYLE {
     ULONG ulMagic;
     PSZ   pszName;
     PSZ   pszSingleLine;
+    PSZ   pszSingleLineRegexp;     /*!< Alternative to pszSingleLine.  */
     PSZ   pszIndentAfterSingle;
     PSZ   pszMultiStart;
     PSZ   pszMultiMiddle;
@@ -46,6 +47,7 @@ typedef struct _REUSECOMMENTSTYLE {
     PSZ   pszIndentBeforeEnd;
     PSZ  *papszShebangs;
     ULONG ulShebangCount;
+    BOOL  fCaseInsensitive;        /*!< Applies to single / regexp.    */
 } REUSECOMMENTSTYLE, *PREUSECOMMENTSTYLE;
 
 /*!
@@ -70,6 +72,263 @@ typedef struct _REUSECOMMENTSCFG {
     ULONG              ulMapCount;
     ULONG              ulMapCapacity;
 } REUSECOMMENTSCFG, *PREUSECOMMENTSCFG;
+
+/* ==================================================================
+ * Minimal regular-expression matcher (prefix-anchored)
+ *
+ * Supported: '^' (no-op anchor), '.', '[...]' (with '^'/'!' negate
+ * and a-z ranges), '*', '+', '?', '\\b' (word boundary at the end
+ * of a word), '\\X' (literal X), any other character is literal.
+ *
+ * Not supported: '$', '{n,m}', '|', '()', backreferences, lookaround.
+ * Anchored at the start of the text (equivalent to leading '^').
+ *
+ * Atoms under a quantifier must match exactly one text character;
+ * this is true for all marker patterns used in practice.
+ * ================================================================== */
+
+/*!
+ * @brief Case-aware character compare.
+ *
+ * @param[in] chA  First character.
+ * @param[in] chB  Second character.
+ * @param[in] fCI  TRUE for case-insensitive comparison.
+ *
+ * @return BOOL
+ *
+ * @retval TRUE   chA and chB are equal under the active rule.
+ * @retval FALSE  Otherwise.
+ */
+static BOOL re_char_eq(char chA, char chB, BOOL fCI) {
+    if (fCI)
+        return tolower((unsigned char)chA) == tolower((unsigned char)chB)
+                   ? TRUE : FALSE;
+    return (chA == chB) ? TRUE : FALSE;
+}
+
+/*!
+ * @brief Word character test (used by \b).
+ *
+ * @param[in] ch  Character.
+ *
+ * @return BOOL
+ *
+ * @retval TRUE   ch is alphanumeric or '_'.
+ * @retval FALSE  Otherwise.
+ */
+static BOOL re_is_word(char ch) {
+    return (isalnum((unsigned char)ch) || ch == '_') ? TRUE : FALSE;
+}
+
+/*!
+ * @brief Return the byte length in the pattern of the atom at pszPat.
+ *
+ * @param[in] pszPat  Start of an atom. Not NULL.
+ *
+ * @return ULONG
+ *
+ * @return Length in bytes (>= 1).
+ */
+static ULONG re_atom_len(PCSZ pszPat) {
+    ULONG ulLen;
+
+    if (*pszPat == '\\') {
+        if (pszPat[1] == '\0') ulLen = 1;
+        else ulLen = 2;
+    } else if (*pszPat == '[') {
+        PCSZ p = pszPat + 1;
+        if (*p == '^' || *p == '!') p++;
+        while (*p && *p != ']') {
+            if (p[1] == '-' && p[2] && p[2] != ']') p += 3;
+            else p++;
+        }
+        if (*p == ']') ulLen = (ULONG)(p - pszPat) + 1;
+        else ulLen = 1;
+    } else {
+        ulLen = 1;
+    }
+    return ulLen;
+}
+
+/*!
+ * @brief Match one atom at the start of pszText.
+ *
+ * @param[in]  pszPat   Start of atom. Not NULL.
+ * @param[in]  pszText  Input text. Not NULL.
+ * @param[in]  fCI      Case-insensitive flag.
+ * @param[out] pcbPat   Bytes consumed from pattern. Not NULL.
+ * @param[out] pcbText  Bytes consumed from text. Not NULL.
+ *
+ * @return BOOL
+ *
+ * @retval TRUE   The atom matches.
+ * @retval FALSE  The atom does not match.
+ */
+static BOOL re_match_atom(PCSZ pszPat, PCSZ pszText, BOOL fCI,
+                          PULONG pcbPat, PULONG pcbText) {
+    *pcbPat = 0;
+    *pcbText = 0;
+
+    if (*pszPat == '\\') {
+        char n = pszPat[1];
+        if (n == '\0') return FALSE;
+        if (n == 'b') {
+            if (*pszText && re_is_word(*pszText)) return FALSE;
+            *pcbPat = 2;
+            *pcbText = 0;
+            return TRUE;
+        }
+        if (*pszText == '\0') return FALSE;
+        if (!re_char_eq(*pszText, n, fCI)) return FALSE;
+        *pcbPat = 2;
+        *pcbText = 1;
+        return TRUE;
+    }
+
+    if (*pszPat == '.') {
+        if (*pszText == '\0') return FALSE;
+        *pcbPat = 1;
+        *pcbText = 1;
+        return TRUE;
+    }
+
+    if (*pszPat == '[') {
+        PCSZ p = pszPat + 1;
+        BOOL fNeg = FALSE;
+        BOOL fFound = FALSE;
+        char cur = *pszText;
+        char curCmp;
+
+        if (*p == '^' || *p == '!') { fNeg = TRUE; p++; }
+
+        if (cur == '\0') {
+            while (*p && *p != ']') {
+                if (p[1] == '-' && p[2] && p[2] != ']') p += 3;
+                else p++;
+            }
+            return FALSE;
+        }
+
+        curCmp = fCI ? (char)tolower((unsigned char)cur) : cur;
+        while (*p && *p != ']') {
+            if (p[1] == '-' && p[2] && p[2] != ']') {
+                char loC = fCI ? (char)tolower((unsigned char)p[0]) : p[0];
+                char hiC = fCI ? (char)tolower((unsigned char)p[2]) : p[2];
+                if (curCmp >= loC && curCmp <= hiC) fFound = TRUE;
+                p += 3;
+            } else {
+                if (re_char_eq(cur, *p, fCI)) fFound = TRUE;
+                p++;
+            }
+        }
+        if (*p != ']') return FALSE;
+        if (fNeg) fFound = fFound ? FALSE : TRUE;
+        if (!fFound) return FALSE;
+        *pcbPat = (ULONG)(p - pszPat) + 1;
+        *pcbText = 1;
+        return TRUE;
+    }
+
+    if (*pszText == '\0') return FALSE;
+    if (!re_char_eq(*pszText, *pszPat, fCI)) return FALSE;
+    *pcbPat = 1;
+    *pcbText = 1;
+    return TRUE;
+}
+
+/*!
+ * @brief Match the remaining pattern at the start of pszText.
+ *
+ * @param[in]  pszPat      Pattern. Not NULL.
+ * @param[in]  pszText     Text. Not NULL.
+ * @param[in]  fCI         Case-insensitive flag.
+ * @param[out] pulConsumed Text bytes consumed on success. Not NULL.
+ *
+ * @return BOOL
+ *
+ * @retval TRUE   The remaining pattern matches from pszText.
+ * @retval FALSE  It does not.
+ */
+static BOOL re_match_here(PCSZ pszPat, PCSZ pszText, BOOL fCI,
+                          PULONG pulConsumed) {
+    PCSZ pszTextStart = pszText;
+
+    while (*pszPat != '\0') {
+        ULONG cbAtomLen;
+        char  quant;
+
+        if (*pszPat == '^') { pszPat++; continue; }
+
+        cbAtomLen = re_atom_len(pszPat);
+        quant = pszPat[cbAtomLen];
+
+        if (quant == '*' || quant == '+' || quant == '?') {
+            ULONG ulMin = (quant == '+') ? 1 : 0;
+            ULONG ulMax = (quant == '?') ? 1 : 0xFFFFFFFFUL;
+            PCSZ  pszAtom = pszPat;
+            PCSZ  pszRest = pszPat + cbAtomLen + 1;
+            PCSZ  pszRun = pszText;
+            ULONG ulMatched = 0;
+            ULONG cbP, cbT;
+            ULONG k;
+
+            while (ulMatched < ulMax) {
+                if (!re_match_atom(pszAtom, pszRun, fCI, &cbP, &cbT))
+                    break;
+                if (cbT == 0) break;
+                pszRun += cbT;
+                ulMatched++;
+            }
+            if (ulMatched < ulMin) return FALSE;
+
+            for (k = ulMatched + 1; k-- > ulMin; ) {
+                ULONG ulRest = 0;
+                if (re_match_here(pszRest, pszRun, fCI, &ulRest)) {
+                    *pulConsumed = (ULONG)(pszRun - pszTextStart) + ulRest;
+                    return TRUE;
+                }
+                if (k == ulMin) break;
+                pszRun--;
+            }
+            return FALSE;
+        }
+
+        {
+            ULONG cbPat = 0, cbText = 0;
+            if (!re_match_atom(pszPat, pszText, fCI, &cbPat, &cbText))
+                return FALSE;
+            pszPat += cbPat;
+            pszText += cbText;
+        }
+    }
+
+    *pulConsumed = (ULONG)(pszText - pszTextStart);
+    return TRUE;
+}
+
+/*!
+ * @brief Match a regexp against the prefix of a text.
+ *
+ * @param[in]  pszPattern  Pattern. Not NULL.
+ * @param[in]  pszText     Text. Not NULL.
+ * @param[in]  fCI         Case-insensitive flag.
+ * @param[out] pulMatched  Receiver for the matched text length.
+ *                         Not NULL.
+ *
+ * @return BOOL
+ *
+ * @retval TRUE   The pattern matches at the start of the text.
+ * @retval FALSE  It does not.
+ */
+static BOOL re_match_prefix(PCSZ pszPattern, PCSZ pszText,
+                            BOOL fCI, PULONG pulMatched) {
+    ULONG ulConsumed = 0;
+    if (!pszPattern || !pszText || !pulMatched) return FALSE;
+    if (!re_match_here(pszPattern, pszText, fCI, &ulConsumed))
+        return FALSE;
+    *pulMatched = ulConsumed;
+    return TRUE;
+}
 
 /* ==================================================================
  * Handle accessors
@@ -161,6 +420,7 @@ static void free_style(PREUSECOMMENTSTYLE pStyle) {
     if (pStyle == NULL) return;
     free(pStyle->pszName);
     free(pStyle->pszSingleLine);
+    free(pStyle->pszSingleLineRegexp);
     free(pStyle->pszIndentAfterSingle);
     free(pStyle->pszMultiStart);
     free(pStyle->pszMultiMiddle);
@@ -220,6 +480,30 @@ static PSZ rc_get_string(HTOMLNODE hTable, PCSZ pszKey) {
         return NULL;
     }
     return pszBuf;
+}
+
+/*!
+ * @brief Read a boolean field from a TOML table.
+ *
+ * Absent field, wrong type, or read error yields FALSE.
+ *
+ * @param[in] hTable  TOML table. Not NULLHANDLE.
+ * @param[in] pszKey  Field name. Not NULL.
+ *
+ * @return BOOL
+ *
+ * @retval TRUE   Field present, of type BOOLEAN, and TRUE.
+ * @retval FALSE  Field absent, wrong type, FALSE, or read error.
+ */
+static BOOL rc_get_bool(HTOMLNODE hTable, PCSZ pszKey) {
+    HTOMLNODE hChild = NULLHANDLE;
+    BOOL fValue = FALSE;
+
+    if (TomlNodeGetTableEntryByKey(hTable, pszKey, &hChild) != NO_ERROR)
+        return FALSE;
+    if (TomlNodeGetBoolean(hChild, &fValue) != NO_ERROR)
+        return FALSE;
+    return fValue;
 }
 
 /*!
@@ -310,7 +594,9 @@ static APIRET rc_get_string_array(HTOMLNODE hTable, PCSZ pszKey,
  * @return APIRET
  *
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_DATA       Missing required "name".
+ * @retval ERROR_INVALID_DATA       Missing required "name", or both
+ *                                  "single" and "single_line_regexp"
+ *                                  are present.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET parse_one_style(HTOMLNODE hItem, PREUSECOMMENTSTYLE pStyle) {
@@ -322,6 +608,7 @@ static APIRET parse_one_style(HTOMLNODE hItem, PREUSECOMMENTSTYLE pStyle) {
         return ERROR_INVALID_DATA;
 
     pStyle->pszSingleLine         = rc_get_string(hItem, "single");
+    pStyle->pszSingleLineRegexp   = rc_get_string(hItem, "single_line_regexp");
     pStyle->pszIndentAfterSingle  = rc_get_string(hItem, "indent_after_single");
     pStyle->pszMultiStart         = rc_get_string(hItem, "multi_start");
     pStyle->pszMultiMiddle        = rc_get_string(hItem, "multi_middle");
@@ -329,6 +616,12 @@ static APIRET parse_one_style(HTOMLNODE hItem, PREUSECOMMENTSTYLE pStyle) {
     pStyle->pszIndentBeforeMiddle = rc_get_string(hItem, "indent_before_middle");
     pStyle->pszIndentAfterMiddle  = rc_get_string(hItem, "indent_after_middle");
     pStyle->pszIndentBeforeEnd    = rc_get_string(hItem, "indent_before_end");
+
+    pStyle->fCaseInsensitive = rc_get_bool(hItem, "case_insensitive");
+
+    if (pStyle->pszSingleLine != NULL &&
+        pStyle->pszSingleLineRegexp != NULL)
+        return ERROR_INVALID_DATA;
 
     rc = rc_get_string_array(hItem, "shebangs",
                              &pStyle->papszShebangs,
@@ -706,7 +999,8 @@ APIRET APIENTRY ReuseQueryCommentStyleInfo(HREUSECOMMENTSTYLE hStyle,
     if (pStyle == NULL) return ERROR_INVALID_HANDLE;
 
     pInfo->pszName = pStyle->pszName;
-    pInfo->fSingleLine = (pStyle->pszSingleLine != NULL) ? TRUE : FALSE;
+    pInfo->fSingleLine = (pStyle->pszSingleLine != NULL ||
+                          pStyle->pszSingleLineRegexp != NULL) ? TRUE : FALSE;
     pInfo->fMultiLine = (pStyle->pszMultiStart != NULL &&
                          pStyle->pszMultiEnd != NULL) ? TRUE : FALSE;
     pInfo->fSidecar = (!pInfo->fSingleLine && !pInfo->fMultiLine)
@@ -721,6 +1015,17 @@ APIRET APIENTRY ReuseQueryCommentStyleInfo(HREUSECOMMENTSTYLE hStyle,
 /*!
  * @brief Locate the body of a single line after stripping the leading
  *        comment marker.
+ *
+ * Single-line styles are tried in this order:
+ *   1. If pszSingleLineRegexp is set, match it via re_match_prefix.
+ *   2. Otherwise, if pszSingleLine is set, match it literally
+ *      (case-insensitively if fCaseInsensitive).
+ *
+ * When a single-line marker matches, indent_after_single is skipped
+ * (if present) and the offset of the body is returned.
+ *
+ * Multi-line markers (multi_start, multi_middle) are then tried as
+ * before.
  *
  * @param[in]  hStyle     Borrowed style. Not NULLHANDLE.
  * @param[in]  pszLine    Input line. Not NULL.
@@ -747,10 +1052,13 @@ APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
     pszPos = pszLine;
     while (*pszPos == ' ' || *pszPos == '\t') pszPos++;
 
-    if (pStyle->pszSingleLine != NULL) {
-        cbMarker = strlen(pStyle->pszSingleLine);
-        if (strncmp(pszPos, pStyle->pszSingleLine, cbMarker) == 0) {
-            pszPos += cbMarker;
+    /* Single-line, regexp form. */
+    if (pStyle->pszSingleLineRegexp != NULL) {
+        ULONG ulMatched = 0;
+        if (re_match_prefix(pStyle->pszSingleLineRegexp, pszPos,
+                            pStyle->fCaseInsensitive, &ulMatched) &&
+            ulMatched > 0) {
+            pszPos += ulMatched;
             if (pStyle->pszIndentAfterSingle != NULL) {
                 PCSZ pszIndent = pStyle->pszIndentAfterSingle;
                 size_t cbIndent = strlen(pszIndent);
@@ -759,6 +1067,39 @@ APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
             }
             *pulOffset = (ULONG)(pszPos - pszLine);
             return NO_ERROR;
+        }
+    }
+
+    /* Single-line, literal form. */
+    if (pStyle->pszSingleLine != NULL) {
+        cbMarker = strlen(pStyle->pszSingleLine);
+        {
+            BOOL fMatch;
+            if (pStyle->fCaseInsensitive) {
+                size_t i;
+                fMatch = TRUE;
+                for (i = 0; i < cbMarker; i++) {
+                    if (tolower((unsigned char)pszPos[i]) !=
+                        tolower((unsigned char)pStyle->pszSingleLine[i])) {
+                        fMatch = FALSE;
+                        break;
+                    }
+                }
+            } else {
+                fMatch = (strncmp(pszPos, pStyle->pszSingleLine,
+                                  cbMarker) == 0) ? TRUE : FALSE;
+            }
+            if (fMatch) {
+                pszPos += cbMarker;
+                if (pStyle->pszIndentAfterSingle != NULL) {
+                    PCSZ pszIndent = pStyle->pszIndentAfterSingle;
+                    size_t cbIndent = strlen(pszIndent);
+                    if (strncmp(pszPos, pszIndent, cbIndent) == 0)
+                        pszPos += cbIndent;
+                }
+                *pulOffset = (ULONG)(pszPos - pszLine);
+                return NO_ERROR;
+            }
         }
     }
 
@@ -963,8 +1304,9 @@ APIRET APIENTRY ReuseQueryCommentBlock(HREUSECOMMENTSTYLE hStyle,
     pStyle = as_style(hStyle);
     if (pStyle == NULL) return ERROR_INVALID_HANDLE;
 
-    fUseMulti = (fForceMulti || pStyle->pszSingleLine == NULL)
-                    ? TRUE : FALSE;
+    fUseMulti = (fForceMulti ||
+                 (pStyle->pszSingleLine == NULL &&
+                  pStyle->pszSingleLineRegexp == NULL)) ? TRUE : FALSE;
     if (fUseMulti) {
         if (pStyle->pszMultiStart == NULL || pStyle->pszMultiEnd == NULL)
             return ERROR_INVALID_DATA;

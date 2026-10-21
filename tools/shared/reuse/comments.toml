@@ -18,7 +18,8 @@ shebangs = ["#!"]
 
 [[style]]
 name = "batch"
-single = "@REM"
+single_line_regexp = "^@?rem\\b"
+case_insensitive = true
 indent_after_single = " "
 
 [[style]]
@@ -87,11 +88,19 @@ glob = "*.hpp"
 style = "c"
 
 [[map]]
+glob = "*.rc"
+style = "c"
+
+[[map]]
 glob = "*.cmd"
 style = "batch"
 
 [[map]]
 glob = "*.bat"
+style = "batch"
+
+[[map]]
+glob = "*.btm"
 style = "batch"
 
 [[map]]
