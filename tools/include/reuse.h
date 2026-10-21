@@ -412,12 +412,21 @@ APIRET APIENTRY ReuseQueryCommentStyleInfo(HREUSECOMMENTSTYLE hStyle,
                                            PREUSECOMMENTSTYLEINFO pInfo);
 
 /**
- * @brief Locate the body of one line after stripping its comment
- *        marker.
+ * @brief Locate the body of one line after stripping the leading
+ *        comment marker.
  *
- * @param[in]  hStyle     Borrowed style. Not NULLHANDLE.
- * @param[in]  pszLine    Input line. Not NULL.
- * @param[out] pulOffset  Byte offset in pszLine. Not NULL.
+ * Single-line styles are tried first (regexp, then literal, then
+ * multi-line start / middle markers). When a multi-line start or
+ * middle marker matches and the style defines a multi-line end
+ * marker, a trailing end marker is trimmed from @p pszLine in place.
+ * This makes single-line usages of multi-line markers such as
+ * ``<!-- tag -->`` return a clean body.
+ *
+ * @param[in]     hStyle     Borrowed style. Not NULLHANDLE.
+ * @param[in,out] pszLine    Input line. Not NULL. May be modified in
+ *                           place when a trailing end marker is
+ *                           trimmed.
+ * @param[out]    pulOffset  Byte offset in pszLine. Not NULL.
  *
  * @return APIRET
  *
@@ -427,7 +436,7 @@ APIRET APIENTRY ReuseQueryCommentStyleInfo(HREUSECOMMENTSTYLE hStyle,
  * @retval ERROR_INVALID_HANDLE     hStyle is not a style handle.
  */
 APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
-                                      PCSZ pszLine,
+                                      PSZ pszLine,
                                       PULONG pulOffset);
 
 /**

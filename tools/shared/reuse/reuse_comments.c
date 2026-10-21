@@ -1016,20 +1016,18 @@ APIRET APIENTRY ReuseQueryCommentStyleInfo(HREUSECOMMENTSTYLE hStyle,
  * @brief Locate the body of a single line after stripping the leading
  *        comment marker.
  *
- * Single-line styles are tried in this order:
- *   1. If pszSingleLineRegexp is set, match it via re_match_prefix.
- *   2. Otherwise, if pszSingleLine is set, match it literally
- *      (case-insensitively if fCaseInsensitive).
+ * Single-line styles are tried first (regexp, then literal). Then the
+ * multi-line start marker and the multi-line middle marker. When a
+ * multi-line start or middle marker matches and the style defines a
+ * multi-line end marker, a trailing end marker is trimmed from
+ * @p pszLine in place. This makes single-line usages of multi-line
+ * markers such as ``<!-- tag -->`` return a clean body.
  *
- * When a single-line marker matches, indent_after_single is skipped
- * (if present) and the offset of the body is returned.
- *
- * Multi-line markers (multi_start, multi_middle) are then tried as
- * before.
- *
- * @param[in]  hStyle     Borrowed style. Not NULLHANDLE.
- * @param[in]  pszLine    Input line. Not NULL.
- * @param[out] pulOffset  Byte offset in pszLine. Not NULL.
+ * @param[in]     hStyle     Borrowed style. Not NULLHANDLE.
+ * @param[in,out] pszLine    Input line. Not NULL. May be modified in
+ *                           place when a trailing end marker is
+ *                           trimmed.
+ * @param[out]    pulOffset  Byte offset in pszLine. Not NULL.
  *
  * @return APIRET
  *
@@ -1039,7 +1037,7 @@ APIRET APIENTRY ReuseQueryCommentStyleInfo(HREUSECOMMENTSTYLE hStyle,
  * @retval ERROR_INVALID_HANDLE     hStyle is not a style handle.
  */
 APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
-                                      PCSZ pszLine,
+                                      PSZ pszLine,
                                       PULONG pulOffset) {
     PREUSECOMMENTSTYLE pStyle;
     PCSZ pszPos;
@@ -1107,6 +1105,21 @@ APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
         cbMarker = strlen(pStyle->pszMultiStart);
         if (strncmp(pszPos, pStyle->pszMultiStart, cbMarker) == 0) {
             pszPos += cbMarker;
+            /* Trim trailing end marker, if any. */
+            if (pStyle->pszMultiEnd != NULL) {
+                size_t cbEnd = strlen(pStyle->pszMultiEnd);
+                size_t cbLine = strlen(pszLine);
+                while (cbLine > (size_t)(pszPos - pszLine) &&
+                       (pszLine[cbLine-1] == ' ' ||
+                        pszLine[cbLine-1] == '\t'))
+                    cbLine--;
+                if (cbEnd > 0 && cbLine > (size_t)(pszPos - pszLine) &&
+                    cbLine >= cbEnd &&
+                    strncmp(pszLine + cbLine - cbEnd,
+                            pStyle->pszMultiEnd, cbEnd) == 0) {
+                    pszLine[cbLine - cbEnd] = '\0';
+                }
+            }
             *pulOffset = (ULONG)(pszPos - pszLine);
             return NO_ERROR;
         }
@@ -1121,6 +1134,21 @@ APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
                 size_t cbIndent = strlen(pszIndent);
                 if (strncmp(pszPos, pszIndent, cbIndent) == 0)
                     pszPos += cbIndent;
+            }
+            /* Trim trailing end marker, if any. */
+            if (pStyle->pszMultiEnd != NULL) {
+                size_t cbEnd = strlen(pStyle->pszMultiEnd);
+                size_t cbLine = strlen(pszLine);
+                while (cbLine > (size_t)(pszPos - pszLine) &&
+                       (pszLine[cbLine-1] == ' ' ||
+                        pszLine[cbLine-1] == '\t'))
+                    cbLine--;
+                if (cbEnd > 0 && cbLine > (size_t)(pszPos - pszLine) &&
+                    cbLine >= cbEnd &&
+                    strncmp(pszLine + cbLine - cbEnd,
+                            pStyle->pszMultiEnd, cbEnd) == 0) {
+                    pszLine[cbLine - cbEnd] = '\0';
+                }
             }
             *pulOffset = (ULONG)(pszPos - pszLine);
             return NO_ERROR;
