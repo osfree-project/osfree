@@ -14,13 +14,10 @@ extern "C" {
  * @file reuse_lic.h
  * @brief Per-file license and copyright resolution.
  *
- * Combines the REUSE resolver, the sidecar file and the in-file
- * SPDX tags with optional CLI fallbacks, producing one
- * REUSELICENSEINFO structure per file.
- *
- * Sidecar and in-file tags are read directly by this module and
- * passed into the resolver as in-file sources, where they are
- * aggregated with the REUSE.toml annotations.
+ * Thin wrapper over ReuseOpenFile. Sidecar and in-file tags are read
+ * by the resolver; this module copies the resolved fields into the
+ * fixed-size REUSELICENSEINFO structure, applies the --default-*
+ * CLI fallbacks, and canonicalizes the license expression.
  *
  * Conforms to:
  *   - REUSE Specification 3.3.
@@ -55,7 +52,7 @@ typedef enum _REUSELICENSESOURCE {
 typedef struct _REUSELICENSEINFO {
     /* Main fields: license and copyright.
      * Filled from REUSE.toml, sidecar, or in-file tags, in the order
-     * of priority defined by REUSE 3.3 ง4.1.3. */
+     * of priority defined by REUSE 3.3 ยง4.1.3. */
     CHAR achLicense[256];
     CHAR achCopyright[512];
 
@@ -97,16 +94,19 @@ typedef struct _REUSELICENSEINFO {
 /**
  * @brief Resolve license and copyright for one file.
  *
- * Sources of information, in order of priority (REUSE 3.3 ง4.1.3):
- *   1. REUSE.toml / DEP5 annotations (with precedence
- *      override > aggregate > closest).
- *   2. Sidecar <file>.license.
- *   3. SPDX tags inside the file.
- *   4. CLI fallbacks (pszDefaultLicense, pszDefaultCopyright).
+ * Thin wrapper over ReuseOpenFile. Sidecar and in-file tags are read
+ * by the resolver (see reuse.h). This module copies the resolved
+ * fields, applies the --default-* CLI fallbacks, canonicalizes the
+ * license expression, and forwards REUSE_ERROR_NO_COMMENT_STYLE
+ * as-is.
+ *
+ * A successful return does not imply the file had any licensing
+ * information; check achLicense / achCopyright. The resolver source
+ * is reported in @c source.
  *
  * @param[in]  hTree                Project handle. May be NULLHANDLE;
- *                                  in that case only sidecar, tags
- *                                  and defaults are used.
+ *                                  in that case the file is treated as
+ *                                  having no sources.
  * @param[in]  pszFullpath          File to resolve. Not NULL.
  * @param[in]  pszDefaultLicense    CLI fallback, or NULL.
  * @param[in]  pszDefaultCopyright  CLI fallback, or NULL.
@@ -119,6 +119,9 @@ typedef struct _REUSELICENSEINFO {
  * @retval ERROR_INVALID_PARAMETER  pszFullpath or pOut is NULL.
  * @retval ERROR_FILE_NOT_FOUND     No source matched and no default
  *                                  was provided.
+ * @retval REUSE_ERROR_NO_COMMENT_STYLE
+ *                                  No [[map]] entry in comments.toml
+ *                                  matches pszFullpath.
  */
 APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
                                     PCSZ pszFullpath,

@@ -10,6 +10,11 @@
  * LICENSES/ directory is populated with the license texts declared
  * by the project.
  *
+ * Comment styles and comment-marker construction come from the
+ * attached comments.toml through the reuse_comments API. The
+ * --comment-style CLI option is parsed but not yet applied (TODO);
+ * a warning is printed when it is present.
+ *
  * Conforms to:
  *   - REUSE Specification 3.3.
  *     https://reuse.software/spec-3.3/
@@ -35,7 +40,7 @@
 #include "reuse_discover.h"
 #include "reuse_licenses.h"
 #include "git.h"
-#include "spdx_tag.h"
+#include "path.h"
 #include "reuse_lic.h"
 
 /*!
@@ -57,12 +62,17 @@
 #define PATH_BUF     1024
 
 /* ------------------------------------------------------------------ */
-/* Types                                                               */
+/* Legacy --comment-style parsing (kept for compatibility, see TODO)   */
 /* ------------------------------------------------------------------ */
 
 /*!
  * @enum _COMMENTSTYLE
- * @brief Comment style used when writing SPDX tags.
+ * @brief Comment style names accepted by --comment-style.
+ *
+ * The enum itself is kept only for parsing --comment-style so that
+ * the option still accepts and validates the same names as before.
+ * It is not used when writing: comment markers come from
+ * comments.toml via ReuseQueryCommentBlock.
  */
 typedef enum _COMMENTSTYLE {
     STYLE_C,          /**< C-style comment.                  */
@@ -75,6 +85,8 @@ typedef enum _COMMENTSTYLE {
 /*!
  * @struct _STYLEOVERRIDE
  * @brief One --comment-style override entry.
+ *
+ * Parsed and stored, but not yet applied.
  */
 typedef struct _STYLEOVERRIDE {
     PSZ           pszExt;      /**< Extension or base name.       */
@@ -87,6 +99,8 @@ typedef struct _STYLEOVERRIDE {
 
 /*!
  * @brief Array of user-supplied comment style overrides.
+ *
+ * Populated from --comment-style, not yet used (TODO).
  */
 static PSTYLEOVERRIDE g_paStyleOverrides = NULL;
 
@@ -193,7 +207,7 @@ static BOOL IsBinaryFile(PCSZ pszPath) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Comment style handling                                              */
+/* Legacy --comment-style parsing                                      */
 /* ------------------------------------------------------------------ */
 
 /*!
@@ -225,6 +239,7 @@ static COMMENTSTYLE ParseStyleName(PCSZ pszName) {
  * @brief Append one --comment-style override.
  *
  * On error prints a diagnostic and exits with EXIT_FAILURE.
+ * The override is stored but not applied (see TODO).
  *
  * @param[in] pszArg  Value in the form "<ext>=<style>". Not NULL.
  */
@@ -267,267 +282,78 @@ static void AddStyleOverride(PCSZ pszArg) {
     g_ulStyleOverrideCount++;
 }
 
-/*!
- * @brief Query the comment style for a file name.
- *
- * @param[in] pszFilename  File name. Not NULL.
- *
- * @retval STYLE_C       Extension is a C-style source/header.
- * @retval STYLE_HASH    Extension or base name is a hash-comment file.
- * @retval STYLE_REM     Extension is a REM-comment script.
- * @retval STYLE_SIDECAR Extension is a known binary artifact.
- * @retval STYLE_UNKNOWN No rule matched.
- * @return The matching COMMENTSTYLE.
- */
-static COMMENTSTYLE DetectStyle(PCSZ pszFilename) {
-    PCSZ pszBase = SpdxGetFileName(pszFilename);
-    PCSZ pszExt = strrchr(pszBase, '.');
-    static PCSZ apszCExt[] = {
-        ".c", ".cpp", ".h", ".hpp", ".cc", ".cxx",
-        ".asm", ".rc", ".inc", NULL
-    };
-    static PCSZ apszHashExt[] = {
-        ".sh", ".py", ".pl", ".toml", ".yml", ".yaml",
-        ".md", ".txt", ".ini", ".cfg", ".conf", ".mk", NULL
-    };
-    static PCSZ apszRemExt[] = { ".cmd", ".bat", NULL };
-    static PCSZ apszBinaryExt[] = {
-        ".exe", ".obj", ".lib", ".dll", ".res", ".ico",
-        ".bmp", ".png", ".jpg", ".jpeg", ".gif", ".sys",
-        ".com", ".o", ".a", ".so", ".zip", ".gz", ".tar",
-        ".pdf", ".dat", ".bin", ".cur", ".fon", ".ttf",
-        ".hlp", ".wnf", ".inf", ".chm", ".mo", ".qm", NULL
-    };
-    ULONG ulIdx;
-
-    for (ulIdx = 0; ulIdx < g_ulStyleOverrideCount; ulIdx++) {
-        PCSZ pszPat = g_paStyleOverrides[ulIdx].pszExt;
-        if (pszPat[0] == '.') {
-            if (pszExt && strcmp(pszPat, pszExt) == 0)
-                return g_paStyleOverrides[ulIdx].style;
-        } else {
-            if (strcmp(pszPat, pszBase) == 0)
-                return g_paStyleOverrides[ulIdx].style;
-        }
-    }
-
-    if (strcmp(pszBase, "makefile") == 0 ||
-        strcmp(pszBase, "Makefile") == 0 ||
-        strcmp(pszBase, "GNUmakefile") == 0 ||
-        strncmp(pszBase, "README", 6) == 0 ||
-        strncmp(pszBase, "readme", 6) == 0 ||
-        strcmp(pszBase, "AUTHORS") == 0 ||
-        strcmp(pszBase, "NEWS") == 0 ||
-        strcmp(pszBase, "ChangeLog") == 0 ||
-        strcmp(pszBase, "CHANGELOG") == 0 ||
-        strcmp(pszBase, "TODO") == 0 ||
-        strcmp(pszBase, "INSTALL") == 0)
-        return STYLE_HASH;
-
-    if (pszExt) {
-        for (ulIdx = 0; apszCExt[ulIdx]; ulIdx++)
-            if (strcmp(pszExt, apszCExt[ulIdx]) == 0) return STYLE_C;
-        for (ulIdx = 0; apszHashExt[ulIdx]; ulIdx++)
-            if (strcmp(pszExt, apszHashExt[ulIdx]) == 0)
-                return STYLE_HASH;
-        for (ulIdx = 0; apszRemExt[ulIdx]; ulIdx++)
-            if (strcmp(pszExt, apszRemExt[ulIdx]) == 0) return STYLE_REM;
-        for (ulIdx = 0; apszBinaryExt[ulIdx]; ulIdx++)
-            if (strcmp(pszExt, apszBinaryExt[ulIdx]) == 0)
-                return STYLE_SIDECAR;
-    }
-    return STYLE_UNKNOWN;
-}
-
-/*!
- * @brief Human-readable name of a comment style.
- *
- * @param[in] style  Comment style.
- *
- * @return Static NUL-terminated description.
- */
-static PCSZ StyleName(COMMENTSTYLE style) {
-    switch (style) {
-    case STYLE_C:       return "C comment";
-    case STYLE_HASH:    return "hash comment";
-    case STYLE_REM:     return "REM comment";
-    case STYLE_SIDECAR: return "sidecar";
-    default:            return "unknown";
-    }
-}
-
 /* ------------------------------------------------------------------ */
-/* Insertion block                                                     */
+/* SPDX header body construction                                       */
 /* ------------------------------------------------------------------ */
 
 /*!
- * @brief Build the SPDX header block for a file.
+ * @brief Build the SPDX tag-value body for a file header.
  *
- * @param[in] style            Comment style. Not STYLE_UNKNOWN.
- * @param[in] pszLicense       License expression, or NULL.
- * @param[in] pszCopyright     Copyright text, or NULL.
- * @param[in] fEchoOffPresent  TRUE if a leading @echo off was found.
+ * Produces one "SPDX-FileCopyrightText: <line>" per copyright line
+ * (joined with '\n'), followed by one "SPDX-License-Identifier:
+ * <license>" line. Each line ends with '\n'. Comment markers are not
+ * added here; that is the caller's job (ReuseQueryCommentBlock for
+ * in-file headers, raw text for sidecars).
  *
- * @retval NULL Allocation failure.
- * @return malloc'd block.
+ * @param[in] pszLicense    License expression, or NULL.
+ * @param[in] pszCopyright  Copyright text, or NULL.
+ *
+ * @retval NULL  Allocation failure.
+ * @return       malloc'd body, owned by the caller.
  */
-static PSZ BuildInsertion(COMMENTSTYLE style,
-                          PCSZ pszLicense,
-                          PCSZ pszCopyright,
-                          BOOL fEchoOffPresent) {
-    size_t cbCap = 256;
-    size_t cbLen = 0;
+static PSZ build_spdx_body(PCSZ pszLicense, PCSZ pszCopyright) {
+    static const char pszCopTag[] = "SPDX-FileCopyrightText: ";
+    static const char pszLicTag[] = "SPDX-License-Identifier: ";
+    size_t cbCap;
     PSZ pszBuf;
+    size_t cbLen = 0;
     PCSZ pszPos;
 
-    if (pszLicense)   cbCap += strlen(pszLicense) * 4;
-    if (pszCopyright) cbCap += strlen(pszCopyright) * 4;
+    cbCap = 64;
+    if (pszCopyright) {
+        size_t cbCopLen = strlen(pszCopyright);
+        size_t cbLineCount = 1;
+        size_t i;
+        for (i = 0; i < cbCopLen; i++)
+            if (pszCopyright[i] == '\n') cbLineCount++;
+        cbCap += cbCopLen + cbLineCount * (sizeof(pszCopTag) + 4);
+    }
+    if (pszLicense)
+        cbCap += strlen(pszLicense) + sizeof(pszLicTag) + 4;
 
     pszBuf = (PSZ)malloc(cbCap);
     if (!pszBuf) return NULL;
     pszBuf[0] = '\0';
 
-    switch (style) {
-    case STYLE_C:
-        cbLen += (size_t)sprintf(pszBuf + cbLen, "/*\n");
-        if (pszCopyright) {
-            pszPos = pszCopyright;
-            while (*pszPos) {
-                PCSZ pszEol = strchr(pszPos, '\n');
-                size_t cbLine = pszEol ? (size_t)(pszEol - pszPos)
-                                       : strlen(pszPos);
-                cbLen += (size_t)sprintf(pszBuf + cbLen,
-                                         " * SPDX-FileCopyrightText: ");
-                memcpy(pszBuf + cbLen, pszPos, cbLine);
-                cbLen += cbLine;
-                pszBuf[cbLen++] = '\n';
-                if (!pszEol) break;
-                pszPos = pszEol + 1;
-            }
+    if (pszCopyright) {
+        pszPos = pszCopyright;
+        while (*pszPos) {
+            PCSZ pszEol = strchr(pszPos, '\n');
+            size_t cbLine = pszEol ? (size_t)(pszEol - pszPos)
+                                   : strlen(pszPos);
+            memcpy(pszBuf + cbLen, pszCopTag, sizeof(pszCopTag) - 1);
+            cbLen += sizeof(pszCopTag) - 1;
+            memcpy(pszBuf + cbLen, pszPos, cbLine);
+            cbLen += cbLine;
+            pszBuf[cbLen++] = '\n';
+            if (!pszEol) break;
+            pszPos = pszEol + 1;
         }
-        if (pszLicense) {
-            pszPos = pszLicense;
-            while (*pszPos) {
-                PCSZ pszEol = strchr(pszPos, '\n');
-                size_t cbLine = pszEol ? (size_t)(pszEol - pszPos)
-                                       : strlen(pszPos);
-                cbLen += (size_t)sprintf(pszBuf + cbLen,
-                                         " * SPDX-License-Identifier: ");
-                memcpy(pszBuf + cbLen, pszPos, cbLine);
-                cbLen += cbLine;
-                pszBuf[cbLen++] = '\n';
-                if (!pszEol) break;
-                pszPos = pszEol + 1;
-            }
-        }
-        cbLen += (size_t)sprintf(pszBuf + cbLen, " */\n\n");
-        break;
-    case STYLE_REM: {
-        PCSZ pszPfx = fEchoOffPresent ? "rem " : "@rem ";
-        if (pszCopyright) {
-            pszPos = pszCopyright;
-            while (*pszPos) {
-                PCSZ pszEol = strchr(pszPos, '\n');
-                size_t cbLine = pszEol ? (size_t)(pszEol - pszPos)
-                                       : strlen(pszPos);
-                cbLen += (size_t)sprintf(pszBuf + cbLen,
-                                         "%sSPDX-FileCopyrightText: ",
-                                         pszPfx);
-                memcpy(pszBuf + cbLen, pszPos, cbLine);
-                cbLen += cbLine;
-                pszBuf[cbLen++] = '\n';
-                if (!pszEol) break;
-                pszPos = pszEol + 1;
-            }
-        }
-        if (pszLicense) {
-            pszPos = pszLicense;
-            while (*pszPos) {
-                PCSZ pszEol = strchr(pszPos, '\n');
-                size_t cbLine = pszEol ? (size_t)(pszEol - pszPos)
-                                       : strlen(pszPos);
-                cbLen += (size_t)sprintf(pszBuf + cbLen,
-                                         "%sSPDX-License-Identifier: ",
-                                         pszPfx);
-                memcpy(pszBuf + cbLen, pszPos, cbLine);
-                cbLen += cbLine;
-                pszBuf[cbLen++] = '\n';
-                if (!pszEol) break;
-                pszPos = pszEol + 1;
-            }
-        }
-        cbLen += (size_t)sprintf(pszBuf + cbLen, "\n");
-        break;
     }
-    case STYLE_SIDECAR:
-        if (pszCopyright) {
-            pszPos = pszCopyright;
-            while (*pszPos) {
-                PCSZ pszEol = strchr(pszPos, '\n');
-                size_t cbLine = pszEol ? (size_t)(pszEol - pszPos)
-                                       : strlen(pszPos);
-                cbLen += (size_t)sprintf(pszBuf + cbLen,
-                                         "SPDX-FileCopyrightText: ");
-                memcpy(pszBuf + cbLen, pszPos, cbLine);
-                cbLen += cbLine;
-                pszBuf[cbLen++] = '\n';
-                if (!pszEol) break;
-                pszPos = pszEol + 1;
-            }
-        }
-        if (pszLicense) {
-            pszPos = pszLicense;
-            while (*pszPos) {
-                PCSZ pszEol = strchr(pszPos, '\n');
-                size_t cbLine = pszEol ? (size_t)(pszEol - pszPos)
-                                       : strlen(pszPos);
-                cbLen += (size_t)sprintf(pszBuf + cbLen,
-                                         "SPDX-License-Identifier: ");
-                memcpy(pszBuf + cbLen, pszPos, cbLine);
-                cbLen += cbLine;
-                pszBuf[cbLen++] = '\n';
-                if (!pszEol) break;
-                pszPos = pszEol + 1;
-            }
-        }
-        break;
-    case STYLE_HASH:
-    default:
-        if (pszCopyright) {
-            pszPos = pszCopyright;
-            while (*pszPos) {
-                PCSZ pszEol = strchr(pszPos, '\n');
-                size_t cbLine = pszEol ? (size_t)(pszEol - pszPos)
-                                       : strlen(pszPos);
-                cbLen += (size_t)sprintf(pszBuf + cbLen,
-                                         "# SPDX-FileCopyrightText: ");
-                memcpy(pszBuf + cbLen, pszPos, cbLine);
-                cbLen += cbLine;
-                pszBuf[cbLen++] = '\n';
-                if (!pszEol) break;
-                pszPos = pszEol + 1;
-            }
-        }
-        if (pszLicense) {
-            pszPos = pszLicense;
-            while (*pszPos) {
-                PCSZ pszEol = strchr(pszPos, '\n');
-                size_t cbLine = pszEol ? (size_t)(pszEol - pszPos)
-                                       : strlen(pszPos);
-                cbLen += (size_t)sprintf(pszBuf + cbLen,
-                                         "# SPDX-License-Identifier: ");
-                memcpy(pszBuf + cbLen, pszPos, cbLine);
-                cbLen += cbLine;
-                pszBuf[cbLen++] = '\n';
-                if (!pszEol) break;
-                pszPos = pszEol + 1;
-            }
-        }
-        cbLen += (size_t)sprintf(pszBuf + cbLen, "\n");
-        break;
+    if (pszLicense) {
+        memcpy(pszBuf + cbLen, pszLicTag, sizeof(pszLicTag) - 1);
+        cbLen += sizeof(pszLicTag) - 1;
+        memcpy(pszBuf + cbLen, pszLicense, strlen(pszLicense));
+        cbLen += strlen(pszLicense);
+        pszBuf[cbLen++] = '\n';
     }
+    pszBuf[cbLen] = '\0';
     return pszBuf;
 }
+
+/* ------------------------------------------------------------------ */
+/* Printing helpers                                                    */
+/* ------------------------------------------------------------------ */
 
 /*!
  * @brief Print a multi-line block with an indent.
@@ -549,52 +375,6 @@ static void PrintBlock(PCSZ pszText, PCSZ pszIndent) {
     }
 }
 
-/*!
- * @brief Query whether the first line is a shebang.
- *
- * @param[in] pszLine  First line. Not NULL.
- *
- * @return TRUE if the line starts with "#!".
- */
-static BOOL FirstLineIsShebang(PCSZ pszLine) {
-    return (pszLine[0] == '#' && pszLine[1] == '!') ? TRUE : FALSE;
-}
-
-/*!
- * @brief Query whether the first line is an @echo off statement.
- *
- * @param[in] pszLine  First line. Not NULL.
- *
- * @retval TRUE  The line is "@echo off" or "echo off".
- * @retval FALSE The line is something else.
- * @return TRUE if the line is an @echo off statement.
- */
-static BOOL FirstLineIsEchoOff(PCSZ pszLine) {
-    PCSZ pszPos = pszLine;
-
-    while (*pszPos == ' ' || *pszPos == '\t') pszPos++;
-    if (*pszPos == '@') pszPos++;
-    while (*pszPos == ' ' || *pszPos == '\t') pszPos++;
-
-    if (tolower((unsigned char)pszPos[0]) != 'e' ||
-        tolower((unsigned char)pszPos[1]) != 'c' ||
-        tolower((unsigned char)pszPos[2]) != 'h' ||
-        tolower((unsigned char)pszPos[3]) != 'o' ||
-        pszPos[4] != ' ' ||
-        tolower((unsigned char)pszPos[5]) != 'o' ||
-        tolower((unsigned char)pszPos[6]) != 'f' ||
-        tolower((unsigned char)pszPos[7]) != 'f')
-        return FALSE;
-
-    {
-        CHAR ch = pszPos[8];
-        if (ch == '\0' || ch == ' ' || ch == '\t' ||
-            ch == '\r' || ch == '\n')
-            return TRUE;
-    }
-    return FALSE;
-}
-
 /* ------------------------------------------------------------------ */
 /* Per-file annotation                                                 */
 /* ------------------------------------------------------------------ */
@@ -602,15 +382,24 @@ static BOOL FirstLineIsEchoOff(PCSZ pszLine) {
 /*!
  * @brief Annotate one file with SPDX tags.
  *
+ * Comment style, "is this a sidecar?", and the comment block itself
+ * all come from comments.toml via the reuse_comments API. The
+ * in-file or sidecar mode is selected by pInfo->fSidecar.
+ *
+ * In-file: writes the SPDX tag-value body at the top of the file
+ * (after line 1 if ReuseQueryShebang says the first line must be
+ * kept). Sidecar: writes the raw tag-value body to <file>.license.
+ *
  * @param[in] pszFilename   File path. Not NULL.
  * @param[in] pszLicense    License expression. Not NULL.
  * @param[in] pszCopyright  Copyright text. Not NULL.
+ * @param[in] hStyle        Comment style. Not NULLHANDLE.
+ * @param[in] pInfo         Style properties. Not NULL.
  * @param[in] fForce        TRUE to overwrite existing tags.
  * @param[in] fDryRun       TRUE to skip writes.
  *
  * @return APIRET
  * @retval NO_ERROR                 Success.
- * @retval ERROR_FILE_NOT_FOUND     Unknown file type.
  * @retval ERROR_INVALID_DATA       Binary/text mismatch.
  * @retval ERROR_OPEN_FAILED        Cannot write.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
@@ -618,70 +407,76 @@ static BOOL FirstLineIsEchoOff(PCSZ pszLine) {
 static APIRET AnnotateOne(PCSZ pszFilename,
                           PCSZ pszLicense,
                           PCSZ pszCopyright,
+                          HREUSECOMMENTSTYLE hStyle,
+                          const REUSECOMMENTSTYLEINFO *pInfo,
                           BOOL fForce,
                           BOOL fDryRun) {
-    COMMENTSTYLE style;
-    COMMENTSTYLE declared;
     BOOL fIsBin;
-    PSZ pszBlock;
-    CHAR achSidecar[1200];
-    FILE *fp, *fpOut;
-    CHAR achLine[MAX_LINE];
-    CHAR achFirstLine[MAX_LINE];
-    BOOL fHas;
-    BOOL fHasShebang = FALSE;
-    BOOL fHasEchoOff = FALSE;
-    CHAR achTempName[1024];
-
-    declared = DetectStyle(pszFilename);
-
-    if (declared == STYLE_UNKNOWN) {
-        printf("ERROR: %s: unknown file type.\n"
-               "       Fix one of:\n"
-               "         - specify the comment style explicitly:\n"
-               "           --comment-style=<ext-or-name>="
-               "<slash|hash|rem|binary>\n"
-               "         - or remove the file from the project.\n",
-               pszFilename);
-        return ERROR_FILE_NOT_FOUND;
-    }
+    PSZ pszBody = NULL;
+    PSZ pszBlock = NULL;
+    ULONG ulBlockLen = 0;
+    APIRET rc;
 
     fIsBin = IsBinaryFile(pszFilename);
 
-    if (declared == STYLE_SIDECAR && !fIsBin) {
-        printf("ERROR: %s: declared as binary but content is text.\n"
+    if (pInfo->fSidecar && !fIsBin) {
+        printf("ERROR: %s: declared as binary (sidecar style) but "
+               "content is text.\n"
                "       Fix one of:\n"
-               "         - specify the comment style explicitly:\n"
-               "           --comment-style=<ext-or-name>=<slash|hash|rem>\n"
+               "         - add a [[map]] entry for this file with a "
+               "text style;\n"
                "         - or fix the file if its content is wrong.\n",
                pszFilename);
         return ERROR_INVALID_DATA;
     }
 
-    if (declared != STYLE_SIDECAR && fIsBin) {
+    if (!pInfo->fSidecar && fIsBin) {
         printf("ERROR: %s: declared as text but content is binary.\n"
                "       Fix one of:\n"
-               "         - specify the comment style explicitly:\n"
-               "           --comment-style=<ext-or-name>=binary\n"
+               "         - add a [[map]] entry for this file with "
+               "style = \"uncommentable\";\n"
                "         - or fix the file if its content is wrong.\n",
                pszFilename);
         return ERROR_INVALID_DATA;
     }
 
-    style = declared;
+    pszBody = build_spdx_body(pszLicense, pszCopyright);
+    if (!pszBody) return ERROR_NOT_ENOUGH_MEMORY;
 
-    if (style == STYLE_SIDECAR) {
+    if (pInfo->fSidecar) {
+        pszBlock = pszBody;
+        pszBody = NULL;
+    } else {
+        rc = ReuseQueryCommentBlock(hStyle, pszBody, FALSE,
+                                    NULL, 0, &ulBlockLen);
+        if (rc != NO_ERROR) {
+            free(pszBody);
+            return rc;
+        }
+        pszBlock = (PSZ)malloc(ulBlockLen);
+        if (!pszBlock) {
+            free(pszBody);
+            return ERROR_NOT_ENOUGH_MEMORY;
+        }
+        rc = ReuseQueryCommentBlock(hStyle, pszBody, FALSE,
+                                    pszBlock, ulBlockLen, NULL);
+        free(pszBody);
+        if (rc != NO_ERROR) {
+            free(pszBlock);
+            return rc;
+        }
+    }
+
+    if (pInfo->fSidecar) {
+        CHAR achSidecar[1200];
         BOOL fExists;
         BOOL fEqual = FALSE;
-
-        pszBlock = BuildInsertion(style, pszLicense, pszCopyright, FALSE);
-        if (!pszBlock) return ERROR_NOT_ENOUGH_MEMORY;
 
         snprintf(achSidecar, sizeof(achSidecar), "%s.license", pszFilename);
         fExists = FileExists(achSidecar);
 
         if (fExists) {
-            PSZ pszExisting = NULL;
+            PSZ pszExisting;
             PSZ pszN1 = NULL, pszN2 = NULL;
             pszExisting = read_file_to_heap(achSidecar);
             if (pszExisting) {
@@ -736,102 +531,108 @@ static APIRET AnnotateOne(PCSZ pszFilename,
                achSidecar);
         free(pszBlock);
         return NO_ERROR;
-    }
-
-    {
+    } else {
         BOOL fHasTag = FALSE;
-        SpdxQueryFileHasTag(pszFilename, &fHasTag);
-        fHas = fHasTag;
-    }
+        BOOL fKeepFirstLine = FALSE;
+        CHAR achFirstLine[MAX_LINE];
+        CHAR achTempName[1024];
+        FILE *fp, *fpOut;
+        CHAR achLine[MAX_LINE];
 
-    if (fHas && !fForce) {
-        printf("Skipped (has tags):   %s\n", pszFilename);
-        return NO_ERROR;
-    }
-
-    achFirstLine[0] = '\0';
-    fp = fopen(pszFilename, "r");
-    if (fp) {
-        if (fgets(achFirstLine, sizeof(achFirstLine), fp)) {
+        rc = ReuseQueryFileHasTag(pszFilename, hStyle, &fHasTag);
+        if (rc != NO_ERROR) {
+            free(pszBlock);
+            return rc;
         }
-        fclose(fp);
-    }
 
-    if (style == STYLE_HASH) {
-        if (FirstLineIsShebang(achFirstLine)) fHasShebang = TRUE;
-    } else if (style == STYLE_REM) {
-        if (FirstLineIsEchoOff(achFirstLine)) fHasEchoOff = TRUE;
-    }
-
-    pszBlock = BuildInsertion(style, pszLicense, pszCopyright, fHasEchoOff);
-    if (!pszBlock) return ERROR_NOT_ENOUGH_MEMORY;
-
-    if (fDryRun) {
-        printf("%s %s\n",
-               fHas ? "Would update tags:   " : "Would add tags:      ",
-               pszFilename);
-        printf("    comment style:    %s\n", StyleName(style));
-        if (fHasShebang)
-            printf("    insertion:        after shebang (line 1)\n");
-        else if (fHasEchoOff)
-            printf("    insertion:        after @echo off (line 1)\n");
-        else
-            printf("    insertion:        at top of file\n");
-        PrintBlock(pszBlock, "        ");
-        free(pszBlock);
-        return NO_ERROR;
-    }
-
-    snprintf(achTempName, sizeof(achTempName), "%s.tmp", pszFilename);
-    fpOut = fopen(achTempName, "w");
-    if (!fpOut) {
-        printf("ERROR: cannot open file for writing: %s\n"
-               "       Check directory permissions.\n", achTempName);
-        free(pszBlock);
-        return ERROR_OPEN_FAILED;
-    }
-
-    if (fHasShebang || fHasEchoOff) {
-        fputs(achFirstLine, fpOut);
-        if (achFirstLine[0] != '\0' &&
-            achFirstLine[strlen(achFirstLine) - 1] != '\n') {
-            fputc('\n', fpOut);
+        if (fHasTag && !fForce) {
+            printf("Skipped (has tags):   %s\n", pszFilename);
+            free(pszBlock);
+            return NO_ERROR;
         }
-        fputs(pszBlock, fpOut);
 
+        achFirstLine[0] = '\0';
         fp = fopen(pszFilename, "r");
         if (fp) {
-            CHAR achSkip[MAX_LINE];
-            if (fgets(achSkip, sizeof(achSkip), fp)) {
-                while (fgets(achLine, sizeof(achLine), fp))
-                    fputs(achLine, fpOut);
+            if (fgets(achFirstLine, sizeof(achFirstLine), fp)) {
             }
             fclose(fp);
         }
-    } else {
-        fputs(pszBlock, fpOut);
-        fp = fopen(pszFilename, "r");
-        if (fp) {
-            while (fgets(achLine, sizeof(achLine), fp))
-                fputs(achLine, fpOut);
-            fclose(fp);
-        }
-    }
-    fclose(fpOut);
 
-    remove(pszFilename);
-    if (rename(achTempName, pszFilename) != 0) {
-        printf("ERROR: cannot rename %s to %s\n"
-               "       Check file permissions.\n",
-               achTempName, pszFilename);
+        rc = ReuseQueryShebang(hStyle, achFirstLine, &fKeepFirstLine);
+        if (rc != NO_ERROR) {
+            free(pszBlock);
+            return rc;
+        }
+
+        if (fDryRun) {
+            printf("%s %s\n",
+                   fHasTag ? "Would update tags:   "
+                           : "Would add tags:      ",
+                   pszFilename);
+            printf("    comment style:    %s\n",
+                   pInfo->pszName ? pInfo->pszName : "(unknown)");
+            if (fKeepFirstLine)
+                printf("    insertion:        after first line "
+                       "(kept as-is)\n");
+            else
+                printf("    insertion:        at top of file\n");
+            PrintBlock(pszBlock, "        ");
+            free(pszBlock);
+            return NO_ERROR;
+        }
+
+        snprintf(achTempName, sizeof(achTempName), "%s.tmp", pszFilename);
+        fpOut = fopen(achTempName, "w");
+        if (!fpOut) {
+            printf("ERROR: cannot open file for writing: %s\n"
+                   "       Check directory permissions.\n", achTempName);
+            free(pszBlock);
+            return ERROR_OPEN_FAILED;
+        }
+
+        if (fKeepFirstLine) {
+            fputs(achFirstLine, fpOut);
+            if (achFirstLine[0] != '\0' &&
+                achFirstLine[strlen(achFirstLine) - 1] != '\n') {
+                fputc('\n', fpOut);
+            }
+            fputs(pszBlock, fpOut);
+
+            fp = fopen(pszFilename, "r");
+            if (fp) {
+                CHAR achSkip[MAX_LINE];
+                if (fgets(achSkip, sizeof(achSkip), fp)) {
+                    while (fgets(achLine, sizeof(achLine), fp))
+                        fputs(achLine, fpOut);
+                }
+                fclose(fp);
+            }
+        } else {
+            fputs(pszBlock, fpOut);
+            fp = fopen(pszFilename, "r");
+            if (fp) {
+                while (fgets(achLine, sizeof(achLine), fp))
+                    fputs(achLine, fpOut);
+                fclose(fp);
+            }
+        }
+        fclose(fpOut);
+
+        remove(pszFilename);
+        if (rename(achTempName, pszFilename) != 0) {
+            printf("ERROR: cannot rename %s to %s\n"
+                   "       Check file permissions.\n",
+                   achTempName, pszFilename);
+            free(pszBlock);
+            return ERROR_OPEN_FAILED;
+        }
+        printf("%s %s\n",
+               fHasTag ? "Updated tags:        " : "Added tags:          ",
+               pszFilename);
         free(pszBlock);
-        return ERROR_OPEN_FAILED;
+        return NO_ERROR;
     }
-    printf("%s %s\n",
-           fHas ? "Updated tags:        " : "Added tags:          ",
-           pszFilename);
-    free(pszBlock);
-    return NO_ERROR;
 }
 
 /* ------------------------------------------------------------------ */
@@ -1004,10 +805,8 @@ int main(int argc, char *argv[]) {
                    "  --cache=<path>             SPDX database cache "
                    "file\n"
                    "  --comment-style=<ext>=<style>\n"
-                   "                             Set comment style for a "
-                   "given extension\n"
-                   "                             or base name. Styles: "
-                   "slash, hash, rem, binary\n"
+                   "                             Legacy option; parsed "
+                   "and validated, not yet applied\n"
                    "  --no-gitignore             Do not apply .gitignore "
                    "rules\n"
                    "  --help, -h                 Show this help\n");
@@ -1043,6 +842,11 @@ int main(int argc, char *argv[]) {
             GitIgnoreListFree(&gitignore_rules);
             return 1;
         }
+    }
+
+    if (g_ulStyleOverrideCount > 0) {
+        printf("WARNING: --comment-style is not yet supported; "
+               "use [[map]] in comments.toml instead.\n");
     }
 
     if (!pszSpdxDbRoot) {
@@ -1103,7 +907,7 @@ int main(int argc, char *argv[]) {
         if (rc == REUSE_ERROR_NO_COMMENT_STYLE) {
             printf("ERROR: --comments-config=<path> is required.\n"
                    "       It defines the comment styles used to read "
-                   "in-file SPDX tags.\n"
+                   "and write in-file SPDX tags.\n"
                    "       Run 'reuse-annotate --help' for usage.\n");
             StrSetDestroy(hUsedLicenses);
             GitIgnoreListFree(&gitignore_rules);
@@ -1193,6 +997,9 @@ int main(int argc, char *argv[]) {
                 PSZ pszReuseLicense = NULL;
                 PSZ pszReuseCopyright = NULL;
                 PSZ pszNormalized = NULL;
+                HREUSECOMMENTSTYLE hStyle = NULLHANDLE;
+                REUSECOMMENTSTYLEINFO info;
+                BOOL fStyleFound = FALSE;
                 APIRET rc;
 
                 if (StrSetEnumGet(hEnum, achFullPath, sizeof(achFullPath),
@@ -1232,6 +1039,39 @@ int main(int argc, char *argv[]) {
                     }
                 }
 
+                rc = ReuseQueryTreeCommentStyle(hTree, achFullPath,
+                                                &fStyleFound, &hStyle);
+                if (rc != NO_ERROR) {
+                    printf("ERROR: %s: cannot resolve comment style "
+                           "(code %lu).\n",
+                           achFullPath, (unsigned long)rc);
+                    ulTotalErrors++;
+                    free(pszReuseLicense);
+                    free(pszReuseCopyright);
+                    continue;
+                }
+                if (!fStyleFound || hStyle == NULLHANDLE) {
+                    printf("ERROR: %s: no [[map]] entry in "
+                           "comments.toml matches this file.\n",
+                           achFullPath);
+                    ulTotalErrors++;
+                    free(pszReuseLicense);
+                    free(pszReuseCopyright);
+                    continue;
+                }
+
+                memset(&info, 0, sizeof(info));
+                rc = ReuseQueryCommentStyleInfo(hStyle, &info);
+                if (rc != NO_ERROR) {
+                    printf("ERROR: %s: cannot query comment style info "
+                           "(code %lu).\n",
+                           achFullPath, (unsigned long)rc);
+                    ulTotalErrors++;
+                    free(pszReuseLicense);
+                    free(pszReuseCopyright);
+                    continue;
+                }
+
                 pszLicense = pszReuseLicense ? pszReuseLicense
                                              : pszLicenseOverride;
                 pszCopyright = pszReuseCopyright ? pszReuseCopyright
@@ -1257,20 +1097,9 @@ int main(int argc, char *argv[]) {
 
                 if (!pszLicense || !pszCopyright) {
                     CHAR achMfPath[1100];
-                    size_t cbDirLen = strlen(pszDir);
 
-#ifdef __LINUX__
-                    snprintf(achMfPath, sizeof(achMfPath),
-                             "%s%smakefile", pszDir,
-                             (cbDirLen > 0 &&
-                              pszDir[cbDirLen-1] == '/') ? "" : "/");
-#else
-                    snprintf(achMfPath, sizeof(achMfPath),
-                             "%s%smakefile", pszDir,
-                             (cbDirLen > 0 &&
-                              (pszDir[cbDirLen-1] == '\\' ||
-                               pszDir[cbDirLen-1] == '/')) ? "" : "\\");
-#endif
+                    PathMakeJoin(pszDir, "makefile", achMfPath,
+                                 sizeof(achMfPath), NULL);
 
                     if (!pszLicense) {
                         printf("ERROR: %s: no license information "
@@ -1342,7 +1171,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 rc = AnnotateOne(achFullPath, pszLicense, pszCopyright,
-                                 fForce, fDryRun);
+                                 hStyle, &info, fForce, fDryRun);
                 if (rc != NO_ERROR) ulTotalErrors++;
 
                 free(pszNormalized);

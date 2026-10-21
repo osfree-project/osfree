@@ -9,7 +9,6 @@
 #include <reuse.h>
 #include "spdx.h"
 #include "spdx_db.h"
-#include "spdx_tag.h"
 #include "sha1.h"
 
 /*!
@@ -107,9 +106,6 @@ static APIRET collect_file_snippets(PCSZ pszFullPath,
 
     rc = ReuseQueryFileSnippets(pszFullPath, hStyle, hReport, &raw);
     if (rc != NO_ERROR) {
-        /* Parse error, unreadable file, or OOM: propagate. A file
-         * with no snippets at all is NOT an error and is handled
-         * below (raw.ulCount == 0). */
         return rc;
     }
 
@@ -149,7 +145,7 @@ static APIRET collect_file_snippets(PCSZ pszFullPath,
         if (rc != NO_ERROR) break;
     }
 
-    SpdxSnippetListFree(&raw);
+    ReuseSnippetListFree(&raw);
     return rc;
 }
 

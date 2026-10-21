@@ -18,9 +18,11 @@ shebangs = ["#!"]
 
 [[style]]
 name = "batch"
+single = "@REM"
 single_line_regexp = "^@?rem\\b"
 case_insensitive = true
 indent_after_single = " "
+shebangs = ["@echo off", "echo off"]
 
 [[style]]
 name = "hash"

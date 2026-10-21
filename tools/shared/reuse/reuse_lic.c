@@ -5,10 +5,9 @@
  *
  * Per-file license/copyright resolution (C89).
  *
- * P1: sidecar and in-file tags are no longer read by this module.
- * They are read by the resolver (ReuseOpenFile -> resolve_file ->
- * ReuseQueryFileTags). This module is a thin wrapper that copies
- * the resolved fields, applies the --default-* CLI fallbacks,
+ * Sidecar and in-file tags are read by the resolver
+ * (ReuseOpenFile -> resolve_file -> ReuseQueryFileTags). This module
+ * copies the resolved fields, applies the --default-* CLI fallbacks,
  * canonicalizes the license expression, and forwards
  * REUSE_ERROR_NO_COMMENT_STYLE as-is.
  */
@@ -17,14 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "reuse_lic.h"
-#include "spdx_tag.h"
 #include "spdx_db.h"
-
-#ifdef __LINUX__
-#include <unistd.h>
-#else
-#include <io.h>
-#endif
 
 /* ------------------------------------------------------------------ */
 /* String helpers                                                      */
@@ -54,6 +46,11 @@ static void copy_field(PSZ pszDst, ULONG ulDstSize, PCSZ pszSrc,
 
 /*!
  * @brief Remove trailing whitespace and comment-closing markers.
+ *
+ * Defensive cleanup for sidecars written by hand: a trailing
+ * block-comment end marker or a line-comment marker on the same line
+ * as the value is stripped here, so that the SPDX value comes out
+ * clean.
  *
  * @param[in,out] pszStr  String to modify. Not NULL.
  */
@@ -161,8 +158,8 @@ static void copy_file_field(HREUSETREEFILE hFile, REUSEFIELDFN fnField,
  * @brief Resolve license and copyright for one file.
  *
  * Thin wrapper over ReuseOpenFile. Sidecar and in-file tags are read
- * by the resolver (see reuse.h). This module copies the resolved
- * fields, applies --default-* fallbacks, canonicalizes the license
+ * by the resolver. This module copies the resolved fields, applies
+ * the --default-* CLI fallbacks, canonicalizes the license
  * expression, and forwards REUSE_ERROR_NO_COMMENT_STYLE as-is.
  *
  * @param[in]  hTree                Project handle, or NULLHANDLE.
@@ -178,8 +175,8 @@ static void copy_file_field(HREUSETREEFILE hFile, REUSEFIELDFN fnField,
  * @retval ERROR_FILE_NOT_FOUND     No source matched and no default
  *                                  was provided.
  * @retval REUSE_ERROR_NO_COMMENT_STYLE
- *                                  comments.toml not supplied, or no
- *                                  [[map]] entry for the file.
+ *                                  No [[map]] entry in comments.toml
+ *                                  matches pszFullPath.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,

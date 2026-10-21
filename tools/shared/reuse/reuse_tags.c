@@ -200,6 +200,53 @@ APIRET APIENTRY ReuseQueryTagsReport(HREUSETAGSREPORT hReport,
 }
 
 /* ==================================================================
+ * Snippet list lifecycle
+ * ================================================================== */
+
+/*!
+ * @brief Initialize a snippet list.
+ *
+ * Sets all fields to zero. No memory is allocated.
+ *
+ * @param[in] pList  List. Not NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pList is NULL.
+ */
+APIRET APIENTRY ReuseSnippetListInit(PSPDXSNIPPETLIST pList) {
+    if (!pList) return ERROR_INVALID_PARAMETER;
+    pList->pItems = NULL;
+    pList->ulCount = 0;
+    pList->ulCapacity = 0;
+    return NO_ERROR;
+}
+
+/*!
+ * @brief Release all memory owned by a snippet list.
+ *
+ * @param[in] pList  List. May be NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR  Success. Also for NULL.
+ */
+APIRET APIENTRY ReuseSnippetListFree(PSPDXSNIPPETLIST pList) {
+    ULONG ulIdx;
+    if (!pList) return NO_ERROR;
+    for (ulIdx = 0; ulIdx < pList->ulCount; ulIdx++) {
+        free(pList->pItems[ulIdx].pszLicense);
+        free(pList->pItems[ulIdx].pszCopyright);
+    }
+    free(pList->pItems);
+    pList->pItems = NULL;
+    pList->ulCount = 0;
+    pList->ulCapacity = 0;
+    return NO_ERROR;
+}
+
+/* ==================================================================
  * Small helpers
  * ================================================================== */
 
@@ -361,9 +408,6 @@ static BOOL match_reuse_copyright(PCSZ pszBody, PCSZ *ppszValue) {
 /*!
  * @brief Append a zero-filled entry to a snippet list.
  *
- * Local copy of the helper used by spdx_tag.c so that
- * reuse_tags.c does not depend on a non-public symbol.
- *
  * @param[in,out] pList    List. Not NULL.
  * @param[out]    ppEntry  Receiver. Not NULL.
  *
@@ -478,7 +522,6 @@ APIRET APIENTRY ReuseQueryFileTags(PCSZ pszPath,
         }
         trim_trailing(achLine);
 
-        /* P1: sidecar mode when hStyle is NULLHANDLE. */
         if (hStyle == NULLHANDLE) {
             ulOffset = 0;
         } else {
@@ -744,11 +787,11 @@ APIRET APIENTRY ReuseQueryFileSnippets(PCSZ pszPath,
             return ERROR_INVALID_HANDLE;
     }
 
-    rc = SpdxSnippetListInit(pOut);
+    rc = ReuseSnippetListInit(pOut);
     if (rc != NO_ERROR) return rc;
 
     fp = fopen(pszPath, "r");
-    if (fp == NULL) { SpdxSnippetListFree(pOut); return ERROR_OPEN_FAILED; }
+    if (fp == NULL) { ReuseSnippetListFree(pOut); return ERROR_OPEN_FAILED; }
 
     while (fgets(achLine, sizeof(achLine), fp) != NULL) {
         PCSZ pszBody;
@@ -877,7 +920,7 @@ done:
     free(pszLicAcc);
     free(pszCopAcc);
     if (rc != NO_ERROR) {
-        SpdxSnippetListFree(pOut);
+        ReuseSnippetListFree(pOut);
     }
     return rc;
 }

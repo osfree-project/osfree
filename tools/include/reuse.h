@@ -84,6 +84,73 @@ typedef HANDLE HREUSETAGSREPORT;
 typedef HANDLE *PHREUSETAGSREPORT;
 
 /* ==================================================================
+ * Snippet types
+ *
+ * SPDX snippet as seen by REUSE consumers: a line range with a
+ * license expression and copyright notice. Constructed by
+ * ReuseQueryFileSnippets according to the REUSE rules (comment
+ * markers removed, REUSE-IgnoreStart/End honoured, multiple license
+ * tags joined with AND, multiple copyright lines joined with '\n').
+ *
+ * The strings pszLicense and pszCopyright are owned by the list and
+ * released by ReuseSnippetListFree.
+ * ================================================================== */
+
+/**
+ * @struct _SPDXSNIPPET
+ * @brief One SPDX snippet extracted from a file.
+ */
+typedef struct _SPDXSNIPPET {
+    ULONG ulLineStart;    /**< Line number of SPDX-SnippetBegin. */
+    ULONG ulLineEnd;      /**< Line number of SPDX-SnippetEnd.   */
+    PSZ   pszLicense;     /**< SPDX-License-Identifier, or NULL. */
+    PSZ   pszCopyright;   /**< SPDX-SnippetCopyrightText, lines
+                               joined with '\n', or NULL.       */
+} SPDXSNIPPET, *PSPDXSNIPPET;
+
+/**
+ * @struct _SPDXSNIPPETLIST
+ * @brief A list of SPDX snippets collected from one file.
+ */
+typedef struct _SPDXSNIPPETLIST {
+    PSPDXSNIPPET pItems;     /**< Array of snippets.      */
+    ULONG        ulCount;    /**< Number of used entries. */
+    ULONG        ulCapacity; /**< Allocated capacity.     */
+} SPDXSNIPPETLIST, *PSPDXSNIPPETLIST;
+
+/* ==================================================================
+ * Snippet list lifecycle
+ * ================================================================== */
+
+/**
+ * @brief Initialize a snippet list.
+ *
+ * Sets all fields to zero. No memory is allocated.
+ *
+ * @param[in] pList  List. Not NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  pList is NULL.
+ */
+APIRET APIENTRY ReuseSnippetListInit(PSPDXSNIPPETLIST pList);
+
+/**
+ * @brief Release all memory owned by a snippet list.
+ *
+ * Frees the strings of every snippet, then the backing array, and
+ * reinitializes the structure. Passing NULL is a no-op.
+ *
+ * @param[in] pList  List. May be NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR  Success. Also for NULL.
+ */
+APIRET APIENTRY ReuseSnippetListFree(PSPDXSNIPPETLIST pList);
+
+/* ==================================================================
  * Warning codes for the in-file tag report
  * ================================================================== */
 
@@ -415,12 +482,12 @@ APIRET APIENTRY ReuseQueryCommentStyleInfo(HREUSECOMMENTSTYLE hStyle,
  * @brief Locate the body of one line after stripping the leading
  *        comment marker.
  *
- * Single-line styles are tried first (regexp, then literal, then
- * multi-line start / middle markers). When a multi-line start or
+ * Single-line styles are tried first (regexp, then literal), then
+ * multi-line start / middle markers. When a multi-line start or
  * middle marker matches and the style defines a multi-line end
  * marker, a trailing end marker is trimmed from @p pszLine in place.
  * This makes single-line usages of multi-line markers such as
- * ``<!-- tag -->`` return a clean body.
+ * <!-- tag --> return a clean body.
  *
  * @param[in]     hStyle     Borrowed style. Not NULLHANDLE.
  * @param[in,out] pszLine    Input line. Not NULL. May be modified in

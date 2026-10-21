@@ -1,4 +1,4 @@
-/* spdx_tag.h - SPDX tags and snippet parser (C89) */
+/* spdx_tag.h - SPDX tag parser (C89) */
 #ifndef SPDX_TAG_H
 #define SPDX_TAG_H
 
@@ -13,21 +13,11 @@ extern "C" {
  * @file spdx_tag.h
  * @brief SPDX 2.3 tag-value parser.
  *
- * Provides two layers:
- *
- *   - Line-level parsing of a single SPDX 2.3 tag-value line
- *     (SpdxQueryTagLine), together with static metadata for every
- *     tag (SpdxQueryTagInfo). The line is expected to already have
- *     its comment marker removed; comment stripping is the caller's
- *     responsibility (see ReuseQueryCommentBody in the REUSE library).
- *
- *   - Legacy file-level helpers used by the current REUSE tools
- *     (SpdxQueryFileHasTag, SpdxQueryFileLicense,
- *     SpdxQueryFileCopyright, SpdxQueryFileSnippets). These helpers
- *     open the file themselves and apply a hard-coded comment
- *     prefix table. They are deprecated in favour of ReuseQueryFile*
- *     and will be removed once the REUSE library migration is
- *     complete.
+ * Provides line-level parsing of a single SPDX 2.3 tag-value line
+ * (SpdxQueryTagLine), together with static metadata for every tag
+ * (SpdxQueryTagInfo). The line is expected to already have its
+ * comment marker removed; comment stripping is the caller's
+ * responsibility (see ReuseQueryCommentBody in the REUSE library).
  *
  * Recognized forms:
  *
@@ -61,36 +51,6 @@ extern "C" {
 /** @def SPDX_TAG_ERROR_SYNTAX @brief Snippet structure is invalid.
  *  User range 0xFF01. */
 #define SPDX_TAG_ERROR_SYNTAX        0xFF01
-
-/* ==================================================================
- * Snippet types
- * ================================================================== */
-
-/**
- * @struct _SPDXSNIPPET
- * @brief One SPDX snippet extracted from a file.
- *
- * The @c pszLicense and @c pszCopyright strings are malloc'd and
- * owned by the containing list. They are released by
- * SpdxSnippetListFree.
- */
-typedef struct _SPDXSNIPPET {
-    ULONG ulLineStart;    /**< Line number of SPDX-SnippetBegin. */
-    ULONG ulLineEnd;      /**< Line number of SPDX-SnippetEnd.   */
-    PSZ   pszLicense;     /**< SPDX-License-Identifier, or NULL. */
-    PSZ   pszCopyright;   /**< SPDX-SnippetCopyrightText, lines
-                               joined with '\n', or NULL.       */
-} SPDXSNIPPET, *PSPDXSNIPPET;
-
-/**
- * @struct _SPDXSNIPPETLIST
- * @brief A list of SPDX snippets collected from one file.
- */
-typedef struct _SPDXSNIPPETLIST {
-    PSPDXSNIPPET pItems;     /**< Array of snippets.      */
-    ULONG        ulCount;    /**< Number of used entries. */
-    ULONG        ulCapacity; /**< Allocated capacity.     */
-} SPDXSNIPPETLIST, *PSPDXSNIPPETLIST;
 
 /* ==================================================================
  * Tag identifiers
@@ -248,35 +208,6 @@ typedef struct _SPDXTAGINFO {
 } SPDXTAGINFO, *PSPDXTAGINFO;
 
 /* ==================================================================
- * Snippet list lifecycle (legacy, used by SpdxQueryFileSnippets)
- * ================================================================== */
-
-/**
- * @brief Initialize a snippet list.
- *
- * Sets all fields to zero. No memory is allocated.
- *
- * @param[in] pList  List. Not NULL.
- * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pList is NULL.
- */
-APIRET APIENTRY SpdxSnippetListInit(SPDXSNIPPETLIST *pList);
-
-/**
- * @brief Release all memory owned by a snippet list.
- *
- * Frees the strings of every snippet, then the backing array, and
- * reinitializes the structure. Passing NULL is a no-op.
- *
- * @param[in] pList  List. May be NULL.
- *
- * @return APIRET
- * @retval NO_ERROR  Success. Also for NULL.
- */
-APIRET APIENTRY SpdxSnippetListFree(SPDXSNIPPETLIST *pList);
-
-/* ==================================================================
  * Tag-value line parser
  * ================================================================== */
 
@@ -364,88 +295,6 @@ APIRET APIENTRY SpdxQueryTagLine(PCSZ pszLine, SPDXTAG *pTag,
  *                                  @c SPDXTAG_OTHER.
  */
 APIRET APIENTRY SpdxQueryTagInfo(SPDXTAG tag, SPDXTAGINFO *pInfo);
-
-/* ==================================================================
- * Legacy file-level queries (to be removed in a later step)
- * ================================================================== */
-
-/**
- * @brief Query whether a file contains an SPDX-License-Identifier
- *        tag outside any REUSE-IgnoreStart/End block.
- *
- * @deprecated Use ReuseQueryFileHasTag from the REUSE library instead.
- *
- * @param[in]  pszFilename  Path to the file. Not NULL.
- * @param[out] pfHasTag     Receiver. Not NULL.
- *
- * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszFilename or pfHasTag is NULL.
- * @retval ERROR_OPEN_FAILED        File cannot be opened.
- */
-APIRET APIENTRY SpdxQueryFileHasTag(PCSZ pszFilename, PBOOL pfHasTag);
-
-/**
- * @brief Query the value of the SPDX-License-Identifier tag.
- *
- * @deprecated Use ReuseQueryFileTags from the REUSE library instead.
- *
- * @param[in]  pszFilename  Path to the file. Not NULL.
- * @param[out] pszBuf       Output buffer. Not NULL unless size-query.
- * @param[in]  ulSize       Size of pszBuf in bytes.
- * @param[out] pulUsed      Optional. May be NULL.
- *
- * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszFilename is NULL, or pszBuf is
- *                                  NULL without size-query.
- * @retval ERROR_OPEN_FAILED        File cannot be opened.
- * @retval ERROR_FILE_NOT_FOUND     Tag not present.
- * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
- */
-APIRET APIENTRY SpdxQueryFileLicense(PCSZ pszFilename, PSZ pszBuf,
-                                     ULONG ulSize, PULONG pulUsed);
-
-/**
- * @brief Query the concatenated SPDX-FileCopyrightText values.
- *
- * @deprecated Use ReuseQueryFileTags from the REUSE library instead.
- *
- * @param[in]  pszFilename  Path to the file. Not NULL.
- * @param[out] pszBuf       Output buffer. Not NULL unless size-query.
- * @param[in]  ulSize       Size of pszBuf in bytes.
- * @param[out] pulUsed      Optional. May be NULL.
- *
- * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszFilename is NULL, or pszBuf is
- *                                  NULL without size-query.
- * @retval ERROR_OPEN_FAILED        File cannot be opened.
- * @retval ERROR_FILE_NOT_FOUND     No copyright tag present.
- * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
- */
-APIRET APIENTRY SpdxQueryFileCopyright(PCSZ pszFilename, PSZ pszBuf,
-                                       ULONG ulSize, PULONG pulUsed);
-
-/**
- * @brief Extract all SPDX snippets from a file.
- *
- * @deprecated Use ReuseQueryFileSnippets from the REUSE library
- *             instead.
- *
- * @param[in]  pszFilename  Path to the file. Not NULL.
- * @param[out] pOut         List receiver. Not NULL.
- *
- * @return APIRET
- * @retval NO_ERROR                 Success (possibly no snippets).
- * @retval ERROR_INVALID_PARAMETER  pszFilename or pOut is NULL.
- * @retval ERROR_OPEN_FAILED        File cannot be opened.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Memory allocation failure.
- * @retval SPDX_TAG_ERROR_SYNTAX    Nested or unmatched snippet
- *                                  delimiters.
- */
-APIRET APIENTRY SpdxQueryFileSnippets(PCSZ pszFilename,
-                                      SPDXSNIPPETLIST *pOut);
 
 #ifdef __cplusplus
 }

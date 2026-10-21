@@ -33,7 +33,6 @@
 #include "reuse_discover.h"
 #include "reuse_lic.h"
 #include "reuse_licenses.h"
-#include "spdx_tag.h"
 #include "git.h"
 
 
@@ -488,7 +487,7 @@ static void ProcessSnippets(PCSZ pszFullPath, HSTRSET hUsedLicenses,
         }
     }
 
-    SpdxSnippetListFree(&snippets);
+    ReuseSnippetListFree(&snippets);
 }
 
 /* ------------------------------------------------------------------ */

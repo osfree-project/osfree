@@ -32,6 +32,12 @@
 /*!
  * @struct _REUSECOMMENTSTYLE
  * @brief One parsed comment style.
+ *
+ * @c pszSingleLine and @c pszSingleLineRegexp may both be present.
+ * @c pszSingleLine is the canonical literal marker used when writing;
+ * @c pszSingleLineRegexp, when present, is used for reading (matched
+ * against the beginning of a stripped line). If both are present,
+ * reading tries the regexp first, then the literal.
  */
 typedef struct _REUSECOMMENTSTYLE {
     ULONG ulMagic;
@@ -588,15 +594,18 @@ static APIRET rc_get_string_array(HTOMLNODE hTable, PCSZ pszKey,
 /*!
  * @brief Populate one style record from its [[style]] table.
  *
+ * Both @c single and @c single_line_regexp may be present: the
+ * former is the literal marker used when writing, the latter is the
+ * pattern used when reading. Both may coexist; reading tries the
+ * regexp first, then the literal.
+ *
  * @param[in]  hItem   TOML table. Not NULLHANDLE.
  * @param[out] pStyle  Receiver. Not NULL.
  *
  * @return APIRET
  *
  * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_DATA       Missing required "name", or both
- *                                  "single" and "single_line_regexp"
- *                                  are present.
+ * @retval ERROR_INVALID_DATA       Missing required "name".
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET parse_one_style(HTOMLNODE hItem, PREUSECOMMENTSTYLE pStyle) {
@@ -618,10 +627,6 @@ static APIRET parse_one_style(HTOMLNODE hItem, PREUSECOMMENTSTYLE pStyle) {
     pStyle->pszIndentBeforeEnd    = rc_get_string(hItem, "indent_before_end");
 
     pStyle->fCaseInsensitive = rc_get_bool(hItem, "case_insensitive");
-
-    if (pStyle->pszSingleLine != NULL &&
-        pStyle->pszSingleLineRegexp != NULL)
-        return ERROR_INVALID_DATA;
 
     rc = rc_get_string_array(hItem, "shebangs",
                              &pStyle->papszShebangs,
@@ -1016,12 +1021,12 @@ APIRET APIENTRY ReuseQueryCommentStyleInfo(HREUSECOMMENTSTYLE hStyle,
  * @brief Locate the body of a single line after stripping the leading
  *        comment marker.
  *
- * Single-line styles are tried first (regexp, then literal). Then the
- * multi-line start marker and the multi-line middle marker. When a
- * multi-line start or middle marker matches and the style defines a
- * multi-line end marker, a trailing end marker is trimmed from
- * @p pszLine in place. This makes single-line usages of multi-line
- * markers such as ``<!-- tag -->`` return a clean body.
+ * Single-line styles are tried first (regexp, then literal), then
+ * multi-line start / middle markers. When a multi-line start or
+ * middle marker matches and the style defines a multi-line end
+ * marker, a trailing end marker is trimmed from @p pszLine in place.
+ * This makes single-line usages of multi-line markers such as
+ * <!-- tag --> return a clean body.
  *
  * @param[in]     hStyle     Borrowed style. Not NULLHANDLE.
  * @param[in,out] pszLine    Input line. Not NULL. May be modified in
@@ -1333,8 +1338,7 @@ APIRET APIENTRY ReuseQueryCommentBlock(HREUSECOMMENTSTYLE hStyle,
     if (pStyle == NULL) return ERROR_INVALID_HANDLE;
 
     fUseMulti = (fForceMulti ||
-                 (pStyle->pszSingleLine == NULL &&
-                  pStyle->pszSingleLineRegexp == NULL)) ? TRUE : FALSE;
+                 (pStyle->pszSingleLine == NULL)) ? TRUE : FALSE;
     if (fUseMulti) {
         if (pStyle->pszMultiStart == NULL || pStyle->pszMultiEnd == NULL)
             return ERROR_INVALID_DATA;
