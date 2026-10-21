@@ -33,17 +33,16 @@
  * @struct _REUSECOMMENTSTYLE
  * @brief One parsed comment style.
  *
- * @c pszSingleLine and @c pszSingleLineRegexp may both be present.
- * @c pszSingleLine is the canonical literal marker used when writing;
+ * @c papszSingles is an array of literal single-line markers.
  * @c pszSingleLineRegexp, when present, is used for reading (matched
- * against the beginning of a stripped line). If both are present,
- * reading tries the regexp first, then the literal.
+ * against the beginning of a stripped line).
  */
 typedef struct _REUSECOMMENTSTYLE {
     ULONG ulMagic;
     PSZ   pszName;
-    PSZ   pszSingleLine;
-    PSZ   pszSingleLineRegexp;     /*!< Alternative to pszSingleLine.  */
+    PSZ  *papszSingles;            /*!< Array of single-line markers. */
+    ULONG ulSingleCount;           /*!< Number of markers.            */
+    PSZ   pszSingleLineRegexp;     /*!< Alternative for reading.      */
     PSZ   pszIndentAfterSingle;
     PSZ   pszMultiStart;
     PSZ   pszMultiMiddle;
@@ -53,7 +52,7 @@ typedef struct _REUSECOMMENTSTYLE {
     PSZ   pszIndentBeforeEnd;
     PSZ  *papszShebangs;
     ULONG ulShebangCount;
-    BOOL  fCaseInsensitive;        /*!< Applies to single / regexp.    */
+    BOOL  fCaseInsensitive;        /*!< Applies to singles / regexp.  */
 } REUSECOMMENTSTYLE, *PREUSECOMMENTSTYLE;
 
 /*!
@@ -425,7 +424,7 @@ static void free_string_array(PSZ *papszList) {
 static void free_style(PREUSECOMMENTSTYLE pStyle) {
     if (pStyle == NULL) return;
     free(pStyle->pszName);
-    free(pStyle->pszSingleLine);
+    free_string_array(pStyle->papszSingles);
     free(pStyle->pszSingleLineRegexp);
     free(pStyle->pszIndentAfterSingle);
     free(pStyle->pszMultiStart);
@@ -594,10 +593,10 @@ static APIRET rc_get_string_array(HTOMLNODE hTable, PCSZ pszKey,
 /*!
  * @brief Populate one style record from its [[style]] table.
  *
- * Both @c single and @c single_line_regexp may be present: the
- * former is the literal marker used when writing, the latter is the
- * pattern used when reading. Both may coexist; reading tries the
- * regexp first, then the literal.
+ * Both @c singles (array) and @c single (scalar) may be present.
+ * If @c singles is absent, @c single is used as a single-element
+ * array. Both may coexist with @c single_line_regexp; reading tries
+ * the regexp first, then the literals.
  *
  * @param[in]  hItem   TOML table. Not NULLHANDLE.
  * @param[out] pStyle  Receiver. Not NULL.
@@ -616,7 +615,25 @@ static APIRET parse_one_style(HTOMLNODE hItem, PREUSECOMMENTSTYLE pStyle) {
     if (pStyle->pszName == NULL || pStyle->pszName[0] == '\0')
         return ERROR_INVALID_DATA;
 
-    pStyle->pszSingleLine         = rc_get_string(hItem, "single");
+    rc = rc_get_string_array(hItem, "singles",
+                             &pStyle->papszSingles,
+                             &pStyle->ulSingleCount);
+    if (rc != NO_ERROR) return rc;
+
+    if (pStyle->ulSingleCount == 0) {
+        PSZ pszSingle = rc_get_string(hItem, "single");
+        if (pszSingle != NULL) {
+            pStyle->papszSingles = (PSZ*)malloc(2 * sizeof(PSZ));
+            if (!pStyle->papszSingles) {
+                free(pszSingle);
+                return ERROR_NOT_ENOUGH_MEMORY;
+            }
+            pStyle->papszSingles[0] = pszSingle;
+            pStyle->papszSingles[1] = NULL;
+            pStyle->ulSingleCount = 1;
+        }
+    }
+
     pStyle->pszSingleLineRegexp   = rc_get_string(hItem, "single_line_regexp");
     pStyle->pszIndentAfterSingle  = rc_get_string(hItem, "indent_after_single");
     pStyle->pszMultiStart         = rc_get_string(hItem, "multi_start");
@@ -1004,7 +1021,7 @@ APIRET APIENTRY ReuseQueryCommentStyleInfo(HREUSECOMMENTSTYLE hStyle,
     if (pStyle == NULL) return ERROR_INVALID_HANDLE;
 
     pInfo->pszName = pStyle->pszName;
-    pInfo->fSingleLine = (pStyle->pszSingleLine != NULL ||
+    pInfo->fSingleLine = (pStyle->ulSingleCount > 0 ||
                           pStyle->pszSingleLineRegexp != NULL) ? TRUE : FALSE;
     pInfo->fMultiLine = (pStyle->pszMultiStart != NULL &&
                          pStyle->pszMultiEnd != NULL) ? TRUE : FALSE;
@@ -1021,12 +1038,11 @@ APIRET APIENTRY ReuseQueryCommentStyleInfo(HREUSECOMMENTSTYLE hStyle,
  * @brief Locate the body of a single line after stripping the leading
  *        comment marker.
  *
- * Single-line styles are tried first (regexp, then literal), then
- * multi-line start / middle markers. When a multi-line start or
- * middle marker matches and the style defines a multi-line end
- * marker, a trailing end marker is trimmed from @p pszLine in place.
- * This makes single-line usages of multi-line markers such as
- * <!-- tag --> return a clean body.
+ * Single-line styles are tried first (regexp, then each literal in
+ * @c papszSingles), then multi-line start / middle markers. When a
+ * multi-line start or middle marker matches and the style defines a
+ * multi-line end marker, a trailing end marker is trimmed from
+ * @p pszLine in place.
  *
  * @param[in]     hStyle     Borrowed style. Not NULLHANDLE.
  * @param[in,out] pszLine    Input line. Not NULL. May be modified in
@@ -1047,6 +1063,7 @@ APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
     PREUSECOMMENTSTYLE pStyle;
     PCSZ pszPos;
     size_t cbMarker;
+    ULONG ulS;
 
     if (!pszLine || !pulOffset) return ERROR_INVALID_PARAMETER;
     pStyle = as_style(hStyle);
@@ -1073,36 +1090,27 @@ APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
         }
     }
 
-    /* Single-line, literal form. */
-    if (pStyle->pszSingleLine != NULL) {
-        cbMarker = strlen(pStyle->pszSingleLine);
-        {
-            BOOL fMatch;
-            if (pStyle->fCaseInsensitive) {
-                size_t i;
-                fMatch = TRUE;
-                for (i = 0; i < cbMarker; i++) {
-                    if (tolower((unsigned char)pszPos[i]) !=
-                        tolower((unsigned char)pStyle->pszSingleLine[i])) {
-                        fMatch = FALSE;
-                        break;
-                    }
-                }
-            } else {
-                fMatch = (strncmp(pszPos, pStyle->pszSingleLine,
-                                  cbMarker) == 0) ? TRUE : FALSE;
+    /* Single-line, literal forms. */
+    for (ulS = 0; ulS < pStyle->ulSingleCount; ulS++) {
+        PCSZ pszSingle = pStyle->papszSingles[ulS];
+        BOOL fMatch;
+        cbMarker = strlen(pszSingle);
+        if (pStyle->fCaseInsensitive) {
+            fMatch = case_insensitive_prefix(pszPos, pszSingle, cbMarker);
+        } else {
+            fMatch = (strncmp(pszPos, pszSingle, cbMarker) == 0)
+                         ? TRUE : FALSE;
+        }
+        if (fMatch) {
+            pszPos += cbMarker;
+            if (pStyle->pszIndentAfterSingle != NULL) {
+                PCSZ pszIndent = pStyle->pszIndentAfterSingle;
+                size_t cbIndent = strlen(pszIndent);
+                if (strncmp(pszPos, pszIndent, cbIndent) == 0)
+                    pszPos += cbIndent;
             }
-            if (fMatch) {
-                pszPos += cbMarker;
-                if (pStyle->pszIndentAfterSingle != NULL) {
-                    PCSZ pszIndent = pStyle->pszIndentAfterSingle;
-                    size_t cbIndent = strlen(pszIndent);
-                    if (strncmp(pszPos, pszIndent, cbIndent) == 0)
-                        pszPos += cbIndent;
-                }
-                *pulOffset = (ULONG)(pszPos - pszLine);
-                return NO_ERROR;
-            }
+            *pulOffset = (ULONG)(pszPos - pszLine);
+            return NO_ERROR;
         }
     }
 
@@ -1202,12 +1210,12 @@ static ULONG comment_block_size(PREUSECOMMENTSTYLE pStyle,
         if (pStyle->pszMultiEnd != NULL)
             ulSize += (ULONG)strlen(pStyle->pszMultiEnd) + 1;
     } else {
+        if (pStyle->ulSingleCount == 0) return 0;
         while (*pszLine != '\0') {
             PCSZ pszEol = strchr(pszLine, '\n');
             size_t cbLine = pszEol ? (size_t)(pszEol - pszLine)
                                    : strlen(pszLine);
-            if (pStyle->pszSingleLine != NULL)
-                ulSize += (ULONG)strlen(pStyle->pszSingleLine);
+            ulSize += (ULONG)strlen(pStyle->papszSingles[0]);
             if (cbLine > 0 && pStyle->pszIndentAfterSingle != NULL)
                 ulSize += (ULONG)strlen(pStyle->pszIndentAfterSingle);
             ulSize += (ULONG)cbLine + 1;
@@ -1278,13 +1286,17 @@ static void comment_block_emit(PREUSECOMMENTSTYLE pStyle, PCSZ pszText,
             *pszOut++ = '\n';
         }
     } else {
+        if (pStyle->ulSingleCount == 0) {
+            *pszOut = '\0';
+            return;
+        }
         while (*pszLine != '\0') {
             PCSZ pszEol = strchr(pszLine, '\n');
             size_t cbLine = pszEol ? (size_t)(pszEol - pszLine)
                                    : strlen(pszLine);
-            if (pStyle->pszSingleLine != NULL) {
-                size_t cb = strlen(pStyle->pszSingleLine);
-                memcpy(pszOut, pStyle->pszSingleLine, cb);
+            {
+                size_t cb = strlen(pStyle->papszSingles[0]);
+                memcpy(pszOut, pStyle->papszSingles[0], cb);
                 pszOut += cb;
             }
             if (cbLine > 0 && pStyle->pszIndentAfterSingle != NULL) {
@@ -1338,12 +1350,12 @@ APIRET APIENTRY ReuseQueryCommentBlock(HREUSECOMMENTSTYLE hStyle,
     if (pStyle == NULL) return ERROR_INVALID_HANDLE;
 
     fUseMulti = (fForceMulti ||
-                 (pStyle->pszSingleLine == NULL)) ? TRUE : FALSE;
+                 (pStyle->ulSingleCount == 0)) ? TRUE : FALSE;
     if (fUseMulti) {
         if (pStyle->pszMultiStart == NULL || pStyle->pszMultiEnd == NULL)
             return ERROR_INVALID_DATA;
     } else {
-        if (pStyle->pszSingleLine == NULL)
+        if (pStyle->ulSingleCount == 0)
             return ERROR_INVALID_DATA;
     }
 

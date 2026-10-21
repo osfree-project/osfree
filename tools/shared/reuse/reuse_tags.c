@@ -406,6 +406,41 @@ static BOOL match_reuse_copyright(PCSZ pszBody, PCSZ *ppszValue) {
 }
 
 /*!
+ * @brief Locate the start of a possible SPDX tag in a comment body.
+ *
+ * Scans pszBody for the first occurrence of "SPDX-" or "Copyright"
+ * (as a whole word) or the UTF-8 bytes for ©. If none is found,
+ * returns pszBody unchanged.
+ *
+ * @param[in] pszBody  Comment body. Not NULL.
+ *
+ * @return PCSZ
+ *
+ * @return Pointer to the start of the tag, or pszBody.
+ */
+static PCSZ find_tag_start(PCSZ pszBody) {
+    PCSZ pszSpdx = strstr(pszBody, "SPDX-");
+    PCSZ pszCopy = NULL;
+    PCSZ pszPos;
+
+    for (pszPos = pszBody; *pszPos; pszPos++) {
+        if (strncmp(pszPos, "Copyright", 9) == 0 &&
+            (pszPos[9] == '\0' || pszPos[9] == ' ' || pszPos[9] == '\t')) {
+            pszCopy = pszPos;
+            break;
+        }
+        if ((UCHAR)pszPos[0] == 0xC2 && (UCHAR)pszPos[1] == 0xA9) {
+            pszCopy = pszPos;
+            break;
+        }
+    }
+
+    if (pszSpdx && (!pszCopy || pszSpdx < pszCopy)) return pszSpdx;
+    if (pszCopy) return pszCopy;
+    return pszBody;
+}
+
+/*!
  * @brief Append a zero-filled entry to a snippet list.
  *
  * @param[in,out] pList    List. Not NULL.
@@ -529,7 +564,7 @@ APIRET APIENTRY ReuseQueryFileTags(PCSZ pszPath,
             if (rcLocal == ERROR_FILE_NOT_FOUND) continue;
             if (rcLocal != NO_ERROR) { rc = rcLocal; goto done; }
         }
-        pszBody = achLine + ulOffset;
+        pszBody = find_tag_start(achLine + ulOffset);
 
         nMarker = ignore_marker(pszBody);
         if (nMarker == 1) { fIgnore = TRUE;  continue; }
@@ -717,7 +752,7 @@ APIRET APIENTRY ReuseQueryFileHasTag(PCSZ pszPath,
             if (rcLocal == ERROR_FILE_NOT_FOUND) continue;
             if (rcLocal != NO_ERROR) { rc = rcLocal; break; }
         }
-        pszBody = achLine + ulOffset;
+        pszBody = find_tag_start(achLine + ulOffset);
 
         nMarker = ignore_marker(pszBody);
         if (nMarker == 1) { fIgnore = TRUE;  continue; }
@@ -815,7 +850,7 @@ APIRET APIENTRY ReuseQueryFileSnippets(PCSZ pszPath,
             if (rcLocal == ERROR_FILE_NOT_FOUND) continue;
             if (rcLocal != NO_ERROR) { rc = rcLocal; goto done; }
         }
-        pszBody = achLine + ulOffset;
+        pszBody = find_tag_start(achLine + ulOffset);
 
         nMarker = ignore_marker(pszBody);
         if (nMarker == 1) { fIgnore = TRUE;  continue; }

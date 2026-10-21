@@ -65,6 +65,17 @@ shebangs = ["<?xml"]
 [[style]]
 name = "uncommentable"
 
+[[style]]
+name = "rc"
+singles = ["//", ";"]
+indent_after_single = " "
+multi_start = "/*"
+multi_middle = "*"
+multi_end = "*/"
+indent_before_middle = " "
+indent_after_middle = " "
+indent_before_end = " "
+
 [[map]]
 glob = "*.c"
 style = "c"
@@ -91,7 +102,7 @@ style = "c"
 
 [[map]]
 glob = "*.rc"
-style = "c"
+style = "rc"
 
 [[map]]
 glob = "*.cmd"

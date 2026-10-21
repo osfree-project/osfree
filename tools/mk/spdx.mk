@@ -41,7 +41,7 @@ SPDX_ARGS = $(SPDX_ARGS) --default-copyright="$(COPYRIGHT)"
 SPDX_LINT_ARGS = $(SPDX_ARGS)
 
 # annotate: license/copyright задаются как override, не как default
-SPDX_ANNOTATE_ARGS = --spdx-db="$(SPDX_DB)"
+SPDX_ANNOTATE_ARGS = --spdx-db="$(SPDX_DB)" --comments-config=$(COMMENTS)
 !ifdef BLD
 SPDX_ANNOTATE_ARGS = $(SPDX_ANNOTATE_ARGS) --cache="$(BLD)spdx_db.cache"
 !endif
