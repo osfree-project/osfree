@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: (C) 2026 osFree Project
+# SPDX-License-Identifier: BSD-3-Clause
 # makefile
 #
 # A main Makefile for osFree project

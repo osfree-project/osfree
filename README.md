@@ -1,3 +1,7 @@
+<!--
+SPDX-FileCopyrightText: (C) 2026 osFree Project
+SPDX-License-Identifier: BSD-3-Clause
+-->
 ## osFree, Open Source OS/2 Clone
 
 osFree(OS/3): The reincarnation of OS/2.

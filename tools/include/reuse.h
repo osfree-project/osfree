@@ -5,39 +5,17 @@
 
 /**
  * @file reuse.h
- * @brief Public interface of the REUSE 3.3 project resolver.
+ * @brief Public umbrella of the REUSE library.
  *
- * This is the only header that REUSE tools include. It declares
- * every handle type, every warning code, and every function that
- * a tool may call. Implementation details live in reuse_internal.h,
- * reuse_comments.h, reuse_tags.h, and are not part of this
- * interface.
- *
- * Implements the resolution algorithm of the REUSE Specification 3.3:
- *   - https://reuse.software/spec-3.3/
- *
- * Responsibilities:
- *   - Discover all REUSE.toml files from the project root to the target
- *     directory.
- *   - Read .reuse/dep5 if present (deprecated).
- *   - Optionally attach a comments.toml describing comment styles for
- *     in-file SPDX tags.
- *   - For a given file, read the adjacent .license sidecar (if any),
- *     the in-file SPDX comment tags (when a comments.toml is
- *     attached), and the matching REUSE.toml / dep5 annotations.
- *   - Apply precedence (override > aggregate > closest) with depth and
- *     order-in-file as tie-breakers.
- *   - Aggregate license expressions and copyright notices as required
- *     by the winning precedence.
- *
- * REUSE.toml parsing itself lives in reuse_toml.h (prefix Reuse*);
- * DEP5 parsing lives in dep5.h. This module combines their results.
+ * Includes reuse_comments.h (L2.0b) and reuse_tags.h (L2.1) for
+ * backwards compatibility, and declares the L2.2 resolver API.
  */
 
 #include "os2types.h"
 #include "reusedef.h"
 #include "reuseerr.h"
-#include "spdx_tag.h"
+#include "reuse_comments.h"
+#include "reuse_tags.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,129 +36,6 @@ typedef HANDLE HREUSEPROJECT;
  * @brief Handle to a per-file resolution result.
  */
 typedef HANDLE HREUSEPROJECTFILE;
-
-/**
- * @typedef HREUSECOMMENTSCFG
- * @brief Handle to a parsed comments.toml.
- */
-typedef HANDLE HREUSECOMMENTSCFG;
-
-/**
- * @typedef HREUSECOMMENTSTYLE
- * @brief Borrowed handle to one comment style.
- */
-typedef HANDLE HREUSECOMMENTSTYLE;
-
-/**
- * @typedef HREUSETAGSREPORT
- * @brief Handle to an accumulated in-file tag warnings report.
- */
-typedef HANDLE HREUSETAGSREPORT;
-
-/**
- * @typedef PHREUSETAGSREPORT
- * @brief Pointer to a HREUSETAGSREPORT receiver.
- */
-typedef HANDLE *PHREUSETAGSREPORT;
-
-/* ==================================================================
- * Snippet types
- *
- * SPDX snippet as seen by REUSE consumers: a line range with a
- * license expression and copyright notice. Constructed by
- * ReuseQueryFileSnippets according to the REUSE rules (comment
- * markers removed, REUSE-IgnoreStart/End honoured, multiple license
- * tags joined with AND, multiple copyright lines joined with '\n').
- *
- * The strings pszLicense and pszCopyright are owned by the list and
- * released by ReuseSnippetListFree.
- * ================================================================== */
-
-/**
- * @struct _SPDXSNIPPET
- * @brief One SPDX snippet extracted from a file.
- */
-typedef struct _SPDXSNIPPET {
-    ULONG ulLineStart;    /**< Line number of SPDX-SnippetBegin. */
-    ULONG ulLineEnd;      /**< Line number of SPDX-SnippetEnd.   */
-    PSZ   pszLicense;     /**< SPDX-License-Identifier, or NULL. */
-    PSZ   pszCopyright;   /**< SPDX-SnippetCopyrightText, lines
-                               joined with '\n', or NULL.       */
-} SPDXSNIPPET, *PSPDXSNIPPET;
-
-/**
- * @struct _SPDXSNIPPETLIST
- * @brief A list of SPDX snippets collected from one file.
- */
-typedef struct _SPDXSNIPPETLIST {
-    PSPDXSNIPPET pItems;     /**< Array of snippets.      */
-    ULONG        ulCount;    /**< Number of used entries. */
-    ULONG        ulCapacity; /**< Allocated capacity.     */
-} SPDXSNIPPETLIST, *PSPDXSNIPPETLIST;
-
-/* ==================================================================
- * Snippet list lifecycle
- * ================================================================== */
-
-/**
- * @brief Initialize a snippet list.
- *
- * Sets all fields to zero. No memory is allocated.
- *
- * @param[in] pList  List. Not NULL.
- *
- * @return APIRET
- *
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pList is NULL.
- */
-APIRET APIENTRY ReuseSnippetListInit(PSPDXSNIPPETLIST pList);
-
-/**
- * @brief Release all memory owned by a snippet list.
- *
- * Frees the strings of every snippet, then the backing array, and
- * reinitializes the structure. Passing NULL is a no-op.
- *
- * @param[in] pList  List. May be NULL.
- *
- * @return APIRET
- *
- * @retval NO_ERROR  Success. Also for NULL.
- */
-APIRET APIENTRY ReuseSnippetListFree(PSPDXSNIPPETLIST pList);
-
-/* ==================================================================
- * Warning codes for the in-file tag report
- * ================================================================== */
-
-/** @def REUSE_TAGS_DEPRECATED @brief A deprecated SPDX tag was found
- *  in the file. Severity: REUSE_SEV_WARNING. */
-#define REUSE_TAGS_DEPRECATED       0xFF10
-
-/** @def REUSE_TAGS_NON_ANNEX_FORM @brief A Clause 8/9 canonical tag
- *  form was used in a source file where only its Annex H spelling is
- *  valid per REUSE 3.3. Severity: REUSE_SEV_WARNING. */
-#define REUSE_TAGS_NON_ANNEX_FORM   0xFF11
-
-/** @def REUSE_TAGS_LONG_LINE @brief A tag value exceeded the internal
- *  buffer and was skipped. Severity: REUSE_SEV_WARNING. */
-#define REUSE_TAGS_LONG_LINE        0xFF12
-
-/* ==================================================================
- * Style info
- * ================================================================== */
-
-/**
- * @struct _REUSECOMMENTSTYLEINFO
- * @brief Static properties of a comment style.
- */
-typedef struct _REUSECOMMENTSTYLEINFO {
-    PCSZ pszName;      /**< Configured style name.                    */
-    BOOL fSingleLine;  /**< Has a single-line marker.                 */
-    BOOL fMultiLine;   /**< Has a multi-line start and end marker.    */
-    BOOL fSidecar;     /**< Neither; annotate via <file>.license.     */
-} REUSECOMMENTSTYLEINFO, *PREUSECOMMENTSTYLEINFO;
 
 /* ==================================================================
  * Project lifecycle
@@ -204,7 +59,7 @@ typedef struct _REUSECOMMENTSTYLEINFO {
  *
  * @param[in]  pszDir             Target directory. Not NULL.
  * @param[in]  pszCommentsConfig  Path to comments.toml. Not NULL.
- * @param[out] phProject             Handle receiver. Not NULL. Set to
+ * @param[out] phProject          Handle receiver. Not NULL. Set to
  *                                NULLHANDLE on error.
  *
  * @return APIRET
@@ -218,17 +73,17 @@ typedef struct _REUSECOMMENTSTYLEINFO {
  * @retval ERROR_INVALID_DATA        comments.toml parse error.
  * @retval ERROR_NOT_ENOUGH_MEMORY   Memory allocation failure.
  *
- * @see ReuseCloseProject
+ * @see ReuseProjectGetError, ReuseCloseProject
  */
 APIRET APIENTRY ReuseOpenProject(PCSZ pszDir,
-                              PCSZ pszCommentsConfig,
-                              HREUSEPROJECT *phProject);
+                                 PCSZ pszCommentsConfig,
+                                 HREUSEPROJECT *phProject);
 
 /**
  * @brief Close a project and release all associated memory.
  *
- * All HREUSEPROJECTFILE handles and REUSEERR records obtained from this
- * project become invalid.
+ * All HREUSEPROJECTFILE handles and REUSEERR records obtained from
+ * this project become invalid.
  *
  * @param[in] hProject  Handle. NULLHANDLE is a no-op.
  *
@@ -242,16 +97,16 @@ APIRET APIENTRY ReuseOpenProject(PCSZ pszDir,
 APIRET APIENTRY ReuseCloseProject(HREUSEPROJECT hProject);
 
 /* ==================================================================
- * Diagnostics
+ * Project metadata
  * ================================================================== */
 
 /**
- * @brief Number of REUSEERR records stored in the project.
+ * @brief Number of records stored in the project.
  *
- * Only records produced during discovery of REUSE.toml and
- * .reuse/dep5.
+ * Counts all severity levels (ERROR, WARNING, INFO). Use
+ * ReuseProjectGetError by index to inspect each record's severity.
  *
- * @param[in]  hProject     Handle. Not NULLHANDLE.
+ * @param[in]  hProject  Handle. Not NULLHANDLE.
  * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
@@ -260,17 +115,19 @@ APIRET APIENTRY ReuseCloseProject(HREUSEPROJECT hProject);
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
-APIRET APIENTRY ReuseProjectGetErrorCount(HREUSEPROJECT hProject, PULONG pulCount);
+APIRET APIENTRY ReuseProjectGetRecordCount(HREUSEPROJECT hProject,
+                                           PULONG pulCount);
 
 /**
  * @brief Retrieve one diagnostic record by index.
  *
  * The returned REUSEERR is a snapshot; string fields point to data
- * owned by the project handle and remain valid until ReuseCloseProject.
+ * owned by the project handle and remain valid until
+ * ReuseCloseProject.
  *
- * @param[in]  hProject    Handle. Not NULLHANDLE.
- * @param[in]  ulIndex  Zero-based index.
- * @param[out] pErr     Receiver. Not NULL.
+ * @param[in]  hProject  Handle. Not NULLHANDLE.
+ * @param[in]  ulIndex   Zero-based index.
+ * @param[out] pErr      Receiver. Not NULL.
  *
  * @return APIRET
  *
@@ -279,8 +136,36 @@ APIRET APIENTRY ReuseProjectGetErrorCount(HREUSEPROJECT hProject, PULONG pulCoun
  * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  * @retval ERROR_NO_MORE_ITEMS      Index out of range.
  */
-APIRET APIENTRY ReuseProjectGetError(HREUSEPROJECT hProject, ULONG ulIndex,
-                                  PREUSEERR pErr);
+APIRET APIENTRY ReuseProjectGetError(HREUSEPROJECT hProject,
+                                     ULONG ulIndex,
+                                     PREUSEERR pErr);
+
+/**
+ * @brief Retrieve the project root.
+ *
+ * Returns the Git repository root when the target directory is
+ * inside a Git repository, otherwise the target directory itself.
+ *
+ * Size-query convention: pszBuf == NULL && ulSize == 0 returns
+ * required size in *pulUsed.
+ *
+ * @param[in]  hProject  Handle. Not NULLHANDLE.
+ * @param[out] pszBuf    Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize    Size of pszBuf in bytes.
+ * @param[out] pulUsed   Optional. May be NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hProject is NULLHANDLE, or pszBuf
+ *                                  is NULL without size-query.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval ERROR_FILE_NOT_FOUND     No project root recorded.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ */
+APIRET APIENTRY ReuseQueryProjectRoot(HREUSEPROJECT hProject,
+                                      PSZ pszBuf, ULONG ulSize,
+                                      PULONG pulUsed);
 
 /* ==================================================================
  * Comment style resolution
@@ -289,7 +174,7 @@ APIRET APIENTRY ReuseProjectGetError(HREUSEPROJECT hProject, ULONG ulIndex,
 /**
  * @brief Resolve the comment style for a file.
  *
- * @param[in]  hProject         Handle. Not NULLHANDLE.
+ * @param[in]  hProject      Handle. Not NULLHANDLE.
  * @param[in]  pszFilePath   Path to the file. Not NULL.
  * @param[out] pfFound       Receiver for the found flag. Not NULL.
  * @param[out] phStyle       Borrowed style handle, or NULLHANDLE.
@@ -302,17 +187,21 @@ APIRET APIENTRY ReuseProjectGetError(HREUSEPROJECT hProject, ULONG ulIndex,
  * @retval ERROR_INVALID_HANDLE     hProject is not recognized.
  */
 APIRET APIENTRY ReuseQueryProjectCommentStyle(HREUSEPROJECT hProject,
-                                           PCSZ pszFilePath,
-                                           PBOOL pfFound,
-                                           HREUSECOMMENTSTYLE *phStyle);
+                                              PCSZ pszFilePath,
+                                              PBOOL pfFound,
+                                              HREUSECOMMENTSTYLE *phStyle);
+
+/* ==================================================================
+ * Tags report (borrowed)
+ * ================================================================== */
 
 /**
  * @brief Query the accumulated in-file tag warnings report.
  *
- * Returns a borrowed handle owned by the tree, valid until
- * ReuseCloseProject. Never NULLHANDLE for a successfully opened tree.
+ * Returns a BORROWED handle owned by the project, valid until
+ * ReuseCloseProject. Do not call ReuseCloseTagsReport on it.
  *
- * @param[in]  hProject     Handle. Not NULLHANDLE.
+ * @param[in]  hProject  Handle. Not NULLHANDLE.
  * @param[out] phReport  Receiver. Not NULL.
  *
  * @return APIRET
@@ -322,291 +211,7 @@ APIRET APIENTRY ReuseQueryProjectCommentStyle(HREUSEPROJECT hProject,
  * @retval ERROR_INVALID_HANDLE     hProject is not recognized.
  */
 APIRET APIENTRY ReuseQueryProjectTagsReport(HREUSEPROJECT hProject,
-                                         HREUSETAGSREPORT *phReport);
-
-/* ==================================================================
- * Tags report
- * ================================================================== */
-
-/**
- * @brief Create an empty tags report.
- *
- * @param[out] phReport  Receiver. Not NULL.
- *
- * @return APIRET
- *
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  phReport is NULL.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
- */
-APIRET APIENTRY ReuseCreateTagsReport(PHREUSETAGSREPORT phReport);
-
-/**
- * @brief Close a tags report.
- *
- * @param[in] hReport  Handle. NULLHANDLE is a no-op.
- *
- * @return APIRET
- *
- * @retval NO_ERROR               Success. Also for NULLHANDLE.
- * @retval ERROR_INVALID_HANDLE   Handle is not recognized.
- */
-APIRET APIENTRY ReuseCloseTagsReport(HREUSETAGSREPORT hReport);
-
-/**
- * @brief Number of records in a tags report.
- *
- * @param[in]  hReport   Handle. Not NULLHANDLE.
- * @param[out] pulCount  Receiver. Not NULL.
- *
- * @return APIRET
- *
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  hReport or pulCount is NULL.
- * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
- */
-APIRET APIENTRY ReuseQueryTagsReportCount(HREUSETAGSREPORT hReport,
-                                          PULONG pulCount);
-
-/**
- * @brief Retrieve one tags report record by index.
- *
- * @param[in]  hReport  Handle. Not NULLHANDLE.
- * @param[in]  ulIndex  Zero-based index.
- * @param[out] pErr     Receiver. Not NULL.
- *
- * @return APIRET
- *
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  hReport or pErr is NULL.
- * @retval ERROR_INVALID_HANDLE     Handle is not recognized.
- * @retval ERROR_NO_MORE_ITEMS      ulIndex is out of range.
- */
-APIRET APIENTRY ReuseQueryTagsReport(HREUSETAGSREPORT hReport,
-                                     ULONG ulIndex,
-                                     PREUSEERR pErr);
-
-/* ==================================================================
- * Comment configuration
- * ================================================================== */
-
-/**
- * @brief Open and parse a comments.toml file.
- *
- * @param[in]  pszConfigPath  Path to comments.toml. Not NULL.
- * @param[out] phCfg          Receiver. Not NULL.
- *
- * @return APIRET
- *
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  Any argument is NULL.
- * @retval ERROR_OPEN_FAILED        File cannot be opened.
- * @retval ERROR_INVALID_DATA       TOML parse error.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
- */
-APIRET APIENTRY ReuseOpenComments(PCSZ pszConfigPath,
-                                  HREUSECOMMENTSCFG *phCfg);
-
-/**
- * @brief Close a comments configuration.
- *
- * @param[in] hCfg  Handle. NULLHANDLE is a no-op.
- *
- * @return APIRET
- *
- * @retval NO_ERROR               Success. Also for NULLHANDLE.
- * @retval ERROR_INVALID_HANDLE   Handle is not recognized.
- */
-APIRET APIENTRY ReuseCloseComments(HREUSECOMMENTSCFG hCfg);
-
-/**
- * @brief Resolve the comment style for a file using a config handle.
- *
- * Matches [[map]].glob first by base name, then by normalized full
- * path. The order of [[map]] entries is the order of checking; the
- * first match wins.
- *
- * @param[in]  hCfg         Config. Not NULLHANDLE.
- * @param[in]  pszFilePath  Path to the file. Not NULL.
- * @param[out] pfFound      TRUE if a [[map]] matched. Not NULL.
- * @param[out] phStyle      Borrowed style handle on match. Not NULL.
- *
- * @return APIRET
- *
- * @retval NO_ERROR                 Check completed.
- * @retval ERROR_INVALID_PARAMETER  Any argument is NULL.
- * @retval ERROR_INVALID_HANDLE     hCfg is not recognized.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure while
- *                                  normalizing the path.
- */
-APIRET APIENTRY ReuseQueryCommentStyle(HREUSECOMMENTSCFG hCfg,
-                                       PCSZ pszFilePath,
-                                       PBOOL pfFound,
-                                       HREUSECOMMENTSTYLE *phStyle);
-
-/**
- * @brief Resolve a style by its configured name.
- *
- * @param[in]  hCfg     Config. Not NULLHANDLE.
- * @param[in]  pszName  Style name. Not NULL.
- * @param[out] pfFound  TRUE if the name is defined. Not NULL.
- * @param[out] phStyle  Borrowed style handle on match. Not NULL.
- *
- * @return APIRET
- *
- * @retval NO_ERROR                 Check completed.
- * @retval ERROR_INVALID_PARAMETER  Any argument is NULL.
- * @retval ERROR_INVALID_HANDLE     hCfg is not recognized.
- */
-APIRET APIENTRY ReuseQueryCommentStyleByName(HREUSECOMMENTSCFG hCfg,
-                                             PCSZ pszName,
-                                             PBOOL pfFound,
-                                             HREUSECOMMENTSTYLE *phStyle);
-
-/**
- * @brief Query static properties of a comment style.
- *
- * @param[in]  hStyle  Borrowed style. Not NULLHANDLE.
- * @param[out] pInfo   Receiver. Not NULL.
- *
- * @return APIRET
- *
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pInfo is NULL.
- * @retval ERROR_INVALID_HANDLE     hStyle is not a style handle.
- */
-APIRET APIENTRY ReuseQueryCommentStyleInfo(HREUSECOMMENTSTYLE hStyle,
-                                           PREUSECOMMENTSTYLEINFO pInfo);
-
-/**
- * @brief Locate the body of one line after stripping the leading
- *        comment marker.
- *
- * Single-line styles are tried first (regexp, then literal), then
- * multi-line start / middle markers. When a multi-line start or
- * middle marker matches and the style defines a multi-line end
- * marker, a trailing end marker is trimmed from @p pszLine in place.
- * This makes single-line usages of multi-line markers such as
- * <!-- tag --> return a clean body.
- *
- * @param[in]     hStyle     Borrowed style. Not NULLHANDLE.
- * @param[in,out] pszLine    Input line. Not NULL. May be modified in
- *                           place when a trailing end marker is
- *                           trimmed.
- * @param[out]    pulOffset  Byte offset in pszLine. Not NULL.
- *
- * @return APIRET
- *
- * @retval NO_ERROR                 Marker found; *pulOffset is set.
- * @retval ERROR_FILE_NOT_FOUND     Line is not a comment.
- * @retval ERROR_INVALID_PARAMETER  Argument is NULL.
- * @retval ERROR_INVALID_HANDLE     hStyle is not a style handle.
- */
-APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
-                                      PSZ pszLine,
-                                      PULONG pulOffset);
-
-/**
- * @brief Build a comment block for the given text.
- *
- * @param[in]  hStyle      Borrowed style. Not NULLHANDLE.
- * @param[in]  pszText     Text to comment. Not NULL.
- * @param[in]  fForceMulti TRUE to force multi-line output.
- * @param[out] pszBuf      Output buffer. Not NULL unless size-query.
- * @param[in]  ulSize      Size of pszBuf in bytes.
- * @param[out] pulUsed     Optional. May be NULL.
- *
- * @return APIRET
- *
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  Bad argument.
- * @retval ERROR_INVALID_HANDLE     hStyle is not a style handle.
- * @retval ERROR_INVALID_DATA       Style cannot produce the block.
- * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
- */
-APIRET APIENTRY ReuseQueryCommentBlock(HREUSECOMMENTSTYLE hStyle,
-                                       PCSZ pszText, BOOL fForceMulti,
-                                       PSZ pszBuf, ULONG ulSize,
-                                       PULONG pulUsed);
-
-/**
- * @brief Query whether the first line of a file is a recognized
- *        shebang.
- *
- * @param[in]  hStyle          Borrowed style. Not NULLHANDLE.
- * @param[in]  pszFirstLine    First line of the file. Not NULL.
- * @param[out] pfKeepFirstLine TRUE to keep line 1. Not NULL.
- *
- * @return APIRET
- *
- * @retval NO_ERROR                 Check completed.
- * @retval ERROR_INVALID_PARAMETER  Argument is NULL.
- * @retval ERROR_INVALID_HANDLE     hStyle is not a style handle.
- */
-APIRET APIENTRY ReuseQueryShebang(HREUSECOMMENTSTYLE hStyle,
-                                  PCSZ pszFirstLine,
-                                  PBOOL pfKeepFirstLine);
-
-/* ==================================================================
- * File tags
- * ================================================================== */
-
-/**
- * @brief Read the file-level license and copyright of a file.
- *
- * @param[in]  pszPath       Path to the file. Not NULL.
- * @param[in]  hStyle        Comment style, or NULLHANDLE for a
- *                           sidecar file (raw tag-value, no comment
- *                           marker stripping).
- * @param[out] pszLicense    License buffer. Not NULL unless size-query.
- * @param[in]  ulLicSize     Size of pszLicense in bytes.
- * @param[out] pulLicUsed    Optional. Receives the used size.
- * @param[out] pszCopyright  Copyright buffer. Not NULL unless size-query.
- * @param[in]  ulCopSize     Size of pszCopyright in bytes.
- * @param[out] pulCopUsed    Optional. Receives the used size.
- * @param[in]  hReport       Warning report, or NULLHANDLE.
- *
- * @return APIRET
- *
- * @retval NO_ERROR                 At least one tag was found.
- * @retval ERROR_INVALID_PARAMETER  Bad argument.
- * @retval ERROR_INVALID_HANDLE     hReport is not recognized.
- * @retval ERROR_OPEN_FAILED        File cannot be opened.
- * @retval ERROR_FILE_NOT_FOUND     No licensing information found.
- * @retval ERROR_BUFFER_OVERFLOW    A buffer is too small.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
- * @retval SPDX_TAG_ERROR_SYNTAX    Unmatched snippet delimiters.
- */
-APIRET APIENTRY ReuseQueryFileTags(PCSZ pszPath,
-                                   HREUSECOMMENTSTYLE hStyle,
-                                   PSZ pszLicense, ULONG ulLicSize,
-                                   PULONG pulLicUsed,
-                                   PSZ pszCopyright, ULONG ulCopSize,
-                                   PULONG pulCopUsed,
-                                   HREUSETAGSREPORT hReport);
-
-/**
- * @brief Read all SPDX snippets from a file.
- *
- * @param[in]  pszPath  Path to the file. Not NULL.
- * @param[in]  hStyle   Comment style. Not NULLHANDLE.
- * @param[in]  hReport  Warning report, or NULLHANDLE.
- * @param[out] pOut     List receiver. Not NULL.
- *
- * @return APIRET
- *
- * @retval NO_ERROR                 Success (possibly no snippets).
- * @retval ERROR_INVALID_PARAMETER  pszPath or pOut is NULL.
- * @retval ERROR_INVALID_HANDLE     hStyle or hReport is not recognized.
- * @retval ERROR_OPEN_FAILED        File cannot be opened.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
- * @retval SPDX_TAG_ERROR_SYNTAX    Unmatched or nested snippet
- *                                  delimiters.
- */
-APIRET APIENTRY ReuseQueryFileSnippets(PCSZ pszPath,
-                                       HREUSECOMMENTSTYLE hStyle,
-                                       HREUSETAGSREPORT hReport,
-                                       PSPDXSNIPPETLIST pOut);
+                                            HREUSETAGSREPORT *phReport);
 
 /* ==================================================================
  * Per-file resolution
@@ -629,10 +234,11 @@ APIRET APIENTRY ReuseQueryFileSnippets(PCSZ pszPath,
  * information. Use ReuseQueryFileSource to distinguish "no sources
  * matched" from "sources matched but were empty".
  *
- * @param[in]  hProject    Handle. Not NULLHANDLE.
- * @param[in]  pszPath  Path to the file. May be absolute or relative.
- * @param[out] phFile   Handle receiver. Not NULL.
- * @param[out] pErr     Optional. May be NULL.
+ * @param[in]  hProject  Handle. Not NULLHANDLE.
+ * @param[in]  pszPath   Path to the file. May be absolute or
+ *                       relative. Not NULL.
+ * @param[out] phFile    Handle receiver. Not NULL.
+ * @param[out] pErr      Optional. May be NULL.
  *
  * @return APIRET
  *
@@ -755,8 +361,7 @@ APIRET APIENTRY ReuseQueryFilePrecedence(HREUSEPROJECTFILE hFile,
  *   REUSE_LICENSE_SRC_SIDECAR  — adjacent .license sidecar;
  *   REUSE_LICENSE_SRC_REUSE    — REUSE.toml or DEP5 annotation.
  *
- * Replaces the former REUSEPROJECTFILEGetHasReuse: a non-NONE value
- * means at least one source matched.
+ * A non-NONE value means at least one source matched.
  *
  * @param[in]  hFile      Handle. Not NULLHANDLE.
  * @param[out] pulSource  Receiver. Not NULL.

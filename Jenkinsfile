@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: (C) 2026 osFree Project
+// SPDX-License-Identifier: BSD-3-Clause
 // labels for Jenkins node types we will build on
 //def labels = ['linux-docker-i386', 'os2-vbox-i386', 'win32-vbox-i386']
 //def builders = [:]
