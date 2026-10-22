@@ -15,6 +15,7 @@
 #include <string.h>
 #include "reuse_licenses.h"
 #include "reuse.h"
+#include "reuse_internal.h"
 #include "path.h"
 #include "spdx.h"
 #include "spdx_db.h"
@@ -465,7 +466,9 @@ static APIRET CollectLicenseNames(PCSZ pszLicPath, HSTRSET hOut) {
  * @brief Return the project root for the given handle.
  *
  * Uses the Git repository root when available, otherwise the
- * directory passed to ReuseOpenProject.
+ * directory passed to ReuseOpenProject. Used as the base for the
+ * LICENSES/ directory itself (REUSE 3.3 §3.2 places LICENSES/ at
+ * the project root, which may differ from the target directory).
  *
  * @param[in] hProject  Project handle. Not NULLHANDLE.
  *
@@ -483,8 +486,8 @@ static PCSZ ProjectRoot(HREUSEPROJECT hProject) {
 }
 
 /*!
- * @brief Warn about LICENSE / LICENCE / COPYING in the project
- *        root when LICENSES/ already contains license texts.
+ * @brief Warn about LICENSE / LICENCE / COPYING in the target
+ *        directory when LICENSES/ already contains license texts.
  *
  * REUSE 3.3 §«Covered and ignored Files» treats LICENSE and
  * COPYING (with or without file extensions) as ignored files; the
@@ -497,27 +500,33 @@ static PCSZ ProjectRoot(HREUSEPROJECT hProject) {
  * ReuseDiscoverIsLicenseFile so the definition matches the one
  * used by the file discovery walk.
  *
- * Names starting with '.' are skipped (hidden files are not
- * considered); subdirectories are not traversed.
+ * The scan is limited to @p pszDir (the directory passed to
+ * ReuseOpenProject), not to the repository root: a LICENSE or
+ * COPYING file elsewhere in the repository is out of scope for
+ * this check. Names starting with '.' are skipped; subdirectories
+ * are not traversed.
  *
- * @param[in] pszBase      Project root. Not NULL.
+ * @param[in] pszDir       Target directory. Not NULL.
  * @param[in] hFilesInLic  Files in LICENSES/. Not NULLHANDLE.
  * @param[in] hReport      Report handle, or NULLHANDLE.
  *
+ * @return APIRET
+ *
  * @retval NO_ERROR  Always. Diagnostics go to @p hReport.
  */
-static APIRET CheckRedundantLicenseFiles(PCSZ pszBase,
+static APIRET CheckRedundantLicenseFiles(PCSZ pszDir,
                                          HSTRSET hFilesInLic,
                                          HREUSELICENSEREPORT hReport) {
     ULONG ulLicCount = 0;
 
+    if (!pszDir) return NO_ERROR;
     if (StrSetGetCount(hFilesInLic, &ulLicCount) != NO_ERROR)
         return NO_ERROR;
     if (ulLicCount == 0) return NO_ERROR;
 
 #ifdef __LINUX__
     {
-        DIR *pDir = opendir(pszBase);
+        DIR *pDir = opendir(pszDir);
         struct dirent *pEntry;
         if (!pDir) return NO_ERROR;
         while ((pEntry = readdir(pDir)) != NULL) {
@@ -529,7 +538,7 @@ static APIRET CheckRedundantLicenseFiles(PCSZ pszBase,
                 strcmp(pEntry->d_name, "..") == 0) continue;
             if (pEntry->d_name[0] == '.') continue;
 
-            PathMakeJoin(pszBase, pEntry->d_name, achFull,
+            PathMakeJoin(pszDir, pEntry->d_name, achFull,
                          sizeof(achFull), NULL);
             if (stat(achFull, &st) != 0) continue;
             if (!S_ISREG(st.st_mode)) continue;
@@ -537,9 +546,7 @@ static APIRET CheckRedundantLicenseFiles(PCSZ pszBase,
             if (ReuseDiscoverIsLicenseFile(pEntry->d_name)) {
                 rc = AppendRecord(hReport,
                                   REUSE_LICENSES_REDUNDANT_FILE,
-                                  REUSE_SEV_WARNING, achFull,
-                                  "license text already present in "
-                                  "LICENSES/");
+                                  REUSE_SEV_WARNING, achFull, "");
                 if (rc != NO_ERROR) { closedir(pDir); return rc; }
             }
         }
@@ -553,7 +560,7 @@ static APIRET CheckRedundantLicenseFiles(PCSZ pszBase,
         int nWrote;
 
         nWrote = snprintf(achPattern, sizeof(achPattern), "%s\\*",
-                          pszBase);
+                          pszDir);
         if (nWrote < 0 || (ULONG)nWrote >= sizeof(achPattern))
             return NO_ERROR;
         hFile = _findfirst(achPattern, &fd);
@@ -567,7 +574,7 @@ static APIRET CheckRedundantLicenseFiles(PCSZ pszBase,
                 strcmp(fd.name, "..") == 0) continue;
             if (fd.name[0] == '.') continue;
 
-            PathMakeJoin(pszBase, fd.name, achFull,
+            PathMakeJoin(pszDir, fd.name, achFull,
                          sizeof(achFull), NULL);
             if (stat(achFull, &st) != 0) continue;
             if (!(st.st_mode & _S_IFREG)) continue;
@@ -575,9 +582,7 @@ static APIRET CheckRedundantLicenseFiles(PCSZ pszBase,
             if (ReuseDiscoverIsLicenseFile(fd.name)) {
                 rc = AppendRecord(hReport,
                                   REUSE_LICENSES_REDUNDANT_FILE,
-                                  REUSE_SEV_WARNING, achFull,
-                                  "license text already present in "
-                                  "LICENSES/");
+                                  REUSE_SEV_WARNING, achFull, "");
                 if (rc != NO_ERROR) { _findclose(hFile); return rc; }
             }
         } while (_findnext(hFile, &fd) == 0);
@@ -687,6 +692,15 @@ APIRET APIENTRY ReuseLicensesReportGet(HREUSELICENSEREPORT hReport,
 /*!
  * @brief Validate the LICENSES/ directory of a project.
  *
+ * The LICENSES/ directory itself is resolved from the project root
+ * (Git repository root when available, otherwise the directory
+ * passed to ReuseOpenProject), as required by REUSE 3.3 §3.2.
+ *
+ * The redundant-license check (fourth pass) is scoped to
+ * @c _REUSEPROJECT::pszProjectDir — the exact directory passed to
+ * ReuseOpenProject. A LICENSE or COPYING file elsewhere in the
+ * repository is out of scope for that check.
+ *
  * @param[in] hProject          Project handle. Not NULLHANDLE.
  * @param[in] hUsedLicenses  Set of used SPDX identifiers. Not
  *                           NULLHANDLE.
@@ -705,6 +719,8 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSEPROJECT hProject,
                                       HREUSELICENSEREPORT hReport) {
     CHAR achLicPath[1200];
     PCSZ pszBase;
+    PCSZ pszTargetDir = NULL;
+    PREUSEPROJECT pDoc;
     HSTRSET hFilesInLic = NULLHANDLE;
     BOOL fDirExists;
     APIRET rc;
@@ -714,6 +730,16 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSEPROJECT hProject,
 
     pszBase = ProjectRoot(hProject);
     if (!pszBase) return ERROR_INVALID_HANDLE;
+
+    /* Target directory: pszProjectDir from ReuseOpenProject.
+     * Used only by CheckRedundantLicenseFiles below; the LICENSES/
+     * directory itself is resolved from pszBase. */
+    pDoc = ReuseInternalGetDoc(hProject);
+    if (pDoc != NULL && pDoc->pszProjectDir != NULL) {
+        pszTargetDir = pDoc->pszProjectDir;
+    } else {
+        pszTargetDir = pszBase;
+    }
 
     BuildLicensesPath(achLicPath, sizeof(achLicPath), pszBase);
 
@@ -945,9 +971,9 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSEPROJECT hProject,
     }
 
     /* Fourth pass: warn about redundant LICENSE/COPYING in the
-     * project root when LICENSES/ already holds license texts.
+     * target directory when LICENSES/ already holds license texts.
      * Hygiene recommendation, not a REUSE 3.3 requirement. */
-    CheckRedundantLicenseFiles(pszBase, hFilesInLic, hReport);
+    CheckRedundantLicenseFiles(pszTargetDir, hFilesInLic, hReport);
 
     StrSetDestroy(hFilesInLic);
     return NO_ERROR;

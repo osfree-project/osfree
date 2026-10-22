@@ -187,6 +187,10 @@ glob = "*.md"
 style = "html"
 
 [[map]]
+glob = "*.txt"
+style = "hash"
+
+[[map]]
 glob = "Dockerfile"
 style = "hash"
 
@@ -228,4 +232,8 @@ style = "uncommentable"
 
 [[map]]
 glob = "*.res"
+style = "uncommentable"
+
+[[map]]
+glob = "REG.DAT"
 style = "uncommentable"
