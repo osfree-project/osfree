@@ -18,6 +18,7 @@
 #include "path.h"
 #include "spdx.h"
 #include "spdx_db.h"
+#include "reuse_discover.h"
 
 #ifdef __LINUX__
 #include <dirent.h>
@@ -481,6 +482,111 @@ static PCSZ ProjectRoot(HREUSEPROJECT hProject) {
     return achBuf;
 }
 
+/*!
+ * @brief Warn about LICENSE / LICENCE / COPYING in the project
+ *        root when LICENSES/ already contains license texts.
+ *
+ * REUSE 3.3 §«Covered and ignored Files» treats LICENSE and
+ * COPYING (with or without file extensions) as ignored files; the
+ * specification does not require their removal. However, keeping
+ * them alongside LICENSES/ creates a second source of truth and
+ * risks divergence between the two copies. This check is a hygiene
+ * recommendation, not a spec requirement; severity is WARNING.
+ *
+ * The "is this a license text file" test is delegated to
+ * ReuseDiscoverIsLicenseFile so the definition matches the one
+ * used by the file discovery walk.
+ *
+ * Names starting with '.' are skipped (hidden files are not
+ * considered); subdirectories are not traversed.
+ *
+ * @param[in] pszBase      Project root. Not NULL.
+ * @param[in] hFilesInLic  Files in LICENSES/. Not NULLHANDLE.
+ * @param[in] hReport      Report handle, or NULLHANDLE.
+ *
+ * @retval NO_ERROR  Always. Diagnostics go to @p hReport.
+ */
+static APIRET CheckRedundantLicenseFiles(PCSZ pszBase,
+                                         HSTRSET hFilesInLic,
+                                         HREUSELICENSEREPORT hReport) {
+    ULONG ulLicCount = 0;
+
+    if (StrSetGetCount(hFilesInLic, &ulLicCount) != NO_ERROR)
+        return NO_ERROR;
+    if (ulLicCount == 0) return NO_ERROR;
+
+#ifdef __LINUX__
+    {
+        DIR *pDir = opendir(pszBase);
+        struct dirent *pEntry;
+        if (!pDir) return NO_ERROR;
+        while ((pEntry = readdir(pDir)) != NULL) {
+            CHAR achFull[1200];
+            struct stat st;
+            APIRET rc;
+
+            if (strcmp(pEntry->d_name, ".") == 0 ||
+                strcmp(pEntry->d_name, "..") == 0) continue;
+            if (pEntry->d_name[0] == '.') continue;
+
+            PathMakeJoin(pszBase, pEntry->d_name, achFull,
+                         sizeof(achFull), NULL);
+            if (stat(achFull, &st) != 0) continue;
+            if (!S_ISREG(st.st_mode)) continue;
+
+            if (ReuseDiscoverIsLicenseFile(pEntry->d_name)) {
+                rc = AppendRecord(hReport,
+                                  REUSE_LICENSES_REDUNDANT_FILE,
+                                  REUSE_SEV_WARNING, achFull,
+                                  "license text already present in "
+                                  "LICENSES/");
+                if (rc != NO_ERROR) { closedir(pDir); return rc; }
+            }
+        }
+        closedir(pDir);
+    }
+#else
+    {
+        long hFile;
+        struct _finddata_t fd;
+        CHAR achPattern[1200];
+        int nWrote;
+
+        nWrote = snprintf(achPattern, sizeof(achPattern), "%s\\*",
+                          pszBase);
+        if (nWrote < 0 || (ULONG)nWrote >= sizeof(achPattern))
+            return NO_ERROR;
+        hFile = _findfirst(achPattern, &fd);
+        if (hFile == -1L) return NO_ERROR;
+        do {
+            CHAR achFull[1200];
+            struct stat st;
+            APIRET rc;
+
+            if (strcmp(fd.name, ".") == 0 ||
+                strcmp(fd.name, "..") == 0) continue;
+            if (fd.name[0] == '.') continue;
+
+            PathMakeJoin(pszBase, fd.name, achFull,
+                         sizeof(achFull), NULL);
+            if (stat(achFull, &st) != 0) continue;
+            if (!(st.st_mode & _S_IFREG)) continue;
+
+            if (ReuseDiscoverIsLicenseFile(fd.name)) {
+                rc = AppendRecord(hReport,
+                                  REUSE_LICENSES_REDUNDANT_FILE,
+                                  REUSE_SEV_WARNING, achFull,
+                                  "license text already present in "
+                                  "LICENSES/");
+                if (rc != NO_ERROR) { _findclose(hFile); return rc; }
+            }
+        } while (_findnext(hFile, &fd) == 0);
+        _findclose(hFile);
+    }
+#endif
+    return NO_ERROR;
+}
+
 /* ==================================================================
  * Report lifecycle
  * ================================================================== */
@@ -837,6 +943,11 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSEPROJECT hProject,
             StrSetEnumClose(hEnum);
         }
     }
+
+    /* Fourth pass: warn about redundant LICENSE/COPYING in the
+     * project root when LICENSES/ already holds license texts.
+     * Hygiene recommendation, not a REUSE 3.3 requirement. */
+    CheckRedundantLicenseFiles(pszBase, hFilesInLic, hReport);
 
     StrSetDestroy(hFilesInLic);
     return NO_ERROR;

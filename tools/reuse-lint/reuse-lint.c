@@ -259,6 +259,9 @@ static PCSZ LicensesReasonText(ULONG ulCode) {
         return "LicenseRef-* requires manual text";
     case REUSE_LICENSES_NO_DB_TEXT:
         return "no text in the SPDX database";
+    case REUSE_LICENSES_REDUNDANT_FILE:
+        return "redundant license file; LICENSES/ already "
+               "contains license texts";
     default:
         return "";
     }
@@ -292,6 +295,8 @@ static PCSZ LicensesSpecRef(ULONG ulCode) {
         return "SPDX 2.3 License List";
     case REUSE_LICENSES_NO_DB_TEXT:
         return "not in spec";
+    case REUSE_LICENSES_REDUNDANT_FILE:
+        return "not in spec (hygiene recommendation)";
     default:
         return "";
     }

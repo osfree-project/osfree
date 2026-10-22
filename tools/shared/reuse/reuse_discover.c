@@ -235,20 +235,31 @@ static BOOL ieq_prefix(PCSZ pszStr, PCSZ pszPrefix, size_t cbLen)
 /*!
  * @brief Query whether a name denotes a license text file.
  *
- * Recognized names: LICENSE, LICENCE, COPYING, UNLICENSE, COPYRIGHT
- * and their variations with a '.', '-' or '_' separator.
+ * Follows REUSE Specification 3.3, §«Covered and ignored Files»:
+ * the files COPYING and LICENSE, with or without file extensions.
+ * LICENCE (British spelling) is recognized as a variant of
+ * LICENSE. Suffixes after '.' or '-' are accepted
+ * (LICENSE-MIT, COPYING.txt, LICENCE.md).
+ *
+ * The reference implementation (reuse-tool) uses the equivalent
+ * patterns ^LICEN[CS]E([-\.].*)?$ and ^COPYING([-\.].*)?$.
+ *
+ * Names such as UNLICENSE and COPYRIGHT are not covered by the
+ * specification and are therefore not skipped.
+ *
+ * Case-insensitive.
  *
  * @param[in] pszName  Name. Not NULL.
  *
  * @return BOOL
  *
- * @retval TRUE   Name is a license text file.
+ * @retval TRUE   Name is a license text file per REUSE 3.3.
  * @retval FALSE  Otherwise.
  */
 static BOOL is_license_file(PCSZ pszName)
 {
     static PCSZ apszExact[] = {
-        "license", "licence", "copying", "unlicense", "copyright"
+        "license", "licence", "copying"
     };
     size_t i;
     for (i = 0; i < sizeof(apszExact)/sizeof(apszExact[0]); i++)
@@ -257,10 +268,32 @@ static BOOL is_license_file(PCSZ pszName)
         ieq_prefix(pszName, "licence", 7) ||
         ieq_prefix(pszName, "copying", 7)) {
         if (pszName[7] == '\0' || pszName[7] == '.' ||
-            pszName[7] == '-' || pszName[7] == '_')
+            pszName[7] == '-')
             return TRUE;
     }
     return FALSE;
+}
+
+/*!
+ * @brief Query whether a name denotes a license text file (public
+ *        wrapper).
+ *
+ * See reuse_discover.h for the contract. The definition lives in
+ * is_license_file above; this wrapper exposes it to
+ * reuse_licenses.c so both modules apply the same definition of
+ * "license text file" per REUSE 3.3 §«Covered and ignored Files».
+ *
+ * @param[in] pszName  Base name. Not NULL.
+ *
+ * @return BOOL
+ *
+ * @retval TRUE   Name is a license text file per REUSE 3.3.
+ * @retval FALSE  Otherwise, or pszName is NULL.
+ */
+BOOL APIENTRY ReuseDiscoverIsLicenseFile(PCSZ pszName)
+{
+    if (!pszName) return FALSE;
+    return is_license_file(pszName);
 }
 
 /*!

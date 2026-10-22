@@ -171,7 +171,25 @@ extern "C" {
  */
 #define REUSE_LICENSES_NO_DB_TEXT        0xFF2D
 
+/**
+ * @def REUSE_LICENSES_BAD_ID
+ * @brief Identifier is not in the SPDX License List.
+ *        User range 0xFF2E.
+ */
 #define REUSE_LICENSES_BAD_ID            0xFF2E
+
+/**
+ * @def REUSE_LICENSES_REDUNDANT_FILE
+ * @brief Redundant license text file: LICENSE / LICENCE / COPYING
+ *        in the project root while LICENSES/ already contains
+ *        license texts.
+ *
+ * Hygiene recommendation, not a REUSE 3.3 requirement:
+ * REUSE 3.3 §«Covered and ignored Files» allows LICENSE/COPYING
+ * alongside LICENSES/, but keeping both creates a second source of
+ * truth and risks divergence. User range 0xFF2F.
+ */
+#define REUSE_LICENSES_REDUNDANT_FILE   0xFF2F
 
 /* ==================================================================
  * Severity

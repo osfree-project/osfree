@@ -96,6 +96,37 @@ APIRET APIENTRY ReuseDiscoverFiles(PCSZ pszDir,
                                    BOOL fRecursive,
                                    HSTRSET hOut);
 
+/**
+ * @brief Query whether a base name denotes a license text file
+ *        that REUSE 3.3 ignores.
+ *
+ * Follows REUSE Specification 3.3, §«Covered and ignored Files»:
+ * the files COPYING and LICENSE, with or without file extensions.
+ * LICENCE (British spelling) is recognized as a variant of
+ * LICENSE. Suffixes after '.' or '-' are accepted
+ * (LICENSE-MIT, COPYING.txt, LICENCE.md).
+ *
+ * The reference implementation (reuse-tool) uses the equivalent
+ * patterns ^LICEN[CS]E([-\.].*)?$ and ^COPYING([-\.].*)?$.
+ *
+ * Names such as UNLICENSE and COPYRIGHT are not covered by the
+ * specification and are therefore not recognized.
+ *
+ * Case-insensitive.
+ *
+ * Shared by the walk in reuse_discover.c and by
+ * CheckRedundantLicenseFiles in reuse_licenses.c, so both apply
+ * the same definition.
+ *
+ * @param[in] pszName  Base name. Not NULL.
+ *
+ * @return BOOL
+ *
+ * @retval TRUE   Name is a license text file per REUSE 3.3.
+ * @retval FALSE  Otherwise, or pszName is NULL.
+ */
+BOOL APIENTRY ReuseDiscoverIsLicenseFile(PCSZ pszName);
+
 #ifdef __cplusplus
 }
 #endif
