@@ -9,6 +9,7 @@
 #include "ccl.h"
 #include "spdx.h"
 #include "spdx_db.h"
+#include "osadl.h"
 
 #include "spdx_sbom_types.h"
 #include "spdx_sbom_utils.h"
@@ -34,10 +35,45 @@
  * as a list of SPDXFILEINPUT entries. The SBOM layer does not call
  * the REUSE resolver itself.
  *
+ * When --compat-matrix is given, every resolved file is also
+ * checked against the project license (--default-license) via the
+ * OSADL matrix. The compatibility verdict is diagnostic output: it
+ * is reported to stderr and counted, but it is not written into
+ * the SBOM. SPDX 2.3 has no field for a tool verdict, and adding
+ * one to comment / licenseComments would misrepresent SPDX's data
+ * model.
+ *
  * Conforms to:
  *   - SPDX 2.3.
  *     https://spdx.github.io/spdx-spec/v2.3/
+ *   - ISO/IEC 5230:2020 §3.3.2 (when --compat-matrix is used).
  */
+
+/* ==================================================================
+ * Compatibility counters
+ * ================================================================== */
+
+/*!
+ * @brief Number of files whose license was compatible with the
+ *        project license (Same or Yes).
+ */
+static ULONG g_ulCompatCompatible = 0;
+/*!
+ * @brief Number of files whose license requires a dependency check.
+ */
+static ULONG g_ulCompatCheckDep   = 0;
+/*!
+ * @brief Number of files whose license is not compatible.
+ */
+static ULONG g_ulCompatNo         = 0;
+/*!
+ * @brief Number of files whose compatibility is unknown.
+ */
+static ULONG g_ulCompatUnknown    = 0;
+/*!
+ * @brief Number of files whose license is absent from the matrix.
+ */
+static ULONG g_ulCompatUndef      = 0;
 
 /* ==================================================================
  * Help text
@@ -72,8 +108,22 @@ static void print_help(void) {
            "                               spdx-json  - SPDX 2.3 JSON "
            "(default)\n"
            "                               spdx-tag   - SPDX 2.3 tag-value\n"
-           "  --default-license=<id>     Fallback license identifier\n"
-           "  --default-copyright=<text> Fallback copyright text\n"
+           "  --default-license=<id>     Project license identifier; "
+           "recommended\n"
+           "                             default for files without own "
+           "license\n"
+           "  --default-copyright=<text> Project copyright text; "
+           "recommended\n"
+           "                             default for files without own "
+           "copyright\n"
+           "  --compat-matrix=<path>     OSADL matrix.json; enable license\n"
+           "                             compatibility check against\n"
+           "                             --default-license. The verdict\n"
+           "                             is diagnostic output only and\n"
+           "                             is not written into the SBOM\n"
+           "  --compat-strict            Treat incompatible license as "
+           "ERROR\n"
+           "                             (default: WARNING)\n"
            "  --source-sbom=<file>       Source SBOM for binary mode "
            "(with --purpose != SOURCE)\n"
            "  --objects=<list>           Object files (space-separated)\n"
@@ -92,11 +142,6 @@ static void print_help(void) {
 /*!
  * @brief Check whether the SBOM describes a binary artifact.
  *
- * Binary mode is enabled when a package purpose other than SOURCE
- * is requested. SOURCE means the SBOM is generated for the source
- * tree; any other value selects binary mode, where the SBOM is
- * built from a single binary file.
- *
  * @param[in] pOpts  Parsed options. Not NULL.
  *
  * @return TRUE for binary mode, FALSE otherwise.
@@ -110,22 +155,11 @@ static BOOL is_binary_mode(const SBOMOPTIONS *pOpts) {
 /*!
  * @brief Resolve the license for the package as a whole.
  *
- * Order of resolution:
- *   1. --default-license on the command line.
- *   2. The first [[annotations]] entry with path "**" found in any
- *      REUSE.toml, scanned from the deepest (closest to the target
- *      directory) to the root.
- *
- * The resolved expression is validated against the SPDX grammar.
- *
  * @param[in]  pOpts       Parsed options. Not NULL.
  * @param[in]  hProject    Project handle. May be NULLHANDLE.
- * @param[out] ppszLicense Receiver. Not NULL. On success receives a
- *                         malloc'd string owned by the caller, or
- *                         @c pOpts->pszDefaultLicense itself (not to
- *                         be freed). On failure set to NULL.
- * @param[out] pfIsHeap    Receiver: TRUE if the returned pointer was
- *                         allocated and must be freed. Not NULL.
+ * @param[out] ppszLicense Receiver. Not NULL.
+ * @param[out] pfIsHeap    Receiver: TRUE if the pointer is malloc'd.
+ *                         Not NULL.
  *
  * @return APIRET
  *
@@ -186,40 +220,124 @@ static APIRET resolve_package_license(const SBOMOPTIONS *pOpts,
 }
 
 /*!
+ * @brief Query the OSADL verdict for one file, count it, report
+ *        to stderr.
+ *
+ * The verdict is diagnostic output of the tool. It is not stored
+ * in any SPDX structure and it does not change the emitted SBOM.
+ * On --compat-strict, an OSADL_COMPAT_NO verdict is reported as
+ * ERROR; otherwise as WARNING.
+ *
+ * @param[in] hCompat            Matrix handle, or NULLHANDLE.
+ * @param[in] fCompatStrict      TRUE if --compat-strict.
+ * @param[in] pszFullPath        File path for diagnostics. Not NULL.
+ * @param[in] pszFileLicense     File license expression. Not NULL.
+ * @param[in] pszProjectLicense  Project license. Not NULL.
+ */
+static void check_compat(HOSADLMATRIX hCompat, BOOL fCompatStrict,
+                         PCSZ pszFullPath, PCSZ pszFileLicense,
+                         PCSZ pszProjectLicense) {
+    OSADLCOMPAT compat;
+    APIRET rc;
+
+    if (hCompat == NULLHANDLE) return;
+    if (!pszProjectLicense || !pszFileLicense || !pszFileLicense[0])
+        return;
+
+    rc = OsadlQueryPair(hCompat, pszProjectLicense, pszFileLicense,
+                        &compat);
+    if (rc != NO_ERROR) {
+        fprintf(stderr,
+                "WARNING: %s: OSADL compatibility check failed "
+                "(code %lu). [not in spec]\n",
+                pszFullPath, (unsigned long)rc);
+        return;
+    }
+
+    switch (compat) {
+    case OSADL_COMPAT_SAME:
+    case OSADL_COMPAT_YES:
+        g_ulCompatCompatible++;
+        break;
+    case OSADL_COMPAT_NO:
+        g_ulCompatNo++;
+        if (fCompatStrict) {
+            fprintf(stderr,
+                    "ERROR: %s: license '%s' is not compatible with "
+                    "project license '%s'.\n"
+                    "       [OSADL matrix; ISO/IEC 5230:2020 §3.3.2]\n",
+                    pszFullPath, pszFileLicense, pszProjectLicense);
+        } else {
+            fprintf(stderr,
+                    "WARNING: %s: license '%s' is not compatible with "
+                    "project license '%s'.\n"
+                    "         [OSADL matrix; ISO/IEC 5230:2020 §3.3.2]\n"
+                    "         Pass --compat-strict to treat as ERROR.\n",
+                    pszFullPath, pszFileLicense, pszProjectLicense);
+        }
+        break;
+    case OSADL_COMPAT_CHECK_DEP:
+        g_ulCompatCheckDep++;
+        fprintf(stderr,
+                "WARNING: %s: license '%s' requires a dependency check "
+                "against project license '%s'.\n"
+                "         [OSADL matrix; ISO/IEC 5230:2020 §3.3.2]\n",
+                pszFullPath, pszFileLicense, pszProjectLicense);
+        break;
+    case OSADL_COMPAT_UNKNOWN:
+        g_ulCompatUnknown++;
+        fprintf(stderr,
+                "INFO: %s: OSADL compatibility of '%s' with '%s' "
+                "is unknown.\n"
+                "      [OSADL matrix]\n",
+                pszFullPath, pszFileLicense, pszProjectLicense);
+        break;
+    case OSADL_COMPAT_UNDEF:
+        g_ulCompatUndef++;
+        fprintf(stderr,
+                "INFO: %s: license '%s' is not in the OSADL matrix.\n"
+                "      [OSADL matrix]\n",
+                pszFullPath, pszFileLicense);
+        break;
+    }
+}
+
+/*!
  * @brief Resolve licensing information for every discovered file.
  *
  * For each path in @p hPaths, ReuseResolveLicense is called and the
  * result is appended to @p hResolved as an SPDXFILEINPUT entry. A
  * file with no licensing information at all is reported to stderr
- * and skipped; the SBOM layer would reject it anyway.
+ * and skipped.
  *
- * REUSE_ERROR_NO_COMMENT_STYLE from ReuseResolveLicense is
- * propagated to the caller; a file for which the comment style
- * cannot be determined invalidates the whole SBOM.
+ * When @p hCompat is not NULLHANDLE and the file's license did not
+ * come from the project fallback, check_compat is called. Its
+ * verdict is reported to stderr and counted; it is not stored
+ * anywhere and does not affect the SBOM.
  *
- * @param[in]  hPaths     Set of file paths. Not NULLHANDLE.
- * @param[in]  hProject   Project handle. May be NULLHANDLE.
- * @param[in]  pszDefLic  Fallback license, or NULL.
- * @param[in]  pszDefCop  Fallback copyright, or NULL.
- * @param[in]  hResolved  Destination list of SPDXFILEINPUT entries.
- *                        Not NULLHANDLE.
- * @param[out] pulSkipped Receiver for the number of skipped files.
- *                        Not NULL.
+ * @param[in]  hPaths           Set of file paths. Not NULLHANDLE.
+ * @param[in]  hProject         Project handle. May be NULLHANDLE.
+ * @param[in]  pszDefLic        Project license, or NULL.
+ * @param[in]  pszDefCop        Project copyright, or NULL.
+ * @param[in]  hCompat          OSADL matrix, or NULLHANDLE.
+ * @param[in]  fCompatStrict    TRUE if --compat-strict.
+ * @param[in]  hResolved        Destination list.
+ * @param[out] pulSkipped       Receiver for skipped count. Not NULL.
  *
  * @return APIRET
  *
  * @retval NO_ERROR                     Success.
- * @retval ERROR_INVALID_PARAMETER      A parameter is NULLHANDLE.
+ * @retval ERROR_INVALID_PARAMETER      A required parameter is NULL.
  * @retval ERROR_INVALID_HANDLE         A container is not recognized.
- * @retval REUSE_ERROR_NO_COMMENT_STYLE
- *                                      No [[map]] entry in
- *                                      comments.toml matches a file.
+ * @retval REUSE_ERROR_NO_COMMENT_STYLE No [[map]] for a file.
  * @retval ERROR_NOT_ENOUGH_MEMORY      Allocation failure.
  */
 static APIRET resolve_all_files(HSTRSET hPaths,
                                 HREUSEPROJECT hProject,
                                 PCSZ pszDefLic,
                                 PCSZ pszDefCop,
+                                HOSADLMATRIX hCompat,
+                                BOOL fCompatStrict,
                                 HVECTOR hResolved,
                                 PULONG pulSkipped) {
     HSTRSETENUM hEnum = NULLHANDLE;
@@ -277,6 +395,11 @@ static APIRET resolve_all_files(HSTRSET hPaths,
         strncpy(input.achCopyright, lic.achCopyright,
                 sizeof(input.achCopyright) - 1);
 
+        if (hCompat != NULLHANDLE && !lic.fLicenseFromDefault) {
+            check_compat(hCompat, fCompatStrict, achFull,
+                         lic.achLicense, pszDefLic);
+        }
+
         rc = SbomAddFileInput(hResolved, &input);
         if (rc != NO_ERROR) {
             StrSetEnumClose(hEnum);
@@ -309,6 +432,7 @@ int main(int argc, char *argv[]) {
     HREUSETAGSREPORT hTagsReport = NULLHANDLE;
     HSTRSET hPaths = NULLHANDLE;
     HVECTOR hResolved = NULLHANDLE;
+    HOSADLMATRIX hCompat = NULLHANDLE;
     PSZ pszPkgLicense = NULL;
     BOOL fPkgLicenseIsHeap = FALSE;
     BOOL fBinaryMode;
@@ -406,10 +530,52 @@ int main(int argc, char *argv[]) {
     if (ReuseQueryProjectTagsReport(hProject, &hTagsReport) != NO_ERROR)
         hTagsReport = NULLHANDLE;
 
+    if (opts.pszCompatMatrix) {
+        if (!opts.pszDefaultLicense) {
+            fprintf(stderr,
+                    "WARNING: --compat-matrix is set but "
+                    "--default-license is not.\n"
+                    "         Compatibility check will be skipped; "
+                    "there is no\n"
+                    "         outbound (project) license to compare "
+                    "against.\n"
+                    "         [ISO/IEC 5230:2020 §3.3.2]\n");
+        } else {
+            APIRET rcCompat = OsadlOpenMatrix(opts.pszCompatMatrix,
+                                              &hCompat);
+            if (rcCompat != NO_ERROR) {
+                fprintf(stderr,
+                        "ERROR: cannot open OSADL matrix at %s "
+                        "(code %lu).\n"
+                        "       Download matrix.json from\n"
+                        "       https://www.osadl.org/fileadmin/"
+                        "checklists/matrix.json\n",
+                        opts.pszCompatMatrix,
+                        (unsigned long)rcCompat);
+                goto cleanup;
+            }
+            {
+                BOOL fProjPresent = FALSE;
+                if (OsadlQueryHasLicense(hCompat,
+                                         opts.pszDefaultLicense,
+                                         &fProjPresent) == NO_ERROR
+                    && !fProjPresent) {
+                    fprintf(stderr,
+                            "WARNING: project license '%s' is not in "
+                            "the OSADL matrix.\n"
+                            "         Compatibility check will be "
+                            "skipped.\n"
+                            "         [OSADL matrix]\n",
+                            opts.pszDefaultLicense);
+                    OsadlCloseMatrix(hCompat);
+                    hCompat = NULLHANDLE;
+                }
+            }
+        }
+    }
+
     fBinaryMode = is_binary_mode(&opts);
 
-    /* Resolve the package license BEFORE SbomCreateDocument so the
-     * value is fixed inside the package structure. */
     rc = resolve_package_license(&opts, hProject, &pszPkgLicense,
                                  &fPkgLicenseIsHeap);
     if (rc != NO_ERROR) {
@@ -518,8 +684,6 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        /* Resolve licensing information before handing anything to
-         * the SPDX SBOM layer. */
         rc = SbomCreateFileInputList(&hResolved);
         if (rc != NO_ERROR) {
             fprintf(stderr, "ERROR: out of memory\n");
@@ -528,6 +692,7 @@ int main(int argc, char *argv[]) {
         rc = resolve_all_files(hPaths, hProject,
                                opts.pszDefaultLicense,
                                opts.pszDefaultCopyright,
+                               hCompat, opts.fCompatStrict,
                                hResolved, &ulSkipped);
         if (rc == REUSE_ERROR_NO_COMMENT_STYLE) {
             goto cleanup;
@@ -640,11 +805,14 @@ int main(int argc, char *argv[]) {
     }
 
     nExit = 0;
+    if (hCompat != NULLHANDLE && opts.fCompatStrict && g_ulCompatNo > 0)
+        nExit = 1;
 
 cleanup:
     SbomFreeDocument(&doc);
     if (hPaths != NULLHANDLE) StrSetDestroy(hPaths);
     if (hResolved != NULLHANDLE) SbomFreeFileInputList(hResolved);
+    if (hCompat != NULLHANDLE) OsadlCloseMatrix(hCompat);
     if (fPkgLicenseIsHeap) free(pszPkgLicense);
     if (hProject != NULLHANDLE) ReuseCloseProject(hProject);
     SpdxCloseDatabase();

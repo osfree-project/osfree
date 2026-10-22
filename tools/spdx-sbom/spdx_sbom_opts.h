@@ -43,8 +43,8 @@ typedef struct _SBOMOPTIONS {
     PCSZ  pszOutput;                 /**< Output file, or NULL.    */
     PCSZ  pszFormat;                 /**< "spdx-json" or "spdx-tag".*/
 
-    PCSZ  pszDefaultLicense;         /**< Fallback license, or NULL.*/
-    PCSZ  pszDefaultCopyright;       /**< Fallback copyright, or NULL.*/
+    PCSZ  pszDefaultLicense;         /**< Project license, or NULL.*/
+    PCSZ  pszDefaultCopyright;       /**< Project copyright, or NULL.*/
     PCSZ  pszDocName;                /**< Document name.           */
     PCSZ  pszPackageVersion;         /**< Package version, or NULL.*/
     PCSZ  pszPackageSupplier;        /**< Supplier, or NULL.       */
@@ -62,7 +62,15 @@ typedef struct _SBOMOPTIONS {
 
     PCSZ  pszSpdxDbRoot;             /**< SPDX database root.      */
     PCSZ  pszCacheFile;              /**< Cache file, or NULL.     */
-    PCSZ  pszCommentsConfig;         /**< comments.toml, or NULL.  */   /* P2 */
+    PCSZ  pszCommentsConfig;         /**< comments.toml, or NULL.  */
+
+    PCSZ  pszCompatMatrix;           /**< OSADL matrix.json, or
+                                          NULL. Enables the
+                                          compatibility check.    */
+    BOOL  fCompatStrict;             /**< TRUE if --compat-strict:
+                                          incompatible license is
+                                          an error rather than a
+                                          warning.                */
 
     PSPDXEXTRACTEDLICENSESOURCE paExtractedSources;
                                      /**< LicenseRef sources.      */

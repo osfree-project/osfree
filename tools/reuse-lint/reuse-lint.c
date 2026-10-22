@@ -33,12 +33,19 @@
 #include "reuse_discover.h"
 #include "reuse_lic.h"
 #include "reuse_licenses.h"
+#include "osadl.h"
 
 /*!
  * @def PATH_BUF
  * @brief Maximum size in bytes of a path buffer used by the linter.
  */
 #define PATH_BUF 1024
+
+/*!
+ * @def COMPAT_MSG_BUF
+ * @brief Maximum size in bytes of one buffered compatibility message.
+ */
+#define COMPAT_MSG_BUF (PATH_BUF + 512)
 
 #ifdef __LINUX__
 /*!
@@ -102,9 +109,102 @@ static ULONG       g_ulTotalSnippets = 0;
  */
 static ULONG       g_ulSnippetsWithLicense = 0;
 
+/*!
+ * @brief OSADL matrix handle, or NULLHANDLE when the compatibility
+ *        check is not enabled.
+ */
+static HOSADLMATRIX g_hCompat = NULLHANDLE;
+/*!
+ * @brief TRUE if --compat-strict was given: OSADL_COMPAT_NO becomes
+ *        an ERROR rather than a WARNING.
+ */
+static BOOL        g_fCompatStrict = FALSE;
+
+/*!
+ * @brief Number of files whose license was compatible with the
+ *        project license (Same or Yes).
+ */
+static ULONG       g_ulCompatCompatible = 0;
+/*!
+ * @brief Number of files whose license requires a dependency check.
+ */
+static ULONG       g_ulCompatCheckDep = 0;
+/*!
+ * @brief Number of files whose license is not compatible.
+ */
+static ULONG       g_ulCompatNo = 0;
+/*!
+ * @brief Number of files whose compatibility is unknown.
+ */
+static ULONG       g_ulCompatUnknown = 0;
+/*!
+ * @brief Number of files whose license is absent from the matrix.
+ */
+static ULONG       g_ulCompatUndef = 0;
+
+/*!
+ * @brief Buffered compatibility messages, printed inside the
+ *        "=== Compatibility ===" section.
+ *
+ * The compatibility checks run during the file walk, which happens
+ * before "=== Compatibility ===" is printed. Messages are buffered
+ * here so that they appear in their own section rather than
+ * interleaved with unrelated output.
+ */
+static PSZ        *g_papszCompatMessages = NULL;
+/*!
+ * @brief Number of entries in g_papszCompatMessages.
+ */
+static ULONG       g_ulCompatMessageCount = 0;
+/*!
+ * @brief Allocated capacity of g_papszCompatMessages.
+ */
+static ULONG       g_ulCompatMessageCapacity = 0;
+
 /* ------------------------------------------------------------------ */
 /* Small helpers                                                       */
 /* ------------------------------------------------------------------ */
+
+/*!
+ * @brief Append one message line to the compatibility buffer.
+ *
+ * @param[in] pszLine  NUL-terminated line, typically ending with
+ *                     '\n'. Not NULL. Copied into the buffer.
+ */
+static void CompatRecord(PCSZ pszLine) {
+    PSZ pszDup;
+
+    if (pszLine == NULL) return;
+    pszDup = strdup(pszLine);
+    if (pszDup == NULL) return;
+
+    if (g_ulCompatMessageCount >= g_ulCompatMessageCapacity) {
+        ULONG ulNewCap = g_ulCompatMessageCapacity
+                         ? g_ulCompatMessageCapacity * 2
+                         : 32;
+        PSZ *paNew = (PSZ *)realloc(g_papszCompatMessages,
+                                    (size_t)ulNewCap * sizeof(PSZ));
+        if (paNew == NULL) { free(pszDup); return; }
+        g_papszCompatMessages = paNew;
+        g_ulCompatMessageCapacity = ulNewCap;
+    }
+    g_papszCompatMessages[g_ulCompatMessageCount++] = pszDup;
+}
+
+/*!
+ * @brief Release the compatibility message buffer.
+ */
+static void CompatRelease(void) {
+    ULONG ulIdx;
+    for (ulIdx = 0; ulIdx < g_ulCompatMessageCount; ulIdx++) {
+        if (g_papszCompatMessages[ulIdx] != NULL)
+            free(g_papszCompatMessages[ulIdx]);
+    }
+    if (g_papszCompatMessages != NULL) free(g_papszCompatMessages);
+    g_papszCompatMessages = NULL;
+    g_ulCompatMessageCount = 0;
+    g_ulCompatMessageCapacity = 0;
+}
 
 /*!
  * @brief Print the offending token of an SPDX expression to stderr.
@@ -456,6 +556,105 @@ static void CheckLicenseExpression(PCSZ pszFullPath, PCSZ pszLicense,
 }
 
 /* ------------------------------------------------------------------ */
+/* OSADL compatibility check                                           */
+/* ------------------------------------------------------------------ */
+
+/*!
+ * @brief Check one file's license against the project license via
+ *        the OSADL matrix.
+ *
+ * Called from ProcessFile for files whose license did not come from
+ * the default fallback. Bumps counters and records diagnostics in
+ * the compatibility buffer. Severity: NO -> ERROR (with
+ * --compat-strict) or WARNING; CHECK_DEP -> WARNING; UNKNOWN /
+ * UNDEF -> INFO.
+ *
+ * UNDEF here always means the file's license is not in the matrix:
+ * if the project license were missing, the matrix would have been
+ * closed during startup with a one-time WARNING, and this function
+ * would not be reached.
+ *
+ * @param[in] pszFullPath    File path used in diagnostics. Not NULL.
+ * @param[in] pszFileLicense Resolved license expression. Not NULL.
+ */
+static void CheckCompatibility(PCSZ pszFullPath, PCSZ pszFileLicense) {
+    OSADLCOMPAT compat;
+    APIRET rc;
+    CHAR achMsg[COMPAT_MSG_BUF];
+
+    if (g_hCompat == NULLHANDLE) return;
+    if (g_pszDefaultLicense == NULL) return;
+    if (pszFileLicense == NULL || pszFileLicense[0] == '\0') return;
+
+    rc = OsadlQueryPair(g_hCompat, g_pszDefaultLicense,
+                        pszFileLicense, &compat);
+    if (rc != NO_ERROR) {
+        snprintf(achMsg, sizeof(achMsg),
+                 "WARNING: %s: OSADL compatibility check failed "
+                 "(code %lu). [not in spec]\n",
+                 pszFullPath, (unsigned long)rc);
+        CompatRecord(achMsg);
+        g_ulWarningCount++;
+        return;
+    }
+
+    switch (compat) {
+    case OSADL_COMPAT_SAME:
+    case OSADL_COMPAT_YES:
+        g_ulCompatCompatible++;
+        break;
+    case OSADL_COMPAT_NO:
+        g_ulCompatNo++;
+        if (g_fCompatStrict) {
+            snprintf(achMsg, sizeof(achMsg),
+                     "ERROR: %s: license '%s' is not compatible with "
+                     "project license '%s'.\n"
+                     "       [OSADL matrix; ISO/IEC 5230:2020 §3.3.2]\n",
+                     pszFullPath, pszFileLicense, g_pszDefaultLicense);
+            CompatRecord(achMsg);
+            g_ulErrorCount++;
+        } else {
+            snprintf(achMsg, sizeof(achMsg),
+                     "WARNING: %s: license '%s' is not compatible with "
+                     "project license '%s'.\n"
+                     "         [OSADL matrix; ISO/IEC 5230:2020 §3.3.2]\n"
+                     "         Pass --compat-strict to treat as ERROR.\n",
+                     pszFullPath, pszFileLicense, g_pszDefaultLicense);
+            CompatRecord(achMsg);
+            g_ulWarningCount++;
+        }
+        break;
+    case OSADL_COMPAT_CHECK_DEP:
+        g_ulCompatCheckDep++;
+        snprintf(achMsg, sizeof(achMsg),
+                 "WARNING: %s: license '%s' requires a dependency "
+                 "check against project license '%s'.\n"
+                 "         [OSADL matrix; ISO/IEC 5230:2020 §3.3.2]\n",
+                 pszFullPath, pszFileLicense, g_pszDefaultLicense);
+        CompatRecord(achMsg);
+        g_ulWarningCount++;
+        break;
+    case OSADL_COMPAT_UNKNOWN:
+        g_ulCompatUnknown++;
+        snprintf(achMsg, sizeof(achMsg),
+                 "INFO: %s: OSADL compatibility of '%s' with '%s' "
+                 "is unknown.\n"
+                 "      [OSADL matrix]\n",
+                 pszFullPath, pszFileLicense, g_pszDefaultLicense);
+        CompatRecord(achMsg);
+        break;
+    case OSADL_COMPAT_UNDEF:
+        g_ulCompatUndef++;
+        snprintf(achMsg, sizeof(achMsg),
+                 "INFO: %s: license '%s' is not in the OSADL matrix.\n"
+                 "      [OSADL matrix]\n",
+                 pszFullPath, pszFileLicense);
+        CompatRecord(achMsg);
+        break;
+    }
+}
+
+/* ------------------------------------------------------------------ */
 /* Snippets                                                            */
 /* ------------------------------------------------------------------ */
 
@@ -671,6 +870,9 @@ static void ProcessFile(PCSZ pszFullPath, HREUSEPROJECT hProject,
 
     if (lic.achLicense[0] != '\0') {
         CheckLicenseExpression(pszFullPath, lic.achLicense, hUsedLicenses);
+        if (!lic.fLicenseFromDefault) {
+            CheckCompatibility(pszFullPath, lic.achLicense);
+        }
     }
 
     if (ReuseQueryProjectCommentStyle(hProject, pszFullPath,
@@ -700,6 +902,7 @@ int main(int argc, char *argv[]) {
     PCSZ pszSpdxDbRoot = NULL;
     PCSZ pszCacheFile = NULL;
     PCSZ pszCommentsConfig = NULL;
+    PCSZ pszCompatMatrix = NULL;
     int i;
     HREUSEPROJECT hProject = NULLHANDLE;
     HSTRSET hUsedLicenses = NULLHANDLE;
@@ -724,6 +927,14 @@ int main(int argc, char *argv[]) {
                    "  --default-license=<id>     Fallback license "
                    "identifier\n"
                    "  --default-copyright=<text> Fallback copyright text\n"
+                   "  --compat-matrix=<path>     OSADL matrix.json; enable "
+                   "license\n"
+                   "                             compatibility check "
+                   "against\n"
+                   "                             --default-license\n"
+                   "  --compat-strict            Treat incompatible "
+                   "license as ERROR\n"
+                   "                             (default: WARNING)\n"
                    "  --help, -h                 Show this help\n");
             return 0;
         }
@@ -737,6 +948,10 @@ int main(int argc, char *argv[]) {
             g_pszDefaultLicense = argv[i] + 18;
         else if (strncmp(argv[i], "--default-copyright=", 20) == 0)
             g_pszDefaultCopyright = argv[i] + 20;
+        else if (strncmp(argv[i], "--compat-matrix=", 16) == 0)
+            pszCompatMatrix = argv[i] + 16;
+        else if (strcmp(argv[i], "--compat-strict") == 0)
+            g_fCompatStrict = TRUE;
         else if (argv[i][0] != '-')
             pszDir = argv[i];
         else {
@@ -828,12 +1043,67 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    if (pszCompatMatrix) {
+        if (!g_pszDefaultLicense) {
+            CHAR achMsg[COMPAT_MSG_BUF];
+            snprintf(achMsg, sizeof(achMsg),
+                     "WARNING: --compat-matrix is set but "
+                     "--default-license is not.\n"
+                     "         Compatibility check will be skipped; "
+                     "there is no\n"
+                     "         outbound (project) license to compare "
+                     "against.\n"
+                     "         [ISO/IEC 5230:2020 §3.3.2]\n");
+            CompatRecord(achMsg);
+            g_ulWarningCount++;
+        } else {
+            APIRET rcCompat = OsadlOpenMatrix(pszCompatMatrix, &g_hCompat);
+            if (rcCompat != NO_ERROR) {
+                fprintf(stderr,
+                        "ERROR: cannot open OSADL matrix at %s "
+                        "(code %lu).\n"
+                        "       [not in spec]\n"
+                        "       Download matrix.json from\n"
+                        "       https://www.osadl.org/fileadmin/"
+                        "checklists/matrix.json\n",
+                        pszCompatMatrix, (unsigned long)rcCompat);
+                CompatRelease();
+                StrSetDestroy(hPaths);
+                StrSetDestroy(hUsedLicenses);
+                ReuseCloseProject(hProject);
+                SpdxCloseDatabase();
+                return 1;
+            }
+            {
+                BOOL fProjPresent = FALSE;
+                if (OsadlQueryHasLicense(g_hCompat, g_pszDefaultLicense,
+                                         &fProjPresent) == NO_ERROR
+                    && !fProjPresent) {
+                    CHAR achMsg[COMPAT_MSG_BUF];
+                    snprintf(achMsg, sizeof(achMsg),
+                             "WARNING: project license '%s' is not in "
+                             "the OSADL matrix.\n"
+                             "         Compatibility check will be "
+                             "skipped.\n"
+                             "         [OSADL matrix]\n",
+                             g_pszDefaultLicense);
+                    CompatRecord(achMsg);
+                    g_ulWarningCount++;
+                    OsadlCloseMatrix(g_hCompat);
+                    g_hCompat = NULLHANDLE;
+                }
+            }
+        }
+    }
+
     if (ReuseDiscoverFiles(pszDir, NULL, 0, FALSE, hPaths) != NO_ERROR) {
         fprintf(stderr,
                 "ERROR: cannot walk tree: %s [not in spec]\n"
                 "       Check that the directory exists and is "
                 "readable.\n",
                 pszDir);
+        OsadlCloseMatrix(g_hCompat);
+        CompatRelease();
         StrSetDestroy(hPaths);
         StrSetDestroy(hUsedLicenses);
         ReuseCloseProject(hProject);
@@ -876,6 +1146,41 @@ int main(int argc, char *argv[]) {
     } else {
         fprintf(stderr, "ERROR: out of memory [not in spec]\n");
         g_ulErrorCount++;
+    }
+
+    if (g_hCompat != NULLHANDLE || g_ulCompatMessageCount > 0) {
+        ULONG ulMsgIdx;
+        fprintf(stderr, "\n=== Compatibility ===\n");
+        for (ulMsgIdx = 0; ulMsgIdx < g_ulCompatMessageCount; ulMsgIdx++) {
+            if (g_papszCompatMessages[ulMsgIdx] != NULL)
+                fprintf(stderr, "%s", g_papszCompatMessages[ulMsgIdx]);
+        }
+        if (g_hCompat != NULLHANDLE) {
+            if (g_ulCompatMessageCount > 0) fprintf(stderr, "\n");
+            fprintf(stderr, "  Project license:            %s\n",
+                    g_pszDefaultLicense ? g_pszDefaultLicense : "(none)");
+            {
+                CHAR achTs[128];
+                ULONG ulTsUsed = 0;
+                if (OsadlQueryTimestamp(g_hCompat, achTs,
+                                        sizeof(achTs), &ulTsUsed) == NO_ERROR
+                    && ulTsUsed > 0) {
+                    fprintf(stderr,
+                            "  OSADL matrix snapshot:      %s\n", achTs);
+                }
+            }
+            fprintf(stderr, "  Compatible files:           %lu\n",
+                    (unsigned long)g_ulCompatCompatible);
+            fprintf(stderr, "  Check-dependency files:     %lu\n",
+                    (unsigned long)g_ulCompatCheckDep);
+            fprintf(stderr, "  Incompatible files:         %lu%s\n",
+                    (unsigned long)g_ulCompatNo,
+                    g_fCompatStrict ? " (errors)" : " (warnings)");
+            fprintf(stderr, "  Unknown compatibility:      %lu\n",
+                    (unsigned long)g_ulCompatUnknown);
+            fprintf(stderr, "  Not in OSADL matrix:        %lu\n",
+                    (unsigned long)g_ulCompatUndef);
+        }
     }
 
     fprintf(stderr, "\n");
@@ -926,6 +1231,8 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "  Warnings:                   %lu\n",
             (unsigned long)g_ulWarningCount);
 
+    OsadlCloseMatrix(g_hCompat);
+    CompatRelease();
     StrSetDestroy(hUsedLicenses);
     ReuseCloseProject(hProject);
     SpdxCloseDatabase();

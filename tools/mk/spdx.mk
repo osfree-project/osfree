@@ -7,6 +7,7 @@ SPDX_MERGE    = spdx-merge.exe
 
 SPDX_DB       = $(ROOT)licenses_db
 COMMENTS      = $(ROOT)comments.toml
+MATRIX        = $(ROOT)matrix.json
 
 !ifndef COPYRIGHT
 COPYRIGHT = (C) 2026 osFree Project
@@ -22,7 +23,7 @@ LICENSE = BSD-3-Clause
 # и автоматические (spdx-lint, spdx-sbom).
 # ------------------------------------------------------------
 
-SPDX_ARGS = --spdx-db="$(SPDX_DB)" --comments-config=$(COMMENTS)
+SPDX_ARGS = --spdx-db="$(SPDX_DB)" --comments-config=$(COMMENTS) --compat-matrix=$(MATRIX)
 
 !ifdef BLD
 SPDX_ARGS = $(SPDX_ARGS) --cache="$(BLD)spdx_db.cache"
