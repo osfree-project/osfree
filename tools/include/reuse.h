@@ -1,5 +1,41 @@
-/* reuse.h - REUSE 3.3 project resolver, OS/2 API style
- * (C89 + Watcom extensions) */
+/**
+ * @file reuse.h
+ * @brief Public interface of the REUSE 3.3 project resolver.
+ *
+ * This is the only header that REUSE tools include. It declares
+ * every handle type, every warning code, and every function that
+ * a tool may call. Implementation details live in reuse_internal.h,
+ * reuse_comments.h, reuse_tags.h, and are not part of this
+ * interface.
+ *
+ * Since P2 the header is an umbrella: it includes reuse_comments.h
+ * (comment-style configuration, sub-layer L2.0b) and reuse_tags.h
+ * (file tag reader, sub-layer L2.1) for backwards compatibility,
+ * and declares the L2.2 resolver API.
+ *
+ * Implements the resolution algorithm of the REUSE Specification 3.3:
+ *   - https://reuse.software/spec-3.3/
+ *
+ * Responsibilities:
+ *   - Discover all REUSE.toml files from the project root to the target
+ *     directory.
+ *   - Read .reuse/dep5 if present (deprecated).
+ *   - Optionally attach a comments.toml describing comment styles for
+ *     in-file SPDX tags.
+ *   - For a given file, read the adjacent .license sidecar (if any),
+ *     the in-file SPDX comment tags (when a comments.toml is
+ *     attached), and the matching REUSE.toml / dep5 annotations.
+ *   - Apply precedence (override > aggregate > closest) with depth and
+ *     order-in-file as tie-breakers.
+ *   - Aggregate license expressions and copyright notices as required
+ *     by the winning precedence.
+ *
+ * REUSE.toml parsing itself lives in reuse_toml.h (prefix Reuse*);
+ * DEP5 parsing lives in dep5.h. Comment-style parsing and the
+ * comment-marker reader live in reuse_comments.h; the in-file
+ * tag-value reader and the snippet reader live in reuse_tags.h.
+ * This module combines their results.
+ */
 #ifndef REUSE_H
 #define REUSE_H
 
