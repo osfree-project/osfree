@@ -9,6 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "reuse.h"
+#include "reuse_comments_internal.h"
 #include "spdx_tag.h"
 
 /*!
@@ -514,6 +515,7 @@ APIRET APIENTRY ReuseQueryFileTags(PCSZ pszPath,
     ULONG ulLineNo = 0;
     BOOL fFirstLine = TRUE;
     BOOL fIgnore = FALSE;
+    BOOL fInMulti = FALSE;
     int nDepth = 0;
     PSZ pszLicAcc = NULL;
     size_t cbLicLen = 0, cbLicCap = 0;
@@ -560,7 +562,8 @@ APIRET APIENTRY ReuseQueryFileTags(PCSZ pszPath,
         if (hStyle == NULLHANDLE) {
             ulOffset = 0;
         } else {
-            rcLocal = ReuseQueryCommentBody(hStyle, achLine, &ulOffset);
+            rcLocal = ReuseInternalCommentBody(hStyle, achLine,
+                                               &fInMulti, &ulOffset);
             if (rcLocal == ERROR_FILE_NOT_FOUND) continue;
             if (rcLocal != NO_ERROR) { rc = rcLocal; goto done; }
         }
@@ -696,84 +699,6 @@ done:
 }
 
 /* ==================================================================
- * ReuseQueryFileHasTag
- * ================================================================== */
-
-/*!
- * @brief Query whether a file has any SPDX-License-Identifier tag
- *        outside a REUSE-IgnoreStart/End block.
- *
- * @param[in]  pszPath  Path to the file. Not NULL.
- * @param[in]  hStyle   Comment style, or NULLHANDLE for a sidecar.
- * @param[out] pfHas    Receiver. Not NULL.
- *
- * @return APIRET
- *
- * @retval NO_ERROR                 Check completed.
- * @retval ERROR_INVALID_PARAMETER  pszPath or pfHas is NULL.
- * @retval ERROR_INVALID_HANDLE     hStyle is not a style handle.
- * @retval ERROR_OPEN_FAILED        File cannot be opened.
- */
-APIRET APIENTRY ReuseQueryFileHasTag(PCSZ pszPath,
-                                     HREUSECOMMENTSTYLE hStyle,
-                                     PBOOL pfHas)
-{
-    FILE *fp;
-    CHAR achLine[REUSE_TAGS_MAX_LINE];
-    CHAR achValue[REUSE_TAGS_MAX_LINE];
-    BOOL fFirstLine = TRUE;
-    BOOL fIgnore = FALSE;
-    APIRET rc = NO_ERROR;
-
-    if (pszPath == NULL || pfHas == NULL) return ERROR_INVALID_PARAMETER;
-    *pfHas = FALSE;
-
-    fp = fopen(pszPath, "r");
-    if (fp == NULL) return ERROR_OPEN_FAILED;
-
-    while (fgets(achLine, sizeof(achLine), fp) != NULL) {
-        PCSZ pszBody;
-        SPDXTAG tag;
-        BOOL fDep, fInFile;
-        ULONG ulOffset = 0, ulUsed = 0;
-        APIRET rcLocal;
-        int nMarker;
-
-        if (fFirstLine) {
-            strip_bom_in_place(achLine);
-            fFirstLine = FALSE;
-        }
-        trim_trailing(achLine);
-
-        if (hStyle == NULLHANDLE) {
-            ulOffset = 0;
-        } else {
-            rcLocal = ReuseQueryCommentBody(hStyle, achLine, &ulOffset);
-            if (rcLocal == ERROR_FILE_NOT_FOUND) continue;
-            if (rcLocal != NO_ERROR) { rc = rcLocal; break; }
-        }
-        pszBody = find_tag_start(achLine + ulOffset);
-
-        nMarker = ignore_marker(pszBody);
-        if (nMarker == 1) { fIgnore = TRUE;  continue; }
-        if (nMarker == 2) { fIgnore = FALSE; continue; }
-        if (fIgnore) continue;
-
-        rcLocal = SpdxQueryTagLine(pszBody, &tag, &fDep, &fInFile,
-                                   achValue, sizeof(achValue), &ulUsed);
-        if (rcLocal != NO_ERROR) continue;
-
-        if (tag == SPDXTAG_LICENSE_ID && fInFile) {
-            fclose(fp);
-            *pfHas = TRUE;
-            return NO_ERROR;
-        }
-    }
-    fclose(fp);
-    return rc;
-}
-
-/* ==================================================================
  * ReuseQueryFileSnippets
  * ================================================================== */
 
@@ -806,6 +731,7 @@ APIRET APIENTRY ReuseQueryFileSnippets(PCSZ pszPath,
     ULONG ulLineNo = 0;
     BOOL fFirstLine = TRUE;
     BOOL fIgnore = FALSE;
+    BOOL fInMulti = FALSE;
     BOOL fInSnippet = FALSE;
     ULONG ulSnippetStartLine = 0;
     PSZ pszLicAcc = NULL;
@@ -846,7 +772,8 @@ APIRET APIENTRY ReuseQueryFileSnippets(PCSZ pszPath,
         if (hStyle == NULLHANDLE) {
             ulOffset = 0;
         } else {
-            rcLocal = ReuseQueryCommentBody(hStyle, achLine, &ulOffset);
+            rcLocal = ReuseInternalCommentBody(hStyle, achLine,
+                                               &fInMulti, &ulOffset);
             if (rcLocal == ERROR_FILE_NOT_FOUND) continue;
             if (rcLocal != NO_ERROR) { rc = rcLocal; goto done; }
         }

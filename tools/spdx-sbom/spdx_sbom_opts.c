@@ -235,8 +235,6 @@ APIRET APIENTRY SbomParseCommandLine(int argc, char *argv[],
                 return rc;
             }
         }
-        else if (strcmp(pszArg, "--no-gitignore") == 0)
-            pOpts->fNoGitignore = TRUE;
         else if (pszArg[0] != '-')
             pOpts->pszDir = pszArg;
         else {

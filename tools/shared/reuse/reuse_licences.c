@@ -462,16 +462,16 @@ static APIRET CollectLicenseNames(PCSZ pszLicPath, HSTRSET hOut) {
  * @brief Return the project root for the given handle.
  *
  * Uses the git repository root when available, otherwise the
- * directory passed to ReuseTreeOpen.
+ * directory passed to REUSEPROJECTOpen.
  *
- * @param[in] hTree  Project handle. Not NULLHANDLE.
+ * @param[in] hProject  Project handle. Not NULLHANDLE.
  *
  * @return Path owned by the project handle, or NULL on failure.
  *
  * @retval NULL  Handle is not recognized.
  */
-static PCSZ ProjectRoot(HREUSETREE hTree) {
-    PREUSETREE pd = ReuseInternalGetDoc(hTree);
+static PCSZ ProjectRoot(HREUSEPROJECT hProject) {
+    PREUSEPROJECT pd = ReuseInternalGetDoc(hProject);
     if (!pd) return NULL;
     return pd->pszRepoRoot ? pd->pszRepoRoot : pd->pszProjectDir;
 }
@@ -576,7 +576,7 @@ APIRET APIENTRY ReuseLicensesReportGet(HREUSELICENSEREPORT hReport,
 /*!
  * @brief Validate the LICENSES/ directory of a project.
  *
- * @param[in] hTree          Project handle. Not NULLHANDLE.
+ * @param[in] hProject          Project handle. Not NULLHANDLE.
  * @param[in] hUsedLicenses  Set of used SPDX identifiers. Not
  *                           NULLHANDLE.
  * @param[in] hReport        Report handle, or NULLHANDLE.
@@ -584,12 +584,12 @@ APIRET APIENTRY ReuseLicensesReportGet(HREUSELICENSEREPORT hReport,
  * @return APIRET
  *
  * @retval NO_ERROR                 Validation completed.
- * @retval ERROR_INVALID_PARAMETER  hTree or hUsedLicenses is
+ * @retval ERROR_INVALID_PARAMETER  hProject or hUsedLicenses is
  *                                  NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE     A handle is not recognized.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
+APIRET APIENTRY ReuseLicensesValidate(HREUSEPROJECT hProject,
                                       HSTRSET hUsedLicenses,
                                       HREUSELICENSEREPORT hReport) {
     CHAR achLicPath[1200];
@@ -598,10 +598,10 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
     BOOL fDirExists;
     APIRET rc;
 
-    if (hTree == NULLHANDLE || hUsedLicenses == NULLHANDLE)
+    if (hProject == NULLHANDLE || hUsedLicenses == NULLHANDLE)
         return ERROR_INVALID_PARAMETER;
 
-    pszBase = ProjectRoot(hTree);
+    pszBase = ProjectRoot(hProject);
     if (!pszBase) return ERROR_INVALID_HANDLE;
 
     BuildLicensesPath(achLicPath, sizeof(achLicPath), pszBase);
@@ -859,7 +859,7 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
 /*!
  * @brief Create or update the LICENSES/ directory of a project.
  *
- * @param[in] hTree          Project handle. Not NULLHANDLE.
+ * @param[in] hProject          Project handle. Not NULLHANDLE.
  * @param[in] hUsedLicenses  Set of used SPDX identifiers. Not
  *                           NULLHANDLE.
  * @param[in] fForce         TRUE to overwrite outdated files.
@@ -869,12 +869,12 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
  * @return APIRET
  *
  * @retval NO_ERROR                 Completed.
- * @retval ERROR_INVALID_PARAMETER  hTree or hUsedLicenses is
+ * @retval ERROR_INVALID_PARAMETER  hProject or hUsedLicenses is
  *                                  NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE     A handle is not recognized.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-APIRET APIENTRY ReuseLicensesEnsure(HREUSETREE hTree,
+APIRET APIENTRY ReuseLicensesEnsure(HREUSEPROJECT hProject,
                                     HSTRSET hUsedLicenses,
                                     BOOL fForce,
                                     BOOL fDryRun,
@@ -884,10 +884,10 @@ APIRET APIENTRY ReuseLicensesEnsure(HREUSETREE hTree,
     BOOL fDirExists;
     APIRET rc;
 
-    if (hTree == NULLHANDLE || hUsedLicenses == NULLHANDLE)
+    if (hProject == NULLHANDLE || hUsedLicenses == NULLHANDLE)
         return ERROR_INVALID_PARAMETER;
 
-    pszBase = ProjectRoot(hTree);
+    pszBase = ProjectRoot(hProject);
     if (!pszBase) return ERROR_INVALID_HANDLE;
 
     BuildLicensesPath(achLicPath, sizeof(achLicPath), pszBase);

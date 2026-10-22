@@ -24,12 +24,12 @@ typedef struct _REUSECFG       REUSECFG,       *PREUSECFG;
 /*!
  * @brief Forward declaration of an open project.
  */
-typedef struct _REUSETREE      REUSETREE,      *PREUSETREE;
+typedef struct _REUSEPROJECT      REUSEPROJECT,      *PREUSEPROJECT;
 
 /*!
  * @brief Forward declaration of a per-file resolution result.
  */
-typedef struct _REUSETREEFILE  REUSETREEFILE,  *PREUSETREEFILE;
+typedef struct _REUSEPROJECTFILE  REUSEPROJECTFILE,  *PREUSEPROJECTFILE;
 
 /* ------------------------------------------------------------------
  * One discovered source: a REUSE.toml file or the .reuse/dep5 file.
@@ -79,10 +79,10 @@ struct _REUSECFG {
  * ------------------------------------------------------------------ */
 
 /*!
- * @struct _REUSETREE
+ * @struct _REUSEPROJECT
  * @brief Open project handle.
  */
-struct _REUSETREE {
+struct _REUSEPROJECT {
     REUSECFG             *paCfgs;            /*!< Configuration sources.    */
     ULONG                 ulCount;           /*!< Number of used entries.   */
     ULONG                 ulCapacity;        /*!< Allocated capacity.       */
@@ -91,7 +91,7 @@ struct _REUSETREE {
     ULONG                 ulErrorCount;      /*!< Number of used entries.   */
     ULONG                 ulErrorCapacity;   /*!< Allocated capacity.       */
 
-    PSZ                   pszProjectDir;     /*!< Argument to ReuseOpenTree.*/
+    PSZ                   pszProjectDir;     /*!< Argument to ReuseOpenProject.*/
     PSZ                   pszRepoRoot;       /*!< Git repo root, or NULL.   */
 
     HREUSECOMMENTSCFG     hComments;         /*!< Attached comments.toml,
@@ -112,10 +112,10 @@ struct _REUSETREE {
  * ------------------------------------------------------------------ */
 
 /*!
- * @struct _REUSETREEFILE
+ * @struct _REUSEPROJECTFILE
  * @brief Per-file resolution result.
  */
-struct _REUSETREEFILE {
+struct _REUSEPROJECTFILE {
     PSZ         pszLicense;                /*!< SPDX license expr.   */
     PSZ         pszCopyright;              /*!< Copyright text.      */
     PSZ         pszContributors;           /*!< '\n'-separated.      */
@@ -136,23 +136,23 @@ struct _REUSETREEFILE {
  *
  * @param[in] hDoc  Handle. May be NULLHANDLE.
  *
- * @return PREUSETREE
+ * @return PREUSEPROJECT
  *
  * @retval NULL  hDoc is NULLHANDLE.
  * @return       Internal pointer.
  */
-PREUSETREE ReuseInternalGetDoc(HREUSETREE hDoc);
+PREUSEPROJECT ReuseInternalGetDoc(HREUSEPROJECT hDoc);
 
 /*!
  * @brief Translate a public file handle into the internal pointer.
  *
  * @param[in] hFile  Handle. May be NULLHANDLE.
  *
- * @return PREUSETREEFILE
+ * @return PREUSEPROJECTFILE
  *
  * @retval NULL  hFile is NULLHANDLE.
  * @return       Internal pointer.
  */
-PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile);
+PREUSEPROJECTFILE ReuseInternalGetFile(HREUSEPROJECTFILE hFile);
 
 #endif /* REUSE_INTERNAL_H */

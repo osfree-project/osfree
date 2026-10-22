@@ -104,7 +104,7 @@ typedef struct _REUSELICENSEINFO {
  * information; check achLicense / achCopyright. The resolver source
  * is reported in @c source.
  *
- * @param[in]  hTree                Project handle. May be NULLHANDLE;
+ * @param[in]  hProject                Project handle. May be NULLHANDLE;
  *                                  in that case the file is treated as
  *                                  having no sources.
  * @param[in]  pszFullpath          File to resolve. Not NULL.
@@ -123,7 +123,7 @@ typedef struct _REUSELICENSEINFO {
  *                                  No [[map]] entry in comments.toml
  *                                  matches pszFullpath.
  */
-APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
+APIRET APIENTRY ReuseResolveLicense(HREUSEPROJECT hProject,
                                     PCSZ pszFullpath,
                                     PCSZ pszDefaultLicense,
                                     PCSZ pszDefaultCopyright,

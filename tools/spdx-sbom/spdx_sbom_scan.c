@@ -203,7 +203,7 @@ APIRET APIENTRY SbomFillFileBasic(
  * @param[in] pIn          Resolved file entry. Not NULL.
  * @param[in] hFiles       Destination file list.
  * @param[in] hSnippets    Destination snippet list, or NULLHANDLE.
- * @param[in] hTree        REUSE tree handle. Used only when
+ * @param[in] hProject        REUSE tree handle. Used only when
  *                         @p hSnippets is not NULLHANDLE. Not
  *                         NULLHANDLE in that case.
  * @param[in] hReport      Tag warnings report, or NULLHANDLE.
@@ -223,7 +223,7 @@ static APIRET process_one_file(
     const SPDXFILEINPUT *pIn,
     HVECTOR hFiles,
     HVECTOR hSnippets,
-    HREUSETREE hTree,
+    HREUSEPROJECT hProject,
     HREUSETAGSREPORT hReport)
 {
     SPDXFILEINFO info;
@@ -249,7 +249,7 @@ static APIRET process_one_file(
         HREUSECOMMENTSTYLE hStyle = NULLHANDLE;
         BOOL fStyleFound = FALSE;
 
-        rc = ReuseQueryTreeCommentStyle(hTree, pIn->achFullPath,
+        rc = ReuseQueryProjectCommentStyle(hProject, pIn->achFullPath,
                                         &fStyleFound, &hStyle);
         if (rc != NO_ERROR) return rc;
         if (!fStyleFound || hStyle == NULLHANDLE)
@@ -269,7 +269,7 @@ static APIRET process_one_file(
  *                        NULLHANDLE.
  * @param[in] hFiles      Destination file list. Not NULLHANDLE.
  * @param[in] hSnippets   Destination snippet list, or NULLHANDLE.
- * @param[in] hTree       REUSE tree handle. Used only when
+ * @param[in] hProject       REUSE tree handle. Used only when
  *                        @p hSnippets is not NULLHANDLE.
  * @param[in] hReport     Tag warnings report, or NULLHANDLE.
  *
@@ -292,7 +292,7 @@ APIRET APIENTRY SbomCollectFiles(
     HVECTOR hResolved,
     HVECTOR hFiles,
     HVECTOR hSnippets,
-    HREUSETREE hTree,
+    HREUSEPROJECT hProject,
     HREUSETAGSREPORT hReport)
 {
     ULONG ulCount = 0;
@@ -312,7 +312,7 @@ APIRET APIENTRY SbomCollectFiles(
                           (ULONG)sizeof(input), NULL) != NO_ERROR)
             continue;
 
-        rc = process_one_file(&input, hFiles, hSnippets, hTree, hReport);
+        rc = process_one_file(&input, hFiles, hSnippets, hProject, hReport);
         if (rc != NO_ERROR) return rc;
     }
 

@@ -60,8 +60,6 @@ typedef struct _SBOMOPTIONS {
 
     PCSZ  pszSourceSbomPath;         /**< Source SBOM, or NULL.    */
 
-    BOOL  fNoGitignore;              /**< Do not apply .gitignore. */
-
     PCSZ  pszSpdxDbRoot;             /**< SPDX database root.      */
     PCSZ  pszCacheFile;              /**< Cache file, or NULL.     */
     PCSZ  pszCommentsConfig;         /**< comments.toml, or NULL.  */   /* P2 */

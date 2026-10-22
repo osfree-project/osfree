@@ -106,7 +106,7 @@ static void strip_trailing_comments(PSZ pszStr) {
  * @retval ERROR_INVALID_PARAMETER  Bad arguments.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-typedef APIRET (APIENTRY *REUSEFIELDFN)(HREUSETREEFILE, PSZ, ULONG, PULONG);
+typedef APIRET (APIENTRY *REUSEFIELDFN)(HREUSEPROJECTFILE, PSZ, ULONG, PULONG);
 
 /*!
  * @brief Copy a single string field from a resolver handle into a
@@ -122,7 +122,7 @@ typedef APIRET (APIENTRY *REUSEFIELDFN)(HREUSETREEFILE, PSZ, ULONG, PULONG);
  * @param[out] pfTruncated   Receiver for the truncation flag. May be
  *                           NULL.
  */
-static void copy_file_field(HREUSETREEFILE hFile, REUSEFIELDFN fnField,
+static void copy_file_field(HREUSEPROJECTFILE hFile, REUSEFIELDFN fnField,
                             PSZ pszDst, ULONG ulDstSize,
                             PBOOL pfTruncated) {
     ULONG ulSize = 0;
@@ -162,7 +162,7 @@ static void copy_file_field(HREUSETREEFILE hFile, REUSEFIELDFN fnField,
  * the --default-* CLI fallbacks, canonicalizes the license
  * expression, and forwards REUSE_ERROR_NO_COMMENT_STYLE as-is.
  *
- * @param[in]  hTree                Project handle, or NULLHANDLE.
+ * @param[in]  hProject                Project handle, or NULLHANDLE.
  * @param[in]  pszFullPath          File to resolve. Not NULL.
  * @param[in]  pszDefaultLicense    CLI fallback, or NULL.
  * @param[in]  pszDefaultCopyright  CLI fallback, or NULL.
@@ -179,12 +179,12 @@ static void copy_file_field(HREUSETREEFILE hFile, REUSEFIELDFN fnField,
  *                                  matches pszFullPath.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
+APIRET APIENTRY ReuseResolveLicense(HREUSEPROJECT hProject,
                                     PCSZ pszFullPath,
                                     PCSZ pszDefaultLicense,
                                     PCSZ pszDefaultCopyright,
                                     PREUSELICENSEINFO pOut) {
-    HREUSETREEFILE hFile = NULLHANDLE;
+    HREUSEPROJECTFILE hFile = NULLHANDLE;
     ULONG ulSource = REUSE_LICENSE_SRC_NONE;
     ULONG ulPrecedence = 0;
     PSZ pszCanonical = NULL;
@@ -214,8 +214,8 @@ APIRET APIENTRY ReuseResolveLicense(HREUSETREE hTree,
     pOut->fPackageCommentTruncated = FALSE;
 
     /* 1. Ask the resolver. */
-    if (hTree != NULLHANDLE) {
-        rc = ReuseOpenFile(hTree, pszFullPath, &hFile, NULL);
+    if (hProject != NULLHANDLE) {
+        rc = ReuseOpenFile(hProject, pszFullPath, &hFile, NULL);
         if (rc != NO_ERROR) return rc;
     }
 

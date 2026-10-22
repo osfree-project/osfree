@@ -33,8 +33,6 @@
 #include "reuse_discover.h"
 #include "reuse_lic.h"
 #include "reuse_licenses.h"
-#include "git.h"
-
 
 /*!
  * @def PATH_BUF
@@ -498,11 +496,11 @@ static void ProcessSnippets(PCSZ pszFullPath, HSTRSET hUsedLicenses,
  * @brief Process one file: resolve, validate, count.
  *
  * @param[in] pszFullPath     File path. Not NULL.
- * @param[in] hTree           REUSE project handle. Not NULLHANDLE.
+ * @param[in] hProject        REUSE project handle. Not NULLHANDLE.
  * @param[in] hUsedLicenses   Set of used identifiers. Not NULLHANDLE.
  * @param[in] hTagsReport     Tag warnings report, or NULLHANDLE.
  */
-static void ProcessFile(PCSZ pszFullPath, HREUSETREE hTree,
+static void ProcessFile(PCSZ pszFullPath, HREUSEPROJECT hProject,
                         HSTRSET hUsedLicenses,
                         HREUSETAGSREPORT hTagsReport) {
     REUSELICENSEINFO lic;
@@ -524,7 +522,7 @@ static void ProcessFile(PCSZ pszFullPath, HREUSETREE hTree,
     }
     fclose(fp);
 
-    rcResolve = ReuseResolveLicense(hTree, pszFullPath,
+    rcResolve = ReuseResolveLicense(hProject, pszFullPath,
                                     g_pszDefaultLicense,
                                     g_pszDefaultCopyright, &lic);
 
@@ -631,8 +629,8 @@ static void ProcessFile(PCSZ pszFullPath, HREUSETREE hTree,
         CheckLicenseExpression(pszFullPath, lic.achLicense, hUsedLicenses);
     }
 
-    if (ReuseQueryTreeCommentStyle(hTree, pszFullPath,
-                                   &fStyleFound, &hStyle) != NO_ERROR)
+    if (ReuseQueryProjectCommentStyle(hProject, pszFullPath,
+                                      &fStyleFound, &hStyle) != NO_ERROR)
         fStyleFound = FALSE;
     if (fStyleFound && hStyle != NULLHANDLE) {
         ProcessSnippets(pszFullPath, hUsedLicenses, hStyle, hTagsReport);
@@ -658,21 +656,14 @@ int main(int argc, char *argv[]) {
     PCSZ pszSpdxDbRoot = NULL;
     PCSZ pszCacheFile = NULL;
     PCSZ pszCommentsConfig = NULL;
-    BOOL fNoGitignore = FALSE;
     int i;
-    HREUSETREE hTree = NULLHANDLE;
+    HREUSEPROJECT hProject = NULLHANDLE;
     HSTRSET hUsedLicenses = NULLHANDLE;
     HSTRSET hPaths = NULLHANDLE;
     HREUSELICENSEREPORT hLicReport = NULLHANDLE;
     HREUSETAGSREPORT hTagsReport = NULLHANDLE;
     APIRET rcDb;
-    REUSEDISCOVEROPTIONS walk_opts;
-    PSZ pszRepoRoot = NULL;
-    GITIGNORELIST gitignore_rules;
-    BOOL fHasGitignore = FALSE;
     int nExit;
-
-    GitIgnoreListInit(&gitignore_rules);
 
     for (i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
@@ -689,10 +680,7 @@ int main(int argc, char *argv[]) {
                    "  --default-license=<id>     Fallback license "
                    "identifier\n"
                    "  --default-copyright=<text> Fallback copyright text\n"
-                   "  --no-gitignore             Do not apply .gitignore "
-                   "rules\n"
                    "  --help, -h                 Show this help\n");
-            GitIgnoreListFree(&gitignore_rules);
             return 0;
         }
         if (strncmp(argv[i], "--spdx-db=", 10) == 0)
@@ -705,8 +693,6 @@ int main(int argc, char *argv[]) {
             g_pszDefaultLicense = argv[i] + 18;
         else if (strncmp(argv[i], "--default-copyright=", 20) == 0)
             g_pszDefaultCopyright = argv[i] + 20;
-        else if (strcmp(argv[i], "--no-gitignore") == 0)
-            fNoGitignore = TRUE;
         else if (argv[i][0] != '-')
             pszDir = argv[i];
         else {
@@ -714,7 +700,6 @@ int main(int argc, char *argv[]) {
                     "ERROR: unknown option: %s [not in spec]\n"
                     "       Run 'reuse-lint --help' for usage.\n",
                     argv[i]);
-            GitIgnoreListFree(&gitignore_rules);
             return 1;
         }
     }
@@ -725,7 +710,6 @@ int main(int argc, char *argv[]) {
                 "[not in spec]\n"
                 "       --spdx-db=<path> is required.\n"
                 "       Run 'reuse-lint --help' for usage.\n");
-        GitIgnoreListFree(&gitignore_rules);
         return 1;
     }
 
@@ -736,7 +720,6 @@ int main(int argc, char *argv[]) {
                 "(licenses.json not loaded). [not in spec]\n"
                 "       Expected at <spdx-db>/licenses.json.\n");
         SpdxCloseDatabase();
-        GitIgnoreListFree(&gitignore_rules);
         return 1;
     }
     if (rcDb & SPDXDB_ERROR_EXCEPTIONS) {
@@ -745,7 +728,6 @@ int main(int argc, char *argv[]) {
                 "(exceptions.json not loaded). [not in spec]\n"
                 "       Expected at <spdx-db>/exceptions.json.\n");
         SpdxCloseDatabase();
-        GitIgnoreListFree(&gitignore_rules);
         return 1;
     }
     if (rcDb & SPDXDB_ERROR_CACHE)
@@ -754,30 +736,14 @@ int main(int argc, char *argv[]) {
                 "         Next run will re-parse JSON indexes.\n");
 
     {
-        ULONG ulSize = 0;
-        if (GitFindRepoRoot(pszDir, NULL, 0, &ulSize) == NO_ERROR &&
-            ulSize > 0) {
-            pszRepoRoot = (PSZ)malloc(ulSize);
-            if (pszRepoRoot) {
-                if (GitFindRepoRoot(pszDir, pszRepoRoot, ulSize, NULL)
-                        != NO_ERROR) {
-                    free(pszRepoRoot);
-                    pszRepoRoot = NULL;
-                }
-            }
-        }
-    }
-
-    {
-        APIRET rc = ReuseOpenTree(pszDir, pszCommentsConfig, &hTree);
+        APIRET rc = ReuseOpenProject(pszDir, pszCommentsConfig,
+                                     &hProject);
         if (rc == REUSE_ERROR_NO_COMMENT_STYLE) {
             fprintf(stderr,
                     "ERROR: --comments-config=<path> is required.\n"
                     "       It defines the comment styles used to read "
                     "in-file SPDX tags.\n"
                     "       Run 'reuse-lint --help' for usage.\n");
-            GitIgnoreListFree(&gitignore_rules);
-            free(pszRepoRoot);
             SpdxCloseDatabase();
             return 1;
         }
@@ -787,57 +753,35 @@ int main(int argc, char *argv[]) {
                     "[not in spec]\n"
                     "       The directory is missing or unreadable.\n",
                     pszDir);
-            GitIgnoreListFree(&gitignore_rules);
-            free(pszRepoRoot);
             SpdxCloseDatabase();
             return 1;
         }
         {
             ULONG ulErrs = 0;
-            if (ReuseTreeGetErrorCount(hTree, &ulErrs) == NO_ERROR)
+            if (ReuseProjectGetErrorCount(hProject, &ulErrs) == NO_ERROR)
                 g_ulErrorCount += (int)ulErrs;
         }
     }
 
-    if (ReuseQueryTreeTagsReport(hTree, &hTagsReport) != NO_ERROR)
+    if (ReuseQueryProjectTagsReport(hProject, &hTagsReport) != NO_ERROR)
         hTagsReport = NULLHANDLE;
-
-    if (!fNoGitignore) {
-        if (GitCollectGitignores(pszRepoRoot, pszDir,
-                                 &gitignore_rules) == NO_ERROR &&
-            gitignore_rules.ulCount > 0) {
-            fHasGitignore = TRUE;
-        }
-    }
 
     if (StrSetCreate(&hUsedLicenses) != NO_ERROR) {
         fprintf(stderr, "ERROR: out of memory [not in spec]\n");
-        ReuseCloseTree(hTree);
-        GitIgnoreListFree(&gitignore_rules);
-        free(pszRepoRoot);
+        ReuseCloseProject(hProject);
         SpdxCloseDatabase();
         return 1;
-    }
-
-    ReuseSetDiscoverOptionsDefault(&walk_opts);
-    walk_opts.fRecursive = FALSE;
-    if (fHasGitignore) {
-        walk_opts.fUseGitignore   = TRUE;
-        walk_opts.pszRepoRoot     = pszRepoRoot ? pszRepoRoot : pszDir;
-        walk_opts.pGitignoreRules = &gitignore_rules;
     }
 
     if (StrSetCreate(&hPaths) != NO_ERROR) {
         fprintf(stderr, "ERROR: out of memory [not in spec]\n");
         StrSetDestroy(hUsedLicenses);
-        ReuseCloseTree(hTree);
-        GitIgnoreListFree(&gitignore_rules);
-        free(pszRepoRoot);
+        ReuseCloseProject(hProject);
         SpdxCloseDatabase();
         return 1;
     }
 
-    if (ReuseDiscoverWalkTree(pszDir, &walk_opts, hPaths) != NO_ERROR) {
+    if (ReuseDiscoverFiles(pszDir, NULL, 0, FALSE, hPaths) != NO_ERROR) {
         fprintf(stderr,
                 "ERROR: cannot walk tree: %s [not in spec]\n"
                 "       Check that the directory exists and is "
@@ -845,9 +789,7 @@ int main(int argc, char *argv[]) {
                 pszDir);
         StrSetDestroy(hPaths);
         StrSetDestroy(hUsedLicenses);
-        ReuseCloseTree(hTree);
-        GitIgnoreListFree(&gitignore_rules);
-        free(pszRepoRoot);
+        ReuseCloseProject(hProject);
         SpdxCloseDatabase();
         return 1;
     }
@@ -859,7 +801,7 @@ int main(int argc, char *argv[]) {
                 if (StrSetEnumGet(hEnum, achFull, sizeof(achFull), NULL)
                         != NO_ERROR)
                     continue;
-                ProcessFile(achFull, hTree, hUsedLicenses, hTagsReport);
+                ProcessFile(achFull, hProject, hUsedLicenses, hTagsReport);
             } while (StrSetEnumNext(hEnum) == NO_ERROR);
             StrSetEnumClose(hEnum);
         }
@@ -879,7 +821,7 @@ int main(int argc, char *argv[]) {
     if (ReuseLicensesReportCreate(&hLicReport) == NO_ERROR) {
         ULONG ulLicErrors = 0;
         ULONG ulLicWarnings = 0;
-        ReuseLicensesValidate(hTree, hUsedLicenses, hLicReport);
+        ReuseLicensesValidate(hProject, hUsedLicenses, hLicReport);
         PrintLicensesReport(hLicReport, &ulLicErrors, &ulLicWarnings);
         g_ulErrorCount += ulLicErrors;
         g_ulWarningCount += ulLicWarnings;
@@ -938,9 +880,7 @@ int main(int argc, char *argv[]) {
             (unsigned long)g_ulWarningCount);
 
     StrSetDestroy(hUsedLicenses);
-    ReuseCloseTree(hTree);
-    GitIgnoreListFree(&gitignore_rules);
-    free(pszRepoRoot);
+    ReuseCloseProject(hProject);
     SpdxCloseDatabase();
 
     nExit = (g_ulErrorCount > 0) ? 1 : 0;

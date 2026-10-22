@@ -136,19 +136,19 @@ APIRET APIENTRY ReuseLicensesReportGet(HREUSELICENSEREPORT hReport,
  * Diagnostics are appended to @p hReport. If @p hReport is
  * NULLHANDLE, the checks still run but no diagnostic is collected.
  *
- * @param[in] hTree          Project handle. Not NULLHANDLE.
+ * @param[in] hProject          Project handle. Not NULLHANDLE.
  * @param[in] hUsedLicenses  Set of used SPDX identifiers. Not
  *                           NULLHANDLE.
  * @param[in] hReport        Report handle, or NULLHANDLE.
  *
  * @return APIRET
  * @retval NO_ERROR                 Validation completed.
- * @retval ERROR_INVALID_PARAMETER  hTree or hUsedLicenses is
+ * @retval ERROR_INVALID_PARAMETER  hProject or hUsedLicenses is
  *                                  NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE     A handle is not recognized.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
+APIRET APIENTRY ReuseLicensesValidate(HREUSEPROJECT hProject,
                                       HSTRSET hUsedLicenses,
                                       HREUSELICENSEREPORT hReport);
 
@@ -174,7 +174,7 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
  *
  * In dry-run mode (@p fDryRun TRUE), no file is written.
  *
- * @param[in] hTree          Project handle. Not NULLHANDLE.
+ * @param[in] hProject          Project handle. Not NULLHANDLE.
  * @param[in] hUsedLicenses  Set of used SPDX identifiers. Not
  *                           NULLHANDLE.
  * @param[in] fForce         TRUE to overwrite outdated files.
@@ -183,12 +183,12 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSETREE hTree,
  *
  * @return APIRET
  * @retval NO_ERROR                 Completed.
- * @retval ERROR_INVALID_PARAMETER  hTree or hUsedLicenses is
+ * @retval ERROR_INVALID_PARAMETER  hProject or hUsedLicenses is
  *                                  NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE     A handle is not recognized.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-APIRET APIENTRY ReuseLicensesEnsure(HREUSETREE hTree,
+APIRET APIENTRY ReuseLicensesEnsure(HREUSEPROJECT hProject,
                                     HSTRSET hUsedLicenses,
                                     BOOL fForce,
                                     BOOL fDryRun,

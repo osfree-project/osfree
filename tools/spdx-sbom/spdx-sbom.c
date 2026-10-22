@@ -9,7 +9,6 @@
 #include "ccl.h"
 #include "spdx.h"
 #include "spdx_db.h"
-#include "git.h"
 
 #include "spdx_sbom_types.h"
 #include "spdx_sbom_utils.h"
@@ -83,7 +82,6 @@ static void print_help(void) {
            "                             Provide text for a "
            "LicenseRef-* license\n"
            "  --cache=<path>             SPDX database cache file\n"
-           "  --no-gitignore             Do not apply .gitignore rules\n"
            "  --help, -h                 Show this help\n");
 }
 
@@ -121,7 +119,7 @@ static BOOL is_binary_mode(const SBOMOPTIONS *pOpts) {
  * The resolved expression is validated against the SPDX grammar.
  *
  * @param[in]  pOpts       Parsed options. Not NULL.
- * @param[in]  hTree       Project handle. May be NULLHANDLE.
+ * @param[in]  hProject    Project handle. May be NULLHANDLE.
  * @param[out] ppszLicense Receiver. Not NULL. On success receives a
  *                         malloc'd string owned by the caller, or
  *                         @c pOpts->pszDefaultLicense itself (not to
@@ -138,7 +136,7 @@ static BOOL is_binary_mode(const SBOMOPTIONS *pOpts) {
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
 static APIRET resolve_package_license(const SBOMOPTIONS *pOpts,
-                                      HREUSETREE hTree,
+                                      HREUSEPROJECT hProject,
                                       PSZ *ppszLicense,
                                       PBOOL pfIsHeap) {
     PCSZ pszLic = pOpts->pszDefaultLicense;
@@ -149,9 +147,9 @@ static APIRET resolve_package_license(const SBOMOPTIONS *pOpts,
     *ppszLicense = NULL;
     *pfIsHeap = FALSE;
 
-    if (!pszLic && hTree != NULLHANDLE) {
-        HREUSETREEFILE hFile = NULLHANDLE;
-        rc = ReuseOpenFile(hTree, "**", &hFile, NULL);
+    if (!pszLic && hProject != NULLHANDLE) {
+        HREUSEPROJECTFILE hFile = NULLHANDLE;
+        rc = ReuseOpenFile(hProject, "**", &hFile, NULL);
         if (rc == NO_ERROR && hFile != NULLHANDLE) {
             ULONG ulSize = 0;
             rc = ReuseQueryFileLicense(hFile, NULL, 0, &ulSize);
@@ -200,7 +198,7 @@ static APIRET resolve_package_license(const SBOMOPTIONS *pOpts,
  * cannot be determined invalidates the whole SBOM.
  *
  * @param[in]  hPaths     Set of file paths. Not NULLHANDLE.
- * @param[in]  hTree      Project handle. May be NULLHANDLE.
+ * @param[in]  hProject   Project handle. May be NULLHANDLE.
  * @param[in]  pszDefLic  Fallback license, or NULL.
  * @param[in]  pszDefCop  Fallback copyright, or NULL.
  * @param[in]  hResolved  Destination list of SPDXFILEINPUT entries.
@@ -219,7 +217,7 @@ static APIRET resolve_package_license(const SBOMOPTIONS *pOpts,
  * @retval ERROR_NOT_ENOUGH_MEMORY      Allocation failure.
  */
 static APIRET resolve_all_files(HSTRSET hPaths,
-                                HREUSETREE hTree,
+                                HREUSEPROJECT hProject,
                                 PCSZ pszDefLic,
                                 PCSZ pszDefCop,
                                 HVECTOR hResolved,
@@ -244,7 +242,7 @@ static APIRET resolve_all_files(HSTRSET hPaths,
                 != NO_ERROR)
             continue;
 
-        rc = ReuseResolveLicense(hTree, achFull, pszDefLic, pszDefCop,
+        rc = ReuseResolveLicense(hProject, achFull, pszDefLic, pszDefCop,
                                  &lic);
         if (rc == REUSE_ERROR_NO_COMMENT_STYLE) {
             fprintf(stderr,
@@ -307,14 +305,10 @@ static APIRET resolve_all_files(HSTRSET hPaths,
 int main(int argc, char *argv[]) {
     SBOMOPTIONS opts;
     SPDXDOCUMENT doc;
-    HREUSETREE hTree = NULLHANDLE;
+    HREUSEPROJECT hProject = NULLHANDLE;
     HREUSETAGSREPORT hTagsReport = NULLHANDLE;
     HSTRSET hPaths = NULLHANDLE;
     HVECTOR hResolved = NULLHANDLE;
-    REUSEDISCOVEROPTIONS walk_opts;
-    GITIGNORELIST gitignore_rules;
-    BOOL fHasGitignore = FALSE;
-    PSZ pszRepoRoot = NULL;
     PSZ pszPkgLicense = NULL;
     BOOL fPkgLicenseIsHeap = FALSE;
     BOOL fBinaryMode;
@@ -323,8 +317,6 @@ int main(int argc, char *argv[]) {
     APIRET rc;
     APIRET rcDb;
     int nExit = 1;
-
-    GitIgnoreListInit(&gitignore_rules);
 
     rc = SbomParseCommandLine(argc, argv, &opts);
     if (rc != NO_ERROR) {
@@ -372,25 +364,7 @@ int main(int argc, char *argv[]) {
                 "WARNING: cache could not be written.\n"
                 "         Next run will re-parse JSON indexes.\n");
 
-    /* Two-phase GitFindRepoRoot: first query the size, then value.
-     * If there is no repository, the target directory is used as the
-     * base for .gitignore lookups. */
-    {
-        ULONG ulSize = 0;
-        if (GitFindRepoRoot(opts.pszDir, NULL, 0, &ulSize) == NO_ERROR &&
-            ulSize > 0) {
-            pszRepoRoot = (PSZ)malloc(ulSize);
-            if (pszRepoRoot) {
-                if (GitFindRepoRoot(opts.pszDir, pszRepoRoot, ulSize,
-                                    NULL) != NO_ERROR) {
-                    free(pszRepoRoot);
-                    pszRepoRoot = NULL;
-                }
-            }
-        }
-    }
-
-    rc = ReuseOpenTree(opts.pszDir, opts.pszCommentsConfig, &hTree);
+    rc = ReuseOpenProject(opts.pszDir, opts.pszCommentsConfig, &hProject);
     if (rc == REUSE_ERROR_NO_COMMENT_STYLE) {
         fprintf(stderr,
                 "ERROR: --comments-config=<path> is required.\n"
@@ -408,7 +382,7 @@ int main(int argc, char *argv[]) {
     }
     {
         ULONG ulErrs = 0;
-        if (ReuseTreeGetErrorCount(hTree, &ulErrs) == NO_ERROR &&
+        if (ReuseProjectGetErrorCount(hProject, &ulErrs) == NO_ERROR &&
             ulErrs > 0) {
             fprintf(stderr,
                     "ERROR: %u REUSE.toml file(s) could not be parsed.\n"
@@ -418,22 +392,14 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (ReuseQueryTreeTagsReport(hTree, &hTagsReport) != NO_ERROR)
+    if (ReuseQueryProjectTagsReport(hProject, &hTagsReport) != NO_ERROR)
         hTagsReport = NULLHANDLE;
-
-    if (!opts.fNoGitignore) {
-        if (GitCollectGitignores(pszRepoRoot, opts.pszDir,
-                                 &gitignore_rules) == NO_ERROR &&
-            gitignore_rules.ulCount > 0) {
-            fHasGitignore = TRUE;
-        }
-    }
 
     fBinaryMode = is_binary_mode(&opts);
 
     /* Resolve the package license BEFORE SbomCreateDocument so the
      * value is fixed inside the package structure. */
-    rc = resolve_package_license(&opts, hTree, &pszPkgLicense,
+    rc = resolve_package_license(&opts, hProject, &pszPkgLicense,
                                  &fPkgLicenseIsHeap);
     if (rc != NO_ERROR) {
         fprintf(stderr,
@@ -489,29 +455,56 @@ int main(int argc, char *argv[]) {
             goto cleanup;
         }
     } else {
-        ReuseSetDiscoverOptionsDefault(&walk_opts);
-        if (fHasGitignore) {
-            walk_opts.fUseGitignore   = TRUE;
-            walk_opts.pszRepoRoot     = pszRepoRoot ? pszRepoRoot
-                                                    : opts.pszDir;
-            walk_opts.pGitignoreRules = &gitignore_rules;
-        }
         rc = StrSetCreate(&hPaths);
         if (rc != NO_ERROR) {
             fprintf(stderr, "ERROR: out of memory\n");
             goto cleanup;
         }
-        rc = ReuseDiscover(opts.pszDir,
-                           opts.papszObjectFiles, opts.ulObjectCount,
-                           opts.papszResFiles, opts.ulResCount,
-                           &walk_opts, hPaths);
-        if (rc != NO_ERROR) {
-            fprintf(stderr,
-                    "ERROR: cannot walk tree: %s\n"
-                    "       Check that the directory exists and is "
-                    "readable.\n",
-                    opts.pszDir);
-            goto cleanup;
+        {
+            PCSZ *papszArtifacts = NULL;
+            ULONG ulArtifactCount = 0;
+            ULONG ulTotal = opts.ulObjectCount + opts.ulResCount;
+            ULONG ulIdx;
+            APIRET rcDiscover;
+
+            if (ulTotal > 0) {
+                papszArtifacts = (PCSZ*)malloc(
+                    (size_t)ulTotal * sizeof(PCSZ));
+                if (!papszArtifacts) {
+                    fprintf(stderr, "ERROR: out of memory\n");
+                    goto cleanup;
+                }
+                for (ulIdx = 0; ulIdx < opts.ulObjectCount; ulIdx++)
+                    papszArtifacts[ulArtifactCount++] =
+                        opts.papszObjectFiles[ulIdx];
+                for (ulIdx = 0; ulIdx < opts.ulResCount; ulIdx++)
+                    papszArtifacts[ulArtifactCount++] =
+                        opts.papszResFiles[ulIdx];
+            }
+
+            rcDiscover = ReuseDiscoverFiles(opts.pszDir,
+                                            papszArtifacts,
+                                            ulArtifactCount,
+                                            TRUE, hPaths);
+            free(papszArtifacts);
+
+            if (rcDiscover == ERROR_FILE_NOT_FOUND) {
+                fprintf(stderr,
+                        "ERROR: none of the artifacts yielded "
+                        "source names.\n"
+                        "       The artifacts may be corrupted, in an "
+                        "unsupported format,\n"
+                        "       or contain no source information.\n");
+                goto cleanup;
+            }
+            if (rcDiscover != NO_ERROR) {
+                fprintf(stderr,
+                        "ERROR: cannot walk tree: %s\n"
+                        "       Check that the directory exists and is "
+                        "readable.\n",
+                        opts.pszDir);
+                goto cleanup;
+            }
         }
 
         /* Resolve licensing information before handing anything to
@@ -521,7 +514,7 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "ERROR: out of memory\n");
             goto cleanup;
         }
-        rc = resolve_all_files(hPaths, hTree,
+        rc = resolve_all_files(hPaths, hProject,
                                opts.pszDefaultLicense,
                                opts.pszDefaultCopyright,
                                hResolved, &ulSkipped);
@@ -541,7 +534,7 @@ int main(int argc, char *argv[]) {
         }
 
         rc = SbomCollectFiles(hResolved, doc.hFiles, doc.hSnippets,
-                              hTree, hTagsReport);
+                              hProject, hTagsReport);
         if (rc == REUSE_ERROR_NO_COMMENT_STYLE) {
             goto cleanup;
         }
@@ -642,9 +635,7 @@ cleanup:
     if (hPaths != NULLHANDLE) StrSetDestroy(hPaths);
     if (hResolved != NULLHANDLE) SbomFreeFileInputList(hResolved);
     if (fPkgLicenseIsHeap) free(pszPkgLicense);
-    if (hTree != NULLHANDLE) ReuseCloseTree(hTree);
-    GitIgnoreListFree(&gitignore_rules);
-    free(pszRepoRoot);
+    if (hProject != NULLHANDLE) ReuseCloseProject(hProject);
     SpdxCloseDatabase();
     SbomFreeOptions(&opts);
     return nExit;

@@ -9,6 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "reuse.h"
+#include "reuse_comments_internal.h"
 #include "reuse_glob.h"
 #include "path.h"
 #include "toml.h"
@@ -1035,40 +1036,69 @@ APIRET APIENTRY ReuseQueryCommentStyleInfo(HREUSECOMMENTSTYLE hStyle,
  * ================================================================== */
 
 /*!
- * @brief Locate the body of a single line after stripping the leading
- *        comment marker.
+ * @brief Common implementation of ReuseQueryCommentBody and
+ *        ReuseInternalCommentBody.
  *
- * Single-line styles are tried first (regexp, then each literal in
- * @c papszSingles), then multi-line start / middle markers. When a
- * multi-line start or middle marker matches and the style defines a
- * multi-line end marker, a trailing end marker is trimmed from
- * @p pszLine in place.
- *
- * @param[in]     hStyle     Borrowed style. Not NULLHANDLE.
- * @param[in,out] pszLine    Input line. Not NULL. May be modified in
- *                           place when a trailing end marker is
+ * @param[in]     pStyle     Borrowed style. Not NULL.
+ * @param[in,out] pszLine    Input line. Not NULL. May be modified
+ *                           in place when a trailing end marker is
  *                           trimmed.
+ * @param[in,out] pfInMulti  Block state, or NULL for the stateless
+ *                           variant.
  * @param[out]    pulOffset  Byte offset in pszLine. Not NULL.
  *
  * @return APIRET
  *
  * @retval NO_ERROR                 Marker found; *pulOffset is set.
- * @retval ERROR_FILE_NOT_FOUND     Line is not a comment.
- * @retval ERROR_INVALID_PARAMETER  Argument is NULL.
- * @retval ERROR_INVALID_HANDLE     hStyle is not a style handle.
+ * @retval ERROR_FILE_NOT_FOUND     Line is not a comment in the
+ *                                  current state.
  */
-APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
-                                      PSZ pszLine,
-                                      PULONG pulOffset) {
-    PREUSECOMMENTSTYLE pStyle;
+static APIRET comment_body_core(PREUSECOMMENTSTYLE pStyle, PSZ pszLine,
+                                PBOOL pfInMulti, PULONG pulOffset) {
     PCSZ pszPos;
     size_t cbMarker;
     ULONG ulS;
+    BOOL fMultiEndFound;
 
-    if (!pszLine || !pulOffset) return ERROR_INVALID_PARAMETER;
-    pStyle = as_style(hStyle);
-    if (pStyle == NULL) return ERROR_INVALID_HANDLE;
+    /* Inside a multi-line block. */
+    if (pfInMulti != NULL && *pfInMulti) {
+        pszPos = pszLine;
+        while (*pszPos == ' ' || *pszPos == '\t') pszPos++;
 
+        if (pStyle->pszMultiMiddle != NULL) {
+            cbMarker = strlen(pStyle->pszMultiMiddle);
+            if (strncmp(pszPos, pStyle->pszMultiMiddle, cbMarker) == 0) {
+                pszPos += cbMarker;
+                if (pStyle->pszIndentAfterMiddle != NULL) {
+                    PCSZ pszIndent = pStyle->pszIndentAfterMiddle;
+                    size_t cbIndent = strlen(pszIndent);
+                    if (strncmp(pszPos, pszIndent, cbIndent) == 0)
+                        pszPos += cbIndent;
+                }
+            }
+        }
+
+        *pulOffset = (ULONG)(pszPos - pszLine);
+
+        if (pStyle->pszMultiEnd != NULL) {
+            size_t cbEnd = strlen(pStyle->pszMultiEnd);
+            size_t cbLine = strlen(pszLine);
+            while (cbLine > (size_t)(pszPos - pszLine) &&
+                   (pszLine[cbLine-1] == ' ' ||
+                    pszLine[cbLine-1] == '\t'))
+                cbLine--;
+            if (cbEnd > 0 && cbLine > (size_t)(pszPos - pszLine) &&
+                cbLine >= cbEnd &&
+                strncmp(pszLine + cbLine - cbEnd,
+                        pStyle->pszMultiEnd, cbEnd) == 0) {
+                pszLine[cbLine - cbEnd] = '\0';
+                *pfInMulti = FALSE;
+            }
+        }
+        return NO_ERROR;
+    }
+
+    /* Outside a block (or stateless call). */
     pszPos = pszLine;
     while (*pszPos == ' ' || *pszPos == '\t') pszPos++;
 
@@ -1114,11 +1144,12 @@ APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
         }
     }
 
+    /* multi_start */
     if (pStyle->pszMultiStart != NULL) {
         cbMarker = strlen(pStyle->pszMultiStart);
         if (strncmp(pszPos, pStyle->pszMultiStart, cbMarker) == 0) {
             pszPos += cbMarker;
-            /* Trim trailing end marker, if any. */
+            fMultiEndFound = FALSE;
             if (pStyle->pszMultiEnd != NULL) {
                 size_t cbEnd = strlen(pStyle->pszMultiEnd);
                 size_t cbLine = strlen(pszLine);
@@ -1131,13 +1162,18 @@ APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
                     strncmp(pszLine + cbLine - cbEnd,
                             pStyle->pszMultiEnd, cbEnd) == 0) {
                     pszLine[cbLine - cbEnd] = '\0';
+                    fMultiEndFound = TRUE;
                 }
+            }
+            if (pfInMulti != NULL) {
+                *pfInMulti = fMultiEndFound ? FALSE : TRUE;
             }
             *pulOffset = (ULONG)(pszPos - pszLine);
             return NO_ERROR;
         }
     }
 
+    /* multi_middle outside block (fallback for malformed files). */
     if (pStyle->pszMultiMiddle != NULL) {
         cbMarker = strlen(pStyle->pszMultiMiddle);
         if (strncmp(pszPos, pStyle->pszMultiMiddle, cbMarker) == 0) {
@@ -1148,7 +1184,6 @@ APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
                 if (strncmp(pszPos, pszIndent, cbIndent) == 0)
                     pszPos += cbIndent;
             }
-            /* Trim trailing end marker, if any. */
             if (pStyle->pszMultiEnd != NULL) {
                 size_t cbEnd = strlen(pStyle->pszMultiEnd);
                 size_t cbLine = strlen(pszLine);
@@ -1172,6 +1207,68 @@ APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
 }
 
 /*!
+ * @brief Locate the body of a single line after stripping the leading
+ *        comment marker.
+ *
+ * Stateless: no block state is carried between calls. For multi-line
+ * styles without a multi_middle marker (html, julia, bibtex), use
+ * ReuseInternalCommentBody instead.
+ *
+ * @param[in]     hStyle     Borrowed style. Not NULLHANDLE.
+ * @param[in,out] pszLine    Input line. Not NULL.
+ * @param[out]    pulOffset  Byte offset in pszLine. Not NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Marker found; *pulOffset is set.
+ * @retval ERROR_FILE_NOT_FOUND     Line is not a comment.
+ * @retval ERROR_INVALID_PARAMETER  Argument is NULL.
+ * @retval ERROR_INVALID_HANDLE     hStyle is not a style handle.
+ */
+APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
+                                      PSZ pszLine,
+                                      PULONG pulOffset) {
+    PREUSECOMMENTSTYLE pStyle;
+
+    if (!pszLine || !pulOffset) return ERROR_INVALID_PARAMETER;
+    pStyle = as_style(hStyle);
+    if (pStyle == NULL) return ERROR_INVALID_HANDLE;
+    return comment_body_core(pStyle, pszLine, NULL, pulOffset);
+}
+
+/*!
+ * @brief Locate the body of one line, honouring a block-comment
+ *        state across calls.
+ *
+ * See reuse_comments_internal.h for the full contract.
+ *
+ * @param[in]     hStyle     Borrowed style. Not NULLHANDLE.
+ * @param[in,out] pszLine    Input line. Not NULL.
+ * @param[in,out] pfInMulti  Block state. Not NULL.
+ * @param[out]    pulOffset  Byte offset in pszLine. Not NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Marker found; *pulOffset is set.
+ * @retval ERROR_FILE_NOT_FOUND     Line is not a comment in the
+ *                                  current state.
+ * @retval ERROR_INVALID_PARAMETER  Argument is NULL.
+ * @retval ERROR_INVALID_HANDLE     hStyle is not a style handle.
+ */
+APIRET APIENTRY ReuseInternalCommentBody(HREUSECOMMENTSTYLE hStyle,
+                                         PSZ pszLine,
+                                         PBOOL pfInMulti,
+                                         PULONG pulOffset) {
+    PREUSECOMMENTSTYLE pStyle;
+
+    if (!pszLine || !pfInMulti || !pulOffset)
+        return ERROR_INVALID_PARAMETER;
+    pStyle = as_style(hStyle);
+    if (pStyle == NULL) return ERROR_INVALID_HANDLE;
+    return comment_body_core(pStyle, pszLine, pfInMulti, pulOffset);
+}
+
+/*!
  * @brief Compute the size (without NUL) of the block that
  *        ReuseQueryCommentBlock would produce.
  *
@@ -1181,7 +1278,10 @@ APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
  *
  * @return ULONG
  *
- * @return Required size in bytes, excluding the trailing NUL.
+ * @retval 0    Single-line mode was requested but the style has no
+ *              single-line marker (ulSingleCount == 0); no block can
+ *              be produced in that mode.
+ * @retval >0   Required size in bytes, excluding the trailing NUL.
  */
 static ULONG comment_block_size(PREUSECOMMENTSTYLE pStyle,
                                 PCSZ pszText, BOOL fUseMulti) {

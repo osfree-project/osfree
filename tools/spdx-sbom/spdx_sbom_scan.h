@@ -72,7 +72,7 @@ APIRET APIENTRY SbomFillFileBasic(
  *   1. fills a SPDXFILEINFO entry via SbomFillFileBasic;
  *   2. validates the license expression;
  *   3. appends the entry to @p hFiles;
- *   4. resolves the comment style via ReuseQueryTreeCommentStyle
+ *   4. resolves the comment style via ReuseQueryProjectCommentStyle
  *      and, if @p hSnippets is not NULLHANDLE, extracts SPDX
  *      snippets via ReuseQueryFileSnippets.
  *
@@ -89,7 +89,7 @@ APIRET APIENTRY SbomFillFileBasic(
  *                         SbomCreateFileList.
  * @param[in]  hSnippets   Destination snippet list, or NULLHANDLE
  *                         to skip snippet collection.
- * @param[in]  hTree       REUSE tree handle. Used only for snippet
+ * @param[in]  hProject       REUSE tree handle. Used only for snippet
  *                         extraction. Not NULLHANDLE when
  *                         @p hSnippets is not NULLHANDLE.
  * @param[in]  hReport     Tag warnings report, or NULLHANDLE.
@@ -113,7 +113,7 @@ APIRET APIENTRY SbomCollectFiles(
     HVECTOR hResolved,
     HVECTOR hFiles,
     HVECTOR hSnippets,
-    HREUSETREE hTree,
+    HREUSEPROJECT hProject,
     HREUSETAGSREPORT hReport);
 
 #ifdef __cplusplus

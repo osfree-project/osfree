@@ -305,7 +305,7 @@ static int matches_pattern(PCSZ pszPattern, PCSZ pszFilename) {
  * @retval 0   Success.
  * @retval -1  Allocation failed.
  */
-static int err_add(PREUSETREE pd, ULONG ulCode, ULONG ulSeverity,
+static int err_add(PREUSEPROJECT pd, ULONG ulCode, ULONG ulSeverity,
                    PCSZ pszFile, ULONG ulLine, PCSZ pszDetail) {
     REUSEERR *pErr;
     if (pd->ulErrorCount >= pd->ulErrorCapacity) {
@@ -347,7 +347,7 @@ static int err_add(PREUSETREE pd, ULONG ulCode, ULONG ulSeverity,
  * @retval 0   Success.
  * @retval -1  Allocation failed.
  */
-static int cfg_add(PREUSETREE pd, int nKind, PCSZ pszSourceDir, int nDepth,
+static int cfg_add(PREUSEPROJECT pd, int nKind, PCSZ pszSourceDir, int nDepth,
                    HREUSETOML hToml, HDEP5DOC hDep5) {
     REUSECFG *pCfg;
     if (pd->ulCount >= pd->ulCapacity) {
@@ -389,7 +389,7 @@ static void cfg_free(REUSECFG *pCfg) {
  *
  * @param[in] pd  Project handle. May be NULL.
  */
-static void doc_free(PREUSETREE pd) {
+static void doc_free(PREUSEPROJECT pd) {
     ULONG ulIdx;
     if (!pd) return;
     for (ulIdx = 0; ulIdx < pd->ulCount; ulIdx++)
@@ -424,7 +424,7 @@ static void doc_free(PREUSETREE pd) {
  * @retval 0   Success, or parse failure recorded.
  * @retval -1  Allocation failed.
  */
-static int try_add_toml(PREUSETREE pd, PCSZ pszPath,
+static int try_add_toml(PREUSEPROJECT pd, PCSZ pszPath,
                         PCSZ pszSourceDir, int nDepth) {
     HREUSETOML hToml = NULLHANDLE;
     APIRET rc = ReuseOpen(pszPath, &hToml);
@@ -485,7 +485,7 @@ static int try_add_toml(PREUSETREE pd, PCSZ pszPath,
  * @retval 0   Success.
  * @retval -1  Allocation failed.
  */
-static int discover_tomls(PREUSETREE pd, PCSZ pszRepoRoot, PCSZ pszTarget) {
+static int discover_tomls(PREUSEPROJECT pd, PCSZ pszRepoRoot, PCSZ pszTarget) {
     CHAR achPath[2048];
     CHAR achCurrent[2048];
     FILE *fp;
@@ -557,7 +557,7 @@ static int discover_tomls(PREUSETREE pd, PCSZ pszRepoRoot, PCSZ pszTarget) {
  * @retval 0   Success, or no DEP5 file found.
  * @retval -1  Allocation failed.
  */
-static int discover_dep5(PREUSETREE pd, PCSZ pszRepoRoot) {
+static int discover_dep5(PREUSEPROJECT pd, PCSZ pszRepoRoot) {
     CHAR achPath[1024];
     FILE *fp;
     HDEP5DOC hDep5 = NULLHANDLE;
@@ -1133,14 +1133,14 @@ static PSZ join_lines_dedup(PCSZ pszA, PCSZ pszB) {
  * @param[in]  pszPath  Path to the file. Not NULL.
  * @param[out] pulErr   Receiver for the error code. Not NULL.
  *
- * @return PREUSETREEFILE
+ * @return PREUSEPROJECTFILE
  *
  * @retval NULL  *pulErr describes the failure.
  * @return       Freshly allocated per-file result.
  */
-static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath,
+static PREUSEPROJECTFILE resolve_file(PREUSEPROJECT pd, PCSZ pszPath,
                                    PULONG pulErr) {
-    PREUSETREEFILE pFile;
+    PREUSEPROJECTFILE pFile;
     CHAR achSidecar[1200];
     PSZ pszTagLicense = NULL;
     PSZ pszTagCopyright = NULL;
@@ -1174,7 +1174,7 @@ static PREUSETREEFILE resolve_file(PREUSETREE pd, PCSZ pszPath,
     memset(&bestAggregate, 0, sizeof(bestAggregate));
     memset(&bestClosest,   0, sizeof(bestClosest));
 
-    pFile = (PREUSETREEFILE)calloc(1, sizeof(REUSETREEFILE));
+    pFile = (PREUSEPROJECTFILE)calloc(1, sizeof(REUSEPROJECTFILE));
     if (!pFile) { *pulErr = ERROR_NOT_ENOUGH_MEMORY; return NULL; }
 
     /* 1. Sidecar — raw tag-value, no comment style. */
@@ -1390,13 +1390,13 @@ fail:
  *
  * @param[in] hDoc  Handle. May be NULLHANDLE.
  *
- * @return PREUSETREE
+ * @return PREUSEPROJECT
  *
  * @retval NULL  hDoc is NULLHANDLE.
  * @return       Internal pointer.
  */
-PREUSETREE ReuseInternalGetDoc(HREUSETREE hDoc) {
-    return (PREUSETREE)hDoc;
+PREUSEPROJECT ReuseInternalGetDoc(HREUSEPROJECT hDoc) {
+    return (PREUSEPROJECT)hDoc;
 }
 
 /*!
@@ -1404,13 +1404,13 @@ PREUSETREE ReuseInternalGetDoc(HREUSETREE hDoc) {
  *
  * @param[in] hFile  Handle. May be NULLHANDLE.
  *
- * @return PREUSETREEFILE
+ * @return PREUSEPROJECTFILE
  *
  * @retval NULL  hFile is NULLHANDLE.
  * @return       Internal pointer.
  */
-PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile) {
-    return (PREUSETREEFILE)hFile;
+PREUSEPROJECTFILE ReuseInternalGetFile(HREUSEPROJECTFILE hFile) {
+    return (PREUSEPROJECTFILE)hFile;
 }
 
 /* ==================================================================
@@ -1426,7 +1426,7 @@ PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile) {
  * repository root, if present.
  *
  * pszCommentsConfig is required. A project opened without a
- * comments.toml cannot process in-file SPDX tags, so ReuseOpenTree
+ * comments.toml cannot process in-file SPDX tags, so ReuseOpenProject
  * returns REUSE_ERROR_NO_COMMENT_STYLE when pszCommentsConfig is
  * NULL.
  *
@@ -1435,13 +1435,13 @@ PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile) {
  *
  * @param[in]  pszDir             Target directory. Not NULL.
  * @param[in]  pszCommentsConfig  Path to comments.toml. Not NULL.
- * @param[out] phTree             Handle receiver. Not NULL. Set to
+ * @param[out] phProject             Handle receiver. Not NULL. Set to
  *                                NULLHANDLE on error.
  *
  * @return APIRET
  *
  * @retval NO_ERROR                  Success.
- * @retval ERROR_INVALID_PARAMETER   pszDir or phTree is NULL.
+ * @retval ERROR_INVALID_PARAMETER   pszDir or phProject is NULL.
  * @retval REUSE_ERROR_NO_COMMENT_STYLE
  *                                   pszCommentsConfig is NULL.
  * @retval ERROR_OPEN_FAILED         Directory or comments.toml cannot
@@ -1449,21 +1449,21 @@ PREUSETREEFILE ReuseInternalGetFile(HREUSETREEFILE hFile) {
  * @retval ERROR_INVALID_DATA        comments.toml parse error.
  * @retval ERROR_NOT_ENOUGH_MEMORY   Memory allocation failure.
  *
- * @see ReuseTreeGetError, ReuseCloseTree
+ * @see ReuseProjectGetError, ReuseCloseProject
  */
-APIRET APIENTRY ReuseOpenTree(PCSZ pszDir,
+APIRET APIENTRY ReuseOpenProject(PCSZ pszDir,
                               PCSZ pszCommentsConfig,
-                              HREUSETREE *phTree) {
-    PREUSETREE pd;
+                              HREUSEPROJECT *phProject) {
+    PREUSEPROJECT pd;
     PSZ pszRepoRoot = NULL;
     APIRET rc;
 
-    if (!pszDir || !phTree) return ERROR_INVALID_PARAMETER;
-    *phTree = NULLHANDLE;
+    if (!pszDir || !phProject) return ERROR_INVALID_PARAMETER;
+    *phProject = NULLHANDLE;
 
     if (pszCommentsConfig == NULL) return REUSE_ERROR_NO_COMMENT_STYLE;
 
-    pd = (PREUSETREE)calloc(1, sizeof(REUSETREE));
+    pd = (PREUSEPROJECT)calloc(1, sizeof(REUSEPROJECT));
     if (!pd) return ERROR_NOT_ENOUGH_MEMORY;
 
     pd->pszProjectDir = strdup(pszDir);
@@ -1511,25 +1511,25 @@ APIRET APIENTRY ReuseOpenTree(PCSZ pszDir,
         return ERROR_NOT_ENOUGH_MEMORY;
     }
 
-    *phTree = (HREUSETREE)pd;
+    *phProject = (HREUSEPROJECT)pd;
     return NO_ERROR;
 }
 
 /*!
  * @brief Close a project and release all associated memory.
  *
- * All HREUSETREEFILE handles and REUSEERR records obtained from
+ * All HREUSEPROJECTFILE handles and REUSEERR records obtained from
  * this project become invalid.
- * @param[in] hTree  Handle. NULLHANDLE is a no-op.
+ * @param[in] hProject  Handle. NULLHANDLE is a no-op.
  *
  * @return APIRET
  *
  * @retval NO_ERROR               Success. Also for NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE   Handle not recognized.
  */
-APIRET APIENTRY ReuseCloseTree(HREUSETREE hTree) {
-    PREUSETREE pd = ReuseInternalGetDoc(hTree);
-    if (hTree == NULLHANDLE) return NO_ERROR;
+APIRET APIENTRY ReuseCloseProject(HREUSEPROJECT hProject) {
+    PREUSEPROJECT pd = ReuseInternalGetDoc(hProject);
+    if (hProject == NULLHANDLE) return NO_ERROR;
     if (!pd) return ERROR_INVALID_HANDLE;
     doc_free(pd);
     return NO_ERROR;
@@ -1538,7 +1538,7 @@ APIRET APIENTRY ReuseCloseTree(HREUSETREE hTree) {
 /*!
  * @brief Resolve the comment style for a file.
  *
- * @param[in]  hTree         Handle. Not NULLHANDLE.
+ * @param[in]  hProject         Handle. Not NULLHANDLE.
  * @param[in]  pszFilePath   Path to the file. Not NULL.
  * @param[out] pfFound       Receiver. Not NULL.
  * @param[out] phStyle       Borrowed style handle, or NULLHANDLE.
@@ -1548,13 +1548,13 @@ APIRET APIENTRY ReuseCloseTree(HREUSETREE hTree) {
  *
  * @retval NO_ERROR                 Check completed.
  * @retval ERROR_INVALID_PARAMETER  Bad argument.
- * @retval ERROR_INVALID_HANDLE     hTree is not recognized.
+ * @retval ERROR_INVALID_HANDLE     hProject is not recognized.
  */
-APIRET APIENTRY ReuseQueryTreeCommentStyle(HREUSETREE hTree,
+APIRET APIENTRY ReuseQueryProjectCommentStyle(HREUSEPROJECT hProject,
                                            PCSZ pszFilePath,
                                            PBOOL pfFound,
                                            HREUSECOMMENTSTYLE *phStyle) {
-    PREUSETREE pd = ReuseInternalGetDoc(hTree);
+    PREUSEPROJECT pd = ReuseInternalGetDoc(hProject);
 
     if (pd == NULL || pszFilePath == NULL || pfFound == NULL ||
         phStyle == NULL)
@@ -1570,18 +1570,18 @@ APIRET APIENTRY ReuseQueryTreeCommentStyle(HREUSETREE hTree,
 /*!
  * @brief Query the accumulated in-file tag warnings report.
  *
- * @param[in]  hTree     Handle. Not NULLHANDLE.
+ * @param[in]  hProject     Handle. Not NULLHANDLE.
  * @param[out] phReport  Receiver. Not NULL.
  *
  * @return APIRET
  *
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  Bad argument.
- * @retval ERROR_INVALID_HANDLE     hTree is not recognized.
+ * @retval ERROR_INVALID_HANDLE     hProject is not recognized.
  */
-APIRET APIENTRY ReuseQueryTreeTagsReport(HREUSETREE hTree,
+APIRET APIENTRY ReuseQueryProjectTagsReport(HREUSEPROJECT hProject,
                                          HREUSETAGSREPORT *phReport) {
-    PREUSETREE pd = ReuseInternalGetDoc(hTree);
+    PREUSEPROJECT pd = ReuseInternalGetDoc(hProject);
 
     if (pd == NULL || phReport == NULL) return ERROR_INVALID_PARAMETER;
     *phReport = pd->hReport;
@@ -1591,7 +1591,7 @@ APIRET APIENTRY ReuseQueryTreeTagsReport(HREUSETREE hTree,
 /*!
  * @brief Number of REUSEERR records stored in the project.
  *
- * @param[in]  hTree     Handle. Not NULLHANDLE.
+ * @param[in]  hProject     Handle. Not NULLHANDLE.
  * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
@@ -1600,8 +1600,8 @@ APIRET APIENTRY ReuseQueryTreeTagsReport(HREUSETREE hTree,
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
-APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hTree, PULONG pulCount) {
-    PREUSETREE pd = ReuseInternalGetDoc(hTree);
+APIRET APIENTRY ReuseProjectGetErrorCount(HREUSEPROJECT hProject, PULONG pulCount) {
+    PREUSEPROJECT pd = ReuseInternalGetDoc(hProject);
     if (!pd || !pulCount) return ERROR_INVALID_PARAMETER;
     *pulCount = pd->ulErrorCount;
     return NO_ERROR;
@@ -1612,9 +1612,9 @@ APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hTree, PULONG pulCount) {
  *
  * The returned REUSEERR is a snapshot; string fields point to data
  * owned by the project handle and remain valid until
- * ReuseTreeClose.
+ * REUSEPROJECTClose.
  *
- * @param[in]  hTree    Handle. Not NULLHANDLE.
+ * @param[in]  hProject    Handle. Not NULLHANDLE.
  * @param[in]  ulIndex  Zero-based index.
  * @param[out] pErr     Receiver. Not NULL.
  *
@@ -1625,9 +1625,9 @@ APIRET APIENTRY ReuseTreeGetErrorCount(HREUSETREE hTree, PULONG pulCount) {
  * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  * @retval ERROR_NO_MORE_ITEMS      Index out of range.
  */
-APIRET APIENTRY ReuseTreeGetError(HREUSETREE hTree, ULONG ulIndex,
+APIRET APIENTRY ReuseProjectGetError(HREUSEPROJECT hProject, ULONG ulIndex,
                                   PREUSEERR pErr) {
-    PREUSETREE pd = ReuseInternalGetDoc(hTree);
+    PREUSEPROJECT pd = ReuseInternalGetDoc(hProject);
     if (!pd || !pErr) return ERROR_INVALID_PARAMETER;
     if (ulIndex >= pd->ulErrorCount) return ERROR_NO_MORE_ITEMS;
     *pErr = pd->paErrors[ulIndex];
@@ -1651,7 +1651,7 @@ APIRET APIENTRY ReuseTreeGetError(HREUSETREE hTree, ULONG ulIndex,
  * information. Use ReuseQueryFileSource to distinguish "no sources
  * matched" from "sources matched but were empty".
  *
- * @param[in]  hTree    Handle. Not NULLHANDLE.
+ * @param[in]  hProject    Handle. Not NULLHANDLE.
  * @param[in]  pszPath  Path to the file. Not NULL.
  * @param[out] phFile   Handle receiver. Not NULL.
  * @param[out] pErr     Optional. May be NULL.
@@ -1659,7 +1659,7 @@ APIRET APIENTRY ReuseTreeGetError(HREUSETREE hTree, ULONG ulIndex,
  * @return APIRET
  *
  * @retval NO_ERROR                  Success.
- * @retval ERROR_INVALID_PARAMETER   hTree, pszPath or phFile is NULL.
+ * @retval ERROR_INVALID_PARAMETER   hProject, pszPath or phFile is NULL.
  * @retval ERROR_INVALID_HANDLE      Handle not recognized.
  * @retval ERROR_OPEN_FAILED         File cannot be opened.
  * @retval ERROR_READ_FAULT          Read error.
@@ -1667,11 +1667,11 @@ APIRET APIENTRY ReuseTreeGetError(HREUSETREE hTree, ULONG ulIndex,
  *                                   no [[map]] entry for the file.
  * @retval ERROR_NOT_ENOUGH_MEMORY   Memory allocation failure.
  */
-APIRET APIENTRY ReuseOpenFile(HREUSETREE hTree, PCSZ pszPath,
-                              HREUSETREEFILE *phFile,
+APIRET APIENTRY ReuseOpenFile(HREUSEPROJECT hProject, PCSZ pszPath,
+                              HREUSEPROJECTFILE *phFile,
                               PREUSEERR pErr) {
-    PREUSETREE pd = ReuseInternalGetDoc(hTree);
-    PREUSETREEFILE pFile;
+    PREUSEPROJECT pd = ReuseInternalGetDoc(hProject);
+    PREUSEPROJECTFILE pFile;
     ULONG ulErr = NO_ERROR;
 
     if (!pd || !pszPath || !phFile) return ERROR_INVALID_PARAMETER;
@@ -1693,7 +1693,7 @@ APIRET APIENTRY ReuseOpenFile(HREUSETREE hTree, PCSZ pszPath,
         return ulErr;
     }
 
-    *phFile = (HREUSETREEFILE)pFile;
+    *phFile = (HREUSEPROJECTFILE)pFile;
     return NO_ERROR;
 }
 
@@ -1707,8 +1707,8 @@ APIRET APIENTRY ReuseOpenFile(HREUSETREE hTree, PCSZ pszPath,
  * @retval NO_ERROR               Success. Also for NULLHANDLE.
  * @retval ERROR_INVALID_HANDLE   Handle not recognized.
  */
-APIRET APIENTRY ReuseCloseFile(HREUSETREEFILE hFile) {
-    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+APIRET APIENTRY ReuseCloseFile(HREUSEPROJECTFILE hFile) {
+    PREUSEPROJECTFILE pFile = ReuseInternalGetFile(hFile);
     if (hFile == NULLHANDLE) return NO_ERROR;
     if (!pFile) return ERROR_INVALID_HANDLE;
     safe_free((void**)&pFile->pszLicense);
@@ -1783,10 +1783,10 @@ static APIRET copy_out(PCSZ pszVal, PSZ pszBuf, ULONG ulSize,
  *                                  license.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-APIRET APIENTRY ReuseQueryFileLicense(HREUSETREEFILE hFile,
+APIRET APIENTRY ReuseQueryFileLicense(HREUSEPROJECTFILE hFile,
                                       PSZ pszBuf, ULONG ulSize,
                                       PULONG pulUsed) {
-    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    PREUSEPROJECTFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile) return ERROR_INVALID_PARAMETER;
     return copy_out(pFile->pszLicense, pszBuf, ulSize, pulUsed);
 }
@@ -1809,10 +1809,10 @@ APIRET APIENTRY ReuseQueryFileLicense(HREUSETREEFILE hFile,
  *                                  copyright.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-APIRET APIENTRY ReuseQueryFileCopyright(HREUSETREEFILE hFile,
+APIRET APIENTRY ReuseQueryFileCopyright(HREUSEPROJECTFILE hFile,
                                         PSZ pszBuf, ULONG ulSize,
                                         PULONG pulUsed) {
-    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    PREUSEPROJECTFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile) return ERROR_INVALID_PARAMETER;
     return copy_out(pFile->pszCopyright, pszBuf, ulSize, pulUsed);
 }
@@ -1834,10 +1834,10 @@ APIRET APIENTRY ReuseQueryFileCopyright(HREUSETREEFILE hFile,
  * @retval ERROR_FILE_NOT_FOUND     No contributor was defined.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-APIRET APIENTRY ReuseQueryFileContributors(HREUSETREEFILE hFile,
+APIRET APIENTRY ReuseQueryFileContributors(HREUSEPROJECTFILE hFile,
                                            PSZ pszBuf, ULONG ulSize,
                                            PULONG pulUsed) {
-    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    PREUSEPROJECTFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile) return ERROR_INVALID_PARAMETER;
     return copy_out(pFile->pszContributors, pszBuf, ulSize, pulUsed);
 }
@@ -1857,10 +1857,10 @@ APIRET APIENTRY ReuseQueryFileContributors(HREUSETREEFILE hFile,
  * @retval ERROR_FILE_NOT_FOUND     Field absent.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-APIRET APIENTRY ReuseQueryFilePackageName(HREUSETREEFILE hFile,
+APIRET APIENTRY ReuseQueryFilePackageName(HREUSEPROJECTFILE hFile,
                                           PSZ pszBuf, ULONG ulSize,
                                           PULONG pulUsed) {
-    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    PREUSEPROJECTFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile) return ERROR_INVALID_PARAMETER;
     return copy_out(pFile->pszPackageName, pszBuf, ulSize, pulUsed);
 }
@@ -1880,10 +1880,10 @@ APIRET APIENTRY ReuseQueryFilePackageName(HREUSETREEFILE hFile,
  * @retval ERROR_FILE_NOT_FOUND     Field absent.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-APIRET APIENTRY ReuseQueryFilePackageSupplier(HREUSETREEFILE hFile,
+APIRET APIENTRY ReuseQueryFilePackageSupplier(HREUSEPROJECTFILE hFile,
                                               PSZ pszBuf, ULONG ulSize,
                                               PULONG pulUsed) {
-    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    PREUSEPROJECTFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile) return ERROR_INVALID_PARAMETER;
     return copy_out(pFile->pszPackageSupplier, pszBuf, ulSize, pulUsed);
 }
@@ -1903,10 +1903,10 @@ APIRET APIENTRY ReuseQueryFilePackageSupplier(HREUSETREEFILE hFile,
  * @retval ERROR_FILE_NOT_FOUND     Field absent.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-APIRET APIENTRY ReuseQueryFilePackageDownloadLocation(HREUSETREEFILE hFile,
+APIRET APIENTRY ReuseQueryFilePackageDownloadLocation(HREUSEPROJECTFILE hFile,
                                                       PSZ pszBuf, ULONG ulSize,
                                                       PULONG pulUsed) {
-    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    PREUSEPROJECTFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile) return ERROR_INVALID_PARAMETER;
     return copy_out(pFile->pszPackageDownloadLocation, pszBuf, ulSize,
                     pulUsed);
@@ -1927,10 +1927,10 @@ APIRET APIENTRY ReuseQueryFilePackageDownloadLocation(HREUSETREEFILE hFile,
  * @retval ERROR_FILE_NOT_FOUND     Field absent.
  * @retval ERROR_BUFFER_OVERFLOW    Buffer too small.
  */
-APIRET APIENTRY ReuseQueryFilePackageComment(HREUSETREEFILE hFile,
+APIRET APIENTRY ReuseQueryFilePackageComment(HREUSEPROJECTFILE hFile,
                                              PSZ pszBuf, ULONG ulSize,
                                              PULONG pulUsed) {
-    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    PREUSEPROJECTFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile) return ERROR_INVALID_PARAMETER;
     return copy_out(pFile->pszPackageComment, pszBuf, ulSize, pulUsed);
 }
@@ -1946,9 +1946,9 @@ APIRET APIENTRY ReuseQueryFilePackageComment(HREUSETREEFILE hFile,
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hFile or pulPrecedence is NULL.
  */
-APIRET APIENTRY ReuseQueryFilePrecedence(HREUSETREEFILE hFile,
+APIRET APIENTRY ReuseQueryFilePrecedence(HREUSEPROJECTFILE hFile,
                                          PULONG pulPrecedence) {
-    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    PREUSEPROJECTFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile || !pulPrecedence) return ERROR_INVALID_PARAMETER;
     *pulPrecedence = pFile->ulPrecedence;
     return NO_ERROR;
@@ -1963,7 +1963,7 @@ APIRET APIENTRY ReuseQueryFilePrecedence(HREUSETREEFILE hFile,
  *   REUSE_LICENSE_SRC_SIDECAR  — adjacent .license sidecar;
  *   REUSE_LICENSE_SRC_REUSE    — REUSE.toml or DEP5 annotation.
  *
- * Replaces the former ReuseTreeFileGetHasReuse: a non-NONE value
+ * Replaces the former REUSEPROJECTFILEGetHasReuse: a non-NONE value
  * means at least one source matched.
  *
  * @param[in]  hFile      Handle. Not NULLHANDLE.
@@ -1974,9 +1974,9 @@ APIRET APIENTRY ReuseQueryFilePrecedence(HREUSETREEFILE hFile,
  * @retval NO_ERROR                 Success.
  * @retval ERROR_INVALID_PARAMETER  hFile or pulSource is NULL.
  */
-APIRET APIENTRY ReuseQueryFileSource(HREUSETREEFILE hFile,
+APIRET APIENTRY ReuseQueryFileSource(HREUSEPROJECTFILE hFile,
                                      PULONG pulSource) {
-    PREUSETREEFILE pFile = ReuseInternalGetFile(hFile);
+    PREUSEPROJECTFILE pFile = ReuseInternalGetFile(hFile);
     if (!pFile || !pulSource) return ERROR_INVALID_PARAMETER;
     *pulSource = (ULONG)pFile->nSource;
     return NO_ERROR;

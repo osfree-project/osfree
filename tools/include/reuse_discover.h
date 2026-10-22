@@ -6,7 +6,6 @@
 #include "os2types.h"
 #include "os2err.h"
 #include "ccl.h"
-#include "git.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,16 +13,26 @@ extern "C" {
 
 /**
  * @file reuse_discover.h
- * @brief REUSE file discovery with .gitignore filtering.
+ * @brief REUSE file discovery.
  *
  * Walks a directory tree and collects the set of files that are
- * Covered Files by REUSE 3.3. Applies the REUSE skip rules
- * (LICENSES/, .reuse/, REUSE.toml, .license sidecars, license text
- * files, SPDX documents, VCS directories) and optionally filters
- * by .gitignore rules.
+ * Covered Files by REUSE 3.3, or extracts source file names from a
+ * list of build artifacts (OMF object files and RES resource files).
  *
- * Also supports extracting source file names from OMF object
- * files and OpenWatcom/Borland .res files.
+ * In walk mode, applies the REUSE skip rules (LICENSES/, .reuse/,
+ * REUSE.toml, .license sidecars, license text files, SPDX documents,
+ * VCS directories, hidden files, empty files) and the rules of
+ * .gitignore. The .gitignore rules are applied unconditionally when
+ * pszDir is inside a Git repository, as required by REUSE 3.3
+ * "Covered and ignored Files".
+ *
+ * In artifacts mode, each artifact is passed to the OMF reader and,
+ * if the OMF reader yields no names, to the RES reader. Names
+ * extracted from artifacts are appended to hOut as-is; no path
+ * normalisation is performed. Format detection is heuristic: a RES
+ * file whose first bytes happen to form a valid OMF THEADR record
+ * may be misclassified as OMF. This is rare in practice and does
+ * not affect well-formed artifacts produced by standard toolchains.
  *
  * Conforms to:
  *   - REUSE Specification 3.3.
@@ -32,106 +41,60 @@ extern "C" {
  */
 
 /**
- * @struct _REUSEDISCOVEROPTIONS
- * @brief Walk options.
- */
-typedef struct _REUSEDISCOVEROPTIONS {
-    BOOL  fRecursive;             /**< Recurse into subdirectories. */
-    BOOL  fSkipHidden;            /**< Skip names starting with '.'.*/
-    BOOL  fSkipVcsDirs;           /**< Skip .git/.svn/.hg/.bzr.     */
-    BOOL  fSkipLicensesDir;       /**< Skip LICENSES/.              */
-    BOOL  fSkipReuseDir;          /**< Skip .reuse/.                */
-    BOOL  fSkipLicenseSidecars;   /**< Skip *.license.              */
-    BOOL  fSkipReuseToml;         /**< Skip REUSE.toml.             */
-    BOOL  fSkipLicenseFiles;      /**< Skip LICENSE/COPYING/....    */
-
-    BOOL                 fUseGitignore;   /**< Apply .gitignore rules. */
-    PCSZ                 pszRepoRoot;     /**< Repo root, or NULL.     */
-    const GITIGNORELIST *pGitignoreRules; /**< Rules, or NULL.         */
-} REUSEDISCOVEROPTIONS, *PREUSEDISCOVEROPTIONS;
-
-/**
- * @brief Set walk options to their default values.
+ * @brief Discover source files for a REUSE project.
  *
- * Defaults: recursive = TRUE, all REUSE skip flags = TRUE,
- * use_gitignore = FALSE, repo_root = NULL, gitignore_rules = NULL.
+ * Two modes, selected by @p papszArtifacts and @p ulArtifactCount:
  *
- * @param[out] pOpts  Receiver. Not NULL.
+ *   - Walk mode (@p papszArtifacts is NULL, or @p ulArtifactCount
+ *     is 0): walks @p pszDir, applying the REUSE skip rules and
+ *     .gitignore, and appends every Covered File path to @p hOut.
+ *     The path is @p pszDir joined with the file's path relative
+ *     to it; no further normalisation is performed.
  *
- * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pOpts is NULL.
- */
-APIRET APIENTRY ReuseSetDiscoverOptionsDefault(
-    PREUSEDISCOVEROPTIONS pOpts);
-
-/**
- * @brief Walk a directory tree and collect file paths.
+ *   - Artifacts mode (@p papszArtifacts is not NULL and
+ *     @p ulArtifactCount is greater than 0): reads each artifact,
+ *     tries the OMF reader first and, if it yields no names, the
+ *     RES reader, and appends the source names it carries to
+ *     @p hOut. Names are appended as-is; no path normalisation is
+ *     performed. @p pszDir and @p fRecursive are ignored.
  *
- * @param[in] pszDir  Root directory. Not NULL.
- * @param[in] pOpts   Options. Not NULL.
- * @param[in] hOut    Destination string set. Not NULLHANDLE.
+ * `hOut` is a set: duplicate paths or names are silently dropped.
+ * The caller owns @p hOut and must release it with StrSetDestroy.
+ *
+ * @param[in] pszDir          Target directory. Not NULL. Used only in
+ *                            walk mode.
+ * @param[in] papszArtifacts  Array of artifact paths, or NULL.
+ * @param[in] ulArtifactCount Number of entries in @p papszArtifacts.
+ *                            0 selects walk mode.
+ * @param[in] fRecursive      TRUE to recurse into subdirectories in
+ *                            walk mode. Ignored in artifacts mode.
+ * @param[in] hOut            Destination string set. Not NULLHANDLE.
  *
  * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszDir or pOpts is NULL, or hOut
- *                                  is NULLHANDLE.
- * @retval ERROR_OPEN_FAILED        A directory cannot be opened.
+ *
+ * @retval NO_ERROR                 Walk mode: @p pszDir was
+ *                                  processed (possibly empty).
+ *                                  Artifacts mode: at least one
+ *                                  artifact yielded source names.
+ * @retval ERROR_INVALID_PARAMETER  @p pszDir or @p hOut is NULL, or
+ *                                  @p papszArtifacts is NULL with
+ *                                  non-zero @p ulArtifactCount, or a
+ *                                  @p papszArtifacts element is NULL.
+ * @retval ERROR_OPEN_FAILED        Walk mode: @p pszDir cannot be
+ *                                  opened.
+ * @retval ERROR_FILE_NOT_FOUND     Artifacts mode: none of the
+ *                                  artifacts yielded source names.
+ *                                  Typically means the artifacts
+ *                                  are corrupted, in an unsupported
+ *                                  format, or contain no source
+ *                                  information.
  * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
  */
-APIRET APIENTRY ReuseDiscoverWalkTree(
-    PCSZ pszDir,
-    const REUSEDISCOVEROPTIONS *pOpts,
-    HSTRSET hOut);
-
-/**
- * @brief Collect source names from OMF objects and .res files.
- *
- * @param[in] papszObjectFiles  Array of OMF object paths.
- * @param[in] ulObjectCount     Number of entries.
- * @param[in] papszResFiles     Array of .res paths.
- * @param[in] ulResCount        Number of entries.
- * @param[in] hOut              Destination string set. Not NULLHANDLE.
- *
- * @return APIRET
- * @retval NO_ERROR                 At least one source name found.
- * @retval ERROR_INVALID_PARAMETER  hOut is NULLHANDLE.
- * @retval ERROR_FILE_NOT_FOUND     No source names found in any file.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
- */
-APIRET APIENTRY ReuseDiscoverFromArtifacts(PSZ *papszObjectFiles,
-                                           ULONG ulObjectCount,
-                                           PSZ *papszResFiles,
-                                           ULONG ulResCount,
-                                           HSTRSET hOut);
-
-/**
- * @brief Discover source files in a project.
- *
- * When object or resource artifacts are supplied, source names are
- * extracted from them. Otherwise, the project tree is walked.
- *
- * @param[in] pszProjectDir     Project directory. Not NULL.
- * @param[in] papszObjectFiles  Array of OMF object paths, or NULL.
- * @param[in] ulObjectCount     Number of entries.
- * @param[in] papszResFiles     Array of .res paths, or NULL.
- * @param[in] ulResCount        Number of entries.
- * @param[in] pOpts             Walk options. Not NULL.
- * @param[in] hOut              Destination string set. Not NULLHANDLE.
- *
- * @return APIRET
- * @retval NO_ERROR                 Success.
- * @retval ERROR_INVALID_PARAMETER  pszProjectDir, pOpts is NULL, or
- *                                  hOut is NULLHANDLE.
- * @retval ERROR_OPEN_FAILED        A directory cannot be opened.
- * @retval ERROR_FILE_NOT_FOUND     No sources discovered.
- * @retval ERROR_NOT_ENOUGH_MEMORY  Allocation failure.
- */
-APIRET APIENTRY ReuseDiscover(PCSZ pszProjectDir,
-                              PSZ *papszObjectFiles, ULONG ulObjectCount,
-                              PSZ *papszResFiles, ULONG ulResCount,
-                              const REUSEDISCOVEROPTIONS *pOpts,
-                              HSTRSET hOut);
+APIRET APIENTRY ReuseDiscoverFiles(PCSZ pszDir,
+                                   PCSZ *papszArtifacts,
+                                   ULONG ulArtifactCount,
+                                   BOOL fRecursive,
+                                   HSTRSET hOut);
 
 #ifdef __cplusplus
 }
