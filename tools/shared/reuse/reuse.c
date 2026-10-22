@@ -1122,12 +1122,12 @@ static PSZ join_lines_dedup(PCSZ pszA, PCSZ pszB) {
  *      (override > aggregate > closest).
  *   5. Aggregate in-file sources with the closest/aggregate match.
  *
- * P1: the sidecar is read via ReuseQueryFileTags with a NULLHANDLE
- * style (raw tag-value); the in-file tags are read via
- * ReuseQueryFileTags with the style resolved from the attached
- * comments.toml. When comments.toml was not supplied, or it has no
- * [[map]] entry for the file, REUSE_ERROR_NO_COMMENT_STYLE is
- * returned and the file cannot be processed.
+ * The sidecar is read via ReuseQueryFileTags with a NULLHANDLE style
+ * (raw tag-value); the in-file tags are read via ReuseQueryFileTags
+ * with the style resolved from the attached comments.toml. When
+ * comments.toml was not supplied, or it has no [[map]] entry for the
+ * file, REUSE_ERROR_NO_COMMENT_STYLE is returned and the file cannot
+ * be processed.
  *
  * @param[in]  pd       Project handle. Not NULL.
  * @param[in]  pszPath  Path to the file. Not NULL.
@@ -1570,6 +1570,9 @@ APIRET APIENTRY ReuseQueryProjectCommentStyle(HREUSEPROJECT hProject,
 /*!
  * @brief Query the accumulated in-file tag warnings report.
  *
+ * Returns a BORROWED handle owned by the project, valid until
+ * ReuseCloseProject. Do not call ReuseCloseTagsReport on it.
+ *
  * @param[in]  hProject     Handle. Not NULLHANDLE.
  * @param[out] phReport  Receiver. Not NULL.
  *
@@ -1589,9 +1592,12 @@ APIRET APIENTRY ReuseQueryProjectTagsReport(HREUSEPROJECT hProject,
 }
 
 /*!
- * @brief Number of REUSEERR records stored in the project.
+ * @brief Number of records stored in the project.
  *
- * @param[in]  hProject     Handle. Not NULLHANDLE.
+ * Counts all severity levels (ERROR, WARNING, INFO). Use
+ * ReuseProjectGetError by index to inspect each record's severity.
+ *
+ * @param[in]  hProject    Handle. Not NULLHANDLE.
  * @param[out] pulCount  Receiver. Not NULL.
  *
  * @return APIRET
@@ -1600,7 +1606,8 @@ APIRET APIENTRY ReuseQueryProjectTagsReport(HREUSEPROJECT hProject,
  * @retval ERROR_INVALID_PARAMETER  Any parameter is NULL.
  * @retval ERROR_INVALID_HANDLE     Handle not recognized.
  */
-APIRET APIENTRY ReuseProjectGetErrorCount(HREUSEPROJECT hProject, PULONG pulCount) {
+APIRET APIENTRY ReuseProjectGetRecordCount(HREUSEPROJECT hProject,
+                                           PULONG pulCount) {
     PREUSEPROJECT pd = ReuseInternalGetDoc(hProject);
     if (!pd || !pulCount) return ERROR_INVALID_PARAMETER;
     *pulCount = pd->ulErrorCount;
@@ -1612,7 +1619,7 @@ APIRET APIENTRY ReuseProjectGetErrorCount(HREUSEPROJECT hProject, PULONG pulCoun
  *
  * The returned REUSEERR is a snapshot; string fields point to data
  * owned by the project handle and remain valid until
- * REUSEPROJECTClose.
+ * ReuseCloseProject.
  *
  * @param[in]  hProject    Handle. Not NULLHANDLE.
  * @param[in]  ulIndex  Zero-based index.
@@ -1631,6 +1638,56 @@ APIRET APIENTRY ReuseProjectGetError(HREUSEPROJECT hProject, ULONG ulIndex,
     if (!pd || !pErr) return ERROR_INVALID_PARAMETER;
     if (ulIndex >= pd->ulErrorCount) return ERROR_NO_MORE_ITEMS;
     *pErr = pd->paErrors[ulIndex];
+    return NO_ERROR;
+}
+
+/*!
+ * @brief Retrieve the project root.
+ *
+ * Returns the Git repository root when the target directory is
+ * inside a Git repository, otherwise the target directory itself.
+ *
+ * Size-query convention: pszBuf == NULL && ulSize == 0 returns
+ * required size in *pulUsed.
+ *
+ * @param[in]  hProject    Handle. Not NULLHANDLE.
+ * @param[out] pszBuf   Output buffer. Not NULL unless size-query.
+ * @param[in]  ulSize   Size of pszBuf in bytes.
+ * @param[out] pulUsed  Optional. May be NULL.
+ *
+ * @return APIRET
+ *
+ * @retval NO_ERROR                 Success.
+ * @retval ERROR_INVALID_PARAMETER  hProject is NULLHANDLE, or pszBuf
+ *                                  is NULL without size-query.
+ * @retval ERROR_INVALID_HANDLE     Handle not recognized.
+ * @retval ERROR_FILE_NOT_FOUND     No project root recorded.
+ * @retval ERROR_BUFFER_OVERFLOW    pszBuf too small.
+ */
+APIRET APIENTRY ReuseQueryProjectRoot(HREUSEPROJECT hProject,
+                                      PSZ pszBuf, ULONG ulSize,
+                                      PULONG pulUsed) {
+    PREUSEPROJECT pd = ReuseInternalGetDoc(hProject);
+    PCSZ pszRoot;
+    size_t cbLen;
+
+    if (!pd) return ERROR_INVALID_PARAMETER;
+    pszRoot = pd->pszRepoRoot ? pd->pszRepoRoot : pd->pszProjectDir;
+    if (!pszRoot) return ERROR_FILE_NOT_FOUND;
+    cbLen = strlen(pszRoot);
+
+    if (pszBuf == NULL && ulSize == 0) {
+        if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
+        return NO_ERROR;
+    }
+    if (!pszBuf) return ERROR_INVALID_PARAMETER;
+    if (ulSize < cbLen + 1) {
+        if (pulUsed) *pulUsed = (ULONG)cbLen + 1;
+        return ERROR_BUFFER_OVERFLOW;
+    }
+    memcpy(pszBuf, pszRoot, cbLen);
+    pszBuf[cbLen] = '\0';
+    if (pulUsed) *pulUsed = (ULONG)cbLen;
     return NO_ERROR;
 }
 
@@ -1963,8 +2020,7 @@ APIRET APIENTRY ReuseQueryFilePrecedence(HREUSEPROJECTFILE hFile,
  *   REUSE_LICENSE_SRC_SIDECAR  — adjacent .license sidecar;
  *   REUSE_LICENSE_SRC_REUSE    — REUSE.toml or DEP5 annotation.
  *
- * Replaces the former REUSEPROJECTFILEGetHasReuse: a non-NONE value
- * means at least one source matched.
+ * A non-NONE value means at least one source matched.
  *
  * @param[in]  hFile      Handle. Not NULLHANDLE.
  * @param[out] pulSource  Receiver. Not NULL.

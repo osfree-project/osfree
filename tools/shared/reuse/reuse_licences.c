@@ -14,7 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "reuse_licenses.h"
-#include "reuse_internal.h"
+#include "reuse.h"
+#include "path.h"
 #include "spdx.h"
 #include "spdx_db.h"
 
@@ -361,11 +362,10 @@ static APIRET WriteTextFile(PCSZ pszPath, PCSZ pszText) {
  * @param[in]  pszBase    Project root. Not NULL.
  */
 static void BuildLicensesPath(PSZ pszDst, ULONG ulDstSize, PCSZ pszBase) {
-#ifdef __LINUX__
-    snprintf(pszDst, ulDstSize, "%s/LICENSES", pszBase);
-#else
-    snprintf(pszDst, ulDstSize, "%s\\LICENSES", pszBase);
-#endif
+    if (PathMakeJoin(pszBase, "LICENSES", pszDst, ulDstSize, NULL)
+            != NO_ERROR) {
+        pszDst[0] = '\0';
+    }
 }
 
 /*!
@@ -378,11 +378,14 @@ static void BuildLicensesPath(PSZ pszDst, ULONG ulDstSize, PCSZ pszBase) {
  */
 static void BuildLicenseFilePath(PSZ pszDst, ULONG ulDstSize,
                                  PCSZ pszLicPath, PCSZ pszId) {
-#ifdef __LINUX__
-    snprintf(pszDst, ulDstSize, "%s/%s.txt", pszLicPath, pszId);
-#else
-    snprintf(pszDst, ulDstSize, "%s\\%s.txt", pszLicPath, pszId);
-#endif
+    CHAR achTmp[1200];
+
+    if (PathMakeJoin(pszLicPath, pszId, achTmp, sizeof(achTmp), NULL)
+            != NO_ERROR) {
+        pszDst[0] = '\0';
+        return;
+    }
+    snprintf(pszDst, ulDstSize, "%s.txt", achTmp);
 }
 
 /*!
@@ -418,8 +421,8 @@ static APIRET CollectLicenseNames(PCSZ pszLicPath, HSTRSET hOut) {
         if (strcmp(pEntry->d_name, ".") == 0 ||
             strcmp(pEntry->d_name, "..") == 0) continue;
 
-        snprintf(achFull, sizeof(achFull), "%s/%s",
-                 pszLicPath, pEntry->d_name);
+        PathMakeJoin(pszLicPath, pEntry->d_name, achFull,
+                     sizeof(achFull), NULL);
         if (stat(achFull, &st) != 0) continue;
         if (!S_ISREG(st.st_mode)) continue;
 
@@ -445,8 +448,7 @@ static APIRET CollectLicenseNames(PCSZ pszLicPath, HSTRSET hOut) {
         if (strcmp(fd.name, ".") == 0 || strcmp(fd.name, "..") == 0)
             continue;
 
-        snprintf(achFull, sizeof(achFull), "%s\\%s",
-                 pszLicPath, fd.name);
+        PathMakeJoin(pszLicPath, fd.name, achFull, sizeof(achFull), NULL);
         if (stat(achFull, &st) != 0) continue;
         if (!(st.st_mode & _S_IFREG)) continue;
 
@@ -461,19 +463,22 @@ static APIRET CollectLicenseNames(PCSZ pszLicPath, HSTRSET hOut) {
 /*!
  * @brief Return the project root for the given handle.
  *
- * Uses the git repository root when available, otherwise the
- * directory passed to REUSEPROJECTOpen.
+ * Uses the Git repository root when available, otherwise the
+ * directory passed to ReuseOpenProject.
  *
  * @param[in] hProject  Project handle. Not NULLHANDLE.
  *
  * @return Path owned by the project handle, or NULL on failure.
  *
- * @retval NULL  Handle is not recognized.
+ * @retval NULL  Handle is not recognized, or no root recorded.
  */
 static PCSZ ProjectRoot(HREUSEPROJECT hProject) {
-    PREUSEPROJECT pd = ReuseInternalGetDoc(hProject);
-    if (!pd) return NULL;
-    return pd->pszRepoRoot ? pd->pszRepoRoot : pd->pszProjectDir;
+    static CHAR achBuf[2048];
+    APIRET rc;
+    if (hProject == NULLHANDLE) return NULL;
+    rc = ReuseQueryProjectRoot(hProject, achBuf, sizeof(achBuf), NULL);
+    if (rc != NO_ERROR) return NULL;
+    return achBuf;
 }
 
 /* ==================================================================
@@ -644,13 +649,8 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSEPROJECT hProject,
                         != NO_ERROR)
                     continue;
 
-#ifdef __LINUX__
-                snprintf(achFullPath, sizeof(achFullPath), "%s/%s",
-                         achLicPath, achFname);
-#else
-                snprintf(achFullPath, sizeof(achFullPath), "%s\\%s",
-                         achLicPath, achFname);
-#endif
+                PathMakeJoin(achLicPath, achFname, achFullPath,
+                             sizeof(achFullPath), NULL);
 
                 StripLicenseExt(achFname, achBase, sizeof(achBase));
 
@@ -704,13 +704,8 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSEPROJECT hProject,
                         != NO_ERROR)
                     continue;
 
-#ifdef __LINUX__
-                snprintf(achFullPath, sizeof(achFullPath), "%s/%s",
-                         achLicPath, achFname);
-#else
-                snprintf(achFullPath, sizeof(achFullPath), "%s\\%s",
-                         achLicPath, achFname);
-#endif
+                PathMakeJoin(achLicPath, achFname, achFullPath,
+                             sizeof(achFullPath), NULL);
 
                 StripLicenseExt(achFname, achBase, sizeof(achBase));
 
@@ -810,13 +805,8 @@ APIRET APIENTRY ReuseLicensesValidate(HREUSEPROJECT hProject,
                     else
                         pszActualFname = achLic;
 
-#ifdef __LINUX__
-                    snprintf(achFullPath, sizeof(achFullPath),
-                             "%s/%s", achLicPath, pszActualFname);
-#else
-                    snprintf(achFullPath, sizeof(achFullPath),
-                             "%s\\%s", achLicPath, pszActualFname);
-#endif
+                    PathMakeJoin(achLicPath, pszActualFname, achFullPath,
+                                 sizeof(achFullPath), NULL);
 
                     if (SpdxReadFileAll(achFullPath, achFileText,
                                         ulFileSize, &ulFileSize)

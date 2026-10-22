@@ -260,6 +260,50 @@ static void PrintLicensesReport(HREUSELICENSEREPORT hReport,
 }
 
 /*!
+ * @brief Print every project-level diagnostic record to stderr.
+ *
+ * @param[in]  hProject     Project handle. Not NULLHANDLE.
+ * @param[out] pulErrors    Receiver for the error count. Not NULL.
+ * @param[out] pulWarnings  Receiver for the warning count. Not NULL.
+ */
+static void PrintProjectReport(HREUSEPROJECT hProject,
+                               PULONG pulErrors, PULONG pulWarnings) {
+    ULONG ulCount = 0, ulIdx;
+
+    *pulErrors = 0;
+    *pulWarnings = 0;
+
+    if (hProject == NULLHANDLE) return;
+    if (ReuseProjectGetRecordCount(hProject, &ulCount) != NO_ERROR)
+        return;
+
+    for (ulIdx = 0; ulIdx < ulCount; ulIdx++) {
+        REUSEERR err;
+        PCSZ pszSev;
+
+        if (ReuseProjectGetError(hProject, ulIdx, &err) != NO_ERROR)
+            continue;
+
+        switch (err.ulSeverity) {
+        case REUSE_SEV_ERROR:
+            pszSev = "ERROR"; (*pulErrors)++; break;
+        case REUSE_SEV_WARNING:
+            pszSev = "WARNING"; (*pulWarnings)++; break;
+        default:
+            pszSev = "INFO"; break;
+        }
+
+        if (err.achFile[0] && err.achDetail[0])
+            fprintf(stderr, "%s: %s: %s\n",
+                    pszSev, err.achFile, err.achDetail);
+        else if (err.achFile[0])
+            fprintf(stderr, "%s: %s\n", pszSev, err.achFile);
+        else if (err.achDetail[0])
+            fprintf(stderr, "%s: %s\n", pszSev, err.achDetail);
+    }
+}
+
+/*!
  * @brief Human-readable text for a REUSE_TAGS_* reason code.
  *
  * @param[in] ulCode  One of REUSE_TAGS_*.
@@ -756,10 +800,13 @@ int main(int argc, char *argv[]) {
             SpdxCloseDatabase();
             return 1;
         }
+        fprintf(stderr, "=== Project ===\n");
         {
-            ULONG ulErrs = 0;
-            if (ReuseProjectGetErrorCount(hProject, &ulErrs) == NO_ERROR)
-                g_ulErrorCount += (int)ulErrs;
+            ULONG ulProjErrors = 0;
+            ULONG ulProjWarnings = 0;
+            PrintProjectReport(hProject, &ulProjErrors, &ulProjWarnings);
+            g_ulErrorCount += ulProjErrors;
+            g_ulWarningCount += ulProjWarnings;
         }
     }
 

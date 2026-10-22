@@ -901,9 +901,18 @@ int main(int argc, char *argv[]) {
             return 1;
         }
         {
-            ULONG ulErrs = 0;
-            if (ReuseProjectGetErrorCount(hProject, &ulErrs) == NO_ERROR)
-                ulTotalErrors += ulErrs;
+            ULONG ulTotal = 0;
+            ULONG ulIdx;
+            if (ReuseProjectGetRecordCount(hProject, &ulTotal) == NO_ERROR) {
+                for (ulIdx = 0; ulIdx < ulTotal; ulIdx++) {
+                    REUSEERR err;
+                    if (ReuseProjectGetError(hProject, ulIdx, &err)
+                            != NO_ERROR)
+                        continue;
+                    if (err.ulSeverity == REUSE_SEV_ERROR)
+                        ulTotalErrors++;
+                }
+            }
         }
     }
 
