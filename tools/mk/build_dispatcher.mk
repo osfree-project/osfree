@@ -1,3 +1,4 @@
+# tools/mk/build_dispatcher.mk
 !ifndef __build_dispatcher_mk__
 !define __build_dispatcher_mk__
 
@@ -20,11 +21,13 @@
 #
 # Note: "*" marks TARGET_API/TARGET_BITS used when not explicitly set.
 #       Entries with "--> TABLE" defer to class/subclass sub-tables below.
-#       
 
-# ============================================================
-# PACKAGE (platform-independent)
-# ============================================================
+# -------------------------------------------------------------
+# PACKAGE dispatch (top of file — PACKAGE has no TARGET_BITS,
+# no TARGET_CLASS default, no TARGET_SUBCLASS, no DLL, no TRGT
+# built from an extension: the concrete output is decided by the
+# package builder itself).
+# -------------------------------------------------------------
 !ifeq TARGET_API PACKAGE
 !  ifeq TARGET_CLASS WARPIN
 !    define TARGET_MK build_warppkg
@@ -135,7 +138,6 @@
 # -------------------------------------------------------------
 # Define DLL for DLLs
 # -------------------------------------------------------------
-
 !ifeq TARGET_CLASS LIBRARY
 !  ifeq TARGET_SUBCLASS DYNAMIC
 !    define DLL 1
@@ -569,8 +571,14 @@
 !  error Unknown TARGET_API: $(TARGET_API)
 !endif
 
-!include $(%ROOT)tools/mk/$(TARGET_MK).mk
-
 !endif
+
+# -------------------------------------------------------------
+# NOTE: the include is placed *outside* the PACKAGE/non-PACKAGE
+# split, so $(TARGET_MK).mk is always picked up — for PACKAGE,
+# TARGET_MK was set at the very top, for other APIs it was set
+# inside the platform dispatch above.
+# -------------------------------------------------------------
+!include $(%ROOT)tools/mk/$(TARGET_MK).mk
 
 !endif

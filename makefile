@@ -18,6 +18,7 @@ DIRS = msg &
        DOS &
        OS2 &
        dual &
-       SOM
+       SOM &
+       PKGS
 
 !include $(%ROOT)tools/mk/all.mk

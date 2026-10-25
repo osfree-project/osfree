@@ -291,6 +291,8 @@ DLL_SUFFIX = .so
 
 !endif
 
+COMPRESS = $(%INTERP)compress.exe
+
 #DIR_PWD   = $+ $(%cwd) $-
 #m  = $(MYDIR:$(SEP)$(SEP)=$(SEP))
 #RELDIR       = $(MYDIR:$(ROOT)=)

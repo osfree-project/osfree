@@ -1,6 +1,5 @@
 @echo off
 set root=.
-set verbose=yes
 :loop
 if exist "%root%\tools\mk\all.mk" goto found
 set root=%root%\..

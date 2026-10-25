@@ -4,7 +4,7 @@
 #
 
 
-DIRS = DISK01
+DIRS = DISK02 # DISK01
 
 !include $(%ROOT)tools/mk/build.mk
 

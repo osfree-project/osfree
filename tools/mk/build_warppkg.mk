@@ -2,58 +2,63 @@
 # WarpIn package builder for osFree build system.
 #
 # Called when TARGET_API=PACKAGE, TARGET_CLASS=WARPIN.
-# Requires: PROJ, FILESDIR, BLD
-# Optional: WIS_FILE (default: $(PROJ).wis)
 #
-# Reads:  $(BLD)packages/$(PROJ).map
-# Writes: $(PROJ).wpi in current directory
+# Reads:   $(BLD)packages/$(PROJ).map   (defines pkg_all_files: ...)
+# Writes:  $(FILESDIR)pkgs/$(PROJ).wpi
+#
+# Staging is populated by the map's $(CP) rules (files stay
+# uncompressed), then wic packs the whole STAGING tree into .wpi with
+# internal compression.
 
 !ifndef __build_warppkg_mk__
 !define __build_warppkg_mk__
 
+DEST = none
+
 !include $(%ROOT)tools/mk/dirs.mk
-
-!ifeq UNIX FALSE
-CP  = copy
-SAY = echo
-!else
-CP  = cp
-SAY = echo
-!endif
-
-verbose = $(%VERBOSE)
-!ifeq verbose yes
-verbose =
-!else
-verbose = @
-!endif
+!include $(%ROOT)tools/mk/all.mk
 
 STAGING  = $(FILESDIR)pkgs$(SEP)$(PROJ)
 REGISTRY = $(BLD)packages$(SEP)$(PROJ).map
+WPI      = $(FILESDIR)pkgs$(SEP)$(PROJ).wpi
 
 !ifndef WIS_FILE
 WIS_FILE = $(PROJ).wis
 !endif
 
-all: .SYMBOLIC
+!ifeq UNIX FALSE
+RMDIR = rmdir /s /q
+!else
+RMDIR = rm -rf
+!endif
+
+TARGETS =
+
+prereq: pkgprep
+
+pkgprep: .SYMBOLIC
     @$(MDHIER) $(BLD)packages
     @if not exist $(REGISTRY) @%create $(REGISTRY)
     @$(MDHIER) $(FILESDIR)pkgs
     @$(MDHIER) $(STAGING)
-    @$(MAKE) $(MAKEOPT) pkgfile=$(REGISTRY) wpi_inner
+!ifndef pkgfile
+    @$(MAKE) $(MAKEOPT) pkgfile=$(REGISTRY) stagedir
+!endif
 
 !ifdef pkgfile
 !include $(pkgfile)
-!endif
 
-!ifdef pkgfile
-!ifndef PKG_TARGETS
-!error No components registered in package $(PROJ). Registry: $(pkgfile)
-!endif
-
-wpi_inner: $(PKG_TARGETS) .SYMBOLIC
+stagedir: pkg_all_files .SYMBOLIC
     @$(SAY) WPI      $(PROJ).wpi
-    $(verbose)wic $(PROJ).wpi 1 -c$(STAGING) -r * -s $(WIS_FILE)
+    $(verbose)wic $(WPI) 1 -c$(STAGING) -r * -s $(MYDIR)$(WIS_FILE)
 !endif
+
+clean: pkgclean .symbolic
+
+pkgclean: .SYMBOLIC
+    @$(SAY) CLEAN    package $(PROJ)
+    $(verbose)if exist $(STAGING) $(verbose)$(RMDIR) $(STAGING) $(BLACKHOLE)
+    $(verbose)if exist $(REGISTRY) $(verbose)$(DC) $(REGISTRY) $(BLACKHOLE)
+    $(verbose)if exist $(WPI) $(verbose)$(DC) $(WPI) $(BLACKHOLE)
 
 !endif

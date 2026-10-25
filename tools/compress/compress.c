@@ -30,6 +30,12 @@
 #include <string.h>
 #include <stdint.h>
 
+/* Open Watcom 1.9 defines O_BINARY in <fcntl.h> for -bt=nt and -bt=os2.
+ * POSIX (Linux) has no such flag, so 0 is the correct fallback. */
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
+
 extern char *version_string;
 
 #define BSWAP32(x)             ((((x)&0xFF)<<24)+(((x)<<8)&0xFF0000)+\
@@ -49,6 +55,8 @@ char *buffer;
 int *node;
 int pos;
 
+/* Open Watcom's <stdlib.h> defines max/min for C. Use those if present;
+ * provide our own where they are not (e.g. Linux/POSIX). */
 #ifndef max
 #define max(x,y) ((x)>(y)?(x):(y))
 #endif
@@ -300,10 +308,13 @@ compress (int in, char *inname, int out, char *outname)
 void
 usage (char *progname)
 {
-  printf ("Usage: %s [-h] [-V] [file ...]\n"
+  printf ("Usage: %s [-h] [-V] INPUT OUTPUT\n"
 	  " -h --help        give this help\n"
 	  " -V --version     display version number\n"
-	  " file...          files to compress."
+	  " INPUT            file to compress\n"
+	  " OUTPUT           compressed file (overwritten if it exists)\n"
+	  "\n"
+	  "Output is SZDD (EXPAND.EXE compatible). File names are not mangled.\n"
 	  "\n"
 	  "Report bugs to <mhi@penguin.cz>\n", progname);
   exit (0);
@@ -315,7 +326,6 @@ main (int argc, char **argv)
   int in, out;
   char *argv0;
   int c;
-  char name[0x100];
 
   argv0 = argv[0];
 
@@ -327,7 +337,7 @@ main (int argc, char **argv)
 	  usage (argv0);
 	case 'V':
 	  printf ("mscompress version %s "__DATE__ " \n",
-			version_string);
+		  version_string);
 	  return 0;
 	default:
 	  usage (argv0);
@@ -337,46 +347,36 @@ main (int argc, char **argv)
   argc -= optind;
   argv += optind;
 
-  if (argc == 0)
+  if (argc != 2)
     {
-      fprintf (stderr, "%s: No files specified\n", argv0);
+      fprintf (stderr, "%s: expected INPUT and OUTPUT filenames\n", argv0);
       usage (argv0);
     }
 
-  while (argc)
+  in = open (argv[0], O_RDONLY | O_BINARY);
+  if (in < 0)
     {
-      if (argv[0][strlen (argv[0]) - 1] == '_')
-	{
-	  fprintf (stderr, "%s: Already ends with underscore -- ignored\n", argv[0]);
-	  argc--;
-	  argv++;
-	  continue;
-	}
+      perror (argv[0]);
+      return 1;
+    }
 
-      in = open (argv[0], O_RDONLY);
-      if (in < 0)
-	{
-	  perror (argv[0]);
-	  return 1;
-	}
+  out = open (argv[1], O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+  if (out < 0)
+    {
+      perror (argv[1]);
+      close (in);
+      return 1;
+    }
 
-      strcpy (name, argv[0]);
-      strcat (name, "_");
-
-      out = open (name, O_WRONLY | O_CREAT | O_EXCL, 0644);
-      if (out < 0)
-	{
-	  perror (name);
-	  return 1;
-	}
-
-      compress (in, argv[0], out, name);
+  if (compress (in, argv[0], out, argv[1]) < 0)
+    {
       close (in);
       close (out);
-
-      argc--;
-      argv++;
+      return 1;
     }
+
+  close (in);
+  close (out);
 
   return 0;
 }
