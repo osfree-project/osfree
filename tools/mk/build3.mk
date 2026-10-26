@@ -107,7 +107,8 @@ __generating_register_project = 1
  @%append $(BLD)packages$(SEP)$(pkg).map PKG_TARGETS+= $$(STAGING)$(SEP)$$(pkg_$(TT_PKG2)_trg)
  @%append $(BLD)packages$(SEP)$(pkg).map !ifndef __generating_register_project
  @%append $(BLD)packages$(SEP)$(pkg).map $$(STAGING)$(SEP)$$(pkg_$(TT_PKG2)_trg): $$(pkg_$(TT_PKG2)_src)
- @%append $(BLD)packages$(SEP)$(pkg).map 	$$(CP) $$< $$@
+ @%append $(BLD)packages$(SEP)$(pkg).map 	$$(verbose)$$(SAY) $$(CPMSG) $$^.
+ @%append $(BLD)packages$(SEP)$(pkg).map 	$$(verbose)$$(CP) $$< $$@
  @%append $(BLD)packages$(SEP)$(pkg).map !endif
 !endif
 !endif

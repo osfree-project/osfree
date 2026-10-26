@@ -33,7 +33,7 @@ DEST = none
 !include $(%ROOT)tools/mk/dirs.mk
 !include $(%ROOT)tools/mk/all.mk
 
-STAGING  = $(FILESDIR)pkgs$(SEP)$(PROJ)
+STAGING  = $(FILESDIR)pkgs$(SEP)$(PROJ)$(SEP)
 REGISTRY = $(BLD)packages$(SEP)$(PROJ).map
 
 !ifeq UNIX FALSE
@@ -42,37 +42,53 @@ RMDIR = rmdir /s /q
 RMDIR = rm -rf
 !endif
 
+!ifndef DONT_COMPRESS
+DONT_COMPRESS =
+!endif
+
 # for SETUP: CP means compress, COPY keeps the original copy
-COPY = $(CP)
-CP   = $(COMPRESS)
+COPY =$+$(CP)$-
+CP   =$(COMPRESS)
+CPMSG = COMPRESS
 
 TARGETS =
 
 prereq: pkgprep
 
 pkgprep: .SYMBOLIC
-    @$(MDHIER) $(BLD)packages
-    @if not exist $(REGISTRY) @%create $(REGISTRY)
-    @$(MDHIER) $(FILESDIR)pkgs
-    @$(MDHIER) $(STAGING)
+    $(verbose)$(MDHIER) $(BLD)packages
+    $(verbose)if not exist $(REGISTRY) @%create $(REGISTRY)
+    $(verbose)$(MDHIER) $(FILESDIR)pkgs
+    $(verbose)$(MDHIER) $(STAGING)
 !ifndef pkgfile
-    @$(MAKE) $(MAKEOPT) pkgfile=$(REGISTRY) stagedir
+    $(verbose)$(MAKE) $(MAKEOPT) pkgfile=$(REGISTRY) stagedir
 !endif
 
 !ifdef pkgfile
 !include $(pkgfile)
 
 stagedir: $(PKG_TARGETS) .SYMBOLIC
-    @if exist $(MYDIR)setup.inf $(COPY) $(MYDIR)setup.inf $(STAGING)
-    @if exist $(MYDIR)setup.exe $(COPY) $(MYDIR)setup.exe $(STAGING)
-    @$(SAY) SETUP    $(PROJ) ready
+    $(verbose)if exist $(MYDIR)setup.inf $(verbose)$(SAY) CP       setup.inf $(LOG)
+    $(verbose)if exist $(MYDIR)setup.inf $(verbose)$(COPY) $(MYDIR)setup.inf $(STAGING) $(BLACKHOLE)
+!ifdef DONT_COMPRESS
+    @for %f in ($(DONT_COMPRESS)) do @$(MAKE) $(MAKEOPT) pkgfile=$(pkgfile) asis=%f asis_one
 !endif
+    $(verbose)$(SAY) SETUP    $(PROJ) ready
+
+
+asis_one: .SYMBOLIC
+_asis_key1 = $(asis:.=_)
+_asis_key2 = $(_asis_key1:-=_)
+    $(verbose)if exist "$(pkg_$(_asis_key2)_src)" $(verbose)$(SAY) CP       $(asis) $(LOG)
+    $(verbose)if exist "$(pkg_$(_asis_key2)_src)" $(verbose)$(COPY) "$(pkg_$(_asis_key2)_src)" "$(STAGING)$(asis)" $(BLACKHOLE)
 
 clean: pkgclean .symbolic
 
 pkgclean: .SYMBOLIC
-    @$(SAY) CLEAN    package $(PROJ)
+    $(verbose)$(SAY) CLEAN    package $(PROJ)
     $(verbose)if exist $(STAGING) $(verbose)$(RMDIR) $(STAGING) $(BLACKHOLE)
     $(verbose)if exist $(REGISTRY) $(verbose)$(DC) $(REGISTRY) $(BLACKHOLE)
+
+!endif
 
 !endif

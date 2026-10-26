@@ -1,4 +1,5 @@
-TARGET_CLASS = SETUP
-PROJ = DISK01
+PROJECT       = DISK01
+TARGET_CLASS  = SETUP
+DONT_COMPRESS = win.cnf
 
 !include $(%ROOT)\tools\mk\build.mk
