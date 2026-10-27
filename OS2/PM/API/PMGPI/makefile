@@ -1,7 +1,6 @@
 #
 # A Makefile for pmdgpi.dll
-# (c) osFree project,
-# author, date
+# (c) osFree project
 #
 
 PROJ = pmgpi

@@ -33,23 +33,14 @@ HRGN   APIENTRY GpiCreateRoundRectRegion(HPS hps, PPOINTL pptlPt, LONG lHround, 
 
 #include "gpi32dev.c"
 #include "gpi32lines.c"
+#include "gpi32paths.c"
 
 BOOL   APIENTRY GpiAssociate(HPS hps, HDC hdc)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiBeginArea(HPS hps, ULONG flOptions)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL  APIENTRY GpiBeginElement(HPS a, LONG b, PSZ c)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiBeginPath(HPS hps,LONG a)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -75,11 +66,6 @@ LONG   APIENTRY GpiCharString(HPS hps, LONG lCount, PCH pchString)
 }
 
 LONG   APIENTRY GpiCharStringAt(HPS hps, PPOINTL pptlPoint, LONG lCount, PCH pchString)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiCloseFigure(HPS hps)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -204,20 +190,11 @@ LONG  APIENTRY GpiElement(HPS a, LONG b, PSZ c, LONG d, PBYTE e)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiEndArea(HPS hps)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL  APIENTRY GpiEndElement(HPS a)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiEndPath(HPS hps)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 LONG   APIENTRY GpiEqualRegion(HPS hps, HRGN hrgnSrc1, HRGN hrgnSrc2)
 {
@@ -236,11 +213,6 @@ ULONG APIENTRY GpiErrorSegmentData(void)
 }
 
 LONG   APIENTRY GpiExcludeClipRectangle(HPS hps, PRECTL prclRectangle)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY GpiFillPath(HPS hps,LONG a,LONG b)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -286,11 +258,6 @@ HMF    APIENTRY GpiLoadMetaFile(HAB hab,PCSZ pcsz)
 }
 
 LONG   APIENTRY GpiMarker(HPS hps,PPOINTL a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiModifyPath(HPS hps,LONG a,LONG b)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -832,10 +799,6 @@ BOOL   APIENTRY GpiSetCharShear(HPS hps,PPOINTL a)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetClipPath(HPS hps,LONG a,LONG b)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 LONG   APIENTRY GpiSetClipRegion(HPS hps, HRGN hrgn, PHRGN phrgnOld)
 {
@@ -1017,11 +980,6 @@ BOOL   APIENTRY GpiSetViewingTransformMatrix(HPS hps,LONG a,PMATRIXLF b,LONG c)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiStrokePath(HPS hps,LONG a,ULONG b)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL  APIENTRY GpiUnloadFonts(HAB hab,PCSZ a)
 {
   return unimplemented(__FUNCTION__);
@@ -1049,11 +1007,6 @@ BOOL   APIENTRY GpiSuspendPlay(HPS hps)
 }
 
 BOOL   APIENTRY GpiResumePlay(HPS hps)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY GpiOutlinePath(HPS hps,LONG a,LONG b)
 {
   return unimplemented(__FUNCTION__);
 }

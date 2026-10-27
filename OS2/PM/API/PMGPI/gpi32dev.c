@@ -15,7 +15,6 @@ HMF    APIENTRY DevCloseDC(HDC hdc)
 /*
   Documentation: http://www.edm2.com/index.php/GreOpenDC
 */
-
 HDC    APIENTRY DevOpenDC(HAB hab,LONG a,PCSZ b,LONG c,PDEVOPENDATA d,HDC hdc)
 {
    return GreOpenDC(hdc, a, b, c, d);

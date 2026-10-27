@@ -31,5 +31,3 @@ DEST = os2
 
 !include $(%ROOT)tools/mk/appsos2_fpm.mk
 
-#TARGETS = subdirs $(PATH)$(PROJ).dll
-#TARGET  = all
