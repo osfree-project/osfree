@@ -1,20 +1,46 @@
 #ifndef PS_H_INCLUDED
 #define PS_H_INCLUDED
 
-/*
- * <os2.h> уже подт€гивает:
- *   os2def.h   Ч ERRORID, MAKEERRORID, SEVERITY_*, HPS, HDC, BOOL, ULONG, SIZEL
- *   bse.h      Ч base system
- *   pm.h -> pmwin.h, pmgpi.h, pmdev.h, pmwp.h, pmstddlg.h
- *              Ч PSIZEL, DM_DRAW / DM_RETAIN / DM_DRAWANDRETAIN,
- *                GPI_OK / GPI_HITS / GPI_ERROR
- *   pmerr.h    Ч PMERR_* (при INCL_WINERRORS / INCL_PM)
- */
-#define INCL_PM
-#define INCL_GPIERRORS
-#include <os2.h>
-
 #define PS_MAGIC            0x50535153UL  /* 'PSSQ' */
+
+#ifndef SEGEM_ERROR
+/* edit modes used by GpiSet/QueryEditMode */
+#define SEGEM_ERROR                         0L
+#define SEGEM_INSERT                        1L
+#define SEGEM_REPLACE                       2L
+#endif
+
+/*!
+   @brief One recorded segment element.
+
+   lType is a GOCA order code (OCODE_*) from <pmord.h>, or a user-
+   defined element type > 0xFF passed to GpiElement. abData holds
+   [LONG lCount][item0]...[itemN-1] where each item is cbItemSize bytes.
+   This is NOT the on-disk GOCA format Ч it is a compact internal
+   representation sufficient for replay via Gre* APIs.
+*/
+typedef struct _ELEMENT {
+    struct _ELEMENT *next;
+    LONG   lType;      /* OCODE_* from <pmord.h>; > 0xFF for user elements */
+    LONG   lCount;
+    LONG   cbData;
+    BYTE   abData[1];
+} ELEMENT, *PELEMENT;
+
+typedef struct _SEGMENT {
+    struct _SEGMENT *next;
+    LONG     lSegId;
+    ULONG    ulAttrs;
+    PELEMENT firstElement;
+    PELEMENT lastElement;
+    PELEMENT currentElement;
+    LONG     lElementCount;
+} SEGMENT, *PSEGMENT;
+
+#define PS_IS_RECORDING(m)  ((m) == DM_RETAIN || (m) == DM_DRAWANDRETAIN)
+#define PS_IS_DRAWING(m)    ((m) == DM_DRAW   || (m) == DM_DRAWANDRETAIN)
+
+
 
 /*!
    @brief Presentation space (PS) instance data.
@@ -24,23 +50,18 @@
    correlation) is held by the presentation driver in its DC instance
    data. The Gre* DDI macros in pmddim.h pass 0L for pInstance; the
    graphics engine substitutes the correct instance data by hdc.
-
-   @todo: see struct  F_PS in FreePM.hpp. We must make in sync.
 */
 typedef struct _PS {
-    ULONG   ulMagic;          /*!< PS_MAGIC Ч validation */
-    HPS     hpsSelf;          /*!< self-reference */
-    HDC     hdc;              /*!< associated DC; 0 = no association */
-    ULONG   ulDrawingMode;    /*!< DM_DRAW / DM_RETAIN / DM_DRAWANDRETAIN */
+    ULONG    ulMagic;          /*!< PS_MAGIC Ч validation */
+    HPS      hpsSelf;          /*!< self-reference */
+    HDC      hdc;              /*!< associated DC; 0 = no association */
+    ULONG    ulDrawingMode;    /*!< DM_DRAW / DM_RETAIN / DM_DRAWANDRETAIN */
 
-    /* TODO по мере реализации:
-     *   SIZEL          sizlSize;
-     *   ULONG          ulPageUnits;      (PU_*)
-     *   SegmentList    segList;          (GpiOpenSegment/CloseSegment)
-     *   SaveStack      saveStack;        (GpiSavePS/RestorePS)
-     *   ULONG          ulFlagsArea;      (in-area state)
-     *   ULONG          ulFlagsPath;      (in-path state)
-     */
+    /* Segment support */
+    PSEGMENT firstSegment;
+    PSEGMENT pOpenSegment;
+    ULONG    ulEditMode;
+    ULONG    ulInitialSegAttrs;
 } PS, *PPS;
 
 #define PS_FROM_HPS(h)  ((PPS)(h))
@@ -58,5 +79,18 @@ typedef struct _PS {
    @return Pointer to PS, or NULL if hps is not a valid PS handle.
 */
 PPS LookupPS(HPS hps);
+
+/* Segment internals (implemented in segments.c) */
+PSEGMENT CreateSegment(PPS pps, LONG lSegId, ULONG ulAttrs);
+PSEGMENT FindSegment(PPS pps, LONG lSegId);
+void     FreeSegmentElements(PSEGMENT seg);
+void     FreeAllSegments(PPS pps);
+BOOL RecordElement(PPS pps, LONG lType, LONG lCount, LONG cbData,
+                   const void *pData);
+BOOL RecordCharStringPos(PPS pps, ULONG flOptions, LONG cChars,
+                         PCH pchString, PRECTL prclRect, PLONG pAdx);
+BOOL RecordPolyFilletSharp(PPS pps, LONG lCount, PPOINTL aptlPoints,
+                           PFIXED afxSharp);
+BOOL     ReplaySegment(PPS pps, PSEGMENT seg);
 
 #endif /* PS_H_INCLUDED */

@@ -28,5 +28,29 @@
    #define INCL_GRE_XFORMS
 #endif /* INCL_GREALL */
 
+#ifdef INCL_GRE_ARCS
+
+typedef LONG PHID;
+
+typedef struct _BOXPARAMS
+{
+  POINTL ptl;
+  SIZEL  sizl;
+} BOXPARAMS, *PBOXPARAMS;
+
+#endif /* INCL_GRE_ARCS */
+
+#define CHS_START_XY                    0x00000020L
+#define CHS_ATTR_INFO                   0x00000040L
+
+typedef struct _CSP_INFO
+{
+  LONG  cSize;
+  LONG  lColor;
+  LONG  lBackColor;
+} CSP_INFO, *PCSP_INFO;
+
+
+
 #include <pmddim.h>
 

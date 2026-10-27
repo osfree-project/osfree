@@ -1,8 +1,8 @@
 #ifndef GPI32DEV_INCLUDED
 #define GPI32DEV_INCLUDED
 
-#define INCL_GREALL
-#include <pmddi.h>
+//#define INCL_GREALL
+//#include <pmddi.h>
 
 /*
   Documentation: http://www.edm2.com/index.php/GreCloseDC

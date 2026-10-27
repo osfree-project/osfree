@@ -81,13 +81,14 @@ HPS APIENTRY GpiCreatePS(HAB hab, HDC hdc, PSIZEL psizlSize, ULONG flOptions)
         return (HPS)0;
     }
 
-    pps->ulMagic       = PS_MAGIC;
-    pps->hpsSelf       = HPS_FROM_PS(pps);
-    pps->hdc           = (HDC)0;
-    pps->ulDrawingMode = DM_DRAW;
-
-    /* TODO: сохранить psizlSize и page units (flOptions & PU_*).
-       TODO: инициализировать пустой список сегментов, save stack. */
+    pps->ulMagic           = PS_MAGIC;
+    pps->hpsSelf           = HPS_FROM_PS(pps);
+    pps->hdc               = (HDC)0;
+    pps->ulDrawingMode     = DM_DRAW;
+    pps->firstSegment      = NULL;
+    pps->pOpenSegment      = NULL;
+    pps->ulEditMode        = SEGEM_INSERT;
+    pps->ulInitialSegAttrs = ATTR_CHAINED | ATTR_VISIBLE;
 
     if (hdc != (HDC)0) {
         if (!GpiAssociate(HPS_FROM_PS(pps), hdc)) {
@@ -148,8 +149,7 @@ BOOL APIENTRY GpiDestroyPS(HPS hps)
     }
 
     pps->hdc = (HDC)0;
-
-    /* TODO: освободить сегменты, save stack, прочие ресурсы. */
+    FreeAllSegments(pps);
 
     pps->ulMagic = 0;
     pps->hpsSelf = (HPS)0;

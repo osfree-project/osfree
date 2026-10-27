@@ -20,7 +20,32 @@
  */
 
 // OS/2 includes must be from OS/2 2.1 or higher for correct building.
+#define INCL_PM
 #include <os2.h>
+
+#include <ps.h>
+
+// Прототипы, отсутствующие в OpenWatcom 1.9 версии pmgpi.h
+// (необходимы для подавления W131 в gpi16segediting.c и gpi16primitives.c)
+
+// Группа INCL_GPISEGEDITING
+BOOL APIENTRY GpiBeginElement(HPS, LONG, PSZ);
+LONG APIENTRY GpiQueryEditMode(HPS);
+BOOL APIENTRY GpiSetElementPointer(HPS, LONG);
+LONG APIENTRY GpiQueryElementPointer(HPS);
+BOOL APIENTRY GpiOffsetElementPointer(HPS, LONG);
+BOOL APIENTRY GpiDeleteElement(HPS);
+BOOL APIENTRY GpiDeleteElementRange(HPS, LONG, LONG);
+BOOL APIENTRY GpiLabel(HPS, LONG);
+BOOL APIENTRY GpiSetElementPointerAtLabel(HPS, LONG);
+BOOL APIENTRY GpiDeleteElementsBetweenLabels(HPS, LONG, LONG);
+LONG APIENTRY GpiQueryElementType(HPS, PLONG, LONG, PSZ);
+LONG APIENTRY GpiQueryElement(HPS, LONG, LONG, PBYTE);
+LONG APIENTRY GpiElement(HPS, LONG, PSZ, LONG, PBYTE);
+BOOL APIENTRY GpiEndElement(HPS);
+
+// GpiQueryArcParams (отсутствует в данной версии pmgpi.h)
+BOOL APIENTRY GpiQueryArcParams(HPS, PARCPARAMS);
 
 // Private defines
 #include "unimpl.h"

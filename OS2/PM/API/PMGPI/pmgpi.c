@@ -14,32 +14,25 @@
 
 #define INCL_PM
 #define INCL_GPIERRORS
-//#define INCL_DEV
-#define INCL_GREALL
 #include <os2.h>
-#include "pmddi.h"
-#include "unimpl.h"
 
-/*
-ULONG APIENTRY GpiQueryFontMappingFlags(HPS);
-BOOL  APIENTRY GpiQueryRasterizerCaps(PRASTERIZERCAPS);
-ULONG APIENTRY GpiSetFontMappingFlags(HPS,ULONG);
-LONG   APIENTRY GpiQueryNearestPaletteIndex(HPAL,ULONG);
-ULONG  APIENTRY GpiResizePalette(HPAL,ULONG);
-LONG   APIENTRY GpiOval(HPS,PPOINTL,FIXED,FIXED,ULONG);
-LONG   APIENTRY GpiQueryTabbedTextExtent(HPS,LONG,PCH,LONG,PULONG);
-LONG   APIENTRY GpiTabbedCharStringAt(HPS,PPOINTL,PRECTL,ULONG,LONG,PCH,LONG,PULONG,LONG);
-HRGN   APIENTRY GpiCreateEllipticRegion(HPS hps, PRECTL prclRect);
-HRGN   APIENTRY GpiCreateRoundRectRegion(HPS hps, PPOINTL pptlPt, LONG lHround, LONG lVRound);
-*/
+#define INCL_DEV
+#define INCL_GREALL
+#include "pmddi.h"
+#include "pmord.h"
+
+#include "unimpl.h"
 
 #include "ps.h"
 #include "ps.c"
+
+#include "segments.c"
 
 #include "gpi32dev.c"
 #include "gpi32lines.c"
 #include "gpi32paths.c"
 #include "gpi32primitives.c"
+#include "gpi32segments.c"
 
 BOOL  APIENTRY GpiBeginElement(HPS a, LONG b, PSZ c)
 {
@@ -52,11 +45,6 @@ LONG    APIENTRY GpiBitBlt(HPS hps,HPS hps2,LONG a,PPOINTL b,LONG c,ULONG d)
 }
 
 LONG   APIENTRY GpiCallSegmentMatrix(HPS hps,LONG a,LONG b,PMATRIXLF c,LONG d)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiCloseSegment(HPS hps)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -121,22 +109,7 @@ BOOL   APIENTRY GpiDeleteMetaFile(HMF hmf)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiDeleteSegment(HPS hps,LONG a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiDeleteSegments(HPS hps,LONG a,LONG b)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL  APIENTRY GpiDeleteSetId(HPS hps,LONG a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiDrawChain(HPS hps)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -151,21 +124,10 @@ BOOL   APIENTRY GpiDrawFrom(HPS hps,LONG a,LONG b)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiDrawSegment(HPS hps,LONG a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG  APIENTRY GpiElement(HPS a, LONG b, PSZ c, LONG d, PBYTE e)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL  APIENTRY GpiEndElement(HPS a)
 {
   return unimplemented(__FUNCTION__);
 }
-
 
 LONG   APIENTRY GpiEqualRegion(HPS hps, HRGN hrgnSrc1, HRGN hrgnSrc2)
 {
@@ -203,11 +165,6 @@ LONG   APIENTRY GpiIntersectClipRectangle(HPS hps, PRECTL prclRectangle)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL  APIENTRY GpiLabel(HPS a, LONG b)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL  APIENTRY GpiLoadFonts(HAB hab,PCSZ pcsz)
 {
   return unimplemented(__FUNCTION__);
@@ -218,23 +175,12 @@ HMF    APIENTRY GpiLoadMetaFile(HAB hab,PCSZ pcsz)
   return unimplemented(__FUNCTION__);
 }
 
-
 LONG   APIENTRY GpiOffsetClipRegion(HPS hps, PPOINTL pptlPoint)
 {
   return unimplemented(__FUNCTION__);
 }
 
-BOOL  APIENTRY GpiOffsetElementPointer(HPS a, LONG b)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL   APIENTRY GpiOffsetRegion(HPS hps, HRGN Hrgn, PPOINTL pptlOffset)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiOpenSegment(HPS hps,LONG a)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -364,7 +310,6 @@ ULONG APIENTRY GpiQueryCp(HPS hps)
   return unimplemented(__FUNCTION__);
 }
 
-
 BOOL   APIENTRY GpiQueryDefCharBox(HPS hps,PSIZEL a)
 {
   return unimplemented(__FUNCTION__);
@@ -385,17 +330,7 @@ LONG   APIENTRY GpiQueryDrawControl(HPS hps,LONG a)
   return unimplemented(__FUNCTION__);
 }
 
-LONG  APIENTRY GpiQueryEditMode(HPS a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 LONG  APIENTRY GpiQueryElement(HPS a, LONG b, LONG c, PBYTE d)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG  APIENTRY GpiQueryElementPointer(HPS a)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -416,11 +351,6 @@ BOOL  APIENTRY GpiQueryFontMetrics(HPS hps,LONG a,PFONTMETRICS b)
 }
 
 BOOL   APIENTRY GpiQueryGraphicsField(HPS hps,PRECTL a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY GpiQueryInitialSegmentAttrs(HPS hps,LONG a)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -555,15 +485,6 @@ LONG   APIENTRY GpiQueryRegionBox(HPS hps, HRGN hrgn, PRECTL prclBound)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiQuerySegmentAttrs(HPS hps,LONG a,LONG b)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY GpiQuerySegmentNames(HPS hps,LONG a,LONG b,LONG c,PLONG d)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 LONG   APIENTRY GpiQuerySegmentPriority(HPS hps,LONG a,LONG b)
 {
@@ -715,7 +636,6 @@ BOOL   APIENTRY GpiSetCharShear(HPS hps,PPOINTL a)
   return unimplemented(__FUNCTION__);
 }
 
-
 LONG   APIENTRY GpiSetClipRegion(HPS hps, HRGN hrgn, PHRGN phrgnOld)
 {
   return unimplemented(__FUNCTION__);
@@ -741,27 +661,7 @@ BOOL   APIENTRY GpiSetDrawControl(HPS hps,LONG a,LONG b)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL  APIENTRY GpiSetEditMode(HPS a, LONG b)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL APIENTRY GpiSetElementPointer(HPS a, LONG b)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL APIENTRY GpiSetElementPointerAtLabel(HPS a, LONG b)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL   APIENTRY GpiSetGraphicsField(HPS hps,PRECTL a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiSetInitialSegmentAttrs(HPS hps,LONG a,LONG b)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -861,11 +761,6 @@ BOOL   APIENTRY GpiSetRegion(HPS hps, HRGN hrgn, LONG lcount, PRECTL arclRectang
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetSegmentAttrs(HPS hps,LONG a,LONG b,LONG c)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL   APIENTRY GpiSetSegmentPriority(HPS hps,LONG a,LONG b,LONG c)
 {
   return unimplemented(__FUNCTION__);
@@ -900,7 +795,6 @@ LONG    APIENTRY GpiWCBitBlt(HPS hps,HBITMAP a,LONG f,PPOINTL b,LONG c,ULONG d)
 {
   return unimplemented(__FUNCTION__);
 }
-
 
 HRGN   APIENTRY GpiPathToRegion(HPS hps,LONG a,LONG b)
 {
