@@ -6,7 +6,22 @@
 */
 BOOL   APIENTRY GpiBeginArea(HPS hps, ULONG flOptions)
 {
-  return GreBeginArea(GpiQueryDevice(hps), flOptions);
+  PPS pps = LookupPS(hps);
+
+  if (pps == NULL) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
+    return FALSE;
+  }
+  if (pps->hdc == (HDC)0) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
+    return FALSE;
+  }
+  if (pps->ulDrawingMode == DM_RETAIN) {
+    /* TODO: record into current segment when segments are implemented. */
+    return TRUE;
+  }
+
+  return GreBeginArea(pps->hdc, flOptions);
 }
 
 /*
@@ -14,8 +29,23 @@ BOOL   APIENTRY GpiBeginArea(HPS hps, ULONG flOptions)
 */
 LONG   APIENTRY GpiEndArea(HPS hps)
 {
+  PPS pps = LookupPS(hps);
+
+  if (pps == NULL) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
+    return GPI_ERROR;
+  }
+  if (pps->hdc == (HDC)0) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
+    return GPI_ERROR;
+  }
+  if (pps->ulDrawingMode == DM_RETAIN) {
+    /* TODO: record into current segment when segments are implemented. */
+    return GPI_OK;
+  }
+
   // @todo EA_DRAW - value?
-  return GreEndArea(GpiQueryDevice(hps), 0);
+  return GreEndArea(pps->hdc, 0);
 }
 
 /*
@@ -23,17 +53,46 @@ LONG   APIENTRY GpiEndArea(HPS hps)
 */
 BOOL   APIENTRY GpiBeginPath(HPS hps, LONG lPath)
 {
-  return GreBeginPath(GpiQueryDevice(hps), lPath);
-}
+  PPS pps = LookupPS(hps);
 
+  if (pps == NULL) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
+    return FALSE;
+  }
+  if (pps->hdc == (HDC)0) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
+    return FALSE;
+  }
+  if (pps->ulDrawingMode == DM_RETAIN) {
+    /* TODO: record into current segment when segments are implemented. */
+    return TRUE;
+  }
+
+  return GreBeginPath(pps->hdc, lPath);
+}
 
 /*
   Documentation: https://www.edm2.com/index.php/GreEndPath
 */
 BOOL   APIENTRY GpiEndPath(HPS hps)
 {
+  PPS pps = LookupPS(hps);
+
+  if (pps == NULL) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
+    return FALSE;
+  }
+  if (pps->hdc == (HDC)0) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
+    return FALSE;
+  }
+  if (pps->ulDrawingMode == DM_RETAIN) {
+    /* TODO: record into current segment when segments are implemented. */
+    return TRUE;
+  }
+
   //@todo EA_DRAW 0 or another value??
-  return GreEndPath(GpiQueryDevice(hps), 0);
+  return GreEndPath(pps->hdc, 0);
 }
 
 /*
@@ -41,7 +100,22 @@ BOOL   APIENTRY GpiEndPath(HPS hps)
 */
 BOOL   APIENTRY GpiCloseFigure(HPS hps)
 {
-  return GreCloseFigure(GpiQueryDevice(hps));
+  PPS pps = LookupPS(hps);
+
+  if (pps == NULL) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
+    return FALSE;
+  }
+  if (pps->hdc == (HDC)0) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
+    return FALSE;
+  }
+  if (pps->ulDrawingMode == DM_RETAIN) {
+    /* TODO: record into current segment when segments are implemented. */
+    return TRUE;
+  }
+
+  return GreCloseFigure(pps->hdc);
 }
 
 /*
@@ -49,7 +123,22 @@ BOOL   APIENTRY GpiCloseFigure(HPS hps)
 */
 LONG   APIENTRY GpiFillPath(HPS hps,LONG a,LONG b)
 {
-  return GreFillPath(GpiQueryDevice(hps), a, b);
+  PPS pps = LookupPS(hps);
+
+  if (pps == NULL) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
+    return GPI_ERROR;
+  }
+  if (pps->hdc == (HDC)0) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
+    return GPI_ERROR;
+  }
+  if (pps->ulDrawingMode == DM_RETAIN) {
+    /* TODO: record into current segment when segments are implemented. */
+    return GPI_OK;
+  }
+
+  return GreFillPath(pps->hdc, a, b);
 }
 
 /*
@@ -57,7 +146,22 @@ LONG   APIENTRY GpiFillPath(HPS hps,LONG a,LONG b)
 */
 LONG   APIENTRY GpiOutlinePath(HPS hps,LONG a,LONG b)
 {
-  return GreOutlinePath(GpiQueryDevice(hps), a, b);
+  PPS pps = LookupPS(hps);
+
+  if (pps == NULL) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
+    return GPI_ERROR;
+  }
+  if (pps->hdc == (HDC)0) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
+    return GPI_ERROR;
+  }
+  if (pps->ulDrawingMode == DM_RETAIN) {
+    /* TODO: record into current segment when segments are implemented. */
+    return GPI_OK;
+  }
+
+  return GreOutlinePath(pps->hdc, a, b);
 }
 
 /*
@@ -65,7 +169,22 @@ LONG   APIENTRY GpiOutlinePath(HPS hps,LONG a,LONG b)
 */
 BOOL   APIENTRY GpiModifyPath(HPS hps,LONG a,LONG b)
 {
-  return GreModifyPath(GpiQueryDevice(hps), a, b);
+  PPS pps = LookupPS(hps);
+
+  if (pps == NULL) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
+    return FALSE;
+  }
+  if (pps->hdc == (HDC)0) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
+    return FALSE;
+  }
+  if (pps->ulDrawingMode == DM_RETAIN) {
+    /* TODO: record into current segment when segments are implemented. */
+    return TRUE;
+  }
+
+  return GreModifyPath(pps->hdc, a, b);
 }
 
 /*
@@ -73,7 +192,22 @@ BOOL   APIENTRY GpiModifyPath(HPS hps,LONG a,LONG b)
 */
 LONG   APIENTRY GpiStrokePath(HPS hps,LONG a,ULONG b)
 {
-  return GreStrokePath(GpiQueryDevice(hps), a, b);
+  PPS pps = LookupPS(hps);
+
+  if (pps == NULL) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
+    return GPI_ERROR;
+  }
+  if (pps->hdc == (HDC)0) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
+    return GPI_ERROR;
+  }
+  if (pps->ulDrawingMode == DM_RETAIN) {
+    /* TODO: record into current segment when segments are implemented. */
+    return GPI_OK;
+  }
+
+  return GreStrokePath(pps->hdc, a, b);
 }
 
 /*
@@ -81,5 +215,20 @@ LONG   APIENTRY GpiStrokePath(HPS hps,LONG a,ULONG b)
 */
 BOOL   APIENTRY GpiSetClipPath(HPS hps,LONG a,LONG b)
 {
-  return GreSelectClipPath(GpiQueryDevice(hps), a, b);
+  PPS pps = LookupPS(hps);
+
+  if (pps == NULL) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
+    return FALSE;
+  }
+  if (pps->hdc == (HDC)0) {
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
+    return FALSE;
+  }
+  if (pps->ulDrawingMode == DM_RETAIN) {
+    /* TODO: record into current segment when segments are implemented. */
+    return TRUE;
+  }
+
+  return GreSelectClipPath(pps->hdc, a, b);
 }

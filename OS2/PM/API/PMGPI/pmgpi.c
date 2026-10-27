@@ -12,7 +12,9 @@
 
 */
 
-#define INCL_DEV
+#define INCL_PM
+#define INCL_GPIERRORS
+//#define INCL_DEV
 #define INCL_GREALL
 #include <os2.h>
 #include "pmddi.h"
@@ -31,14 +33,13 @@ HRGN   APIENTRY GpiCreateEllipticRegion(HPS hps, PRECTL prclRect);
 HRGN   APIENTRY GpiCreateRoundRectRegion(HPS hps, PPOINTL pptlPt, LONG lHround, LONG lVRound);
 */
 
+#include "ps.h"
+#include "ps.c"
+
 #include "gpi32dev.c"
 #include "gpi32lines.c"
 #include "gpi32paths.c"
-
-BOOL   APIENTRY GpiAssociate(HPS hps, HDC hdc)
-{
-  return unimplemented(__FUNCTION__);
-}
+#include "gpi32primitives.c"
 
 BOOL  APIENTRY GpiBeginElement(HPS a, LONG b, PSZ c)
 {
@@ -50,22 +51,7 @@ LONG    APIENTRY GpiBitBlt(HPS hps,HPS hps2,LONG a,PPOINTL b,LONG c,ULONG d)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiBox(HPS hps, LONG lControl, PPOINTL pptlPoint, LONG lHRound, LONG lVRound)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 LONG   APIENTRY GpiCallSegmentMatrix(HPS hps,LONG a,LONG b,PMATRIXLF c,LONG d)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY GpiCharString(HPS hps, LONG lCount, PCH pchString)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY GpiCharStringAt(HPS hps, PPOINTL pptlPoint, LONG lCount, PCH pchString)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -76,11 +62,6 @@ BOOL   APIENTRY GpiCloseSegment(HPS hps)
 }
 
 LONG   APIENTRY GpiCombineRegion(HPS hps, HRGN hrgnDest, HRGN hrgnSr1, HRGN hrgnSr2, LONG lMode)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiComment(HPS hps,LONG a,PBYTE b)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -106,11 +87,6 @@ LONG   APIENTRY GpiCorrelateFrom(HPS hps,LONG a,LONG b ,LONG c,PPOINTL d,LONG e 
 }
 
 LONG  APIENTRY GpiCreateLogFont(HPS hps,PSTR8 a,LONG b,PFATTRS c)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-HPS    APIENTRY GpiCreatePS(HAB hab,HDC hdc,PSIZEL a,ULONG b)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -156,11 +132,6 @@ BOOL   APIENTRY GpiDeleteSegments(HPS hps,LONG a,LONG b)
 }
 
 BOOL  APIENTRY GpiDeleteSetId(HPS hps,LONG a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiDestroyPS(HPS hps)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -217,11 +188,6 @@ LONG   APIENTRY GpiExcludeClipRectangle(HPS hps, PRECTL prclRectangle)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiFullArc(HPS hps,LONG a,FIXED b)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 LONG   APIENTRY GpiGetData(HPS hps,LONG a,PLONG b,LONG c,LONG d,PBYTE e)
 {
   return unimplemented(__FUNCTION__);
@@ -242,11 +208,6 @@ BOOL  APIENTRY GpiLabel(HPS a, LONG b)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiLine(HPS hps, PPOINTL pptlEndPoint)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL  APIENTRY GpiLoadFonts(HAB hab,PCSZ pcsz)
 {
   return unimplemented(__FUNCTION__);
@@ -257,15 +218,6 @@ HMF    APIENTRY GpiLoadMetaFile(HAB hab,PCSZ pcsz)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiMarker(HPS hps,PPOINTL a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiMove(HPS hps, PPOINTL pptlPoint)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 LONG   APIENTRY GpiOffsetClipRegion(HPS hps, PPOINTL pptlPoint)
 {
@@ -293,32 +245,6 @@ LONG   APIENTRY GpiPaintRegion(HPS hps, HRGN hrgn)
 }
 
 LONG   APIENTRY GpiPlayMetaFile(HPS hps,HMF hmf,LONG a,PLONG b,PLONG c,LONG d,PCSZ e)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY GpiPointArc(HPS hps,PPOINTL a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY GpiPolyFillet(HPS hps,LONG a,PPOINTL b)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY GpiPolyFilletSharp(HPS hps,LONG a,PPOINTL b,PFIXED c)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-
-LONG   APIENTRY GpiPolyMarker(HPS hps,LONG a,PPOINTL b)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY GpiPolySpline(HPS hps,LONG a,PPOINTL b)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -449,22 +375,12 @@ BOOL   APIENTRY GpiQueryDefaultViewMatrix(HPS hps,LONG a,PMATRIXLF b)
   return unimplemented(__FUNCTION__);
 }
 
-HDC    APIENTRY GpiQueryDevice(HPS hps)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL    APIENTRY GpiQueryDeviceBitmapFormats(HPS hps,LONG a,PLONG b)
 {
   return unimplemented(__FUNCTION__);
 }
 
 LONG   APIENTRY GpiQueryDrawControl(HPS hps,LONG a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY GpiQueryDrawingMode(HPS hps)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -825,11 +741,6 @@ BOOL   APIENTRY GpiSetDrawControl(HPS hps,LONG a,LONG b)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetDrawingMode(HPS hps,LONG a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL  APIENTRY GpiSetEditMode(HPS a, LONG b)
 {
   return unimplemented(__FUNCTION__);
@@ -1091,16 +1002,6 @@ HPAL   APIENTRY GpiQueryPalette(HPS hps)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiCharStringPos(HPS hps,PRECTL a,ULONG b,LONG c,PCH d,PLONG e)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY GpiCharStringPosAt(HPS hps,PPOINTL a,PRECTL b,ULONG c,LONG d,PCH e,PLONG f)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 LONG   APIENTRY GpiCorrelateSegment(HPS hps,LONG a,LONG b,PPOINTL c,LONG d,LONG e,PLONG f)
 {
   return unimplemented(__FUNCTION__);
@@ -1208,11 +1109,6 @@ LONG    APIENTRY GpiDrawBits(HPS hps,PVOID a,PBITMAPINFO2 b,LONG c,PPOINTL d,LON
 }
 
 BOOL   APIENTRY GpiDestroyRegion(HPS hps, HRGN hrgn)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY GpiPartialArc(HPS hps,PPOINTL a,FIXED b,FIXED c,FIXED d)
 {
   return unimplemented(__FUNCTION__);
 }

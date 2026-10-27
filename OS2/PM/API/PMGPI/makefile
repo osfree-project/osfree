@@ -668,6 +668,6 @@ DEVPOSTESCAPE                   .0729 RESIDENT, &
 undoc730                         .0730
 
 DEST         = os2$(SEP)dll
-UNI2H        = 1
+#UNI2H        = 1
 
 !include $(%ROOT)tools/mk/appsos2_pm.mk
