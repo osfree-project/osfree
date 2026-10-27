@@ -1,0 +1,23 @@
+; Sample response file for smoke testing.
+FormatFAT=C:
+FormatPartition=0
+ExitOnError=1
+RebootRequired=0
+DisplayAdapter=4
+DefaultPrinter=3
+ToolsAndGames=2,3,4,6
+OptionalSystemUtilities=2,9,4
+WIN-OS/2Support=3,4
+WIN-OS/2Desktop=0
+WIN-OS/2TargetDrive=C
+ConfigSysLine=SET RESTARTOBJECTS=STARTUPFOLDERSONLY
+ConfigSysLine=PAUSEONERROR=NO
+IncludeInLine=included_immediate.rsp
+Include=included_deferred.rsp
+BPIBMWORKS=(
+  Selection=1
+  Variable=(
+    Name=TarDrv
+    Value=d:
+  )
+)

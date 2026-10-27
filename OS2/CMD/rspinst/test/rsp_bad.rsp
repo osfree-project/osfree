@@ -1,0 +1,24 @@
+* Ќабор ошибок и предупреждений дл€ проверки валидатора
+FormatFAT=C:
+BaseFileSystem=1
+ExitOnError=2
+RebootRequired=yes
+DisplayAdapter=99
+TargetDrive=ZZ
+FormatHPFS=C:,AB
+AdditionalPrinters=8:99999
+ToolsAndGames=10
+WARMPLUG.Selection=1
+UnknownKey=foo
+
+* WIN-OS/2Support: конфликт 0 + другое (error)
+WIN-OS/2Support=0,3
+
+* WIN-OS/2Support: 1 + другое (warning: избыточно)
+WIN-OS/2Support=1,5
+
+* WIN-OS/2Support: 6 + другое (warning: противоречие)
+WIN-OS/2Support=6,4
+
+* WIN-OS/2Support: нечисловое (error)
+WIN-OS/2Support=abc
