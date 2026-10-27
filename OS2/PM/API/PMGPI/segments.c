@@ -20,7 +20,7 @@ PSEGMENT CreateSegment(PPS pps, LONG lSegId, ULONG ulAttrs)
     PSEGMENT seg;
 
     if (pps == NULL) return NULL;
-    seg = (PSEGMENT)calloc(1, sizeof(SEGMENT));
+    seg = (PSEGMENT)AllocMemZero(sizeof(SEGMENT));
     if (seg == NULL) return NULL;
 
     seg->lSegId  = lSegId;
@@ -53,7 +53,7 @@ void FreeSegmentElements(PSEGMENT seg)
     el = seg->firstElement;
     while (el != NULL) {
         PELEMENT next = el->next;
-        free(el);
+        DosFreeMem(el);
         el = next;
     }
     seg->firstElement   = NULL;
@@ -70,7 +70,7 @@ void FreeAllSegments(PPS pps)
     while (seg != NULL) {
         PSEGMENT next = seg->next;
         FreeSegmentElements(seg);
-        free(seg);
+        DosFreeMem(seg);
         seg = next;
     }
     pps->firstSegment = NULL;
@@ -87,7 +87,7 @@ BOOL RecordElement(PPS pps, LONG lType, LONG lCount, LONG cbData,
     if (pps == NULL || pps->pOpenSegment == NULL) return FALSE;
     if (lCount < 0 || cbData < 0)                 return FALSE;
 
-    el = (PELEMENT)malloc(sizeof(ELEMENT) + cbData);
+    el = (PELEMENT)AllocMemZero(sizeof(ELEMENT) + cbData);
     if (el == NULL) return FALSE;
 
     el->next   = NULL;
@@ -137,7 +137,7 @@ BOOL RecordCharStringPos(PPS pps, ULONG flOptions, LONG cChars,
     cbTotal = cbFixed + cChars * sizeof(CHAR)
               + ((flOptions & CHS_VECTOR) ? cChars * sizeof(LONG) : 0);
 
-    pBuf = (ORDERL_GCCHSTE *)calloc(1, cbTotal);
+    pBuf = (ORDERL_GCCHSTE *)AllocMemZero(cbTotal);
     if (pBuf == NULL) return FALSE;
 
     pBuf->fbFlags     = fbFlags;
@@ -157,7 +157,7 @@ BOOL RecordCharStringPos(PPS pps, ULONG flOptions, LONG cChars,
         memcpy(pTrail + cChars, pAdx, cChars * sizeof(LONG));
 
     result = RecordElement(pps, OCODEQ_GCCHSTE, 1, cbTotal, pBuf);
-    free(pBuf);
+    DosFreeMem(pBuf);
     return result;
 }
 

@@ -19,7 +19,30 @@
 */
 
 #include <stdlib.h>
+#include <string.h>
 #include "ps.h"
+
+/*!
+   @brief Allocate a zero-filled block using OS/2 CPI.
+
+   Wraps DosAllocMem (PAG_COMMIT | PAG_READ | PAG_WRITE) and zeroes
+   the returned memory, providing calloc-like semantics on top of the
+   OS/2 memory manager. Used by PMGPI-internal structures (PS,
+   segments, elements) and by the 16->32 bitmap conversion.
+
+   @param cb  Size in bytes.
+
+   @return Pointer to the new block, or NULL on allocation failure.
+*/
+static PVOID AllocMemZero(ULONG cb)
+{
+    PVOID p = NULL;
+
+    if (DosAllocMem(&p, cb, PAG_COMMIT | PAG_READ | PAG_WRITE) != 0)
+        return NULL;
+    memset(p, 0, cb);
+    return p;
+}
 
 /*!
    @brief Look up a PS by its HPS (see ps.h for contract).
@@ -33,9 +56,6 @@ PPS LookupPS(HPS hps)
     return pps;
 }
 
-/* Тихо: без WinSetErrorInfo. Возвращает FALSE и при невалидном HPS,
-   и при отсутствии ассоциации — вызывающий сам решает, какой
-   PMERR_* ставить. */
 static BOOL HpsToDc(HPS hps, HDC *phdc)
 {
     PPS pps = LookupPS(hps);
@@ -74,7 +94,7 @@ HPS APIENTRY GpiCreatePS(HAB hab, HDC hdc, PSIZEL psizlSize, ULONG flOptions)
         return (HPS)0;
     }
 
-    pps = (PPS)calloc(1, sizeof(PS));
+    pps = (PPS)AllocMemZero(sizeof(PS));
     if (pps == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INSUFFICIENT_MEMORY),
                         SEI_NOBEEP);
@@ -93,7 +113,7 @@ HPS APIENTRY GpiCreatePS(HAB hab, HDC hdc, PSIZEL psizlSize, ULONG flOptions)
     if (hdc != (HDC)0) {
         if (!GpiAssociate(HPS_FROM_PS(pps), hdc)) {
             pps->ulMagic = 0;
-            free(pps);
+            DosFreeMem(pps);
             return (HPS)0;
         }
     }
@@ -153,7 +173,7 @@ BOOL APIENTRY GpiDestroyPS(HPS hps)
 
     pps->ulMagic = 0;
     pps->hpsSelf = (HPS)0;
-    free(pps);
+    DosFreeMem(pps);
 
     return TRUE;
 }

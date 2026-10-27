@@ -42,7 +42,11 @@
 */
 LONG APIENTRY GpiPolyLineDisjoint(HPS hps, LONG lCount, PPOINTL aptlPoints)
 {
-  return GreDisjointLines(GpiQueryDevice(hps), aptlPoints, lCount);
+  LONG rc = (LONG)GreDisjointLines(GpiQueryDevice(hps), aptlPoints, lCount);
+  /* GreDisjointLines returns GPI_ERROR (-1) on failure; any other
+     value (0 = OK, positive = hits/lines) is treated as success,
+     which matches the documented GpiPolyLineDisjoint contract. */
+  return (rc == (LONG)GPI_ERROR) ? GPI_ERROR : GPI_OK;
 }
 
 /*!

@@ -4,9 +4,16 @@
    @brief Diagnostic helpers for unimplemented GPI stubs.
 
    Provides a best-effort implementation of {@c unimplemented()} that
-   logs the offending function name and returns 0. Logging is routed to
-   {@c DosLogWrite} (DOSCALLS ordinal 1112) when available; otherwise
-   output is silently discarded.
+   logs the offending function name and returns GPI_ERROR (-1) so that
+   callers can distinguish "not implemented" from a successful (0)
+   result. Logging is routed to {@c DosLogWrite} (DOSCALLS ordinal
+   1112) when available; otherwise output is silently discarded.
+
+   @note Returning GPI_ERROR is the correct convention for LONG- and
+         HBITMAP-returning stubs. BOOL-returning stubs will see the
+         value as TRUE (non-zero); a full fix requires separate
+         unimplemented_bool() / unimplemented_long() helpers. This is
+         a known limitation of the single-function design.
 */
 
 #define INCL_DOSMODULEMGR
@@ -16,16 +23,31 @@
 #include <stdarg.h>
 
 /*!
+   @def LOG_ORD
    @brief Ordinal of {@c DosLogWrite} inside DOSCALLS.
 */
 #define LOG_ORD 1112
 
 /*!
+   @def GPI_ERROR
+   @brief Fallback definition of the OS/2 GPI error code.
+
+   Normally provided by <pmgpi.h> (via INCL_GPI / INCL_PM). This module
+   is compiled separately with only INCL_DOSMODULEMGR, so provide a
+   local fallback to avoid depending on the toolkit include order.
+*/
+#ifndef GPI_ERROR
+#define GPI_ERROR (-1)
+#endif
+
+/*!
    @brief Internal debug-print hook.
 
-   No-op implementation. Intended to be replaced by a stronger
-   implementation in debug builds if needed. Kept as a separate symbol
-   so that {@c log()} does not depend on the final sink.
+   No-op implementation. Kept as a separate symbol so that {@c log()}
+   does not depend on the final sink.
+
+   @param format  printf-style format string (unused).
+   @param ...     Additional arguments (unused).
 */
 void APIENTRY _db_print(const char *format,...)
 {
@@ -36,8 +58,9 @@ void APIENTRY _db_print(const char *format,...)
    @brief Signature of the {@c DosLogWrite} entry point.
 
    Resolved dynamically from DOSCALLS at startup by {@c log_init()}.
-   The string argument is NUL-terminated and must not exceed 512 bytes
-   (per the DOSCALLS contract).
+
+   @param s   NUL-terminated string to log (max 512 bytes).
+   @return    APIRET return code from the underlying kernel call.
 */
 typedef APIRET APIENTRY (*logwrt_t)(PSZ s);
 
@@ -77,12 +100,12 @@ void log_init(void)
 /*!
    @brief Format and emit a diagnostic message.
 
-   Formats the arguments with {@c vsprintf into a 1024-byte stack
+   Formats the arguments with {@c vsprintf} into a 1024-byte stack
    buffer and passes the result to {@c _db_print()}. Truncation is
    silent; callers must keep formatted lines reasonably short.
 
-   @param[in] fmt  printf-style format string.
-   @param[in] ...  Arguments for {@c fmt}.
+   @param fmt  printf-style format string.
+   @param ...  Arguments for {@c fmt}.
 */
 void log(const char *fmt, ...)
 {
@@ -101,18 +124,21 @@ void log(const char *fmt, ...)
    @brief Report that a GPI entry point has no implementation yet.
 
    Logs a human-readable message identifying the function, then returns
-   0 (the historical convention for unimplemented GPI calls). All
-   current callers are forwarder stubs, so return value is only
-   meaningful for functions whose public type is non-BOOL.
+   GPI_ERROR (-1), the OS/2 convention for a failing GPI call. This
+   lets callers detect the missing implementation instead of treating
+   the return value 0 as a valid result.
 
-   @param[in] func  Name of the calling function (usually
-                    {@c __FUNCTION__}); not copied, must remain valid
-                    for the duration of the call.
+   @param func  Name of the calling function (usually
+                {@c __FUNCTION__}); not copied, must remain valid
+                for the duration of the call.
 
-   @return 0.
+   @retval GPI_ERROR Always.
+
+   @note For BOOL-returning stubs this yields TRUE (non-zero). A full
+         fix would require separate helpers per return type.
 */
 APIRET unimplemented(char *func)
 {
   log("%s is not yet implemented!\n", func);
-  return 0;
+  return (APIRET)GPI_ERROR;
 }

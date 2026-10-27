@@ -25,10 +25,10 @@
 
 #include <ps.h>
 
-// Прототипы, отсутствующие в OpenWatcom 1.9 версии pmgpi.h
-// (необходимы для подавления W131 в gpi16segediting.c и gpi16primitives.c)
 
-// Группа INCL_GPISEGEDITING
+
+
+
 BOOL APIENTRY GpiBeginElement(HPS, LONG, PSZ);
 LONG APIENTRY GpiQueryEditMode(HPS);
 BOOL APIENTRY GpiSetElementPointer(HPS, LONG);
@@ -44,7 +44,6 @@ LONG APIENTRY GpiQueryElement(HPS, LONG, LONG, PBYTE);
 LONG APIENTRY GpiElement(HPS, LONG, PSZ, LONG, PBYTE);
 BOOL APIENTRY GpiEndElement(HPS);
 
-// GpiQueryArcParams (отсутствует в данной версии pmgpi.h)
 BOOL APIENTRY GpiQueryArcParams(HPS, PARCPARAMS);
 
 // Private defines
