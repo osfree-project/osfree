@@ -44,11 +44,6 @@ LONG    APIENTRY GpiBitBlt(HPS hps,HPS hps2,LONG a,PPOINTL b,LONG c,ULONG d)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiCallSegmentMatrix(HPS hps,LONG a,LONG b,PMATRIXLF c,LONG d)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 LONG   APIENTRY GpiCombineRegion(HPS hps, HRGN hrgnDest, HRGN hrgnSr1, HRGN hrgnSr2, LONG lMode)
 {
   return unimplemented(__FUNCTION__);
@@ -110,16 +105,6 @@ BOOL   APIENTRY GpiDeleteMetaFile(HMF hmf)
 }
 
 BOOL  APIENTRY GpiDeleteSetId(HPS hps,LONG a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiDrawDynamics(HPS hps)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiDrawFrom(HPS hps,LONG a,LONG b)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -485,12 +470,6 @@ LONG   APIENTRY GpiQueryRegionBox(HPS hps, HRGN hrgn, PRECTL prclBound)
   return unimplemented(__FUNCTION__);
 }
 
-
-LONG   APIENTRY GpiQuerySegmentPriority(HPS hps,LONG a,LONG b)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL   APIENTRY GpiQuerySegmentTransformMatrix(HPS hps,LONG a,LONG b,PMATRIXLF c)
 {
   return unimplemented(__FUNCTION__);
@@ -537,11 +516,6 @@ LONG   APIENTRY GpiRectInRegion(HPS hps, HRGN hrgn, PRECTL prclRect)
 }
 
 LONG   APIENTRY GpiRectVisible(HPS hps,PRECTL a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiRemoveDynamics(HPS hps,LONG a,LONG b)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -757,11 +731,6 @@ BOOL   APIENTRY GpiSetPickAperturePosition(HPS hps,PPOINTL a)
 }
 
 BOOL   APIENTRY GpiSetRegion(HPS hps, HRGN hrgn, LONG lcount, PRECTL arclRectangles)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiSetSegmentPriority(HPS hps,LONG a,LONG b,LONG c)
 {
   return unimplemented(__FUNCTION__);
 }
