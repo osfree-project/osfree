@@ -30,7 +30,7 @@
    OS/2 memory manager. Used by PMGPI-internal structures (PS,
    segments, elements) and by the 16->32 bitmap conversion.
 
-   @param cb  Size in bytes.
+   @param[in] cb  Size in bytes.
 
    @return Pointer to the new block, or NULL on allocation failure.
 */
@@ -46,6 +46,9 @@ static PVOID AllocMemZero(ULONG cb)
 
 /*!
    @brief Look up a PS by its HPS (see ps.h for contract).
+
+   @param[in] hps  Handle to look up.
+   @return Pointer to PS or NULL.
 */
 PPS LookupPS(HPS hps)
 {
@@ -56,6 +59,12 @@ PPS LookupPS(HPS hps)
     return pps;
 }
 
+/*
+ * Quiet helper: no WinSetErrorInfo. Returns FALSE for both invalid
+ * HPS and missing DC association; the caller decides which PMERR_*
+ * to set. Currently unused by the callers in this file, kept for
+ * symmetry with gpi32lines.c.
+ */
 static BOOL HpsToDc(HPS hps, HDC *phdc)
 {
     PPS pps = LookupPS(hps);
@@ -106,9 +115,24 @@ HPS APIENTRY GpiCreatePS(HAB hab, HDC hdc, PSIZEL psizlSize, ULONG flOptions)
     pps->hdc               = (HDC)0;
     pps->ulDrawingMode     = DM_DRAW;
     pps->firstSegment      = NULL;
+    pps->lastSegment       = NULL;
     pps->pOpenSegment      = NULL;
     pps->ulEditMode        = SEGEM_INSERT;
-    pps->ulInitialSegAttrs = ATTR_CHAINED | ATTR_VISIBLE;
+
+    /* Initial segment attribute defaults (OS/2 PM Programming Reference
+       Vol.1, "GpiSetInitialSegmentAttrs - Remarks"):
+         Not detectable, Visible, Chained, Not dynamic,
+         Fast chaining, Propagate detectability, Propagate visibility.
+       The previous value ATTR_CHAINED | ATTR_VISIBLE was (a) missing
+       Fast chaining, Propagate detectability and Propagate visibility,
+       and (b) written using ATTR_* as bit masks, which overlaps
+       ATTR_CHAINED == 6 with ATTR_VISIBLE == 2. Use SEGATTR_BIT()
+       instead, so every attribute gets its own bit. */
+    pps->ulInitialSegAttrs = SEGATTR_BIT(ATTR_VISIBLE)
+                           | SEGATTR_BIT(ATTR_CHAINED)
+                           | SEGATTR_BIT(ATTR_FASTCHAIN)
+                           | SEGATTR_BIT(ATTR_PROP_DETECTABLE)
+                           | SEGATTR_BIT(ATTR_PROP_VISIBLE);
 
     if (hdc != (HDC)0) {
         if (!GpiAssociate(HPS_FROM_PS(pps), hdc)) {
@@ -226,7 +250,7 @@ BOOL APIENTRY GpiSetDrawingMode(HPS hps, LONG lMode)
         return FALSE;
     }
     if (lMode != DM_DRAW && lMode != DM_RETAIN && lMode != DM_DRAWANDRETAIN) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_DRAWING_MODE),
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_MODE),
                         SEI_NOBEEP);
         return FALSE;
     }

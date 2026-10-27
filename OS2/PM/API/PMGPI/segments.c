@@ -6,8 +6,10 @@
    (c) osFree Project 2002-2008, <http://www.osFree.org>
    for licence see licence.txt in root directory, or project website
 
-   All element payloads are typed using structures from <pmord.h>.
-   No local structs, no byte offsets.
+   Element payloads are typed using structures from <pmord.h>.
+   The segment chain is a doubly-linked list kept in priority order
+   (lowest priority first) to support GpiDrawChain / GpiDrawFrom /
+   GpiSetSegmentPriority semantics.
 */
 
 #include <stdlib.h>
@@ -15,6 +17,20 @@
 
 /* === Segment lifecycle ============================================= */
 
+/*!
+   @brief Allocate a segment and append it to the chain (highest pri).
+
+   @param[in] pps      Presentation space.
+   @param[in] lSegId   Segment identifier (caller validates lSegId > 0).
+   @param[in] ulAttrs  Initial attribute bits (SEGATTR_BIT values).
+
+   @return New segment, or NULL on allocation failure.
+
+   @note  A new segment becomes the highest-priority segment in the
+          chain because it is appended after all existing ones
+          (OS/2 PM Programming Reference Vol.1, "GpiOpenSegment -
+          Remarks": new segments are chained to the previous segment).
+*/
 PSEGMENT CreateSegment(PPS pps, LONG lSegId, ULONG ulAttrs)
 {
     PSEGMENT seg;
@@ -26,16 +42,24 @@ PSEGMENT CreateSegment(PPS pps, LONG lSegId, ULONG ulAttrs)
     seg->lSegId  = lSegId;
     seg->ulAttrs = ulAttrs;
 
-    if (pps->firstSegment == NULL) {
+    seg->prev = pps->lastSegment;
+    if (pps->lastSegment != NULL)
+        pps->lastSegment->next = seg;
+    else
         pps->firstSegment = seg;
-    } else {
-        PSEGMENT tail = pps->firstSegment;
-        while (tail->next != NULL) tail = tail->next;
-        tail->next = seg;
-    }
+    pps->lastSegment = seg;
+
     return seg;
 }
 
+/*!
+   @brief Find a segment by identifier.
+
+   @param[in] pps     Presentation space.
+   @param[in] lSegId  Segment identifier.
+
+   @return Matching segment, or NULL.
+*/
 PSEGMENT FindSegment(PPS pps, LONG lSegId)
 {
     PSEGMENT seg;
@@ -46,6 +70,94 @@ PSEGMENT FindSegment(PPS pps, LONG lSegId)
     return NULL;
 }
 
+/*!
+   @brief Unlink a segment from the chain without freeing it.
+
+   @param[in] pps  Presentation space.
+   @param[in] seg  Segment to unlink.
+*/
+static void UnlinkSegment(PPS pps, PSEGMENT seg)
+{
+    if (seg->prev != NULL)
+        seg->prev->next = seg->next;
+    else
+        pps->firstSegment = seg->next;
+
+    if (seg->next != NULL)
+        seg->next->prev = seg->prev;
+    else
+        pps->lastSegment = seg->prev;
+
+    seg->next = NULL;
+    seg->prev = NULL;
+}
+
+/*!
+   @brief Insert a segment into the chain in priority order.
+
+   @param[in] pps       Presentation space.
+   @param[in] seg       Segment to insert (must already be unlinked).
+   @param[in] lRefSegId Reference segment id (0 = chain end).
+   @param[in] lOrder    LOWER_PRI or HIGHER_PRI.
+
+   @return TRUE on success, FALSE if lRefSegId is not found.
+
+   @see GpiSetSegmentPriority
+*/
+BOOL InsertSegmentByPriority(PPS pps, PSEGMENT seg,
+                             LONG lRefSegId, LONG lOrder)
+{
+    PSEGMENT ref;
+
+    if (pps == NULL || seg == NULL) return FALSE;
+
+    if (lRefSegId == 0) {
+        if (lOrder == LOWER_PRI) {
+            seg->prev = pps->lastSegment;
+            if (pps->lastSegment != NULL)
+                pps->lastSegment->next = seg;
+            else
+                pps->firstSegment = seg;
+            pps->lastSegment = seg;
+        } else {
+            seg->next = pps->firstSegment;
+            if (pps->firstSegment != NULL)
+                pps->firstSegment->prev = seg;
+            else
+                pps->lastSegment = seg;
+            pps->firstSegment = seg;
+        }
+        return TRUE;
+    }
+
+    ref = FindSegment(pps, lRefSegId);
+    if (ref == NULL) return FALSE;
+
+    if (lOrder == LOWER_PRI) {
+        seg->prev = ref->prev;
+        seg->next = ref;
+        if (ref->prev != NULL)
+            ref->prev->next = seg;
+        else
+            pps->firstSegment = seg;
+        ref->prev = seg;
+    } else {
+        seg->next = ref->next;
+        seg->prev = ref;
+        if (ref->next != NULL)
+            ref->next->prev = seg;
+        else
+            pps->lastSegment = seg;
+        ref->next = seg;
+    }
+    return TRUE;
+}
+
+/*!
+   @brief Free all elements of a segment (segment itself untouched).
+
+   @param[in] seg  Segment whose element list is freed.
+*/
 void FreeSegmentElements(PSEGMENT seg)
 {
     PELEMENT el;
@@ -62,6 +174,11 @@ void FreeSegmentElements(PSEGMENT seg)
     seg->lElementCount  = 0;
 }
 
+/*!
+   @brief Free all segments of a presentation space.
+
+   @param[in] pps  Presentation space.
+*/
 void FreeAllSegments(PPS pps)
 {
     PSEGMENT seg;
@@ -74,11 +191,23 @@ void FreeAllSegments(PPS pps)
         seg = next;
     }
     pps->firstSegment = NULL;
+    pps->lastSegment  = NULL;
     pps->pOpenSegment = NULL;
 }
 
 /* === Recording ===================================================== */
 
+/*!
+   @brief Append an element to the currently open segment.
+
+   @param[in] pps     Presentation space.
+   @param[in] lType   Order code or user element type.
+   @param[in] lCount  Number of items.
+   @param[in] cbData  Payload size in bytes.
+   @param[in] pData   Payload (may be NULL when cbData == 0).
+
+   @return TRUE on success, FALSE on error.
+*/
 BOOL RecordElement(PPS pps, LONG lType, LONG lCount, LONG cbData,
                    const void *pData)
 {
@@ -359,6 +488,14 @@ static BOOL ReplayElement(PPS pps, PELEMENT el)
     }
 }
 
+/*!
+   @brief Replay all elements of a segment into the driver.
+
+   @param[in] pps  Presentation space.
+   @param[in] seg  Segment to replay.
+
+   @return TRUE on success, FALSE on error.
+*/
 BOOL ReplaySegment(PPS pps, PSEGMENT seg)
 {
     PELEMENT el;
