@@ -15,6 +15,16 @@
                                 invalid in DM_RETAIN without an open
                                 segment; incomplete trailing data is
                                 left unprocessed.
+     - GpiBeginElement        : lType > 0; PMERR_ALREADY_IN_ELEMENT on
+                                a nested begin.
+     - GpiEndElement          : PMERR_NOT_IN_ELEMENT without a begin.
+     - GpiDeleteElement       : element pointer; PMERR_NO_CURRENT_ELEMENT.
+     - GpiDeleteElementRange  : 0-based, inclusive.
+     - GpiDeleteElementsBetweenLabels : labels themselves kept;
+                                PMERR_LABEL_NOT_FOUND if either missing.
+     - GpiSetElementPointerAtLabel : pointer to element after label.
+     - GpiQueryElement        : copies min(lLength, cbData).
+     - GpiQueryElementType    : ORDER_GBEL type/description.
      - GpiDrawChain           : lowest -> highest priority order.
      - GpiDrawFrom            : idFirstSegment > 0, idLastSegment >= idFirstSegment.
      - GpiDrawDynamics        : dynamic segments drawn with XOR mix.
@@ -62,6 +72,12 @@
        PM GPI extension. Readers that do not know it should treat
        it as a No-Op (same policy as X'D3' in pmord.h).
 
+     - OCODE_GBEL / OCODE_GEEL (GpiBeginElement / GpiEndElement
+       bracket markers, PM GPI only) are serialized in extended
+       format with qualifier OSFREE_Q_USERELEM (0xF5), same as
+       user elements, so that GpiGetData -> GpiPutData preserves
+       the bracket. There is no canonical GOCA code for them.
+
      - User elements (ELEMENT.lType > 0xFF, stored by GpiElement)
        are serialized in extended format with qualifier
        OSFREE_Q_USERELEM (0xF5) and payload:
@@ -93,7 +109,11 @@
        GpiQueryInitialSegmentAttrs, GpiQuerySegmentNames,
        GpiSetEditMode, GpiQueryEditMode, GpiSetElementPointer,
        GpiQueryElementPointer, GpiOffsetElementPointer, GpiLabel,
-       GpiElement, GpiSetSegmentPriority, GpiQuerySegmentPriority;
+       GpiElement, GpiBeginElement, GpiEndElement, GpiDeleteElement,
+       GpiDeleteElementRange, GpiDeleteElementsBetweenLabels,
+       GpiSetElementPointerAtLabel, GpiQueryElement,
+       GpiQueryElementType, GpiSetSegmentPriority,
+       GpiQuerySegmentPriority;
      - drawing functions (INIT_PSDC)  : GpiOpenSegment, GpiDrawSegment,
        GpiDrawChain, GpiDrawFrom, GpiDrawDynamics, GpiRemoveDynamics,
        GpiCallSegmentMatrix;
@@ -342,7 +362,8 @@ static ULONG GetLongBE(const BYTE *pb)
 /*!
    @brief Convert one internal ELEMENT to a canonical GOCA order.
 
-   - User elements (lType > 0xFF) are serialized in extended format
+   - User elements (lType > 0xFF) and the PM-GPI-only OCODE_GBEL /
+     OCODE_GEEL bracket markers are serialized in extended format
      with qualifier OSFREE_Q_USERELEM (0xF5). See the file header.
    - OCODE_GBSEG (segment header) is NOT serialized (see file
      header for why).
@@ -360,9 +381,16 @@ static ULONG GetLongBE(const BYTE *pb)
 */
 static ULONG ElementToGoca(PELEMENT el, PBYTE pb, ULONG cbMax)
 {
-    /* User elements: extended format, qualifier OSFREE_Q_USERELEM.
-       Must be checked before the switch because lType is arbitrary. */
-    if (el != NULL && el->lType > 0xFF) {
+    /* User elements (lType > 0xFF) AND the PM-GPI-only OCODE_GBEL /
+       OCODE_GEEL bracket markers are serialized in extended format
+       with qualifier OSFREE_Q_USERELEM (0xF5). The bracket markers
+       have no GOCA representation (OCODE_GBEL = 0xD2 would be read
+       as a fixed 2-byte order, OCODE_GEEL = 0x49 is PM-only), so
+       they take the same escape route as user elements to survive
+       GpiGetData -> GpiPutData. */
+    if (el != NULL && (el->lType > 0xFF
+                       || el->lType == OCODE_GBEL
+                       || el->lType == OCODE_GEEL)) {
         ULONG cbUser  = (ULONG)el->cbData;
         ULONG cbTotal = 12 + cbUser;   /* 3 BE LONGs + payload */
         if (cbTotal > 0xFFFF || cbMax < 4 + cbTotal) return 0;
@@ -686,7 +714,8 @@ static BOOL GocaToElement(const BYTE *pb, ULONG cbOrder, PELEMENT *ppEl)
     if (cbOrder < 1) return FALSE;
     code = pb[0];
 
-    /* osFree user element escape. */
+    /* osFree user element escape. Covers user elements (lType > 0xFF)
+       and the PM-GPI-only OCODE_GBEL / OCODE_GEEL bracket markers. */
     if (code == 0xFE && cbOrder >= 4 && pb[1] == OSFREE_Q_USERELEM) {
         LONG     lType, lCount, cbUser;
         PELEMENT uel;
@@ -695,7 +724,7 @@ static BOOL GocaToElement(const BYTE *pb, ULONG cbOrder, PELEMENT *ppEl)
         lType  = (LONG)GetLongBE(pb + 4);
         lCount = (LONG)GetLongBE(pb + 8);
         cbUser = (LONG)GetLongBE(pb + 12);
-        if (lType <= 0xFF || lCount < 0 || cbUser < 0)  return FALSE;
+        if (lType <= 0x00 || lCount < 0 || cbUser < 0)  return FALSE;
         if (cbOrder < 16 + (ULONG)cbUser)                return FALSE;
         uel = (PELEMENT)AllocMemZero(sizeof(ELEMENT) + (ULONG)cbUser);
         if (uel == NULL) return FALSE;
@@ -1931,4 +1960,461 @@ BOOL APIENTRY GpiElement(HPS hps, LONG lType, PSZ pszDesc,
         return FALSE;
     }
     return RecordElement(pps, lType, lLength, lLength, pbData);
+}
+
+/* === Element editing ============================================== */
+
+/*!
+   @brief Begin a user-defined element in the current segment.
+
+   Creates an OCODE_GBEL element carrying lType and pszDesc. The
+   bracket is closed by GpiEndElement. The bracket state is tracked
+   in SEGMENT.fInElement.
+
+   @param[in] hps      Presentation space handle.
+   @param[in] lType    User element type; any value > 0 (per
+                       "GpiBeginElement - Parameters": 0 is
+                       reserved for system use).
+   @param[in] pszDesc  NUL-terminated description; truncated to fit
+                       ORDER_GBEL.achDesc (251 bytes including NUL).
+
+   @return TRUE on success, FALSE on error.
+
+   @note At most one GpiBeginElement bracket may be open at a time;
+         a nested GpiBeginElement reports PMERR_ALREADY_IN_ELEMENT.
+
+   @see GpiEndElement, GpiElement
+*/
+BOOL APIENTRY GpiBeginElement(HPS hps, LONG lType, PSZ pszDesc)
+{
+    ORDER_GBEL ord;
+
+    INIT_PS(hps, FALSE);
+
+    if (pps->pOpenSegment == NULL) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_NOT_IN_SEG),
+                        SEI_NOBEEP);
+        return FALSE;
+    }
+    if (pps->pOpenSegment->fInElement) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_ALREADY_IN_ELEMENT),
+                        SEI_NOBEEP);
+        return FALSE;
+    }
+    if (lType <= 0) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_ID),
+                        SEI_NOBEEP);
+        return FALSE;
+    }
+
+    memset(&ord, 0, sizeof(ord));
+    ord.lElementType = lType;
+    if (pszDesc != NULL) {
+        LONG len = (LONG)strlen(pszDesc);
+        if (len > (LONG)sizeof(ord.achDesc) - 1)
+            len = (LONG)sizeof(ord.achDesc) - 1;
+        memcpy(ord.achDesc, pszDesc, (ULONG)len);
+        ord.achDesc[len] = '\0';
+    }
+
+    if (!RecordElement(pps, OCODE_GBEL, 1, sizeof(ord), &ord))
+        return FALSE;
+
+    pps->pOpenSegment->fInElement = TRUE;
+    return TRUE;
+}
+
+/*!
+   @brief End the currently open user-defined element.
+
+   Records an OCODE_GEEL marker and clears SEGMENT.fInElement.
+
+   @param[in] hps  Presentation space handle.
+
+   @return TRUE on success, FALSE on error.
+
+   @note Reports PMERR_NOT_IN_ELEMENT if no GpiBeginElement bracket
+         is open.
+
+   @see GpiBeginElement
+*/
+BOOL APIENTRY GpiEndElement(HPS hps)
+{
+    INIT_PS(hps, FALSE);
+
+    if (pps->pOpenSegment == NULL ||
+        !pps->pOpenSegment->fInElement) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_NOT_IN_ELEMENT),
+                        SEI_NOBEEP);
+        return FALSE;
+    }
+
+    if (!RecordElement(pps, OCODE_GEEL, 0, 0, NULL))
+        return FALSE;
+
+    pps->pOpenSegment->fInElement = FALSE;
+    return TRUE;
+}
+
+/*!
+   @brief Unlink and free one element, updating the segment's
+          first/last/count bookkeeping.
+
+   @param[in] pps      Presentation space.
+   @param[in] seg      Segment containing el.
+   @param[in] el       Element to remove.
+   @param[in] prev     Element immediately preceding el (NULL if el
+                       is firstElement).
+*/
+static void RemoveElement(PPS pps, PSEGMENT seg, PELEMENT el,
+                          PELEMENT prev)
+{
+    if (prev == NULL) seg->firstElement = el->next;
+    else              prev->next        = el->next;
+
+    if (seg->lastElement == el) seg->lastElement = prev;
+    if (seg->currentElement == el) seg->currentElement = el->next;
+
+    seg->lElementCount--;
+    (void)pps;
+    DosFreeMem(el);
+}
+
+/*!
+   @brief Find the nth element of the segment body (0-based,
+          skipping the GBSEG header).
+
+   @param[in]  seg    Segment.
+   @param[in]  idx    Zero-based element index.
+   @param[out] pprev  Receives the preceding element, or NULL.
+
+   @return Element, or NULL if idx is out of range.
+*/
+static PELEMENT ElementAt(PSEGMENT seg, LONG idx, PELEMENT *pprev)
+{
+    PELEMENT el, prev = NULL;
+
+    if (seg == NULL || idx < 0) return NULL;
+    el = seg->firstElement->next;   /* skip GBSEG header */
+    while (el != NULL && idx > 0) {
+        prev = el;
+        el   = el->next;
+        idx--;
+    }
+    if (pprev != NULL) *pprev = prev;
+    return el;
+}
+
+/*!
+   @brief Delete the element addressed by the element pointer.
+
+   @param[in] hps  Presentation space handle.
+
+   @return TRUE on success, FALSE on error.
+
+   @note After deletion, the element pointer is left on the element
+         that followed the deleted one (or NULL if it was the last).
+
+   @see GpiDeleteElementRange, GpiDeleteElementsBetweenLabels
+*/
+BOOL APIENTRY GpiDeleteElement(HPS hps)
+{
+    PSEGMENT seg;
+    PELEMENT el, prev = NULL;
+
+    INIT_PS(hps, FALSE);
+
+    seg = pps->pOpenSegment;
+    if (seg == NULL) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_NOT_IN_SEG),
+                        SEI_NOBEEP);
+        return FALSE;
+    }
+    el = seg->currentElement;
+    if (el == NULL) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_NO_CURRENT_ELEMENT),
+                        SEI_NOBEEP);
+        return FALSE;
+    }
+
+    if (seg->firstElement->next != el) {
+        prev = seg->firstElement;
+        while (prev->next != NULL && prev->next != el)
+            prev = prev->next;
+    }
+
+    RemoveElement(pps, seg, el, prev);
+    return TRUE;
+}
+
+/*!
+   @brief Delete a range of elements by index.
+
+   @param[in] hps     Presentation space handle.
+   @param[in] lFirst  First element index (0-based, >= 0).
+   @param[in] lLast   Last element index (inclusive, <= lElementCount-1).
+
+   @return TRUE on success, FALSE on error.
+
+   @see GpiDeleteElement, GpiDeleteElementsBetweenLabels
+*/
+BOOL APIENTRY GpiDeleteElementRange(HPS hps, LONG lFirst, LONG lLast)
+{
+    PSEGMENT seg;
+    PELEMENT el, prev = NULL;
+    LONG     i;
+
+    INIT_PS(hps, FALSE);
+
+    seg = pps->pOpenSegment;
+    if (seg == NULL) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_NOT_IN_SEG),
+                        SEI_NOBEEP);
+        return FALSE;
+    }
+    if (lFirst < 0 || lLast < lFirst || lLast >= seg->lElementCount) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_ELEMENT_POINTER),
+                        SEI_NOBEEP);
+        return FALSE;
+    }
+
+    /* Locate prev of lFirst once, then delete (lLast - lFirst + 1)
+       elements in a row from that position. */
+    el = ElementAt(seg, lFirst, &prev);
+    if (el == NULL) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_ELEMENT_POINTER),
+                        SEI_NOBEEP);
+        return FALSE;
+    }
+
+    for (i = lFirst; i <= lLast; i++) {
+        PELEMENT next = el->next;
+        RemoveElement(pps, seg, el, prev);
+        el = next;
+    }
+    return TRUE;
+}
+
+/*!
+   @brief Delete elements between two labels.
+
+   The labels themselves are not removed. The first occurrence of
+   lFirstLabel and the first subsequent occurrence of lLastLabel are
+   used. All elements strictly between them are deleted.
+
+   @param[in] hps          Presentation space handle.
+   @param[in] lFirstLabel  Label preceding the region to delete.
+   @param[in] lLastLabel   Label following the region to delete.
+
+   @return TRUE on success, FALSE on error.
+
+   @note If either label is not found, PMERR_LABEL_NOT_FOUND. If
+         lFirstLabel == lLastLabel, elements between two consecutive
+         occurrences of that label are deleted.
+
+   @see GpiDeleteElement, GpiDeleteElementRange, GpiLabel
+*/
+BOOL APIENTRY GpiDeleteElementsBetweenLabels(HPS hps,
+                                             LONG lFirstLabel,
+                                             LONG lLastLabel)
+{
+    PSEGMENT seg;
+    PELEMENT el;
+    PELEMENT firstLab = NULL, lastLab = NULL;
+    PELEMENT prev;
+
+    INIT_PS(hps, FALSE);
+
+    seg = pps->pOpenSegment;
+    if (seg == NULL) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_NOT_IN_SEG),
+                        SEI_NOBEEP);
+        return FALSE;
+    }
+
+    prev = NULL;
+    for (el = seg->firstElement->next; el != NULL; el = el->next) {
+        if (el->lType == OCODE_GLABL && el->cbData >= (LONG)sizeof(LONG)) {
+            LONG lbl;
+            memcpy(&lbl, el->abData, sizeof(LONG));
+            if (firstLab == NULL) {
+                if (lbl == lFirstLabel) {
+                    firstLab = el;
+                }
+            } else if (lastLab == NULL && lbl == lLastLabel) {
+                lastLab = el;
+            }
+            if (firstLab != NULL && lastLab != NULL) break;
+        }
+        prev = el;
+    }
+
+    if (firstLab == NULL || lastLab == NULL) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_LABEL_NOT_FOUND),
+                        SEI_NOBEEP);
+        return FALSE;
+    }
+
+    /* Walk the list from firstLab->next until lastLab, deleting
+       each element in between. */
+    prev = firstLab;
+    el   = firstLab->next;
+    while (el != NULL && el != lastLab) {
+        PELEMENT next = el->next;
+        RemoveElement(pps, seg, el, prev);
+        el = next;
+    }
+    return TRUE;
+}
+
+/*!
+   @brief Move the element pointer to the element following a label.
+
+   @param[in] hps     Presentation space handle.
+   @param[in] lLabel  Label value to search for.
+
+   @return TRUE on success, FALSE on error.
+
+   @note Reports PMERR_LABEL_NOT_FOUND if no OCODE_GLABL with the
+         given value exists in the open segment.
+
+   @see GpiLabel, GpiSetElementPointer
+*/
+BOOL APIENTRY GpiSetElementPointerAtLabel(HPS hps, LONG lLabel)
+{
+    PSEGMENT seg;
+    PELEMENT el;
+
+    INIT_PS(hps, FALSE);
+
+    seg = pps->pOpenSegment;
+    if (seg == NULL) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_NOT_IN_SEG),
+                        SEI_NOBEEP);
+        return FALSE;
+    }
+
+    for (el = seg->firstElement->next; el != NULL; el = el->next) {
+        if (el->lType == OCODE_GLABL && el->cbData >= (LONG)sizeof(LONG)) {
+            LONG lbl;
+            memcpy(&lbl, el->abData, sizeof(LONG));
+            if (lbl == lLabel) {
+                seg->currentElement = el->next;
+                return TRUE;
+            }
+        }
+    }
+
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_LABEL_NOT_FOUND),
+                    SEI_NOBEEP);
+    return FALSE;
+}
+
+/*!
+   @brief Query an element's data by index.
+
+   @param[in]  hps       Presentation space handle.
+   @param[in]  lElement  Zero-based element index (0 .. lElementCount-1).
+   @param[in]  lLength   Size of pbData.
+   @param[out] pbData    Receives the element payload. Only the first
+                         min(lLength, cbData) bytes are copied.
+
+   @return Element data length in bytes (>= 0), or GPI_ERROR on error.
+
+   @note For an OCODE_GBEL / OCODE_GEEL marker the payload returned
+         is the raw ORDER_GBEL / empty block; use GpiQueryElementType
+         to obtain the user element type and description.
+*/
+LONG APIENTRY GpiQueryElement(HPS hps, LONG lElement,
+                              LONG lLength, PBYTE pbData)
+{
+    PSEGMENT seg;
+    PELEMENT el;
+
+    INIT_PS(hps, GPI_ERROR);
+
+    if (lLength < 0 || (lLength > 0 && pbData == NULL)) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_LENGTH_OR_COUNT),
+                        SEI_NOBEEP);
+        return GPI_ERROR;
+    }
+    seg = pps->pOpenSegment;
+    if (seg == NULL) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_NOT_IN_SEG),
+                        SEI_NOBEEP);
+        return GPI_ERROR;
+    }
+    el = ElementAt(seg, lElement, NULL);
+    if (el == NULL) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_ELEMENT_POINTER),
+                        SEI_NOBEEP);
+        return GPI_ERROR;
+    }
+
+    if (lLength > 0 && el->cbData > 0) {
+        LONG n = (el->cbData < lLength) ? el->cbData : lLength;
+        memcpy(pbData, el->abData, (ULONG)n);
+    }
+    return el->cbData;
+}
+
+/*!
+   @brief Query the type and description of the current element.
+
+   If the element pointer addresses an OCODE_GBEL marker, the
+   element's type and description are taken from ORDER_GBEL. Any
+   other element reports type 0 and an empty description.
+
+   @param[in]  hps       Presentation space handle.
+   @param[out] plType    Receives the element type (0 for non-user
+                         elements).
+   @param[in]  lLength   Size of pszDesc.
+   @param[out] pszDesc   Receives the NUL-terminated description.
+
+   @return Element data length in bytes, or GPI_ERROR on error.
+
+   @note Reports PMERR_NOT_IN_SEG when no segment is open; the
+         current element may be NULL, in which case type 0 and an
+         empty description are returned with length 0.
+*/
+LONG APIENTRY GpiQueryElementType(HPS hps, PLONG plType,
+                                  LONG lLength, PSZ pszDesc)
+{
+    PSEGMENT seg;
+    PELEMENT el;
+
+    INIT_PS(hps, GPI_ERROR);
+
+    if (plType == NULL || lLength < 0
+        || (lLength > 0 && pszDesc == NULL)) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_LENGTH_OR_COUNT),
+                        SEI_NOBEEP);
+        return GPI_ERROR;
+    }
+    seg = pps->pOpenSegment;
+    if (seg == NULL) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_NOT_IN_SEG),
+                        SEI_NOBEEP);
+        return GPI_ERROR;
+    }
+    el = seg->currentElement;
+
+    *plType = 0;
+    if (lLength > 0) pszDesc[0] = '\0';
+
+    if (el == NULL) return 0;
+
+    if (el->lType == OCODE_GBEL && el->cbData >= (LONG)sizeof(ORDER_GBEL)) {
+        ORDER_GBEL *ord = (ORDER_GBEL *)el->abData;
+        LONG        len;
+
+        *plType = ord->lElementType;
+        if (lLength > 0) {
+            len = (LONG)strlen(ord->achDesc);
+            if (len > lLength - 1) len = lLength - 1;
+            memcpy(pszDesc, ord->achDesc, (ULONG)len);
+            pszDesc[len] = '\0';
+        }
+    }
+    return el->cbData;
 }

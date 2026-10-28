@@ -19,6 +19,7 @@
 */
 
 #include <stdlib.h>
+#include <string.h>
 
 /* === GBSEG accessors =============================================== */
 
@@ -214,6 +215,7 @@ PSEGMENT CreateSegment(PPS pps, LONG lSegId, ULONG ulAttrs)
     seg->lastElement    = hdr;
     seg->currentElement = NULL;
     seg->lElementCount  = 0;
+    seg->fInElement     = FALSE;
 
     /* Apply the initial attribute set to the GBSEG flags. */
     {
@@ -365,6 +367,7 @@ void FreeSegmentElements(PSEGMENT seg)
     seg->lastElement    = NULL;
     seg->currentElement = NULL;
     seg->lElementCount  = 0;
+    seg->fInElement     = FALSE;
 }
 
 /*!
@@ -515,7 +518,19 @@ BOOL RecordPolyFilletSharp(PPS pps, LONG lCount, PPOINTL aptlPoints,
 
 /* === Replay ======================================================== */
 
-static BOOL ReplayElement(PPS pps, PELEMENT el)
+/*!
+   @brief Dispatch one recorded element to the presentation driver.
+
+   Non-static: GpiPutData uses it directly to replay the orders it
+   deserializes. The GBSEG header is not replayed (nothing to draw);
+   user elements (lType > 0xFF) are opaque and ignored.
+
+   @param[in] pps  Presentation space.
+   @param[in] el   Element to replay.
+
+   @return TRUE on success, FALSE on error.
+*/
+BOOL ReplayElement(PPS pps, PELEMENT el)
 {
     HDC hdc;
 
@@ -683,6 +698,7 @@ static BOOL ReplayElement(PPS pps, PELEMENT el)
 
     case OCODE_GLABL:
     case OCODE_GBEL:
+    case OCODE_GEEL:
     default:
         return TRUE;
     }

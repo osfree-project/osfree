@@ -76,6 +76,10 @@ typedef struct _ELEMENT {
    No lSegId or ulAttrs fields are kept here. The segment name and
    attributes live in the OCODE_GBSEG header of firstElement; use
    SegmentGetName, SegmentGetAttr, and SegmentSetAttr to access them.
+
+   fInElement tracks the GpiBeginElement / GpiEndElement bracket
+   state (see gpi32segments.c). It is cleared by CreateSegment,
+   FreeSegmentElements, and GpiCloseSegment.
 */
 typedef struct _SEGMENT {
     struct _SEGMENT *next;          /* toward higher priority */
@@ -84,6 +88,7 @@ typedef struct _SEGMENT {
     PELEMENT lastElement;
     PELEMENT currentElement;
     LONG     lElementCount;         /* does not count GBSEG header */
+    BOOL     fInElement;            /* GpiBeginElement/EndElement bracket */
 } SEGMENT, *PSEGMENT;
 
 #define PS_IS_RECORDING(m)  ((m) == DM_RETAIN || (m) == DM_DRAWANDRETAIN)
@@ -275,6 +280,7 @@ BOOL     RecordCharStringPos(PPS pps, ULONG flOptions, LONG cChars,
                              PCH pchString, PRECTL prclRect, PLONG pAdx);
 BOOL     RecordPolyFilletSharp(PPS pps, LONG lCount, PPOINTL aptlPoints,
                                PFIXED afxSharp);
+BOOL     ReplayElement(PPS pps, PELEMENT el);
 BOOL     ReplaySegment(PPS pps, PSEGMENT seg);
 
 /*!

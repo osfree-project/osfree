@@ -14,11 +14,11 @@
 
 #define INCL_PM
 #define INCL_GPIERRORS
+#define INCL_GRE_DEVMISC2
 #include <os2.h>
 
 #define INCL_DEV
 #define INCL_GREALL
-#define INCL_GRE_DEVMISC2
 #include "pmddi.h"
 #include "pmord.h"
 
@@ -36,12 +36,6 @@
 #include "gpi32paths.c"
 #include "gpi32primitives.c"
 #include "gpi32segments.c"
-
-
-BOOL  APIENTRY GpiBeginElement(HPS a, LONG b, PSZ c)
-{
-  return unimplemented(__FUNCTION__);
-}
 
 LONG    APIENTRY GpiBitBlt(HPS hps,HPS hps2,LONG a,PPOINTL b,LONG c,ULONG d)
 {
@@ -88,32 +82,12 @@ BOOL    APIENTRY GpiDeleteBitmap(HBITMAP hbm)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL  APIENTRY GpiDeleteElement(HPS a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL  APIENTRY GpiDeleteElementRange(HPS a, LONG b, LONG c)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL  APIENTRY GpiDeleteElementsBetweenLabels(HPS a, LONG b, LONG c)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL   APIENTRY GpiDeleteMetaFile(HMF hmf)
 {
   return unimplemented(__FUNCTION__);
 }
 
 BOOL  APIENTRY GpiDeleteSetId(HPS hps,LONG a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL  APIENTRY GpiEndElement(HPS a)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -295,16 +269,6 @@ BOOL   APIENTRY GpiQueryDefaultViewMatrix(HPS hps,LONG a,PMATRIXLF b)
 }
 
 BOOL    APIENTRY GpiQueryDeviceBitmapFormats(HPS hps,LONG a,PLONG b)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG  APIENTRY GpiQueryElement(HPS a, LONG b, LONG c, PBYTE d)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG  APIENTRY GpiQueryElementType(HPS a, PLONG b, LONG c, PSZ d)
 {
   return unimplemented(__FUNCTION__);
 }
