@@ -20,7 +20,9 @@
    drawing mode `am`) and, where the recording shape is a single
    RecordElement call, RECORD_OR_DISPATCH. Functions with a custom
    recorder (RecordCharStringPos, RecordPolyFilletSharp) or writing
-   multiple elements keep the explicit if/else pattern on `am`.
+   multiple elements (GpiCharStringAt, GpiCharStringPosAt,
+   GpiFullArc with DRO_FILL/DRO_OUTLINEFILL) keep the explicit
+   if/else pattern on `am`.
 */
 
 /* === GpiBox ======================================================= */
@@ -64,25 +66,91 @@ LONG APIENTRY GpiBox(HPS hps, LONG lControl, PPOINTL pptlPoint,
 
 /* === GpiFullArc =================================================== */
 
+/*!
+   @brief Draw a full arc (circle or ellipse) at the current position.
+
+   Records and/or draws a full arc. Order generation matches EDM2
+   "GpiFullArc - Graphic Elements and Orders":
+
+     - DRO_OUTLINE             : GCFARC alone
+     - DRO_FILL                : GBAR + GCFARC + GEAR
+     - DRO_OUTLINEFILL         : GBAR + GCFARC + GEAR
+
+   GBAR flags (per pmord.h GBAR_*): RES1 (0x80) always set;
+   BOUNDARY (0x40) set only when the outline is also requested
+   (DRO_OUTLINEFILL). For DRO_FILL the arc is filled without drawing
+   its own boundary.
+
+   @param[in] hps           Presentation space handle.
+   @param[in] lControl      DRO_FILL, DRO_OUTLINE, or DRO_OUTLINEFILL.
+   @param[in] fxMultiplier  Arc scale factor. Must be >= 0 and
+                            <= 255.0 (FIXED 16.16, i.e. <= 0x00FF0000).
+                            Per EDM2, implementation limit is 255.
+
+   @return GPI_OK, GPI_HITS, or GPI_ERROR.
+
+   @note The current implementation does not enforce the EDM2
+         restriction that GpiFullArc with DRO_FILL / DRO_OUTLINEFILL
+         must not occur inside another area or path definition.
+         That check requires area/path open-state tracking, which is
+         not implemented yet.
+*/
 LONG APIENTRY GpiFullArc(HPS hps, LONG lControl, FIXED fxMultiplier)
 {
+    ORDER  gbar;
+    ORDER  gear;
+    ULONG  fxRaw;
+
     INIT_DRAWING(hps, GPI_ERROR);
 
-    /* No struct in pmord.h for OCODE_GCFARC. The single FIXED field
-       is recorded as-is. On replay, GreFullArcBoth is used; interior-
-       only / boundary-only are treated identically (full arc both is
-       the standard interpretation, and GreFullArcInterior/-Boundary
-       would need separate OCODEs which pmord.h does not provide). */
-    RECORD_OR_DISPATCH(pps, am, OCODE_GCFARC, 1, sizeof(FIXED),
-                       &fxMultiplier, GPI_OK, GPI_ERROR);
+    /* Validate lControl per EDM2 "GpiFullArc - Parameters". */
+    if (lControl != DRO_FILL && lControl != DRO_OUTLINE
+        && lControl != DRO_OUTLINEFILL) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_ARC_CONTROL),
+                        SEI_NOBEEP);
+        return GPI_ERROR;
+    }
+
+    /* Validate fxMultiplier per EDM2 "GpiFullArc - Parameters":
+       must be non-negative, implementation limit 255.0.
+       FIXED 16.16: 255.0 == 0x00FF0000. Negative values have bit 31
+       set, so (LONG)fxRaw < 0 catches them. */
+    fxRaw = (ULONG)fxMultiplier;
+    if ((LONG)fxRaw < 0 || fxRaw > 0x00FF0000UL) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_MULTIPLIER),
+                        SEI_NOBEEP);
+        return GPI_ERROR;
+    }
+
+    gbar.idCode  = OCODE_GBAR;
+    gbar.uchData = 0x80;              /* GBAR_RESERVED, GBAR_ALTERNATE */
+    if (lControl == DRO_OUTLINEFILL)
+        gbar.uchData |= 0x40;         /* GBAR_BOUNDARY */
+
+    gear.idCode  = OCODE_GEAR;
+    gear.uchData = 0;
+
+    if (PS_IS_RECORDING(am)) {
+        if (lControl != DRO_OUTLINE) {
+            if (!RecordElement(pps, OCODE_GBAR, 1, sizeof(gbar), &gbar))
+                return GPI_ERROR;
+        }
+        if (!RecordElement(pps, OCODE_GCFARC, 1, sizeof(FIXED),
+                           &fxMultiplier))
+            return GPI_ERROR;
+        if (lControl != DRO_OUTLINE) {
+            if (!RecordElement(pps, OCODE_GEAR, 1, sizeof(gear), &gear))
+                return GPI_ERROR;
+        }
+        if (!PS_IS_DRAWING(am))
+            return GPI_OK;
+    }
 
     if (lControl == DRO_OUTLINEFILL)
         return (LONG)GreFullArcBoth(pps->hdc, fxMultiplier);
     if (lControl & DRO_FILL)
         return (LONG)GreFullArcInterior(pps->hdc, fxMultiplier);
-    if (lControl & DRO_OUTLINE)
-        return (LONG)GreFullArcBoundary(pps->hdc, fxMultiplier);
-    return GPI_OK;
+    return (LONG)GreFullArcBoundary(pps->hdc, fxMultiplier);
 }
 
 /* === GpiPartialArc ================================================ */
