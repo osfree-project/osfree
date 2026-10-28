@@ -18,6 +18,7 @@
 
 #define INCL_DEV
 #define INCL_GREALL
+#define INCL_GRE_DEVMISC2
 #include "pmddi.h"
 #include "pmord.h"
 
@@ -118,11 +119,6 @@ BOOL  APIENTRY GpiEndElement(HPS a)
 }
 
 LONG   APIENTRY GpiEqualRegion(HPS hps, HRGN hrgnSrc1, HRGN hrgnSrc2)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiErase(HPS hps)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -313,11 +309,6 @@ BOOL    APIENTRY GpiQueryDeviceBitmapFormats(HPS hps,LONG a,PLONG b)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiQueryDrawControl(HPS hps,LONG a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 LONG  APIENTRY GpiQueryElement(HPS a, LONG b, LONG c, PBYTE d)
 {
   return unimplemented(__FUNCTION__);
@@ -418,11 +409,6 @@ LONG  APIENTRY GpiQueryNumberSetIds(HPS hps)
   return unimplemented(__FUNCTION__);
 }
 
-ULONG  APIENTRY GpiQueryPS(HPS hps,PSIZEL a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL   APIENTRY GpiQueryPageViewport(HPS hps,PRECTL a)
 {
   return unimplemented(__FUNCTION__);
@@ -483,11 +469,6 @@ BOOL  APIENTRY GpiQuerySetIds(HPS hps,LONG a,PLONG b,PSTR8 c,PLONG d)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiQueryStopDraw(HPS hps)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL   APIENTRY GpiQueryTag(HPS hps,PLONG a)
 {
   return unimplemented(__FUNCTION__);
@@ -528,22 +509,7 @@ BOOL   APIENTRY GpiResetBoundaryData(HPS hps)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiResetPS(HPS hps,ULONG a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiRestorePS(HPS hps,LONG a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL   APIENTRY GpiSaveMetaFile(HMF hmf,PCSZ pcsz)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY GpiSavePS(HPS hps)
 {
   return unimplemented(__FUNCTION__);
 }
@@ -633,11 +599,6 @@ BOOL   APIENTRY GpiSetDefaultViewMatrix(HPS hps,LONG a,PMATRIXLF b,LONG c)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetDrawControl(HPS hps,LONG a,LONG b)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL   APIENTRY GpiSetGraphicsField(HPS hps,PRECTL a)
 {
   return unimplemented(__FUNCTION__);
@@ -698,11 +659,6 @@ BOOL   APIENTRY GpiSetModelTransformMatrix(HPS hps,LONG a,PMATRIXLF b,LONG c)
   return unimplemented(__FUNCTION__);
 }
 
-BOOL   APIENTRY GpiSetPS(HPS hps,PSIZEL a,ULONG b)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 BOOL   APIENTRY GpiSetPageViewport(HPS hps,PRECTL a)
 {
   return unimplemented(__FUNCTION__);
@@ -734,11 +690,6 @@ BOOL   APIENTRY GpiSetPickAperturePosition(HPS hps,PPOINTL a)
 }
 
 BOOL   APIENTRY GpiSetRegion(HPS hps, HRGN hrgn, LONG lcount, PRECTL arclRectangles)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-BOOL   APIENTRY GpiSetStopDraw(HPS hps,LONG a)
 {
   return unimplemented(__FUNCTION__);
 }

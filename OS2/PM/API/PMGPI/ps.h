@@ -90,6 +90,31 @@ typedef struct _SEGMENT {
 #define PS_IS_DRAWING(m)    ((m) == DM_DRAW   || (m) == DM_DRAWANDRETAIN)
 
 /*!
+   @brief One saved presentation-space state (GpiSavePS/GpiRestorePS).
+
+   A coarse snapshot of PS-level state. DC-level state (attributes,
+   transforms) is handled by the driver and is not saved here; the
+   OS/2 PM Reference says GpiSavePS saves only the state that belongs
+   to the PS itself.
+
+   Entries form a LIFO stack. IDs are assigned sequentially starting
+   from 1 by GpiSavePS. GpiRestorePS(lPSid) discards the entry with
+   that ID and all later entries (per "GpiRestorePS": "the saved data
+   and all the later saved data are removed").
+
+   @see GpiSavePS, GpiRestorePS
+*/
+typedef struct _PSSAVE {
+    struct _PSSAVE *next;           /* toward older save */
+    ULONG    ulDrawingMode;
+    ULONG    ulDrawControl;
+    ULONG    ulStopDraw;
+    ULONG    ulEditMode;
+    ULONG    ulInitialSegAttrs;
+    SIZEL    sizlPS;
+} PSSAVE, *PPSSAVE;
+
+/*!
    @brief Presentation space (PS) instance data.
 
    PMGPI-level state associated with an HPS. Only PS-scoped state lives
@@ -110,6 +135,21 @@ typedef struct _PS {
     PSEGMENT pOpenSegment;
     ULONG    ulEditMode;
     ULONG    ulInitialSegAttrs;
+
+    /* Draw control (GpiSetDrawControl / GpiQueryDrawControl).
+       Bit N (N = lControl - 1) corresponds to DCTL_ERASE + N. */
+    ULONG    ulDrawControl;
+
+    /* Stop draw (GpiSetStopDraw / GpiQueryStopDraw). SDW_OFF or SDW_ON. */
+    ULONG    ulStopDraw;
+
+    /* PS size (GpiSetPS / GpiQueryPS). */
+    SIZEL    sizlPS;
+
+    /* Saved-state stack (GpiSavePS / GpiRestorePS). */
+    PPSSAVE  pSaveStack;       /*!< most recent save, LIFO */
+    LONG     cSaves;           /*!< number of entries in pSaveStack */
+    LONG     lNextSaveId;      /*!< next save id to assign (starts at 1) */
 } PS, *PPS;
 
 #define PS_FROM_HPS(h)  ((PPS)(h))

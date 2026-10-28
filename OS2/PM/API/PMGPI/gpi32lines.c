@@ -25,28 +25,64 @@
 /*!
    @brief Draw a sequence of disjoint lines.
 
-   Public API-level wrapper around GreDisjointLines.
-
-   @note This function currently dispatches without PS/DC validation;
-         an invalid hps will be passed into the DDI as hdc = 0.
-         TODO: add the same validation as GpiPolyLine.
+   Public API-level wrapper around GreDisjointLines. Points in
+   aptlPoints are paired: (0,1), (2,3), ..., (aptlPoints[lCount-2],
+   aptlPoints[lCount-1]). lCount is the total number of points, not
+   the number of lines; it must be even and non-negative (zero is
+   valid and produces no output). On return the current position is
+   the last point (OS/2 PM Reference, "GpiPolyLineDisjoint -
+   Remarks"; EDM2, "GpiPolyLineDisjoint").
 
    @param[in] hps        Presentation space handle.
-   @param[in] lCount     Number of (X, Y) coordinate pairs.
-   @param[in] aptlPoints Array of lCount POINTL end points.
+   @param[in] lCount     Number of POINTL entries in aptlPoints;
+                         must be even and >= 0.
+   @param[in] aptlPoints Array of lCount points.
 
    @return GPI_OK on success, GPI_ERROR on error.
 
+   @note Does not record the element in retain mode yet. A full
+         implementation must emit, for each (start, end) pair, one
+         OCODE_GLINE order (X'C1', Line at Given Position) carrying
+         exactly those two points. Do NOT use OCODE_GCLINE
+         (X'81', Line at Current Position) for this: GCLINE has no
+         start-point field, so a GCLINE without a preceding GSCP
+         would connect the pairs into one continuous polyline,
+         which is exactly what GpiPolyLineDisjoint must avoid. GOCA
+         has no single batch order for disjoint lines; one GLINE
+         per pair is the correct encoding.
+
+         ReplayElement in segments.c currently handles only
+         OCODE_GCLINE, not OCODE_GLINE; a case for OCODE_GLINE must
+         be added when the recording side is implemented.
+
+         lCount evenness is not checked yet; the current
+         implementation only rejects negative counts. Add an
+         explicit (lCount & 1) check when recording is added.
+
    @see GpiPolyLine, GreDisjointLines
-   @sa  https://www.edm2.com/index.php/GreDisjointLines
+   @sa  https://www.edm2.com/index.php/GpiPolyLineDisjoint
 */
 LONG APIENTRY GpiPolyLineDisjoint(HPS hps, LONG lCount, PPOINTL aptlPoints)
 {
-  LONG rc = (LONG)GreDisjointLines(GpiQueryDevice(hps), aptlPoints, lCount);
-  /* GreDisjointLines returns GPI_ERROR (-1) on failure; any other
-     value (0 = OK, positive = hits/lines) is treated as success,
-     which matches the documented GpiPolyLineDisjoint contract. */
-  return (rc == (LONG)GPI_ERROR) ? GPI_ERROR : GPI_OK;
+    LONG rc;
+
+    INIT_PSDC(hps, GPI_ERROR);
+
+    if (lCount < 0) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_LENGTH_OR_COUNT),
+                        SEI_NOBEEP);
+        return GPI_ERROR;
+    }
+    if (lCount == 0)
+        return GPI_OK;
+    if (aptlPoints == NULL) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_COORDINATE),
+                        SEI_NOBEEP);
+        return GPI_ERROR;
+    }
+
+    rc = (LONG)GreDisjointLines(pps->hdc, aptlPoints, lCount);
+    return (rc == (LONG)GPI_ERROR) ? GPI_ERROR : GPI_OK;
 }
 
 /*!
