@@ -18,9 +18,13 @@
      - GpiQuerySegmentPriority: same LOWER_PRI / HIGHER_PRI semantics.
      - GpiQuerySegmentNames   : lMax is count of identifiers to return.
 
-   Attribute storage: ulAttrs is a bit set. Each ATTR_* identifier from
-   <pmgpi.h> selects one bit via SEGATTR_BIT(a). ATTR_* are identifiers
-   (1..11), NOT bit masks — see ps.h for details.
+   Attribute storage: segment name and attributes live in the GBSEG
+   header (OCODE_GBSEG) at the head of each segment's element list.
+   Access them through SegmentGetName / SegmentGetAttr /
+   SegmentSetAttr (see segments.c). The ATTR_* identifiers come from
+   <pmgpi.h>; they are identifiers (1..11), NOT bit masks. See ps.h
+   for the full ATTR_* -> FLAG1/FLAG2 mapping (IBM SC31-6804,
+   pp. 102-103; AFPC-0008-03, p. 75).
 */
 
 /*!
@@ -121,7 +125,8 @@ BOOL APIENTRY GpiDeleteSegment(HPS hps, LONG lSegId)
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
         return FALSE;
     }
-    if (pps->pOpenSegment != NULL && pps->pOpenSegment->lSegId == lSegId) {
+    if (pps->pOpenSegment != NULL &&
+        SegmentGetName(pps->pOpenSegment) == lSegId) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_SEG_IS_CURRENT),
                         SEI_NOBEEP);
         return FALSE;
@@ -160,8 +165,9 @@ BOOL APIENTRY GpiDeleteSegments(HPS hps, LONG lFirst, LONG lLast)
     }
     seg = pps->firstSegment;
     while (seg != NULL) {
+        LONG lSegId = SegmentGetName(seg);
         next = seg->next;
-        if (seg->lSegId >= lFirst && seg->lSegId <= lLast) {
+        if (lSegId >= lFirst && lSegId <= lLast) {
             if (pps->pOpenSegment == seg) {
                 WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_SEG_IS_CURRENT),
                                 SEI_NOBEEP);
@@ -199,7 +205,8 @@ BOOL APIENTRY GpiDrawSegment(HPS hps, LONG lSegId)
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
         return FALSE;
     }
-    if (pps->pOpenSegment != NULL && pps->pOpenSegment->lSegId == lSegId) {
+    if (pps->pOpenSegment != NULL &&
+        SegmentGetName(pps->pOpenSegment) == lSegId) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_SEG_IS_CURRENT),
                         SEI_NOBEEP);
         return FALSE;
@@ -245,9 +252,9 @@ BOOL APIENTRY GpiDrawChain(HPS hps)
     }
 
     for (seg = pps->firstSegment; seg != NULL; seg = seg->next) {
-        if ((seg->ulAttrs & SEGATTR_BIT(ATTR_CHAINED)) == 0) continue;
-        if (seg->ulAttrs & SEGATTR_BIT(ATTR_DYNAMIC))        continue;
-        if ((seg->ulAttrs & SEGATTR_BIT(ATTR_VISIBLE)) == 0) continue;
+        if (SegmentGetAttr(seg, ATTR_CHAINED) != ATTR_ON)         continue;
+        if (SegmentGetAttr(seg, ATTR_DYNAMIC) == ATTR_ON)         continue;
+        if (SegmentGetAttr(seg, ATTR_VISIBLE) != ATTR_ON)         continue;
         if (!ReplaySegment(pps, seg)) return FALSE;
     }
     return TRUE;
@@ -292,11 +299,12 @@ BOOL APIENTRY GpiDrawFrom(HPS hps, LONG lFirstSegId, LONG lLastSegId)
     }
 
     for (seg = pps->firstSegment; seg != NULL; seg = seg->next) {
-        if (seg->lSegId < lFirstSegId) continue;
-        if (seg->lSegId > lLastSegId)   break;
-        if ((seg->ulAttrs & SEGATTR_BIT(ATTR_CHAINED)) == 0) continue;
-        if (seg->ulAttrs & SEGATTR_BIT(ATTR_DYNAMIC))        continue;
-        if ((seg->ulAttrs & SEGATTR_BIT(ATTR_VISIBLE)) == 0) continue;
+        LONG lSegId = SegmentGetName(seg);
+        if (lSegId < lFirstSegId) continue;
+        if (lSegId > lLastSegId)   break;
+        if (SegmentGetAttr(seg, ATTR_CHAINED) != ATTR_ON) continue;
+        if (SegmentGetAttr(seg, ATTR_DYNAMIC) == ATTR_ON) continue;
+        if (SegmentGetAttr(seg, ATTR_VISIBLE) != ATTR_ON) continue;
         if (!ReplaySegment(pps, seg)) return FALSE;
     }
     return TRUE;
@@ -314,16 +322,23 @@ BOOL APIENTRY GpiDrawFrom(HPS hps, LONG lFirstSegId, LONG lLastSegId)
 
    @return TRUE on success, FALSE on error.
 
-   @note  FM_XOR / BM_LEAVEALONE are set via GreSetMix / GreSetBackMix.
-          These are not mandatory DDI entry points; if the driver
-          ignores them, replay still happens but XOR erase will not
-          work. This is a known limitation.
+   @note  FM_XOR / BM_LEAVEALONE are set via GreSetAttributes with
+          LBB/CBB/MBB/ABB/IBB bundle structures from <pmgpi.h>. This
+          is the DDI way to set mix attributes; the current driver
+          may or may not honour them. If it ignores them, replay
+          still happens but XOR erase will not work. Known
+          limitation.
 */
 BOOL APIENTRY GpiDrawDynamics(HPS hps)
 {
     PPS      pps = LookupPS(hps);
     PSEGMENT seg;
     HDC      hdc;
+    LINEBUNDLE   lb;
+    CHARBUNDLE   cb;
+    MARKERBUNDLE mb;
+    AREABUNDLE   ab;
+    IMAGEBUNDLE  ib;
 
     if (pps == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
@@ -335,13 +350,30 @@ BOOL APIENTRY GpiDrawDynamics(HPS hps)
         return FALSE;
     }
 
-    GreSetMix(hdc, FM_XOR);
-    GreSetBackMix(hdc, BM_LEAVEALONE);
+    /* Set FM_XOR / BM_LEAVEALONE through GreSetAttributes. GreSetMix
+       and GreSetBackMix are not part of the DDI in pmddim.h. */
+    memset(&lb, 0, sizeof(lb));
+    memset(&cb, 0, sizeof(cb));
+    memset(&mb, 0, sizeof(mb));
+    memset(&ab, 0, sizeof(ab));
+    memset(&ib, 0, sizeof(ib));
+
+    lb.usMixMode = FM_XOR; lb.usBackMixMode = BM_LEAVEALONE;
+    cb.usMixMode = FM_XOR; cb.usBackMixMode = BM_LEAVEALONE;
+    mb.usMixMode = FM_XOR; mb.usBackMixMode = BM_LEAVEALONE;
+    ab.usMixMode = FM_XOR; ab.usBackMixMode = BM_LEAVEALONE;
+    ib.usMixMode = FM_XOR; ib.usBackMixMode = BM_LEAVEALONE;
+
+    GreSetAttributes(hdc, LBB_MIX_MODE | LBB_BACK_MIX_MODE, PRIM_LINE,   0, &lb);
+    GreSetAttributes(hdc, CBB_MIX_MODE | CBB_BACK_MIX_MODE, PRIM_CHAR,   0, &cb);
+    GreSetAttributes(hdc, MBB_MIX_MODE | MBB_BACK_MIX_MODE, PRIM_MARKER, 0, &mb);
+    GreSetAttributes(hdc, ABB_MIX_MODE | ABB_BACK_MIX_MODE, PRIM_AREA,   0, &ab);
+    GreSetAttributes(hdc, IBB_MIX_MODE | IBB_BACK_MIX_MODE, PRIM_IMAGE,  0, &ib);
 
     for (seg = pps->firstSegment; seg != NULL; seg = seg->next) {
-        if ((seg->ulAttrs & SEGATTR_BIT(ATTR_DYNAMIC)) == 0) continue;
-        if ((seg->ulAttrs & SEGATTR_BIT(ATTR_CHAINED)) == 0) continue;
-        if ((seg->ulAttrs & SEGATTR_BIT(ATTR_VISIBLE)) == 0) continue;
+        if (SegmentGetAttr(seg, ATTR_DYNAMIC) != ATTR_ON) continue;
+        if (SegmentGetAttr(seg, ATTR_CHAINED) != ATTR_ON) continue;
+        if (SegmentGetAttr(seg, ATTR_VISIBLE) != ATTR_ON) continue;
         if (!ReplaySegment(pps, seg)) return FALSE;
     }
     return TRUE;
@@ -369,6 +401,11 @@ BOOL APIENTRY GpiRemoveDynamics(HPS hps, LONG lFirstSegId, LONG lLastSegId)
     PPS      pps = LookupPS(hps);
     PSEGMENT seg;
     HDC      hdc;
+    LINEBUNDLE   lb;
+    CHARBUNDLE   cb;
+    MARKERBUNDLE mb;
+    AREABUNDLE   ab;
+    IMAGEBUNDLE  ib;
 
     if (pps == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
@@ -380,14 +417,33 @@ BOOL APIENTRY GpiRemoveDynamics(HPS hps, LONG lFirstSegId, LONG lLastSegId)
         return FALSE;
     }
 
-    GreSetMix(hdc, FM_XOR);
-    GreSetBackMix(hdc, BM_LEAVEALONE);
+    /* Same mix handling as GpiDrawDynamics: set FM_XOR / BM_LEAVEALONE
+       through GreSetAttributes (GreSetMix/GreSetBackMix are not part
+       of the DDI in pmddim.h). */
+    memset(&lb, 0, sizeof(lb));
+    memset(&cb, 0, sizeof(cb));
+    memset(&mb, 0, sizeof(mb));
+    memset(&ab, 0, sizeof(ab));
+    memset(&ib, 0, sizeof(ib));
+
+    lb.usMixMode = FM_XOR; lb.usBackMixMode = BM_LEAVEALONE;
+    cb.usMixMode = FM_XOR; cb.usBackMixMode = BM_LEAVEALONE;
+    mb.usMixMode = FM_XOR; mb.usBackMixMode = BM_LEAVEALONE;
+    ab.usMixMode = FM_XOR; ab.usBackMixMode = BM_LEAVEALONE;
+    ib.usMixMode = FM_XOR; ib.usBackMixMode = BM_LEAVEALONE;
+
+    GreSetAttributes(hdc, LBB_MIX_MODE | LBB_BACK_MIX_MODE, PRIM_LINE,   0, &lb);
+    GreSetAttributes(hdc, CBB_MIX_MODE | CBB_BACK_MIX_MODE, PRIM_CHAR,   0, &cb);
+    GreSetAttributes(hdc, MBB_MIX_MODE | MBB_BACK_MIX_MODE, PRIM_MARKER, 0, &mb);
+    GreSetAttributes(hdc, ABB_MIX_MODE | ABB_BACK_MIX_MODE, PRIM_AREA,   0, &ab);
+    GreSetAttributes(hdc, IBB_MIX_MODE | IBB_BACK_MIX_MODE, PRIM_IMAGE,  0, &ib);
 
     for (seg = pps->firstSegment; seg != NULL; seg = seg->next) {
-        if (seg->lSegId < lFirstSegId) continue;
-        if (seg->lSegId > lLastSegId)   break;
-        if ((seg->ulAttrs & SEGATTR_BIT(ATTR_DYNAMIC)) == 0) continue;
-        if ((seg->ulAttrs & SEGATTR_BIT(ATTR_CHAINED)) == 0) continue;
+        LONG lSegId = SegmentGetName(seg);
+        if (lSegId < lFirstSegId) continue;
+        if (lSegId > lLastSegId)   break;
+        if (SegmentGetAttr(seg, ATTR_DYNAMIC) != ATTR_ON) continue;
+        if (SegmentGetAttr(seg, ATTR_CHAINED) != ATTR_ON) continue;
         if (!ReplaySegment(pps, seg)) return FALSE;
     }
     return TRUE;
@@ -456,7 +512,8 @@ LONG APIENTRY GpiCallSegmentMatrix(HPS hps, LONG lSegId, LONG cElements,
                         SEI_NOBEEP);
         return GPI_ERROR;
     }
-    if (pps->pOpenSegment != NULL && pps->pOpenSegment->lSegId == lSegId) {
+    if (pps->pOpenSegment != NULL &&
+        SegmentGetName(pps->pOpenSegment) == lSegId) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_SEG_IS_CURRENT),
                         SEI_NOBEEP);
         return GPI_ERROR;
@@ -566,9 +623,11 @@ LONG APIENTRY GpiQuerySegmentPriority(HPS hps, LONG lRefSegId, LONG lOrder)
 
     if (lRefSegId == 0) {
         if (lOrder == HIGHER_PRI)
-            return (pps->firstSegment != NULL) ? pps->firstSegment->lSegId : 0;
+            return (pps->firstSegment != NULL)
+                   ? SegmentGetName(pps->firstSegment) : 0;
         else
-            return (pps->lastSegment != NULL) ? pps->lastSegment->lSegId : 0;
+            return (pps->lastSegment != NULL)
+                   ? SegmentGetName(pps->lastSegment) : 0;
     }
 
     seg = FindSegment(pps, lRefSegId);
@@ -579,9 +638,9 @@ LONG APIENTRY GpiQuerySegmentPriority(HPS hps, LONG lRefSegId, LONG lOrder)
     }
 
     if (lOrder == HIGHER_PRI)
-        return (seg->next != NULL) ? seg->next->lSegId : 0;
+        return (seg->next != NULL) ? SegmentGetName(seg->next) : 0;
     else
-        return (seg->prev != NULL) ? seg->prev->lSegId : 0;
+        return (seg->prev != NULL) ? SegmentGetName(seg->prev) : 0;
 }
 
 /*!
@@ -596,7 +655,9 @@ LONG APIENTRY GpiQuerySegmentPriority(HPS hps, LONG lRefSegId, LONG lOrder)
 
    @note  Segment id 0 is reserved; its attributes cannot be changed.
           See OS/2 PM Programming Reference Vol.1,
-          "GpiSetSegmentAttrs - Parameters".
+          "GpiSetSegmentAttrs - Parameters". The attribute is written
+          into the GBSEG header (see SegmentSetAttr; IBM SC31-6804,
+          pp. 102-103 for FLAG1, AFPC-0008-03, p. 75 for FLAG2).
 */
 BOOL APIENTRY GpiSetSegmentAttrs(HPS hps, LONG lSegId,
                                  LONG lAttr, LONG lAttrValue)
@@ -619,29 +680,12 @@ BOOL APIENTRY GpiSetSegmentAttrs(HPS hps, LONG lSegId,
                         SEI_NOBEEP);
         return FALSE;
     }
-    switch (lAttr) {
-    case ATTR_DETECTABLE:
-    case ATTR_VISIBLE:
-    case ATTR_CHAINED:
-    case ATTR_DYNAMIC:
-    case ATTR_FASTCHAIN:
-    case ATTR_PROP_DETECTABLE:
-    case ATTR_PROP_VISIBLE:
-        if (lAttrValue == ATTR_ON)
-            seg->ulAttrs |=  SEGATTR_BIT(lAttr);
-        else if (lAttrValue == ATTR_OFF)
-            seg->ulAttrs &= ~SEGATTR_BIT(lAttr);
-        else {
-            WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_SEG_ATTR_VALUE),
-                            SEI_NOBEEP);
-            return FALSE;
-        }
-        return TRUE;
-    default:
+    if (!SegmentSetAttr(seg, lAttr, lAttrValue)) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_SEG_ATTR),
                         SEI_NOBEEP);
         return FALSE;
     }
+    return TRUE;
 }
 
 /*!
@@ -657,7 +701,8 @@ BOOL APIENTRY GpiSetSegmentAttrs(HPS hps, LONG lSegId,
           ATTR_DETECTABLE, ATTR_VISIBLE, ATTR_CHAINED, ATTR_DYNAMIC,
           ATTR_FASTCHAIN, ATTR_PROP_DETECTABLE, ATTR_PROP_VISIBLE.
           See OS/2 PM Programming Reference Vol.1,
-          "GpiQuerySegmentAttrs - Parameters".
+          "GpiQuerySegmentAttrs - Parameters". Values are read from
+          the GBSEG header (see SegmentGetAttr).
 */
 LONG APIENTRY GpiQuerySegmentAttrs(HPS hps, LONG lSegId, LONG lAttr)
 {
@@ -679,20 +724,7 @@ LONG APIENTRY GpiQuerySegmentAttrs(HPS hps, LONG lSegId, LONG lAttr)
                         SEI_NOBEEP);
         return GPI_ERROR;
     }
-    switch (lAttr) {
-    case ATTR_DETECTABLE:
-    case ATTR_VISIBLE:
-    case ATTR_CHAINED:
-    case ATTR_DYNAMIC:
-    case ATTR_FASTCHAIN:
-    case ATTR_PROP_DETECTABLE:
-    case ATTR_PROP_VISIBLE:
-        return (seg->ulAttrs & SEGATTR_BIT(lAttr)) ? ATTR_ON : ATTR_OFF;
-    default:
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_SEG_ATTR),
-                        SEI_NOBEEP);
-        return GPI_ERROR;
-    }
+    return SegmentGetAttr(seg, lAttr);
 }
 
 /*!
@@ -808,8 +840,9 @@ LONG APIENTRY GpiQuerySegmentNames(HPS hps, LONG lFirst, LONG lLast,
         return GPI_ERROR;
     }
     for (seg = pps->firstSegment; seg != NULL && n < lMax; seg = seg->next) {
-        if (seg->lSegId >= lFirst && seg->lSegId <= lLast)
-            alSegIds[n++] = seg->lSegId;
+        LONG lSegId = SegmentGetName(seg);
+        if (lSegId >= lFirst && lSegId <= lLast)
+            alSegIds[n++] = lSegId;
     }
     return n;
 }
@@ -859,6 +892,9 @@ LONG APIENTRY GpiQueryEditMode(HPS hps)
 /*!
    @brief Set the element pointer of the currently open segment.
 
+   The GBSEG header is skipped: element 0 is the first user-visible
+   element of the segment body.
+
    @param[in] hps       Presentation space handle.
    @param[in] lElement  Zero-based element index (0 .. lElementCount).
 
@@ -886,7 +922,7 @@ BOOL APIENTRY GpiSetElementPointer(HPS hps, LONG lElement)
                         SEI_NOBEEP);
         return FALSE;
     }
-    el = seg->firstElement;
+    el = seg->firstElement->next;   /* skip GBSEG header */
     for (i = 0; i < lElement && el != NULL; i++) el = el->next;
     seg->currentElement = el;
     return TRUE;
@@ -894,6 +930,8 @@ BOOL APIENTRY GpiSetElementPointer(HPS hps, LONG lElement)
 
 /*!
    @brief Query the element pointer.
+
+   The GBSEG header is skipped.
 
    @param[in] hps  Presentation space handle.
 
@@ -916,7 +954,8 @@ LONG APIENTRY GpiQueryElementPointer(HPS hps)
                         SEI_NOBEEP);
         return GPI_ERROR;
     }
-    for (el = seg->firstElement; el != NULL && el != seg->currentElement;
+    for (el = seg->firstElement->next;   /* skip GBSEG header */
+         el != NULL && el != seg->currentElement;
          el = el->next)
         i++;
     return i;

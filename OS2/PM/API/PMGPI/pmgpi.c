@@ -21,6 +21,8 @@
 #include "pmddi.h"
 #include "pmord.h"
 
+#include <string.h>
+
 #include "unimpl.h"
 
 #include "ps.h"
@@ -33,6 +35,7 @@
 #include "gpi32paths.c"
 #include "gpi32primitives.c"
 #include "gpi32segments.c"
+
 
 BOOL  APIENTRY GpiBeginElement(HPS a, LONG b, PSZ c)
 {

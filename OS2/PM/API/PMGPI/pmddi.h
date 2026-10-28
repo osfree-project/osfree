@@ -50,6 +50,23 @@ typedef struct _CSP_INFO
   LONG  lBackColor;
 } CSP_INFO, *PCSP_INFO;
 
+/*!
+   @brief GRE transform matrix (XFORM).
+
+   Layout matches the OS/2 GRE XFORM structure used by
+   GreGetModelXform / GreSetModelXform. 9 elements: fxM11..lM33.
+*/
+typedef struct _XFORM {
+    FIXED fxM11;
+    FIXED fxM12;
+    LONG  lM13;
+    FIXED fxM21;
+    FIXED fxM22;
+    LONG  lM23;
+    LONG  lM31;
+    LONG  lM32;
+    LONG  lM33;
+} XFORM, *PXFORM;
 
 
 #include <pmddim.h>

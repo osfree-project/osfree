@@ -18,7 +18,7 @@
  * <pmgpi.h>. They are NOT bit masks: for example ATTR_CHAINED == 6
  * (which would overlap ATTR_VISIBLE == 2 if used directly as a bit
  * mask). To keep one independent bit per attribute in the internal
- * ulAttrs word, shift 1 by the identifier value:
+ * ulInitialSegAttrs word, shift 1 by the identifier value:
  *
  *     bit 1  = ATTR_DETECTABLE
  *     bit 2  = ATTR_VISIBLE
@@ -27,6 +27,10 @@
  *     bit 9  = ATTR_FASTCHAIN
  *     bit 10 = ATTR_PROP_DETECTABLE
  *     bit 11 = ATTR_PROP_VISIBLE
+ *
+ * This bit-set form is used only for PS.ulInitialSegAttrs (defaults).
+ * Per-segment attributes live in the GBSEG header; see SegmentGetAttr
+ * and SegmentSetAttr below.
  *
  * See OS/2 Presentation Manager Programming Reference Vol.1,
  * "GpiQuerySegmentAttrs - Parameters" and
@@ -44,6 +48,11 @@
    [LONG lCount][item0]...[itemN-1] where each item is cbItemSize bytes.
    This is NOT the on-disk GOCA format — it is a compact internal
    representation sufficient for replay via Gre* APIs.
+
+   The first ELEMENT of every segment is always OCODE_GBSEG with a
+   payload of ORDERL_GBSEG (see pmord.h). It carries the segment name
+   (ulName), the SC31-6804 FLAG1 attributes, and the AFPC-0008-03
+   FLAG2 CHAIN bit. That header is NOT counted in lElementCount.
 */
 typedef struct _ELEMENT {
     struct _ELEMENT *next;
@@ -63,16 +72,18 @@ typedef struct _ELEMENT {
    chained graphic segment starts to draw ... until the highest
    priority graphic segment is drawn"). prev links toward lower
    priority and is used by GpiSetSegmentPriority.
+
+   No lSegId or ulAttrs fields are kept here. The segment name and
+   attributes live in the OCODE_GBSEG header of firstElement; use
+   SegmentGetName, SegmentGetAttr, and SegmentSetAttr to access them.
 */
 typedef struct _SEGMENT {
     struct _SEGMENT *next;          /* toward higher priority */
     struct _SEGMENT *prev;          /* toward lower priority  */
-    LONG     lSegId;
-    ULONG    ulAttrs;               /* SEGATTR_BIT(ATTR_*) set */
-    PELEMENT firstElement;
+    PELEMENT firstElement;          /* always OCODE_GBSEG header */
     PELEMENT lastElement;
     PELEMENT currentElement;
-    LONG     lElementCount;
+    LONG     lElementCount;         /* does not count GBSEG header */
 } SEGMENT, *PSEGMENT;
 
 #define PS_IS_RECORDING(m)  ((m) == DM_RETAIN || (m) == DM_DRAWANDRETAIN)
@@ -122,6 +133,59 @@ PSEGMENT CreateSegment(PPS pps, LONG lSegId, ULONG ulAttrs);
 PSEGMENT FindSegment(PPS pps, LONG lSegId);
 void     FreeSegmentElements(PSEGMENT seg);
 void     FreeAllSegments(PPS pps);
+
+/*!
+   @brief Retrieve the segment name from the GBSEG header.
+
+   The name is stored in ORDERL_GBSEG.ulName (offset 2–5 of the GBSEG
+   order). Per IBM SC31-6804, "Begin Segment Command", NAME is a
+   4-byte UBIN.
+
+   @param[in] seg  Segment to query.
+
+   @return 4-byte segment name, or 0 on malformed segment.
+*/
+LONG SegmentGetName(PSEGMENT seg);
+
+/*!
+   @brief Query a segment attribute from the GBSEG header.
+
+   Mapping (IBM SC31-6804 FLAG1 + AFPC-0008-03 FLAG2):
+
+     ATTR_VISIBLE          <-> !FLAG1 bit 0 (INVISIBLE)
+     ATTR_PROP_VISIBLE     <-> !FLAG1 bit 1 (PROPINV)
+     ATTR_DETECTABLE       <->  FLAG1 bit 2 (PICK)
+     ATTR_PROP_DETECTABLE  <->  FLAG1 bit 3 (PROPICK)
+     ATTR_DYNAMIC          <->  FLAG1 bit 6 (DYNAMIC)
+     ATTR_FASTCHAIN        <->  FLAG1 bit 7 (FASTCH)
+     ATTR_CHAINED          <-> !FLAG2 bit 0 (CHAIN)
+
+   HILITE/PROPHI (FLAG1 bits 4–5) have no ATTR_* equivalent in
+   <pmgpi.h> and are not exposed here.
+
+   See IBM SC31-6804, "Begin Segment (GBSEG) Order", pp. 102–103,
+   and AFPC-0008-03, "Begin Segment Command", p. 75.
+
+   @param[in] seg    Segment to query.
+   @param[in] lAttr  ATTR_* identifier.
+
+   @return ATTR_ON, ATTR_OFF, or GPI_ERROR.
+*/
+LONG SegmentGetAttr(PSEGMENT seg, LONG lAttr);
+
+/*!
+   @brief Set a segment attribute in the GBSEG header.
+
+   Same mapping as SegmentGetAttr.
+
+   @param[in] seg     Segment to modify.
+   @param[in] lAttr   ATTR_* identifier.
+   @param[in] lValue  ATTR_ON or ATTR_OFF.
+
+   @return TRUE on success, FALSE on invalid attribute.
+*/
+BOOL SegmentSetAttr(PSEGMENT seg, LONG lAttr, LONG lValue);
+
 BOOL     RecordElement(PPS pps, LONG lType, LONG lCount, LONG cbData,
                        const void *pData);
 BOOL     RecordCharStringPos(PPS pps, ULONG flOptions, LONG cChars,

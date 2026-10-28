@@ -10,15 +10,164 @@
    The segment chain is a doubly-linked list kept in priority order
    (lowest priority first) to support GpiDrawChain / GpiDrawFrom /
    GpiSetSegmentPriority semantics.
+
+   The first element of every segment is an OCODE_GBSEG order whose
+   payload is ORDERL_GBSEG (see pmord.h). That header carries the
+   segment name and its attributes; see SegmentGetName, SegmentGetAttr,
+   SegmentSetAttr. Per IBM SC31-6804, "Begin Segment (GBSEG) Order",
+   pp. 102-103 (FLAG1), and AFPC-0008-03, p. 75 (FLAG2).
 */
 
 #include <stdlib.h>
-#include <string.h>
+
+/* === GBSEG accessors =============================================== */
+
+/*!
+   @brief Return the GBSEG header of a segment, or NULL.
+
+   @param[in] seg  Segment to query.
+
+   @return Pointer to ORDERL_GBSEG inside the first element, or NULL
+           if the segment is malformed (no header, wrong type, or
+           insufficient payload).
+*/
+static ORDERL_GBSEG *GetGbseg(PSEGMENT seg)
+{
+    if (seg == NULL || seg->firstElement == NULL) return NULL;
+    if (seg->firstElement->lType != OCODE_GBSEG)  return NULL;
+    if (seg->firstElement->cbData < (LONG)sizeof(ORDERL_GBSEG))
+        return NULL;
+    return (ORDERL_GBSEG *)seg->firstElement->abData;
+}
+
+/*!
+   @brief Retrieve the segment name from the GBSEG header.
+
+   The name is stored in ORDERL_GBSEG.ulName (offset 2-5 of the
+   GBSEG order). Per IBM SC31-6804, "Begin Segment Command", NAME is
+   a 4-byte UBIN.
+
+   @param[in] seg  Segment to query.
+
+   @return 4-byte segment name, or 0 on malformed segment.
+*/
+LONG SegmentGetName(PSEGMENT seg)
+{
+    ORDERL_GBSEG *p = GetGbseg(seg);
+    return p ? p->ulName : 0;
+}
+
+/*!
+   @brief Map an ATTR_* to a (FLAG1-mask | FLAG2-mask, inverted) triple.
+
+   Per IBM SC31-6804, p. 102 (FLAG1) and AFPC-0008-03, p. 75 (FLAG2).
+   Only one of *pfFlag1 / *pfFlag2 is non-zero for any given ATTR_*.
+
+   @param[in]  lAttr      ATTR_* identifier from <pmgpi.h>.
+   @param[out] pfFlag1    FLAG1 mask, or 0.
+   @param[out] pfFlag2    FLAG2 mask, or 0.
+   @param[out] pfInverted TRUE if ATTR_ON maps to bit=0.
+
+   @return TRUE if lAttr is a known segment attribute, FALSE otherwise.
+*/
+static BOOL AttrToGoca(LONG lAttr, UCHAR *pfFlag1, UCHAR *pfFlag2,
+                       BOOL *pfInverted)
+{
+    *pfFlag1    = 0;
+    *pfFlag2    = 0;
+    *pfInverted = FALSE;
+
+    switch (lAttr) {
+    case ATTR_VISIBLE:
+        *pfFlag1 = GBSEG_INVISIBLE; *pfInverted = TRUE;  return TRUE;
+    case ATTR_PROP_VISIBLE:
+        *pfFlag1 = GBSEG_PROPINV;   *pfInverted = TRUE;  return TRUE;
+    case ATTR_DETECTABLE:
+        *pfFlag1 = GBSEG_PICK;      *pfInverted = FALSE; return TRUE;
+    case ATTR_PROP_DETECTABLE:
+        *pfFlag1 = GBSEG_PROPICK;   *pfInverted = FALSE; return TRUE;
+    case ATTR_DYNAMIC:
+        *pfFlag1 = GBSEG_DYNAMIC;   *pfInverted = FALSE; return TRUE;
+    case ATTR_FASTCHAIN:
+        *pfFlag1 = GBSEG_FASTCH;    *pfInverted = FALSE; return TRUE;
+    case ATTR_CHAINED:
+        *pfFlag2 = GBSEG_CHAIN;     *pfInverted = TRUE;  return TRUE;
+    default:
+        return FALSE;
+    }
+}
+
+/*!
+   @brief Query a segment attribute from the GBSEG header.
+
+   See ps.h for the ATTR_* -> FLAG1/FLAG2 mapping table.
+
+   @param[in] seg    Segment to query.
+   @param[in] lAttr  ATTR_* identifier.
+
+   @return ATTR_ON, ATTR_OFF, or GPI_ERROR.
+*/
+LONG SegmentGetAttr(PSEGMENT seg, LONG lAttr)
+{
+    ORDERL_GBSEG *p = GetGbseg(seg);
+    UCHAR  f1, f2, mask, byte;
+    BOOL   inv, on;
+
+    if (p == NULL) return GPI_ERROR;
+    if (!AttrToGoca(lAttr, &f1, &f2, &inv)) return GPI_ERROR;
+
+    mask = (f1 != 0) ? f1 : f2;
+    byte = (f1 != 0) ? p->fbFlag1 : p->fbFlag2;
+    on   = (byte & mask) != 0;
+    if (inv) on = !on;
+    return on ? ATTR_ON : ATTR_OFF;
+}
+
+/*!
+   @brief Set a segment attribute in the GBSEG header.
+
+   Same mapping as SegmentGetAttr.
+
+   @param[in] seg     Segment to modify.
+   @param[in] lAttr   ATTR_* identifier.
+   @param[in] lValue  ATTR_ON or ATTR_OFF.
+
+   @return TRUE on success, FALSE on invalid attribute.
+*/
+BOOL SegmentSetAttr(PSEGMENT seg, LONG lAttr, LONG lValue)
+{
+    ORDERL_GBSEG *p = GetGbseg(seg);
+    UCHAR  f1, f2, mask;
+    BOOL   inv, on;
+    PUCHAR target;
+
+    if (p == NULL) return FALSE;
+    if (lValue != ATTR_ON && lValue != ATTR_OFF) return FALSE;
+    if (!AttrToGoca(lAttr, &f1, &f2, &inv)) return FALSE;
+
+    mask   = (f1 != 0) ? f1 : f2;
+    target = (f1 != 0) ? &p->fbFlag1 : &p->fbFlag2;
+
+    on = (lValue == ATTR_ON);
+    if (inv) on = !on;
+
+    if (on) *target |=  mask;
+    else    *target &= ~mask;
+    return TRUE;
+}
 
 /* === Segment lifecycle ============================================= */
 
 /*!
    @brief Allocate a segment and append it to the chain (highest pri).
+
+   A GBSEG header element is created and linked as the first element
+   of the new segment. It carries:
+     - ulName       = lSegId;
+     - fbFlag1      = from ulAttrs (SC31-6804, p. 102);
+     - fbFlag2      = GBSEG_APP_NEW, plus GBSEG_CHAIN if !ATTR_CHAINED;
+     - usSegDataLen = 0 (updated only when serialising via GpiGetData);
+     - ulPSName     = 0.
 
    @param[in] pps      Presentation space.
    @param[in] lSegId   Segment identifier (caller validates lSegId > 0).
@@ -33,14 +182,53 @@
 */
 PSEGMENT CreateSegment(PPS pps, LONG lSegId, ULONG ulAttrs)
 {
-    PSEGMENT seg;
+    PSEGMENT      seg;
+    PELEMENT      hdr;
+    ORDERL_GBSEG *p;
 
     if (pps == NULL) return NULL;
     seg = (PSEGMENT)AllocMemZero(sizeof(SEGMENT));
     if (seg == NULL) return NULL;
 
-    seg->lSegId  = lSegId;
-    seg->ulAttrs = ulAttrs;
+    hdr = (PELEMENT)AllocMemZero(sizeof(ELEMENT) + sizeof(ORDERL_GBSEG));
+    if (hdr == NULL) {
+        DosFreeMem(seg);
+        return NULL;
+    }
+
+    hdr->next   = NULL;
+    hdr->lType  = OCODE_GBSEG;
+    hdr->lCount = 1;
+    hdr->cbData = sizeof(ORDERL_GBSEG);
+
+    p = (ORDERL_GBSEG *)hdr->abData;
+    p->uchCode      = OCODE_GBSEG;
+    p->uchLength    = GBSEG_LENGTH;
+    p->ulName       = (ULONG)lSegId;
+    p->fbFlag1      = 0;
+    p->fbFlag2      = GBSEG_APP_NEW;
+    p->usSegDataLen = 0;
+    p->ulPSName     = 0;
+
+    seg->firstElement   = hdr;
+    seg->lastElement    = hdr;
+    seg->currentElement = NULL;
+    seg->lElementCount  = 0;
+
+    /* Apply the initial attribute set to the GBSEG flags. */
+    {
+        static const LONG pm_attrs[] = {
+            ATTR_VISIBLE, ATTR_PROP_VISIBLE,
+            ATTR_DETECTABLE, ATTR_PROP_DETECTABLE,
+            ATTR_DYNAMIC, ATTR_FASTCHAIN,
+            ATTR_CHAINED
+        };
+        int i;
+        for (i = 0; i < (int)(sizeof(pm_attrs)/sizeof(pm_attrs[0])); i++) {
+            LONG on = (ulAttrs & SEGATTR_BIT(pm_attrs[i])) ? ATTR_ON : ATTR_OFF;
+            SegmentSetAttr(seg, pm_attrs[i], on);
+        }
+    }
 
     seg->prev = pps->lastSegment;
     if (pps->lastSegment != NULL)
@@ -55,6 +243,8 @@ PSEGMENT CreateSegment(PPS pps, LONG lSegId, ULONG ulAttrs)
 /*!
    @brief Find a segment by identifier.
 
+   Parses each segment's GBSEG header on the fly via SegmentGetName.
+
    @param[in] pps     Presentation space.
    @param[in] lSegId  Segment identifier.
 
@@ -65,7 +255,7 @@ PSEGMENT FindSegment(PPS pps, LONG lSegId)
     PSEGMENT seg;
     if (pps == NULL) return NULL;
     for (seg = pps->firstSegment; seg != NULL; seg = seg->next) {
-        if (seg->lSegId == lSegId) return seg;
+        if (SegmentGetName(seg) == lSegId) return seg;
     }
     return NULL;
 }
@@ -156,6 +346,9 @@ BOOL InsertSegmentByPriority(PPS pps, PSEGMENT seg,
 /*!
    @brief Free all elements of a segment (segment itself untouched).
 
+   The GBSEG header is part of the element list and is freed along
+   with the body elements.
+
    @param[in] seg  Segment whose element list is freed.
 */
 void FreeSegmentElements(PSEGMENT seg)
@@ -199,6 +392,9 @@ void FreeAllSegments(PPS pps)
 
 /*!
    @brief Append an element to the currently open segment.
+
+   The GBSEG header always precedes the body, so lastElement is never
+   NULL for a valid open segment.
 
    @param[in] pps     Presentation space.
    @param[in] lType   Order code or user element type.
@@ -330,6 +526,10 @@ static BOOL ReplayElement(PPS pps, PELEMENT el)
     if (el->lType > 0xFF) return TRUE;  /* user elements */
 
     switch (el->lType) {
+
+    /* --- GBSEG header: nothing to draw -------------------------- */
+    case OCODE_GBSEG:
+        return TRUE;
 
     /* --- Simple arrays ------------------------------------------ */
     case OCODE_GCLINE:
@@ -490,6 +690,9 @@ static BOOL ReplayElement(PPS pps, PELEMENT el)
 
 /*!
    @brief Replay all elements of a segment into the driver.
+
+   The GBSEG header is skipped by the OCODE_GBSEG case in
+   ReplayElement; only body elements are dispatched.
 
    @param[in] pps  Presentation space.
    @param[in] seg  Segment to replay.

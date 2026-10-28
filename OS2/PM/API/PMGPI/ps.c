@@ -19,7 +19,6 @@
 */
 
 #include <stdlib.h>
-#include <string.h>
 #include "ps.h"
 
 /*!
@@ -250,7 +249,7 @@ BOOL APIENTRY GpiSetDrawingMode(HPS hps, LONG lMode)
         return FALSE;
     }
     if (lMode != DM_DRAW && lMode != DM_RETAIN && lMode != DM_DRAWANDRETAIN) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_MODE),
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_DRAWING_MODE),
                         SEI_NOBEEP);
         return FALSE;
     }

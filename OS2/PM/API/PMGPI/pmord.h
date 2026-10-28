@@ -9,9 +9,14 @@
 
    The order encoding follows the GOCA architecture described in:
 
+   @see IBM SC31-6804, "Graphics Object Content Architecture Reference",
+        Chapter 7, "Commands and Orders — Detailed Description",
+        "Begin Segment (GBSEG) Order", pp. 102-103.
    @see "Graphics Object Content Architecture for Advanced Function
          Presentation Reference", AFPC-0008-03, Fourth Edition, April 2017.
          Chapter 7, "Commands and Drawing Orders", page 73.
+   @see AFP GOCA Reference (AFPC-0008-03, 4th ed., 2017),
+        "Begin Segment Command", p. 75.
    @see AFP GOCA Reference, "Order Formats", page 77 (Fixed 1-byte,
          Fixed 2-byte, Long, and Extended formats).
    @see AFP GOCA Reference, Chapter 3, "AFP GOCA Overview", page 9.
@@ -2505,3 +2510,75 @@ typedef struct _ORDER_GEESCP
 #pragma pack()
 
 
+/* !!!! NEED TO RECHECK !!! */
+
+/*!
+   @brief Begin Segment order (X'70').
+
+   Introduces a stored segment. Structure per SC31-6804, Chapter 7:
+
+   Offset  Type  Name       Meaning
+   0       CODE  X'70'      Begin Segment
+   1       UBIN  LENGTH     X'0C' (or X'0E' with SC31-6804 variant)
+   2-5     UBIN  NAME       4-byte segment name
+   6       BITS  FLAG1      Segment Properties 1 (see below)
+   7       BITS  FLAG2      Segment Properties 2 (see below)
+   8-9     UBIN  SEGL       segment data length
+   10-13   CHAR  P/SNAME    predecessor/successor name (ignored)
+
+   FLAG1 — Segment Properties 1 (SC31-6804, p. 102):
+     bit 0  INVISIBLE  B'0'=visible,    B'1'=invisible
+     bit 1  PROPINV    B'0'=do not propagate invisibility,
+                       B'1'=propagate invisibility
+     bit 2  PICK       B'0'=not pickable, B'1'=pickable
+     bit 3  PROPICK    B'0'=do not propagate pickability,
+                       B'1'=propagate pickability
+     bit 4  HILITE     B'0'=no highlight, B'1'=highlight
+     bit 5  PROPHI     B'0'=do not propagate highlightability,
+                       B'1'=propagate highlightability
+     bit 6  DYNAMIC    B'0'=not dynamic, B'1'=dynamic
+     bit 7  FASTCH     B'0'=fast chaining not set,
+                       B'1'=fast chaining set
+
+   FLAG2 — Segment Properties 2 (AFPC-0008-03, p. 75):
+     bit 0     CHAIN   B'0'=chained, B'1'=unchained
+     bits 1-2  CHPOS   (AFP: ignored)
+     bit 3     PROLOG  B'0'=no prolog, B'1'=prolog
+     bit 4     —       (AFP: ignored)
+     bits 5-6  APP     B'00'=new, B'01'/B'10'=reserved, B'11'=append
+     bit 7     DATAFL  (AFP: ignored)
+
+   @note AFP GOCA (AFPC-0008-03) marks FLAG1 as "Ignored" and only
+         uses FLAG2 bits 0, 3, 5-6. This implementation uses the full
+         SC31-6804 FLAG1 semantics to preserve OS/2 PM GPI
+         attributes (ATTR_VISIBLE, ATTR_DETECTABLE, etc.).
+*/
+
+#define OCODE_GBSEG       0x70
+#define GBSEG_LENGTH      0x0C     /* fixed in AFP; X'0E' also valid per SC31-6804 */
+
+/* FLAG1 masks (SC31-6804, p. 102) */
+#define GBSEG_INVISIBLE   0x01     /* bit 0: B'0'=visible             */
+#define GBSEG_PROPINV     0x02     /* bit 1: B'0'=do not propagate    */
+#define GBSEG_PICK        0x04     /* bit 2: B'1'=pickable            */
+#define GBSEG_PROPICK     0x08     /* bit 3: B'1'=propagate pickable  */
+#define GBSEG_HILITE      0x10     /* bit 4: B'1'=highlight           */
+#define GBSEG_PROPHI      0x20     /* bit 5: B'1'=propagate highlight */
+#define GBSEG_DYNAMIC     0x40     /* bit 6: B'1'=dynamic             */
+#define GBSEG_FASTCH      0x80     /* bit 7: B'1'=fast chaining set   */
+
+/* FLAG2 masks (AFPC-0008-03, p. 75) */
+#define GBSEG_CHAIN       0x01     /* bit 0: B'1'=unchained           */
+#define GBSEG_APP_NEW     0x00     /* APP=B'00': new segment          */
+
+#pragma pack(1)
+typedef struct _ORDERL_GBSEG {
+    UCHAR  uchCode;        /* offset 0     : X'70'            */
+    UCHAR  uchLength;      /* offset 1     : X'0C'            */
+    ULONG  ulName;         /* offset 2-5   : NAME             */
+    UCHAR  fbFlag1;        /* offset 6     : FLAG1 (SC31-6804)*/
+    UCHAR  fbFlag2;        /* offset 7     : FLAG2 (AFP GOCA) */
+    USHORT usSegDataLen;   /* offset 8-9   : SEGL             */
+    ULONG  ulPSName;       /* offset 10-13 : P/SNAME (ignored)*/
+} ORDERL_GBSEG;
+#pragma pack()
