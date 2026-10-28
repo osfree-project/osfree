@@ -18,13 +18,21 @@
      - GpiQuerySegmentPriority: same LOWER_PRI / HIGHER_PRI semantics.
      - GpiQuerySegmentNames   : lMax is count of identifiers to return.
 
-   Attribute storage: segment name and attributes live in the GBSEG
-   header (OCODE_GBSEG) at the head of each segment's element list.
-   Access them through SegmentGetName / SegmentGetAttr /
-   SegmentSetAttr (see segments.c). The ATTR_* identifiers come from
-   <pmgpi.h>; they are identifiers (1..11), NOT bit masks. See ps.h
-   for the full ATTR_* -> FLAG1/FLAG2 mapping (IBM SC31-6804,
-   pp. 102-103; AFPC-0008-03, p. 75).
+   Segment name and attributes live in the GBSEG header (OCODE_GBSEG)
+   at the head of each segment's element list. Access via
+   SegmentGetName / SegmentGetAttr / SegmentSetAttr (see segments.c).
+
+   Functions are grouped by DC requirement:
+     - editing functions (INIT_PS)      : GpiCloseSegment, GpiDeleteSegment,
+       GpiDeleteSegments, GpiSetSegmentAttrs, GpiQuerySegmentAttrs,
+       GpiSetInitialSegmentAttrs, GpiQueryInitialSegmentAttrs,
+       GpiQuerySegmentNames, GpiSetEditMode, GpiQueryEditMode,
+       GpiSetElementPointer, GpiQueryElementPointer,
+       GpiOffsetElementPointer, GpiLabel, GpiElement,
+       GpiSetSegmentPriority, GpiQuerySegmentPriority;
+     - drawing functions (INIT_PSDC)    : GpiOpenSegment, GpiDrawSegment,
+       GpiDrawChain, GpiDrawFrom, GpiDrawDynamics, GpiRemoveDynamics,
+       GpiCallSegmentMatrix.
 */
 
 /*!
@@ -39,17 +47,10 @@
 */
 BOOL APIENTRY GpiOpenSegment(HPS hps, LONG lSegId)
 {
-    PPS pps = LookupPS(hps);
     POINTL ptl;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return FALSE;
-    }
+    INIT_PSDC(hps, FALSE);
+
     if (pps->ulDrawingMode == DM_DRAW) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_IN_DRAW_MODE),
                         SEI_NOBEEP);
@@ -93,12 +94,8 @@ BOOL APIENTRY GpiOpenSegment(HPS hps, LONG lSegId)
 */
 BOOL APIENTRY GpiCloseSegment(HPS hps)
 {
-    PPS pps = LookupPS(hps);
+    INIT_PS(hps, FALSE);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
     if (pps->pOpenSegment == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_NOT_IN_SEG),
                         SEI_NOBEEP);
@@ -118,13 +115,10 @@ BOOL APIENTRY GpiCloseSegment(HPS hps)
 */
 BOOL APIENTRY GpiDeleteSegment(HPS hps, LONG lSegId)
 {
-    PPS      pps = LookupPS(hps);
     PSEGMENT seg;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
+    INIT_PS(hps, FALSE);
+
     if (pps->pOpenSegment != NULL &&
         SegmentGetName(pps->pOpenSegment) == lSegId) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_SEG_IS_CURRENT),
@@ -156,13 +150,10 @@ BOOL APIENTRY GpiDeleteSegment(HPS hps, LONG lSegId)
 */
 BOOL APIENTRY GpiDeleteSegments(HPS hps, LONG lFirst, LONG lLast)
 {
-    PPS      pps = LookupPS(hps);
     PSEGMENT seg, next;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
+    INIT_PS(hps, FALSE);
+
     seg = pps->firstSegment;
     while (seg != NULL) {
         LONG lSegId = SegmentGetName(seg);
@@ -194,17 +185,10 @@ BOOL APIENTRY GpiDeleteSegments(HPS hps, LONG lFirst, LONG lLast)
 */
 BOOL APIENTRY GpiDrawSegment(HPS hps, LONG lSegId)
 {
-    PPS      pps = LookupPS(hps);
     PSEGMENT seg;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return FALSE;
-    }
+    INIT_PSDC(hps, FALSE);
+
     if (pps->pOpenSegment != NULL &&
         SegmentGetName(pps->pOpenSegment) == lSegId) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_SEG_IS_CURRENT),
@@ -239,22 +223,14 @@ BOOL APIENTRY GpiDrawSegment(HPS hps, LONG lSegId)
 */
 BOOL APIENTRY GpiDrawChain(HPS hps)
 {
-    PPS      pps = LookupPS(hps);
     PSEGMENT seg;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return FALSE;
-    }
+    INIT_PSDC(hps, FALSE);
 
     for (seg = pps->firstSegment; seg != NULL; seg = seg->next) {
-        if (SegmentGetAttr(seg, ATTR_CHAINED) != ATTR_ON)         continue;
-        if (SegmentGetAttr(seg, ATTR_DYNAMIC) == ATTR_ON)         continue;
-        if (SegmentGetAttr(seg, ATTR_VISIBLE) != ATTR_ON)         continue;
+        if (SegmentGetAttr(seg, ATTR_CHAINED) != ATTR_ON) continue;
+        if (SegmentGetAttr(seg, ATTR_DYNAMIC) == ATTR_ON) continue;
+        if (SegmentGetAttr(seg, ATTR_VISIBLE) != ATTR_ON) continue;
         if (!ReplaySegment(pps, seg)) return FALSE;
     }
     return TRUE;
@@ -273,17 +249,10 @@ BOOL APIENTRY GpiDrawChain(HPS hps)
 */
 BOOL APIENTRY GpiDrawFrom(HPS hps, LONG lFirstSegId, LONG lLastSegId)
 {
-    PPS      pps = LookupPS(hps);
     PSEGMENT seg;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return FALSE;
-    }
+    INIT_PSDC(hps, FALSE);
+
     if (lFirstSegId <= 0) {
         /* "GpiDrawFrom - Parameters": idFirstSegment must be > 0. */
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_SEG_NAME),
@@ -331,7 +300,6 @@ BOOL APIENTRY GpiDrawFrom(HPS hps, LONG lFirstSegId, LONG lLastSegId)
 */
 BOOL APIENTRY GpiDrawDynamics(HPS hps)
 {
-    PPS      pps = LookupPS(hps);
     PSEGMENT seg;
     HDC      hdc;
     LINEBUNDLE   lb;
@@ -340,15 +308,8 @@ BOOL APIENTRY GpiDrawDynamics(HPS hps)
     AREABUNDLE   ab;
     IMAGEBUNDLE  ib;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
+    INIT_PSDC(hps, FALSE);
     hdc = pps->hdc;
-    if (hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return FALSE;
-    }
 
     /* Set FM_XOR / BM_LEAVEALONE through GreSetAttributes. GreSetMix
        and GreSetBackMix are not part of the DDI in pmddim.h. */
@@ -398,7 +359,6 @@ BOOL APIENTRY GpiDrawDynamics(HPS hps)
 */
 BOOL APIENTRY GpiRemoveDynamics(HPS hps, LONG lFirstSegId, LONG lLastSegId)
 {
-    PPS      pps = LookupPS(hps);
     PSEGMENT seg;
     HDC      hdc;
     LINEBUNDLE   lb;
@@ -407,15 +367,8 @@ BOOL APIENTRY GpiRemoveDynamics(HPS hps, LONG lFirstSegId, LONG lLastSegId)
     AREABUNDLE   ab;
     IMAGEBUNDLE  ib;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
+    INIT_PSDC(hps, FALSE);
     hdc = pps->hdc;
-    if (hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return FALSE;
-    }
 
     /* Same mix handling as GpiDrawDynamics: set FM_XOR / BM_LEAVEALONE
        through GreSetAttributes (GreSetMix/GreSetBackMix are not part
@@ -479,23 +432,16 @@ BOOL APIENTRY GpiRemoveDynamics(HPS hps, LONG lFirstSegId, LONG lLastSegId)
 LONG APIENTRY GpiCallSegmentMatrix(HPS hps, LONG lSegId, LONG cElements,
                                    PMATRIXLF pmatlf, LONG lType)
 {
-    PPS      pps = LookupPS(hps);
     PSEGMENT seg;
     XFORM    oldXform;
     XFORM    newXform;
     LONG     rc;
 
+    INIT_PSDC(hps, GPI_ERROR);
+
     (void)cElements;
     (void)lType;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
     if (lSegId <= 0) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_SEG_NAME),
                         SEI_NOBEEP);
@@ -567,13 +513,10 @@ LONG APIENTRY GpiCallSegmentMatrix(HPS hps, LONG lSegId, LONG cElements,
 BOOL APIENTRY GpiSetSegmentPriority(HPS hps, LONG lSegId,
                                     LONG lRefSegId, LONG lOrder)
 {
-    PPS      pps = LookupPS(hps);
     PSEGMENT seg;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
+    INIT_PS(hps, FALSE);
+
     if (lSegId <= 0) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_SEG_NAME),
                         SEI_NOBEEP);
@@ -613,13 +556,9 @@ BOOL APIENTRY GpiSetSegmentPriority(HPS hps, LONG lSegId,
 */
 LONG APIENTRY GpiQuerySegmentPriority(HPS hps, LONG lRefSegId, LONG lOrder)
 {
-    PPS      pps = LookupPS(hps);
     PSEGMENT seg;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return 0;
-    }
+    INIT_PS(hps, 0);
 
     if (lRefSegId == 0) {
         if (lOrder == HIGHER_PRI)
@@ -662,13 +601,10 @@ LONG APIENTRY GpiQuerySegmentPriority(HPS hps, LONG lRefSegId, LONG lOrder)
 BOOL APIENTRY GpiSetSegmentAttrs(HPS hps, LONG lSegId,
                                  LONG lAttr, LONG lAttrValue)
 {
-    PPS      pps = LookupPS(hps);
     PSEGMENT seg;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
+    INIT_PS(hps, FALSE);
+
     if (lSegId <= 0) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_SEG_NAME),
                         SEI_NOBEEP);
@@ -706,13 +642,10 @@ BOOL APIENTRY GpiSetSegmentAttrs(HPS hps, LONG lSegId,
 */
 LONG APIENTRY GpiQuerySegmentAttrs(HPS hps, LONG lSegId, LONG lAttr)
 {
-    PPS      pps = LookupPS(hps);
     PSEGMENT seg;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
+    INIT_PS(hps, GPI_ERROR);
+
     if (lSegId <= 0) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_SEG_NAME),
                         SEI_NOBEEP);
@@ -744,12 +677,8 @@ LONG APIENTRY GpiQuerySegmentAttrs(HPS hps, LONG lSegId, LONG lAttr)
 */
 BOOL APIENTRY GpiSetInitialSegmentAttrs(HPS hps, LONG lAttr, LONG lAttrValue)
 {
-    PPS pps = LookupPS(hps);
+    INIT_PS(hps, FALSE);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
     switch (lAttr) {
     case ATTR_DETECTABLE:
     case ATTR_VISIBLE:
@@ -785,12 +714,8 @@ BOOL APIENTRY GpiSetInitialSegmentAttrs(HPS hps, LONG lAttr, LONG lAttrValue)
 */
 LONG APIENTRY GpiQueryInitialSegmentAttrs(HPS hps, LONG lAttr)
 {
-    PPS pps = LookupPS(hps);
+    INIT_PS(hps, GPI_ERROR);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
     switch (lAttr) {
     case ATTR_DETECTABLE:
     case ATTR_VISIBLE:
@@ -826,14 +751,11 @@ LONG APIENTRY GpiQueryInitialSegmentAttrs(HPS hps, LONG lAttr)
 LONG APIENTRY GpiQuerySegmentNames(HPS hps, LONG lFirst, LONG lLast,
                                    LONG lMax, PLONG alSegIds)
 {
-    PPS      pps = LookupPS(hps);
     PSEGMENT seg;
     LONG     n = 0;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
+    INIT_PS(hps, GPI_ERROR);
+
     if (lMax <= 0 || alSegIds == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_LENGTH_OR_COUNT),
                         SEI_NOBEEP);
@@ -857,12 +779,8 @@ LONG APIENTRY GpiQuerySegmentNames(HPS hps, LONG lFirst, LONG lLast,
 */
 BOOL APIENTRY GpiSetEditMode(HPS hps, LONG lMode)
 {
-    PPS pps = LookupPS(hps);
+    INIT_PS(hps, FALSE);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
     if (lMode != SEGEM_INSERT && lMode != SEGEM_REPLACE) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_EDIT_MODE),
                         SEI_NOBEEP);
@@ -881,11 +799,7 @@ BOOL APIENTRY GpiSetEditMode(HPS hps, LONG lMode)
 */
 LONG APIENTRY GpiQueryEditMode(HPS hps)
 {
-    PPS pps = LookupPS(hps);
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
+    INIT_PS(hps, GPI_ERROR);
     return (LONG)pps->ulEditMode;
 }
 
@@ -902,15 +816,12 @@ LONG APIENTRY GpiQueryEditMode(HPS hps)
 */
 BOOL APIENTRY GpiSetElementPointer(HPS hps, LONG lElement)
 {
-    PPS      pps = LookupPS(hps);
     PSEGMENT seg;
     PELEMENT el;
     LONG     i;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
+    INIT_PS(hps, FALSE);
+
     seg = pps->pOpenSegment;
     if (seg == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_NOT_IN_SEG),
@@ -939,15 +850,12 @@ BOOL APIENTRY GpiSetElementPointer(HPS hps, LONG lElement)
 */
 LONG APIENTRY GpiQueryElementPointer(HPS hps)
 {
-    PPS      pps = LookupPS(hps);
     PSEGMENT seg;
     PELEMENT el;
     LONG     i = 0;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
+    INIT_PS(hps, GPI_ERROR);
+
     seg = pps->pOpenSegment;
     if (seg == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_NOT_IN_SEG),
@@ -971,12 +879,8 @@ LONG APIENTRY GpiQueryElementPointer(HPS hps)
 */
 BOOL APIENTRY GpiOffsetElementPointer(HPS hps, LONG lOffset)
 {
-    PPS pps = LookupPS(hps);
+    INIT_PS(hps, FALSE);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
     if (pps->pOpenSegment == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_NOT_IN_SEG),
                         SEI_NOBEEP);
@@ -995,12 +899,8 @@ BOOL APIENTRY GpiOffsetElementPointer(HPS hps, LONG lOffset)
 */
 BOOL APIENTRY GpiLabel(HPS hps, LONG lLabel)
 {
-    PPS pps = LookupPS(hps);
+    INIT_PS(hps, FALSE);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
     if (pps->pOpenSegment == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_NOT_IN_SEG),
                         SEI_NOBEEP);
@@ -1023,13 +923,9 @@ BOOL APIENTRY GpiLabel(HPS hps, LONG lLabel)
 BOOL APIENTRY GpiElement(HPS hps, LONG lType, PSZ pszDesc,
                          LONG lLength, PBYTE pbData)
 {
-    PPS pps = LookupPS(hps);
+    INIT_PS(hps, FALSE);
 
     (void)pszDesc;
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
     if (pps->pOpenSegment == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_NOT_IN_SEG),
                         SEI_NOBEEP);

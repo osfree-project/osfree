@@ -15,33 +15,24 @@
    Drawing control for GpiBox / GpiFullArc uses the standard OS/2
    toolkit constants DRO_FILL / DRO_OUTLINE / DRO_OUTLINEFILL
    (defined in <pmgpi.h>).
+
+   All primitives use INIT_DRAWING (which gives `pps` and the actual
+   drawing mode `am`) and, where the recording shape is a single
+   RecordElement call, RECORD_OR_DISPATCH. Functions with a custom
+   recorder (RecordCharStringPos, RecordPolyFilletSharp) or writing
+   multiple elements keep the explicit if/else pattern on `am`.
 */
-
-
-/* Helper for POINTL arrays. */
-static BOOL RecordPoints(PPS pps, LONG lType, LONG lCount, PPOINTL aptl)
-{
-    return RecordElement(pps, lType, lCount,
-                         lCount * (LONG)sizeof(POINTL), aptl);
-}
 
 /* === GpiBox ======================================================= */
 
 LONG APIENTRY GpiBox(HPS hps, LONG lControl, PPOINTL pptlPoint,
                      LONG lHRound, LONG lVRound)
 {
-    PPS          pps = LookupPS(hps);
     ORDERL_GCBOX box;
     BOXPARAMS    bp;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
+    INIT_DRAWING(hps, GPI_ERROR);
+
     if (pptlPoint == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_COORDINATE),
                         SEI_NOBEEP);
@@ -56,12 +47,8 @@ LONG APIENTRY GpiBox(HPS hps, LONG lControl, PPOINTL pptlPoint,
     box.hAxis       = lHRound;
     box.vAxis       = lVRound;
 
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-        if (!RecordElement(pps, OCODE_GCBOX, 1, sizeof(box), &box))
-            return GPI_ERROR;
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
-            return GPI_OK;
-    }
+    RECORD_OR_DISPATCH(pps, am, OCODE_GCBOX, 1, sizeof(box), &box,
+                       GPI_OK, GPI_ERROR);
 
     bp.ptl     = box.ptCorner;
     bp.sizl.cx = box.hAxis;
@@ -79,29 +66,15 @@ LONG APIENTRY GpiBox(HPS hps, LONG lControl, PPOINTL pptlPoint,
 
 LONG APIENTRY GpiFullArc(HPS hps, LONG lControl, FIXED fxMultiplier)
 {
-    PPS pps = LookupPS(hps);
-
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
+    INIT_DRAWING(hps, GPI_ERROR);
 
     /* No struct in pmord.h for OCODE_GCFARC. The single FIXED field
        is recorded as-is. On replay, GreFullArcBoth is used; interior-
        only / boundary-only are treated identically (full arc both is
        the standard interpretation, and GreFullArcInterior/-Boundary
        would need separate OCODEs which pmord.h does not provide). */
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-        if (!RecordElement(pps, OCODE_GCFARC, 1, sizeof(FIXED),
-                           &fxMultiplier))
-            return GPI_ERROR;
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
-            return GPI_OK;
-    }
+    RECORD_OR_DISPATCH(pps, am, OCODE_GCFARC, 1, sizeof(FIXED),
+                       &fxMultiplier, GPI_OK, GPI_ERROR);
 
     if (lControl == DRO_OUTLINEFILL)
         return (LONG)GreFullArcBoth(pps->hdc, fxMultiplier);
@@ -117,17 +90,10 @@ LONG APIENTRY GpiFullArc(HPS hps, LONG lControl, FIXED fxMultiplier)
 LONG APIENTRY GpiPartialArc(HPS hps, PPOINTL pptlCenter,
                             FIXED fxMultiplier, FIXED fxStart, FIXED fxSweep)
 {
-    PPS           pps = LookupPS(hps);
     ORDERL_GCPARC parc;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
+    INIT_DRAWING(hps, GPI_ERROR);
+
     if (pptlCenter == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_COORDINATE),
                         SEI_NOBEEP);
@@ -139,12 +105,9 @@ LONG APIENTRY GpiPartialArc(HPS hps, PPOINTL pptlCenter,
     parc.usStartAngle  = fxStart;
     parc.usSweepAngle  = fxSweep;
 
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-        if (!RecordElement(pps, OCODE_GCPARC, 1, sizeof(parc), &parc))
-            return GPI_ERROR;
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
-            return GPI_OK;
-    }
+    RECORD_OR_DISPATCH(pps, am, OCODE_GCPARC, 1, sizeof(parc), &parc,
+                       GPI_OK, GPI_ERROR);
+
     return (LONG)GrePartialArc(pps->hdc, pptlCenter,
                                fxMultiplier, fxStart, fxSweep);
 }
@@ -153,17 +116,10 @@ LONG APIENTRY GpiPartialArc(HPS hps, PPOINTL pptlCenter,
 
 LONG APIENTRY GpiPointArc(HPS hps, PPOINTL pptlPoint)
 {
-    PPS          pps = LookupPS(hps);
     ORDERL_GCARC arc;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
+    INIT_DRAWING(hps, GPI_ERROR);
+
     if (pptlPoint == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_COORDINATE),
                         SEI_NOBEEP);
@@ -173,12 +129,9 @@ LONG APIENTRY GpiPointArc(HPS hps, PPOINTL pptlPoint)
     arc.ptInter = pptlPoint[0];
     arc.ptEnd   = pptlPoint[1];
 
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-        if (!RecordElement(pps, OCODE_GCARC, 1, sizeof(arc), &arc))
-            return GPI_ERROR;
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
-            return GPI_OK;
-    }
+    RECORD_OR_DISPATCH(pps, am, OCODE_GCARC, 1, sizeof(arc), &arc,
+                       GPI_OK, GPI_ERROR);
+
     return (LONG)GreArc(pps->hdc, pptlPoint);
 }
 
@@ -186,55 +139,33 @@ LONG APIENTRY GpiPointArc(HPS hps, PPOINTL pptlPoint)
 
 LONG APIENTRY GpiLine(HPS hps, PPOINTL pptlEndPoint)
 {
-    PPS pps = LookupPS(hps);
+    INIT_DRAWING(hps, GPI_ERROR);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
     if (pptlEndPoint == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_COORDINATE),
                         SEI_NOBEEP);
         return GPI_ERROR;
     }
 
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-        if (!RecordPoints(pps, OCODE_GCLINE, 1, pptlEndPoint))
-            return GPI_ERROR;
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
-            return GPI_OK;
-    }
+    RECORD_OR_DISPATCH(pps, am, OCODE_GCLINE, 1, sizeof(POINTL),
+                       pptlEndPoint, GPI_OK, GPI_ERROR);
+
     return (LONG)GrePolyLine(pps->hdc, pptlEndPoint, 1);
 }
 
 BOOL APIENTRY GpiMove(HPS hps, PPOINTL pptlPoint)
 {
-    PPS pps = LookupPS(hps);
+    INIT_DRAWING(hps, FALSE);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return FALSE;
-    }
     if (pptlPoint == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_COORDINATE),
                         SEI_NOBEEP);
         return FALSE;
     }
 
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-        if (!RecordElement(pps, OCODE_GSCP, 1, sizeof(POINTL), pptlPoint))
-            return FALSE;
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
-            return TRUE;
-    }
+    RECORD_OR_DISPATCH(pps, am, OCODE_GSCP, 1, sizeof(POINTL), pptlPoint,
+                       TRUE, FALSE);
+
     return GreSetCurrentPosition(pps->hdc, pptlPoint);
 }
 
@@ -242,43 +173,24 @@ BOOL APIENTRY GpiMove(HPS hps, PPOINTL pptlPoint)
 
 LONG APIENTRY GpiMarker(HPS hps, PPOINTL pptlPoint)
 {
-    PPS pps = LookupPS(hps);
+    INIT_DRAWING(hps, GPI_ERROR);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
     if (pptlPoint == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_COORDINATE),
                         SEI_NOBEEP);
         return GPI_ERROR;
     }
 
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-        if (!RecordPoints(pps, OCODE_GCMRK, 1, pptlPoint))
-            return GPI_ERROR;
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
-            return GPI_OK;
-    }
+    RECORD_OR_DISPATCH(pps, am, OCODE_GCMRK, 1, sizeof(POINTL), pptlPoint,
+                       GPI_OK, GPI_ERROR);
+
     return (LONG)GrePolyMarker(pps->hdc, pptlPoint, 1);
 }
 
 LONG APIENTRY GpiPolyMarker(HPS hps, LONG lCount, PPOINTL aptlPoints)
 {
-    PPS pps = LookupPS(hps);
+    INIT_DRAWING(hps, GPI_ERROR);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
     if (lCount < 0) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_LENGTH_OR_COUNT),
                         SEI_NOBEEP);
@@ -291,12 +203,10 @@ LONG APIENTRY GpiPolyMarker(HPS hps, LONG lCount, PPOINTL aptlPoints)
         return GPI_ERROR;
     }
 
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-        if (!RecordPoints(pps, OCODE_GCMRK, lCount, aptlPoints))
-            return GPI_ERROR;
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
-            return GPI_OK;
-    }
+    RECORD_OR_DISPATCH(pps, am, OCODE_GCMRK, lCount,
+                       lCount * (LONG)sizeof(POINTL), aptlPoints,
+                       GPI_OK, GPI_ERROR);
+
     return (LONG)GrePolyMarker(pps->hdc, aptlPoints, lCount);
 }
 
@@ -304,16 +214,8 @@ LONG APIENTRY GpiPolyMarker(HPS hps, LONG lCount, PPOINTL aptlPoints)
 
 LONG APIENTRY GpiPolyFillet(HPS hps, LONG lCount, PPOINTL aptlPoints)
 {
-    PPS pps = LookupPS(hps);
+    INIT_DRAWING(hps, GPI_ERROR);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
     if (lCount < 0) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_LENGTH_OR_COUNT),
                         SEI_NOBEEP);
@@ -326,27 +228,17 @@ LONG APIENTRY GpiPolyFillet(HPS hps, LONG lCount, PPOINTL aptlPoints)
         return GPI_ERROR;
     }
 
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-        if (!RecordPoints(pps, OCODE_GCFLT, lCount, aptlPoints))
-            return GPI_ERROR;
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
-            return GPI_OK;
-    }
+    RECORD_OR_DISPATCH(pps, am, OCODE_GCFLT, lCount,
+                       lCount * (LONG)sizeof(POINTL), aptlPoints,
+                       GPI_OK, GPI_ERROR);
+
     return (LONG)GrePolyFillet(pps->hdc, aptlPoints, lCount);
 }
 
 LONG APIENTRY GpiPolySpline(HPS hps, LONG lCount, PPOINTL aptlPoints)
 {
-    PPS pps = LookupPS(hps);
+    INIT_DRAWING(hps, GPI_ERROR);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
     if (lCount < 0) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_LENGTH_OR_COUNT),
                         SEI_NOBEEP);
@@ -359,12 +251,10 @@ LONG APIENTRY GpiPolySpline(HPS hps, LONG lCount, PPOINTL aptlPoints)
         return GPI_ERROR;
     }
 
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-        if (!RecordPoints(pps, OCODE_GCBEZ, lCount, aptlPoints))
-            return GPI_ERROR;
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
-            return GPI_OK;
-    }
+    RECORD_OR_DISPATCH(pps, am, OCODE_GCBEZ, lCount,
+                       lCount * (LONG)sizeof(POINTL), aptlPoints,
+                       GPI_OK, GPI_ERROR);
+
     return (LONG)GrePolySpline(pps->hdc, aptlPoints, lCount);
 }
 
@@ -373,16 +263,8 @@ LONG APIENTRY GpiPolySpline(HPS hps, LONG lCount, PPOINTL aptlPoints)
 LONG APIENTRY GpiPolyFilletSharp(HPS hps, LONG lCount, PPOINTL aptlPoints,
                                  PFIXED afxSharp)
 {
-    PPS pps = LookupPS(hps);
+    INIT_DRAWING(hps, GPI_ERROR);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
     if (lCount < 0) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_LENGTH_OR_COUNT),
                         SEI_NOBEEP);
@@ -395,14 +277,17 @@ LONG APIENTRY GpiPolyFilletSharp(HPS hps, LONG lCount, PPOINTL aptlPoints,
         return GPI_ERROR;
     }
 
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
+    /* Custom recorder (ORDERL_GCSFLT), not RecordElement. */
+    if (PS_IS_RECORDING(am)) {
         if (!RecordPolyFilletSharp(pps, lCount, aptlPoints, afxSharp))
             return GPI_ERROR;
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
+        if (!PS_IS_DRAWING(am))
             return GPI_OK;
     }
     return (LONG)GrePolyFilletSharp(pps->hdc, aptlPoints, lCount, afxSharp);
 }
+
+/* === Character string primitives ================================== */
 
 /*!
    @brief Draw a character string at the current position.
@@ -417,16 +302,8 @@ LONG APIENTRY GpiPolyFilletSharp(HPS hps, LONG lCount, PPOINTL aptlPoints,
 */
 LONG APIENTRY GpiCharString(HPS hps, LONG lCount, PCH pchString)
 {
-    PPS pps = LookupPS(hps);
+    INIT_DRAWING(hps, GPI_ERROR);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
     if (lCount < 0) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_LENGTH_OR_COUNT),
                         SEI_NOBEEP);
@@ -439,12 +316,9 @@ LONG APIENTRY GpiCharString(HPS hps, LONG lCount, PCH pchString)
         return GPI_ERROR;
     }
 
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-        if (!RecordElement(pps, OCODE_GCCHST, lCount, lCount, pchString))
-            return GPI_ERROR;
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
-            return GPI_OK;
-    }
+    RECORD_OR_DISPATCH(pps, am, OCODE_GCCHST, lCount, lCount, pchString,
+                       GPI_OK, GPI_ERROR);
+
     return (LONG)GreCharString(pps->hdc, lCount, pchString);
 }
 
@@ -463,16 +337,8 @@ LONG APIENTRY GpiCharString(HPS hps, LONG lCount, PCH pchString)
 LONG APIENTRY GpiCharStringAt(HPS hps, PPOINTL pptlPoint,
                               LONG lCount, PCH pchString)
 {
-    PPS pps = LookupPS(hps);
+    INIT_DRAWING(hps, GPI_ERROR);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
     if (pptlPoint == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_COORDINATE),
                         SEI_NOBEEP);
@@ -490,12 +356,13 @@ LONG APIENTRY GpiCharStringAt(HPS hps, PPOINTL pptlPoint,
         return GPI_ERROR;
     }
 
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
+    /* Two elements: GSCP (set position) + GCCHST (string). */
+    if (PS_IS_RECORDING(am)) {
         if (!RecordElement(pps, OCODE_GSCP, 1, sizeof(POINTL), pptlPoint))
             return GPI_ERROR;
         if (!RecordElement(pps, OCODE_GCCHST, lCount, lCount, pchString))
             return GPI_ERROR;
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
+        if (!PS_IS_DRAWING(am))
             return GPI_OK;
     }
     return (LONG)GreCharStringPos(pps->hdc, pptlPoint, NULL,
@@ -522,16 +389,8 @@ LONG APIENTRY GpiCharStringPos(HPS hps, PRECTL prclRect,
                                ULONG flOptions, LONG lCount, PCH pchString,
                                PLONG pAdx)
 {
-    PPS pps = LookupPS(hps);
+    INIT_DRAWING(hps, GPI_ERROR);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
     if (flOptions & CHS_START_XY) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_CHAR_POS_OPTIONS),
                         SEI_NOBEEP);
@@ -549,11 +408,12 @@ LONG APIENTRY GpiCharStringPos(HPS hps, PRECTL prclRect,
         return GPI_ERROR;
     }
 
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
+    /* Custom recorder (ORDERL_GCCHSTE). */
+    if (PS_IS_RECORDING(am)) {
         if (!RecordCharStringPos(pps, flOptions, lCount, pchString,
                                  prclRect, pAdx))
             return GPI_ERROR;
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
+        if (!PS_IS_DRAWING(am))
             return GPI_OK;
     }
     return (LONG)GreCharStringPos(pps->hdc, NULL, prclRect, flOptions,
@@ -580,16 +440,10 @@ LONG APIENTRY GpiCharStringPosAt(HPS hps, PPOINTL pptlPoint, PRECTL prclRect,
                                  ULONG flOptions, LONG lCount, PCH pchString,
                                  PLONG pAdx)
 {
-    PPS pps = LookupPS(hps);
+    ULONG fl;
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
+    INIT_DRAWING(hps, GPI_ERROR);
+
     if (pptlPoint == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_COORDINATE),
                         SEI_NOBEEP);
@@ -607,13 +461,14 @@ LONG APIENTRY GpiCharStringPosAt(HPS hps, PPOINTL pptlPoint, PRECTL prclRect,
         return GPI_ERROR;
     }
 
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-        ULONG fl = flOptions & ~CHS_START_XY;
+    /* Two elements: GSCP + ORDERL_GCCHSTE via RecordCharStringPos. */
+    if (PS_IS_RECORDING(am)) {
+        fl = flOptions & ~CHS_START_XY;
         if (!RecordElement(pps, OCODE_GSCP, 1, sizeof(POINTL), pptlPoint))
             return GPI_ERROR;
         if (!RecordCharStringPos(pps, fl, lCount, pchString, prclRect, pAdx))
             return GPI_ERROR;
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
+        if (!PS_IS_DRAWING(am))
             return GPI_OK;
     }
     return (LONG)GreCharStringPos(pps->hdc, pptlPoint, prclRect,
@@ -638,23 +493,15 @@ LONG APIENTRY GpiCharStringPosAt(HPS hps, PPOINTL pptlPoint, PRECTL prclRect,
 */
 BOOL APIENTRY GpiComment(HPS hps, LONG lLength, PBYTE pbData)
 {
-    PPS pps = LookupPS(hps);
+    INIT_DRAWING(hps, FALSE);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return FALSE;
-    }
-    if (PS_IS_RECORDING(pps->ulDrawingMode)) {
+    if (PS_IS_RECORDING(am)) {
         if (lLength > 0) {
             if (pbData == NULL) return FALSE;
             if (!RecordElement(pps, OCODE_GCOMT, lLength, lLength, pbData))
                 return FALSE;
         }
-        if (!PS_IS_DRAWING(pps->ulDrawingMode))
+        if (!PS_IS_DRAWING(am))
             return TRUE;
     }
     return TRUE;

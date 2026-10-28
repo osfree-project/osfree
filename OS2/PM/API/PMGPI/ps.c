@@ -19,6 +19,7 @@
 */
 
 #include <stdlib.h>
+#include <string.h>
 #include "ps.h"
 
 /*!
@@ -47,29 +48,38 @@ static PVOID AllocMemZero(ULONG cb)
    @brief Look up a PS by its HPS (see ps.h for contract).
 
    @param[in] hps  Handle to look up.
-   @return Pointer to PS or NULL.
+   @return Pointer to PS or NULL (error info set on failure).
 */
 PPS LookupPS(HPS hps)
 {
     PPS pps;
-    if (hps == (HPS)0) return NULL;
+
+    if (hps == (HPS)0) goto bad;
     pps = PS_FROM_HPS(hps);
-    if (pps->ulMagic != PS_MAGIC || pps->hpsSelf != hps) return NULL;
+    if (pps->ulMagic != PS_MAGIC || pps->hpsSelf != hps) goto bad;
     return pps;
+
+bad:
+    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
+    return NULL;
 }
 
-/*
- * Quiet helper: no WinSetErrorInfo. Returns FALSE for both invalid
- * HPS and missing DC association; the caller decides which PMERR_*
- * to set. Currently unused by the callers in this file, kept for
- * symmetry with gpi32lines.c.
- */
-static BOOL HpsToDc(HPS hps, HDC *phdc)
+/*!
+   @brief Look up a PS and require it to have an associated DC
+          (see ps.h for contract).
+
+   @param[in] hps  Handle to look up.
+   @return Pointer to PS with non-zero hdc, or NULL (error info set).
+*/
+PPS LookupPSDC(HPS hps)
 {
     PPS pps = LookupPS(hps);
-    if (pps == NULL || pps->hdc == (HDC)0) return FALSE;
-    *phdc = pps->hdc;
-    return TRUE;
+    if (pps == NULL) return NULL;
+    if (pps->hdc == (HDC)0) {
+        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
+        return NULL;
+    }
+    return pps;
 }
 
 /*!
@@ -159,12 +169,7 @@ HPS APIENTRY GpiCreatePS(HAB hab, HDC hdc, PSIZEL psizlSize, ULONG flOptions)
 */
 BOOL APIENTRY GpiAssociate(HPS hps, HDC hdc)
 {
-    PPS pps = LookupPS(hps);
-
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
+    INIT_PS(hps, FALSE);
 
     pps->hdc = hdc;
     return TRUE;
@@ -184,12 +189,7 @@ BOOL APIENTRY GpiAssociate(HPS hps, HDC hdc)
 */
 BOOL APIENTRY GpiDestroyPS(HPS hps)
 {
-    PPS pps = LookupPS(hps);
-
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
+    INIT_PS(hps, FALSE);
 
     pps->hdc = (HDC)0;
     FreeAllSegments(pps);
@@ -213,16 +213,7 @@ BOOL APIENTRY GpiDestroyPS(HPS hps)
 */
 HDC APIENTRY GpiQueryDevice(HPS hps)
 {
-    PPS pps = LookupPS(hps);
-
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return (HDC)0;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return (HDC)0;
-    }
+    INIT_PSDC(hps, (HDC)0);
     return pps->hdc;
 }
 
@@ -242,12 +233,8 @@ HDC APIENTRY GpiQueryDevice(HPS hps)
 */
 BOOL APIENTRY GpiSetDrawingMode(HPS hps, LONG lMode)
 {
-    PPS pps = LookupPS(hps);
+    INIT_PS(hps, FALSE);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
     if (lMode != DM_DRAW && lMode != DM_RETAIN && lMode != DM_DRAWANDRETAIN) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_DRAWING_MODE),
                         SEI_NOBEEP);
@@ -269,11 +256,23 @@ BOOL APIENTRY GpiSetDrawingMode(HPS hps, LONG lMode)
 */
 LONG APIENTRY GpiQueryDrawingMode(HPS hps)
 {
-    PPS pps = LookupPS(hps);
-
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
+    INIT_PS(hps, GPI_ERROR);
     return (LONG)pps->ulDrawingMode;
+}
+
+/*!
+   @brief Compute the actual drawing mode (see ps.h for contract).
+
+   @param[in] pps  Presentation space (may be NULL).
+   @return DM_DRAW, DM_RETAIN, or DM_DRAWANDRETAIN.
+*/
+ULONG ActualDrawingMode(PPS pps)
+{
+    if (pps == NULL)                return DM_DRAW;
+    if (pps->pOpenSegment == NULL)  return DM_DRAW;
+    if (SegmentGetAttr(pps->pOpenSegment, ATTR_CHAINED) == ATTR_ON)
+        return pps->ulDrawingMode;
+    /* Unchained segment, or malformed header (GPI_ERROR == 0 == ATTR_OFF
+       due to the OS/2 toolkit constant collision) — treat as unchained. */
+    return DM_RETAIN;
 }

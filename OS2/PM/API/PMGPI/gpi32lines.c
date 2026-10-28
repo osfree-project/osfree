@@ -12,10 +12,10 @@
 
    Included by pmgpi.c. Provides 32-bit implementations of a subset of
    Gpi* line/position primitives. Each function performs PMGPI-level
-   validation (PS lookup via LookupPS, DC association, retain-mode
-   restrictions where applicable) before dispatching the operation into
-   the presentation driver through the corresponding Gre* DDI macro in
-   pmddim.h.
+   validation (PS lookup via LookupPS / LookupPSDC, DC association,
+   retain-mode restrictions where applicable) before dispatching the
+   operation into the presentation driver through the corresponding
+   Gre* DDI macro in pmddim.h.
 
    Note on pInstance: the Gre* macros in pmddim.h pass 0L for the
    pInstance argument; the graphics engine substitutes the correct
@@ -67,16 +67,8 @@ LONG APIENTRY GpiPolyLineDisjoint(HPS hps, LONG lCount, PPOINTL aptlPoints)
 */
 BOOL APIENTRY GpiQueryCurrentPosition(HPS hps, PPOINTL pptl)
 {
-    PPS pps = LookupPS(hps);
+    INIT_PSDC(hps, FALSE);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return FALSE;
-    }
     if (pptl == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_COORDINATE),
                         SEI_NOBEEP);
@@ -109,16 +101,8 @@ BOOL APIENTRY GpiQueryCurrentPosition(HPS hps, PPOINTL pptl)
 */
 BOOL APIENTRY GpiSetCurrentPosition(HPS hps, PPOINTL pptl)
 {
-    PPS pps = LookupPS(hps);
+    INIT_PSDC(hps, FALSE);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return FALSE;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return FALSE;
-    }
     if (pptl == NULL) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_COORDINATE),
                         SEI_NOBEEP);
@@ -146,21 +130,18 @@ BOOL APIENTRY GpiSetCurrentPosition(HPS hps, PPOINTL pptl)
 
    @return GPI_OK, GPI_HITS, or GPI_ERROR.
 
+   @note  This function previously did not record the element in
+          retain-mode. INIT_DRAWING + RECORD_OR_DISPATCH now records
+          it, so GpiPolyLine behaves consistently with GpiLine and
+          other primitives.
+
    @see GpiPolyLineDisjoint, GrePolyLine
    @sa  https://www.edm2.com/index.php/GrePolyLine
 */
 LONG APIENTRY GpiPolyLine(HPS hps, LONG lCount, PPOINTL aptlPoints)
 {
-    PPS pps = LookupPS(hps);
+    INIT_DRAWING(hps, GPI_ERROR);
 
-    if (pps == NULL) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
-    if (pps->hdc == (HDC)0) {
-        WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-        return GPI_ERROR;
-    }
     if (lCount < 0) {
         WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_LENGTH_OR_COUNT),
                         SEI_NOBEEP);
@@ -173,6 +154,10 @@ LONG APIENTRY GpiPolyLine(HPS hps, LONG lCount, PPOINTL aptlPoints)
                         SEI_NOBEEP);
         return GPI_ERROR;
     }
+
+    RECORD_OR_DISPATCH(pps, am, OCODE_GCLINE, lCount,
+                       lCount * (LONG)sizeof(POINTL), aptlPoints,
+                       GPI_OK, GPI_ERROR);
 
     return (LONG)GrePolyLine(pps->hdc, aptlPoints, lCount);
 }

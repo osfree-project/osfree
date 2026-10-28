@@ -118,15 +118,58 @@ typedef struct _PS {
 /*!
    @brief Look up a PS by its HPS.
 
-   Validates the magic and self-reference, and returns the PS pointer.
-   Intended for use inside PMGPI translation units (e.g. gpi32lines.c);
-   not part of the public API.
+   Validates the magic and self-reference. On failure calls
+   WinSetErrorInfo with PMERR_INV_HPS and returns NULL — callers
+   only need to check for NULL and return their error value.
+
+   Does NOT require the PS to have an associated DC. Editing
+   functions (GpiSetEditMode, GpiSetElementPointer, GpiLabel,
+   GpiSetSegmentPriority, GpiAssociate(hps, 0), ...) must be usable
+   on a PS without a DC, so they use this function, not LookupPSDC.
 
    @param[in] hps  Handle to look up.
 
-   @return Pointer to PS, or NULL if hps is not a valid PS handle.
+   @return Pointer to PS, or NULL (error info set).
 */
 PPS LookupPS(HPS hps);
+
+/*!
+   @brief Look up a PS and require it to have an associated DC.
+
+   Calls LookupPS first. If the PS has no DC, calls WinSetErrorInfo
+   with PMERR_INV_HDC and returns NULL. Drawing primitives and any
+   function that dispatches into Gre* must use this, not LookupPS.
+
+   @param[in] hps  Handle to look up.
+
+   @return Pointer to PS with a non-zero hdc, or NULL (error info set).
+*/
+PPS LookupPSDC(HPS hps);
+
+/*!
+   @brief Compute the actual drawing mode.
+
+   The value set by GpiSetDrawingMode is only a desired mode; the
+   actual behaviour depends on the current context, per OS/2 PM
+   Programming Reference Vol.1, "Actual Drawing Mode":
+
+     - Outside a segment          : always DM_DRAW
+     - Inside an unchained segment: always DM_RETAIN
+     - Inside a chained segment   : whatever GpiSetDrawingMode set
+
+   A segment is chained when its ATTR_CHAINED attribute is ON. See
+   "GpiSetSegmentAttrs - Parameters" for the attribute.
+
+   If the segment header cannot be parsed (SegmentGetAttr returns
+   GPI_ERROR, which coincides with ATTR_OFF == 0), the segment is
+   treated as unchained, i.e. the function returns DM_RETAIN. This
+   is the safest interpretation for a corrupted header.
+
+   @param[in] pps  Presentation space (may be NULL).
+
+   @return One of DM_DRAW, DM_RETAIN, DM_DRAWANDRETAIN.
+*/
+ULONG ActualDrawingMode(PPS pps);
 
 /* Segment internals (implemented in segments.c) */
 PSEGMENT CreateSegment(PPS pps, LONG lSegId, ULONG ulAttrs);
@@ -215,5 +258,144 @@ BOOL     ReplaySegment(PPS pps, PSEGMENT seg);
 */
 BOOL InsertSegmentByPriority(PPS pps, PSEGMENT seg,
                              LONG lRefSegId, LONG lOrder);
+
+/* ==================================================================
+ * Boilerplate macros
+ *
+ * The three INIT_* macros declare the `pps` (and, for INIT_DRAWING,
+ * also the `am`) locals and validate the HPS/DC in one line. They
+ * MUST be the last thing before the first statement of the function
+ * (C89: declarations-before-statements). Callers add the trailing
+ * semicolon.
+ *
+ * After INIT_DRAWING, `pps` and `am` are both visible; `am` is the
+ * actual drawing mode computed by ActualDrawingMode, so all further
+ * PS_IS_RECORDING / PS_IS_DRAWING checks MUST use `am`, not
+ * `pps->ulDrawingMode`.
+ * ================================================================== */
+
+/*!
+   @brief Declare and initialize a PS local (no DC required).
+
+   Expands to:
+     PPS pps = LookupPS(hps);
+     if (pps == NULL) return (errval);
+
+   Use in editing functions that work on a PS without an associated
+   DC (GpiSetEditMode, GpiSetElementPointer, GpiLabel, GpiElement,
+   GpiSetInitialSegmentAttrs, GpiSetSegmentPriority, GpiAssociate,
+   GpiSetDrawingMode, GpiQueryDrawingMode, ...).
+
+   @param[in] hps     Presentation space handle (function argument).
+   @param[in] errval  Value to return on bad hps (FALSE, GPI_ERROR,
+                      0, (HBITMAP)0, ...).
+
+   @see LookupPS
+*/
+#define INIT_PS(hps, errval) \
+    PPS pps = LookupPS(hps); \
+    do { \
+        if (pps == NULL) return (errval); \
+    } while (0)
+
+/*!
+   @brief Declare and initialize a PS local with a DC (no mode).
+
+   Expands to:
+     PPS pps = LookupPSDC(hps);
+     if (pps == NULL) return (errval);
+
+   Use in functions that dispatch into Gre* or otherwise need a DC
+   but do not compute an actual drawing mode (GpiQueryCurrentPosition,
+   GpiSetCurrentPosition, GpiDrawChain, GpiDrawFrom, GpiDrawSegment,
+   GpiDrawDynamics, GpiRemoveDynamics, GpiErase, ...).
+
+   @param[in] hps     Presentation space handle (function argument).
+   @param[in] errval  Value to return on bad hps / missing DC.
+
+   @see LookupPSDC
+*/
+#define INIT_PSDC(hps, errval) \
+    PPS pps = LookupPSDC(hps); \
+    do { \
+        if (pps == NULL) return (errval); \
+    } while (0)
+
+/*!
+   @brief Declare and initialize PS/mode locals for a drawing primitive.
+
+   Expands to:
+     PPS   pps = LookupPSDC(hps);
+     ULONG am;
+     if (pps == NULL) return (errval);
+     am = ActualDrawingMode(pps);
+
+   Use in every drawing primitive that records and/or dispatches into
+   Gre* — GpiLine, GpiBox, GpiFullArc, GpiPartialArc, GpiPointArc,
+   GpiMove, GpiMarker, GpiPolyMarker, GpiPolyFillet, GpiPolySpline,
+   GpiCharString, GpiPolyLine, all GpiBegin/End/…Path functions, etc.
+
+   `am` is already the actual drawing mode, so all subsequent
+   PS_IS_RECORDING / PS_IS_DRAWING checks must use `am`, not
+   `pps->ulDrawingMode`.
+
+   @param[in] hps     Presentation space handle (function argument).
+   @param[in] errval  Value to return on bad hps / missing DC.
+
+   @see LookupPSDC, ActualDrawingMode, RECORD_OR_DISPATCH
+*/
+#define INIT_DRAWING(hps, errval) \
+    PPS   pps = LookupPSDC(hps); \
+    ULONG am; \
+    do { \
+        if (pps == NULL) return (errval); \
+        am = ActualDrawingMode(pps); \
+    } while (0)
+
+/*!
+   @brief Record an element if recording, then decide whether to dispatch.
+
+   Encapsulates the "record primitive" half of every drawing primitive:
+
+     1. If ActualDrawingMode is a recording mode, call RecordElement.
+        On failure, return errval.
+     2. If the mode is recording-only (not drawing), return okval
+        immediately (no dispatch).
+     3. Otherwise fall through — the caller proceeds to call Gre*.
+
+   Callers must have already obtained `pps` (via LookupPSDC) and `am`
+   (via ActualDrawingMode). This macro expands a `return`, so it must
+   be used inside a function whose return type matches okval/errval.
+   Do not use it in a function that needs cleanup before returning.
+
+   @param[in] pps    Presentation space.
+   @param[in] am     Actual drawing mode (from ActualDrawingMode).
+   @param[in] lType  GOCA order code (OCODE_*).
+   @param[in] lCount Number of items in payload.
+   @param[in] cbData Payload size in bytes.
+   @param[in] pData  Payload pointer (may be NULL when cbData == 0).
+   @param[in] okval  Return value when dispatch is not needed
+                     (GPI_OK or TRUE).
+   @param[in] errval Return value on RecordElement failure
+                     (GPI_ERROR or FALSE).
+
+   @note Not usable in GpiCharStringAt (writes GSCP + GCCHST),
+         GpiCharStringPos / GpiCharStringPosAt (custom recorder),
+         GpiPolyFilletSharp (custom recorder), or GpiComment
+         (conditional record). Those functions keep the explicit
+         if/else pattern.
+
+   @see RecordElement, ActualDrawingMode
+*/
+#define RECORD_OR_DISPATCH(pps, am, lType, lCount, cbData, pData, \
+                           okval, errval) \
+    do { \
+        if (PS_IS_RECORDING(am)) { \
+            if (!RecordElement((pps), (lType), (lCount), (cbData), (pData))) \
+                return (errval); \
+            if (!PS_IS_DRAWING(am)) \
+                return (okval); \
+        } \
+    } while (0)
 
 #endif /* PS_H_INCLUDED */

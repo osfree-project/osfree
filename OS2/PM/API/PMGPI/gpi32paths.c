@@ -5,6 +5,10 @@
 
    (c) osFree Project 2002-2008, <http://www.osFree.org>
    for licence see licence.txt in root directory, or project website
+
+   All functions use INIT_DRAWING + RECORD_OR_DISPATCH. The recorded
+   payload is always a single ORDER / ORDER_G* structure from
+   <pmord.h>.
 */
 
 // @todo PHID real value?
@@ -16,18 +20,10 @@
 */
 BOOL   APIENTRY GpiBeginArea(HPS hps, ULONG flOptions)
 {
-  PPS    pps = LookupPS(hps);
   ORDER  ord;
   UCHAR  bFlags = 0x80;   /* GBAR_RESERVED, GBAR_NOBOUNDARY, GBAR_ALTERNATE */
 
-  if (pps == NULL) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-    return FALSE;
-  }
-  if (pps->hdc == (HDC)0) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-    return FALSE;
-  }
+  INIT_DRAWING(hps, FALSE);
 
   if (flOptions & BA_BOUNDARY) bFlags |= 0x40;   /* GBAR_BOUNDARY   */
   if (flOptions & BA_WINDING)  bFlags |= 0x20;   /* GBAR_WINDING    */
@@ -35,12 +31,9 @@ BOOL   APIENTRY GpiBeginArea(HPS hps, ULONG flOptions)
   ord.idCode  = OCODE_GBAR;
   ord.uchData = bFlags;
 
-  if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-    if (!RecordElement(pps, OCODE_GBAR, 1, sizeof(ord), &ord))
-      return FALSE;
-    if (!PS_IS_DRAWING(pps->ulDrawingMode))
-      return TRUE;
-  }
+  RECORD_OR_DISPATCH(pps, am, OCODE_GBAR, 1, sizeof(ord), &ord,
+                     TRUE, FALSE);
+
   return GreBeginArea(pps->hdc, flOptions);
 }
 
@@ -49,22 +42,10 @@ BOOL   APIENTRY GpiBeginArea(HPS hps, ULONG flOptions)
 */
 LONG   APIENTRY GpiEndArea(HPS hps)
 {
-  PPS pps = LookupPS(hps);
+  INIT_DRAWING(hps, GPI_ERROR);
 
-  if (pps == NULL) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-    return GPI_ERROR;
-  }
-  if (pps->hdc == (HDC)0) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-    return GPI_ERROR;
-  }
-  if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-    if (!RecordElement(pps, OCODE_GEAR, 0, 0, NULL))
-      return GPI_ERROR;
-    if (!PS_IS_DRAWING(pps->ulDrawingMode))
-      return GPI_OK;
-  }
+  RECORD_OR_DISPATCH(pps, am, OCODE_GEAR, 0, 0, NULL, GPI_OK, GPI_ERROR);
+
   // @todo EA_DRAW - value?
   return GreEndArea(pps->hdc, 0);
 }
@@ -74,27 +55,16 @@ LONG   APIENTRY GpiEndArea(HPS hps)
 */
 BOOL   APIENTRY GpiBeginPath(HPS hps, LONG lPath)
 {
-  PPS         pps = LookupPS(hps);
   ORDER_GBPTH p;
 
-  if (pps == NULL) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-    return FALSE;
-  }
-  if (pps->hdc == (HDC)0) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-    return FALSE;
-  }
+  INIT_DRAWING(hps, FALSE);
 
   p.usReserved = 0;
   p.idPath     = lPath;
 
-  if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-    if (!RecordElement(pps, OCODE_GBPTH, 1, sizeof(p), &p))
-      return FALSE;
-    if (!PS_IS_DRAWING(pps->ulDrawingMode))
-      return TRUE;
-  }
+  RECORD_OR_DISPATCH(pps, am, OCODE_GBPTH, 1, sizeof(p), &p,
+                     TRUE, FALSE);
+
   return GreBeginPath(pps->hdc, lPath);
 }
 
@@ -103,27 +73,16 @@ BOOL   APIENTRY GpiBeginPath(HPS hps, LONG lPath)
 */
 BOOL   APIENTRY GpiEndPath(HPS hps)
 {
-  PPS    pps = LookupPS(hps);
   ORDER  ord;
 
-  if (pps == NULL) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-    return FALSE;
-  }
-  if (pps->hdc == (HDC)0) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-    return FALSE;
-  }
+  INIT_DRAWING(hps, FALSE);
 
   ord.idCode  = OCODE_GEPTH;
   ord.uchData = 0;
 
-  if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-    if (!RecordElement(pps, OCODE_GEPTH, 1, sizeof(ord), &ord))
-      return FALSE;
-    if (!PS_IS_DRAWING(pps->ulDrawingMode))
-      return TRUE;
-  }
+  RECORD_OR_DISPATCH(pps, am, OCODE_GEPTH, 1, sizeof(ord), &ord,
+                     TRUE, FALSE);
+
   //@todo EA_DRAW 0 or another value??
   return GreEndPath(pps->hdc, 0);
 }
@@ -133,27 +92,16 @@ BOOL   APIENTRY GpiEndPath(HPS hps)
 */
 BOOL   APIENTRY GpiCloseFigure(HPS hps)
 {
-  PPS    pps = LookupPS(hps);
   ORDER  ord;
 
-  if (pps == NULL) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-    return FALSE;
-  }
-  if (pps->hdc == (HDC)0) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-    return FALSE;
-  }
+  INIT_DRAWING(hps, FALSE);
 
   ord.idCode  = OCODE_GCFIG;
   ord.uchData = 0;
 
-  if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-    if (!RecordElement(pps, OCODE_GCFIG, 1, sizeof(ord), &ord))
-      return FALSE;
-    if (!PS_IS_DRAWING(pps->ulDrawingMode))
-      return TRUE;
-  }
+  RECORD_OR_DISPATCH(pps, am, OCODE_GCFIG, 1, sizeof(ord), &ord,
+                     TRUE, FALSE);
+
   return GreCloseFigure(pps->hdc);
 }
 
@@ -162,28 +110,17 @@ BOOL   APIENTRY GpiCloseFigure(HPS hps)
 */
 LONG   APIENTRY GpiFillPath(HPS hps,LONG a,LONG b)
 {
-  PPS         pps = LookupPS(hps);
   ORDER_GFPTH fp;
 
-  if (pps == NULL) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-    return GPI_ERROR;
-  }
-  if (pps->hdc == (HDC)0) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-    return GPI_ERROR;
-  }
+  INIT_DRAWING(hps, GPI_ERROR);
 
   fp.fbFlags     = (b == FPATH_WINDING) ? GFPTH_WINDING : GFPTH_ALTERNATE;
   fp.uchReserved = 0;
   fp.idPath      = a;
 
-  if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-    if (!RecordElement(pps, OCODE_GFPTH, 1, sizeof(fp), &fp))
-      return GPI_ERROR;
-    if (!PS_IS_DRAWING(pps->ulDrawingMode))
-      return GPI_OK;
-  }
+  RECORD_OR_DISPATCH(pps, am, OCODE_GFPTH, 1, sizeof(fp), &fp,
+                     GPI_OK, GPI_ERROR);
+
   return GreFillPath(pps->hdc, a, b);
 }
 
@@ -192,28 +129,17 @@ LONG   APIENTRY GpiFillPath(HPS hps,LONG a,LONG b)
 */
 LONG   APIENTRY GpiOutlinePath(HPS hps,LONG a,LONG b)
 {
-  PPS         pps = LookupPS(hps);
   ORDER_GOPTH op;
 
-  if (pps == NULL) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-    return GPI_ERROR;
-  }
-  if (pps->hdc == (HDC)0) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-    return GPI_ERROR;
-  }
+  INIT_DRAWING(hps, GPI_ERROR);
 
   op.fbFlags     = 0;
   op.uchReserved = 0;
   op.idPath      = a;
 
-  if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-    if (!RecordElement(pps, OCODE_GOPTH, 1, sizeof(op), &op))
-      return GPI_ERROR;
-    if (!PS_IS_DRAWING(pps->ulDrawingMode))
-      return GPI_OK;
-  }
+  RECORD_OR_DISPATCH(pps, am, OCODE_GOPTH, 1, sizeof(op), &op,
+                     GPI_OK, GPI_ERROR);
+
   return GreOutlinePath(pps->hdc, a, b);
 }
 
@@ -222,28 +148,17 @@ LONG   APIENTRY GpiOutlinePath(HPS hps,LONG a,LONG b)
 */
 BOOL   APIENTRY GpiModifyPath(HPS hps,LONG a,LONG b)
 {
-  PPS         pps = LookupPS(hps);
   ORDER_GMPTH mp;
 
-  if (pps == NULL) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-    return FALSE;
-  }
-  if (pps->hdc == (HDC)0) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-    return FALSE;
-  }
+  INIT_DRAWING(hps, FALSE);
 
   mp.uchMode     = (UCHAR)b;
   mp.uchReserved = 0;
   mp.idPath      = a;
 
-  if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-    if (!RecordElement(pps, OCODE_GMPTH, 1, sizeof(mp), &mp))
-      return FALSE;
-    if (!PS_IS_DRAWING(pps->ulDrawingMode))
-      return TRUE;
-  }
+  RECORD_OR_DISPATCH(pps, am, OCODE_GMPTH, 1, sizeof(mp), &mp,
+                     TRUE, FALSE);
+
   return GreModifyPath(pps->hdc, a, b);
 }
 
@@ -252,28 +167,17 @@ BOOL   APIENTRY GpiModifyPath(HPS hps,LONG a,LONG b)
 */
 LONG   APIENTRY GpiStrokePath(HPS hps,LONG a,ULONG b)
 {
-  PPS         pps = LookupPS(hps);
   ORDER_GMPTH mp;
 
-  if (pps == NULL) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-    return GPI_ERROR;
-  }
-  if (pps->hdc == (HDC)0) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-    return GPI_ERROR;
-  }
+  INIT_DRAWING(hps, GPI_ERROR);
 
   mp.uchMode     = GMPTH_STROKE;
   mp.uchReserved = 0;
   mp.idPath      = a;
 
-  if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-    if (!RecordElement(pps, OCODE_GMPTH, 1, sizeof(mp), &mp))
-      return GPI_ERROR;
-    if (!PS_IS_DRAWING(pps->ulDrawingMode))
-      return GPI_OK;
-  }
+  RECORD_OR_DISPATCH(pps, am, OCODE_GMPTH, 1, sizeof(mp), &mp,
+                     GPI_OK, GPI_ERROR);
+
   return GreStrokePath(pps->hdc, a, b);
 }
 
@@ -282,17 +186,9 @@ LONG   APIENTRY GpiStrokePath(HPS hps,LONG a,ULONG b)
 */
 BOOL   APIENTRY GpiSetClipPath(HPS hps,LONG a,LONG b)
 {
-  PPS          pps = LookupPS(hps);
   ORDER_GSCPTH cp;
 
-  if (pps == NULL) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HPS), SEI_NOBEEP);
-    return FALSE;
-  }
-  if (pps->hdc == (HDC)0) {
-    WinSetErrorInfo(MAKEERRORID(SEVERITY_ERROR, PMERR_INV_HDC), SEI_NOBEEP);
-    return FALSE;
-  }
+  INIT_DRAWING(hps, FALSE);
 
   cp.fbFlags = 0;
   if (b & SCP_WINDING)  cp.fbFlags |= GSCPTH_WINDING;
@@ -300,11 +196,8 @@ BOOL   APIENTRY GpiSetClipPath(HPS hps,LONG a,LONG b)
   cp.uchReserved = 0;
   cp.idPath      = a;
 
-  if (PS_IS_RECORDING(pps->ulDrawingMode)) {
-    if (!RecordElement(pps, OCODE_GSCPTH, 1, sizeof(cp), &cp))
-      return FALSE;
-    if (!PS_IS_DRAWING(pps->ulDrawingMode))
-      return TRUE;
-  }
+  RECORD_OR_DISPATCH(pps, am, OCODE_GSCPTH, 1, sizeof(cp), &cp,
+                     TRUE, FALSE);
+
   return GreSelectClipPath(pps->hdc, a, b);
 }
