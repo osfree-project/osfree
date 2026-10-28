@@ -134,11 +134,6 @@ LONG   APIENTRY GpiExcludeClipRectangle(HPS hps, PRECTL prclRectangle)
   return unimplemented(__FUNCTION__);
 }
 
-LONG   APIENTRY GpiGetData(HPS hps,LONG a,PLONG b,LONG c,LONG d,PBYTE e)
-{
-  return unimplemented(__FUNCTION__);
-}
-
 LONG   APIENTRY GpiImage(HPS hps,LONG a,PSIZEL b,LONG c,PBYTE d)
 {
   return unimplemented(__FUNCTION__);
@@ -190,11 +185,6 @@ LONG   APIENTRY GpiPtInRegion(HPS hps, HRGN hrgn, PPOINTL pptlPoint)
 }
 
 LONG   APIENTRY GpiPtVisible(HPS hps,PPOINTL a)
-{
-  return unimplemented(__FUNCTION__);
-}
-
-LONG   APIENTRY GpiPutData(HPS hps,LONG a,PLONG b,PBYTE c)
 {
   return unimplemented(__FUNCTION__);
 }
