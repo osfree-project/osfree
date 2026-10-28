@@ -23,11 +23,6 @@
 #define INCL_PM
 #include <os2.h>
 
-#include <ps.h>
-
-
-
-
 
 BOOL APIENTRY GpiBeginElement(HPS, LONG, PSZ);
 LONG APIENTRY GpiQueryEditMode(HPS);

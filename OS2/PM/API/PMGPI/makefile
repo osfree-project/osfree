@@ -6,7 +6,7 @@
 PROJ = pmgpi
 TRGT = $(PROJ).dll
 DESC = Presentation Manager GPI
-srcfiles     = $(p)pmgpi16$(e) $(p)pmgpi$(e) $(p)unimpl$(e)
+srcfiles     = $(p)gpi_proxies$(e) $(p)gpi_entry$(e) $(p)gpi_manual$(e) $(p)pmgpi16$(e) $(p)unimpl$(e)
 ADD_COPT     = -i=. -sg -of+ -bd -3s
 ADD_LINKOPT  = segment   type DATA nonshared
 NOLIBS       = 1
@@ -671,3 +671,9 @@ DEST         = os2$(SEP)dll
 #UNI2H        = 1
 
 !include $(%ROOT)tools/mk/appsos2_pm.mk
+
+# Was used once for generation
+#$(MYDIR)gpi_proxies.c: $(MYDIR)gen_proxies.cmd
+#  $(REXX) gen_proxies.cmd _pmgpi.h
+
+
