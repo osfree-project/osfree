@@ -1,3 +1,3 @@
-#include <os2.h>
+#include <gpi_platform.h>
 
 APIRET unimplemented(char *func);

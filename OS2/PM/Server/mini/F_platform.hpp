@@ -50,6 +50,12 @@
       return DosOpenMutexSem((PSZ)pszName, phmtx);
   }
 
+  /* Create a named system mutex. Returns 0 on success. */
+  static inline APIRET PMC_CreateMutex(const char *pszName, PMC_HMTX *phmtx)
+  {
+      return DosCreateMutexSem((PSZ)pszName, phmtx, 0, FALSE);
+  }
+
   #define PMC_MutexClose(h)      DosCloseMutexSem(h)
 
   /* Start PMSERVER.EXE detached. Returns 0 on success. */
@@ -92,6 +98,18 @@
   #ifndef PSZ
     typedef char *PSZ;
   #endif
+
+  /* Presentation Manager handle types (not defined by Windows SDK). */
+  #ifndef HAB
+    typedef void *HAB;
+  #endif
+  #ifndef HMQ
+    typedef void *HMQ;
+  #endif
+  #ifndef HPS
+    typedef void *HPS;
+  #endif
+
   #ifdef APIENTRY
     #undef APIENTRY
   #endif
@@ -143,6 +161,12 @@
   static inline APIRET PMC_MutexOpen(const char *pszName, PMC_HMTX *phmtx)
   {
       *phmtx = OpenMutexA(SYNCHRONIZE, FALSE, pszName);
+      return (*phmtx != NULL) ? 0 : -1;
+  }
+
+  static inline APIRET PMC_CreateMutex(const char *pszName, PMC_HMTX *phmtx)
+  {
+      *phmtx = CreateMutexA(NULL, FALSE, pszName);
       return (*phmtx != NULL) ? 0 : -1;
   }
 

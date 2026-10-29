@@ -1,52 +1,438 @@
 Win64 build host
-root=C:\devl\osfree\
+root=D:\yuri\osfree\
 CD       OS2\PM\API\PMGPI\win32\ 
-CC       gpi_proxies.obj 
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(73): Error! E1011: Symbol 'NULL' has not been declared
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(73): Warning! W102: Type mismatch (warning)
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(73): Note! N2003: source conversion type is 'int '
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(73): Note! N2004: target conversion type is 'void *'
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(74): Warning! W126: Constant must be zero for pointer compare
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(81): Error! E1011: Symbol 'NULL' has not been declared
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(81): Warning! W126: Constant must be zero for pointer compare
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(86): Error! E1011: Symbol 'NULL' has not been declared
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(86): Warning! W126: Constant must be zero for pointer compare
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(16): Warning! W132: No storage class or type specified
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(16): Error! E1009: Expecting ';' but found '__stdcall'
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(22): Error! E1011: Symbol 'NULL' has not been declared
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(22): Warning! W102: Type mismatch (warning)
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(22): Note! N2003: source conversion type is 'int '
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(22): Note! N2004: target conversion type is 'void const *'
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(23): Error! E1012: Expression is not a function
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(24): Error! E1009: Expecting ';' but found 'result'
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(33): Warning! W132: No storage class or type specified
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(33): Error! E1009: Expecting ';' but found '__stdcall'
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(44): Error! E1012: Expression is not a function
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(45): Error! E1009: Expecting ';' but found 'result'
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(54): Warning! W132: No storage class or type specified
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(54): Error! E1009: Expecting ';' but found '__stdcall'
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(65): Error! E1012: Expression is not a function
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(66): Error! E1009: Expecting ';' but found 'result'
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(80): Error! E1011: Symbol 'NULL' has not been declared
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(80): Warning! W102: Type mismatch (warning)
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(80): Note! N2003: source conversion type is 'int '
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(80): Note! N2004: target conversion type is 'void const *'
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(90): Warning! W132: No storage class or type specified
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(90): Error! E1009: Expecting ';' but found '__stdcall'
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(96): Error! E1011: Symbol 'NULL' has not been declared
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(96): Warning! W102: Type mismatch (warning)
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(96): Note! N2003: source conversion type is 'int '
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(96): Note! N2004: target conversion type is 'void const *'
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(97): Error! E1012: Expression is not a function
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(98): Error! E1009: Expecting ';' but found 'result'
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(112): Error! E1011: Symbol 'NULL' has not been declared
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(112): Warning! W102: Type mismatch (warning)
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(112): Note! N2003: source conversion type is 'int '
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(112): Note! N2004: target conversion type is 'void const *'
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(123): Warning! W132: No storage class or type specified
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(123): Error! E1009: Expecting ';' but found '__stdcall'
-C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(134): Error! E1147: Too many errors: compilation aborted
-Error(E42): Last command making (C:\devl\osfree\build\OS2\PM\API\PMGPI\win32\gpi_proxies.obj) returned a bad status
-Error(E02): Make execution terminated
+CXX      gpi_proxies.obj 
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:16: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:33: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:54: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:74: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:90: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:106: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:123: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:145: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:168: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:190: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:212: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:229: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:249: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:266: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:287: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:309: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:332: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:352: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:369: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:389: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:406: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:427: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:449: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:473: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:498: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:524: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:549: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:575: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:597: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:615: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:638: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:658: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:676: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:698: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:715: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:735: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:753: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:777: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:799: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:816: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:836: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:853: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:874: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:895: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:916: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:937: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:958: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:979: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:999: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1015: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1033: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1057: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1081: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1105: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1129: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1153: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1177: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1201: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1225: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1248: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1268: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1285: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1305: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1325: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1352: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1373: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1394: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1414: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1431: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1451: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1468: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1488: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1505: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1525: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1542: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1562: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1579: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1599: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1616: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1636: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1653: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1673: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1690: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1710: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1727: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1747: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1764: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1784: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1801: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1822: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1843: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1865: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1891: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1918: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1938: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1955: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1976: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:1996: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2013: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2034: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2055: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2076: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2096: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2113: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2133: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2151: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2174: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2195: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2216: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2237: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2258: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2279: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2299: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2315: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2332: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2353: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2374: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2395: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2415: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2432: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2452: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2469: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2489: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2509: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2536: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2558: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2581: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2602: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2624: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2650: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2677: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2699: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2723: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2746: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2768: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2792: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2816: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2838: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2855: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2876: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2897: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2920: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2945: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2965: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2981: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:2998: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:3019: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:3040: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:3062: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.cpp:3085: warning: function '__declspec': missing @param __pragma
+CXX      gpi_entry.obj 
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_entry.cpp:13: warning: macro 'F_CMD_GPI_DISPATCH': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_entry.cpp:17: warning: missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_entry.cpp:24: warning: missing Doxygen comment
+CXX      gpi_manual.obj 
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1775: warning: macro 'FPM_UNDOC_STUB': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:18: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:29: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:41: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:56: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:67: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:78: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:89: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:100: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:117: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:133: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:147: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:162: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:175: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:187: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:201: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:214: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:227: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:240: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:254: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:268: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:282: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:294: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:307: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:321: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:333: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:346: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:357: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:369: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:382: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:395: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:413: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:432: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:448: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:459: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:474: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:486: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:500: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:514: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:528: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:538: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:552: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:566: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:581: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:592: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:603: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:615: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:627: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:639: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:652: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:666: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:679: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:690: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:701: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:715: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:727: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:739: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:752: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:763: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:778: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:794: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:808: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:822: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:833: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:844: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:855: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:866: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:878: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:893: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:911: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:927: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:938: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:949: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:961: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:972: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:986: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:998: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1008: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1022: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1033: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1044: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1059: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1071: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1083: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1096: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1110: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1124: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1138: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1149: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1160: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1173: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1189: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1202: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1217: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1227: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1242: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1256: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1270: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1281: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1295: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1306: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1317: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1328: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1340: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1351: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1367: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1379: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1391: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1405: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1418: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1430: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1441: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1451: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1461: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1472: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1488: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1501: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1511: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1522: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1535: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1546: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1559: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1570: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1581: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1594: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1608: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1621: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1635: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1644: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1653: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1662: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1671: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1680: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1689: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1698: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1707: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1716: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1725: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1734: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1743: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1752: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1761: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1777: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1778: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1779: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1780: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1781: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1782: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1783: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1784: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1785: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1786: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1787: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1788: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1789: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1790: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1791: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1792: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1793: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1794: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1795: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1796: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1797: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1798: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1799: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1800: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1801: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1802: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1803: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1804: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1805: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1806: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1807: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1808: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1809: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1810: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1811: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1813: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1814: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1815: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1817: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1818: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1819: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1821: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1822: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1823: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1824: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1825: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1826: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1827: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1828: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1829: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1830: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1831: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1832: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1833: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1834: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1835: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1836: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1837: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1838: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1840: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1841: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1842: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1843: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1844: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1845: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi_manual.cpp:1846: warning: function '__declspec': missing Doxygen comment
+CXX      pmgpi16.obj 
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:57: warning: macro 'APILEVEL': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:91: warning: function 'GPIVECTORSYMBOL': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:101: warning: function 'GPIOPENMETAFILE': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:111: warning: function 'GPICLOSEMETAFILE': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:121: warning: function 'DEVSTDOPEN': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:131: warning: function 'GPICONVPSH': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:142: warning: function 'SEGSGWOPENSEGMENTWINDOW': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:152: warning: function 'MTENDREADREQUEST': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:162: warning: function 'MTGETDESCRIPTION': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:172: warning: function 'MTGETCODEPAGE': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:182: warning: function 'MTGETLCT': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:192: warning: function 'MTGETGDDINFO': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:202: warning: function 'FMTCONVERTGOCAPOLY': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:212: warning: function 'MTGETFIRSTFONT': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:222: warning: function 'SEGSGWNEWPARTDATA': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:232: warning: function 'MTSTARTREADREQUEST': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:242: warning: function 'MTGETFIRSTGRAPHICSDATA': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:252: warning: function 'MTGETNEXTFONT': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:262: warning: function 'MTGETNEXTGRAPHICSDATA': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:273: warning: function 'GPIACCESSMETAFILE': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:283: warning: function 'GPIMTASSOCIATE': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:293: warning: function 'GPIMTDISASSOCIATE': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:303: warning: function 'SEGSGWNEXTORDERF': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:313: warning: function 'GPIPATHTOREGION': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:324: warning: function 'GPIFLOODFILL': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:334: warning: function 'GPIDRAWBITS': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:344: warning: function 'GPIQUERYBITMAPINFOHEADER': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:354: warning: function 'GPIQUERYLOGICALFONT': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:364: warning: function 'GPIQUERYFACESTRING': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:374: warning: function 'GPIQUERYFONTACTION': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:385: warning: function 'GPICREATEPALETTE': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:396: warning: function 'GPIDELETEPALETTE': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:407: warning: function 'GPISELECTPALETTE': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:418: warning: function 'GPIANIMATEPALETTE': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:429: warning: function 'GPISETPALETTEENTRIES': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:440: warning: function 'GPIQUERYPALETTE': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:450: warning: function 'GPIQUERYPALETTEINFO': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:460: warning: function 'GPIQUERYCHAREXTRA': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:470: warning: function 'GPISETCHAREXTRA': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:480: warning: function 'GPIQUERYCHARBREAKEXTRA': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:490: warning: function 'GPISETCHARBREAKEXTRA': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:500: warning: function 'GPIFRAMEREGION': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:511: warning: function 'GPISETDCOWNER': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:521: warning: function 'GPISETBITMAPOWNER': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:531: warning: function 'GPISETREGIONOWNER': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:541: warning: function 'GPIINSTALLIFIFONT': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp:551: warning: function 'DSPINITSYSTEMDRIVERNAME': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(67): Error! E324: col(29) conversion of return value is impossible
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(67): Note! N393: col(29) included from D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\pmgpi16.cpp(85)
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(67): Note! N630: col(29) source conversion type is 'void *'
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(67): Note! N631: col(29) target conversion type is '_BITMAPINFOHEADER2 *'
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(68): Error! E324: col(55) conversion of return value is impossible
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(68): Note! N630: col(55) source conversion type is 'void *'
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(68): Note! N631: col(55) target conversion type is '_BITMAPINFOHEADER2 *'
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(71): Error! E324: col(29) conversion of return value is impossible
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(71): Note! N630: col(29) source conversion type is 'void *'
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(71): Note! N631: col(29) target conversion type is '_BITMAPINFOHEADER2 *'
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(101): Error! E324: col(29) conversion of return value is impossible
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(101): Note! N630: col(29) source conversion type is 'void *'
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(101): Note! N631: col(29) target conversion type is '_BITMAPINFO2 *'
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(102): Error! E324: col(55) conversion of return value is impossible
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(102): Note! N630: col(55) source conversion type is 'void *'
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(102): Note! N631: col(55) target conversion type is '_BITMAPINFO2 *'
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(121): Error! E324: col(29) conversion of return value is impossible
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(121): Note! N630: col(29) source conversion type is 'void *'
+D:\yuri\osfree\OS2\PM\API\PMGPI\win32\..\gpi16bitmaps.c(121): Note! N631: col(29) target conversion type is '_BITMAPINFO2 *'
+Error(E42): Last command making (D:\yuri\osfree\build\OS2\PM\API\PMGPI\win32\pmgpi16.obj) returned a bad status
+Should this file be deleted [Yes/No] ? Error(E02): Make execution terminated
 Error(E42): Last command making (targets) returned a bad status
 Error(E02): Make execution terminated

@@ -16,11 +16,12 @@
          a known limitation of the single-function design.
 */
 
-#define INCL_DOSMODULEMGR
-#include <os2.h>
-
 #include <stdio.h>
 #include <stdarg.h>
+
+#define INCL_DOSMODULEMGR
+#include <gpi_platform.h>
+
 
 /*!
    @def LOG_ORD

@@ -21,25 +21,9 @@
 
 // OS/2 includes must be from OS/2 2.1 or higher for correct building.
 #define INCL_PM
-#include <os2.h>
+#include <gpi_platform.h>
 
 
-BOOL APIENTRY GpiBeginElement(HPS, LONG, PSZ);
-LONG APIENTRY GpiQueryEditMode(HPS);
-BOOL APIENTRY GpiSetElementPointer(HPS, LONG);
-LONG APIENTRY GpiQueryElementPointer(HPS);
-BOOL APIENTRY GpiOffsetElementPointer(HPS, LONG);
-BOOL APIENTRY GpiDeleteElement(HPS);
-BOOL APIENTRY GpiDeleteElementRange(HPS, LONG, LONG);
-BOOL APIENTRY GpiLabel(HPS, LONG);
-BOOL APIENTRY GpiSetElementPointerAtLabel(HPS, LONG);
-BOOL APIENTRY GpiDeleteElementsBetweenLabels(HPS, LONG, LONG);
-LONG APIENTRY GpiQueryElementType(HPS, PLONG, LONG, PSZ);
-LONG APIENTRY GpiQueryElement(HPS, LONG, LONG, PBYTE);
-LONG APIENTRY GpiElement(HPS, LONG, PSZ, LONG, PBYTE);
-BOOL APIENTRY GpiEndElement(HPS);
-
-BOOL APIENTRY GpiQueryArcParams(HPS, PARCPARAMS);
 
 // Private defines
 #include "unimpl.h"
@@ -100,7 +84,7 @@ BOOL APIENTRY GpiQueryArcParams(HPS, PARCPARAMS);
 #include "gpi16defaults.c"
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIVECTORSYMBOL(void)
+EXTERN USHORT APIENTRY16 GPIVECTORSYMBOL(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -110,7 +94,7 @@ USHORT APIENTRY16 GPIVECTORSYMBOL(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIOPENMETAFILE(void)
+EXTERN USHORT APIENTRY16 GPIOPENMETAFILE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -120,7 +104,7 @@ USHORT APIENTRY16 GPIOPENMETAFILE(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPICLOSEMETAFILE(void)
+EXTERN USHORT APIENTRY16 GPICLOSEMETAFILE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -130,7 +114,7 @@ USHORT APIENTRY16 GPICLOSEMETAFILE(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 DEVSTDOPEN(void)
+EXTERN USHORT APIENTRY16 DEVSTDOPEN(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -140,138 +124,7 @@ USHORT APIENTRY16 DEVSTDOPEN(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPICONVPSH(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-
-// fix prototype !!!
-USHORT APIENTRY16 SEGSGWOPENSEGMENTWINDOW(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 MTENDREADREQUEST(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 MTGETDESCRIPTION(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 MTGETCODEPAGE(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 MTGETLCT(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 MTGETGDDINFO(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 FMTCONVERTGOCAPOLY(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 MTGETFIRSTFONT(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 SEGSGWNEWPARTDATA(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 MTSTARTREADREQUEST(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 MTGETFIRSTGRAPHICSDATA(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 MTGETNEXTFONT(void)
-{
-#ifdef BIT32
-	return unimplemented(__FUNCTION__);
-#else
-	return unimplemented(__FUNCTION__);
-#endif
-}
-
-// fix prototype !!!
-USHORT APIENTRY16 MTGETNEXTGRAPHICSDATA(void)
+EXTERN USHORT APIENTRY16 GPICONVPSH(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -282,7 +135,7 @@ USHORT APIENTRY16 MTGETNEXTGRAPHICSDATA(void)
 
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIACCESSMETAFILE(void)
+EXTERN USHORT APIENTRY16 SEGSGWOPENSEGMENTWINDOW(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -292,7 +145,7 @@ USHORT APIENTRY16 GPIACCESSMETAFILE(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIMTASSOCIATE(void)
+EXTERN USHORT APIENTRY16 MTENDREADREQUEST(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -302,7 +155,7 @@ USHORT APIENTRY16 GPIMTASSOCIATE(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIMTDISASSOCIATE(void)
+EXTERN USHORT APIENTRY16 MTGETDESCRIPTION(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -312,7 +165,7 @@ USHORT APIENTRY16 GPIMTDISASSOCIATE(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 SEGSGWNEXTORDERF(void)
+EXTERN USHORT APIENTRY16 MTGETCODEPAGE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -322,7 +175,138 @@ USHORT APIENTRY16 SEGSGWNEXTORDERF(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIPATHTOREGION(void)
+EXTERN USHORT APIENTRY16 MTGETLCT(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+EXTERN USHORT APIENTRY16 MTGETGDDINFO(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+EXTERN USHORT APIENTRY16 FMTCONVERTGOCAPOLY(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+EXTERN USHORT APIENTRY16 MTGETFIRSTFONT(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+EXTERN USHORT APIENTRY16 SEGSGWNEWPARTDATA(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+EXTERN USHORT APIENTRY16 MTSTARTREADREQUEST(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+EXTERN USHORT APIENTRY16 MTGETFIRSTGRAPHICSDATA(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+EXTERN USHORT APIENTRY16 MTGETNEXTFONT(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+EXTERN USHORT APIENTRY16 MTGETNEXTGRAPHICSDATA(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+
+// fix prototype !!!
+EXTERN USHORT APIENTRY16 GPIACCESSMETAFILE(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+EXTERN USHORT APIENTRY16 GPIMTASSOCIATE(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+EXTERN USHORT APIENTRY16 GPIMTDISASSOCIATE(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+EXTERN USHORT APIENTRY16 SEGSGWNEXTORDERF(void)
+{
+#ifdef BIT32
+	return unimplemented(__FUNCTION__);
+#else
+	return unimplemented(__FUNCTION__);
+#endif
+}
+
+// fix prototype !!!
+EXTERN USHORT APIENTRY16 GPIPATHTOREGION(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -333,7 +317,7 @@ USHORT APIENTRY16 GPIPATHTOREGION(void)
 
 //BOOL    WINAPI FloodFill(HDC, int, int, COLORREF);
 // fix prototype !!!
-USHORT APIENTRY16 GPIFLOODFILL(void)
+EXTERN USHORT APIENTRY16 GPIFLOODFILL(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -343,7 +327,7 @@ USHORT APIENTRY16 GPIFLOODFILL(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIDRAWBITS(void)
+EXTERN USHORT APIENTRY16 GPIDRAWBITS(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -353,7 +337,7 @@ USHORT APIENTRY16 GPIDRAWBITS(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYBITMAPINFOHEADER(void)
+EXTERN USHORT APIENTRY16 GPIQUERYBITMAPINFOHEADER(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -363,7 +347,7 @@ USHORT APIENTRY16 GPIQUERYBITMAPINFOHEADER(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYLOGICALFONT(void)
+EXTERN USHORT APIENTRY16 GPIQUERYLOGICALFONT(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -373,7 +357,7 @@ USHORT APIENTRY16 GPIQUERYLOGICALFONT(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYFACESTRING(void)
+EXTERN USHORT APIENTRY16 GPIQUERYFACESTRING(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -383,7 +367,7 @@ USHORT APIENTRY16 GPIQUERYFACESTRING(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYFONTACTION(void)
+EXTERN USHORT APIENTRY16 GPIQUERYFONTACTION(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -394,7 +378,7 @@ USHORT APIENTRY16 GPIQUERYFONTACTION(void)
 
 //HPALETTE WINAPI CreatePalette(const LOGPALETTE FAR*);
 // fix prototype !!!
-USHORT APIENTRY16 GPICREATEPALETTE(void)
+EXTERN USHORT APIENTRY16 GPICREATEPALETTE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -405,7 +389,7 @@ USHORT APIENTRY16 GPICREATEPALETTE(void)
 
 // UINT    WINAPI RealizePalette(HDC);
 // fix prototype !!!
-USHORT APIENTRY16 GPIDELETEPALETTE(void)
+EXTERN USHORT APIENTRY16 GPIDELETEPALETTE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -416,7 +400,7 @@ USHORT APIENTRY16 GPIDELETEPALETTE(void)
 
 //HPALETTE WINAPI SelectPalette(HDC, HPALETTE, BOOL);
 // fix prototype !!!
-USHORT APIENTRY16 GPISELECTPALETTE(void)
+EXTERN USHORT APIENTRY16 GPISELECTPALETTE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -427,7 +411,7 @@ USHORT APIENTRY16 GPISELECTPALETTE(void)
 
 //void    WINAPI AnimatePalette(HPALETTE, UINT, UINT, const PALETTEENTRY FAR*);
 // fix prototype !!!
-USHORT APIENTRY16 GPIANIMATEPALETTE(void)
+EXTERN USHORT APIENTRY16 GPIANIMATEPALETTE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -438,7 +422,7 @@ USHORT APIENTRY16 GPIANIMATEPALETTE(void)
 
 // UINT    WINAPI SetPaletteEntries(HPALETTE, UINT, UINT, const PALETTEENTRY FAR*);
 // fix prototype !!!
-USHORT APIENTRY16 GPISETPALETTEENTRIES(void)
+EXTERN USHORT APIENTRY16 GPISETPALETTEENTRIES(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -449,7 +433,7 @@ USHORT APIENTRY16 GPISETPALETTEENTRIES(void)
 
 // UINT    WINAPI GetPaletteEntries(HPALETTE, UINT, UINT, PALETTEENTRY FAR*);
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYPALETTE(void)
+EXTERN USHORT APIENTRY16 GPIQUERYPALETTE(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -459,7 +443,7 @@ USHORT APIENTRY16 GPIQUERYPALETTE(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYPALETTEINFO(void)
+EXTERN USHORT APIENTRY16 GPIQUERYPALETTEINFO(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -469,7 +453,7 @@ USHORT APIENTRY16 GPIQUERYPALETTEINFO(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCHAREXTRA(void)
+EXTERN USHORT APIENTRY16 GPIQUERYCHAREXTRA(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -479,7 +463,7 @@ USHORT APIENTRY16 GPIQUERYCHAREXTRA(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPISETCHAREXTRA(void)
+EXTERN USHORT APIENTRY16 GPISETCHAREXTRA(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -489,7 +473,7 @@ USHORT APIENTRY16 GPISETCHAREXTRA(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIQUERYCHARBREAKEXTRA(void)
+EXTERN USHORT APIENTRY16 GPIQUERYCHARBREAKEXTRA(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -499,7 +483,7 @@ USHORT APIENTRY16 GPIQUERYCHARBREAKEXTRA(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPISETCHARBREAKEXTRA(void)
+EXTERN USHORT APIENTRY16 GPISETCHARBREAKEXTRA(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -509,7 +493,7 @@ USHORT APIENTRY16 GPISETCHARBREAKEXTRA(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIFRAMEREGION(void)
+EXTERN USHORT APIENTRY16 GPIFRAMEREGION(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -520,7 +504,7 @@ USHORT APIENTRY16 GPIFRAMEREGION(void)
 
 
 // fix prototype !!!
-USHORT APIENTRY16 GPISETDCOWNER(void)
+EXTERN USHORT APIENTRY16 GPISETDCOWNER(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -530,7 +514,7 @@ USHORT APIENTRY16 GPISETDCOWNER(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPISETBITMAPOWNER(void)
+EXTERN USHORT APIENTRY16 GPISETBITMAPOWNER(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -540,7 +524,7 @@ USHORT APIENTRY16 GPISETBITMAPOWNER(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPISETREGIONOWNER(void)
+EXTERN USHORT APIENTRY16 GPISETREGIONOWNER(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -550,7 +534,7 @@ USHORT APIENTRY16 GPISETREGIONOWNER(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 GPIINSTALLIFIFONT(void)
+EXTERN USHORT APIENTRY16 GPIINSTALLIFIFONT(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
@@ -560,7 +544,7 @@ USHORT APIENTRY16 GPIINSTALLIFIFONT(void)
 }
 
 // fix prototype !!!
-USHORT APIENTRY16 DSPINITSYSTEMDRIVERNAME(void)
+EXTERN USHORT APIENTRY16 DSPINITSYSTEMDRIVERNAME(void)
 {
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);

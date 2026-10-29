@@ -3,7 +3,7 @@
  * @brief Hand-written client-side PMGPI proxies (stubs).
  */
 #define INCL_GPI
-#include <os2.h>
+#include "gpi_platform.h"
 #include "gpi_entry.h"
 
 
@@ -1772,8 +1772,7 @@ ULONG APIENTRY GpiQueryDCData(void)
  * Each stub returns GPI_ERROR until a real prototype exists; at that
  * point it can be moved to gpi_proxies.c / wire codes.
  * ------------------------------------------------------------------ */
-#define FPM_UNDOC_STUB(name) \
-    ULONG APIENTRY name(void) { return (ULONG)GPI_ERROR; }
+#define FPM_UNDOC_STUB(name) EXTERN ULONG APIENTRY name(void) { return (ULONG)GPI_ERROR; }
 
 FPM_UNDOC_STUB(undoc625)
 FPM_UNDOC_STUB(undoc626)
@@ -1837,5 +1836,13 @@ FPM_UNDOC_STUB(PaxLineDDA)
 FPM_UNDOC_STUB(PaxPie)
 FPM_UNDOC_STUB(PaxPolyBezier)
 FPM_UNDOC_STUB(PaxPolyBezierAt)
+
+FPM_UNDOC_STUB(DevCloseDC)
+FPM_UNDOC_STUB(DevEscape)
+FPM_UNDOC_STUB(DevQueryCaps)
+FPM_UNDOC_STUB(DevQueryDeviceNames)
+FPM_UNDOC_STUB(DevQueryHardcopyCaps)
+FPM_UNDOC_STUB(DevPostDeviceModes)
+FPM_UNDOC_STUB(DevOpenDC)
 
 #undef FPM_UNDOC_STUB

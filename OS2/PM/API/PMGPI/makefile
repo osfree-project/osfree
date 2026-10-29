@@ -8,7 +8,6 @@ DESCRIPTION  = Presentation Manager GPI
 TARGET_CLASS = LIBRARY
 SOURCES      = gpi_proxies gpi_entry gpi_manual pmgpi16 unimpl
 
-ADD_COPT     = -i=. -sg -of+ -bd -3s
 ADD_LINKOPT  = segment   type DATA nonshared
 NOLIBS       = 1
 DLL          = 1
@@ -20,8 +19,10 @@ SRCDIR  = $(MYDIR)
 OPTIONS = manyautodata,
 !else
 SRCDIR  = $(MYDIR)..$(SEP)
-ADD_COPT += -bt=nt
+ADD_COPT = -bt=nt
 !endif
+
+ADD_COPT     += -i=$(SRCDIR) -sg -of+ -bd -3s
 
 OPTIONS  += caseexact
 
@@ -693,6 +694,8 @@ undoc730                         .0730
 .cpp: $(SRCDIR)
 
 .c: $(SRCDIR)
+
+.hpp: $(SRCDIR)
 
 # Was used once for generation
 #$(MYDIR)gpi_proxies.c: $(MYDIR)gen_proxies.cmd
