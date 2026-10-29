@@ -1,0 +1,52 @@
+Win64 build host
+root=C:\devl\osfree\
+CD       OS2\PM\API\PMGPI\win32\ 
+CC       gpi_proxies.obj 
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(73): Error! E1011: Symbol 'NULL' has not been declared
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(73): Warning! W102: Type mismatch (warning)
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(73): Note! N2003: source conversion type is 'int '
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(73): Note! N2004: target conversion type is 'void *'
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(74): Warning! W126: Constant must be zero for pointer compare
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(81): Error! E1011: Symbol 'NULL' has not been declared
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(81): Warning! W126: Constant must be zero for pointer compare
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(86): Error! E1011: Symbol 'NULL' has not been declared
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_platform.h(86): Warning! W126: Constant must be zero for pointer compare
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(16): Warning! W132: No storage class or type specified
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(16): Error! E1009: Expecting ';' but found '__stdcall'
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(22): Error! E1011: Symbol 'NULL' has not been declared
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(22): Warning! W102: Type mismatch (warning)
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(22): Note! N2003: source conversion type is 'int '
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(22): Note! N2004: target conversion type is 'void const *'
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(23): Error! E1012: Expression is not a function
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(24): Error! E1009: Expecting ';' but found 'result'
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(33): Warning! W132: No storage class or type specified
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(33): Error! E1009: Expecting ';' but found '__stdcall'
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(44): Error! E1012: Expression is not a function
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(45): Error! E1009: Expecting ';' but found 'result'
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(54): Warning! W132: No storage class or type specified
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(54): Error! E1009: Expecting ';' but found '__stdcall'
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(65): Error! E1012: Expression is not a function
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(66): Error! E1009: Expecting ';' but found 'result'
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(80): Error! E1011: Symbol 'NULL' has not been declared
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(80): Warning! W102: Type mismatch (warning)
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(80): Note! N2003: source conversion type is 'int '
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(80): Note! N2004: target conversion type is 'void const *'
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(90): Warning! W132: No storage class or type specified
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(90): Error! E1009: Expecting ';' but found '__stdcall'
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(96): Error! E1011: Symbol 'NULL' has not been declared
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(96): Warning! W102: Type mismatch (warning)
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(96): Note! N2003: source conversion type is 'int '
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(96): Note! N2004: target conversion type is 'void const *'
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(97): Error! E1012: Expression is not a function
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(98): Error! E1009: Expecting ';' but found 'result'
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(112): Error! E1011: Symbol 'NULL' has not been declared
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(112): Warning! W102: Type mismatch (warning)
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(112): Note! N2003: source conversion type is 'int '
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(112): Note! N2004: target conversion type is 'void const *'
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(123): Warning! W132: No storage class or type specified
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(123): Error! E1009: Expecting ';' but found '__stdcall'
+C:\devl\osfree\OS2\PM\API\PMGPI\win32\..\gpi_proxies.c(134): Error! E1147: Too many errors: compilation aborted
+Error(E42): Last command making (C:\devl\osfree\build\OS2\PM\API\PMGPI\win32\gpi_proxies.obj) returned a bad status
+Error(E02): Make execution terminated
+Error(E42): Last command making (targets) returned a bad status
+Error(E02): Make execution terminated

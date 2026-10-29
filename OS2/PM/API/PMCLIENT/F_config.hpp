@@ -24,7 +24,11 @@
 /* Ahtung!  the name of mutex smaphore shuld not be the same as VAC3
    project name !!!
 */
-#define FREEPM_MUTEX_NAME            "\\SEM32\\_FREE_PM" /* Semaphore name */
+#if defined(__OS2__) || defined(__OS2V2__)
+#define FREEPM_MUTEX_NAME            "\\SEM32\\_FREE_PM"
+#else
+#define FREEPM_MUTEX_NAME            "Global\\_FREE_PM"
+#endif
 
 #endif
    /* FREEPMCONFIG */

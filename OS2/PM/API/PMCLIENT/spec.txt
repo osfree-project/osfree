@@ -1,0 +1,1289 @@
+# FreePM/osFree PMGPI: архитектура, протокол, прокси, план
+
+‘инальный синтез всего обсуждени€. ƒокумент описывает целевую архитектуру объединЄнного клиент-серверного PM, проект протокола, прокси-слой и план реализации.
+
+---
+
+# „асть I. јрхитектура
+
+## 1. ќбща€ схема
+
+```
+г===============================================================================ђ
+¶  Ћ»≈Ќ“ (OS/2, PMMERGE.DLL)                                                    ¶
+¶                                                                               ¶
+¶  ----------------------------------------------------------------------ђ      ¶
+¶  ¶ ѕриложение (32-bit или 16-bit)                                      ¶      ¶
+¶  L------------------------------T---------------------------------------      ¶
+¶                                 ¶                                             ¶
+¶  -------------------------------°--------------------------------------ђ      ¶
+¶  ¶ API-слой (PMMERGE)                                                  ¶      ¶
+¶  ¶  Gpi*  > F_Gpi* (proxy stubs) > GpiDispatch > transport             ¶      ¶
+¶  ¶  Win*  > F_Win* (proxy stubs) > transport                           ¶      ¶
+¶  ¶  WndProc > тонкие прокси > F_CMD_CTL_PROC > transport               ¶      ¶
+¶  ¶  16-bit API > GPI16 thunks > F_Gpi* (только ‘аза 8)                 ¶      ¶
+¶  L------------------------------T---------------------------------------      ¶
+¶                                 ¶                                             ¶
+¶  -------------------------------°--------------------------------------ђ      ¶
+¶  ¶ Ћокальные таблицы клиента                                           ¶      ¶
+¶  ¶  classes[]  : ClassName > { WndProc, flClassStyle, cbWindowData }   ¶      ¶
+¶  ¶  windows[]  : HWND > { WndProc, pOldProc, pWindowData, iHab }       ¶      ¶
+¶  ¶  errorState : last-error per thread                                 ¶      ¶
+¶  L------------------------------T---------------------------------------      ¶
+¶                                 ¶                                             ¶
+¶  -------------------------------°--------------------------------------ђ      ¶
+¶  ¶ “ранспорт-клиент                                                    ¶      ¶
+¶  ¶  PMPIPE (нативный, OS/2) или TCP loopback                           ¶      ¶
+¶  L----------------------------------------------------------------------      ¶
+L===================================T===========================================-
+                                    ¶  Protocol (см. „асть II)
+г===================================°===========================================ђ
+¶ —≈–¬≈– (кросс-платформенный, PMSRV)                                          ¶
+¶                                                                               ¶
+¶  ----------------------------------------------------------------------ђ      ¶
+¶  ¶ “ранспорт-сервер                                                    ¶      ¶
+¶  ¶  TCP loopback (MVP) / named pipe / Unix socket                     ¶      ¶
+¶  L------------------------------T---------------------------------------      ¶
+¶                                 ¶                                             ¶
+¶  -------------------------------°--------------------------------------ђ      ¶
+¶  ¶ Connection Handler                                                  ¶      ¶
+¶  ¶  per-connection: iHab, lastError, request queue                     ¶      ¶
+¶  ¶  Fs_main.cpp::handler: demux > dispatch > response                  ¶      ¶
+¶  L------------------------------T---------------------------------------      ¶
+¶                                 ¶                                             ¶
+¶  -------------------------------°--------------------------------------ђ      ¶
+¶  ¶ PMWIN-менеджер                                                      ¶      ¶
+¶  ¶  pWND[]      : окна (геометри€, z-order, parent, class, hps, hdc)   ¶      ¶
+¶  ¶  pClass[]    : классы (им€, владелец, серверный WndProc)            ¶      ¶
+¶  ¶  Queue[]     : очередь сообщений per-HAB                            ¶      ¶
+¶  ¶  Focus, Capture, ActiveWindow, SystemModal                          ¶      ¶
+¶  L------------------------------T---------------------------------------      ¶
+¶                                 ¶                                             ¶
+¶  -------------------------------°--------------------------------------ђ      ¶
+¶  ¶ —тандартные WndProc (D3)                                            ¶      ¶
+¶  ¶  ServerStaticWndProc, ServerButtonWndProc, ServerEntryFieldWndProc, ¶      ¶
+¶  ¶  ServerFrameWndProc, ServerTitleBarWndProc, ServerMenuWndProc, ...  ¶      ¶
+¶  ¶  ServerGenericDefWindowProc                                         ¶      ¶
+¶  ¶  DispatchToServerWndProc(class, hwnd, msg, mp1, mp2)                ¶      ¶
+¶  L------------------------------T---------------------------------------      ¶
+¶                                 ¶  пр€мой вызов Gpi* (0 IPC)                  ¶
+¶  -------------------------------°--------------------------------------ђ      ¶
+¶  ¶ PMGPI (osFree, импорт без изменений)                                ¶      ¶
+¶  ¶  ps.c, ps.h          PS lifecycle, LookupPS, LookupPSDC             ¶      ¶
+¶  ¶  segments.c          ELEMENT, SEGMENT, Record/Replay                ¶      ¶
+¶  ¶  gpi32lines.c        GpiLine, GpiPolyLine, ...                      ¶      ¶
+¶  ¶  gpi32paths.c        GpiBeginPath, GpiFillPath, ...                 ¶      ¶
+¶  ¶  gpi32primitives.c   GpiBox, GpiFullArc, GpiCharString, ...         ¶      ¶
+¶  ¶  gpi32segments.c     GpiOpenSegment, GpiDrawChain, GpiGetData, ...  ¶      ¶
+¶  ¶  pmgpi.c             остальные Gpi*                                 ¶      ¶
+¶  ¶  unimpl.c            unimplemented()                                ¶      ¶
+¶  ¶  pmddim.h            Gre* > Gre32EntryN   <-- Ўќ¬                   ¶      ¶
+¶  L------------------------------T---------------------------------------      ¶
+¶                                 ¶  GrePolyLine(hdc, ...) = Gre32Entry5(...)   ¶
+¶  -------------------------------°--------------------------------------ђ      ¶
+¶  ¶ PMGRE (Fs_gre.cpp, новый)                                           ¶      ¶
+¶  ¶  Gre32Entry2..10      generic dispatcher                            ¶      ¶
+¶  ¶  DcFromHdc(hdc)       HDC > F_DC*                                   ¶      ¶
+¶  ¶  DoGrePolyLine, DoGreBoxInterior, DoGrePolyMarker, ...              ¶      ¶
+¶  ¶  DoGreSetAttributes, DoGreSaveDC, DoGreRestoreDC, DoGreBitblt, ...  ¶      ¶
+¶  ¶  F_DC: pTarget, width, height, clip, color, mix, cur_pos, ...       ¶      ¶
+¶  L------------------------------T---------------------------------------      ¶
+¶                                 ¶  пиксели                                    ¶
+¶  -------------------------------°--------------------------------------ђ      ¶
+¶  ¶ pVBuffmem (framebuffer)                                             ¶      ¶
+¶  L------------------------------T---------------------------------------      ¶
+¶                                 ¶                                             ¶
+¶  -------------------------------°--------------------------------------ђ      ¶
+¶  ¶ ƒрайвер (pluggable)                                                 ¶      ¶
+¶  ¶  pal_driver_sdl.cpp   Linux/Windows/macOS (MVP)                     ¶      ¶
+¶  ¶  pal_driver_pm.cpp    OS/2 (позже)                                  ¶      ¶
+¶  L----------------------------------------------------------------------      ¶
+¶                                                                               ¶
+¶  ----------------------------------------------------------------------ђ      ¶
+¶  ¶ PAL (Platform Abstraction Layer)                                    ¶      ¶
+¶  ¶  pal_alloc_zero/free, pal_set_error, pal_log,                       ¶      ¶
+¶  ¶  pal_mutex_*, pal_atomic_xchg, pal_sleep, pal_time,                 ¶      ¶
+¶  ¶  pal_thread_create, pal_transport_*, pal_driver_*                   ¶      ¶
+¶  ¶  pal_os2.c | pal_linux.c | pal_win32.c                              ¶      ¶
+¶  L----------------------------------------------------------------------      ¶
+L===============================================================================-
+```
+
+## 2. –азделение ответственности
+
+|  омпонент |  лиент | —ервер | ‘айлы |
+|---|---|---|---|
+| **GPI API** (`Gpi*`) | proxy stubs | PMGPI (osFree) | client: `F_GPI.cpp`; server: `pmgpi/server/*` |
+| **GRE** (`Gre*`, `Gre32EntryN`) | ? | ? | server: `Fs_gre.cpp` |
+| **PMWIN API** (`Win*`) | proxy stubs | менеджер | client: `windowmgr.cpp`, `WindowClass.cpp`; server: `Fs_wnd.cpp` |
+| **—тандартные WndProc** | тонкие прокси в PMMERGE | реальна€ реализаци€ (D3) | client: `pmmerge/ctlproxies.cpp`; server: `Fs_stdctl.cpp` |
+| ** астомные WndProc** | ? (локально) | ? | client: `windows[]` |
+| ** лассы** | `classes[]` (WndProc) | `pClass[]` (им€, владелец) | client: `WindowClass.cpp`; server: `Fs_wnd.cpp` |
+| **»ерархи€ окон** | ? | `pWND[]` | server: `Fs_wnd.cpp` |
+| **ќчередь сообщений** | ? | `Queue[]` | server: `Fs_queue.cpp` |
+| **PS/DC** | ? | `PPS`, `F_DC` | server: `ps.c`, `Fs_gre.cpp` |
+| **—егменты** | ? | `ELEMENT`, `SEGMENT` | server: `segments.c` |
+| **Ѕуфер окна** | ? | `pVBuffmem` | server: `F_session.cpp` |
+| **“ранспорт** | `F_*` wrappers | `handler` + PAL | client: `init.cpp`; server: `Fs_main.cpp`, `pal/` |
+| **Debug** | шлЄт | принимает | client: `F_debug.cpp`; server: `Fs_main.cpp` |
+
+## 3. √раницы
+
+**GPI прокидываетс€, GRE Ч нет.**  лиент шлЄт высокоуровневые `Gpi*` (`F_CMD_GPI_DISPATCH`), сервер сам превращает их в `Gre*`.  лиент не знает про `Gre*`, `F_DC`, растеризатор.
+
+**WndProc не прокидываетс€.**  лиент не шлЄт `WndProc` на сервер. ƒл€ стандартных классов Ч тонкий прокси в PMMERGE > `F_CMD_CTL_PROC` > серверный `Server*WndProc`. ƒл€ кастомных Ч `WndProc` локально на клиенте.
+
+**Win\* API прокидываетс€.**  лиент шлЄт `F_CMD_WIN_*`, сервер управл€ет `pWND[]`.
+
+---
+
+# „асть II. ѕротокол
+
+## 4. “ранспорт
+
+**MVP:** TCP loopback (`127.0.0.1:port`). –аботает на всех платформах, легко отлаживать, поддерживает remote-клиент. Ћатентность ~10Ц50 ?s на loopback Ч приемлемо.
+
+**ќптимизаци€:** pluggable через `pal_transport_*`:
+- `pal_transport_tcp.c` Ч по умолчанию.
+- `pal_transport_pipe.c` Ч PMPIPE (OS/2), named pipe (Windows), Unix socket (Linux).
+
+## 5. ‘ормат сообщений
+
+¬се сообщени€ Ч **заголовок + опциональный payload**. ‘иксированный пор€док байт (native, LE дл€ MVP; BE-нормализаци€ Ч отдельна€ задача).
+
+```c
+struct FPM_MSG_HEADER {
+    ULONG   ulCommand;   /* F_CMD_* */
+    ULONG   ulHandle;    /* HPS/HDC/HWND/HAB/... (зависит от команды) */
+    ULONG   cbPayload;   /* размер payload в байтах */
+    ULONG   ulFlags;     /* зарезервировано, 0 */
+};
+/* payload следует за заголовком, cbPayload байт */
+```
+
+ќтвет:
+
+```c
+struct FPM_RESP_HEADER {
+    ULONG   ulStatus;    /* 0 = ok, иначе PMERR_* или APIRET */
+    ULONG   ulResult;    /* возвращаемое значение (LONG/BOOL/HANDLE) */
+    ULONG   cbPayload;   /* размер payload (например, дл€ Query*) */
+    ULONG   ulLastError; /* per-connection last error */
+};
+```
+
+## 6.  оманды
+
+|  од | »м€ | Ќазначение |
+|---|---|---|
+| `F_CMD_GET_IHAB` | GET_IHAB | HAB дл€ нового потока |
+| `F_CMD_CLIENT_EXIT` | CLIENT_EXIT | завершение клиента |
+| `F_CMD_GPI_DISPATCH` | GPI_DISPATCH | generic dispatcher дл€ всех `Gpi*` |
+| `F_CMD_CTL_PROC` | CTL_PROC | generic dispatcher дл€ всех стандартных `WndProc` |
+| `F_CMD_SUBCLASS_CALL` | SUBCLASS_CALL | сервер > клиент: вызвать override `WndProc` |
+| `F_CMD_DEFWINDOWPROC` | DEFWINDOWPROC | `WinDefWindowProc` |
+| `F_CMD_SET_OVERRIDE` | SET_OVERRIDE | `WinSubclassWindow` |
+| `F_CMD_WIN_REGISTER_CLASS` | WIN_REGISTER_CLASS | `WinRegisterClass` |
+| `F_CMD_WIN_CREATE` | WIN_CREATE | `WinCreateWindow` (серверна€ часть) |
+| `F_CMD_WIN_DESTROY` | WIN_DESTROY | `WinDestroyWindow` |
+| `F_CMD_WIN_SETPOS` | WIN_SETPOS | `WinSetWindowPos` (серверна€ часть) |
+| `F_CMD_WIN_SET_TEXT` | WIN_SET_TEXT | `WinSetWindowText` |
+| `F_CMD_WIN_QUERY_TEXT` | WIN_QUERY_TEXT | `WinQueryWindowText` |
+| `F_CMD_WIN_ENABLE` | WIN_ENABLE | `WinEnableWindow` |
+| `F_CMD_WIN_SHOW` | WIN_SHOW | `WinShowWindow` |
+| `F_CMD_WIN_SET_PRESPARAM` | WIN_SET_PRESPARAM | `WinSetPresParam` |
+| `F_CMD_WIN_QUERY_PRESPARAM` | WIN_QUERY_PRESPARAM | `WinQueryPresParam` |
+| `F_CMD_WIN_INVALIDATE` | WIN_INVALIDATE | `WinInvalidateRect` / `WinInvalidateRegion` |
+| `F_CMD_WIN_QUERY_POS` | WIN_QUERY_POS | `WinQueryWindowPos` |
+| `F_CMD_WIN_QUERY_RECT` | WIN_QUERY_RECT | `WinQueryWindowRect` |
+| `F_CMD_WIN_QUERY_ULONG` | WIN_QUERY_ULONG | `WinQueryWindowULong` / `USHORT` |
+| `F_CMD_WIN_SET_ULONG` | WIN_SET_ULONG | `WinSetWindowULong` / `USHORT` / `Ptr` |
+| `F_CMD_WIN_GETMSG` | WIN_GETMSG | `WinGetMsg` |
+| `F_CMD_WIN_POSTMSG` | WIN_POSTMSG | `WinPostMsg` (client > server > queue) |
+| `F_CMD_WIN_BEGINPAINT` | WIN_BEGINPAINT | `WinBeginPaint` |
+| `F_CMD_WIN_ENDPAINT` | WIN_ENDPAINT | `WinEndPaint` |
+| `F_CMD_WIN_GETPS` | WIN_GETPS | `WinGetPS` |
+| `F_CMD_WIN_RELEASEPS` | WIN_RELEASEPS | `WinReleasePS` |
+| `F_CMD_DB_PRINT` | DB_PRINT | debug-лог |
+| `F_CMD_FATAL_COMMON` | FATAL_COMMON | `_fatal_common` |
+| `F_CMD_REGISTER_A11Y_CLIENT` | REGISTER_A11Y_CLIENT | accessibility-клиент |
+| `F_CMD_A11Y_EVENT` | A11Y_EVENT | сервер > a11y-клиент |
+
+## 7. `F_CMD_GPI_DISPATCH` Ч generic dispatcher дл€ `Gpi*`
+
+јналог `Gre32EntryN`. ќдна команда дл€ всех `Gpi*`.  од функции Ч в payload.
+
+**«апрос:**
+```
+HEADER: command=F_CMD_GPI_DISPATCH, handle=hps, cbPayload=sizeof(FPM_GPI_CALL)+cbArgs
+payload:
+  struct FPM_GPI_CALL {
+      ULONG   ulFnCode;    /* N_GpiLine, N_GpiSetColor, ... */
+      ULONG   cbArgs;      /* размер упакованных аргументов */
+      ULONG   ulFlags;     /* зарезервировано */
+      BYTE    abArgs[];    /* упакованные аргументы (см. ниже) */
+  };
+```
+
+**ќтвет:**
+```
+HEADER: command=F_CMD_GPI_DISPATCH, status=0
+payload:
+  ULONG   ulResult;   /* LONG/BOOL/HANDLE Ч приводитс€ к ULONG */
+  ULONG   ulLastError;/* PMERR_* если статус != 0 */
+```
+
+** оды функций (`gpi_wire.h`):**
+
+```c
+#define N_GpiLine              0x0001
+#define N_GpiPolyLine          0x0002
+#define N_GpiPolyLineDisjoint  0x0003
+#define N_GpiSetColor          0x0004
+#define N_GpiQueryColor        0x0005
+#define N_GpiBox               0x0006
+#define N_GpiFullArc           0x0007
+#define N_GpiPartialArc        0x0008
+#define N_GpiMove              0x0009
+#define N_GpiSetCurrentPosition 0x000A
+#define N_GpiQueryCurrentPosition 0x000B
+#define N_GpiCharStringAt      0x000C
+#define N_GpiCharString        0x000D
+#define N_GpiCreatePS          0x000E
+#define N_GpiDestroyPS         0x000F
+#define N_GpiAssociate         0x0010
+#define N_GpiOpenSegment       0x0011
+#define N_GpiCloseSegment      0x0012
+#define N_GpiDrawSegment       0x0013
+#define N_GpiDrawChain         0x0014
+#define N_GpiGetData           0x0015
+#define N_GpiPutData           0x0016
+/* ... ~200 кодов, генерируютс€ из pmgpi.h ... */
+```
+
+**ћаршалинг аргументов:** per-function. `GpiLine(HPS, PPOINTL)` упаковывает `POINTL` в `abArgs`. `GpiSetColor(HPS, LONG)` упаковывает `LONG`. `GpiCharStringAt(HPS, PPOINTL, LONG, PCH)` упаковывает `POINTL + LONG + cch + string`. ”казатели на клиентские данные **не передаютс€** Ч передаЄтс€ содержимое.
+
+**ѕочему не per-function команды:** протокол не растЄт с каждой функцией. Enum команд остаЄтс€ посто€нным (~40). `switch` локализован в `DispatchGpi` (сервер) и в `GpiDispatch` (клиент).
+
+## 8. `F_CMD_CTL_PROC` Ч generic dispatcher дл€ `WndProc`
+
+јналог `somDispatch` в DSOM. ќдна команда дл€ всех стандартных `WndProc`.
+
+**«апрос:**
+```
+HEADER: command=F_CMD_CTL_PROC, handle=hwnd, cbPayload=sizeof(FPM_CTL_CALL)
+payload:
+  struct FPM_CTL_CALL {
+      ULONG   msg;
+      MPARAM  mp1;
+      MPARAM  mp2;
+  };
+```
+
+**ќтвет:**
+```
+HEADER: command=F_CMD_CTL_PROC, status=0
+payload:
+  MRESULT mres;
+  ULONG   ulLastError;
+```
+
+**—ервер:**
+```c
+case F_CMD_CTL_PROC:
+    F_RecvDataFromClient(obj, &call, &len, sizeof(call));
+    /* если override Ч F_CMD_SUBCLASS_CALL (см. ниже) */
+    mres = DispatchToServerWndProc(pWND[hwnd].class, hwnd, call.msg, call.mp1, call.mp2);
+    SendResponse(obj, mres, ...);
+```
+
+`DispatchToServerWndProc` Ч `switch (pWND[hwnd].class)`:
+```c
+switch (class) {
+case WC_STATIC:      return ServerStaticWndProc(hwnd, msg, mp1, mp2);
+case WC_BUTTON:      return ServerButtonWndProc(hwnd, msg, mp1, mp2);
+case WC_ENTRYFIELD:  return ServerEntryFieldWndProc(hwnd, msg, mp1, mp2);
+case WC_FRAME:       return ServerFrameWndProc(hwnd, msg, mp1, mp2);
+case WC_TITLEBAR:    return ServerTitleBarWndProc(hwnd, msg, mp1, mp2);
+case WC_MENU:        return ServerMenuWndProc(hwnd, msg, mp1, mp2);
+/* ... */
+default:             return ServerGenericDefWindowProc(hwnd, msg, mp1, mp2);
+}
+```
+
+## 9. `F_CMD_SUBCLASS_CALL` Ч override
+
+ огда приложение вызвало `WinSubclassWindow(hwnd, MyProc)` дл€ стандартного контрола, сервер при каждом сообщении дл€ `hwnd`:
+
+1. ≈сли `pWND[hwnd].fOverride` Ч шлЄт клиенту `F_CMD_SUBCLASS_CALL` с `(hwnd, msg, mp1, mp2)`.
+2.  лиент вызывает `MyProc`, получает `mres`.
+3.  лиент возвращает `(mres, handled_flag)`:
+   - `handled = TRUE` Ч сервер использует `mres`, стандартную обработку не запускает.
+   - `handled = FALSE` Ч сервер использует свой `mres` от `Server*WndProc`, клиентский `mres` игнорирует.
+
+**«апрос (сервер > клиент):**
+```
+HEADER: command=F_CMD_SUBCLASS_CALL, handle=hwnd
+payload: FPM_CTL_CALL { msg, mp1, mp2 }
+```
+
+**ќтвет (клиент > сервер):**
+```
+HEADER: command=F_CMD_SUBCLASS_CALL
+payload: struct { MRESULT mres; ULONG fHandled; }
+```
+
+**—тоимость:** 1 IPC на сообщение дл€ overridden контрола. ƒл€ не-overridden Ч 0.
+
+## 10. `F_CMD_DEFWINDOWPROC`
+
+`WinDefWindowProc(hwnd, msg, mp1, mp2)` на клиенте > `F_CMD_DEFWINDOWPROC` > сервер:
+
+```c
+case F_CMD_DEFWINDOWPROC:
+    F_RecvDataFromClient(obj, &call, &len, sizeof(call));
+    if (IsStandardClass(pWND[hwnd].class))
+        mres = DispatchToServerWndProc(pWND[hwnd].class, hwnd, msg, mp1, mp2);
+    else
+        mres = ServerGenericDefWindowProc(hwnd, msg, mp1, mp2);
+    SendResponse(obj, mres, ...);
+```
+
+**1 IPC.** ѕриложение, чей `MyButtonProc` вызывает `WinDefWindowProc` дл€ необработанных, получает цепочку к `ServerButtonWndProc` через сервер. —емантика OS/2 сохранена.
+
+## 11. `F_CMD_SET_OVERRIDE`
+
+`WinSubclassWindow(hwnd, MyProc)` на клиенте:
+1. Ћокально: `pOldProc = windows[hwnd].WndProc; windows[hwnd].WndProc = MyProc`.
+2. 1 IPC: `F_CMD_SET_OVERRIDE` с `hwnd` > сервер ставит `pWND[hwnd].fOverride = TRUE`.
+
+`WinSubclassWindow(hwnd, original)` (отмена):
+1. Ћокально восстановить `WndProc`.
+2. 1 IPC: `F_CMD_SET_OVERRIDE` > `pWND[hwnd].fOverride = FALSE`.
+
+## 12. `F_CMD_WIN_GETMSG`
+
+ лиент: `WinGetMsg(hab, &qmsg, 0, 0, 0)`.
+«апрос: `F_CMD_WIN_GETMSG`, `handle=ihab`.
+ќтвет (если есть сообщение): `QMSG` в payload, `status=0`. ≈сли нет Ч `status=PMERR_NO_MSG`, `cbPayload=0`.
+
+**Ѕлокирующий vs неблокирующий:** `WinGetMsg` без `PM_REMOVE` Ч peek; с `PM_REMOVE` Ч блокируетс€ до по€влени€ сообщени€. ƒл€ блокирующего режима сервер держит запрос в очереди и отвечает при по€влении сообщени€ (или по таймауту). ƒл€ MVP Ч **неблокирующий**: клиент сам крутит цикл `WinPeekMsg` + sleep. `WinGetMsg` = `WinPeekMsg` + retry. ѕозже Ч блокирующий через `poll`/`select`.
+
+## 13. `F_CMD_WIN_BEGINPAINT` / `F_CMD_WIN_ENDPAINT`
+
+**BeginPaint:**
+```
+ лиент: WinBeginPaint(hwnd, &ps) > F_CMD_WIN_BEGINPAINT, handle=hwnd
+—ервер: 
+  hps = GpiCreatePS(NULL, pWND[hwnd].hdc, &sizl, 0);   // PMGPI
+  GpiAssociate(hps, pWND[hwnd].hdc);
+  /* clip = update region */
+  GpiSetClipRegion(hps, ...);                          // PMGPI
+  ответ: HPS в payload
+```
+
+**EndPaint:**
+```
+ лиент: WinEndPaint(&ps) > F_CMD_WIN_ENDPAINT, handle=hps
+—ервер:
+  GpiDestroyPS(hps);                                    // PMGPI
+  /* перерисовать: blit pVBuffmem > screen */
+  pal_driver_blit(...);
+  ответ: status
+```
+
+** лючевое:** сервер рисует в `pVBuffmem` (через `F_DC.pTarget`), `WinEndPaint` делает blit.  лиент не рисует Ч только шлЄт `Gpi*` через `F_CMD_GPI_DISPATCH`.
+
+## 14. ќбработка ошибок
+
+**Ќа сервере:** `WinSetErrorInfo(err)` (osFree) > compat shim > `pal_set_error(pConn, err)` > `pConn->lastError`.
+
+**¬ ответе:** `FPM_RESP_HEADER.ulLastError = pConn->lastError`.
+
+**Ќа клиенте:** `WinGetLastError(hab)` возвращает `errorState.lastError`, который клиент обновл€ет из `ulLastError` каждого ответа.
+
+**—емантика:** per-connection, не глобальна€.  аждый клиент видит свои ошибки.
+
+## 15. Endianness
+
+**MVP:** обе стороны Ч little-endian (x86/x64/ARM-LE). Ќормализаци€ не делаетс€.
+
+**ѕозже:** `pal_htonl`/`pal_ntohl` в сериализаторах, wire-формат Ч network byte order. ќтдельна€ задача.
+
+---
+
+# „асть III. ѕрокси
+
+## 16. Gpi* прокси (`pmgpi/client/F_GPI.cpp`)
+
+Per-function stubs, генерируютс€ из `pmgpi.h`.  аждый stub упаковывает аргументы и вызывает `GpiDispatch`.
+
+```c
+/* ќбщий диспетчер */
+static ULONG GpiDispatch(HPS hps, ULONG ulFnCode,
+                         const void *pArgs, ULONG cbArgs)
+{
+    struct { ULONG ulFnCode; ULONG cbArgs; ULONG ulFlags; } call = {
+        ulFnCode, cbArgs, 0
+    };
+    F_SendCmdToServer(client_obj, F_CMD_GPI_DISPATCH, (ULONG)hps);
+    F_SendDataToServer(client_obj, &call, sizeof(call));
+    if (cbArgs) F_SendDataToServer(client_obj, pArgs, cbArgs);
+    struct { ULONG ulResult; ULONG ulLastError; } resp;
+    F_RecvDataFromServer(client_obj, &resp, &len, sizeof(resp));
+    errorState.lastError = resp.ulLastError;
+    return resp.ulResult;
+}
+
+/* —генерированные stubs */
+LONG F_GpiLine(HPS hps, PPOINTL pptl)
+{
+    POINTL pt = *pptl;
+    return (LONG)GpiDispatch(hps, N_GpiLine, &pt, sizeof(pt));
+}
+
+BOOL F_GpiSetColor(HPS hps, LONG lColor)
+{
+    return (BOOL)GpiDispatch(hps, N_GpiSetColor, &lColor, sizeof(lColor));
+}
+
+BOOL F_GpiBox(HPS hps, LONG lControl, PPOINTL pptl, LONG lHRound, LONG lVRound)
+{
+    struct { LONG lControl; POINTL pt; LONG lHRound; LONG lVRound; } args = {
+        lControl, *pptl, lHRound, lVRound
+    };
+    return (BOOL)GpiDispatch(hps, N_GpiBox, &args, sizeof(args));
+}
+
+LONG F_GpiCharStringAt(HPS hps, PPOINTL pptl, LONG lCount, PCH pchString)
+{
+    /* переменный размер: POINTL + LONG + cch + строка */
+    ULONG cb = sizeof(POINTL) + sizeof(LONG) + (ULONG)lCount;
+    PBYTE buf = alloca(cb);
+    memcpy(buf, pptl, sizeof(POINTL));
+    memcpy(buf + sizeof(POINTL), &lCount, sizeof(LONG));
+    memcpy(buf + sizeof(POINTL) + sizeof(LONG), pchString, (ULONG)lCount);
+    return (LONG)GpiDispatch(hps, N_GpiCharStringAt, buf, cb);
+}
+```
+
+**√енератор** (`tools/gen_proxies.py`):
+1. ѕарсит `pmgpi.h` Ч прототипы `Gpi*`.
+2. ƒл€ каждой функции генерирует `N_GpiXxx` в `gpi_wire.h` и stub в `F_GPI.cpp`.
+3. ƒл€ структур (`POINTL`, `RECTL`, `FIXED`) Ч генерирует сериализаторы.
+4. ƒл€ функций с `PBYTE`/`PCH` Ч генерирует упаковку с длиной.
+
+**Ќе генерируютс€:** `GpiCreatePS`, `GpiDestroyPS`, `GpiAssociate` (особые, см. ниже), `GpiGetData`/`GpiPutData` (переменный размер, но генерируютс€ с кастомным marshaling).
+
+## 17. WndProc прокси (`pmmerge/ctlproxies.cpp`)
+
+“онкие прокси в PMMERGE. ќдин шаблон, N функций.
+
+```c
+#define PROXY_WNDPROC(name) \
+MRESULT EXPENTRY name(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) \
+{ \
+    return F_ProxyCall(hwnd, msg, mp1, mp2); \
+}
+
+static MRESULT F_ProxyCall(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
+{
+    struct { ULONG msg; MPARAM mp1; MPARAM mp2; } call = { msg, mp1, mp2 };
+    F_SendCmdToServer(client_obj, F_CMD_CTL_PROC, (ULONG)hwnd);
+    F_SendDataToServer(client_obj, &call, sizeof(call));
+    struct { MRESULT mres; ULONG ulLastError; } resp;
+    F_RecvDataFromServer(client_obj, &resp, &len, sizeof(resp));
+    errorState.lastError = resp.ulLastError;
+    return resp.mres;
+}
+
+PROXY_WNDPROC(ButtonWndProc)
+PROXY_WNDPROC(StaticWndProc)
+PROXY_WNDPROC(EntryFieldWndProc)
+PROXY_WNDPROC(FrameWndProc)
+PROXY_WNDPROC(TitleBarWndProc)
+PROXY_WNDPROC(MenuWndProc)
+PROXY_WNDPROC(ListBoxWndProc)
+PROXY_WNDPROC(MLEWndProc)
+PROXY_WNDPROC(ScrollBarWndProc)
+PROXY_WNDPROC(ComboBoxWndProc)
+PROXY_WNDPROC(SpinButtonWndProc)
+PROXY_WNDPROC(ContainerWndProc)
+PROXY_WNDPROC(NotebookWndProc)
+PROXY_WNDPROC(SliderWndProc)
+PROXY_WNDPROC(StatusBarWndProc)
+PROXY_WNDPROC(TrackBarWndProc)
+PROXY_WNDPROC(ValidatorWndProc)
+/* ... WC_WP* варианты ... */
+
+/* ќсобый случай */
+MRESULT EXPENTRY WinDefWindowProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
+{
+    /* F_CMD_DEFWINDOWPROC, не F_CMD_CTL_PROC */
+    ...
+}
+```
+
+## 18. Win* прокси
+
+Ќе generic dispatcher Ч per-function команды, потому что сигнатуры разные и есть переменные аргументы.
+
+```c
+BOOL F_WinSetWindowText(HWND hwnd, PCSZ pszText)
+{
+    ULONG cb = (ULONG)strlen(pszText) + 1;
+    F_SendCmdToServer(client_obj, F_CMD_WIN_SET_TEXT, (ULONG)hwnd);
+    F_SendDataToServer(client_obj, pszText, cb);
+    ULONG rc;
+    F_RecvDataFromServer(client_obj, &rc, &len, sizeof(rc));
+    return (BOOL)rc;
+}
+
+HWND F_WinCreateWindow(HWND hwndParent, PCSZ pszClass, PCSZ pszName,
+                       ULONG flStyle, LONG x, LONG y, LONG cx, LONG cy,
+                       HWND hwndOwner, HWND hwndInsertBehind, ULONG id,
+                       PVOID pCtlData, PVOID pPresParams)
+{
+    /* 1 IPC: F_CMD_WIN_CREATE, сервер создаЄт pWND, возвращает hwnd */
+    /* затем локально: windows[hwnd] = { WndProc, ... } */
+    /* затем локально: WndProc(hwnd, WM_CREATE, ...) */
+    /* если WM_CREATE вернул FALSE > F_CMD_WIN_DESTROY, windows.erase */
+}
+```
+
+## 19. 16-bit thunks (`pmgpi/client/gpi16*.c`) Ч ‘аза 8
+
+Ќе компилируютс€ в MVP. ƒл€ 16-битных приложений:
+
+```c
+#define APIENTRY16 _Far16 _Pascal
+
+LONG APIENTRY16 GPILINE(HPS16 hps16, POINTL16 far *pptl16)
+{
+    HPS hps32 = MapHPS16ToHPS32(hps16);
+    POINTL pt32 = { pptl16->x, pptl16->y };
+    return F_GpiLine(hps32, &pt32);
+}
+```
+
+** лиентский маппинг:** `MapHPS16ToHPS32` Ч таблица `HPS16 > HPS` в процессе клиента. —ервер не знает про `HPS16`.
+
+## 20. √енератор
+
+`tools/gen_proxies.py`:
+- ¬ход: `pmgpi.h`, `pmwin.h`.
+- ¬ыход: `pmgpi/common/gpi_wire.h`, `pmgpi/client/F_GPI.cpp`, `pmmerge/ctlproxies.cpp`.
+- ѕарсит прототипы, генерирует stub + wire code + marshaling.
+
+ƒл€ `WndProc` Ч фиксированный список классов, генераци€ по шаблону `PROXY_WNDPROC`.
+
+---
+
+# „асть IV. ѕлан
+
+## 21. ‘аза 0. Ѕагфиксы (P0, 2Ц3 недели)
+
+**FreePM:**
+- `Fs_wnd.cpp`: `realloc(pPS, sizeof(F_PS))` > `nPSAllocated * sizeof(F_PS)`; `memset(&pDC[ind], 0, sizeof(F_PS))` > `sizeof(F_DC)`; `pWND[n]` > `pWND[n-1]`; `OpenDC` > сохранить в `pWND[iHWND].iHDC`.
+- `F_DeskTop.cpp`: `memset(&pWindows[0], 0, sizeof(_FreePM_HABserverinf))` > `sizeof(FPM_Window*)`; убрать `DosBeep` в `WM_PAINT`.
+- `init.cpp`: `if (!(rc = DosLoadModule(...))) return 0;` > `if (rc) return 0;`; инициализировать `rc`.
+- `F_session.cpp`: убрать `static params`; освобождать старый `pBmpBuffer`.
+- `Fs_queue.cpp`: `Del` Ч сдвигать `length-1-position`; `DelFirst`/`Get` Ч убрать двойной `start++`.
+- `F_hab.cpp`: `rc1 != 1` > `rc1 <= 0`; блокировки в `AddHAB`/`DelHAB`.
+- `WindowClass.cpp`: `crStruct.cx/cy` помен€ть; `fl |= SWP_SIZE|SWP_MOVE` вместо `WM_SIZE|WM_MOVE`; `rc0 = TRUE` при успехе; `_POS`/`_SIZE` помен€ть.
+- `habmgr.cpp`: `rc1 != 1` > `rc1 <= 0`; выделить `pWinClassList`; освобождать в `DelHAB`.
+- `F_debug.cpp`: `debugArg` Ч `arg += 3`; thread-safe `_db_print`/`debugLogTime`.
+
+**osFree PMGPI:**
+- `GpiPolyLineDisjoint` Ч проверка чЄтности (`OOB read`).
+- `GpiDeleteElement` Ч не сносить `GBSEG`-заголовок.
+- `GpiResetPS` Ч точные маски `GRES_*`.
+- `GpiSetSegmentPriority` Ч проверка `lRefSegId` до `UnlinkSegment`.
+- `RecordPolyFilletSharp` Ч точки парами, `lCount` = число филе.
+- `GpiGetData` Ч не тер€ть ордера > 512 байт.
+- `GpiQueryElementType` Ч `strnlen`.
+- `GpiAssociate` Ч проверки `hdc`, `PMERR_PS_IS_ASSOCIATED`, `PMERR_DC_IS_ASSOCIATED`.
+- `GpiCallSegmentMatrix` Ч `lType != TRANSFORM_REPLACE` > ошибка.
+- `unimplemented()` Ч разделить на `_bool`/`_long`/`_handle`.
+- –азложить по `pmgpi/server/` и `pmgpi/client/`.
+
+**¬ыход:** код не разрушает состо€ние, заглушки не врут про успех.
+
+## 22. ‘аза 0.5. PAL (P0, 2Ц3 недели)
+
+**Ќовое:**
+- `pal/pal.h` Ч абстрактный API.
+- `pal/pal_os2.c`, `pal/pal_linux.c`, `pal/pal_win32.c` Ч реализации.
+- `pal/pal_compat.h` Ч `#define DosAllocMem pal_alloc_zero`, `#define WinSetErrorInfo pal_set_error`, `#define DosLogWrite pal_log`, Е
+- `pal/pal_transport_tcp.c` (MVP), `pal/pal_transport_pipe.c` (позже).
+- `pal/pal_driver_sdl.cpp` (MVP), `pal/pal_driver_pm.cpp` (OS/2, позже).
+- `pal/pal_thread.c`, `pal/pal_mutex.c`, `pal/pal_atomic.c`, `pal/pal_time.c`.
+
+**«амена в FreePM-сервере:** `DosAllocMem`/`DosFreeMem` > `pal_alloc_zero`/`pal_free`; `DosCreateMutexSem`/Е > `pal_mutex_*`; `__lxchg` > `pal_atomic_xchg`; `DosSleep` > `pal_sleep`; `DosBeep` > `pal_beep` (no-op на Linux); `_ftime` > `pal_time`; `_beginthread` > `pal_thread_create`; `DosQueryProcAddr` > `pal_module_*`.
+
+**osFree PMGPI:** `-include pal_compat.h` при сборке сервера. `ps.c`, `unimpl.c` компилируютс€ как есть.
+
+**¬ыход:** сервер собираетс€ и работает на Linux и OS/2.
+
+## 23. ‘аза 1.  аркас объединени€ (P0, 2Ц3 недели)
+
+- `pmgpi/common/gpi_wire.h` Ч коды функций.
+- `pmgpi/client/F_GPI.cpp` Ч пилот: `F_GpiLine`, `F_GpiSetColor`, `F_GpiMove`, `F_GpiBox`.
+- `Fs_gre.cpp` Ч скелет: `Gre32Entry5` дл€ `NGrePolyLine`, `DoGrePolyLine` Ч заглушка.
+- `Fs_main.cpp::handler` Ч `F_CMD_GPI_DISPATCH` end-to-end.
+- ѕроверить: `GpiLine` проходит цепочку клиент > pipe > `DispatchGpi` > `GpiLine` > `GrePolyLine` > `Gre32Entry5` > `DoGrePolyLine` (заглушка) > ответ.
+
+**¬ыход:** `GpiLine` возвращает `GPI_OK` без падений.
+
+## 24. ‘аза 2. PMGRE Ч растеризатор (P0, 3Ц4 недели)
+
+- `Fs_gre.cpp`: `DcFromHdc`, `DoGrePolyLine` (Bresenham), `DoGreBoxInterior`/`Boundary`/`Both`, `DoGrePolyMarker`, `DoGreSetCurrentPosition`, `DoGreGetCurrentPosition`, `DoGreSetAttributes`/`GetAttributes` (LBB/CBB/MBB/ABB/IBB), `DoGreSaveDC`/`RestoreDC`, `DoGreErasePS`, `DoGreCreateBitmap`/`DeleteBitmap`/`SelectBitmap`/`GetBitmapBits`/`SetBitmapBits`/`Bitblt`, `DoGreQueryDeviceCaps` (константы дл€ MVP).
+- `F_DC`: `pTarget`, `width`, `height`, `clip`, `color`, `mix`, `cur_pos`, `line_type`, `line_width`, `char_set`, `marker`, `pattern`, `save_stack`.
+
+**¬ыход:** `GpiSetColor` + `GpiMove` + `GpiLine` + `GpiBox` рисуют в `pVBuffmem`.
+
+## 25. ‘аза 3. ѕротокол GPI (P1, 3Ц4 недели)
+
+- `tools/gen_proxies.py` Ч генератор `F_GPI.cpp` + `gpi_wire.h` из `pmgpi.h`.
+- `DispatchGpi` Ч `switch` на все ~200 `Gpi*`.
+- `F_GPI.cpp` Ч все stubs.
+- ќсобые: `GpiCreatePS`/`DestroyPS`/`Associate` (HPS lifecycle), `GpiGetData`/`PutData` (переменный размер), `GpiOpenSegment`/`CloseSegment`/`DrawSegment`/`DrawChain`.
+
+**¬ыход:** приложение рисует линию, бокс, текст, устанавливает цвет/шрифт, записывает сегмент и воспроизводит его.
+
+## 26. ‘аза 4. Window Manager (P1, 3Ц4 недели)
+
+- `Fs_wnd.cpp`: `pWND[]`, `pClass[]`, `WinCreateWindow` (сервер), `WinDestroyWindow`, `WinSetWindowPos` (сервер), `WinShowWindow`, `WinSetParent`, `WinGetNextWindow`, `WinEnumWindows`.
+- `Fs_queue.cpp`: очередь сообщений, `PostMessage`, `GetMessage`.
+- `Fs_hab.cpp`: HAB-менеджер.
+- `WindowClass.cpp` (клиент): `classes[]`, `windows[]`, `WinRegisterClass`, `WinCreateWindow` (клиент), `WinDispatchMsg`, `WinSetWindowPos` (клиент, `WM_ADJUSTWINDOWPOS`/`WM_SIZE`/`WM_MOVE`).
+- `windowmgr.cpp`: `WinSetWindowText`, `WinQueryWindowText`, `WinEnableWindow`, `WinSetPresParam`, `WinInvalidateRect`, `WinBeginPaint`, `WinEndPaint`, `WinGetPS`, `WinReleasePS`.
+
+**¬ыход:** окно создаЄтс€, двигаетс€, измен€ет размер, получает `WM_PAINT`, рисует.
+
+## 27. ‘аза 5. D3: серверные контролы (P1, 4Ц5 недель)
+
+- `Fs_stdctl.cpp`: `ServerStaticWndProc`, `ServerButtonWndProc`, `ServerFrameWndProc`, `ServerTitleBarWndProc`, `ServerEntryFieldWndProc`, `ServerGenericDefWindowProc`, `DispatchToServerWndProc`.
+- `pmmerge/ctlproxies.cpp`: `PROXY_WNDPROC(ButtonWndProc)`, Е `WinDefWindowProc` (особый).
+- `F_CMD_CTL_PROC`, `F_CMD_SUBCLASS_CALL`, `F_CMD_DEFWINDOWPROC`, `F_CMD_SET_OVERRIDE` в `handler`.
+- `WinSubclassWindow` на клиенте: локальна€ замена + `F_CMD_SET_OVERRIDE`.
+
+**MVP-контролы:** `WC_STATIC`, `WC_BUTTON`, `WC_FRAME`, `WC_TITLEBAR`, `WC_ENTRYFIELD`. ќстальные Ч позже.
+
+**¬ыход:** кнопка рисуетс€ с 0 IPC; `WinSubclassWindow` работает через `F_CMD_SUBCLASS_CALL`.
+
+## 28. ‘аза 6. ƒрайвер (P1, 2Ц3 недели)
+
+- `pal_driver_sdl.cpp`: окно SDL, framebuffer, `WM_PAINT` > `SDL_UpdateTexture`, ввод > `WM_MOUSEMOVE`/`WM_CHAR`/`WM_KEYDOWN`.
+- `pal_driver_pm.cpp` (позже): нативный PM.
+- `F_session.cpp`: интеграци€, `pVBuffmem` из драйвера.
+
+**¬ыход:** окно открываетс€ на Linux/Windows, содержимое `pVBuffmem` выводитс€.
+
+## 29. ‘аза 7. “естирование (P0, параллельно)
+
+- ёнит: PAL, очередь, HAB, WND, растеризатор.
+- »нтеграци€: клиент > окно > рисование > `WM_PAINT` > blit.
+- ”течки: DC, PS, HPS, буферы (ASan/Valgrind на Linux).
+- √онки: два клиента, два десктопа.
+-  росс-платформа: Linux, OS/2, Windows.
+
+## 30. ‘аза 8. 16-битный ABI (P2, откладываетс€)
+
+- `APIENTRY16 = _Far16 _Pascal`.
+- `pmgpi/client/gpi16*.c` Ч thunks `GPILINE` > `F_GpiLine`, маппинг `HPS16 > HPS`.
+- `pmgpi/client/pmgpi16.c` Ч 16-битные entry points.
+- “олько клиент. —ервер и протокол не мен€ютс€.
+
+## 31. —водна€ оценка
+
+| ‘аза | ѕриоритет | ќценка |
+|---|---|---|
+| 0. Ѕагфиксы | P0 | 2Ц3 недели |
+| 0.5. PAL | P0 | 2Ц3 недели |
+| 1.  аркас объединени€ | P0 | 2Ц3 недели |
+| 2. PMGRE Ч растеризатор | P0 | 3Ц4 недели |
+| 3. ѕротокол GPI | P1 | 3Ц4 недели |
+| 4. Window Manager | P1 | 3Ц4 недели |
+| 5. D3: серверные контролы | P1 | 4Ц5 недель |
+| 6. ƒрайвер | P1 | 2Ц3 недели |
+| 7. “естирование | P0 | параллельно |
+| 8. 16-битный ABI | P2 | откладываетс€ |
+
+**MVP (0 + 0.5 + 1Ц6):** 5Ц6 мес€цев на одного разработчика.
+**ѕолный (0Ц8):** 7Ц9 мес€цев.
+
+## 32. –иски
+
+| –иск | ћитигаци€ |
+|---|---|
+| `GpiCreatePS` игнорирует `flOptions` (osFree) | ‘аза 0 или отложить; дл€ MVP Ч normal/pels/short/assoc |
+| `unimplemented()` лжЄт про успех дл€ `BOOL` | ‘аза 0 Ч разделить на `_bool`/`_long`/`_handle` |
+| ƒублирование `_db_print` | `unimpl.c` вызывает внешний `_db_print` (из `F_debug.cpp`) |
+| `HPS` aliasing | ƒокументировать; generation counter отложен |
+| –астеризатор Ч большой объЄм | MVP: линии, боксы, маркеры; дуги/текст Ч позже (SDL_ttf или GD) |
+|  росс-платформенные баги | CI на Linux + OS/2 + Windows, ASan/Valgrind |
+| `WinGetMsg` блокирующий | MVP Ч неблокирующий (`WinPeekMsg` + sleep); позже Ч `poll`/`select` |
+| Endianness | MVP Ч LE; позже Ч нормализаци€ |
+| SDL на OS/2 | ќтдельный `pal_driver_pm.cpp` дл€ OS/2 |
+| 16-битный ABI | ќтложен; сервер не зависит |
+
+## 33. „то не делаем
+
+- **Ќе модифицируем osFree PMGPI** (кроме багфиксов ‘азы 0).
+- **Ќе тащим GPI-логику в клиент.**
+- **Ќе делаем generation counter** (ваше решение).
+- **Ќе делаем канонический GOCA** (внутренний round-trip работает).
+- **Ќе делаем 16-битный ABI** до ‘азы 8.
+- **Ќе реализуем метафайлы, регионы, клип, шрифты, палитры, DDE, clipboard, atom tables, hooks, seamless** до MVP.
+- **Ќе используем GD дл€ линий/боксов** (свой растеризатор); GD/SDL_ttf Ч только дл€ текста/дуг, если понадобитс€.
+- **Ќе портируем клиент** на другие ќ— (это отдельный большой проект Ч OS/2-загрузчик, VIO, KBD, DOSCALLS-эмул€ци€).
+
+---
+
+# »тог
+
+**јрхитектура:** PMGPI + PMGRE + PMWIN-менеджер + стандартные WndProc Ч на сервере. Gpi*-прокси + Win*-прокси + WndProc-прокси + 16-bit thunks Ч на клиенте. PAL Ч между сервером и ќ—. “ранспорт pluggable (TCP MVP). ƒрайвер pluggable (SDL MVP).
+
+**ѕротокол:** `F_CMD_GPI_DISPATCH` (generic dispatcher дл€ `Gpi*`, аналог `Gre32EntryN`), `F_CMD_CTL_PROC` (generic dispatcher дл€ стандартных `WndProc`, аналог `somDispatch`), per-function `F_CMD_WIN_*`, `F_CMD_SUBCLASS_CALL` дл€ override. ѕротокол компактный, не растЄт с числом функций.
+
+**ѕрокси:** per-function stubs дл€ `Gpi*` (генерируютс€ из `pmgpi.h`), тонкие `PROXY_WNDPROC` дл€ стандартных `WndProc` (шаблон), per-function `F_Win*` дл€ `Win*`, 16-bit thunks (‘аза 8, только клиент).
+
+**ѕлан:** 0 (багфиксы) > 0.5 (PAL) > 1 (каркас) > 2 (PMGRE) > 3 (протокол GPI) > 4 (Window Manager) > 5 (D3) > 6 (драйвер) > 7 (тесты) > 8 (16-bit). MVP Ч 5Ц6 мес€цев, полный Ч 7Ц9 мес€цев.
+
+**ћодель:** DSOM, адаптированна€ к процедурному API PM. ѕрокси на клиенте, target на сервере, location transparency сохранена, ABI совместим с OS/2 на уровне символов и сигнатур. —ервер кросс-платформенный, клиент OS/2-специфичный.
+
+
+# PMGPI.DLL (клиент) на OpenWatcom 1.9 / C89
+
+’ороша€ фиксаци€. OpenWatcom 1.9 + C89 накладывает конкретные ограничени€ Ч их надо учесть в дизайне и генераторе, иначе потом переписывать.
+
+---
+
+## 1. ќграничени€ C89, которые бьют по коду
+
+| ќграничение | „то нельз€ | «амена |
+|---|---|---|
+| Ќет `//` комментариев | `// comment` | `/* comment */` |
+| Ќет смешанных деклараций | `stmt; int x;` | ¬се декларации в начале блока |
+| Ќет `inline` | `inline int f()` | `static` в заголовке или отдельный `.c` |
+| Ќет `alloca` (стандартного) | `alloca(n)` | ‘иксированный стек-буфер или `malloc`/`free` |
+| Ќет `stdint.h` | `int32_t` | `LONG`, `ULONG`, `USHORT`, `BOOL` из `<os2.h>` |
+| Ќет `bool` | `bool` | `BOOL` (`TRUE`/`FALSE`) |
+| Ќет variadic macros | `#define F(...) __VA_ARGS__` | ќтдельные макросы или функции |
+| Ќет `long long` | `int64_t` | Ќе нужен дл€ 32-битного API |
+| Ќет designated initializers | `{.x=1}` | `{1}` |
+| Ќет compound literals | `f((POINTL){1,2})` | `{ POINTL pt = {1,2}; f(&pt); }` |
+| Ќет `for (int i...)` | `for (int i = 0; ...)` | `int i; for (i = 0; ...)` |
+
+**`_alloca` в Watcom есть** (`#include <malloc.h>`), но это расширение, а не C89. ƒл€ строгого C89 Ч не используем. ƒл€ MVP Ч фиксированный стек-буфер с проверкой размера.
+
+---
+
+## 2. —пецифика OpenWatcom 1.9 дл€ OS/2 DLL
+
+| „то | «начение |
+|---|---|
+|  омпил€тор (32-бит) | `wcc386` |
+| Ћинкер | `wlink` |
+| —борка | `wmake` (Makefile) |
+| —оглашение вызова дл€ `Gpi*` | `_System` (= `__stdcall` на OS/2) Ч как в OS/2 PMGPI.DLL |
+| `APIENTRY` | `_System` (из `<os2.h>`) |
+| Ёкспорт | `.def` файл с `EXPORTS` + ординалы |
+| ‘ормат DLL | LX (OS/2), `option osname='OS/2'` в `wlink` |
+| «аголовки | `<os2.h>` + `<pmgpi.h>` + `<pmavio.h>` и т.д. |
+| ÷елева€ платформа | `-bt=os2` |
+| ћодель пам€ти | flat (32-бит) |
+
+**16-битна€ сборка** (‘аза 8) Ч отдельный компил€тор `wcc` (16-bit), `-bt=os2 -mh` (huge) или `-ml` (large), `_Far16 _Pascal` = `APIENTRY16`.
+
+---
+
+## 3. —труктура проекта
+
+```
+pmgpi/
++-- wmakefile                   < корневой
++-- common/
+¶   L-- gpi_wire.h              < коды функций (генерируетс€)
+¶
++-- client/
+¶   +-- wmakefile               < сборка PMGPI.DLL
+¶   +-- pmgpi.def               < экспорты + ординалы (генерируетс€)
+¶   +-- gpi_entry.c             < GpiDispatch, transport wrappers, error state
+¶   +-- gpi_proxies.c           < F_Gpi* stubs (генерируетс€)
+¶   +-- gpi_proxies.h           < прототипы F_Gpi* (генерируетс€)
+¶   +-- transport.c             < F_SendCmdToServer / F_SendDataToServer / F_RecvDataFromServer
+¶   +-- transport.h
+¶   L-- error.c                 < per-thread lastError
+¶
++-- server_stub/
+¶   +-- wmakefile               < сборка PMSRV_STUB.EXE (дл€ ABI-теста)
+¶   +-- main.c                  < main loop, приЄм F_CMD_GPI_DISPATCH
+¶   L-- dispatch.c              < DispatchGpi: switch, return GPI_ERROR
+¶
+L-- tools/
+    +-- gen_proxies.py          < генератор (Python на хосте)
+    L-- gen_def.py              < генератор .def из pmgpi.h
+```
+
+---
+
+## 4. “ранспорт: PMPIPE через OpenWatcom
+
+¬ FreePM уже есть `PMPIPE` backend (`F_pipe.cpp`, `F_pipe.hpp` Ч не показаны в этом чате, но подразумеваютс€). ƒл€ MVP используем его Ч это нативный OS/2 pipe, быстрее TCP.
+
+‘ункции транспорта (уже есть в FreePM):
+```c
+APIRET F_SendCmdToServer(ULONG obj, int cmd, int par);
+APIRET F_SendDataToServer(ULONG obj, void *data, int len);
+APIRET F_RecvDataFromServer(ULONG obj, void *data, int *len, int maxlen);
+```
+
+**ќни уже C89-совместимы** (объ€влени€ в начале, нет `inline`, нет `alloca`). ћен€ть не надо.
+
+ƒл€ MVP **TCP не нужен** Ч сервер на той же OS/2 машине, PMPIPE достаточно. TCP Ч ‘аза G (кросс-платформенный сервер), после PAL.
+
+Ёто упрощает ‘азу A: не надо тащить TCP в клиент.
+
+---
+
+## 5. `GpiDispatch` Ч C89
+
+```c
+/* gpi_entry.c */
+#include <os2.h>
+#include <pmgpi.h>
+#include "gpi_wire.h"
+#include "transport.h"
+#include "error.h"
+
+#define FPM_MAX_STACK_ARGS  512
+
+static ULONG GpiDispatch(HPS hps, ULONG ulFnCode,
+                         const void *pArgs, ULONG cbArgs)
+{
+    ULONG   ahdr[3];
+    ULONG   result;
+    ULONG   lastError;
+    int     len;
+    APIRET  rc;
+
+    ahdr[0] = ulFnCode;
+    ahdr[1] = cbArgs;
+    ahdr[2] = 0;
+
+    rc = F_SendCmdToServer(client_obj, F_CMD_GPI_DISPATCH, (ULONG)hps);
+    if (rc != 0) {
+        SetLastError(FPMERR_TRANSPORT);
+        return (ULONG)GPI_ERROR;
+    }
+    rc = F_SendDataToServer(client_obj, (void *)ahdr, sizeof(ahdr));
+    if (rc != 0) { /* ... */ }
+    if (cbArgs != 0) {
+        rc = F_SendDataToServer(client_obj, (void *)pArgs, (int)cbArgs);
+        if (rc != 0) { /* ... */ }
+    }
+
+    len = 0;
+    rc = F_RecvDataFromServer(client_obj, &result, &len, sizeof(result));
+    if (rc != 0 || len != (int)sizeof(result)) {
+        SetLastError(FPMERR_TRANSPORT);
+        return (ULONG)GPI_ERROR;
+    }
+    len = 0;
+    rc = F_RecvDataFromServer(client_obj, &lastError, &len, sizeof(lastError));
+    if (rc == 0 && len == (int)sizeof(lastError))
+        SetLastError((APIRET)lastError);
+
+    return result;
+}
+```
+
+**¬се декларации в начале.** Ќет `//`. Ќет `alloca`. Ќет `inline` (`static` Ч по умолчанию в C89). ќк.
+
+---
+
+## 6. √енерируемые stubs Ч C89
+
+ƒл€ простых функций (`GpiLine`, `GpiSetColor`):
+
+```c
+/* gpi_proxies.c Ч генерируетс€ */
+LONG APIENTRY F_GpiLine(HPS hps, PPOINTL pptl)
+{
+    POINTL pt = *pptl;
+    return (LONG)GpiDispatch(hps, N_GpiLine, &pt, sizeof(pt));
+}
+
+BOOL APIENTRY F_GpiSetColor(HPS hps, LONG lColor)
+{
+    return (BOOL)GpiDispatch(hps, N_GpiSetColor, &lColor, sizeof(lColor));
+}
+
+BOOL APIENTRY F_GpiBox(HPS hps, LONG lControl, PPOINTL pptl,
+                       LONG lHRound, LONG lVRound)
+{
+    struct {
+        LONG    lControl;
+        POINTL  pt;
+        LONG    lHRound;
+        LONG    lVRound;
+    } args;
+    args.lControl = lControl;
+    args.pt       = *pptl;
+    args.lHRound  = lHRound;
+    args.lVRound  = lVRound;
+    return (BOOL)GpiDispatch(hps, N_GpiBox, &args, sizeof(args));
+}
+```
+
+ƒл€ функций с переменной длиной (`GpiCharStringAt`, `GpiGetData`, `GpiPutData`) Ч фиксированный стек-буфер + проверка размера:
+
+```c
+#define FPM_MAX_INLINE_ARGS 1024
+
+LONG APIENTRY F_GpiCharStringAt(HPS hps, PPOINTL pptl, LONG cch, PCH pch)
+{
+    struct {
+        POINTL  pt;
+        LONG    cch;
+    } fix;
+    ULONG   cbArgs;
+    ULONG   ahdr[3];
+    PBYTE   pBuf;
+    LONG    result;
+    int     len;
+    APIRET  rc;
+
+    fix.pt  = *pptl;
+    fix.cch = cch;
+    cbArgs  = (ULONG)sizeof(fix) + (ULONG)cch;
+
+    /* ≈сли строка помещаетс€ в стек Ч используем стек */
+    if (cbArgs <= FPM_MAX_INLINE_ARGS) {
+        BYTE  abStack[FPM_MAX_INLINE_ARGS];
+        memcpy(abStack, &fix, sizeof(fix));
+        memcpy(abStack + sizeof(fix), pch, (ULONG)cch);
+        /* send: header + abStack */
+        /* ... */
+    } else {
+        pBuf = (PBYTE)malloc(cbArgs);
+        if (pBuf == NULL) { SetLastError(PMERR_INSUFFICIENT_MEMORY); return GPI_ERROR; }
+        memcpy(pBuf, &fix, sizeof(fix));
+        memcpy(pBuf + sizeof(fix), pch, (ULONG)cch);
+        /* send: header + pBuf */
+        /* ... */
+        free(pBuf);
+    }
+    return result;
+}
+```
+
+**Ѕез `alloca`.** —тек-буфер фиксированного размера, дл€ больших Ч `malloc`. C89.
+
+**√енератор** должен уметь распознавать:
+- —кал€рные аргументы (`LONG`, `ULONG`, `BOOL`, `FIXED`, `HPS`, `HDC`, Е) Ч copy by value.
+- —труктуры фиксированного размера (`POINTL`, `RECTL`, `SIZEL`, `FATTRS`, `ARCPARAMS`, Е) Ч `memcpy` в `args`.
+- `P<struct>` Ч разыменовать один раз, скопировать структуру.
+- `PBYTE`/`PCH` + отдельный `LONG cch`/`LONG cbData` Ч переменный размер, стек-буфер + `malloc` fallback.
+- `PVOID` + размер Ч аналогично.
+
+Ёто ~5 категорий. √енератор обрабатывает каждую.
+
+---
+
+## 7. `.def` файл Ч экспорты + ординалы
+
+**ќрдиналы должны совпадать с OS/2 PMGPI.DLL.** »х надо вз€ть из реальной OS/2 PMGPI.DLL:
+
+```cmd
+impdef pmgpi.ref > pmgpi_ordinals.txt
+```
+
+‘ормат:
+```
+LIBRARY PMGPI INITINSTANCE TERMINSTANCE
+DESCRIPTION 'FreePM PMGPI client proxy'
+PROTMODE
+EXPORTS
+    GpiAbortPath        @100
+    GpiAssociate        @101
+    GpiBeginArea        @102
+    GpiBeginElement     @103
+    GpiBeginPath        @104
+    GpiBitBlt           @105
+    ; ... ~200 записей
+```
+
+**√енератор `gen_def.py`** берЄт `pmgpi_ordinals.txt` (сн€тый с реальной PMGPI.DLL) + `pmgpi.h` (провер€ет, что все `Gpi*` из `pmgpi.h` есть в ordinals) > `pmgpi.def`.
+
+≈сли ординал отсутствует в реальной DLL (нова€ функци€, `Gpi*` из APILEVEL > 2) Ч назначаем следующий свободный (после максимума).
+
+**ѕроверка:** `exehdr pmgpi.dll > our_exports.txt`, сравнить с `pmgpi.ref`. –асхождени€ Ч ошибка.
+
+**јльтернатива без ординалов:** если приложени€ линкуютс€ по имени (`GpiLine`, а не `@105`), можно без ординалов. Ќо OS/2-приложени€ **исторически линкуютс€ по ординалам**, и `Wlink` может это требовать. ƒл€ MVP Ч с ординалами, это гаранти€.
+
+---
+
+## 8. `wmakefile` (клиент)
+
+```makefile
+# pmgpi/client/wmakefile
+CC      = wcc386
+CFLAGS  = -bt=os2 -bm -bd -5s -ox -w4 -zq -i..\common -i..\client
+LD      = wlink
+LDFLAGS = system os2v2_dll initinstance terminstance name PMGPI
+
+OBJS = gpi_entry.obj gpi_proxies.obj transport.obj error.obj
+
+all: pmgpi.dll
+
+pmgpi.dll: $(OBJS) pmgpi.def
+    $(LD) $(LDFLAGS) file {$(OBJS)} @pmgpi.def
+
+gpi_entry.obj: gpi_entry.c gpi_wire.h transport.h error.h
+    $(CC) $(CFLAGS) -fo=$^@ $<
+
+gpi_proxies.obj: gpi_proxies.c gpi_proxies.h gpi_wire.h
+    $(CC) $(CFLAGS) -fo=$^@ $<
+
+# ... остальные
+
+clean: .SYMBOLIC
+    -del *.obj
+    -del pmgpi.dll
+```
+
+‘лаги:
+- `-bt=os2` Ч target OS/2
+- `-bm` Ч multi-thread safe
+- `-bd` Ч DLL
+- `-5s` Ч Pentium, stack-based calling
+- `-ox` Ч optimize
+- `-w4` Ч warnings
+- `-zq` Ч quiet
+
+ƒл€ отладки Ч `-d2` и `-hw` (Watcom debugger).
+
+---
+
+## 9. Stub-сервер (дл€ ABI-теста)
+
+`server_stub/main.c`:
+
+```c
+#include <os2.h>
+#include "gpi_wire.h"
+
+int main(void)
+{
+    /* »нициализаци€ PMPIPE, прин€тие одного клиента */
+    /* ÷икл: F_RecvCmdFromClient > dispatch > F_SendDataToClient */
+    /* dispatch: case F_CMD_GPI_DISPATCH > DispatchGpi(...) */
+    return 0;
+}
+```
+
+`server_stub/dispatch.c` Ч генерируетс€:
+
+```c
+ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
+{
+    (void)hps; (void)pArgs; (void)cbArgs;
+    switch (ulFnCode) {
+    case N_GpiLine:             return (ULONG)GPI_ERROR;
+    case N_GpiSetColor:         return (ULONG)GPI_ERROR;
+    /* ... ~200 case'ов ... */
+    default:                    return (ULONG)GPI_ERROR;
+    }
+}
+```
+
+**Ќе вызывает `unimplemented()`** Ч тот может писать в лог и падать. ѕросто `GPI_ERROR`.
+
+**ќценка:** ~200 строк, генерируетс€.
+
+---
+
+## 10. √енератор `gen_proxies.py` Ч что парсит
+
+¬ход: `pmgpi.h` (из OpenWatcom OS/2 toolkit).
+
+ѕарсит:
+```
+LONG APIENTRY GpiLine(HPS hps, PPOINTL pptl);
+BOOL APIENTRY GpiSetColor(HPS hps, LONG lColor);
+LONG APIENTRY GpiCharStringAt(HPS hps, PPOINTL pptl, LONG cch, PCH pch);
+```
+
+¬ыход:
+- `gpi_wire.h` Ч `#define N_GpiLine 0x0001` и т.д.
+- `gpi_proxies.c` Ч `F_Gpi*` stubs (C89).
+- `gpi_proxies.h` Ч прототипы `F_Gpi*`.
+- `server_stub/dispatch.c` Ч `DispatchGpi` switch (C89).
+- `pmgpi.def` Ч экспорты + ординалы.
+
+**“ип-маппинг** (C89):
+| “ип в `pmgpi.h` |  атегори€ | ћаршалинг |
+|---|---|---|
+| `LONG`, `ULONG`, `BOOL`, `FIXED`, `HPS`, `HDC`, `HBITMAP`, `HRGN`, `HAB`, `HMF`, `HPAL`, `LONG32` | scalar | by value |
+| `POINTL`, `RECTL`, `SIZEL`, `SIZEF`, `MATRIXLF`, `ARCPARAMS`, `FATTRS`, `FONTMETRICS`, `KERNINGPAIRS`, `BITMAPINFOHEADER2` | struct | `memcpy` в `args` |
+| `P<struct>` (`PPOINTL`, `PRECTL`, Е) | ptr-to-struct | разыменовать, `memcpy` |
+| `PCH`, `PSTR8`, `PSZ`, `PBYTE` + отдельный `LONG cch`/`LONG cb` | var-len | стек-буфер + `malloc` fallback |
+| `PVOID` + `ULONG cb` | var-len | как выше |
+| `PVOID` без размера (`pCtlData`, `pPresParams`) | opaque | **не маршалитс€** Ч дл€ `Gpi*` таких нет, только дл€ `Win*` |
+
+**’ороша€ новость:** `Gpi*` почти все попадают в первые 3 категории. Var-len Ч только `GpiCharString*`, `GpiGetData`, `GpiPutData`, `GpiElement`, `GpiComment`, `GpiQueryElement`, `GpiImage`, `GpiDrawBits`, `GpiSetBitmapBits`, `GpiQueryBitmapBits`. ~10 функций. ќбрабатываютс€ вручную или генератором с шаблоном.
+
+---
+
+## 11. ABI-верификаци€ Ч конкретные шаги
+
+1. **—обрать PMGPI.DLL** через `wmake`.
+2. **—н€ть экспорты** нашего DLL:
+   ```
+   exehdr pmgpi.dll > our_exports.txt
+   ```
+3. **—н€ть экспорты** реального OS/2 PMGPI.DLL:
+   ```
+   exehdr pmgpi.ref > ref_exports.txt
+   ```
+4. **—равнить** ординалы и имена (скрипт `compare_exports.py`).
+5. **ѕроверить сигнатуры** Ч `impdef` нашего DLL, сравнить с `pmgpi.h`.
+6. **—линковать тестовое приложение** (простое, вызывает `GpiLine`, `GpiSetColor`, `GpiCreatePS`) с нашим PMGPI.LIB.
+7. **«апустить** с stub-сервером. ќжидаемо: `GpiLine` > `GPI_ERROR`, `GpiCreatePS` > `NULLHANDLE`, но **без крашей**.
+8. **«апустить с реальным OS/2** (если есть) Ч наша DLL подмен€ет системную, приложение работает как обычно.
+
+---
+
+## 12. —корректированный план ‘азы A
+
+| Ўаг | „то | ќценка |
+|---|---|---|
+| A.1 | —келет: `wmakefile`, `transport.c` (обЄртка над FreePM PMPIPE), `error.c`, `gpi_entry.c` (GpiDispatch) | 2 дн€ |
+| A.2 | √енератор `gen_proxies.py` (Python) + `gen_def.py` | 3 дн€ |
+| A.3 | —генерировать `gpi_wire.h`, `gpi_proxies.c`, `gpi_proxies.h`, `pmgpi.def` | 1 день (прогон) |
+| A.4 | Stub-сервер: `server_stub/main.c`, `dispatch.c` (генерируетс€) | 1 день |
+| A.5 | —борка, отладка ABI (ординалы, `_System`, `PACK`) | 3Ц5 дней |
+| A.6 | “ест с реальным OS/2-приложением (или с самописным) | 2 дн€ |
+| A.7 | –учные stubs дл€ `GpiCreatePS`/`DestroyPS`/`Associate`, `GpiGetData`/`PutData` (особые случаи) | 2 дн€ |
+
+**»того:** ~2 недели на одного разработчика (было 2Ц3). ”скорение за счЄт:
+- ќтказ от TCP в клиенте (PMPIPE уже есть).
+- ќтказ от PAL в клиенте (только сервер).
+- ќтказ от 16-битных thunks (‘аза 8).
+- √енератор покрывает ~190 из ~200 функций, руками Ч ~10.
+
+---
+
+## 13. „то **не** входит в ‘азу A
+
+- –еальный GRE / растеризатор Ч ‘аза B.
+- `DispatchGpi` на реальные `Gpi*` Ч ‘аза C.
+- `Win*`, `WndProc` Ч отдельные DLL (PMMERGE).
+- —тандартные контролы Ч ‘аза E.
+- 16-bit thunks Ч ‘аза H.
+- PAL Ч ‘аза G (сервер).
+-  анонический GOCA Ч отложен.
+
+---
+
+## 14.  лючевые C89-ловушки дл€ этого кода
+
+1. **`static` функции в заголовке** Ч нельз€ (C89 `inline` нет). ≈сли нужна inline-подобна€ функци€, либо `static` в `.c` (не в `.h`), либо `#define`-макрос.
+2. **`alloca`** Ч не использовать. —тек-буфер `BYTE abStack[N]` с проверкой размера.
+3. **`//`** Ч не использовать. “олько `/* */`.
+4. **—мешанные декларации** Ч `int x; stmt; int y;` Ч нельз€. ¬се `int` в начале функции.
+5. **`for (int i...)`** Ч нельз€. `int i; for (i = ...)`.
+6. **`PBYTE` + размер** Ч переменный размер, `memcpy` + `malloc` fallback.
+7. **`_System` vs `__stdcall`** Ч в Watcom `APIENTRY` = `_System`. ƒл€ `Gpi*` Ч `APIENTRY`, дл€ внутренних `F_Gpi*` Ч `_System` (тот же). ѕроверить, что в `pmgpi.h` OS/2 toolkit `Gpi*` объ€влены с `APIENTRY` (они так и есть).
+8. **`PACK`** Ч структуры (`POINTL`, `RECTL`) в `os2.h` уже упакованы `#pragma pack(1)`? ѕроверить. ≈сли нет Ч `#pragma pack(1)` вокруг `struct` в `args`.
+9. **`__cdecl` vs `_System`** Ч `Gpi*` в OS/2 = `_System`. Ќе `__cdecl`. ќшибка здесь = краш на первом вызове.
+10. **ќрдиналы** Ч `EXPORTS` в `.def` с `@N`. Ѕез `@N` Ч экспорт по имени, приложение слинкуетс€, но не с реальным OS/2 DLL.
+
+---
+
+## »тог
+
+** лиентский PMGPI.DLL на OpenWatcom 1.9 / C89 Ч реализуемо за ~2 недели.**  лючевые решени€:
+
+1. **PMPIPE, не TCP** Ч уже есть в FreePM, нативно на OS/2. TCP Ч ‘аза G (кросс-платформенный сервер).
+2. **√енератор** `gen_proxies.py` Ч покрывает ~190 из ~200 `Gpi*`. –уками Ч `GpiCreatePS`/`DestroyPS`/`Associate`, `GpiGetData`/`PutData`, `GpiCharString*` (var-len).
+3. **C89-совместимый вывод генератора** Ч все декларации в начале, `/* */`, без `inline`, без `alloca` (стек-буфер + `malloc` fallback).
+4. **`.def` с ординалами** Ч снимаютс€ с реальной OS/2 PMGPI.DLL через `exehdr`, свер€ютс€.
+5. **Stub-сервер** Ч `DispatchGpi` с `return GPI_ERROR` дл€ всех, ~200 строк, генерируетс€.
+6. **ABI-верификаци€** Ч `exehdr` сравнение, линковка тестового приложени€, запуск с stub-сервером (без крашей).
+7. **16-bit thunks** Ч ‘аза H, не в MVP.
+
+ѕосле ‘азы A PMGPI.DLL **не мен€етс€** Ч только сервер наращиваетс€ (‘азы BЦG). Ёто и есть ценность стратегии: клиент стабилен, ABI зафиксирован, сервер развиваетс€ независимо.
+
+# PMCLIENT.DLL как транспорт клиента Ч прин€то
+
+Ёто снимает необходимость в TCP-транспорте на стороне клиента.  лиент PMGPI.DLL не знает про сокеты, framing, переподключение Ч всЄ это внутри PMCLIENT.DLL. PMGPI.DLL вызывает функции PMCLIENT.DLL, как `F_GPI.cpp` в FreePM вызывает `F_SendGenCmdDataToServer`.
+
+## „то € знаю из кода FreePM (факты, не догадки)
+
+»з `init.cpp`, `F_hab.cpp`, `F_debug.cpp`, `windowmgr.cpp`, `F_GPI.cpp`, `Fs_main.cpp`:
+
+| ‘ункци€ | —игнатура (как используетс€) | —торона |
+|---|---|---|
+| `InitServerConnection` | `APIRET (char *remotemachineName, ULONG *obj)` | клиент |
+| `CloseServerConnection` | `APIRET (void)` | клиент |
+| `startServerThreads` | `APIRET (void *handl)` | клиент (запускает серверные потоки в backend) |
+| `F_SendCmdToServer` | `APIRET (ULONG obj, int cmd, int data)` | клиент |
+| `F_SendDataToServer` | `APIRET (ULONG obj, void *data, int len)` | клиент |
+| `F_RecvDataFromServer` | `APIRET (ULONG obj, void *data, int *len, int maxlen)` | клиент |
+| `F_SendGenCmdToServer` | `APIRET (ULONG obj, int cmd, int par)` | клиент |
+| `F_SendGenCmdDataToServer` | `APIRET (ULONG obj, int cmd, int par, void *data, int datalen)` | клиент |
+| `F_RecvCmdFromClient` | `APIRET (ULONG obj, int *ncmd, int *data)` | сервер |
+| `F_RecvDataFromClient` | `APIRET (ULONG obj, void *sqmsg, int *l, int size)` | сервер |
+| `F_SendDataToClient` | `APIRET (ULONG obj, void *data, int len)` | сервер |
+
+“акже: `client_obj` Ч глобальный `APIRET`, инициализируетс€ в `Win32Initialize` через `InitSrvConn`. ќдин на процесс.
+
+## „то € не знаю и не буду придумывать
+
+Ёто вопросы, ответы на которые нужны дл€ дизайна `GpiDispatch`:
+
+1. **`F_SendGenCmdToServer` / `F_SendGenCmdDataToServer` Ч делают ли round-trip?** ¬ `Win32GetPS` результат `F_SendGenCmdToServer` кастуетс€ к `HPS` и возвращаетс€ без `F_RecvDataFromServer`. ¬ `F_GpiSetColor` Ч аналогично. ≈сли эти функции делают send + recv + возвращают результат, то дл€ getters (где нужен payload) их недостаточно. ≈сли только send Ч то код в `Win32GetPS`/`F_GpiSetColor` неполный.
+
+2. **`datalen` в `F_SendGenCmdDataToServer` Ч байты или int'ы?** ¬ `F_GpiSetColor`: `_F_SendGenCmdDataToServer(F_CMD_GPI_SET_COLOR, hps, (void *)&lColor, 1)` Ч дл€ `LONG` передан `1`. ≈сли байты, то это ошибка (должно быть 4). ≈сли int'ы Ч 1 = 4 байта. Ќужна спецификаци€.
+
+3. **`_F_SendGenCmdDataToServer` (с подчЄркиванием)** Ч это отдельна€ функци€, макрос или локальна€ обЄртка? ¬ `F_GpiSetColor`/`F_GpiLine` используетс€ именно она, с сигнатурой `(cmd, par, data, datalen)` Ч без `obj`. Ќужно определение.
+
+4. **‘ормат сообщени€** Ч PMCLIENT.DLL сам обрамл€ет (заголовок, длина, выравнивание)? »ли клиент должен слать заголовок €вно? »з `Fs_main.cpp::handler` видно, что сервер получает `ncmd`, `data`, потом payload Ч значит, обрамление есть, и оно внутри PMCLIENT. Ќо точный формат нужен, чтобы пон€ть, можно ли передать blob произвольного размера.
+
+5. **Thread safety** Ч `client_obj` глобальный. ≈сли два потока одновременно вызовут `F_SendGenCmdDataToServer`, PMCLIENT сериализует, или будет гонка? Ёто определ€ет, нужен ли мьютекс в `GpiDispatch` вокруг пары send/recv.
+
+6. **`F_RecvDataFromServer` Ч блокирующий?** — таймаутом? „то возвращает при разрыве соединени€?
+
+7. **`F_SendCmdToServer` vs `F_SendGenCmdToServer`** Ч в чЄм разница? ѕерва€ Ч fire-and-forget, втора€ Ч с ожиданием ответа? »ли обе fire-and-forget, а ответ всегда через `F_RecvDataFromServer`?
+
+## —корректированный план ‘азы A
+
+| Ўаг | „то | —татус |
+|---|---|---|
+| **A.0** | ѕолучить спецификацию PMCLIENT.DLL (ответы на вопросы выше) | **«аблокировано** |
+| A.1 | `gpi_transport.c` Ч тонка€ обЄртка над PMCLIENT.DLL | ѕосле A.0 |
+| A.2 | `gpi_entry.c` Ч `GpiDispatch`, `GpiDispatchRaw`, `SetLastError`/`GetLastError` | ѕосле A.0 (зависит от семантики send/recv) |
+| A.3 | REXX-генератор `gpi_wire.h`, `gpi_proxies.c`, `pmgpi.def` | Ќе зависит от A.0, можно параллельно |
+| A.4 | Stub-сервер: `DispatchGpi` (return `GPI_ERROR`), использует серверную часть PMCLIENT (`F_RecvCmdFromClient`, `F_SendDataToClient`) | ѕосле A.0 |
+| A.5 | —борка, отладка ABI | ѕосле A.4 |
+| A.6 | “ест с OS/2-приложением | ѕосле A.5 |
+
+**A.3 (генератор) можно делать сейчас** Ч он не зависит от транспорта, только от `pmgpi.h`. Ёто ~4Ц5 дней работы, и к моменту получени€ спецификации PMCLIENT будет готов.
+
+## „то нужно от вас
+
+1. **«аголовок PMCLIENT.DLL** (или его экспорты, сн€тые `impdef`/`exehdr`) Ч точные сигнатуры и семантика.
+2. **ќтветы на вопросы 1Ц7** выше Ч особенно про round-trip, `datalen`, thread safety.
+3. **‘ормат сообщени€** Ч обрамл€етс€ ли PMCLIENT сам, или клиент шлЄт заголовок €вно.
+
+ѕока этого нет Ч **A.1, A.2, A.4 заблокированы**. A.3 (генератор) и A.5ЦA.6 (сборка, тест) Ч после A.4.
+
+## ”точнение к предыдущему плану
+
+–анее € предлагал TCP-транспорт с `RecvAll`/`SendAll`. **Ёто отмен€етс€.**  лиент использует PMCLIENT.DLL, framing и переподключение Ч внутри PMCLIENT. `GpiDispatch` вызывает `F_SendGenCmdDataToServer` (или эквивалент) и, если нужно, `F_RecvDataFromServer`. Ќикаких сокетов в PMGPI.DLL.
+
+TCP остаЄтс€ только на серверной стороне (‘аза G, PAL) Ч если PMCLIENT.DLL на Windows-сервере использует TCP, а на OS/2 Ч PMPIPE, это внутреннее дело PMCLIENT. PMGPI.DLL транспорт-агностичен.

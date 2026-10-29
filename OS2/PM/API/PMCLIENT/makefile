@@ -3,16 +3,24 @@
 # (c) osFree project
 #
 
-PROJ = pmclient
-TRGT = $(PROJ).dll
-DESC = FreePM client
-srcfiles     = $(p)Fc_config$(e) $(p)init$(e)
-ADD_COPT     = -i=. -sg -of+ -bd -3s
+PROJECT      = pmclient
+DESCRIPTION  = FreePM client
+TARGET_CLASS = LIBRARY
+
+!ifndef TARGETBLD
+SRCDIR  = $(MYDIR)
+OPTIONS = manyautodata,
+!else
+SRCDIR  = $(MYDIR)..$(SEP)
+ADD_COPT += -bt=nt
+!endif
+
+ADD_COPT     = -i=$(SRCDIR). -sg -of+ -bd -3s
+
 ADD_LINKOPT  = segment   type DATA nonshared
 NOLIBS       = 1
-DLL          = 1
 DLLOPT       = initinstance terminstance
-OPTIONS      = manyautodata, caseexact
+OPTIONS     += caseexact
 
 EXPORTS      = &
     PmcPostCommand             .1, &
@@ -21,10 +29,6 @@ EXPORTS      = &
     PmcSendCommand             .4, &
     PmcSendCommandData         .5
 
-DEST         = os2$(SEP)dll
-#UNI2H        = 1
+!include $(%ROOT)tools/mk/build.mk
 
-!include $(%ROOT)tools/mk/appsos2_pm.mk
-
-
-
+.cpp: $(SRCDIR)

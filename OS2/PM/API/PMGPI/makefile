@@ -3,27 +3,45 @@
 # (c) osFree project
 #
 
-PROJ = pmgpi
-TRGT = $(PROJ).dll
-DESC = Presentation Manager GPI
-srcfiles     = $(p)gpi_proxies$(e) $(p)gpi_entry$(e) $(p)gpi_manual$(e) $(p)pmgpi16$(e) $(p)unimpl$(e)
+PROJECT      = pmgpi
+DESCRIPTION  = Presentation Manager GPI
+TARGET_CLASS = LIBRARY
+SOURCES      = gpi_proxies gpi_entry gpi_manual pmgpi16 unimpl
+
 ADD_COPT     = -i=. -sg -of+ -bd -3s
 ADD_LINKOPT  = segment   type DATA nonshared
 NOLIBS       = 1
 DLL          = 1
 DLLOPT       = initinstance terminstance
-OPTIONS      = manyautodata, caseexact
+
+
+!ifndef TARGETBLD
+SRCDIR  = $(MYDIR)
+OPTIONS = manyautodata,
+!else
+SRCDIR  = $(MYDIR)..$(SEP)
+ADD_COPT += -bt=nt
+!endif
+
+OPTIONS  += caseexact
+
 IMPORTS      = &
-GpiLoadBitmap PMMERGE.5047, &
-Gre32Entry2   PMGRE.00062,  &
-Gre32Entry3   PMGRE.00063,  &
-Gre32Entry4   PMGRE.00064,  &
-Gre32Entry5   PMGRE.00065,  &
-Gre32Entry6   PMGRE.00066,  &
-Gre32Entry7   PMGRE.00067,  &
-Gre32Entry8   PMGRE.00068,  &
-Gre32Entry9   PMGRE.00069,  &
-Gre32Entry10  PMGRE.00070
+    PmcPostCommand             PMCLIENT.1, &
+    PmcSendData                PMCLIENT.2, &
+    PmcGetData                 PMCLIENT.3, &
+    PmcSendCommand             PMCLIENT.4, &
+    PmcSendCommandData         PMCLIENT.5
+
+#GpiLoadBitmap PMMERGE.5047, &
+#Gre32Entry2   PMGRE.00062,  &
+#Gre32Entry3   PMGRE.00063,  &
+#Gre32Entry4   PMGRE.00064,  &
+#Gre32Entry5   PMGRE.00065,  &
+#Gre32Entry6   PMGRE.00066,  &
+#Gre32Entry7   PMGRE.00067,  &
+#Gre32Entry8   PMGRE.00068,  &
+#Gre32Entry9   PMGRE.00069,  &
+#Gre32Entry10  PMGRE.00070
 
 EXPORTS      = &
 # 16-bit functions
@@ -667,10 +685,14 @@ GpiSaveMetaFile2                .0728, &
 DEVPOSTESCAPE                   .0729 RESIDENT, &
 undoc730                         .0730
 
-DEST         = os2$(SEP)dll
+#DEST         = os2$(SEP)dll
 #UNI2H        = 1
 
-!include $(%ROOT)tools/mk/appsos2_pm.mk
+!include $(%ROOT)tools/mk/build.mk
+
+.cpp: $(SRCDIR)
+
+.c: $(SRCDIR)
 
 # Was used once for generation
 #$(MYDIR)gpi_proxies.c: $(MYDIR)gen_proxies.cmd

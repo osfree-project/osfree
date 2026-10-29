@@ -3,7 +3,7 @@
  * @brief Auto-generated client-side PMGPI proxies.
  */
 #define INCL_GPI
-#include <os2.h>
+#include "gpi_platform.h"
 #include "gpi_wire.h"
 #include "gpi_entry.h"
 

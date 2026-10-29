@@ -6,7 +6,7 @@
 #define GPI_ENTRY_H_INCLUDED
 
 #define INCL_GPI
-#include <os2.h>
+#include "gpi_platform.h"
 
 /*!
  * @brief Client-side dispatcher.
