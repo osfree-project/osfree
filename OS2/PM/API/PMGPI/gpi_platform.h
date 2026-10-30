@@ -6,8 +6,10 @@
 
 #if defined(__OS2__) || defined(__OS2V2__)
 
+  #define INCL_GPI
+  #define INCL_DEV
   #include <os2.h>
-  #define EXTERN
+  #define EXTERN extern "C"
 
 #elif defined(__WIN32__) || defined(_WIN32)
 
@@ -215,6 +217,32 @@
   typedef CHAR FFDESCS[2][32];
   typedef FFDESCS *PFFDESCS;
   typedef struct _QMSG { HWND hwnd; ULONG msg; MPARAM mp1, mp2; ULONG time; POINTL ptl; ULONG ulReserved; } QMSG, *PQMSG;
+
+  typedef PSZ *PDEVOPENDATA;                          /* user-provided */
+
+  typedef struct _DRIVDATA {
+      LONG cb;
+      LONG lVersion;
+      CHAR szDeviceName[32];
+      CHAR abGeneralData[1];
+  } DRIVDATA, *PDRIVDATA;
+
+  typedef struct _HCINFO {
+      CHAR szFormname[32];
+      LONG cx;
+      LONG cy;
+      LONG xLeftClip;
+      LONG yBottomClip;
+      LONG xRightClip;
+      LONG yTopClip;
+      LONG xPels;
+      LONG yPels;
+      LONG flAttributes;
+  } HCINFO, *PHCINFO;
+
+  typedef CHAR STR16[16], *PSTR16;
+  typedef CHAR STR32[32], *PSTR32;
+  typedef CHAR STR64[64], *PSTR64;
 
   /* ==================================================================
      Прототипы Gpi* (для gpi16*.c). Пропущены GpiBeginElement /
@@ -532,30 +560,30 @@
      ("fix prototype !!!"). Real prototypes are unknown yet;
      each is a no-op stub in gpi_manual.cpp. Declaring them here
      gives them extern "C" linkage so .def EXPORTS matches. */
-  ULONG APIENTRY GpiSetDCOwner(void);
-  ULONG APIENTRY GpiSetBitmapOwner(void);
-  ULONG APIENTRY GpiSetRegionOwner(void);
-  ULONG APIENTRY GpiInstallIFIFont(void);
-  ULONG APIENTRY GpiOpenMetafile(void);
-  ULONG APIENTRY GpiCloseMetafile(void);
-  ULONG APIENTRY GpiConvPSH(void);
-  ULONG APIENTRY GpiMtAssociate(void);
-  ULONG APIENTRY GpiMtDisassociate(void);
-  ULONG APIENTRY GpiEnableYInversion(void);
-  ULONG APIENTRY GpiQueryYInversion(void);
-  ULONG APIENTRY GpiSaveMetaFile2(void);
-  ULONG APIENTRY GpiAllocateDCData(void);
-  ULONG APIENTRY GpiQueryDCData(void);
+EXTERN ULONG APIENTRY GpiSetDCOwner(void);
+EXTERN ULONG APIENTRY GpiSetBitmapOwner(void);
+EXTERN ULONG APIENTRY GpiSetRegionOwner(void);
+EXTERN ULONG APIENTRY GpiInstallIFIFont(void);
+EXTERN ULONG APIENTRY GpiOpenMetafile(void);
+EXTERN ULONG APIENTRY GpiCloseMetafile(void);
+EXTERN ULONG APIENTRY GpiConvPSH(void);
+EXTERN ULONG APIENTRY GpiMtAssociate(void);
+EXTERN ULONG APIENTRY GpiMtDisassociate(void);
+EXTERN ULONG APIENTRY GpiEnableYInversion(void);
+EXTERN ULONG APIENTRY GpiQueryYInversion(void);
+EXTERN ULONG APIENTRY GpiSaveMetaFile2(void);
+EXTERN ULONG APIENTRY GpiAllocateDCData(void);
+EXTERN ULONG APIENTRY GpiQueryDCData(void);
 
   /* 32-bit mixed-case Dev* entry points (uppercase DEV* are 16-bit
      thunks in pmgpi16.cpp; these are the plain 32-bit stubs). */
-  ULONG APIENTRY DevCloseDC(void);
-  ULONG APIENTRY DevEscape(void);
-  ULONG APIENTRY DevQueryCaps(void);
-  ULONG APIENTRY DevQueryDeviceNames(void);
-  ULONG APIENTRY DevQueryHardcopyCaps(void);
-  ULONG APIENTRY DevPostDeviceModes(void);
-  ULONG APIENTRY DevOpenDC(void);
+  HMF    APIENTRY DevCloseDC(HDC);
+  HDC    APIENTRY DevOpenDC(HAB, LONG, PCSZ, LONG, PDEVOPENDATA, HDC);
+  LONG   APIENTRY DevPostDeviceModes(HAB, PDRIVDATA, PCSZ, PCSZ, PCSZ, ULONG);
+  BOOL   APIENTRY DevQueryCaps(HDC, LONG, LONG, PLONG);
+  LONG   APIENTRY DevEscape(HDC, LONG, LONG, PBYTE, PLONG, PBYTE);
+  BOOL   APIENTRY DevQueryDeviceNames(HAB, PCSZ, PLONG, PSTR32, PSTR64, PLONG, PSTR16);
+  LONG   APIENTRY DevQueryHardcopyCaps(HDC, LONG, LONG, PHCINFO);
 
 #ifdef __cplusplus
   }

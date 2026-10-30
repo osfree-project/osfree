@@ -16,6 +16,10 @@
 #error os2.h compatibility header must not be used on OS/2 builds
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ---------- Base types ---------- */
 typedef unsigned long  APIRET;     /*!< OS/2 return code. */
 typedef unsigned long  ULONG;      /*!< 32-bit unsigned. */
@@ -82,10 +86,15 @@ typedef struct _RECTL  { LONG xLeft; LONG yBottom;
                          LONG xRight; LONG yTop; } RECTL, *PRECTL;           /*!< Rectangle. */
 
 /* ---------- Calling conventions ---------- */
-#ifndef APIENTRY
-#define APIENTRY __stdcall       /*!< API entry convention. */
-#endif
-#define EXPENTRY __stdcall       /*!< Export entry convention (client only). */
+/* Same custom calling convention as gpi_platform.h (Win32 branch):
+   stdcall stack cleanup, caller cleanup, no name decoration. */
+#pragma aux __estdcall "*" \
+           parm routine [] \
+           value struct struct caller [] \
+           modify [eax ecx edx]
+
+#define APIENTRY __declspec(__pragma("__estdcall"))
+#define EXPENTRY __declspec(__pragma("__estdcall"))
 
 /* ---------- PM function declarations (implemented in win_compat.c) ---------- */
 HAB  APIENTRY WinInitialize(ULONG flOptions);
@@ -102,7 +111,8 @@ LONG APIENTRY GpiLine(HPS hps, PPOINTL pptlEndPoint);
 LONG APIENTRY GpiBox(HPS hps, LONG lControl, PPOINTL pptlPoint,
                      LONG lHRound, LONG lVRound);
 
-/* ---------- DOS function declarations (implemented in win_compat.c) ---------- */
-void APIENTRY DosSleep(ULONG ms);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OS2_COMPAT_H_INCLUDED */

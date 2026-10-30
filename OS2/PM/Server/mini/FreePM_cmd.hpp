@@ -27,15 +27,16 @@
 #define F_CMD_WIN_GET_WND_SWP	0x62  
 #define F_CMD_WIN_SHOW		0x63
 
+/* Единый диспетчер GPI (использует NGpi* коды из gpi_wire.h) */
+#define F_CMD_GPI_DISPATCH	0x100
+
 /* Старые GPI команды (оставлены для совместимости, но сервером не используются) */
-#define F_CMD_GPI_SET_COLOR	0x100
+//#define F_CMD_GPI_SET_COLOR	0x100
 #define F_CMD_GPI_MOVE		0x101
 #define F_CMD_GPI_LINE		0x102
 #define F_CMD_GPI_DRAW_LINE	0x103
 #define F_CMD_GPI_DRAW_RECT	0x104
 
-/* Единый диспетчер GPI (использует NGpi* коды из gpi_wire.h) */
-#define F_CMD_GPI_DISPATCH	0x110
 
 #define F_CMD_DB_PRINT	        0x200
 #define F_CMD_FATAL_COMMON	0x201

@@ -50,9 +50,14 @@
    @param format  printf-style format string (unused).
    @param ...     Additional arguments (unused).
 */
-void APIENTRY _db_print(const char *format,...)
+
+void APIENTRY _db_print(const char *format, ...)
 {
-    (void)format;
+    va_list arg_ptr;
+    va_start(arg_ptr, format);
+    vfprintf(stderr, format, arg_ptr);
+    va_end(arg_ptr);
+    fflush(stderr);
 }
 
 /*!

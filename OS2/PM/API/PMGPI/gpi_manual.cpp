@@ -1641,7 +1641,7 @@ LONG APIENTRY GpiStrokeInkPath(HPS hps, LONG lPath, LONG lCount, PPOINTL aptlPoi
  * @brief GpiSetDCOwner (stub; server prototype is incomplete).
  * @return GPI_ERROR.
  */
-ULONG APIENTRY GpiSetDCOwner(void)
+EXTERN ULONG APIENTRY GpiSetDCOwner(void)
 {
     return (ULONG)GPI_ERROR;
 }
@@ -1650,7 +1650,7 @@ ULONG APIENTRY GpiSetDCOwner(void)
  * @brief GpiSetBitmapOwner (stub; server prototype is incomplete).
  * @return GPI_ERROR.
  */
-ULONG APIENTRY GpiSetBitmapOwner(void)
+EXTERN ULONG APIENTRY GpiSetBitmapOwner(void)
 {
     return (ULONG)GPI_ERROR;
 }
@@ -1659,7 +1659,7 @@ ULONG APIENTRY GpiSetBitmapOwner(void)
  * @brief GpiSetRegionOwner (stub; server prototype is incomplete).
  * @return GPI_ERROR.
  */
-ULONG APIENTRY GpiSetRegionOwner(void)
+EXTERN ULONG APIENTRY GpiSetRegionOwner(void)
 {
     return (ULONG)GPI_ERROR;
 }
@@ -1668,7 +1668,7 @@ ULONG APIENTRY GpiSetRegionOwner(void)
  * @brief GpiInstallIFIFont (stub; server prototype is incomplete).
  * @return GPI_ERROR.
  */
-ULONG APIENTRY GpiInstallIFIFont(void)
+EXTERN ULONG APIENTRY GpiInstallIFIFont(void)
 {
     return (ULONG)GPI_ERROR;
 }
@@ -1677,7 +1677,7 @@ ULONG APIENTRY GpiInstallIFIFont(void)
  * @brief GpiOpenMetafile (stub; server prototype is incomplete).
  * @return GPI_ERROR.
  */
-ULONG APIENTRY GpiOpenMetafile(void)
+EXTERN ULONG APIENTRY GpiOpenMetafile(void)
 {
     return (ULONG)GPI_ERROR;
 }
@@ -1686,7 +1686,7 @@ ULONG APIENTRY GpiOpenMetafile(void)
  * @brief GpiCloseMetafile (stub; server prototype is incomplete).
  * @return GPI_ERROR.
  */
-ULONG APIENTRY GpiCloseMetafile(void)
+EXTERN ULONG APIENTRY GpiCloseMetafile(void)
 {
     return (ULONG)GPI_ERROR;
 }
@@ -1695,7 +1695,7 @@ ULONG APIENTRY GpiCloseMetafile(void)
  * @brief GpiConvPSH (stub; server prototype is incomplete).
  * @return GPI_ERROR.
  */
-ULONG APIENTRY GpiConvPSH(void)
+EXTERN ULONG APIENTRY GpiConvPSH(void)
 {
     return (ULONG)GPI_ERROR;
 }
@@ -1704,7 +1704,7 @@ ULONG APIENTRY GpiConvPSH(void)
  * @brief GpiMtAssociate (stub; server prototype is incomplete).
  * @return GPI_ERROR.
  */
-ULONG APIENTRY GpiMtAssociate(void)
+EXTERN ULONG APIENTRY GpiMtAssociate(void)
 {
     return (ULONG)GPI_ERROR;
 }
@@ -1713,7 +1713,7 @@ ULONG APIENTRY GpiMtAssociate(void)
  * @brief GpiMtDisassociate (stub; server prototype is incomplete).
  * @return GPI_ERROR.
  */
-ULONG APIENTRY GpiMtDisassociate(void)
+EXTERN ULONG APIENTRY GpiMtDisassociate(void)
 {
     return (ULONG)GPI_ERROR;
 }
@@ -1722,7 +1722,7 @@ ULONG APIENTRY GpiMtDisassociate(void)
  * @brief GpiEnableYInversion (stub; server prototype is incomplete).
  * @return GPI_ERROR.
  */
-ULONG APIENTRY GpiEnableYInversion(void)
+EXTERN ULONG APIENTRY GpiEnableYInversion(void)
 {
     return (ULONG)GPI_ERROR;
 }
@@ -1731,7 +1731,7 @@ ULONG APIENTRY GpiEnableYInversion(void)
  * @brief GpiQueryYInversion (stub; server prototype is incomplete).
  * @return GPI_ERROR.
  */
-ULONG APIENTRY GpiQueryYInversion(void)
+EXTERN ULONG APIENTRY GpiQueryYInversion(void)
 {
     return (ULONG)GPI_ERROR;
 }
@@ -1740,7 +1740,7 @@ ULONG APIENTRY GpiQueryYInversion(void)
  * @brief GpiSaveMetaFile2 (stub; server prototype is incomplete).
  * @return GPI_ERROR.
  */
-ULONG APIENTRY GpiSaveMetaFile2(void)
+EXTERN ULONG APIENTRY GpiSaveMetaFile2(void)
 {
     return (ULONG)GPI_ERROR;
 }
@@ -1749,7 +1749,7 @@ ULONG APIENTRY GpiSaveMetaFile2(void)
  * @brief GpiAllocateDCData (stub; server prototype is incomplete).
  * @return GPI_ERROR.
  */
-ULONG APIENTRY GpiAllocateDCData(void)
+EXTERN ULONG APIENTRY GpiAllocateDCData(void)
 {
     return (ULONG)GPI_ERROR;
 }
@@ -1758,7 +1758,7 @@ ULONG APIENTRY GpiAllocateDCData(void)
  * @brief GpiQueryDCData (stub; server prototype is incomplete).
  * @return GPI_ERROR.
  */
-ULONG APIENTRY GpiQueryDCData(void)
+EXTERN ULONG APIENTRY GpiQueryDCData(void)
 {
     return (ULONG)GPI_ERROR;
 }
@@ -1837,12 +1837,50 @@ FPM_UNDOC_STUB(PaxPie)
 FPM_UNDOC_STUB(PaxPolyBezier)
 FPM_UNDOC_STUB(PaxPolyBezierAt)
 
-FPM_UNDOC_STUB(DevCloseDC)
-FPM_UNDOC_STUB(DevEscape)
-FPM_UNDOC_STUB(DevQueryCaps)
-FPM_UNDOC_STUB(DevQueryDeviceNames)
-FPM_UNDOC_STUB(DevQueryHardcopyCaps)
-FPM_UNDOC_STUB(DevPostDeviceModes)
-FPM_UNDOC_STUB(DevOpenDC)
+//FPM_UNDOC_STUB(DevCloseDC)
+//FPM_UNDOC_STUB(DevEscape)
+//FPM_UNDOC_STUB(DevQueryCaps)
+//FPM_UNDOC_STUB(DevQueryDeviceNames)
+//FPM_UNDOC_STUB(DevQueryHardcopyCaps)
+//FPM_UNDOC_STUB(DevPostDeviceModes)
+//FPM_UNDOC_STUB(DevOpenDC)
+
+EXTERN HMF APIENTRY DevCloseDC(HDC hdc)
+    { (void)hdc; return (HMF)NULL; }
+
+EXTERN LONG APIENTRY DevEscape(HDC hdc, LONG lCmd, LONG lInCount,
+                               PBYTE pbIn, PLONG plOutCount, PBYTE pbOut)
+    { (void)hdc; (void)lCmd; (void)lInCount; (void)pbIn;
+      (void)plOutCount; (void)pbOut; return (LONG)GPI_ERROR; }
+
+EXTERN BOOL APIENTRY DevQueryCaps(HDC hdc, LONG lStart, LONG lCount, PLONG alCaps)
+    { (void)hdc; (void)lStart; (void)lCount; (void)alCaps;
+      return (BOOL)GPI_ERROR; }
+
+EXTERN BOOL APIENTRY DevQueryDeviceNames(HAB hab, PCSZ pszDriverName,
+                                          PLONG plDriverTypes,
+                                          PSTR32 pszDriverNames,
+                                          PSTR64 pszDeviceNames,
+                                          PLONG plDriverSizes,
+                                          PSTR16 pszLogAddress)
+    { (void)hab; (void)pszDriverName; (void)plDriverTypes;
+      (void)pszDriverNames; (void)pszDeviceNames; (void)plDriverSizes;
+      (void)pszLogAddress; return (BOOL)GPI_ERROR; }
+
+EXTERN LONG APIENTRY DevQueryHardcopyCaps(HDC hdc, LONG lStart, LONG lCount,
+                                          PHCINFO ahci)
+    { (void)hdc; (void)lStart; (void)lCount; (void)ahci;
+      return (LONG)GPI_ERROR; }
+
+EXTERN LONG APIENTRY DevPostDeviceModes(HAB hab, PDRIVDATA pdriv,
+                                        PCSZ pszDriverName, PCSZ pszDeviceName,
+                                        PCSZ pszLogAddress, ULONG flOptions)
+    { (void)hab; (void)pdriv; (void)pszDriverName; (void)pszDeviceName;
+      (void)pszLogAddress; (void)flOptions; return (LONG)GPI_ERROR; }
+
+EXTERN HDC APIENTRY DevOpenDC(HAB hab, LONG lType, PCSZ pszToken,
+                              LONG lCount, PDEVOPENDATA pdop, HDC hdc)
+    { (void)hab; (void)lType; (void)pszToken; (void)lCount;
+      (void)pdop; (void)hdc; return (HDC)NULL; }
 
 #undef FPM_UNDOC_STUB
