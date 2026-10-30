@@ -6,7 +6,7 @@
 PROJ = pmgpi
 TRGT = $(PROJ).dll
 DESC = Presentation Manager GPI
-srcfiles     = $(p)pmgpi16$(e) $(p)pmgpi$(e) $(p)unimpl$(e)
+srcfiles     = $(p)pmgpi$(e) $(p)unimpl$(e)
 ADD_COPT     = -i=. -sg -of+ -bd -3s
 ADD_LINKOPT  = segment   type DATA nonshared
 NOLIBS       = 1
