@@ -7,7 +7,7 @@
    logs the offending function name and returns GPI_ERROR (-1) so that
    callers can distinguish "not implemented" from a successful (0)
    result. Logging is routed to {@c DosLogWrite} (DOSCALLS ordinal
-   1112) when available; otherwise output is silently discarded.
+   1112) when available; otherwise output is written to stderr.
 
    @note Returning GPI_ERROR is the correct convention for LONG- and
          HBITMAP-returning stubs. BOOL-returning stubs will see the
@@ -44,13 +44,12 @@
 /*!
    @brief Internal debug-print hook.
 
-   No-op implementation. Kept as a separate symbol so that {@c log()}
-   does not depend on the final sink.
+   Writes the formatted string directly to stderr. Kept as a separate
+   symbol so that {@c log()} does not depend on the final sink.
 
-   @param format  printf-style format string (unused).
-   @param ...     Additional arguments (unused).
+   @param [in] format  printf-style format string.
+   @param [in] ...     Additional arguments for the format string.
 */
-
 void APIENTRY _db_print(const char *format, ...)
 {
     va_list arg_ptr;
@@ -65,8 +64,8 @@ void APIENTRY _db_print(const char *format, ...)
 
    Resolved dynamically from DOSCALLS at startup by {@c log_init()}.
 
-   @param s   NUL-terminated string to log (max 512 bytes).
-   @return    APIRET return code from the underlying kernel call.
+   @param [in] s   NUL-terminated string to log (max 512 bytes).
+   @return         APIRET return code from the underlying kernel call.
 */
 typedef APIRET APIENTRY (*logwrt_t)(PSZ s);
 
@@ -110,8 +109,8 @@ void log_init(void)
    buffer and passes the result to {@c _db_print()}. Truncation is
    silent; callers must keep formatted lines reasonably short.
 
-   @param fmt  printf-style format string.
-   @param ...  Arguments for {@c fmt}.
+   @param [in] fmt  printf-style format string.
+   @param [in] ...  Arguments for {@c fmt}.
 */
 void log(const char *fmt, ...)
 {
@@ -134,17 +133,21 @@ void log(const char *fmt, ...)
    lets callers detect the missing implementation instead of treating
    the return value 0 as a valid result.
 
-   @param func  Name of the calling function (usually
-                {@c __FUNCTION__}); not copied, must remain valid
-                for the duration of the call.
+   @param [in] func  Name of the calling function (usually
+                     {@c __FUNCTION__}); not copied, must remain valid
+                     for the duration of the call.
 
-   @retval GPI_ERROR Always.
+   @return GPI_ERROR (-1) always.
 
    @note For BOOL-returning stubs this yields TRUE (non-zero). A full
          fix would require separate helpers per return type.
 */
 APIRET unimplemented(char *func)
 {
+  /* Explicit debug output added for stderr visibility */
+  fprintf(stderr, "[unimpl] unimplemented(%s)\n", func);
+  fflush(stderr);
+
   log("%s is not yet implemented!\n", func);
   return (APIRET)GPI_ERROR;
 }

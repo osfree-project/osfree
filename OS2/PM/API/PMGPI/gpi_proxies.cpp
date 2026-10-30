@@ -7,6 +7,12 @@
 #include "gpi_wire.h"
 #include "gpi_entry.h"
 
+/* Объявление функции логирования из unimpl.cpp */
+extern void log(const char *fmt, ...);
+
+/* Макросы для автоматического логирования входных и выходных параметров */
+#define GPICallEnter(fmt, ...)  log("[PMGPI] IN : %s(" fmt ")\n", __FUNCTION__, __VA_ARGS__)
+#define GPICallResult(fmt, ...) log("[PMGPI] OUT: %s -> " fmt "\n", __FUNCTION__, __VA_ARGS__)
 
 /*!
  * @brief Client proxy for GpiDestroyPS.
@@ -18,9 +24,15 @@ BOOL APIENTRY GpiDestroyPS(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiDestroyPS,
                       NULL, 0, &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -38,10 +50,16 @@ BOOL APIENTRY GpiAssociate(HPS hps, HDC hdc)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, hdc=%p", (void*)hps, (void*)hdc);
+
     args.hdc = hdc;
     rc = GpiDispatch(hps, NGpiAssociate,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -59,10 +77,16 @@ BOOL APIENTRY GpiRestorePS(HPS hps, LONG lPSid)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lPSid=%ld", (void*)hps, (long)lPSid);
+
     args.lPSid = lPSid;
     rc = GpiDispatch(hps, NGpiRestorePS,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -76,9 +100,15 @@ LONG APIENTRY GpiSavePS(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiSavePS,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -92,9 +122,15 @@ BOOL APIENTRY GpiErase(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiErase,
                       NULL, 0, &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -108,9 +144,15 @@ HDC APIENTRY GpiQueryDevice(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryDevice,
                       NULL, 0, &result);
-    if (rc != 0) return (HDC)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (HDC)GPI_ERROR;
+    }
+    GPICallResult("%p", (void*)result);
     return (HDC)result;
 }
 
@@ -128,10 +170,16 @@ BOOL APIENTRY GpiResetPS(HPS hps, ULONG flOptions)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, flOptions=0x%lx", (void*)hps, (unsigned long)flOptions);
+
     args.flOptions = flOptions;
     rc = GpiDispatch(hps, NGpiResetPS,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -151,11 +199,17 @@ BOOL APIENTRY GpiSetPS(HPS hps, PSIZEL psizlsize, ULONG flOptions)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, psizlsize=%p, flOptions=0x%lx", (void*)hps, (void*)psizlsize, (unsigned long)flOptions);
+
     args.psizlsize = *psizlsize;
     args.flOptions = flOptions;
     rc = GpiDispatch(hps, NGpiSetPS,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -173,10 +227,16 @@ LONG APIENTRY GpiQueryDrawControl(HPS hps, LONG lControl)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lControl=%ld", (void*)hps, (long)lControl);
+
     args.lControl = lControl;
     rc = GpiDispatch(hps, NGpiQueryDrawControl,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -196,11 +256,17 @@ BOOL APIENTRY GpiSetDrawControl(HPS hps, LONG lControl, LONG lValue)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lControl=%ld, lValue=%ld", (void*)hps, (long)lControl, (long)lValue);
+
     args.lControl = lControl;
     args.lValue = lValue;
     rc = GpiDispatch(hps, NGpiSetDrawControl,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -214,9 +280,15 @@ LONG APIENTRY GpiQueryDrawingMode(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryDrawingMode,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -234,10 +306,16 @@ BOOL APIENTRY GpiSetDrawingMode(HPS hps, LONG lMode)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lMode=%ld", (void*)hps, (long)lMode);
+
     args.lMode = lMode;
     rc = GpiDispatch(hps, NGpiSetDrawingMode,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -251,9 +329,15 @@ LONG APIENTRY GpiQueryStopDraw(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryStopDraw,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -271,10 +355,16 @@ BOOL APIENTRY GpiSetStopDraw(HPS hps, LONG lValue)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lValue=%ld", (void*)hps, (long)lValue);
+
     args.lValue = lValue;
     rc = GpiDispatch(hps, NGpiSetStopDraw,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -292,10 +382,16 @@ BOOL APIENTRY GpiSetTag(HPS hps, LONG lTag)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lTag=%ld", (void*)hps, (long)lTag);
+
     args.lTag = lTag;
     rc = GpiDispatch(hps, NGpiSetTag,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -315,11 +411,17 @@ BOOL APIENTRY GpiSetPickApertureSize(HPS hps, LONG lOptions, PSIZEL psizlSize)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lOptions=%ld, psizlSize=%p", (void*)hps, (long)lOptions, (void*)psizlSize);
+
     args.lOptions = lOptions;
     args.psizlSize = *psizlSize;
     rc = GpiDispatch(hps, NGpiSetPickApertureSize,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -337,10 +439,16 @@ BOOL APIENTRY GpiSetPickAperturePosition(HPS hps, PPOINTL pptlPick)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, pptlPick={%ld,%ld}", (void*)hps, pptlPick ? (long)pptlPick->x : 0L, pptlPick ? (long)pptlPick->y : 0L);
+
     args.pptlPick = *pptlPick;
     rc = GpiDispatch(hps, NGpiSetPickAperturePosition,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -354,9 +462,15 @@ BOOL APIENTRY GpiResetBoundaryData(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiResetBoundaryData,
                       NULL, 0, &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -374,10 +488,16 @@ BOOL APIENTRY GpiOpenSegment(HPS hps, LONG lSegment)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lSegment=%ld", (void*)hps, (long)lSegment);
+
     args.lSegment = lSegment;
     rc = GpiDispatch(hps, NGpiOpenSegment,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -391,9 +511,15 @@ BOOL APIENTRY GpiCloseSegment(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiCloseSegment,
                       NULL, 0, &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -411,10 +537,16 @@ BOOL APIENTRY GpiDeleteSegment(HPS hps, LONG lSegid)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lSegid=%ld", (void*)hps, (long)lSegid);
+
     args.lSegid = lSegid;
     rc = GpiDispatch(hps, NGpiDeleteSegment,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -432,10 +564,16 @@ LONG APIENTRY GpiQueryInitialSegmentAttrs(HPS hps, LONG lAttribute)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lAttribute=%ld", (void*)hps, (long)lAttribute);
+
     args.lAttribute = lAttribute;
     rc = GpiDispatch(hps, NGpiQueryInitialSegmentAttrs,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -455,11 +593,17 @@ BOOL APIENTRY GpiSetInitialSegmentAttrs(HPS hps, LONG lAttribute, LONG lValue)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lAttribute=%ld, lValue=%ld", (void*)hps, (long)lAttribute, (long)lValue);
+
     args.lAttribute = lAttribute;
     args.lValue = lValue;
     rc = GpiDispatch(hps, NGpiSetInitialSegmentAttrs,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -479,11 +623,17 @@ LONG APIENTRY GpiQuerySegmentAttrs(HPS hps, LONG lSegid, LONG lAttribute)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lSegid=%ld, lAttribute=%ld", (void*)hps, (long)lSegid, (long)lAttribute);
+
     args.lSegid = lSegid;
     args.lAttribute = lAttribute;
     rc = GpiDispatch(hps, NGpiQuerySegmentAttrs,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -505,12 +655,18 @@ BOOL APIENTRY GpiSetSegmentAttrs(HPS hps, LONG lSegid, LONG lAttribute, LONG lVa
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lSegid=%ld, lAttribute=%ld, lValue=%ld", (void*)hps, (long)lSegid, (long)lAttribute, (long)lValue);
+
     args.lSegid = lSegid;
     args.lAttribute = lAttribute;
     args.lValue = lValue;
     rc = GpiDispatch(hps, NGpiSetSegmentAttrs,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -530,11 +686,17 @@ LONG APIENTRY GpiQuerySegmentPriority(HPS hps, LONG lRefSegid, LONG lOrder)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lRefSegid=%ld, lOrder=%ld", (void*)hps, (long)lRefSegid, (long)lOrder);
+
     args.lRefSegid = lRefSegid;
     args.lOrder = lOrder;
     rc = GpiDispatch(hps, NGpiQuerySegmentPriority,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -556,12 +718,18 @@ BOOL APIENTRY GpiSetSegmentPriority(HPS hps, LONG lSegid, LONG lRefSegid, LONG l
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lSegid=%ld, lRefSegid=%ld, lOrder=%ld", (void*)hps, (long)lSegid, (long)lRefSegid, (long)lOrder);
+
     args.lSegid = lSegid;
     args.lRefSegid = lRefSegid;
     args.lOrder = lOrder;
     rc = GpiDispatch(hps, NGpiSetSegmentPriority,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -581,11 +749,17 @@ BOOL APIENTRY GpiDeleteSegments(HPS hps, LONG lFirstSegment, LONG lLastSegment)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lFirstSegment=%ld, lLastSegment=%ld", (void*)hps, (long)lFirstSegment, (long)lLastSegment);
+
     args.lFirstSegment = lFirstSegment;
     args.lLastSegment = lLastSegment;
     rc = GpiDispatch(hps, NGpiDeleteSegments,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -599,9 +773,15 @@ BOOL APIENTRY GpiDrawChain(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiDrawChain,
                       NULL, 0, &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -621,11 +801,17 @@ BOOL APIENTRY GpiDrawFrom(HPS hps, LONG lFirstSegment, LONG lLastSegment)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lFirstSegment=%ld, lLastSegment=%ld", (void*)hps, (long)lFirstSegment, (long)lLastSegment);
+
     args.lFirstSegment = lFirstSegment;
     args.lLastSegment = lLastSegment;
     rc = GpiDispatch(hps, NGpiDrawFrom,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -643,10 +829,16 @@ BOOL APIENTRY GpiDrawSegment(HPS hps, LONG lSegment)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lSegment=%ld", (void*)hps, (long)lSegment);
+
     args.lSegment = lSegment;
     rc = GpiDispatch(hps, NGpiDrawSegment,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -660,9 +852,15 @@ BOOL APIENTRY GpiDrawDynamics(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiDrawDynamics,
                       NULL, 0, &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -682,11 +880,17 @@ BOOL APIENTRY GpiRemoveDynamics(HPS hps, LONG lFirstSegid, LONG lLastSegid)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lFirstSegid=%ld, lLastSegid=%ld", (void*)hps, (long)lFirstSegid, (long)lLastSegid);
+
     args.lFirstSegid = lFirstSegid;
     args.lLastSegid = lLastSegid;
     rc = GpiDispatch(hps, NGpiRemoveDynamics,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -700,9 +904,15 @@ BOOL APIENTRY GpiEndElement(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiEndElement,
                       NULL, 0, &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -720,10 +930,16 @@ BOOL APIENTRY GpiLabel(HPS hps, LONG lLabel)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lLabel=%ld", (void*)hps, (long)lLabel);
+
     args.lLabel = lLabel;
     rc = GpiDispatch(hps, NGpiLabel,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -737,9 +953,15 @@ BOOL APIENTRY GpiDeleteElement(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiDeleteElement,
                       NULL, 0, &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -759,11 +981,17 @@ BOOL APIENTRY GpiDeleteElementRange(HPS hps, LONG lFirstElement, LONG lLastEleme
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lFirstElement=%ld, lLastElement=%ld", (void*)hps, (long)lFirstElement, (long)lLastElement);
+
     args.lFirstElement = lFirstElement;
     args.lLastElement = lLastElement;
     rc = GpiDispatch(hps, NGpiDeleteElementRange,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -783,11 +1011,17 @@ BOOL APIENTRY GpiDeleteElementsBetweenLabels(HPS hps, LONG lFirstLabel, LONG lLa
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lFirstLabel=%ld, lLastLabel=%ld", (void*)hps, (long)lFirstLabel, (long)lLastLabel);
+
     args.lFirstLabel = lFirstLabel;
     args.lLastLabel = lLastLabel;
     rc = GpiDispatch(hps, NGpiDeleteElementsBetweenLabels,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -801,9 +1035,15 @@ LONG APIENTRY GpiQueryEditMode(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryEditMode,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -821,10 +1061,16 @@ BOOL APIENTRY GpiSetEditMode(HPS hps, LONG lMode)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lMode=%ld", (void*)hps, (long)lMode);
+
     args.lMode = lMode;
     rc = GpiDispatch(hps, NGpiSetEditMode,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -838,9 +1084,15 @@ LONG APIENTRY GpiQueryElementPointer(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryElementPointer,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -858,10 +1110,16 @@ BOOL APIENTRY GpiSetElementPointer(HPS hps, LONG lElement)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lElement=%ld", (void*)hps, (long)lElement);
+
     args.lElement = lElement;
     rc = GpiDispatch(hps, NGpiSetElementPointer,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -879,10 +1137,16 @@ BOOL APIENTRY GpiOffsetElementPointer(HPS hps, LONG loffset)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, loffset=%ld", (void*)hps, (long)loffset);
+
     args.loffset = loffset;
     rc = GpiDispatch(hps, NGpiOffsetElementPointer,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -900,10 +1164,16 @@ BOOL APIENTRY GpiSetElementPointerAtLabel(HPS hps, LONG lLabel)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lLabel=%ld", (void*)hps, (long)lLabel);
+
     args.lLabel = lLabel;
     rc = GpiDispatch(hps, NGpiSetElementPointerAtLabel,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -921,10 +1191,16 @@ BOOL APIENTRY GpiSetPageViewport(HPS hps, PRECTL prclViewport)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, prclViewport=%p", (void*)hps, (void*)prclViewport);
+
     args.prclViewport = *prclViewport;
     rc = GpiDispatch(hps, NGpiSetPageViewport,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -942,10 +1218,16 @@ BOOL APIENTRY GpiSetGraphicsField(HPS hps, PRECTL prclField)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, prclField=%p", (void*)hps, (void*)prclField);
+
     args.prclField = *prclField;
     rc = GpiDispatch(hps, NGpiSetGraphicsField,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -963,10 +1245,16 @@ BOOL APIENTRY GpiSetViewingLimits(HPS hps, PRECTL prclLimits)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, prclLimits=%p", (void*)hps, (void*)prclLimits);
+
     args.prclLimits = *prclLimits;
     rc = GpiDispatch(hps, NGpiSetViewingLimits,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -984,10 +1272,16 @@ BOOL APIENTRY GpiBeginPath(HPS hps, LONG lPath)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lPath=%ld", (void*)hps, (long)lPath);
+
     args.lPath = lPath;
     rc = GpiDispatch(hps, NGpiBeginPath,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1001,9 +1295,15 @@ BOOL APIENTRY GpiEndPath(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiEndPath,
                       NULL, 0, &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1017,9 +1317,15 @@ BOOL APIENTRY GpiCloseFigure(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiCloseFigure,
                       NULL, 0, &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1039,11 +1345,17 @@ BOOL APIENTRY GpiModifyPath(HPS hps, LONG lPath, LONG lMode)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lPath=%ld, lMode=%ld", (void*)hps, (long)lPath, (long)lMode);
+
     args.lPath = lPath;
     args.lMode = lMode;
     rc = GpiDispatch(hps, NGpiModifyPath,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1063,11 +1375,17 @@ LONG APIENTRY GpiFillPath(HPS hps, LONG lPath, LONG lOptions)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lPath=%ld, lOptions=%ld", (void*)hps, (long)lPath, (long)lOptions);
+
     args.lPath = lPath;
     args.lOptions = lOptions;
     rc = GpiDispatch(hps, NGpiFillPath,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1087,11 +1405,17 @@ BOOL APIENTRY GpiSetClipPath(HPS hps, LONG lPath, LONG lOptions)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lPath=%ld, lOptions=%ld", (void*)hps, (long)lPath, (long)lOptions);
+
     args.lPath = lPath;
     args.lOptions = lOptions;
     rc = GpiDispatch(hps, NGpiSetClipPath,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1111,11 +1435,17 @@ LONG APIENTRY GpiOutlinePath(HPS hps, LONG lPath, LONG lOptions)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lPath=%ld, lOptions=%ld", (void*)hps, (long)lPath, (long)lOptions);
+
     args.lPath = lPath;
     args.lOptions = lOptions;
     rc = GpiDispatch(hps, NGpiOutlinePath,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1135,11 +1465,17 @@ HRGN APIENTRY GpiPathToRegion(HPS GpiH, LONG lPath, LONG lOptions)
     ULONG result;
     int   rc;
 
+    GPICallEnter("GpiH=%p, lPath=%ld, lOptions=%ld", (void*)GpiH, (long)lPath, (long)lOptions);
+
     args.lPath = lPath;
     args.lOptions = lOptions;
     rc = GpiDispatch(GpiH, NGpiPathToRegion,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (HRGN)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (HRGN)GPI_ERROR;
+    }
+    GPICallResult("%p", (void*)result);
     return (HRGN)result;
 }
 
@@ -1159,11 +1495,17 @@ LONG APIENTRY GpiStrokePath(HPS hps, LONG lPath, ULONG flOptions)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lPath=%ld, flOptions=0x%lx", (void*)hps, (long)lPath, (unsigned long)flOptions);
+
     args.lPath = lPath;
     args.flOptions = flOptions;
     rc = GpiDispatch(hps, NGpiStrokePath,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1183,11 +1525,17 @@ LONG APIENTRY GpiQueryNearestColor(HPS hps, ULONG flOptions, LONG lRgbIn)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, flOptions=0x%lx, lRgbIn=%ld", (void*)hps, (unsigned long)flOptions, (long)lRgbIn);
+
     args.flOptions = flOptions;
     args.lRgbIn = lRgbIn;
     rc = GpiDispatch(hps, NGpiQueryNearestColor,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1207,11 +1555,17 @@ LONG APIENTRY GpiQueryColorIndex(HPS hps, ULONG flOptions, LONG lRgbColor)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, flOptions=0x%lx, lRgbColor=%ld", (void*)hps, (unsigned long)flOptions, (long)lRgbColor);
+
     args.flOptions = flOptions;
     args.lRgbColor = lRgbColor;
     rc = GpiDispatch(hps, NGpiQueryColorIndex,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1231,11 +1585,17 @@ LONG APIENTRY GpiQueryRGBColor(HPS hps, ULONG flOptions, LONG lColorIndex)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, flOptions=0x%lx, lColorIndex=%ld", (void*)hps, (unsigned long)flOptions, (long)lColorIndex);
+
     args.flOptions = flOptions;
     args.lColorIndex = lColorIndex;
     rc = GpiDispatch(hps, NGpiQueryRGBColor,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1253,10 +1613,16 @@ HPAL APIENTRY GpiSelectPalette(HPS hps, HPAL hpal)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, hpal=%p", (void*)hps, (void*)hpal);
+
     args.hpal = hpal;
     rc = GpiDispatch(hps, NGpiSelectPalette,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (HPAL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (HPAL)GPI_ERROR;
+    }
+    GPICallResult("%p", (void*)result);
     return (HPAL)result;
 }
 
@@ -1270,9 +1636,15 @@ HPAL APIENTRY GpiQueryPalette(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryPalette,
                       NULL, 0, &result);
-    if (rc != 0) return (HPAL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (HPAL)GPI_ERROR;
+    }
+    GPICallResult("%p", (void*)result);
     return (HPAL)result;
 }
 
@@ -1290,10 +1662,16 @@ BOOL APIENTRY GpiSetColor(HPS hps, LONG lColor)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lColor=%ld", (void*)hps, (long)lColor);
+
     args.lColor = lColor;
     rc = GpiDispatch(hps, NGpiSetColor,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1307,9 +1685,15 @@ LONG APIENTRY GpiQueryColor(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryColor,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1333,13 +1717,19 @@ LONG APIENTRY GpiBox(HPS hps, LONG lControl, PPOINTL pptlPoint, LONG lHRound, LO
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lControl=%ld, pptlPoint={%ld,%ld}, lHRound=%ld, lVRound=%ld", (void*)hps, (long)lControl, pptlPoint ? (long)pptlPoint->x : 0L, pptlPoint ? (long)pptlPoint->y : 0L, (long)lHRound, (long)lVRound);
+
     args.lControl = lControl;
     args.pptlPoint = *pptlPoint;
     args.lHRound = lHRound;
     args.lVRound = lVRound;
     rc = GpiDispatch(hps, NGpiBox,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1357,10 +1747,16 @@ BOOL APIENTRY GpiMove(HPS hps, PPOINTL pptlPoint)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, pptlPoint={%ld,%ld}", (void*)hps, pptlPoint ? (long)pptlPoint->x : 0L, pptlPoint ? (long)pptlPoint->y : 0L);
+
     args.pptlPoint = *pptlPoint;
     rc = GpiDispatch(hps, NGpiMove,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1378,10 +1774,16 @@ LONG APIENTRY GpiLine(HPS hps, PPOINTL pptlEndPoint)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, pptlEndPoint={%ld,%ld}", (void*)hps, pptlEndPoint ? (long)pptlEndPoint->x : 0L, pptlEndPoint ? (long)pptlEndPoint->y : 0L);
+
     args.pptlEndPoint = *pptlEndPoint;
     rc = GpiDispatch(hps, NGpiLine,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1399,10 +1801,16 @@ BOOL APIENTRY GpiSetPattern(HPS hps, LONG lPatternSymbol)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lPatternSymbol=%ld", (void*)hps, (long)lPatternSymbol);
+
     args.lPatternSymbol = lPatternSymbol;
     rc = GpiDispatch(hps, NGpiSetPattern,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1416,9 +1824,15 @@ LONG APIENTRY GpiQueryPattern(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryPattern,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1436,10 +1850,16 @@ BOOL APIENTRY GpiBeginArea(HPS hps, ULONG flOptions)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, flOptions=0x%lx", (void*)hps, (unsigned long)flOptions);
+
     args.flOptions = flOptions;
     rc = GpiDispatch(hps, NGpiBeginArea,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1453,9 +1873,15 @@ LONG APIENTRY GpiEndArea(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiEndArea,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1473,10 +1899,16 @@ BOOL APIENTRY GpiSetAttrMode(HPS hps, LONG lMode)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lMode=%ld", (void*)hps, (long)lMode);
+
     args.lMode = lMode;
     rc = GpiDispatch(hps, NGpiSetAttrMode,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1490,9 +1922,15 @@ LONG APIENTRY GpiQueryAttrMode(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryAttrMode,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1510,10 +1948,16 @@ BOOL APIENTRY GpiSetBackColor(HPS hps, LONG lColor)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lColor=%ld", (void*)hps, (long)lColor);
+
     args.lColor = lColor;
     rc = GpiDispatch(hps, NGpiSetBackColor,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1527,9 +1971,15 @@ LONG APIENTRY GpiQueryBackColor(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryBackColor,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1547,10 +1997,16 @@ BOOL APIENTRY GpiSetMix(HPS hps, LONG lMixMode)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lMixMode=%ld", (void*)hps, (long)lMixMode);
+
     args.lMixMode = lMixMode;
     rc = GpiDispatch(hps, NGpiSetMix,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1564,9 +2020,15 @@ LONG APIENTRY GpiQueryMix(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryMix,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1584,10 +2046,16 @@ BOOL APIENTRY GpiSetBackMix(HPS hps, LONG lMixMode)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lMixMode=%ld", (void*)hps, (long)lMixMode);
+
     args.lMixMode = lMixMode;
     rc = GpiDispatch(hps, NGpiSetBackMix,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1601,9 +2069,15 @@ LONG APIENTRY GpiQueryBackMix(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryBackMix,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1621,10 +2095,16 @@ BOOL APIENTRY GpiSetLineType(HPS hps, LONG lLineType)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lLineType=%ld", (void*)hps, (long)lLineType);
+
     args.lLineType = lLineType;
     rc = GpiDispatch(hps, NGpiSetLineType,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1638,9 +2118,15 @@ LONG APIENTRY GpiQueryLineType(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryLineType,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1658,10 +2144,16 @@ BOOL APIENTRY GpiSetLineWidth(HPS hps, FIXED fxLineWidth)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, fxLineWidth=%u", (void*)hps, (unsigned)fxLineWidth);
+
     args.fxLineWidth = fxLineWidth;
     rc = GpiDispatch(hps, NGpiSetLineWidth,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1675,9 +2167,15 @@ FIXED APIENTRY GpiQueryLineWidth(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryLineWidth,
                       NULL, 0, &result);
-    if (rc != 0) return (FIXED)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (FIXED)GPI_ERROR;
+    }
+    GPICallResult("%u", (unsigned)result);
     return (FIXED)result;
 }
 
@@ -1695,10 +2193,16 @@ BOOL APIENTRY GpiSetLineWidthGeom(HPS hps, LONG lLineWidth)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lLineWidth=%ld", (void*)hps, (long)lLineWidth);
+
     args.lLineWidth = lLineWidth;
     rc = GpiDispatch(hps, NGpiSetLineWidthGeom,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1712,9 +2216,15 @@ LONG APIENTRY GpiQueryLineWidthGeom(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryLineWidthGeom,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1732,10 +2242,16 @@ BOOL APIENTRY GpiSetLineEnd(HPS hps, LONG lLineEnd)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lLineEnd=%ld", (void*)hps, (long)lLineEnd);
+
     args.lLineEnd = lLineEnd;
     rc = GpiDispatch(hps, NGpiSetLineEnd,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1749,9 +2265,15 @@ LONG APIENTRY GpiQueryLineEnd(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryLineEnd,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1769,10 +2291,16 @@ BOOL APIENTRY GpiSetLineJoin(HPS hps, LONG lLineJoin)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lLineJoin=%ld", (void*)hps, (long)lLineJoin);
+
     args.lLineJoin = lLineJoin;
     rc = GpiDispatch(hps, NGpiSetLineJoin,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1786,9 +2314,15 @@ LONG APIENTRY GpiQueryLineJoin(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryLineJoin,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1806,10 +2340,16 @@ BOOL APIENTRY GpiSetCurrentPosition(HPS hps, PPOINTL pptlPoint)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, pptlPoint={%ld,%ld}", (void*)hps, pptlPoint ? (long)pptlPoint->x : 0L, pptlPoint ? (long)pptlPoint->y : 0L);
+
     args.pptlPoint = *pptlPoint;
     rc = GpiDispatch(hps, NGpiSetCurrentPosition,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1827,10 +2367,16 @@ BOOL APIENTRY GpiSetArcParams(HPS hps, PARCPARAMS parcpArcParams)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, parcpArcParams=%p", (void*)hps, (void*)parcpArcParams);
+
     args.parcpArcParams = *parcpArcParams;
     rc = GpiDispatch(hps, NGpiSetArcParams,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1848,10 +2394,16 @@ LONG APIENTRY GpiPointArc(HPS hps, PPOINTL pptl2)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, pptl2={%ld,%ld}", (void*)hps, pptl2 ? (long)pptl2->x : 0L, pptl2 ? (long)pptl2->y : 0L);
+
     args.pptl2 = *pptl2;
     rc = GpiDispatch(hps, NGpiPointArc,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1871,11 +2423,17 @@ LONG APIENTRY GpiFullArc(HPS hps, LONG lControl, FIXED fxMultiplier)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lControl=%ld, fxMultiplier=%u", (void*)hps, (long)lControl, (unsigned)fxMultiplier);
+
     args.lControl = lControl;
     args.fxMultiplier = fxMultiplier;
     rc = GpiDispatch(hps, NGpiFullArc,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1899,13 +2457,19 @@ LONG APIENTRY GpiPartialArc(HPS hps, PPOINTL pptlCenter, FIXED fxMultiplier, FIX
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, pptlCenter={%ld,%ld}, fxMultiplier=%u, fxStartAngle=%u, fxSweepAngle=%u", (void*)hps, pptlCenter ? (long)pptlCenter->x : 0L, pptlCenter ? (long)pptlCenter->y : 0L, (unsigned)fxMultiplier, (unsigned)fxStartAngle, (unsigned)fxSweepAngle);
+
     args.pptlCenter = *pptlCenter;
     args.fxMultiplier = fxMultiplier;
     args.fxStartAngle = fxStartAngle;
     args.fxSweepAngle = fxSweepAngle;
     rc = GpiDispatch(hps, NGpiPartialArc,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1923,10 +2487,16 @@ BOOL APIENTRY GpiSetPatternSet(HPS hps, LONG lSet)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lSet=%ld", (void*)hps, (long)lSet);
+
     args.lSet = lSet;
     rc = GpiDispatch(hps, NGpiSetPatternSet,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1940,9 +2510,15 @@ LONG APIENTRY GpiQueryPatternSet(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryPatternSet,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -1960,10 +2536,16 @@ BOOL APIENTRY GpiSetPatternRefPoint(HPS hps, PPOINTL pptlRefPoint)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, pptlRefPoint={%ld,%ld}", (void*)hps, pptlRefPoint ? (long)pptlRefPoint->x : 0L, pptlRefPoint ? (long)pptlRefPoint->y : 0L);
+
     args.pptlRefPoint = *pptlRefPoint;
     rc = GpiDispatch(hps, NGpiSetPatternRefPoint,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1981,10 +2563,16 @@ BOOL APIENTRY GpiSetCharSet(HPS hps, LONG llcid)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, llcid=%ld", (void*)hps, (long)llcid);
+
     args.llcid = llcid;
     rc = GpiDispatch(hps, NGpiSetCharSet,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -1998,9 +2586,15 @@ LONG APIENTRY GpiQueryCharSet(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryCharSet,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2018,10 +2612,16 @@ BOOL APIENTRY GpiSetCharBox(HPS hps, PSIZEF psizfxBox)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, psizfxBox=%p", (void*)hps, (void*)psizfxBox);
+
     args.psizfxBox = *psizfxBox;
     rc = GpiDispatch(hps, NGpiSetCharBox,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2039,10 +2639,16 @@ BOOL APIENTRY GpiSetCharAngle(HPS hps, PGRADIENTL pgradlAngle)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, pgradlAngle=%p", (void*)hps, (void*)pgradlAngle);
+
     args.pgradlAngle = *pgradlAngle;
     rc = GpiDispatch(hps, NGpiSetCharAngle,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2060,10 +2666,16 @@ BOOL APIENTRY GpiSetCharShear(HPS hps, PPOINTL pptlAngle)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, pptlAngle={%ld,%ld}", (void*)hps, pptlAngle ? (long)pptlAngle->x : 0L, pptlAngle ? (long)pptlAngle->y : 0L);
+
     args.pptlAngle = *pptlAngle;
     rc = GpiDispatch(hps, NGpiSetCharShear,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2081,10 +2693,16 @@ BOOL APIENTRY GpiSetCharDirection(HPS hps, LONG lDirection)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lDirection=%ld", (void*)hps, (long)lDirection);
+
     args.lDirection = lDirection;
     rc = GpiDispatch(hps, NGpiSetCharDirection,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2098,9 +2716,15 @@ LONG APIENTRY GpiQueryCharDirection(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryCharDirection,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2118,10 +2742,16 @@ BOOL APIENTRY GpiSetCharMode(HPS hps, LONG lMode)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lMode=%ld", (void*)hps, (long)lMode);
+
     args.lMode = lMode;
     rc = GpiDispatch(hps, NGpiSetCharMode,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2135,9 +2765,15 @@ LONG APIENTRY GpiQueryCharMode(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryCharMode,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2157,11 +2793,17 @@ BOOL APIENTRY GpiSetTextAlignment(HPS hps, LONG lHoriz, LONG lVert)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lHoriz=%ld, lVert=%ld", (void*)hps, (long)lHoriz, (long)lVert);
+
     args.lHoriz = lHoriz;
     args.lVert = lVert;
     rc = GpiDispatch(hps, NGpiSetTextAlignment,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2179,10 +2821,16 @@ BOOL APIENTRY GpiSetCharExtra(HPS hps, FIXED  Extra)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, Extra=%u", (void*)hps, (unsigned)Extra);
+
     args.Extra = Extra;
     rc = GpiDispatch(hps, NGpiSetCharExtra,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2200,10 +2848,16 @@ BOOL APIENTRY GpiSetCharBreakExtra(HPS hps, FIXED  BreakExtra)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, BreakExtra=%u", (void*)hps, (unsigned)BreakExtra);
+
     args.BreakExtra = BreakExtra;
     rc = GpiDispatch(hps, NGpiSetCharBreakExtra,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2221,10 +2875,16 @@ LONG APIENTRY GpiMarker(HPS hps, PPOINTL pptlPoint)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, pptlPoint={%ld,%ld}", (void*)hps, pptlPoint ? (long)pptlPoint->x : 0L, pptlPoint ? (long)pptlPoint->y : 0L);
+
     args.pptlPoint = *pptlPoint;
     rc = GpiDispatch(hps, NGpiMarker,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2242,10 +2902,16 @@ BOOL APIENTRY GpiSetMarker(HPS hps, LONG lSymbol)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lSymbol=%ld", (void*)hps, (long)lSymbol);
+
     args.lSymbol = lSymbol;
     rc = GpiDispatch(hps, NGpiSetMarker,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2263,10 +2929,16 @@ BOOL APIENTRY GpiSetMarkerBox(HPS hps, PSIZEF psizfxSize)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, psizfxSize=%p", (void*)hps, (void*)psizfxSize);
+
     args.psizfxSize = *psizfxSize;
     rc = GpiDispatch(hps, NGpiSetMarkerBox,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2284,10 +2956,16 @@ BOOL APIENTRY GpiSetMarkerSet(HPS hps, LONG lSet)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lSet=%ld", (void*)hps, (long)lSet);
+
     args.lSet = lSet;
     rc = GpiDispatch(hps, NGpiSetMarkerSet,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2301,9 +2979,15 @@ LONG APIENTRY GpiQueryMarker(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryMarker,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2317,9 +3001,15 @@ LONG APIENTRY GpiQueryMarkerSet(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryMarkerSet,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2337,10 +3027,16 @@ BOOL APIENTRY GpiPop(HPS hps, LONG lCount)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lCount=%ld", (void*)hps, (long)lCount);
+
     args.lCount = lCount;
     rc = GpiDispatch(hps, NGpiPop,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2358,10 +3054,16 @@ LONG APIENTRY GpiPtVisible(HPS hps, PPOINTL pptlPoint)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, pptlPoint={%ld,%ld}", (void*)hps, pptlPoint ? (long)pptlPoint->x : 0L, pptlPoint ? (long)pptlPoint->y : 0L);
+
     args.pptlPoint = *pptlPoint;
     rc = GpiDispatch(hps, NGpiPtVisible,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2379,10 +3081,16 @@ LONG APIENTRY GpiRectVisible(HPS hps, PRECTL prclRectangle)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, prclRectangle=%p", (void*)hps, (void*)prclRectangle);
+
     args.prclRectangle = *prclRectangle;
     rc = GpiDispatch(hps, NGpiRectVisible,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2400,10 +3108,16 @@ BOOL APIENTRY GpiDeleteSetId(HPS hps, LONG lLcid)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lLcid=%ld", (void*)hps, (long)lLcid);
+
     args.lLcid = lLcid;
     rc = GpiDispatch(hps, NGpiDeleteSetId,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2417,9 +3131,15 @@ LONG APIENTRY GpiQueryNumberSetIds(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryNumberSetIds,
                       NULL, 0, &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2437,10 +3157,16 @@ BOOL APIENTRY GpiSetCp(HPS hps, ULONG ulCodePage)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, ulCodePage=0x%lx", (void*)hps, (unsigned long)ulCodePage);
+
     args.ulCodePage = ulCodePage;
     rc = GpiDispatch(hps, NGpiSetCp,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2454,9 +3180,15 @@ ULONG APIENTRY GpiQueryCp(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryCp,
                       NULL, 0, &result);
-    if (rc != 0) return (ULONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (ULONG)GPI_ERROR;
+    }
+    GPICallResult("0x%lx", (unsigned long)result);
     return (ULONG)result;
 }
 
@@ -2474,10 +3206,16 @@ ULONG APIENTRY GpiSetFontMappingFlags(HPS   hps, ULONG flags)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, flags=0x%lx", (void*)hps, (unsigned long)flags);
+
     args.flags = flags;
     rc = GpiDispatch(hps, NGpiSetFontMappingFlags,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (ULONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (ULONG)GPI_ERROR;
+    }
+    GPICallResult("0x%lx", (unsigned long)result);
     return (ULONG)result;
 }
 
@@ -2491,9 +3229,15 @@ ULONG APIENTRY GpiQueryFontMappingFlags(HPS   hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryFontMappingFlags,
                       NULL, 0, &result);
-    if (rc != 0) return (ULONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (ULONG)GPI_ERROR;
+    }
+    GPICallResult("0x%lx", (unsigned long)result);
     return (ULONG)result;
 }
 
@@ -2517,13 +3261,19 @@ HBITMAP APIENTRY GpiLoadBitmap(HPS hps, HMODULE Resource, ULONG idBitmap, LONG l
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, Resource=%p, idBitmap=%lu, lWidth=%ld, lHeight=%ld", (void*)hps, (void*)Resource, (unsigned long)idBitmap, (long)lWidth, (long)lHeight);
+
     args.Resource = Resource;
     args.idBitmap = idBitmap;
     args.lWidth = lWidth;
     args.lHeight = lHeight;
     rc = GpiDispatch(hps, NGpiLoadBitmap,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (HBITMAP)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (HBITMAP)GPI_ERROR;
+    }
+    GPICallResult("%p", (void*)result);
     return (HBITMAP)result;
 }
 
@@ -2541,10 +3291,16 @@ HBITMAP APIENTRY GpiSetBitmap(HPS hps, HBITMAP hbm)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, hbm=%p", (void*)hps, (void*)hbm);
+
     args.hbm = hbm;
     rc = GpiDispatch(hps, NGpiSetBitmap,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (HBITMAP)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (HBITMAP)GPI_ERROR;
+    }
+    GPICallResult("%p", (void*)result);
     return (HBITMAP)result;
 }
 
@@ -2564,11 +3320,17 @@ BOOL APIENTRY GpiSetBitmapId(HPS hps, HBITMAP hbm, LONG lLcid)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, hbm=%p, lLcid=%ld", (void*)hps, (void*)hbm, (long)lLcid);
+
     args.hbm = hbm;
     args.lLcid = lLcid;
     rc = GpiDispatch(hps, NGpiSetBitmapId,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2586,10 +3348,16 @@ HBITMAP APIENTRY GpiQueryBitmapHandle(HPS hps, LONG lLcid)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lLcid=%ld", (void*)hps, (long)lLcid);
+
     args.lLcid = lLcid;
     rc = GpiDispatch(hps, NGpiQueryBitmapHandle,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (HBITMAP)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (HBITMAP)GPI_ERROR;
+    }
+    GPICallResult("%p", (void*)result);
     return (HBITMAP)result;
 }
 
@@ -2607,10 +3375,16 @@ LONG APIENTRY GpiSetPel(HPS hps, PPOINTL pptlPoint)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, pptlPoint={%ld,%ld}", (void*)hps, pptlPoint ? (long)pptlPoint->x : 0L, pptlPoint ? (long)pptlPoint->y : 0L);
+
     args.pptlPoint = *pptlPoint;
     rc = GpiDispatch(hps, NGpiSetPel,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2630,11 +3404,17 @@ LONG APIENTRY GpiFloodFill(HPS hps, LONG lOptions, LONG lColor)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lOptions=%ld, lColor=%ld", (void*)hps, (long)lOptions, (long)lColor);
+
     args.lOptions = lOptions;
     args.lColor = lColor;
     rc = GpiDispatch(hps, NGpiFloodFill,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2658,13 +3438,19 @@ LONG APIENTRY GpiCombineRegion(HPS hps, HRGN hrgnDest, HRGN hrgnSrc1, HRGN hrgnS
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, hrgnDest=%p, hrgnSrc1=%p, hrgnSrc2=%p, lMode=%ld", (void*)hps, (void*)hrgnDest, (void*)hrgnSrc1, (void*)hrgnSrc2, (long)lMode);
+
     args.hrgnDest = hrgnDest;
     args.hrgnSrc1 = hrgnSrc1;
     args.hrgnSrc2 = hrgnSrc2;
     args.lMode = lMode;
     rc = GpiDispatch(hps, NGpiCombineRegion,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2682,10 +3468,16 @@ BOOL APIENTRY GpiDestroyRegion(HPS hps, HRGN hrgn)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, hrgn=%p", (void*)hps, (void*)hrgn);
+
     args.hrgn = hrgn;
     rc = GpiDispatch(hps, NGpiDestroyRegion,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2705,11 +3497,17 @@ LONG APIENTRY GpiEqualRegion(HPS hps, HRGN hrgnSrc1, HRGN hrgnSrc2)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, hrgnSrc1=%p, hrgnSrc2=%p", (void*)hps, (void*)hrgnSrc1, (void*)hrgnSrc2);
+
     args.hrgnSrc1 = hrgnSrc1;
     args.hrgnSrc2 = hrgnSrc2;
     rc = GpiDispatch(hps, NGpiEqualRegion,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2729,11 +3527,17 @@ BOOL APIENTRY GpiOffsetRegion(HPS hps, HRGN Hrgn, PPOINTL pptlOffset)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, Hrgn=%p, pptlOffset={%ld,%ld}", (void*)hps, (void*)Hrgn, pptlOffset ? (long)pptlOffset->x : 0L, pptlOffset ? (long)pptlOffset->y : 0L);
+
     args.Hrgn = Hrgn;
     args.pptlOffset = *pptlOffset;
     rc = GpiDispatch(hps, NGpiOffsetRegion,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2751,10 +3555,16 @@ LONG APIENTRY GpiPaintRegion(HPS hps, HRGN hrgn)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, hrgn=%p", (void*)hps, (void*)hrgn);
+
     args.hrgn = hrgn;
     rc = GpiDispatch(hps, NGpiPaintRegion,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2774,11 +3584,17 @@ LONG APIENTRY GpiFrameRegion(HPS hps, HRGN hrgn, PSIZEL thickness)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, hrgn=%p, thickness=%p", (void*)hps, (void*)hrgn, (void*)thickness);
+
     args.hrgn = hrgn;
     args.thickness = *thickness;
     rc = GpiDispatch(hps, NGpiFrameRegion,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2798,11 +3614,17 @@ LONG APIENTRY GpiPtInRegion(HPS hps, HRGN hrgn, PPOINTL pptlPoint)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, hrgn=%p, pptlPoint={%ld,%ld}", (void*)hps, (void*)hrgn, pptlPoint ? (long)pptlPoint->x : 0L, pptlPoint ? (long)pptlPoint->y : 0L);
+
     args.hrgn = hrgn;
     args.pptlPoint = *pptlPoint;
     rc = GpiDispatch(hps, NGpiPtInRegion,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2822,11 +3644,17 @@ LONG APIENTRY GpiRectInRegion(HPS hps, HRGN hrgn, PRECTL prclRect)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, hrgn=%p, prclRect=%p", (void*)hps, (void*)hrgn, (void*)prclRect);
+
     args.hrgn = hrgn;
     args.prclRect = *prclRect;
     rc = GpiDispatch(hps, NGpiRectInRegion,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2840,9 +3668,15 @@ HRGN APIENTRY GpiQueryClipRegion(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiQueryClipRegion,
                       NULL, 0, &result);
-    if (rc != 0) return (HRGN)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (HRGN)GPI_ERROR;
+    }
+    GPICallResult("%p", (void*)result);
     return (HRGN)result;
 }
 
@@ -2860,10 +3694,16 @@ LONG APIENTRY GpiExcludeClipRectangle(HPS hps, PRECTL prclRectangle)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, prclRectangle=%p", (void*)hps, (void*)prclRectangle);
+
     args.prclRectangle = *prclRectangle;
     rc = GpiDispatch(hps, NGpiExcludeClipRectangle,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2881,10 +3721,16 @@ LONG APIENTRY GpiIntersectClipRectangle(HPS hps, PRECTL prclRectangle)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, prclRectangle=%p", (void*)hps, (void*)prclRectangle);
+
     args.prclRectangle = *prclRectangle;
     rc = GpiDispatch(hps, NGpiIntersectClipRectangle,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2902,10 +3748,16 @@ LONG APIENTRY GpiOffsetClipRegion(HPS hps, PPOINTL pptlPoint)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, pptlPoint={%ld,%ld}", (void*)hps, pptlPoint ? (long)pptlPoint->x : 0L, pptlPoint ? (long)pptlPoint->y : 0L);
+
     args.pptlPoint = *pptlPoint;
     rc = GpiDispatch(hps, NGpiOffsetClipRegion,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (LONG)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (LONG)GPI_ERROR;
+    }
+    GPICallResult("%ld", (long)result);
     return (LONG)result;
 }
 
@@ -2927,12 +3779,18 @@ HRGN APIENTRY GpiCreateRoundRectRegion(HPS hps, PPOINTL pptlPoint, LONG lHround,
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, pptlPoint={%ld,%ld}, lHround=%ld, lVRound=%ld", (void*)hps, pptlPoint ? (long)pptlPoint->x : 0L, pptlPoint ? (long)pptlPoint->y : 0L, (long)lHround, (long)lVRound);
+
     args.pptlPoint = *pptlPoint;
     args.lHround = lHround;
     args.lVRound = lVRound;
     rc = GpiDispatch(hps, NGpiCreateRoundRectRegion,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (HRGN)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (HRGN)GPI_ERROR;
+    }
+    GPICallResult("%p", (void*)result);
     return (HRGN)result;
 }
 
@@ -2950,10 +3808,16 @@ HRGN APIENTRY GpiCreateEllipticRegion(HPS hps, PRECTL prclRect)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, prclRect=%p", (void*)hps, (void*)prclRect);
+
     args.prclRect = *prclRect;
     rc = GpiDispatch(hps, NGpiCreateEllipticRegion,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (HRGN)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (HRGN)GPI_ERROR;
+    }
+    GPICallResult("%p", (void*)result);
     return (HRGN)result;
 }
 
@@ -2967,9 +3831,15 @@ BOOL APIENTRY GpiResumePlay(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiResumePlay,
                       NULL, 0, &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -2983,9 +3853,15 @@ BOOL APIENTRY GpiSuspendPlay(HPS hps)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p", (void*)hps);
+
     rc = GpiDispatch(hps, NGpiSuspendPlay,
                       NULL, 0, &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -3003,10 +3879,16 @@ BOOL APIENTRY GpiSetDefArcParams(HPS hps, PARCPARAMS parcpArcParams)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, parcpArcParams=%p", (void*)hps, (void*)parcpArcParams);
+
     args.parcpArcParams = *parcpArcParams;
     rc = GpiDispatch(hps, NGpiSetDefArcParams,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -3024,10 +3906,16 @@ BOOL APIENTRY GpiSetDefTag(HPS hps, LONG lTag)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lTag=%ld", (void*)hps, (long)lTag);
+
     args.lTag = lTag;
     rc = GpiDispatch(hps, NGpiSetDefTag,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -3045,10 +3933,16 @@ BOOL APIENTRY GpiSetDefViewingLimits(HPS hps, PRECTL prclLimits)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, prclLimits=%p", (void*)hps, (void*)prclLimits);
+
     args.prclLimits = *prclLimits;
     rc = GpiDispatch(hps, NGpiSetDefViewingLimits,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -3068,11 +3962,17 @@ BOOL APIENTRY GpiBeginInkPath(HPS hps, LONG lPath, ULONG flOptions)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, lPath=%ld, flOptions=0x%lx", (void*)hps, (long)lPath, (unsigned long)flOptions);
+
     args.lPath = lPath;
     args.flOptions = flOptions;
     rc = GpiDispatch(hps, NGpiBeginInkPath,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
 
@@ -3090,9 +3990,15 @@ BOOL APIENTRY GpiEndInkPath(HPS hps, ULONG flOptions)
     ULONG result;
     int   rc;
 
+    GPICallEnter("hps=%p, flOptions=0x%lx", (void*)hps, (unsigned long)flOptions);
+
     args.flOptions = flOptions;
     rc = GpiDispatch(hps, NGpiEndInkPath,
                       &args, sizeof(args), &result);
-    if (rc != 0) return (BOOL)GPI_ERROR;
+    if (rc != 0) {
+        GPICallResult("GPI_ERROR (rc=%d)", rc);
+        return (BOOL)GPI_ERROR;
+    }
+    GPICallResult("%d", (int)result);
     return (BOOL)result;
 }
