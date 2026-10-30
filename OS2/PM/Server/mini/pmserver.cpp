@@ -16,25 +16,40 @@
 #include "F_config.hpp"   /* FREEPM_MUTEX_NAME */
 #include "FreePM_cmd.hpp" /* F_CMD_* and NGpi* (via gpi_wire.h) */
 
-/*! @def FREEPM_MUTEX_NAME
-    @brief Name of the server presence mutex.
+/*!
+ * @brief Unified logging function for the mini server.
+ *
+ * Defined in dispatch.cpp. Formats the message to stderr and flushes
+ * it immediately. Kept as an extern declaration here so that both
+ * translation units share the same implementation without pulling
+ * in the full unimpl.cpp from PMGPI.
+ *
+ * @param [in] fmt  printf-style format string.
+ * @param [in] ...  Arguments for the format string.
+ */
+extern void log(const char *fmt, ...);
 
-    Fallback in case F_config.hpp was not included or did not define it.
-    OS/2 uses the DOSCALLS semaphore namespace; Win32 uses the Global\ namespace. */
 #ifndef FREEPM_MUTEX_NAME
   #if defined(__OS2__) || defined(__OS2V2__)
+    /*!
+     * @def FREEPM_MUTEX_NAME
+     * @brief Name of the server presence mutex (OS/2).
+     *
+     * Fallback in case F_config.hpp was not included or did not define it.
+     * OS/2 uses the DOSCALLS semaphore namespace.
+     */
     #define FREEPM_MUTEX_NAME "\\SEM32\\_FREE_PM"
   #else
+    /*!
+     * @def FREEPM_MUTEX_NAME
+     * @brief Name of the server presence mutex (Win32).
+     *
+     * Fallback in case F_config.hpp was not included or did not define it.
+     * Win32 uses the Global\ namespace to make the mutex visible across
+     * terminal services sessions.
+     */
     #define FREEPM_MUTEX_NAME "Global\\_FREE_PM"
   #endif
-#endif
-
-/*! @def GPI_ERROR
-    @brief Return value for a failed GPI call.
-
-    Fallback for the value normally provided by <os2.h> or <gpi_platform.h>. */
-#ifndef GPI_ERROR
-  #define GPI_ERROR (-1L)
 #endif
 
 /*! @brief Handler callback type, matching the one in PMTCP. */
@@ -49,66 +64,31 @@ typedef APIRET (APIENTRY *PMC_RECV_DATA)(void *recvobj, void *data, int *len, in
 /*! @brief Prototype for _F_SendDataToClient (ordinal 11). */
 typedef APIRET (APIENTRY *PMC_SEND_DATA)(void *recvobj, void *data, int len);
 
-/*! @brief Global pointers to the send and recv functions, used by the handler. */
+/*! @brief Global pointer to the send function, used by the handler. */
 static PMC_SEND_DATA g_SendData = 0;
+
+/*! @brief Global pointer to the recv function, used by the handler. */
 static PMC_RECV_DATA g_RecvData = 0;
 
 /*! @brief Handle of the server presence mutex. */
 static PMC_HMTX g_hmtx = 0;
 
-/*! @brief GPI command dispatcher.
-    @param [in] hps      Presentation space handle (currently ignored).
-    @param [in] ulFnCode GPI function code (NGpi*).
-    @param [in] pArgs    Marshaled arguments.
-    @param [in] cbArgs   Size of pArgs in bytes.
-    @return GPI_OK (1) on success, GPI_ERROR on failure.
-    @retval 1         Command accepted (stub).
-    @retval GPI_ERROR Command rejected. */
-ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
-{
-    (void)hps;
-    (void)pArgs;
-
-    fprintf(stderr, "PMSERVER: GPI Dispatch -> FnCode=0x%x, ArgsSize=%u\n", ulFnCode, cbArgs);
-    fflush(stderr);
-
-    switch (ulFnCode) {
-        case NGpiCreatePS:
-            return 1;
-        case NGpiDestroyPS:
-            return 1;
-        case NGpiAssociate:
-            return 1;
-
-        case NGpiSetColor:
-        case NGpiMove:
-        case NGpiLine:
-        case NGpiBox:
-            return 1;
-
-        case NGpiErase:
-        case NGpiQueryColor:
-        case NGpiQueryCurrentPosition:
-        case NGpiSetBackColor:
-        case NGpiSetBackMix:
-        case NGpiSetMix:
-        case NGpiSetLineType:
-        case NGpiSetLineWidth:
-        case NGpiSetLineEnd:
-        case NGpiSetLineJoin:
-            return 1;
-
-        default:
-            return 1;
-    }
-}
+/*!
+ * @brief External GPI dispatcher (implemented in dispatch.cpp).
+ *
+ * @param [in] hps      Presentation space handle.
+ * @param [in] ulFnCode Function code (NGpi*).
+ * @param [in] pArgs    Marshaled arguments.
+ * @param [in] cbArgs   Size of pArgs in bytes.
+ * @return GPI result (GPI_ERROR for all cases in the stub).
+ */
+extern ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs);
 
 /*! @brief Cleanup function, registered via atexit and signal handlers.
     Closes the mutex and releases any held resources. */
 static void CleanupServer(void)
 {
-    fprintf(stderr, "PMSERVER: cleaning up\n");
-    fflush(stderr);
+    log("PMSERVER: cleaning up\n");
 
     if (g_hmtx != 0)
     {
@@ -137,8 +117,7 @@ static void APIENTRY pm_handler(void *recvobj, int ncmd, int data, int threadNum
     char buf[256];
 
     /* --- START OF TRACING --- */
-    fprintf(stderr, "PMSERVER: IN  -> recvobj=%p, ncmd=0x%x, data=0x%x, thread=%d\n", recvobj, ncmd, data, threadNum);
-    fflush(stderr);
+    log("PMSERVER: IN  -> recvobj=%p, ncmd=0x%x, data=0x%x, thread=%d\n", recvobj, ncmd, data, threadNum);
     /* --- END OF TRACING --- */
 
     switch (ncmd)
@@ -154,16 +133,14 @@ static void APIENTRY pm_handler(void *recvobj, int ncmd, int data, int threadNum
 
         case F_CMD_CLIENT_EXIT:
         {
-            fprintf(stderr, "PMSERVER: Client exit (ihab=0x%x)\n", data);
-            fflush(stderr);
+            log("PMSERVER: Client exit (ihab=0x%x)\n", data);
             break;
         }
 
         case F_CMD_GET_HPS:
         {
             HPS hps = (HPS)1;
-            fprintf(stderr, "PMSERVER: F_CMD_GET_HPS(hwnd=0x%x) -> returning hps=1\n", data);
-            fflush(stderr);
+            log("PMSERVER: F_CMD_GET_HPS(hwnd=0x%x) -> returning hps=1\n", data);
             if (g_SendData) g_SendData(recvobj, &hps, sizeof(HPS));
             break;
         }
@@ -171,8 +148,7 @@ static void APIENTRY pm_handler(void *recvobj, int ncmd, int data, int threadNum
         case F_CMD_RELEASE_HPS:
         {
             int rc1 = 0;
-            fprintf(stderr, "PMSERVER: F_CMD_RELEASE_HPS(hps=0x%x) -> ok\n", data);
-            fflush(stderr);
+            log("PMSERVER: F_CMD_RELEASE_HPS(hps=0x%x) -> ok\n", data);
             if (g_SendData) g_SendData(recvobj, &rc1, sizeof(int));
             break;
         }
@@ -185,7 +161,7 @@ static void APIENTRY pm_handler(void *recvobj, int ncmd, int data, int threadNum
             PBYTE pArgs = NULL;
 
             if (!g_RecvData) {
-                fprintf(stderr, "PMSERVER: ERROR - g_RecvData is NULL!\n");
+                log("PMSERVER: ERROR - g_RecvData is NULL!\n");
                 return;
             }
 
@@ -219,8 +195,7 @@ static void APIENTRY pm_handler(void *recvobj, int ncmd, int data, int threadNum
         {
             if (g_RecvData) {
                 g_RecvData(recvobj, (char *)buf, &len, sizeof(buf));
-                fprintf(stderr, "DEBUG: %s\n", buf);
-                fflush(stderr);
+                log("DEBUG: %s\n", buf);
             }
             break;
         }
@@ -229,8 +204,7 @@ static void APIENTRY pm_handler(void *recvobj, int ncmd, int data, int threadNum
         {
             if (g_RecvData) {
                 g_RecvData(recvobj, (char *)buf, &len, sizeof(buf));
-                fprintf(stderr, "FATAL: %s\n", buf);
-                fflush(stderr);
+                log("FATAL: %s\n", buf);
             }
             break;
         }
@@ -240,20 +214,17 @@ static void APIENTRY pm_handler(void *recvobj, int ncmd, int data, int threadNum
             unsigned long reply = (unsigned long)ncmd;
             if (g_SendData) {
                 /* --- START OF TRACING --- */
-                fprintf(stderr, "PMSERVER: CALL-> _F_SendDataToClient(recvobj=%p, data=%p, len=%d)\n", recvobj, &reply, (int)sizeof(reply));
-                fflush(stderr);
+                log("PMSERVER: CALL-> _F_SendDataToClient(recvobj=%p, data=%p, len=%d)\n", recvobj, &reply, (int)sizeof(reply));
                 /* --- END OF TRACING --- */
 
                 APIRET rc2 = g_SendData(recvobj, &reply, sizeof(reply));
 
                 /* --- START OF TRACING --- */
-                fprintf(stderr, "PMSERVER: RET <- _F_SendDataToClient returned %u (0x%x)\n", rc2, rc2);
-                fflush(stderr);
+                log("PMSERVER: RET <- _F_SendDataToClient returned %u (0x%x)\n", rc2, rc2);
                 /* --- END OF TRACING --- */
             } else {
                 /* --- START OF TRACING --- */
-                fprintf(stderr, "PMSERVER: ERROR - g_SendData is NULL!\n");
-                fflush(stderr);
+                log("PMSERVER: ERROR - g_SendData is NULL!\n");
                 /* --- END OF TRACING --- */
             }
             break;
@@ -277,14 +248,13 @@ int main(int argc, char *argv[])
     (void)argc;
     (void)argv;
 
-    fprintf(stderr, "PMSERVER: starting\n");
-    fflush(stderr);
+    log("PMSERVER: starting\n");
 
     /* Create the server presence mutex expected by PMCLIENT. */
     rc = PMC_CreateMutex(FREEPM_MUTEX_NAME, &g_hmtx);
     if (rc != 0)
     {
-        fprintf(stderr, "PMSERVER: failed to create mutex '%s', rc=%u\n", FREEPM_MUTEX_NAME, rc);
+        log("PMSERVER: failed to create mutex '%s', rc=%u\n", FREEPM_MUTEX_NAME, rc);
         system("pause");
         return 1;
     }
@@ -298,27 +268,25 @@ int main(int argc, char *argv[])
 #endif
 
     rc = PMC_LoadModule("PMTCP", &hmod);
-    if (rc) { fprintf(stderr, "PMSERVER: cannot load PMTCP.DLL, rc=%u\n", rc); system("pause"); return 1; }
+    if (rc) { log("PMSERVER: cannot load PMTCP.DLL, rc=%u\n", rc); system("pause"); return 1; }
 
     rc = PMC_QueryOrdinal(hmod, 3, &pfn);
-    if (rc) { fprintf(stderr, "PMSERVER: missing ordinal 3\n"); system("pause"); return 1; }
+    if (rc) { log("PMSERVER: missing ordinal 3\n"); system("pause"); return 1; }
     pStartSrv = (PMC_START_SRV)pfn;
 
     rc = PMC_QueryOrdinal(hmod, 10, &pfn);
-    if (rc) { fprintf(stderr, "PMSERVER: missing ordinal 10\n"); system("pause"); return 1; }
+    if (rc) { log("PMSERVER: missing ordinal 10\n"); system("pause"); return 1; }
     g_RecvData = (PMC_RECV_DATA)pfn;
 
     rc = PMC_QueryOrdinal(hmod, 11, &pfn);
-    if (rc) { fprintf(stderr, "PMSERVER: missing ordinal 11\n"); system("pause"); return 1; }
+    if (rc) { log("PMSERVER: missing ordinal 11\n"); system("pause"); return 1; }
     g_SendData = (PMC_SEND_DATA)pfn;
 
-    fprintf(stderr, "PMSERVER: listening on port 9876\n");
-    fflush(stderr);
+    log("PMSERVER: listening on port 9876\n");
 
     /* Blocks forever in the accept loop. */
     rc = pStartSrv((void*)pm_handler);
-    fprintf(stderr, "PMSERVER: _startServerThreads returned %u\n", rc);
-    fflush(stderr);
+    log("PMSERVER: _startServerThreads returned %u\n", rc);
 
     system("pause");
     return (rc == 0) ? 0 : 1;

@@ -20,8 +20,10 @@ SRCDIR  = $(MYDIR)..$(SEP)
 ADD_COPT = -bt=nt
 !endif
 
-ADD_COPT += -i=$(SRCDIR)..
+ADD_COPT += -i=$(SRCDIR)
 
 !include $(%ROOT)tools/mk/build.mk
 
 .cpp: $(SRCDIR)
+
+.c: $(SRCDIR)

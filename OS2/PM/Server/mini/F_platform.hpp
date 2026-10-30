@@ -198,4 +198,23 @@
   #error Unsupported platform for PMCLIENT
 #endif
 
+/* Fallback for GPI constants not provided by the platform headers.
+ *
+ * Under OS/2, <os2.h> pulls in <pm.h> -> <pmgpi.h>, which defines both
+ * GPI_ERROR and GPI_OK unconditionally (outside any INCL_GPI guard), so
+ * the fallback below is effectively Win32-only.
+ *
+ * Values mirror the OS/2 PMGPI convention: GPI_ERROR = 0, GPI_OK = 1.
+ * Using 0 for GPI_ERROR (rather than -1) keeps BOOL-returning Gpi*
+ * proxies reporting FALSE on a stub, and LONG-returning ones returning
+ * a value distinct from GPI_OK. The -1L convention would make a BOOL
+ * proxy report TRUE on an error — see the known-limitation note in
+ * unimpl.cpp. */
+#ifndef GPI_ERROR
+  #define GPI_ERROR (0L)
+#endif
+#ifndef GPI_OK
+  #define GPI_OK    (1L)
+#endif
+
 #endif /* PMC_PLATFORM_HPP */
