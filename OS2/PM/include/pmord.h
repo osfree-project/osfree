@@ -9,6 +9,8 @@
 
    The order encoding follows the GOCA architecture described in:
 
+   @see OS/2 Programming Tools and Information v1.2 Presentation Manager
+        Programming Reference Vol. 2, Chapter 27, "Graphics Orders", p. 27-1
    @see IBM SC31-6804, "Graphics Object Content Architecture Reference",
         Chapter 7, "Commands and Orders — Detailed Description",
         "Begin Segment (GBSEG) Order", pp. 102-103.
@@ -22,6 +24,9 @@
    @see AFP GOCA Reference, Chapter 3, "AFP GOCA Overview", page 9.
    @sa  https://www.afpcinc.org
 */
+
+#ifndef PMORD_H
+#define PMORD_H
 
 #pragma pack(1)
 
@@ -1031,26 +1036,20 @@ typedef struct _LORDER
 /* Arc */
 
 /*!
-   @brief Arc at Current Position order (PM GPI extension; superseded in
-          AFP GOCA by Partial Arc / Full Arc orders).
+   @brief Arc at Current Position order.
 
-   Not part of AFP GOCA.  Use GCPARC/GPARC (Partial Arc) or
-   GCFARC/GFARC (Full Arc) instead.
-
+   X'86' (LEN, P1, P2)
+   
+   @see OS/2 Programming Tools and Information v1.2 Presentation Manager Programming Reference Vol. 2, page 27-3
    @see AFP GOCA Reference, "Full Arc (GFARC, GCFARC) Orders", page 107.
    @see AFP GOCA Reference, "Partial Arc (GPARC, GCPARC) Orders", page 119.
+   @note Not part of AFP GOCA. (superseded in AFP GOCA by Partial Arc / Full Arc orders)
+
 */
 #define OCODE_GCARC    0x86            /* Arc at Current Position     */
 
 /*!
-   @brief Arc at Given Position order (PM GPI extension).
-
-   Not part of AFP GOCA.
-*/
-#define OCODE_GARC     0xC6            /* Arc at Given Position       */
-
-/*!
-   @brief Structure for Arc order parameters (PM GPI extension).
+   @brief 16-bit structure for Arc order parameters.
 
    @see AFP GOCA Reference, "Partial Arc (GPARC, GCPARC) Orders", page 119
         (for the AFP GOCA equivalent).
@@ -1062,13 +1061,49 @@ typedef struct _ORDERS_GCARC
 } ORDERS_GCARC;
 
 /*!
-   @brief 32-bit structure for Arc order parameters (PM GPI extension).
+   @brief 32-bit structure for Arc order parameters.
 */
-typedef struct _ORDERL_GCARC     /* olgcarc */
+typedef struct _ORDERL_GCARC
 {
    POINTL ptInter;
    POINTL ptEnd;
 } ORDERL_GCARC;
+
+/*!
+   @brief Arc at Given Position order.
+
+   X'C6' (LEN, P0, P1, P2)
+
+   @see OS/2 Programming Tools and Information v1.2 Presentation Manager Programming Reference Vol. 2, page 27-3
+   @see AFP GOCA Reference, "Full Arc (GFARC, GCFARC) Orders", page 107.
+   @see AFP GOCA Reference, "Partial Arc (GPARC, GCPARC) Orders", page 119.
+   @note Not part of AFP GOCA. (superseded in AFP GOCA by Partial Arc / Full Arc orders)
+*/
+#define OCODE_GARC     0xC6            /* Arc at Given Position       */
+
+/*!
+   @brief 16-bit structure for Arc order parameters.
+
+   @see AFP GOCA Reference, "Partial Arc (GPARC, GCPARC) Orders", page 119
+        (for the AFP GOCA equivalent).
+*/
+typedef struct _ORDERS_GARC
+{
+   POINTS ptStart;
+   POINTS ptInter;
+   POINTS ptEnd;
+} ORDERS_GARC;
+
+/*!
+   @brief 32-bit structure for Arc order parameters.
+*/
+typedef struct _ORDERL_GARC
+{
+   POINTL ptStart;
+   POINTL ptInter;
+   POINTL ptEnd;
+} ORDERL_GARC;
+
 
 /* Begin Element */
 
@@ -1120,7 +1155,7 @@ typedef struct _ORDER_GBEL
    @see AFP GOCA Reference, "Begin Image at Current Position (GCBIMG) Order
         — Syntax", page 87.
 */
-typedef struct _ORDER_GCBIMG     /* ogbimg */
+typedef struct _ORDER_GCBIMG
 {
    UCHAR     uchFormat;
    UCHAR     uchReserved;
@@ -1140,7 +1175,7 @@ typedef struct _ORDER_GCBIMG     /* ogbimg */
 /*!
    @brief Structure for Begin Path order (PM GPI extension).
 */
-typedef struct _ORDER_GBPTH      /* ogbpth */
+typedef struct _ORDER_GBPTH
 {
    USHORT usReserved;
    LONG   idPath;
@@ -2582,3 +2617,5 @@ typedef struct _ORDERL_GBSEG {
     ULONG  ulPSName;       /* offset 10-13 : P/SNAME (ignored)*/
 } ORDERL_GBSEG;
 #pragma pack()
+
+#endif

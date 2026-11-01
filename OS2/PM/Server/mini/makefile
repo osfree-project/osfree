@@ -1,6 +1,5 @@
 PROJECT = pmserver
 DESCRIPTION = tests
-IMPORTS = PmcSendCommand PMCLIENT.1
 IMPORTS = _InitServerConnection PMTCP.1,      &
            _CloseServerConnection PMTCP.2,     &
            _startServerThreads PMTCP.3,        &
@@ -20,7 +19,7 @@ SRCDIR  = $(MYDIR)..$(SEP)
 ADD_COPT = -bt=nt
 !endif
 
-ADD_COPT += -i=$(SRCDIR)
+ADD_COPT += -i=$(SRCDIR) -i=$(SRCDIR)..$(SEP)..$(SEP)include
 
 !include $(%ROOT)tools/mk/build.mk
 

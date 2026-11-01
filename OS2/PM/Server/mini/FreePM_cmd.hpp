@@ -27,7 +27,7 @@
 #define F_CMD_WIN_GET_WND_SWP	0x62  
 #define F_CMD_WIN_SHOW		0x63
 
-/* Единый диспетчер GPI (использует NGpi* коды из gpi_wire.h) */
+/* GPI commands  Единый диспетчер GPI (использует NGpi* коды из gpi_wire.h) */
 #define F_CMD_GPI_DISPATCH	0x100
 
 /* Старые GPI команды (оставлены для совместимости, но сервером не используются) */

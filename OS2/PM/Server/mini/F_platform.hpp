@@ -194,6 +194,17 @@
 
   #define PMC_HAS_MUTEX_CHECK  1
 
+  typedef struct _RGB { BYTE bBlue; BYTE bGreen; BYTE bRed; BYTE fcOptions; } RGB, *PRGB;
+  typedef RGB RGB2, *PRGB2;
+
+  typedef struct _BITMAPINFO2 {
+      ULONG cbFix, cx, cy; USHORT cPlanes, cBitCount;
+      ULONG ulCompression, cbImage, cxResolution, cyResolution, cclrUsed, cclrImportant;
+      USHORT usUnits, usReserved, usRecording, usRendering;
+      ULONG cSize1, cSize2, ulColorEncoding, ulIdentifier;
+      RGB2 argbColor[1];
+  } BITMAPINFO2, *PBITMAPINFO2;
+
 #else
   #error Unsupported platform for PMCLIENT
 #endif
