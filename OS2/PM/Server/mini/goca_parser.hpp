@@ -21,6 +21,22 @@
 extern "C" {
 #endif
 
+/*!
+ * @brief Size of a coordinate in the order stream.
+ */
+typedef enum {
+    GOCA_COORD_SHORT = 2,   /*!< 16-bit coordinates. */
+    GOCA_COORD_LONG  = 4    /*!< 32-bit coordinates. */
+} GOCA_COORD_SIZE;
+
+/*!
+ * @brief Byte order of coordinates in the order stream.
+ */
+typedef enum {
+    GOCA_ENDIAN_LE,         /*!< Least-significant byte first (x86, PC).  */
+    GOCA_ENDIAN_BE          /*!< Most-significant byte first (360, S370). */
+} GOCA_COORD_ENDIAN;
+
 typedef struct _GOCA_CTX GOCA_CTX;
 
 /*! @brief Optional fallback for orders not handled by the built-in switch. */
@@ -50,6 +66,9 @@ struct _GOCA_CTX {
     MARKERBUNDLE mb;      /*!< Cached marker bundle.                  */
     AREABUNDLE   ab;      /*!< Cached area bundle.                    */
 
+    GOCA_COORD_SIZE   coordSize;    /*!< SHORT or LONG.                */
+    GOCA_COORD_ENDIAN coordEndian;  /*!< LE or BE.                     */
+
     PFN_GOCA_HANDLER pfnHandler;
     void    *pUserData;
 
@@ -59,6 +78,12 @@ struct _GOCA_CTX {
     ULONG    uErrOffset;
     UCHAR    uErrOrder;
 };
+
+/*! @brief Select coordinate size and byte order explicitly. */
+void GocaSetFormat(GOCA_CTX *c, GOCA_COORD_SIZE size, GOCA_COORD_ENDIAN endian);
+
+/*! @brief Select coordinate size and byte order from PS flOptions. */
+void GocaSetFormatFromOptions(GOCA_CTX *c, ULONG flOptions);
 
 #define GOCA_OK            0
 #define GOCA_ERR_TRUNC    -1   /*!< Truncated order.                */

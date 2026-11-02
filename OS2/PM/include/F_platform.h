@@ -107,23 +107,46 @@
   #define EXTERN extern "C" 
 
   /* ---------- Коды ошибок GPI ---------- */
-  #ifndef GPI_ERROR
-    #define GPI_ERROR 0L
+  #define GPI_ERROR 0
+  #define GPI_OK 1
+  #define GPI_ALTERROR (-1)
+
+  /* ---------- PS_FORMAT / PS_UNITS / PS_NORESET ---------- */
+  #ifndef PS_UNITS_MASK
+    #define PS_UNITS_MASK     0x0000000FL
   #endif
-  #ifndef GPI_OK
-    #define GPI_OK 1L
+  #ifndef PU_ARBITRARY
+    #define PU_ARBITRARY      0x00000000L
+  #endif
+  #ifndef PU_PELS
+    #define PU_PELS           0x00000001L
+  #endif
+  #ifndef PU_LOMETRIC
+    #define PU_LOMETRIC       0x00000002L
+  #endif
+  #ifndef PU_HIMETRIC
+    #define PU_HIMETRIC       0x00000003L
+  #endif
+  #ifndef PU_LOENGLISH
+    #define PU_LOENGLISH      0x00000004L
+  #endif
+  #ifndef PU_HIENGLISH
+    #define PU_HIENGLISH      0x00000005L
+  #endif
+  #ifndef PU_TWIPS
+    #define PU_TWIPS          0x00000006L
   #endif
 
+  #define PS_FORMAT_MASK    0x0000FF00L
+  #define GPIF_DEFAULT      0x00000000L
+  #define GPIF_LONG         0x00000100L
+  #define GPIF_SHORT        0x00000200L
+  #define PS_NORESET        0x80000000L
+
   /* ---------- Константы DosAllocMem ---------- */
-  #ifndef PAG_COMMIT
-    #define PAG_COMMIT     0x00010000
-  #endif
-  #ifndef PAG_READ
-    #define PAG_READ       0x00000001
-  #endif
-  #ifndef PAG_WRITE
-    #define PAG_WRITE      0x00000004
-  #endif
+  #define PAG_COMMIT     0x00010000
+  #define PAG_READ       0x00000001
+  #define PAG_WRITE      0x00000004
 
   /* ---------- Константы BITMAPINFOHEADER2 ---------- */
   #ifndef BCA_UNCOMP

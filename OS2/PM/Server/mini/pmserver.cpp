@@ -10,11 +10,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
-#include <malloc.h>
 
 #include "F_platform.h"   /* Platform, GPI/Dev, Dos* (OS/2 signatures) */
 #include "F_config.hpp"   /* FREEPM_MUTEX_NAME */
-#include "FreePM_cmd.hpp" /* F_CMD_* and NGpi* (via gpi_wire.h) */
+#include "F_cmd.h"        /* F_CMD_* and F_CMD_CLASS_* / F_CMD_GET_* */
 
 /*!
  * @brief Unified logging function for the mini server.
@@ -100,7 +99,7 @@ static HMTX g_hmtx = 0;
  * @param [in] ulFnCode Function code (NGpi*).
  * @param [in] pArgs    Marshaled arguments.
  * @param [in] cbArgs   Size of pArgs in bytes.
- * @return GPI result (GPI_ERROR for all cases in the stub).
+ * @return GPI result.
  */
 extern ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs);
 
@@ -126,20 +125,93 @@ static void SignalHandler(int sig)
     exit(1);
 }
 
+/*!
+ * @brief Handle a GPI-class command.
+ *
+ * Wire format (from the client):
+ *   ULONG  cbArgs
+ *   BYTE   args[cbArgs]
+ *
+ * Response (FPM_RESP_HEADER, 16 bytes):
+ *   ULONG  ulStatus
+ *   ULONG  ulResult
+ *   ULONG  cbPayload
+ *   ULONG  ulLastError
+ *
+ * @param [in] recvobj  Client connection object.
+ * @param [in] fnCode   NGpi* opcode (low 16 bits of the wire command).
+ * @param [in] hps      Presentation space handle (from the 32-bit data arg).
+ */
+static void HandleGpiCall(void *recvobj, ULONG fnCode, HPS hps)
+{
+    struct {
+        ULONG ulStatus;
+        ULONG ulResult;
+        ULONG cbPayload;
+        ULONG ulLastError;
+    } resp;
+    ULONG cbArgs = 0;
+    PVOID pv     = NULL;
+    PBYTE pArgs  = NULL;
+    int   rc, len;
+
+    if (!g_RecvData) {
+        log("PMSERVER: ERROR - g_RecvData is NULL!\n");
+        return;
+    }
+
+    rc = g_RecvData(recvobj, &cbArgs, &len, sizeof(cbArgs));
+    if (rc == 0 && len == (int)sizeof(cbArgs)) {
+        if (cbArgs > 0) {
+            if (DosAllocMem(&pv, cbArgs, PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
+                log("PMSERVER: ERROR - DosAllocMem(%u) failed\n", (unsigned)cbArgs);
+                resp.ulStatus    = 1;
+                resp.ulResult    = (ULONG)GPI_ERROR;
+                resp.cbPayload   = 0;
+                resp.ulLastError = 0;
+                if (g_SendData) g_SendData(recvobj, &resp, sizeof(resp));
+                return;
+            }
+            pArgs = (PBYTE)pv;
+            rc = g_RecvData(recvobj, pArgs, &len, cbArgs);
+        }
+
+        resp.ulStatus    = 0;
+        resp.ulResult    = DispatchGpi(hps, fnCode, pArgs, cbArgs);
+        resp.cbPayload   = 0;
+        resp.ulLastError = 0;
+
+        if (pv) DosFreeMem(pv);
+    } else {
+        resp.ulStatus    = 1;
+        resp.ulResult    = (ULONG)GPI_ERROR;
+        resp.cbPayload   = 0;
+        resp.ulLastError = 0;
+    }
+
+    if (g_SendData) g_SendData(recvobj, &resp, sizeof(resp));
+}
+
 /*! @brief Test handler: echoes back the command code.
     @param [in] recvobj   Client connection object.
     @param [in] ncmd      Received command code.
     @param [in] data      Received 32-bit argument.
     @param [in] threadNum Thread index (always 0 for now). */
 static void PMCAPIENTRY pm_handler(void *recvobj, int ncmd, int data, int threadNum)
-//static void APIENTRY pm_handler(void *recvobj, int ncmd, int data, int threadNum)
 {
     int rc, len;
     char buf[256];
 
     /* --- START OF TRACING --- */
-    log("PMSERVER: IN  -> recvobj=%p, ncmd=0x%x, data=0x%x, thread=%d\n", recvobj, ncmd, data, threadNum);
+    log("PMSERVER: IN  -> recvobj=%p, ncmd=0x%x, data=0x%x, thread=%d\n",
+        recvobj, ncmd, data, threadNum);
     /* --- END OF TRACING --- */
+
+    if (F_CMD_GET_CLASS((ULONG)ncmd) == F_CMD_CLASS_GPI)
+    {
+        HandleGpiCall(recvobj, F_CMD_GET_OPCODE((ULONG)ncmd), (HPS)data);
+        return;
+    }
 
     switch (ncmd)
     {
@@ -174,44 +246,6 @@ static void PMCAPIENTRY pm_handler(void *recvobj, int ncmd, int data, int thread
             break;
         }
 
-        case F_CMD_GPI_DISPATCH:
-        {
-            struct { ULONG ulFnCode; ULONG cbArgs; ULONG ulFlags; } call;
-            struct { ULONG ulStatus; ULONG ulResult; ULONG cbPayload; ULONG ulLastError; } resp;
-            ULONG hps = (ULONG)data;
-            PBYTE pArgs = (PBYTE)NULL;
-
-            if (!g_RecvData) {
-                log("PMSERVER: ERROR - g_RecvData is NULL!\n");
-                return;
-            }
-
-            rc = g_RecvData(recvobj, &call, &len, sizeof(call));
-            if (rc == 0 && len == sizeof(call)) {
-                if (call.cbArgs > 0) {
-                    pArgs = (PBYTE)malloc(call.cbArgs);
-                    if (pArgs) {
-                        rc = g_RecvData(recvobj, pArgs, &len, call.cbArgs);
-                    }
-                }
-
-                resp.ulStatus = 0;
-                resp.ulResult = DispatchGpi((HPS)hps, call.ulFnCode, pArgs, call.cbArgs);
-                resp.cbPayload = 0;
-                resp.ulLastError = 0;
-
-                if (pArgs) free(pArgs);
-            } else {
-                resp.ulStatus = 1;
-                resp.ulResult = (ULONG)GPI_ERROR;
-                resp.cbPayload = 0;
-                resp.ulLastError = 0;
-            }
-
-            if (g_SendData) g_SendData(recvobj, &resp, sizeof(resp));
-            break;
-        }
-
         case F_CMD_DB_PRINT:
         {
             if (g_RecvData) {
@@ -235,7 +269,8 @@ static void PMCAPIENTRY pm_handler(void *recvobj, int ncmd, int data, int thread
             unsigned long reply = (unsigned long)ncmd;
             if (g_SendData) {
                 /* --- START OF TRACING --- */
-                log("PMSERVER: CALL-> _F_SendDataToClient(recvobj=%p, data=%p, len=%d)\n", recvobj, &reply, (int)sizeof(reply));
+                log("PMSERVER: CALL-> _F_SendDataToClient(recvobj=%p, data=%p, len=%d)\n",
+                    recvobj, &reply, (int)sizeof(reply));
                 /* --- END OF TRACING --- */
 
                 APIRET rc2 = g_SendData(recvobj, &reply, sizeof(reply));

@@ -1,22 +1,14 @@
 /*!
  * @file dispatch.c
- * @brief Server-side GPI dispatcher.
+ * @brief Server-side GPI dispatcher with GOCA parser integration.
  */
 #include <stdio.h>
+#include <string.h>      /* memcpy */
 #include <stdarg.h>
-#include "F_platform.h"
-#include "gpi_wire.h"
-
+#include "goca_parser.hpp"   /* includes F_platform.h + pmord.h + pmddi.h */
+#include "F_cmd.h"
 /*!
  * @brief Unified logging function for the mini server.
- *
- * Formats the message with vfprintf into stderr and flushes it.
- * The mini server is a console application, so plain stderr is
- * sufficient (no DosLogWrite indirection needed as on the OS/2
- * client side).
- *
- * Defined here so that both dispatch.cpp and pmserver.cpp can use
- * it without pulling in the whole unimpl.cpp from PMGPI.
  *
  * @param [in] fmt  printf-style format string.
  * @param [in] ...  Arguments for the format string.
@@ -31,47 +23,454 @@ void log(const char *fmt, ...)
 }
 
 /*!
+ * @def SRV_MAX_PS
+ * @brief Maximum number of simultaneous server-side PS entries.
+ */
+#define SRV_MAX_PS 64
+
+/*!
+ * @struct _SRV_PS
+ * @brief Server-side per-PS state.
+ */
+typedef struct _SRV_PS {
+    BOOL     inUse;      /*!< Slot occupied.                              */
+    HPS      hps;        /*!< Client-facing handle, or NULL if unset.     */
+    ULONG    flOptions;  /*!< Last flOptions from NGpiCreatePS/NGpiSetPS. */
+    GOCA_CTX goca;       /*!< GOCA parser context.                        */
+} SRV_PS, *PSRV_PS;
+
+/*!
+ * @brief Server-side PS table (one entry per live PS).
+ */
+static SRV_PS g_srvPsTable[SRV_MAX_PS];
+
+/*!
+ * @brief Look up a PS entry by handle.
+ * @param [in] hps Handle previously returned by SrvPsCreate.
+ * @return Entry pointer, or NULL if not found / out of range / freed.
+ */
+static PSRV_PS SrvPsFind(HPS hps)
+{
+    int i;
+    PSRV_PS ps = (PSRV_PS)hps;
+
+    /* Direct pointer match (from NGpiCreatePS). */
+    if (ps >= g_srvPsTable && ps < g_srvPsTable + SRV_MAX_PS && ps->inUse) {
+        return ps;
+    }
+
+    /* Stored hps match (from external HPS like WinGetScreenPS). */
+    for (i = 0; i < SRV_MAX_PS; i++) {
+        if (g_srvPsTable[i].inUse &&
+            g_srvPsTable[i].hps != NULL &&
+            g_srvPsTable[i].hps == hps) {
+            return &g_srvPsTable[i];
+        }
+    }
+    return (PSRV_PS)NULL;
+}
+
+/*!
+ * @brief Register a new PS entry.
+ * @param [in] hps       Client handle, or NULL if returned to client as pointer.
+ * @param [in] flOptions Options from NGpiCreatePS.
+ * @return Entry pointer (used as HPS), or NULL if the table is full.
+ */
+static PSRV_PS SrvPsCreate(HPS hps, ULONG flOptions)
+{
+    int i;
+    for (i = 0; i < SRV_MAX_PS; i++) {
+        if (!g_srvPsTable[i].inUse) {
+            g_srvPsTable[i].inUse     = TRUE;
+            g_srvPsTable[i].hps       = hps;
+            g_srvPsTable[i].flOptions = flOptions;
+            GocaInit(&g_srvPsTable[i].goca, (HDC)hps, NULL, 0);
+            GocaSetFormatFromOptions(&g_srvPsTable[i].goca, flOptions);
+            return &g_srvPsTable[i];
+        }
+    }
+    return (PSRV_PS)NULL;
+}
+
+/*!
+ * @brief Find or auto-create a PS entry.
+ * @param [in] hps Handle from the client.
+ * @return Entry pointer, or NULL if the table is full.
+ */
+static PSRV_PS SrvPsGet(HPS hps)
+{
+    PSRV_PS ps = SrvPsFind(hps);
+    if (ps) return ps;
+    return SrvPsCreate(hps, 0);
+}
+
+/*!
+ * @brief Release a PS entry.
+ * @param [in] ps Entry to release.
+ */
+static void SrvPsDestroy(PSRV_PS ps)
+{
+    if (ps) {
+        ps->inUse     = FALSE;
+        ps->hps       = NULL;
+        ps->flOptions = 0;
+    }
+}
+
+/* ======================================================================== */
+/*  Order emitters                                                          */
+/* ======================================================================== */
+
+/*!
+ * @brief Write one coordinate in the current PS format.
+ * @param [out] p     Destination buffer.
+ * @param [in]  v     Coordinate value.
+ * @param [in]  size  GOCA_COORD_SHORT or GOCA_COORD_LONG.
+ * @param [in]  endian GOCA_ENDIAN_LE or GOCA_ENDIAN_BE.
+ * @return Number of bytes written (2 or 4).
+ */
+static ULONG SrvPutCoord(PBYTE p, LONG v, GOCA_COORD_SIZE size,
+                         GOCA_COORD_ENDIAN endian)
+{
+    if (size == GOCA_COORD_SHORT) {
+        USHORT u = (USHORT)v;
+        if (endian == GOCA_ENDIAN_LE) { p[0] = (BYTE)u; p[1] = (BYTE)(u >> 8); }
+        else                          { p[0] = (BYTE)(u >> 8); p[1] = (BYTE)u; }
+        return 2;
+    } else {
+        ULONG u = (ULONG)v;
+        if (endian == GOCA_ENDIAN_LE) {
+            p[0] = (BYTE)u; p[1] = (BYTE)(u >> 8);
+            p[2] = (BYTE)(u >> 16); p[3] = (BYTE)(u >> 24);
+        } else {
+            p[0] = (BYTE)(u >> 24); p[1] = (BYTE)(u >> 16);
+            p[2] = (BYTE)(u >> 8);  p[3] = (BYTE)u;
+        }
+        return 4;
+    }
+}
+
+/*!
+ * @brief Feed a single order to the GOCA parser.
+ * @param [in] ps       Target PS entry.
+ * @param [in] pOrder   Order bytes.
+ * @param [in] cbOrder  Order length.
+ */
+static void SrvParseOrder(SRV_PS *ps, const BYTE *pOrder, ULONG cbOrder)
+{
+    ps->goca.pbStream = (PBYTE)pOrder;
+    ps->goca.cbStream = cbOrder;
+    GocaParseStream(&ps->goca);
+}
+
+/*!
+ * @brief Emit OCODE_GSCP (set current position).
+ */
+static void SrvEmitMove(SRV_PS *ps, POINTL ptl)
+{
+    BYTE  buf[10];
+    ULONG pos = 0;
+
+    buf[pos++] = OCODE_GSCP;
+    buf[pos++] = (BYTE)(2 * ps->goca.coordSize);
+    pos += SrvPutCoord(buf + pos, ptl.x, ps->goca.coordSize, ps->goca.coordEndian);
+    pos += SrvPutCoord(buf + pos, ptl.y, ps->goca.coordSize, ps->goca.coordEndian);
+
+    SrvParseOrder(ps, buf, pos);
+}
+
+/*!
+ * @brief Emit OCODE_GCLINE (line from current position to endpoint).
+ */
+static void SrvEmitLine(SRV_PS *ps, POINTL ptl)
+{
+    BYTE  buf[10];
+    ULONG pos = 0;
+
+    buf[pos++] = OCODE_GCLINE;
+    buf[pos++] = (BYTE)(2 * ps->goca.coordSize);
+    pos += SrvPutCoord(buf + pos, ptl.x, ps->goca.coordSize, ps->goca.coordEndian);
+    pos += SrvPutCoord(buf + pos, ptl.y, ps->goca.coordSize, ps->goca.coordEndian);
+
+    SrvParseOrder(ps, buf, pos);
+}
+
+/*!
+ * @brief Emit OCODE_GCBOX (box from current position to opposite corner).
+ */
+static void SrvEmitBox(SRV_PS *ps, LONG lControl, POINTL ptl,
+                       LONG lHRound, LONG lVRound)
+{
+    BYTE  buf[22];
+    ULONG pos = 0;
+    UCHAR fbFlags = 0;
+    BOOL  bAxes = (lHRound || lVRound) ? TRUE : FALSE;
+
+    if (lControl & 2) fbFlags |= 0x40;  /* DRO_OUTLINE -> boundary */
+    if (lControl & 1) fbFlags |= 0x20;  /* DRO_FILL    -> fill     */
+
+    buf[pos++] = OCODE_GCBOX;
+    buf[pos++] = (BYTE)(2 + 2 * ps->goca.coordSize +
+                        (bAxes ? 2 * ps->goca.coordSize : 0));
+    buf[pos++] = fbFlags;
+    buf[pos++] = 0;  /* pad */
+    pos += SrvPutCoord(buf + pos, ptl.x, ps->goca.coordSize, ps->goca.coordEndian);
+    pos += SrvPutCoord(buf + pos, ptl.y, ps->goca.coordSize, ps->goca.coordEndian);
+    if (bAxes) {
+        pos += SrvPutCoord(buf + pos, lHRound, ps->goca.coordSize, ps->goca.coordEndian);
+        pos += SrvPutCoord(buf + pos, lVRound, ps->goca.coordSize, ps->goca.coordEndian);
+    }
+
+    SrvParseOrder(ps, buf, pos);
+}
+
+/*!
+ * @brief Emit color order (GSCOL for 0..255, GSECOL for 256..0xFFFF).
+ * @return TRUE if emitted, FALSE if the color value is unsupported.
+ */
+static BOOL SrvEmitColor(SRV_PS *ps, LONG lColor)
+{
+    BYTE buf[4];
+
+    if (lColor < 0) return FALSE;
+
+    if (lColor <= 0xFF) {
+        buf[0] = OCODE_GSCOL;
+        buf[1] = (BYTE)lColor;
+        SrvParseOrder(ps, buf, 2);
+        return TRUE;
+    }
+
+    if (lColor <= 0xFFFF) {
+        buf[0] = OCODE_GSECOL;
+        buf[1] = 2;
+        if (ps->goca.coordEndian == GOCA_ENDIAN_LE) {
+            buf[2] = (BYTE)lColor;
+            buf[3] = (BYTE)(lColor >> 8);
+        } else {
+            buf[2] = (BYTE)(lColor >> 8);
+            buf[3] = (BYTE)lColor;
+        }
+        SrvParseOrder(ps, buf, 4);
+        return TRUE;
+    }
+
+    /* RGB colors are not supported by the wire format yet. */
+    return FALSE;
+}
+
+/* ======================================================================== */
+/*  Wire argument structures                                                */
+/* ======================================================================== */
+
+/*!
+ * @struct _GpiCreatePS_Args
+ * @brief Wire arguments for NGpiCreatePS.
+ */
+typedef struct _GpiCreatePS_Args {
+    HAB   hab;        /*!< Anchor block.                    */
+    HDC   hdc;        /*!< Device context.                  */
+    SIZEL psizlSize;  /*!< Presentation space size.         */
+    ULONG flOptions;  /*!< PS_UNITS / PS_FORMAT / PS_NORESET. */
+} GpiCreatePS_Args, *PGpiCreatePS_Args;
+
+/*!
+ * @struct _GpiSetPS_Args
+ * @brief Wire arguments for NGpiSetPS.
+ */
+typedef struct _GpiSetPS_Args {
+    SIZEL psizlSize;  /*!< Presentation space size.         */
+    ULONG flOptions;  /*!< PS_UNITS / PS_FORMAT / PS_NORESET. */
+} GpiSetPS_Args, *PGpiSetPS_Args;
+
+/*!
+ * @struct _GpiBox_Args
+ * @brief Wire arguments for NGpiBox.
+ */
+typedef struct _GpiBox_Args {
+    LONG   lControl;  /*!< DRO_* control flags.      */
+    POINTL ptl;       /*!< Opposite corner.          */
+    LONG   lHRound;   /*!< Horizontal corner radius. */
+    LONG   lVRound;   /*!< Vertical corner radius.   */
+} GpiBox_Args, *PGpiBox_Args;
+
+/*!
  * @def DISPATCH_STUB
  * @brief Log entry/exit for a single stub case and return GPI_ERROR.
- *
- * Expands to a case label, an entry log with the symbolic name of the
- * NGpi* constant (stringified via `#code`), an exit log with the return
- * value, and the `return` itself. Keeps the switch body free of
- * repeated boilerplate.
- *
  * @param [in] code  NGpi* constant from gpi_wire.h.
  */
 #define DISPATCH_STUB(code) \
     case code: \
-        log("[PMSERVER] IN  : " #code "\n"); \
+        log("[PMSERVER] IN  : " #code " (hps=%p, cbArgs=%u)\n", (void*)hps, (unsigned)cbArgs); \
         log("[PMSERVER] OUT : " #code " -> 0x%x\n", (unsigned int)GPI_ERROR); \
         return (ULONG)GPI_ERROR;
 
 /*!
- * @brief Server dispatch for GPI calls (stub).
+ * @brief Server dispatch for GPI calls.
  *
  * @param [in] hps      Presentation space handle.
  * @param [in] ulFnCode Function code (NGpi*).
  * @param [in] pArgs    Marshaled arguments.
  * @param [in] cbArgs   Size of pArgs in bytes.
- * @return GPI_ERROR (all cases are stubs).
+ * @return GPI result.
+ * @retval GPI_ERROR  Unknown or unimplemented function code.
+ * @retval 1          Successful NGpiSetPS / NGpiMove / NGpiLine /
+ *                    NGpiBox / NGpiSetColor / NGpiDestroyPS.
+ * @retval p          NGpiCreatePS: pointer to the new SRV_PS entry.
  */
 ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
 {
-    (void)hps; (void)pArgs; (void)cbArgs;
-
     log("[PMSERVER] Dispatch IN : FnCode=0x%x, ArgsSize=%u\n", ulFnCode, cbArgs);
 
     switch (ulFnCode) {
-    DISPATCH_STUB(NGpiCreatePS)
-    DISPATCH_STUB(NGpiDestroyPS)
+
+    /* ==================================================================== */
+    /*  Presentation space lifecycle                                        */
+    /* ==================================================================== */
+
+    case NGpiCreatePS: {
+        PGpiCreatePS_Args a = (PGpiCreatePS_Args)pArgs;
+        PSRV_PS ps;
+
+        if (!a || cbArgs < sizeof(*a)) {
+            log("[PMSERVER] IN  : NGpiCreatePS (bad args, cbArgs=%u)\n",
+                (unsigned)cbArgs);
+            return (ULONG)GPI_ERROR;
+        }
+
+        ps = SrvPsCreate(NULL, a->flOptions);
+        if (!ps) {
+            log("[PMSERVER] IN  : NGpiCreatePS (PS table full)\n");
+            return (ULONG)GPI_ERROR;
+        }
+
+        log("[PMSERVER] IN  : NGpiCreatePS(size={%ld,%ld}, flOptions=0x%lx) -> %p\n",
+            (long)a->psizlSize.cx, (long)a->psizlSize.cy,
+            (unsigned long)a->flOptions, (void*)ps);
+        log("[PMSERVER] OUT : NGpiCreatePS -> %p\n", (void*)ps);
+        return (ULONG)ps;
+    }
+
+    case NGpiSetPS: {
+        PGpiSetPS_Args a = (PGpiSetPS_Args)pArgs;
+        PSRV_PS ps = SrvPsFind(hps);
+
+        log("[PMSERVER] IN  : NGpiSetPS(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!ps) {
+            log("[PMSERVER] OUT : NGpiSetPS -> GPI_ERROR (no ps)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        if (a && cbArgs >= sizeof(*a)) {
+            ps->flOptions = a->flOptions;
+            GocaSetFormatFromOptions(&ps->goca, a->flOptions);
+        }
+        log("[PMSERVER] OUT : NGpiSetPS -> 1\n");
+        return 1;
+    }
+
+    case NGpiDestroyPS: {
+        PSRV_PS ps = SrvPsFind(hps);
+        log("[PMSERVER] IN  : NGpiDestroyPS(hps=%p)\n", (void*)hps);
+        if (ps) SrvPsDestroy(ps);
+        log("[PMSERVER] OUT : NGpiDestroyPS -> %d\n",
+            ps ? 1 : (int)GPI_ERROR);
+        return (ULONG)(ps ? 1 : GPI_ERROR);
+    }
+
+    /* ==================================================================== */
+    /*  Drawing primitives (emit GOCA orders)                               */
+    /* ==================================================================== */
+
+    case NGpiSetColor: {
+        LONG lColor;
+        PSRV_PS ps;
+
+        log("[PMSERVER] IN  : NGpiSetColor(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) {
+            log("[PMSERVER] OUT : NGpiSetColor -> GPI_ERROR (bad args)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        memcpy(&lColor, pArgs, sizeof(LONG));
+        ps = SrvPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        if (!SrvEmitColor(ps, lColor)) {
+            log("[PMSERVER] OUT : NGpiSetColor -> GPI_ERROR (unsupported color 0x%lx)\n",
+                (unsigned long)lColor);
+            return (ULONG)GPI_ERROR;
+        }
+        log("[PMSERVER] OUT : NGpiSetColor -> 1\n");
+        return 1;
+    }
+
+    case NGpiMove: {
+        POINTL ptl;
+        PSRV_PS ps;
+
+        log("[PMSERVER] IN  : NGpiMove(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(POINTL)) {
+            log("[PMSERVER] OUT : NGpiMove -> GPI_ERROR (bad args)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        memcpy(&ptl, pArgs, sizeof(POINTL));
+        ps = SrvPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        SrvEmitMove(ps, ptl);
+        log("[PMSERVER] OUT : NGpiMove -> 1\n");
+        return 1;
+    }
+
+    case NGpiLine: {
+        POINTL ptl;
+        PSRV_PS ps;
+
+        log("[PMSERVER] IN  : NGpiLine(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(POINTL)) {
+            log("[PMSERVER] OUT : NGpiLine -> GPI_ERROR (bad args)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        memcpy(&ptl, pArgs, sizeof(POINTL));
+        ps = SrvPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        SrvEmitLine(ps, ptl);
+        log("[PMSERVER] OUT : NGpiLine -> 1\n");
+        return 1;
+    }
+
+    case NGpiBox: {
+        PGpiBox_Args a = (PGpiBox_Args)pArgs;
+        PSRV_PS ps;
+
+        log("[PMSERVER] IN  : NGpiBox(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!a || cbArgs < sizeof(*a)) {
+            log("[PMSERVER] OUT : NGpiBox -> GPI_ERROR (bad args)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        ps = SrvPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        SrvEmitBox(ps, a->lControl, a->ptl, a->lHRound, a->lVRound);
+        log("[PMSERVER] OUT : NGpiBox -> 1\n");
+        return 1;
+    }
+
+    /* ==================================================================== */
+    /*  Everything else: stub                                               */
+    /* ==================================================================== */
+
     DISPATCH_STUB(NGpiAssociate)
     DISPATCH_STUB(NGpiRestorePS)
     DISPATCH_STUB(NGpiSavePS)
     DISPATCH_STUB(NGpiErase)
     DISPATCH_STUB(NGpiQueryDevice)
     DISPATCH_STUB(NGpiResetPS)
-    DISPATCH_STUB(NGpiSetPS)
     DISPATCH_STUB(NGpiQueryPS)
     DISPATCH_STUB(NGpiErrorSegmentData)
     DISPATCH_STUB(NGpiQueryDrawControl)
@@ -169,11 +568,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
     DISPATCH_STUB(NGpiQueryPaletteInfo)
     DISPATCH_STUB(NGpiResizePalette)
     DISPATCH_STUB(NGpiQueryNearestPaletteIndex)
-    DISPATCH_STUB(NGpiSetColor)
     DISPATCH_STUB(NGpiQueryColor)
-    DISPATCH_STUB(NGpiBox)
-    DISPATCH_STUB(NGpiMove)
-    DISPATCH_STUB(NGpiLine)
     DISPATCH_STUB(NGpiPolyLine)
     DISPATCH_STUB(NGpiPolyLineDisjoint)
     DISPATCH_STUB(NGpiSetPattern)
@@ -356,7 +751,8 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
     DISPATCH_STUB(NGpiQueryDCData)
 
     default:
-        log("[PMSERVER] Dispatch OUT: Unknown FnCode=0x%x -> 0x%x\n", ulFnCode, (unsigned int)GPI_ERROR);
+        log("[PMSERVER] Dispatch OUT: Unknown FnCode=0x%x -> 0x%x\n",
+            ulFnCode, (unsigned int)GPI_ERROR);
         return (ULONG)GPI_ERROR;
     }
 }

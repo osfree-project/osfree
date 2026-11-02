@@ -12,7 +12,6 @@
 #define INCL_GREALL
 #include "pmddi.h"
 #include <string.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include "goca_parser.hpp"
@@ -37,29 +36,79 @@ static void GocaTrace(GOCA_CTX *c, const char *fmt, ...)
     fflush(stderr);
 }
 
+/*!
+ * @def GocaCallEnter
+ * @brief Log the entry of a Do* handler with its arguments.
+ * @param [in] fmt  printf-style format string for the arguments.
+ * @param [in] ...  Arguments for the format string.
+ */
 #define GocaCallEnter(fmt, ...)  GocaTrace(c, "[GOCA] IN : %s(" fmt ")\n", __FUNCTION__, ##__VA_ARGS__)
+
+/*!
+ * @def GocaCallResult
+ * @brief Log the exit of a Do* handler with its result.
+ * @param [in] fmt  printf-style format string for the result.
+ * @param [in] ...  Arguments for the format string.
+ */
 #define GocaCallResult(fmt, ...) GocaTrace(c, "[GOCA] OUT: %s -> " fmt "\n", __FUNCTION__, ##__VA_ARGS__)
 
 /* ======================================================================== */
-/*  Big-endian readers                                                      */
+/*  Format selection                                                        */
 /* ======================================================================== */
 
-/*! @brief Read signed 16-bit BE. */
-static SHORT RD_S16(const BYTE *p) { return (SHORT)(((USHORT)p[0]<<8)|p[1]); }
-
-/*! @brief Read unsigned 16-bit BE. */
-static USHORT RD_U16(const BYTE *p) { return (USHORT)(((USHORT)p[0]<<8)|p[1]); }
-
-/*! @brief Read signed 32-bit BE. */
-static LONG RD_S32(const BYTE *p)
+void GocaSetFormat(GOCA_CTX *c, GOCA_COORD_SIZE size, GOCA_COORD_ENDIAN endian)
 {
-    return ((LONG)p[0]<<24)|((LONG)p[1]<<16)|((LONG)p[2]<<8)|(LONG)p[3];
+    c->coordSize   = size;
+    c->coordEndian = endian;
 }
 
-/*! @brief Read unsigned 32-bit BE. */
-static ULONG RD_U32(const BYTE *p)
+void GocaSetFormatFromOptions(GOCA_CTX *c, ULONG flOptions)
 {
-    return ((ULONG)p[0]<<24)|((ULONG)p[1]<<16)|((ULONG)p[2]<<8)|(ULONG)p[3];
+    GOCA_COORD_SIZE   size = GOCA_COORD_LONG;
+    GOCA_COORD_ENDIAN endian = GOCA_ENDIAN_LE;
+
+    if ((flOptions & 0x0000FF00UL) == GPIF_SHORT) {
+        size = GOCA_COORD_SHORT;
+    }
+    /* GPIF_LONG, GPIF_DEFAULT, or unknown -> LONG.
+     * On x86 (OS/2, Win32) endianness is always LE. */
+    GocaSetFormat(c, size, endian);
+}
+
+/* ======================================================================== */
+/*  Endian-aware / size-aware readers                                       */
+/* ======================================================================== */
+
+/*! @brief Read signed 16-bit coordinate. */
+static SHORT GocaRdS16(GOCA_CTX *c, const BYTE *p)
+{
+    if (c->coordEndian == GOCA_ENDIAN_LE)
+        return (SHORT)(((USHORT)p[1] << 8) | p[0]);
+    return (SHORT)(((USHORT)p[0] << 8) | p[1]);
+}
+
+/*! @brief Read unsigned 16-bit coordinate. */
+static USHORT GocaRdU16(GOCA_CTX *c, const BYTE *p)
+{
+    if (c->coordEndian == GOCA_ENDIAN_LE)
+        return (USHORT)(((USHORT)p[1] << 8) | p[0]);
+    return (USHORT)(((USHORT)p[0] << 8) | p[1]);
+}
+
+/*! @brief Read signed 32-bit coordinate. */
+static LONG GocaRdS32(GOCA_CTX *c, const BYTE *p)
+{
+    if (c->coordEndian == GOCA_ENDIAN_LE)
+        return ((LONG)p[3] << 24) | ((LONG)p[2] << 16) | ((LONG)p[1] << 8) | (LONG)p[0];
+    return ((LONG)p[0] << 24) | ((LONG)p[1] << 16) | ((LONG)p[2] << 8) | (LONG)p[3];
+}
+
+/*! @brief Read unsigned 32-bit coordinate. */
+static ULONG GocaRdU32(GOCA_CTX *c, const BYTE *p)
+{
+    if (c->coordEndian == GOCA_ENDIAN_LE)
+        return ((ULONG)p[3] << 24) | ((ULONG)p[2] << 16) | ((ULONG)p[1] << 8) | (ULONG)p[0];
+    return ((ULONG)p[0] << 24) | ((ULONG)p[1] << 16) | ((ULONG)p[2] << 8) | (ULONG)p[3];
 }
 
 /* ======================================================================== */
@@ -72,10 +121,10 @@ static ULONG RD_U32(const BYTE *p)
  * Format predicates are from pmord.h:
  *   BYTE_ORDER(oc)   — 1 byte
  *   SHORT_ORDER(oc)  — 2 bytes
- *   oc == OCODE_VLONG — 4 + LE16 from p+2
+ *   oc == OCODE_VLONG — 4 + U16 from p+2
  *   otherwise        — long, 2 + p[1]
  */
-static ULONG OrderLength(const BYTE *p, ULONG cbAvail)
+static ULONG OrderLength(GOCA_CTX *c, const BYTE *p, ULONG cbAvail)
 {
     UCHAR oc;
     if (cbAvail < 1) return 0;
@@ -83,7 +132,7 @@ static ULONG OrderLength(const BYTE *p, ULONG cbAvail)
     if (BYTE_ORDER(oc))  return 1;
     if (oc == OCODE_VLONG) {
         if (cbAvail < 4) return 0;
-        return 4u + RD_U16(p + 2);
+        return 4u + GocaRdU16(c, p + 2);
     }
     if (SHORT_ORDER(oc)) return 2;
     if (cbAvail < 2) return 0;
@@ -94,24 +143,43 @@ static ULONG OrderLength(const BYTE *p, ULONG cbAvail)
 /*  Small helpers                                                           */
 /* ======================================================================== */
 
-/*! @brief GOCA POINTS pair -> POINTL. */
-static POINTL PtsToPtl(const BYTE *p)
+/*! @brief GOCA point -> POINTL (size and endian aware). */
+static POINTL PtsToPtl(GOCA_CTX *c, const BYTE *p)
 {
     POINTL pt;
-    pt.x = RD_S16(p);
-    pt.y = RD_S16(p + 2);
+    if (c->coordSize == GOCA_COORD_SHORT) {
+        pt.x = GocaRdS16(c, p);
+        pt.y = GocaRdS16(c, p + 2);
+    } else {
+        pt.x = GocaRdS32(c, p);
+        pt.y = GocaRdS32(c, p + 4);
+    }
     return pt;
 }
 
-/*! @brief Allocate and fill POINTL[] from packed BE SHORT pairs. */
-static PPOINTL AllocPtlArray(const BYTE *pData, ULONG nPts)
+/*! @brief Allocate and fill POINTL[] from packed coordinates. */
+static PPOINTL AllocPtlArray(GOCA_CTX *c, const BYTE *pData, ULONG nPts)
 {
     ULONG i;
-    PPOINTL pptl = (PPOINTL)malloc(nPts * sizeof(POINTL));
-    if (!pptl) return (PPOINTL)NULL;
-    for (i = 0; i < nPts; i++) {
-        pptl[i].x = RD_S16(pData + i * 4);
-        pptl[i].y = RD_S16(pData + i * 4 + 2);
+    PVOID   pv = NULL;
+    PPOINTL pptl;
+
+    if (DosAllocMem(&pv, nPts * sizeof(POINTL),
+                    PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
+        return (PPOINTL)NULL;
+    }
+    pptl = (PPOINTL)pv;
+
+    if (c->coordSize == GOCA_COORD_SHORT) {
+        for (i = 0; i < nPts; i++) {
+            pptl[i].x = GocaRdS16(c, pData + i * 4);
+            pptl[i].y = GocaRdS16(c, pData + i * 4 + 2);
+        }
+    } else {
+        for (i = 0; i < nPts; i++) {
+            pptl[i].x = GocaRdS32(c, pData + i * 8);
+            pptl[i].y = GocaRdS32(c, pData + i * 8 + 4);
+        }
     }
     return pptl;
 }
@@ -140,20 +208,24 @@ static BOOL GocaSetAttr(HDC hdc, LONG lPrimType, ULONG flAttrs, PVOID pBundle)
 /*  Long-order handlers                                                     */
 /* ======================================================================== */
 
-/*! @brief GSCP (0x21) — Set Current Position. Data: 4 bytes (x,y). */
+/*! @brief GSCP (0x21) — Set Current Position. Data: x,y. */
 static LONG DoGSCP(GOCA_CTX *c, const BYTE *p, ULONG cb)
 {
-    GocaCallEnter("p=%p, cb=%u", p, cb);
     POINTL pt;
-    if (cb < 6) {
+    ULONG  need = 2u + (c->coordSize == GOCA_COORD_SHORT ? 4u : 8u);
+
+    GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
+
+    if (cb < need) {
         GocaCallResult("GOCA_ERR_TRUNC");
         return GOCA_ERR_TRUNC;
     }
-    pt = PtsToPtl(p + 2);
+    pt = PtsToPtl(c, p + 2);
     GocaTrace(c, "[GOCA]   GSCP: pos=(%ld,%ld)\n",
               (long)pt.x, (long)pt.y);
     GreSetCurrentPosition(c->hdc, &pt);
     c->ptlCurPos = pt;
+
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
@@ -161,9 +233,12 @@ static LONG DoGSCP(GOCA_CTX *c, const BYTE *p, ULONG cb)
 /*! @brief GLINE (0xC1) / GCLINE (0x81). */
 static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, cb, bCur);
     ULONG   len, nTotal, nPts, i;
+    PVOID   pv = NULL;
     PPOINTL pptl;
+    ULONG   pointSize = (c->coordSize == GOCA_COORD_SHORT) ? 4u : 8u;
+
+    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
     if (cb < 2u + len) {
@@ -172,32 +247,39 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     }
 
     if (bCur) {
-        /* GCLINE: length is 4 * count; prepend current position. */
-        if (len == 0 || (len & 3)) {
+        /* GCLINE: length is pointSize * count; prepend current position. */
+        if (len == 0 || (len % pointSize)) {
             GocaCallResult("GOCA_ERR_FORMAT");
             return GOCA_ERR_FORMAT;
         }
-        nPts   = len / 4;
+        nPts   = len / pointSize;
         nTotal = nPts + 1;
-        pptl   = (PPOINTL)malloc(nTotal * sizeof(POINTL));
-        if (!pptl) {
+        if (DosAllocMem(&pv, nTotal * sizeof(POINTL), PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
             GocaCallResult("GOCA_ERR_NOMEM");
             return GOCA_ERR_NOMEM;
         }
+        pptl = (PPOINTL)pv;
         RefreshCurPos(c);
         pptl[0] = c->ptlCurPos;
-        for (i = 0; i < nPts; i++) {
-            pptl[i+1].x = RD_S16(p + 2 + i*4);
-            pptl[i+1].y = RD_S16(p + 2 + i*4 + 2);
+        if (c->coordSize == GOCA_COORD_SHORT) {
+            for (i = 0; i < nPts; i++) {
+                pptl[i+1].x = GocaRdS16(c, p + 2 + i*4);
+                pptl[i+1].y = GocaRdS16(c, p + 2 + i*4 + 2);
+            }
+        } else {
+            for (i = 0; i < nPts; i++) {
+                pptl[i+1].x = GocaRdS32(c, p + 2 + i*8);
+                pptl[i+1].y = GocaRdS32(c, p + 2 + i*8 + 4);
+            }
         }
     } else {
-        /* GLINE: first point is 4 bytes, rest 4 bytes each. */
-        if (len < 4 || ((len - 4) & 3)) {
+        /* GLINE: first point is pointSize bytes, rest pointSize each. */
+        if (len < pointSize || ((len - pointSize) % pointSize)) {
             GocaCallResult("GOCA_ERR_FORMAT");
             return GOCA_ERR_FORMAT;
         }
-        nTotal = (len - 4) / 4 + 1;
-        pptl   = AllocPtlArray(p + 2, nTotal);
+        nTotal = (len - pointSize) / pointSize + 1;
+        pptl   = AllocPtlArray(c, p + 2, nTotal);
         if (!pptl) {
             GocaCallResult("GOCA_ERR_NOMEM");
             return GOCA_ERR_NOMEM;
@@ -210,7 +292,8 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     GrePolyLine(c->hdc, pptl, (LONG)nTotal);
     c->ptlCurPos = pptl[nTotal - 1];
-    free(pptl);
+    
+    DosFreeMem(pptl);
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
@@ -218,9 +301,12 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 /*! @brief GMRK (0xC2) / GCMRK (0x82). */
 static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, cb, bCur);
     ULONG   len, nTotal, nPts, i;
+    PVOID   pv = NULL;
     PPOINTL pptl;
+    ULONG   pointSize = (c->coordSize == GOCA_COORD_SHORT) ? 4u : 8u;
+
+    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
     if (cb < 2u + len) {
@@ -229,30 +315,37 @@ static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     }
 
     if (bCur) {
-        if (len == 0 || (len & 3)) {
+        if (len == 0 || (len % pointSize)) {
             GocaCallResult("GOCA_ERR_FORMAT");
             return GOCA_ERR_FORMAT;
         }
-        nPts   = len / 4;
+        nPts   = len / pointSize;
         nTotal = nPts + 1;
-        pptl   = (PPOINTL)malloc(nTotal * sizeof(POINTL));
-        if (!pptl) {
+        if (DosAllocMem(&pv, nTotal * sizeof(POINTL), PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
             GocaCallResult("GOCA_ERR_NOMEM");
             return GOCA_ERR_NOMEM;
         }
+        pptl = (PPOINTL)pv;
         RefreshCurPos(c);
         pptl[0] = c->ptlCurPos;
-        for (i = 0; i < nPts; i++) {
-            pptl[i+1].x = RD_S16(p + 2 + i*4);
-            pptl[i+1].y = RD_S16(p + 2 + i*4 + 2);
+        if (c->coordSize == GOCA_COORD_SHORT) {
+            for (i = 0; i < nPts; i++) {
+                pptl[i+1].x = GocaRdS16(c, p + 2 + i*4);
+                pptl[i+1].y = GocaRdS16(c, p + 2 + i*4 + 2);
+            }
+        } else {
+            for (i = 0; i < nPts; i++) {
+                pptl[i+1].x = GocaRdS32(c, p + 2 + i*8);
+                pptl[i+1].y = GocaRdS32(c, p + 2 + i*8 + 4);
+            }
         }
     } else {
-        if (len < 4 || ((len - 4) & 3)) {
+        if (len < pointSize || ((len - pointSize) % pointSize)) {
             GocaCallResult("GOCA_ERR_FORMAT");
             return GOCA_ERR_FORMAT;
         }
-        nTotal = (len - 4) / 4 + 1;
-        pptl   = AllocPtlArray(p + 2, nTotal);
+        nTotal = (len - pointSize) / pointSize + 1;
+        pptl   = AllocPtlArray(c, p + 2, nTotal);
         if (!pptl) {
             GocaCallResult("GOCA_ERR_NOMEM");
             return GOCA_ERR_NOMEM;
@@ -265,29 +358,24 @@ static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     GrePolyMarker(c->hdc, pptl, (LONG)nTotal);
     c->ptlCurPos = pptl[nTotal - 1];
-    free(pptl);
+    
+    DosFreeMem(pptl);
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
 
 /*!
  * @brief GRLINE (0xE1) / GCRLINE (0xA1) — relative line with SBIN offsets.
- *
- * Layout from p:
- *   0     code
- *   1     length (bytes following)
- *   2..5  (GRLINE only) start x,y as 2 x SHORT BE
- *   ..    pairs of 1-byte SBIN (dx, dy), each pair advances one point
- *
- * For GCRLINE the start point is the current position; for GRLINE the
- * first 4 bytes are given explicitly.
  */
 static LONG DoRelativeLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, cb, bCur);
     ULONG   len, nPts, nTotal, i, off;
+    PVOID   pv = NULL;
     PPOINTL pptl;
     SHORT   x, y;
+    ULONG   pointSize = (c->coordSize == GOCA_COORD_SHORT) ? 4u : 8u;
+
+    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
     if (cb < 2u + len) {
@@ -307,23 +395,27 @@ static LONG DoRelativeLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
         y = (SHORT)c->ptlCurPos.y;
         off = 0;
     } else {
-        /* GRLINE: 4-byte start point, then 2 * count. */
-        if (len < 4 || ((len - 4) & 1)) {
+        /* GRLINE: pointSize-byte start point, then 2 * count. */
+        if (len < pointSize || ((len - pointSize) & 1)) {
             GocaCallResult("GOCA_ERR_FORMAT");
             return GOCA_ERR_FORMAT;
         }
-        x = RD_S16(p + 2);
-        y = RD_S16(p + 4);
-        off = 4;
+        x = (SHORT)((c->coordSize == GOCA_COORD_SHORT)
+                    ? GocaRdS16(c, p + 2)
+                    : GocaRdS32(c, p + 2));
+        y = (SHORT)((c->coordSize == GOCA_COORD_SHORT)
+                    ? GocaRdS16(c, p + 4)
+                    : GocaRdS32(c, p + 6));
+        off = pointSize;
     }
 
     nPts   = (len - off) / 2;
     nTotal = nPts + 1;
-    pptl   = (PPOINTL)malloc(nTotal * sizeof(POINTL));
-    if (!pptl) {
+    if (DosAllocMem(&pv, nTotal * sizeof(POINTL), PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
         GocaCallResult("GOCA_ERR_NOMEM");
         return GOCA_ERR_NOMEM;
     }
+    pptl = (PPOINTL)pv;
 
     pptl[0].x = x;
     pptl[0].y = y;
@@ -343,7 +435,8 @@ static LONG DoRelativeLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     GrePolyLine(c->hdc, pptl, (LONG)nTotal);
     c->ptlCurPos = pptl[nTotal - 1];
-    free(pptl);
+    
+    DosFreeMem(pptl);
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
@@ -351,10 +444,12 @@ static LONG DoRelativeLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 /*! @brief GCHST (0xC3) / GCCHST (0x83). */
 static LONG DoCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, cb, bCur);
     ULONG       len, cch;
     POINTL      ptStart;
     const BYTE *pStr;
+    ULONG       pointSize = (c->coordSize == GOCA_COORD_SHORT) ? 4u : 8u;
+
+    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
     if (cb < 2u + len) {
@@ -369,14 +464,14 @@ static LONG DoCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
         pStr    = p + 2;
         cch     = len;
     } else {
-        /* GCHST: 4-byte point, then string. */
-        if (len < 4) {
+        /* GCHST: pointSize-byte point, then string. */
+        if (len < pointSize) {
             GocaCallResult("GOCA_ERR_FORMAT");
             return GOCA_ERR_FORMAT;
         }
-        ptStart = PtsToPtl(p + 2);
-        pStr    = p + 6;
-        cch     = len - 4;
+        ptStart = PtsToPtl(c, p + 2);
+        pStr    = p + 2 + pointSize;
+        cch     = len - pointSize;
     }
 
     if (cch == 0) {
@@ -391,27 +486,25 @@ static LONG DoCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     GreSetCurrentPosition(c->hdc, &ptStart);
     GreCharString(c->hdc, (LONG)cch, (PCH)pStr);
     c->ptlCurPos = ptStart;
+
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
 
 /*!
  * @brief GBOX (0xC0) / GCBOX (0x80).
- *
- * GOCA carries two corners (or current pos + one corner for GCBOX).
- * BOXPARAMS.ptl is the opposite corner; sizl.cx/cy are the H/V
- * corner-rounding radii (same as GpiBox's lHRound/lVRound).
- * GreBox* draws from current position to ptl.
  */
 static LONG DoBox(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, cb, bCur);
     ULONG     len;
     UCHAR     fbFlags;
     BOOL      bBoundary, bFill;
     SHORT     x1, y1, x2, y2, hAxis = 0, vAxis = 0;
     BOXPARAMS bp;
     POINTL    ptStart;
+    ULONG     pointSize = (c->coordSize == GOCA_COORD_SHORT) ? 4u : 8u;
+
+    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
     if (cb < 2u + len) {
@@ -425,26 +518,38 @@ static LONG DoBox(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     fbFlags = p[2];
 
     if (bCur) {
-        /* GCBOX: corner (x2,y2) at p[4..7], optional axes at p[8..11]. */
-        if (len < 6) {
+        /* GCBOX: corner (x2,y2) after flags+1 pad, optional axes. */
+        if (len < 2u + pointSize) {
             GocaCallResult("GOCA_ERR_FORMAT");
             return GOCA_ERR_FORMAT;
         }
         RefreshCurPos(c);
         x1 = (SHORT)c->ptlCurPos.x;
         y1 = (SHORT)c->ptlCurPos.y;
-        x2 = RD_S16(p + 4);
-        y2 = RD_S16(p + 6);
-        if (len >= 10) { hAxis = RD_S16(p + 8); vAxis = RD_S16(p + 10); }
+        if (c->coordSize == GOCA_COORD_SHORT) {
+            x2 = GocaRdS16(c, p + 4);
+            y2 = GocaRdS16(c, p + 6);
+            if (len >= 10) { hAxis = GocaRdS16(c, p + 8); vAxis = GocaRdS16(c, p + 10); }
+        } else {
+            x2 = (SHORT)GocaRdS32(c, p + 4);
+            y2 = (SHORT)GocaRdS32(c, p + 8);
+            if (len >= 18) { hAxis = (SHORT)GocaRdS32(c, p + 12); vAxis = (SHORT)GocaRdS32(c, p + 16); }
+        }
     } else {
         /* GBOX: both corners, optional axes. */
-        if (len < 10) {
+        if (len < 2u + 2u * pointSize) {
             GocaCallResult("GOCA_ERR_FORMAT");
             return GOCA_ERR_FORMAT;
         }
-        x1 = RD_S16(p + 4); y1 = RD_S16(p + 6);
-        x2 = RD_S16(p + 8); y2 = RD_S16(p + 10);
-        if (len >= 14) { hAxis = RD_S16(p + 12); vAxis = RD_S16(p + 14); }
+        if (c->coordSize == GOCA_COORD_SHORT) {
+            x1 = GocaRdS16(c, p + 4); y1 = GocaRdS16(c, p + 6);
+            x2 = GocaRdS16(c, p + 8); y2 = GocaRdS16(c, p + 10);
+            if (len >= 14) { hAxis = GocaRdS16(c, p + 12); vAxis = GocaRdS16(c, p + 14); }
+        } else {
+            x1 = (SHORT)GocaRdS32(c, p + 4);  y1 = (SHORT)GocaRdS32(c, p + 8);
+            x2 = (SHORT)GocaRdS32(c, p + 12); y2 = (SHORT)GocaRdS32(c, p + 16);
+            if (len >= 26) { hAxis = (SHORT)GocaRdS32(c, p + 20); vAxis = (SHORT)GocaRdS32(c, p + 24); }
+        }
     }
 
     /* GreBox* uses current position as one corner. */
@@ -469,6 +574,7 @@ static LONG DoBox(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     c->ptlCurPos.x = x2;
     c->ptlCurPos.y = y2;
+
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
@@ -476,21 +582,19 @@ static LONG DoBox(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 /*!
  * @brief GPARC (0xE3) / GCPARC (0xA3).
  *
- * Layout (GCPARC): centre x,y (SHORT), multiplier FIXED88,
+ * Layout (GCPARC): centre x,y, multiplier FIXED88,
  *                  start angle 32-bit, sweep angle 32-bit.
- * GPARC additionally has a 4-byte start point at the front (ignored here).
- *
- * FIXED88 (2 bytes) is scaled up to FIXED (16.16) by shifting left 8 bits.
- * 32-bit angles are already in 1/65536-of-turn units, which is the OS/2
- * FIXED angle convention — passed straight through.
+ * GPARC additionally has a start point at the front (ignored here).
  */
 static LONG DoPartialArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, cb, bCur);
     ULONG       len, off;
     const BYTE *q;
     POINTL      ptCenter;
     FIXED       fxMult, fxStart, fxSweep;
+    ULONG       pointSize = (c->coordSize == GOCA_COORD_SHORT) ? 4u : 8u;
+
+    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
     if (cb < 2u + len) {
@@ -500,18 +604,17 @@ static LONG DoPartialArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     q   = p + 2;
     off = 0;
-    if (!bCur) off += 4;                    /* GPARC: skip start x,y */
+    if (!bCur) off += pointSize;            /* GPARC: skip start x,y */
 
-    if (len < off + 4 + 2 + 4 + 4) {
+    if (len < off + pointSize + 2 + 4 + 4) {
         GocaCallResult("GOCA_ERR_FORMAT");
         return GOCA_ERR_FORMAT;
     }
 
-    ptCenter.x = RD_S16(q + off); off += 2;
-    ptCenter.y = RD_S16(q + off); off += 2;
-    fxMult     = (FIXED)((ULONG)RD_U16(q + off) << 8); off += 2;
-    fxStart    = (FIXED)RD_U32(q + off); off += 4;
-    fxSweep    = (FIXED)RD_U32(q + off);
+    ptCenter = PtsToPtl(c, q + off); off += pointSize;
+    fxMult   = (FIXED)((ULONG)GocaRdU16(c, q + off) << 8); off += 2;
+    fxStart  = (FIXED)GocaRdU32(c, q + off); off += 4;
+    fxSweep  = (FIXED)GocaRdU32(c, q + off);
 
     GocaTrace(c, "[GOCA]   %s: c=(%ld,%ld) mult=%04X start=%08lX sweep=%08lX\n",
               bCur ? "GCPARC" : "GPARC",
@@ -520,6 +623,7 @@ static LONG DoPartialArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
               (unsigned long)fxStart, (unsigned long)fxSweep);
 
     GrePartialArc(c->hdc, &ptCenter, fxMult, fxStart, fxSweep);
+
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
@@ -528,15 +632,17 @@ static LONG DoPartialArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @brief GFARC (0xC7) / GCFARC (0x87).
  *
  * Data layout:
- *   GCFARC: multiplier FIXED88            (2 bytes)
- *   GFARC:  start x,y (SHORT each), then multiplier FIXED88
+ *   GCFARC: multiplier FIXED88
+ *   GFARC:  start x,y, then multiplier FIXED88
  */
 static LONG DoFullArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, cb, bCur);
     ULONG       len, off;
     const BYTE *q;
     FIXED       fxMult;
+    ULONG       pointSize = (c->coordSize == GOCA_COORD_SHORT) ? 4u : 8u;
+
+    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
     if (cb < 2u + len) {
@@ -546,19 +652,20 @@ static LONG DoFullArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     q   = p + 2;
     off = 0;
-    if (!bCur) off += 4;                    /* GFARC: skip start x,y */
+    if (!bCur) off += pointSize;            /* GFARC: skip start x,y */
 
     if (len < off + 2) {
         GocaCallResult("GOCA_ERR_FORMAT");
         return GOCA_ERR_FORMAT;
     }
 
-    fxMult = (FIXED)((ULONG)RD_U16(q + off) << 8);
+    fxMult = (FIXED)((ULONG)GocaRdU16(c, q + off) << 8);
 
     GocaTrace(c, "[GOCA]   %s: mult=%04X\n",
               bCur ? "GCFARC" : "GFARC", (unsigned)fxMult);
 
     GreFullArcBoth(c->hdc, fxMult);
+
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
@@ -566,9 +673,12 @@ static LONG DoFullArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 /*! @brief GBEZ (0xE5) / GCBEZ (0xA5). */
 static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, cb, bCur);
     ULONG   len, nPts, i;
+    PVOID   pv = NULL;
     PPOINTL pptl;
+    ULONG   pointSize = (c->coordSize == GOCA_COORD_SHORT) ? 4u : 8u;
+
+    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
     if (cb < 2u + len) {
@@ -577,29 +687,36 @@ static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     }
 
     if (bCur) {
-        if (len == 0 || (len & 3)) {
+        if (len == 0 || (len % pointSize)) {
             GocaCallResult("GOCA_ERR_FORMAT");
             return GOCA_ERR_FORMAT;
         }
-        nPts = len / 4 + 1;
-        pptl = (PPOINTL)malloc(nPts * sizeof(POINTL));
-        if (!pptl) {
+        nPts = len / pointSize + 1;
+        if (DosAllocMem(&pv, nPts * sizeof(POINTL), PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
             GocaCallResult("GOCA_ERR_NOMEM");
             return GOCA_ERR_NOMEM;
         }
+        pptl = (PPOINTL)pv;
         RefreshCurPos(c);
         pptl[0] = c->ptlCurPos;
-        for (i = 0; i < nPts - 1; i++) {
-            pptl[i+1].x = RD_S16(p + 2 + i*4);
-            pptl[i+1].y = RD_S16(p + 2 + i*4 + 2);
+        if (c->coordSize == GOCA_COORD_SHORT) {
+            for (i = 0; i < nPts - 1; i++) {
+                pptl[i+1].x = GocaRdS16(c, p + 2 + i*4);
+                pptl[i+1].y = GocaRdS16(c, p + 2 + i*4 + 2);
+            }
+        } else {
+            for (i = 0; i < nPts - 1; i++) {
+                pptl[i+1].x = GocaRdS32(c, p + 2 + i*8);
+                pptl[i+1].y = GocaRdS32(c, p + 2 + i*8 + 4);
+            }
         }
     } else {
-        if (len < 8 || ((len - 4) & 3)) {
+        if (len < 2u * pointSize || ((len - pointSize) % pointSize)) {
             GocaCallResult("GOCA_ERR_FORMAT");
             return GOCA_ERR_FORMAT;
         }
-        nPts = (len - 4) / 4 + 1;
-        pptl = AllocPtlArray(p + 2, nPts);
+        nPts = (len - pointSize) / pointSize + 1;
+        pptl = AllocPtlArray(c, p + 2, nPts);
         if (!pptl) {
             GocaCallResult("GOCA_ERR_NOMEM");
             return GOCA_ERR_NOMEM;
@@ -612,7 +729,8 @@ static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     GrePolySpline(c->hdc, pptl, (LONG)nPts);
     c->ptlCurPos = pptl[nPts - 1];
-    free(pptl);
+    
+    DosFreeMem(pptl);
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
@@ -620,9 +738,12 @@ static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 /*! @brief GFLT (0xC5) / GCFLT (0x85). */
 static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, cb, bCur);
     ULONG   len, nPts, i;
+    PVOID   pv = NULL;
     PPOINTL pptl;
+    ULONG   pointSize = (c->coordSize == GOCA_COORD_SHORT) ? 4u : 8u;
+
+    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
     if (cb < 2u + len) {
@@ -631,29 +752,36 @@ static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     }
 
     if (bCur) {
-        if (len == 0 || (len & 3)) {
+        if (len == 0 || (len % pointSize)) {
             GocaCallResult("GOCA_ERR_FORMAT");
             return GOCA_ERR_FORMAT;
         }
-        nPts = len / 4 + 1;
-        pptl = (PPOINTL)malloc(nPts * sizeof(POINTL));
-        if (!pptl) {
+        nPts = len / pointSize + 1;
+        if (DosAllocMem(&pv, nPts * sizeof(POINTL), PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
             GocaCallResult("GOCA_ERR_NOMEM");
             return GOCA_ERR_NOMEM;
         }
+        pptl = (PPOINTL)pv;
         RefreshCurPos(c);
         pptl[0] = c->ptlCurPos;
-        for (i = 0; i < nPts - 1; i++) {
-            pptl[i+1].x = RD_S16(p + 2 + i*4);
-            pptl[i+1].y = RD_S16(p + 2 + i*4 + 2);
+        if (c->coordSize == GOCA_COORD_SHORT) {
+            for (i = 0; i < nPts - 1; i++) {
+                pptl[i+1].x = GocaRdS16(c, p + 2 + i*4);
+                pptl[i+1].y = GocaRdS16(c, p + 2 + i*4 + 2);
+            }
+        } else {
+            for (i = 0; i < nPts - 1; i++) {
+                pptl[i+1].x = GocaRdS32(c, p + 2 + i*8);
+                pptl[i+1].y = GocaRdS32(c, p + 2 + i*8 + 4);
+            }
         }
     } else {
-        if (len < 4 || ((len - 4) & 3)) {
+        if (len < pointSize || ((len - pointSize) % pointSize)) {
             GocaCallResult("GOCA_ERR_FORMAT");
             return GOCA_ERR_FORMAT;
         }
-        nPts = (len - 4) / 4 + 1;
-        pptl = AllocPtlArray(p + 2, nPts);
+        nPts = (len - pointSize) / pointSize + 1;
+        pptl = AllocPtlArray(c, p + 2, nPts);
         if (!pptl) {
             GocaCallResult("GOCA_ERR_NOMEM");
             return GOCA_ERR_NOMEM;
@@ -666,7 +794,8 @@ static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     GrePolyFillet(c->hdc, pptl, (LONG)nPts);
     c->ptlCurPos = pptl[nPts - 1];
-    free(pptl);
+    
+    DosFreeMem(pptl);
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
@@ -674,8 +803,10 @@ static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 /*! @brief GSAP (0x22) — Set Arc Parameters. Data: 4 x SHORT (P,Q,R,S). */
 static LONG DoSetArcParams(GOCA_CTX *c, const BYTE *p, ULONG cb)
 {
-    GocaCallEnter("p=%p, cb=%u", p, cb);
     ARCPARAMS ap;
+
+    GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
+
     if (cb < 2u + 8) {
         GocaCallResult("GOCA_ERR_TRUNC");
         return GOCA_ERR_TRUNC;
@@ -684,13 +815,15 @@ static LONG DoSetArcParams(GOCA_CTX *c, const BYTE *p, ULONG cb)
         GocaCallResult("GOCA_ERR_FORMAT");
         return GOCA_ERR_FORMAT;
     }
-    ap.lP = RD_S16(p + 2);
-    ap.lQ = RD_S16(p + 4);
-    ap.lR = RD_S16(p + 6);
-    ap.lS = RD_S16(p + 8);
+    ap.lP = GocaRdS16(c, p + 2);
+    ap.lQ = GocaRdS16(c, p + 4);
+    ap.lR = GocaRdS16(c, p + 6);
+    ap.lS = GocaRdS16(c, p + 8);
+    
     GocaTrace(c, "[GOCA]   GSAP: P=%ld Q=%ld R=%ld S=%ld\n",
               (long)ap.lP, (long)ap.lQ, (long)ap.lR, (long)ap.lS);
     GreSetArcParameters(c->hdc, &ap);
+
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
@@ -698,10 +831,12 @@ static LONG DoSetArcParams(GOCA_CTX *c, const BYTE *p, ULONG cb)
 /*! @brief GSCC (0x33) — Set Character Cell. */
 static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
 {
-    GocaCallEnter("p=%p, cb=%u", p, cb);
     SHORT  cxInt, cyInt;
     USHORT cxFrac, cyFrac;
     UCHAR  fbFlags;
+
+    GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
+
     if (cb < 2u + 10) {
         GocaCallResult("GOCA_ERR_TRUNC");
         return GOCA_ERR_TRUNC;
@@ -710,17 +845,19 @@ static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
         GocaCallResult("GOCA_ERR_FORMAT");
         return GOCA_ERR_FORMAT;
     }
-    cxInt  = RD_S16(p + 2);
-    cyInt  = RD_S16(p + 4);
-    cxFrac = RD_U16(p + 6);
-    cyFrac = RD_U16(p + 8);
+    cxInt  = GocaRdS16(c, p + 2);
+    cyInt  = GocaRdS16(c, p + 4);
+    cxFrac = GocaRdU16(c, p + 6);
+    cyFrac = GocaRdU16(c, p + 8);
     fbFlags = p[10];
     (void)fbFlags;
+    
     GocaTrace(c, "[GOCA]   GSCC: cell=(%d.%04X,%d.%04X)\n",
               (int)cxInt, (unsigned)cxFrac, (int)cyInt, (unsigned)cyFrac);
     c->cb.sizfxCell.cx = MAKEFIXED(cxInt, cxFrac);
     c->cb.sizfxCell.cy = MAKEFIXED(cyInt, cyFrac);
     GocaSetAttr(c->hdc, PRIM_CHAR, CBB_BOX, &c->cb);
+
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
@@ -728,8 +865,10 @@ static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
 /*! @brief GSMC (0x37) — Set Marker Cell. */
 static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
 {
-    GocaCallEnter("p=%p, cb=%u", p, cb);
     SHORT  cx, cy;
+
+    GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
+
     if (cb < 2u + 6) {
         GocaCallResult("GOCA_ERR_TRUNC");
         return GOCA_ERR_TRUNC;
@@ -738,12 +877,14 @@ static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
         GocaCallResult("GOCA_ERR_FORMAT");
         return GOCA_ERR_FORMAT;
     }
-    cx = RD_S16(p + 2);
-    cy = RD_S16(p + 4);
+    cx = GocaRdS16(c, p + 2);
+    cy = GocaRdS16(c, p + 4);
+    
     GocaTrace(c, "[GOCA]   GSMC: cell=(%d,%d)\n", (int)cx, (int)cy);
     c->mb.sizfxCell.cx = MAKEFIXED(cx, 0);
     c->mb.sizfxCell.cy = MAKEFIXED(cy, 0);
     GocaSetAttr(c->hdc, PRIM_MARKER, MBB_BOX, &c->mb);
+
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
@@ -751,41 +892,37 @@ static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
 /*! @brief GSPRP (0xA0) — Set Pattern Reference Point. */
 static LONG DoSetPatternRefPoint(GOCA_CTX *c, const BYTE *p, ULONG cb)
 {
-    GocaCallEnter("p=%p, cb=%u", p, cb);
     POINTL pt;
     UCHAR  fbFlags;
-    if (cb < 2u + 6) {
+    ULONG  pointSize = (c->coordSize == GOCA_COORD_SHORT) ? 4u : 8u;
+
+    GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
+
+    if (cb < 2u + 2u + pointSize) {
         GocaCallResult("GOCA_ERR_TRUNC");
         return GOCA_ERR_TRUNC;
     }
-    if (p[1] < 6) {
+    if (p[1] < 2u + pointSize) {
         GocaCallResult("GOCA_ERR_FORMAT");
         return GOCA_ERR_FORMAT;
     }
     fbFlags = p[2];
-    pt = PtsToPtl(p + 4);
+    pt = PtsToPtl(c, p + 4);
+    
     GocaTrace(c, "[GOCA]   GSPRP: ref=(%ld,%ld) flags=%02X\n",
               (long)pt.x, (long)pt.y, (unsigned)fbFlags);
     c->ab.ptlRefPoint = pt;
     GocaSetAttr(c->hdc, PRIM_AREA, ABB_REF_POINT, &c->ab);
+
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
 
 /*!
  * @brief GCCHSTE (0xB0) / GCHSTE (0xF0) — very long character string.
- *
- * Layout from p (VLONG): code X'FE', qualifier, length(2), then:
- *   data[0]      fbFlags
- *   data[1]      reserved
- *   data[2..5]   ptRect[0] (start point)   — SHORT x, SHORT y
- *   data[6..9]   ptRect[1] (clip corner)   — SHORT x, SHORT y
- *   data[10..11] cchString                 — BE USHORT
- *   data[12..]   string
  */
 static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
 {
-    GocaCallEnter("p=%p, cb=%u, bGiven=%d", p, cb, bGiven);
     const BYTE *q;
     UCHAR       fbFlags;
     USHORT      cch;
@@ -794,16 +931,20 @@ static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
     POINTL      ptCorner0, ptCorner1;
     RECTL       rcl;
     ULONG       fl;
+    ULONG       pointSize = (c->coordSize == GOCA_COORD_SHORT) ? 4u : 8u;
+    ULONG       baseSize = 4u + 1u + 1u + pointSize * 2;
 
-    if (cb < 16) {
+    GocaCallEnter("p=%p, cb=%u, bGiven=%d", p, (unsigned)cb, (int)bGiven);
+
+    if (cb < baseSize) {
         GocaCallResult("GOCA_ERR_TRUNC");
         return GOCA_ERR_TRUNC;
     }
     q       = p + 4;
     fbFlags = q[0];
 
-    ptCorner0 = PtsToPtl(q + 2);
-    ptCorner1 = PtsToPtl(q + 6);
+    ptCorner0 = PtsToPtl(c, q + 2);
+    ptCorner1 = PtsToPtl(c, q + 2 + pointSize);
 
     if (bGiven) {
         ptStart = ptCorner0;
@@ -817,12 +958,12 @@ static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
     rcl.xRight  = (ptCorner0.x > ptCorner1.x) ? ptCorner0.x : ptCorner1.x;
     rcl.yTop    = (ptCorner0.y > ptCorner1.y) ? ptCorner0.y : ptCorner1.y;
 
-    cch = RD_U16(q + 10);
-    if (cb < 16u + cch) {
+    cch = GocaRdU16(c, q + 2 + pointSize * 2);
+    if (cb < baseSize + cch) {
         GocaCallResult("GOCA_ERR_TRUNC");
         return GOCA_ERR_TRUNC;
     }
-    pStr = q + 12;
+    pStr = q + 2 + pointSize * 2 + 2;
     if (cch == 0) {
         GocaCallResult("GOCA_OK");
         return GOCA_OK;
@@ -840,6 +981,7 @@ static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
     GreCharStringPos(c->hdc, &ptStart, &rcl, fl, (LONG)cch,
                      (PCH)pStr, (PLONG)NULL, (PCSP_INFO)NULL);
     c->ptlCurPos = ptStart;
+
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
@@ -850,12 +992,16 @@ static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
 
 void GocaInit(GOCA_CTX *c, HDC hdc, PBYTE pb, ULONG cb)
 {
-    GocaCallEnter("hdc=%p, pb=%p, cb=%u", hdc, pb, cb);
+    GocaCallEnter("hdc=%p, pb=%p, cb=%u", hdc, pb, (unsigned)cb);
+
     memset(c, 0, sizeof(*c));
     c->hdc      = hdc;
     c->pbStream = pb;
     c->cbStream = cb;
     c->bDebug   = TRUE;
+    
+    /* Default format (x86 PC, LONG). Can be overridden by GocaSetFormatFromOptions. */
+    GocaSetFormat(c, GOCA_COORD_LONG, GOCA_ENDIAN_LE);
 
     GocaTrace(c, "[GOCA] init: %u bytes\n", (unsigned)cb);
 
@@ -879,6 +1025,7 @@ void GocaInit(GOCA_CTX *c, HDC hdc, PBYTE pb, ULONG cb)
         (PBUNDLE)&c->ab);
 
     RefreshCurPos(c);
+
     GocaCallResult("void");
 }
 
@@ -888,7 +1035,8 @@ void GocaInit(GOCA_CTX *c, HDC hdc, PBYTE pb, ULONG cb)
 
 LONG GocaParseStream(GOCA_CTX *c)
 {
-    GocaCallEnter("");
+    GocaCallEnter("stream=%u", (unsigned)c->cbStream);
+
     c->uPos   = 0;
     c->lError = GOCA_OK;
 
@@ -898,7 +1046,7 @@ LONG GocaParseStream(GOCA_CTX *c)
     while (c->uPos < c->cbStream) {
         const BYTE *p       = c->pbStream + c->uPos;
         ULONG       cbAvail = c->cbStream - c->uPos;
-        ULONG       cbOrder = OrderLength(p, cbAvail);
+        ULONG       cbOrder = OrderLength(c, p, cbAvail);
         UCHAR       oc;
         LONG        rc;
         BOOL        bHandled = FALSE;
@@ -936,13 +1084,14 @@ LONG GocaParseStream(GOCA_CTX *c)
             /* ============ colour (2-byte GSCOL / long GSECOL) ============ */
             case OCODE_GSCOL: {
                 COLOR clr = (COLOR)p[1];
-                GocaTrace(c, "[GOCA]   GSCOL: color=%u\n", (unsigned)clr);
+                GocaCallEnter("GSCOL color=%u", (unsigned)clr);
                 c->lb.lColor = c->cb.lColor = c->mb.lColor =
                                c->ab.lColor = (LONG)clr;
                 GocaSetAttr(c->hdc, PRIM_LINE,   LBB_COLOR, &c->lb);
                 GocaSetAttr(c->hdc, PRIM_CHAR,   CBB_COLOR, &c->cb);
                 GocaSetAttr(c->hdc, PRIM_MARKER, MBB_COLOR, &c->mb);
                 GocaSetAttr(c->hdc, PRIM_AREA,   ABB_COLOR, &c->ab);
+                GocaCallResult("GOCA_OK");
                 break;
             }
 
@@ -950,8 +1099,8 @@ LONG GocaParseStream(GOCA_CTX *c)
                 USHORT raw;
                 COLOR  clr;
                 if (p[1] < 2) { rc = GOCA_ERR_FORMAT; break; }
-                raw = RD_U16(p + 2);
-                GocaTrace(c, "[GOCA]   GSECOL: color=%04X\n", (unsigned)raw);
+                raw = GocaRdU16(c, p + 2);
+                GocaCallEnter("GSECOL color=%04X", (unsigned)raw);
                 clr = ((raw & 0xFF00) == 0xFF00)
                       ? (COLOR)(raw & 0x00FF)
                       : (COLOR)raw;
@@ -961,44 +1110,49 @@ LONG GocaParseStream(GOCA_CTX *c)
                 GocaSetAttr(c->hdc, PRIM_CHAR,   CBB_COLOR, &c->cb);
                 GocaSetAttr(c->hdc, PRIM_MARKER, MBB_COLOR, &c->mb);
                 GocaSetAttr(c->hdc, PRIM_AREA,   ABB_COLOR, &c->ab);
+                GocaCallResult("GOCA_OK");
                 break;
             }
 
             /* ============ mix ============ */
             case OCODE_GSMX:
-                GocaTrace(c, "[GOCA]   GSMX: mix=%u\n", (unsigned)p[1]);
+                GocaCallEnter("GSMX mix=%u", (unsigned)p[1]);
                 c->lb.usMixMode = c->cb.usMixMode =
                 c->mb.usMixMode = c->ab.usMixMode = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_LINE,   LBB_MIX_MODE, &c->lb);
                 GocaSetAttr(c->hdc, PRIM_CHAR,   CBB_MIX_MODE, &c->cb);
                 GocaSetAttr(c->hdc, PRIM_MARKER, MBB_MIX_MODE, &c->mb);
                 GocaSetAttr(c->hdc, PRIM_AREA,   ABB_MIX_MODE, &c->ab);
+                GocaCallResult("GOCA_OK");
                 break;
 
             case OCODE_GSBMX:
-                GocaTrace(c, "[GOCA]   GSBMX: backmix=%u\n", (unsigned)p[1]);
+                GocaCallEnter("GSBMX backmix=%u", (unsigned)p[1]);
                 c->lb.usBackMixMode = c->cb.usBackMixMode =
                 c->mb.usBackMixMode = c->ab.usBackMixMode = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_LINE,   LBB_BACK_MIX_MODE, &c->lb);
                 GocaSetAttr(c->hdc, PRIM_CHAR,   CBB_BACK_MIX_MODE, &c->cb);
                 GocaSetAttr(c->hdc, PRIM_MARKER, MBB_BACK_MIX_MODE, &c->mb);
                 GocaSetAttr(c->hdc, PRIM_AREA,   ABB_BACK_MIX_MODE, &c->ab);
+                GocaCallResult("GOCA_OK");
                 break;
 
             /* ============ line attributes ============ */
             case OCODE_GSLT:
-                GocaTrace(c, "[GOCA]   GSLT: type=%u\n", (unsigned)p[1]);
+                GocaCallEnter("GSLT type=%u", (unsigned)p[1]);
                 c->lb.usType = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_LINE, LBB_TYPE, &c->lb);
+                GocaCallResult("GOCA_OK");
                 break;
 
             case OCODE_GSLW: {
                 FIXED fx = MAKEFIXED(p[1], 0);
-                GocaTrace(c, "[GOCA]   GSLW: width=%u\n", (unsigned)p[1]);
+                GocaCallEnter("GSLW width=%u", (unsigned)p[1]);
                 c->lb.fxWidth    = fx;
                 c->lb.lGeomWidth = (LONG)p[1];
                 GocaSetAttr(c->hdc, PRIM_LINE,
                             LBB_WIDTH | LBB_GEOM_WIDTH, &c->lb);
+                GocaCallResult("GOCA_OK");
                 break;
             }
 
@@ -1007,92 +1161,102 @@ LONG GocaParseStream(GOCA_CTX *c)
                 FIXED fx;
                 if (p[1] < 2) { rc = GOCA_ERR_FORMAT; break; }
                 ip = p[2]; fp = p[3];
-                GocaTrace(c, "[GOCA]   GSFLW: width=%u.%02X\n",
-                          (unsigned)ip, (unsigned)fp);
+                GocaCallEnter("GSFLW width=%u.%02X", (unsigned)ip, (unsigned)fp);
                 fx = MAKEFIXED(ip, (ULONG)fp << 8);
                 c->lb.fxWidth    = fx;
                 c->lb.lGeomWidth = (LONG)ip;
                 GocaSetAttr(c->hdc, PRIM_LINE,
                             LBB_WIDTH | LBB_GEOM_WIDTH, &c->lb);
+                GocaCallResult("GOCA_OK");
                 break;
             }
 
             case OCODE_GSLE:
-                GocaTrace(c, "[GOCA]   GSLE: end=%u\n", (unsigned)p[1]);
+                GocaCallEnter("GSLE end=%u", (unsigned)p[1]);
                 c->lb.usEnd = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_LINE, LBB_END, &c->lb);
+                GocaCallResult("GOCA_OK");
                 break;
 
             case OCODE_GSLJ:
-                GocaTrace(c, "[GOCA]   GSLJ: join=%u\n", (unsigned)p[1]);
+                GocaCallEnter("GSLJ join=%u", (unsigned)p[1]);
                 c->lb.usJoin = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_LINE, LBB_JOIN, &c->lb);
+                GocaCallResult("GOCA_OK");
                 break;
 
             /* ============ marker attributes ============ */
             case OCODE_GSMS:
-                GocaTrace(c, "[GOCA]   GSMS: set=%u\n", (unsigned)p[1]);
+                GocaCallEnter("GSMS set=%u", (unsigned)p[1]);
                 c->mb.usSet = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_MARKER, MBB_SET, &c->mb);
+                GocaCallResult("GOCA_OK");
                 break;
 
             case OCODE_GSMT:
-                GocaTrace(c, "[GOCA]   GSMT: symbol=%u\n", (unsigned)p[1]);
+                GocaCallEnter("GSMT symbol=%u", (unsigned)p[1]);
                 c->mb.usSymbol = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_MARKER, MBB_SYMBOL, &c->mb);
+                GocaCallResult("GOCA_OK");
                 break;
 
             /* ============ area attributes ============ */
             case OCODE_GSPS:
-                GocaTrace(c, "[GOCA]   GSPS: set=%u\n", (unsigned)p[1]);
+                GocaCallEnter("GSPS set=%u", (unsigned)p[1]);
                 c->ab.usSet = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_AREA, ABB_SET, &c->ab);
+                GocaCallResult("GOCA_OK");
                 break;
 
             case OCODE_GSPT:
-                GocaTrace(c, "[GOCA]   GSPT: symbol=%u\n", (unsigned)p[1]);
+                GocaCallEnter("GSPT symbol=%u", (unsigned)p[1]);
                 c->ab.usSymbol = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_AREA, ABB_SYMBOL, &c->ab);
+                GocaCallResult("GOCA_OK");
                 break;
 
             /* ============ char attributes ============ */
             case OCODE_GSCS:
-                GocaTrace(c, "[GOCA]   GSCS: lcid=%u\n", (unsigned)p[1]);
+                GocaCallEnter("GSCS lcid=%u", (unsigned)p[1]);
                 c->cb.usSet = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_CHAR, CBB_SET, &c->cb);
+                GocaCallResult("GOCA_OK");
                 break;
 
             case OCODE_GSCD:
-                GocaTrace(c, "[GOCA]   GSCD: dir=%u\n", (unsigned)p[1]);
+                GocaCallEnter("GSCD dir=%u", (unsigned)p[1]);
                 c->cb.usDirection = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_CHAR, CBB_DIRECTION, &c->cb);
+                GocaCallResult("GOCA_OK");
                 break;
 
             case OCODE_GSCR:
-                GocaTrace(c, "[GOCA]   GSCR: prec=%u\n",
-                          (unsigned)(p[1] & GSCR_PRECISION));
+                GocaCallEnter("GSCR prec=%u", (unsigned)(p[1] & GSCR_PRECISION));
                 c->cb.usPrecision = (USHORT)(p[1] & GSCR_PRECISION);
                 GocaSetAttr(c->hdc, PRIM_CHAR, CBB_MODE, &c->cb);
+                GocaCallResult("GOCA_OK");
                 break;
 
             /* ============ areas ============ */
             case OCODE_GBAR: {
                 ULONG fl = 0;
-                GocaTrace(c, "[GOCA]   GBAR: flags=%02X\n", (unsigned)p[1]);
+                GocaCallEnter("GBAR flags=%02X", (unsigned)p[1]);
                 c->uAreaFlags = p[1];
                 c->bInArea    = TRUE;
                 if (p[1] & 0x40) fl |= BA_BOUNDARY; else fl |= BA_NOBOUNDARY;
                 if (p[1] & 0x20) fl |= BA_WINDING;  else fl |= BA_ALTERNATE;
                 GreBeginArea(c->hdc, fl);
+                GocaCallResult("GOCA_OK");
                 break;
             }
 
             case OCODE_GEAR:
-                GocaTrace(c, "[GOCA]   GEAR\n");
+                GocaCallEnter("GEAR");
                 if (c->bInArea) {
                     GreEndArea(c->hdc, 0);
                     c->bInArea = FALSE;
                 }
+                GocaCallResult("GOCA_OK");
                 break;
 
             /* ============ long: primitives ============ */
@@ -1145,7 +1309,7 @@ LONG GocaParseStream(GOCA_CTX *c)
             c->lError     = rc;
             c->uErrOffset = c->uPos;
             c->uErrOrder  = oc;
-            GocaCallResult("%s", GocaErrorName(rc));
+            GocaCallResult("ERR %ld", (long)rc);
             return rc;
         }
         c->uPos += cbOrder;
@@ -1227,3 +1391,4 @@ const char *GocaOrderName(UCHAR uCode)
     default:            return "?";
     }
 }
+
