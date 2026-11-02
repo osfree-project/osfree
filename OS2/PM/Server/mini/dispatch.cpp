@@ -3,10 +3,11 @@
  * @brief Server-side GPI dispatcher with GOCA parser integration.
  */
 #include <stdio.h>
-#include <string.h>      /* memcpy */
 #include <stdarg.h>
+#include <string.h>
 #include "goca_parser.hpp"   /* includes F_platform.h + pmord.h + pmddi.h */
 #include "F_cmd.h"
+
 /*!
  * @brief Unified logging function for the mini server.
  *
@@ -54,12 +55,10 @@ static PSRV_PS SrvPsFind(HPS hps)
     int i;
     PSRV_PS ps = (PSRV_PS)hps;
 
-    /* Direct pointer match (from NGpiCreatePS). */
     if (ps >= g_srvPsTable && ps < g_srvPsTable + SRV_MAX_PS && ps->inUse) {
         return ps;
     }
 
-    /* Stored hps match (from external HPS like WinGetScreenPS). */
     for (i = 0; i < SRV_MAX_PS; i++) {
         if (g_srvPsTable[i].inUse &&
             g_srvPsTable[i].hps != NULL &&
@@ -255,8 +254,219 @@ static BOOL SrvEmitColor(SRV_PS *ps, LONG lColor)
         return TRUE;
     }
 
-    /* RGB colors are not supported by the wire format yet. */
     return FALSE;
+}
+
+/*!
+ * @brief Emit OCODE_GLINE for a multi-point polyline.
+ */
+static void SrvEmitPolyLine(SRV_PS *ps, LONG lCount, PPOINTL aptl)
+{
+    PVOID pv = NULL;
+    PBYTE p;
+    ULONG pos = 0;
+    LONG  i;
+    ULONG pointSize = ps->goca.coordSize;
+    ULONG cbOrder = 2 + lCount * 2 * pointSize;
+
+    if (lCount <= 0) return;
+    if (DosAllocMem(&pv, cbOrder, PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) return;
+    p = (PBYTE)pv;
+
+    p[pos++] = OCODE_GLINE;
+    p[pos++] = (BYTE)(lCount * 2 * pointSize);
+    for (i = 0; i < lCount; i++) {
+        pos += SrvPutCoord(p + pos, aptl[i].x, ps->goca.coordSize, ps->goca.coordEndian);
+        pos += SrvPutCoord(p + pos, aptl[i].y, ps->goca.coordSize, ps->goca.coordEndian);
+    }
+
+    SrvParseOrder(ps, p, pos);
+    DosFreeMem(pv);
+}
+
+/*!
+ * @brief Emit OCODE_GCCHST (char string at current position).
+ */
+static void SrvEmitCharString(SRV_PS *ps, LONG lCount, const char *pchString)
+{
+    PVOID pv = NULL;
+    PBYTE p;
+    ULONG pos = 0;
+    ULONG cbOrder = 2 + lCount;
+
+    if (lCount <= 0) return;
+    if (DosAllocMem(&pv, cbOrder, PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) return;
+    p = (PBYTE)pv;
+    p[pos++] = OCODE_GCCHST;
+    p[pos++] = (BYTE)lCount;
+    memcpy(p + pos, pchString, lCount);
+    pos += lCount;
+
+    SrvParseOrder(ps, p, pos);
+    DosFreeMem(pv);
+}
+
+/*!
+ * @brief Emit OCODE_GCHST (char string at explicit point).
+ */
+static void SrvEmitCharStringAt(SRV_PS *ps, POINTL ptl, LONG lCount,
+                                const char *pchString)
+{
+    PVOID pv = NULL;
+    PBYTE p;
+    ULONG pos = 0;
+    ULONG pointSize = ps->goca.coordSize;
+    ULONG cbOrder = 2 + 2 * pointSize + lCount;
+
+    if (lCount <= 0) return;
+    if (DosAllocMem(&pv, cbOrder, PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) return;
+    p = (PBYTE)pv;
+    p[pos++] = OCODE_GCHST;
+    p[pos++] = (BYTE)(2 * pointSize + lCount);
+    pos += SrvPutCoord(p + pos, ptl.x, ps->goca.coordSize, ps->goca.coordEndian);
+    pos += SrvPutCoord(p + pos, ptl.y, ps->goca.coordSize, ps->goca.coordEndian);
+    memcpy(p + pos, pchString, lCount);
+    pos += lCount;
+
+    SrvParseOrder(ps, p, pos);
+    DosFreeMem(pv);
+}
+
+/*!
+ * @brief Emit OCODE_GMRK (single marker).
+ */
+static void SrvEmitMarker(SRV_PS *ps, POINTL ptl)
+{
+    BYTE  buf[10];
+    ULONG pos = 0;
+
+    buf[pos++] = OCODE_GMRK;
+    buf[pos++] = (BYTE)(2 * ps->goca.coordSize);
+    pos += SrvPutCoord(buf + pos, ptl.x, ps->goca.coordSize, ps->goca.coordEndian);
+    pos += SrvPutCoord(buf + pos, ptl.y, ps->goca.coordSize, ps->goca.coordEndian);
+
+    SrvParseOrder(ps, buf, pos);
+}
+
+/*!
+ * @brief Emit OCODE_GMRK for a multi-point marker set.
+ */
+static void SrvEmitPolyMarker(SRV_PS *ps, LONG lCount, PPOINTL aptl)
+{
+    PVOID pv = NULL;
+    PBYTE p;
+    ULONG pos = 0;
+    LONG  i;
+    ULONG pointSize = ps->goca.coordSize;
+    ULONG cbOrder = 2 + lCount * 2 * pointSize;
+
+    if (lCount <= 0) return;
+    if (DosAllocMem(&pv, cbOrder, PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) return;
+    p = (PBYTE)pv;
+    p[pos++] = OCODE_GMRK;
+    p[pos++] = (BYTE)(lCount * 2 * pointSize);
+    for (i = 0; i < lCount; i++) {
+        pos += SrvPutCoord(p + pos, aptl[i].x, ps->goca.coordSize, ps->goca.coordEndian);
+        pos += SrvPutCoord(p + pos, aptl[i].y, ps->goca.coordSize, ps->goca.coordEndian);
+    }
+
+    SrvParseOrder(ps, p, pos);
+    DosFreeMem(pv);
+}
+
+/*!
+ * @brief Emit attribute orders for GpiSetAttrs.
+ */
+static void SrvEmitSetAttrs(SRV_PS *ps, LONG lPrimType, ULONG flAttrMask,
+                            PBUNDLE pb)
+{
+    BYTE  buf[32];
+    ULONG pos;
+
+    if (lPrimType == PRIM_LINE) {
+        PLINEBUNDLE lb = (PLINEBUNDLE)pb;
+        if (flAttrMask & LBB_COLOR) SrvEmitColor(ps, lb->lColor);
+        if (flAttrMask & LBB_MIX_MODE) {
+            buf[0] = OCODE_GSMX; buf[1] = 1; buf[2] = (BYTE)lb->usMixMode;
+            SrvParseOrder(ps, buf, 3);
+        }
+        if (flAttrMask & LBB_TYPE) {
+            buf[0] = OCODE_GSLT; buf[1] = 1; buf[2] = (BYTE)lb->usType;
+            SrvParseOrder(ps, buf, 3);
+        }
+        if (flAttrMask & LBB_WIDTH) {
+            buf[0] = OCODE_GSLW; buf[1] = 1; buf[2] = (BYTE)lb->lGeomWidth;
+            SrvParseOrder(ps, buf, 3);
+        }
+        if (flAttrMask & LBB_END) {
+            buf[0] = OCODE_GSLE; buf[1] = 1; buf[2] = (BYTE)lb->usEnd;
+            SrvParseOrder(ps, buf, 3);
+        }
+        if (flAttrMask & LBB_JOIN) {
+            buf[0] = OCODE_GSLJ; buf[1] = 1; buf[2] = (BYTE)lb->usJoin;
+            SrvParseOrder(ps, buf, 3);
+        }
+    } else if (lPrimType == PRIM_CHAR) {
+        PCHARBUNDLE cb = (PCHARBUNDLE)pb;
+        if (flAttrMask & CBB_COLOR) SrvEmitColor(ps, cb->lColor);
+        if (flAttrMask & CBB_MIX_MODE) {
+            buf[0] = OCODE_GSMX; buf[1] = 1; buf[2] = (BYTE)cb->usMixMode;
+            SrvParseOrder(ps, buf, 3);
+        }
+        if (flAttrMask & CBB_SET) {
+            buf[0] = OCODE_GSCS; buf[1] = 1; buf[2] = (BYTE)cb->usSet;
+            SrvParseOrder(ps, buf, 3);
+        }
+        if (flAttrMask & CBB_DIRECTION) {
+            buf[0] = OCODE_GSCD; buf[1] = 1; buf[2] = (BYTE)cb->usDirection;
+            SrvParseOrder(ps, buf, 3);
+        }
+        if (flAttrMask & CBB_MODE) {
+            buf[0] = OCODE_GSCR; buf[1] = 1; buf[2] = (BYTE)cb->usPrecision;
+            SrvParseOrder(ps, buf, 3);
+        }
+    } else if (lPrimType == PRIM_MARKER) {
+        PMARKERBUNDLE mb = (PMARKERBUNDLE)pb;
+        if (flAttrMask & MBB_COLOR) SrvEmitColor(ps, mb->lColor);
+        if (flAttrMask & MBB_MIX_MODE) {
+            buf[0] = OCODE_GSMX; buf[1] = 1; buf[2] = (BYTE)mb->usMixMode;
+            SrvParseOrder(ps, buf, 3);
+        }
+        if (flAttrMask & MBB_SET) {
+            buf[0] = OCODE_GSMS; buf[1] = 1; buf[2] = (BYTE)mb->usSet;
+            SrvParseOrder(ps, buf, 3);
+        }
+        if (flAttrMask & MBB_SYMBOL) {
+            buf[0] = OCODE_GSMT; buf[1] = 1; buf[2] = (BYTE)mb->usSymbol;
+            SrvParseOrder(ps, buf, 3);
+        }
+    } else if (lPrimType == PRIM_AREA) {
+        PAREABUNDLE ab = (PAREABUNDLE)pb;
+        if (flAttrMask & ABB_COLOR) SrvEmitColor(ps, ab->lColor);
+        if (flAttrMask & ABB_MIX_MODE) {
+            buf[0] = OCODE_GSMX; buf[1] = 1; buf[2] = (BYTE)ab->usMixMode;
+            SrvParseOrder(ps, buf, 3);
+        }
+        if (flAttrMask & ABB_SET) {
+            buf[0] = OCODE_GSPS; buf[1] = 1; buf[2] = (BYTE)ab->usSet;
+            SrvParseOrder(ps, buf, 3);
+        }
+        if (flAttrMask & ABB_SYMBOL) {
+            buf[0] = OCODE_GSPT; buf[1] = 1; buf[2] = (BYTE)ab->usSymbol;
+            SrvParseOrder(ps, buf, 3);
+        }
+        if (flAttrMask & ABB_REF_POINT) {
+            ULONG pointSize = ps->goca.coordSize;
+            buf[0] = OCODE_GSPRP;
+            buf[1] = (BYTE)(2 + 2 * pointSize);
+            buf[2] = 0;
+            buf[3] = 0;
+            pos = 4;
+            pos += SrvPutCoord(buf + pos, ab->ptlRefPoint.x, ps->goca.coordSize, ps->goca.coordEndian);
+            pos += SrvPutCoord(buf + pos, ab->ptlRefPoint.y, ps->goca.coordSize, ps->goca.coordEndian);
+            SrvParseOrder(ps, buf, pos);
+        }
+    }
 }
 
 /* ======================================================================== */
@@ -315,7 +525,9 @@ typedef struct _GpiBox_Args {
  * @return GPI result.
  * @retval GPI_ERROR  Unknown or unimplemented function code.
  * @retval 1          Successful NGpiSetPS / NGpiMove / NGpiLine /
- *                    NGpiBox / NGpiSetColor / NGpiDestroyPS.
+ *                    NGpiBox / NGpiSetColor / NGpiDestroyPS /
+ *                    NGpiPolyLine / NGpiCharString / NGpiCharStringAt /
+ *                    NGpiMarker / NGpiPolyMarker / NGpiSetAttrs.
  * @retval p          NGpiCreatePS: pointer to the new SRV_PS entry.
  */
 ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
@@ -461,6 +673,155 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         return 1;
     }
 
+    case NGpiPolyLine: {
+        LONG lCount;
+        PPOINTL aptl;
+        PSRV_PS ps;
+
+        log("[PMSERVER] IN  : NGpiPolyLine(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (cbArgs < sizeof(LONG)) {
+            log("[PMSERVER] OUT : NGpiPolyLine -> GPI_ERROR (bad args)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        lCount = *(LONG*)pArgs;
+        if (lCount <= 0 ||
+            cbArgs < sizeof(LONG) + (ULONG)lCount * sizeof(POINTL)) {
+            log("[PMSERVER] OUT : NGpiPolyLine -> GPI_ERROR (bad size)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        aptl = (PPOINTL)(pArgs + sizeof(LONG));
+        ps = SrvPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        SrvEmitPolyLine(ps, lCount, aptl);
+        log("[PMSERVER] OUT : NGpiPolyLine -> 1\n");
+        return 1;
+    }
+
+    case NGpiCharString: {
+        LONG lCount;
+        char *pchString;
+        PSRV_PS ps;
+
+        log("[PMSERVER] IN  : NGpiCharString(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (cbArgs < sizeof(LONG)) {
+            log("[PMSERVER] OUT : NGpiCharString -> GPI_ERROR (bad args)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        lCount = *(LONG*)pArgs;
+        if (lCount < 0 || cbArgs < sizeof(LONG) + (ULONG)lCount) {
+            log("[PMSERVER] OUT : NGpiCharString -> GPI_ERROR (bad size)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        pchString = (char*)(pArgs + sizeof(LONG));
+        ps = SrvPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        SrvEmitCharString(ps, lCount, pchString);
+        log("[PMSERVER] OUT : NGpiCharString -> 1\n");
+        return 1;
+    }
+
+    case NGpiCharStringAt: {
+        POINTL ptl;
+        LONG lCount;
+        char *pchString;
+        PSRV_PS ps;
+
+        log("[PMSERVER] IN  : NGpiCharStringAt(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (cbArgs < sizeof(POINTL) + sizeof(LONG)) {
+            log("[PMSERVER] OUT : NGpiCharStringAt -> GPI_ERROR (bad args)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        memcpy(&ptl, pArgs, sizeof(POINTL));
+        lCount = *(LONG*)(pArgs + sizeof(POINTL));
+        if (lCount < 0 ||
+            cbArgs < sizeof(POINTL) + sizeof(LONG) + (ULONG)lCount) {
+            log("[PMSERVER] OUT : NGpiCharStringAt -> GPI_ERROR (bad size)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        pchString = (char*)(pArgs + sizeof(POINTL) + sizeof(LONG));
+        ps = SrvPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        SrvEmitCharStringAt(ps, ptl, lCount, pchString);
+        log("[PMSERVER] OUT : NGpiCharStringAt -> 1\n");
+        return 1;
+    }
+
+    case NGpiMarker: {
+        POINTL ptl;
+        PSRV_PS ps;
+
+        log("[PMSERVER] IN  : NGpiMarker(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(POINTL)) {
+            log("[PMSERVER] OUT : NGpiMarker -> GPI_ERROR (bad args)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        memcpy(&ptl, pArgs, sizeof(POINTL));
+        ps = SrvPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        SrvEmitMarker(ps, ptl);
+        log("[PMSERVER] OUT : NGpiMarker -> 1\n");
+        return 1;
+    }
+
+    case NGpiPolyMarker: {
+        LONG lCount;
+        PPOINTL aptl;
+        PSRV_PS ps;
+
+        log("[PMSERVER] IN  : NGpiPolyMarker(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (cbArgs < sizeof(LONG)) {
+            log("[PMSERVER] OUT : NGpiPolyMarker -> GPI_ERROR (bad args)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        lCount = *(LONG*)pArgs;
+        if (lCount <= 0 ||
+            cbArgs < sizeof(LONG) + (ULONG)lCount * sizeof(POINTL)) {
+            log("[PMSERVER] OUT : NGpiPolyMarker -> GPI_ERROR (bad size)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        aptl = (PPOINTL)(pArgs + sizeof(LONG));
+        ps = SrvPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        SrvEmitPolyMarker(ps, lCount, aptl);
+        log("[PMSERVER] OUT : NGpiPolyMarker -> 1\n");
+        return 1;
+    }
+
+    case NGpiSetAttrs: {
+        LONG lPrimType;
+        ULONG flAttrMask;
+        ULONG flDefMask;
+        PBUNDLE pb;
+        PSRV_PS ps;
+
+        log("[PMSERVER] IN  : NGpiSetAttrs(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (cbArgs < sizeof(LONG) + sizeof(ULONG) + sizeof(ULONG)) {
+            log("[PMSERVER] OUT : NGpiSetAttrs -> GPI_ERROR (bad args)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        lPrimType = *(LONG*)pArgs;
+        flAttrMask = *(ULONG*)(pArgs + sizeof(LONG));
+        flDefMask = *(ULONG*)(pArgs + sizeof(LONG) + sizeof(ULONG));
+        pb = (PBUNDLE)(pArgs + sizeof(LONG) + sizeof(ULONG) + sizeof(ULONG));
+        ps = SrvPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        SrvEmitSetAttrs(ps, lPrimType, flAttrMask, pb);
+        log("[PMSERVER] OUT : NGpiSetAttrs -> 1\n");
+        return 1;
+    }
+
     /* ==================================================================== */
     /*  Everything else: stub                                               */
     /* ==================================================================== */
@@ -569,17 +930,13 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
     DISPATCH_STUB(NGpiResizePalette)
     DISPATCH_STUB(NGpiQueryNearestPaletteIndex)
     DISPATCH_STUB(NGpiQueryColor)
-    DISPATCH_STUB(NGpiPolyLine)
     DISPATCH_STUB(NGpiPolyLineDisjoint)
     DISPATCH_STUB(NGpiSetPattern)
     DISPATCH_STUB(NGpiQueryPattern)
     DISPATCH_STUB(NGpiBeginArea)
     DISPATCH_STUB(NGpiEndArea)
-    DISPATCH_STUB(NGpiCharString)
-    DISPATCH_STUB(NGpiCharStringAt)
     DISPATCH_STUB(NGpiSetAttrMode)
     DISPATCH_STUB(NGpiQueryAttrMode)
-    DISPATCH_STUB(NGpiSetAttrs)
     DISPATCH_STUB(NGpiQueryAttrs)
     DISPATCH_STUB(NGpiSetBackColor)
     DISPATCH_STUB(NGpiQueryBackColor)
@@ -638,8 +995,6 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
     DISPATCH_STUB(NGpiSetCharBreakExtra)
     DISPATCH_STUB(NGpiQueryCharExtra)
     DISPATCH_STUB(NGpiQueryCharBreakExtra)
-    DISPATCH_STUB(NGpiMarker)
-    DISPATCH_STUB(NGpiPolyMarker)
     DISPATCH_STUB(NGpiSetMarker)
     DISPATCH_STUB(NGpiSetMarkerBox)
     DISPATCH_STUB(NGpiSetMarkerSet)
