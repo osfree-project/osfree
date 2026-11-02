@@ -1,19 +1,21 @@
 /*!
- * @file goca_parser.h
+ * @file goca_parser.hpp
  * @brief GOCA drawing-order stream parser, dispatched through PMGRE (Gre*).
  *
  * Every Gre* call goes through macros declared in <pmddim.h>; every
  * attribute mask and field name is taken from <pmgpi.h>; every order
  * code and structure is taken from <pmord.h>.
+ *
+ * Common types (GOCA_CTX, GOCA_COORD_SIZE, GOCA_COORD_ENDIAN, GocaPutCoord,
+ * GocaSetFormat, GocaSetFormatFromOptions, GOCA_OK/GOCA_ERR_*) live in
+ * "goca_common.h" and are shared with the client.
  */
 #ifndef GOCA_PARSER_H
 #define GOCA_PARSER_H
 
-#define INCL_PM
-#include <F_platform.h>
-#include "pmord.h"
+#include "goca_common.h"
 
-/* GRE feature set — must precede pmddim.h */
+/* GRE feature set must precede pmddim.h */
 #define INCL_GREALL
 #include "pmddi.h"
 
@@ -21,83 +23,28 @@
 extern "C" {
 #endif
 
-/*!
- * @brief Size of a coordinate in the order stream.
- */
-typedef enum {
-    GOCA_COORD_SHORT = 2,   /*!< 16-bit coordinates. */
-    GOCA_COORD_LONG  = 4    /*!< 32-bit coordinates. */
-} GOCA_COORD_SIZE;
-
-/*!
- * @brief Byte order of coordinates in the order stream.
- */
-typedef enum {
-    GOCA_ENDIAN_LE,         /*!< Least-significant byte first (x86, PC).  */
-    GOCA_ENDIAN_BE          /*!< Most-significant byte first (360, S370). */
-} GOCA_COORD_ENDIAN;
-
-typedef struct _GOCA_CTX GOCA_CTX;
-
-/*! @brief Optional fallback for orders not handled by the built-in switch. */
-typedef BOOL (*PFN_GOCA_HANDLER)(GOCA_CTX *pCtx, UCHAR uCode,
-                                  const BYTE *pbData, ULONG cbData);
-
-/*!
- * @brief Parser context.
- *
- * Holds the target HDC and the four GOCA foreground bundles, which are
- * kept in sync with the DC between orders so that GOCA attribute orders
- * only touch the fields they set.
- */
-struct _GOCA_CTX {
-    HDC      hdc;         /*!< Target DC (Gre* handle).               */
-    PBYTE    pbStream;    /*!< Order stream.                          */
-    ULONG    cbStream;    /*!< Stream size.                           */
-    ULONG    uPos;        /*!< Current offset.                        */
-
-    BOOL     bInArea;     /*!< Inside GBAR..GEAR.                     */
-    UCHAR    uAreaFlags;  /*!< GBAR flags byte.                       */
-
-    POINTL   ptlCurPos;   /*!< Cached current position.               */
-
-    LINEBUNDLE   lb;      /*!< Cached line bundle.                    */
-    CHARBUNDLE   cb;      /*!< Cached character bundle.               */
-    MARKERBUNDLE mb;      /*!< Cached marker bundle.                  */
-    AREABUNDLE   ab;      /*!< Cached area bundle.                    */
-
-    GOCA_COORD_SIZE   coordSize;    /*!< SHORT or LONG.                */
-    GOCA_COORD_ENDIAN coordEndian;  /*!< LE or BE.                     */
-
-    PFN_GOCA_HANDLER pfnHandler;
-    void    *pUserData;
-
-    BOOL     bDebug;      /*!< Emit per-order trace to stderr.        */
-
-    LONG     lError;
-    ULONG    uErrOffset;
-    UCHAR    uErrOrder;
-};
-
-/*! @brief Select coordinate size and byte order explicitly. */
-void GocaSetFormat(GOCA_CTX *c, GOCA_COORD_SIZE size, GOCA_COORD_ENDIAN endian);
-
-/*! @brief Select coordinate size and byte order from PS flOptions. */
-void GocaSetFormatFromOptions(GOCA_CTX *c, ULONG flOptions);
-
-#define GOCA_OK            0
-#define GOCA_ERR_TRUNC    -1   /*!< Truncated order.                */
-#define GOCA_ERR_FORMAT   -2   /*!< Malformed operand / flags.      */
-#define GOCA_ERR_NOMEM    -3   /*!< Out of memory.                  */
-#define GOCA_ERR_USER     -4   /*!< User handler aborted.           */
-
+/*! @brief Human-readable name for a GOCA error code. */
 const char *GocaErrorName(LONG lError);
+
+/*! @brief Human-readable name for a GOCA order code. */
 const char *GocaOrderName(UCHAR uCode);
 
+/*!
+ * @brief Initialize the parser context for server-side use.
+ *
+ * Sets @c hdc, stream pointers, format from defaults, and pulls live
+ * bundles plus the current position from the device. Must be called
+ * with a valid Gre* @c hdc.
+ */
 void GocaInit(GOCA_CTX *pCtx, HDC hdc, PBYTE pb, ULONG cb);
+
+/*!
+ * @brief Parse the stream in @c pCtx->pbStream of @c pCtx->cbStream bytes.
+ * @return GOCA_OK on success, GOCA_ERR_* on failure.
+ */
 LONG GocaParseStream(GOCA_CTX *pCtx);
 
 #ifdef __cplusplus
 }
 #endif
-#endif
+#endif /* GOCA_PARSER_H */

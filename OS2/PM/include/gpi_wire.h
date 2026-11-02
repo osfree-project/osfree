@@ -5,6 +5,8 @@
 #ifndef GPI_WIRE_H_INCLUDED
 #define GPI_WIRE_H_INCLUDED
 
+#include "F_platform.h"
+
 #define NGpiCreatePS                     0x00000001L
 #define NGpiDestroyPS                    0x00000002L
 #define NGpiAssociate                    0x00000003L
@@ -299,5 +301,969 @@
 #define NGpiSaveMetaFile2                0x00000121L
 #define NGpiAllocateDCData               0x00000122L
 #define NGpiQueryDCData                  0x00000123L
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* ======================================================================== */
+/*  Wire argument structures (shared by client and server)                  */
+/* ======================================================================== */
+
+/*!
+ * @struct _GpiCreatePS_Args
+ * @brief Wire arguments for NGpiCreatePS.
+ */
+typedef struct _GpiCreatePS_Args {
+    HAB   hab;        /*!< Anchor block.                    */
+    HDC   hdc;        /*!< Device context.                  */
+    SIZEL psizlSize;  /*!< Presentation space size.         */
+    ULONG flOptions;  /*!< PS_UNITS / PS_FORMAT / PS_NORESET. */
+} GpiCreatePS_Args, *PGpiCreatePS_Args;
+
+/*!
+ * @struct _GpiSetPS_Args
+ * @brief Wire arguments for NGpiSetPS.
+ */
+typedef struct _GpiSetPS_Args {
+    SIZEL psizlSize;  /*!< Presentation space size.         */
+    ULONG flOptions;  /*!< PS_UNITS / PS_FORMAT / PS_NORESET. */
+} GpiSetPS_Args, *PGpiSetPS_Args;
+
+/*!
+ * @struct _GpiBox_Args
+ * @brief Wire arguments for NGpiBox.
+ */
+typedef struct _GpiBox_Args {
+    LONG   lControl;  /*!< DRO_* control flags.      */
+    POINTL ptl;       /*!< Opposite corner.          */
+    LONG   lHRound;   /*!< Horizontal corner radius. */
+    LONG   lVRound;   /*!< Vertical corner radius.   */
+} GpiBox_Args, *PGpiBox_Args;
+
+/*!
+ * @struct _GpiErrorSegmentData_Args
+ * @brief Wire arguments for NGpiErrorSegmentData.
+ */
+typedef struct _GpiErrorSegmentData_Args {
+    LONG lSegment;   /*!< Error segment identifier. */
+    LONG lContext;   /*!< Error context.            */
+} GpiErrorSegmentData_Args, *PGpiErrorSegmentData_Args;
+
+/*!
+ * @struct _GpiCorrelateChain_Args
+ * @brief Wire arguments for NGpiCorrelateChain.
+ */
+typedef struct _GpiCorrelateChain_Args {
+    LONG   lType;      /*!< Correlation type (COR_*).            */
+    POINTL ptlPick;    /*!< Pick point.                          */
+    LONG   lMaxHits;   /*!< Maximum number of hits.              */
+    LONG   lMaxDepth;  /*!< Maximum depth.                       */
+    LONG   alHits[1];  /*!< Hit array (variable length).         */
+} GpiCorrelateChain_Args, *PGpiCorrelateChain_Args;
+
+/*!
+ * @struct _GpiCorrelateFrom_Args
+ * @brief Wire arguments for NGpiCorrelateFrom.
+ */
+typedef struct _GpiCorrelateFrom_Args {
+    LONG   lFirstSegment;  /*!< First segment identifier.        */
+    LONG   lLastSegment;   /*!< Last segment identifier.         */
+    LONG   lType;          /*!< Correlation type (COR_*).        */
+    POINTL ptlPick;        /*!< Pick point.                      */
+    LONG   lMaxHits;       /*!< Maximum number of hits.          */
+    LONG   lMaxDepth;      /*!< Maximum depth.                   */
+    LONG   alSegTag[1];    /*!< Segment/tag array (variable).    */
+} GpiCorrelateFrom_Args, *PGpiCorrelateFrom_Args;
+
+/*!
+ * @struct _GpiCorrelateSegment_Args
+ * @brief Wire arguments for NGpiCorrelateSegment.
+ */
+typedef struct _GpiCorrelateSegment_Args {
+    LONG   lSegment;       /*!< Segment identifier.              */
+    LONG   lType;          /*!< Correlation type (COR_*).        */
+    POINTL ptlPick;        /*!< Pick point.                      */
+    LONG   lMaxHits;       /*!< Maximum number of hits.          */
+    LONG   lMaxDepth;      /*!< Maximum depth.                   */
+    LONG   alSegTag[1];    /*!< Segment/tag array (variable).    */
+} GpiCorrelateSegment_Args, *PGpiCorrelateSegment_Args;
+
+/*!
+ * @struct _GpiQuerySegmentNames_Args
+ * @brief Wire arguments for NGpiQuerySegmentNames.
+ */
+typedef struct _GpiQuerySegmentNames_Args {
+    LONG lFirstSegid;   /*!< First segment in range.          */
+    LONG lLastSegid;    /*!< Last segment in range.           */
+    LONG lMax;          /*!< Maximum number of names to return. */
+    LONG alSegids[1];   /*!< Segment id array (variable).     */
+} GpiQuerySegmentNames_Args, *PGpiQuerySegmentNames_Args;
+
+/*!
+ * @struct _GpiGetData_Args
+ * @brief Wire arguments for NGpiGetData.
+ */
+typedef struct _GpiGetData_Args {
+    LONG lSegid;        /*!< Segment identifier.              */
+    LONG lOffset;       /*!< Offset within the segment.       */
+    LONG lFormat;       /*!< Data format (DFORM_*).           */
+    LONG lLength;       /*!< Requested data length.           */
+    BYTE abData[1];     /*!< Data buffer (variable).          */
+} GpiGetData_Args, *PGpiGetData_Args;
+
+/*!
+ * @struct _GpiPutData_Args
+ * @brief Wire arguments for NGpiPutData.
+ */
+typedef struct _GpiPutData_Args {
+    LONG lFormat;       /*!< Data format (DFORM_*).           */
+    LONG lCount;        /*!< Number of data bytes.            */
+    BYTE abData[1];     /*!< Data buffer (variable).          */
+} GpiPutData_Args, *PGpiPutData_Args;
+
+/*!
+ * @struct _GpiBeginElement_Args
+ * @brief Wire arguments for NGpiBeginElement.
+ */
+typedef struct _GpiBeginElement_Args {
+    LONG lType;         /*!< Element type.                    */
+    char szDesc[256];   /*!< Element description (NUL-terminated). */
+} GpiBeginElement_Args, *PGpiBeginElement_Args;
+
+/*!
+ * @struct _GpiElement_Args
+ * @brief Wire arguments for NGpiElement.
+ */
+typedef struct _GpiElement_Args {
+    LONG lType;         /*!< Element type.                    */
+    char szDesc[256];   /*!< Element description.             */
+    LONG lLength;       /*!< Element data length.             */
+    BYTE abData[1];     /*!< Element data (variable).         */
+} GpiElement_Args, *PGpiElement_Args;
+
+/*!
+ * @struct _GpiQueryElement_Args
+ * @brief Wire arguments for NGpiQueryElement.
+ */
+typedef struct _GpiQueryElement_Args {
+    LONG lOff;          /*!< Offset within the element.       */
+    LONG lMaxLength;    /*!< Maximum bytes to read.           */
+    BYTE abData[1];     /*!< Output buffer (variable).        */
+} GpiQueryElement_Args, *PGpiQueryElement_Args;
+
+/*!
+ * @struct _GpiQueryElementType_Args
+ * @brief Wire arguments for NGpiQueryElementType.
+ */
+typedef struct _GpiQueryElementType_Args {
+    LONG lType;         /*!< Element type (output).           */
+    LONG lLength;       /*!< Description buffer length.       */
+    char szData[256];   /*!< Description data (NUL-terminated). */
+} GpiQueryElementType_Args, *PGpiQueryElementType_Args;
+
+/*!
+ * @struct _GpiQuerySegmentTransformMatrix_Args
+ * @brief Wire arguments for NGpiQuerySegmentTransformMatrix.
+ */
+typedef struct _GpiQuerySegmentTransformMatrix_Args {
+    LONG lSegid;         /*!< Segment identifier.              */
+    LONG lCount;         /*!< Number of matrix elements.       */
+    MATRIXLF aMatlf[1];  /*!< Matrix array (variable).         */
+} GpiQuerySegmentTransformMatrix_Args, *PGpiQuerySegmentTransformMatrix_Args;
+
+/*!
+ * @struct _GpiSetSegmentTransformMatrix_Args
+ * @brief Wire arguments for NGpiSetSegmentTransformMatrix.
+ */
+typedef struct _GpiSetSegmentTransformMatrix_Args {
+    LONG lSegid;         /*!< Segment identifier.              */
+    LONG lCount;         /*!< Number of matrix elements.       */
+    LONG lOptions;       /*!< Transform options.               */
+    MATRIXLF aMatlf[1];  /*!< Matrix array (variable).         */
+} GpiSetSegmentTransformMatrix_Args, *PGpiSetSegmentTransformMatrix_Args;
+
+/*!
+ * @struct _GpiConvert_Args
+ * @brief Wire arguments for NGpiConvert.
+ */
+typedef struct _GpiConvert_Args {
+    LONG lSrc;           /*!< Source coordinate space.         */
+    LONG lTarg;          /*!< Target coordinate space.         */
+    LONG lCount;         /*!< Number of points.                */
+    POINTL aptl[1];      /*!< Point array (variable).          */
+} GpiConvert_Args, *PGpiConvert_Args;
+
+/*!
+ * @struct _GpiConvertWithMatrix_Args
+ * @brief Wire arguments for NGpiConvertWithMatrix.
+ */
+typedef struct _GpiConvertWithMatrix_Args {
+    LONG lCountp;        /*!< Number of points.                */
+    LONG lCount;         /*!< Number of matrix elements.       */
+    MATRIXLF matlf;      /*!< Transformation matrix.           */
+    POINTL aptl[1];      /*!< Point array (variable).          */
+} GpiConvertWithMatrix_Args, *PGpiConvertWithMatrix_Args;
+
+/*!
+ * @struct _GpiQueryModelTransformMatrix_Args
+ * @brief Wire arguments for NGpiQueryModelTransformMatrix.
+ */
+typedef struct _GpiQueryModelTransformMatrix_Args {
+    LONG lCount;         /*!< Number of matrix elements.       */
+    MATRIXLF aMatlf[1];  /*!< Matrix array (variable).         */
+} GpiQueryModelTransformMatrix_Args, *PGpiQueryModelTransformMatrix_Args;
+
+/*!
+ * @struct _GpiSetModelTransformMatrix_Args
+ * @brief Wire arguments for NGpiSetModelTransformMatrix.
+ */
+typedef struct _GpiSetModelTransformMatrix_Args {
+    LONG lCount;         /*!< Number of matrix elements.       */
+    LONG lOptions;       /*!< Transform options.               */
+    MATRIXLF aMatlf[1];  /*!< Matrix array (variable).         */
+} GpiSetModelTransformMatrix_Args, *PGpiSetModelTransformMatrix_Args;
+
+/*!
+ * @struct _GpiCallSegmentMatrix_Args
+ * @brief Wire arguments for NGpiCallSegmentMatrix.
+ */
+typedef struct _GpiCallSegmentMatrix_Args {
+    LONG lSegment;       /*!< Segment identifier.              */
+    LONG lCount;         /*!< Number of matrix elements.       */
+    LONG lOptions;       /*!< Transform options.               */
+    MATRIXLF aMatlf[1];  /*!< Matrix array (variable).         */
+} GpiCallSegmentMatrix_Args, *PGpiCallSegmentMatrix_Args;
+
+/*!
+ * @struct _GpiQueryDefaultViewMatrix_Args
+ * @brief Wire arguments for NGpiQueryDefaultViewMatrix.
+ */
+typedef struct _GpiQueryDefaultViewMatrix_Args {
+    LONG lCount;         /*!< Number of matrix elements.       */
+    MATRIXLF aMatlf[1];  /*!< Matrix array (variable).         */
+} GpiQueryDefaultViewMatrix_Args, *PGpiQueryDefaultViewMatrix_Args;
+
+/*!
+ * @struct _GpiSetDefaultViewMatrix_Args
+ * @brief Wire arguments for NGpiSetDefaultViewMatrix.
+ */
+typedef struct _GpiSetDefaultViewMatrix_Args {
+    LONG lCount;         /*!< Number of matrix elements.       */
+    LONG lOptions;       /*!< Transform options.               */
+    MATRIXLF aMatlf[1];  /*!< Matrix array (variable).         */
+} GpiSetDefaultViewMatrix_Args, *PGpiSetDefaultViewMatrix_Args;
+
+/*!
+ * @struct _GpiQueryViewingTransformMatrix_Args
+ * @brief Wire arguments for NGpiQueryViewingTransformMatrix.
+ */
+typedef struct _GpiQueryViewingTransformMatrix_Args {
+    LONG lCount;         /*!< Number of matrix elements.       */
+    MATRIXLF aMatlf[1];  /*!< Matrix array (variable).         */
+} GpiQueryViewingTransformMatrix_Args, *PGpiQueryViewingTransformMatrix_Args;
+
+/*!
+ * @struct _GpiSetViewingTransformMatrix_Args
+ * @brief Wire arguments for NGpiSetViewingTransformMatrix.
+ */
+typedef struct _GpiSetViewingTransformMatrix_Args {
+    LONG lCount;         /*!< Number of matrix elements.       */
+    LONG lOptions;       /*!< Transform options.               */
+    MATRIXLF aMatlf[1];  /*!< Matrix array (variable).         */
+} GpiSetViewingTransformMatrix_Args, *PGpiSetViewingTransformMatrix_Args;
+
+/*!
+ * @struct _GpiTranslate_Args
+ * @brief Wire arguments for NGpiTranslate.
+ */
+typedef struct _GpiTranslate_Args {
+    MATRIXLF matlf;      /*!< Input/output matrix.             */
+    LONG lOptions;       /*!< Transform options.               */
+    POINTL ptl;          /*!< Translation vector.              */
+} GpiTranslate_Args, *PGpiTranslate_Args;
+
+/*!
+ * @struct _GpiScale_Args
+ * @brief Wire arguments for NGpiScale.
+ */
+typedef struct _GpiScale_Args {
+    MATRIXLF matlf;      /*!< Input/output matrix.             */
+    LONG lOptions;       /*!< Transform options.               */
+    FIXED afx[2];        /*!< Scaling factors (x, y).          */
+    POINTL ptl;          /*!< Scaling origin.                  */
+} GpiScale_Args, *PGpiScale_Args;
+
+/*!
+ * @struct _GpiRotate_Args
+ * @brief Wire arguments for NGpiRotate.
+ */
+typedef struct _GpiRotate_Args {
+    MATRIXLF matlf;      /*!< Input/output matrix.             */
+    LONG lOptions;       /*!< Transform options.               */
+    FIXED fxAngle;       /*!< Rotation angle (FIXED).          */
+    POINTL ptl;          /*!< Rotation center.                 */
+} GpiRotate_Args, *PGpiRotate_Args;
+
+/*!
+ * @struct _GpiCreateLogColorTable_Args
+ * @brief Wire arguments for NGpiCreateLogColorTable.
+ */
+typedef struct _GpiCreateLogColorTable_Args {
+    ULONG flOptions;     /*!< LCOL_* options.                  */
+    LONG  lFormat;       /*!< Color table format (LCOLF_*).    */
+    LONG  lStart;        /*!< First color index.               */
+    LONG  lCount;        /*!< Number of entries.               */
+    LONG  alTable[1];    /*!< Color table array (variable).    */
+} GpiCreateLogColorTable_Args, *PGpiCreateLogColorTable_Args;
+
+/*!
+ * @struct _GpiQueryColorData_Args
+ * @brief Wire arguments for NGpiQueryColorData.
+ */
+typedef struct _GpiQueryColorData_Args {
+    LONG lCount;         /*!< Number of requested values.      */
+    LONG aData[1];       /*!< Output data array (variable).    */
+} GpiQueryColorData_Args, *PGpiQueryColorData_Args;
+
+/*!
+ * @struct _GpiQueryLogColorTable_Args
+ * @brief Wire arguments for NGpiQueryLogColorTable.
+ */
+typedef struct _GpiQueryLogColorTable_Args {
+    ULONG flOptions;     /*!< LCOL_* options.                  */
+    LONG  lStart;        /*!< First color index.               */
+    LONG  lCount;        /*!< Number of entries.               */
+    LONG  aData[1];      /*!< Output color array (variable).   */
+} GpiQueryLogColorTable_Args, *PGpiQueryLogColorTable_Args;
+
+/*!
+ * @struct _GpiQueryRealColors_Args
+ * @brief Wire arguments for NGpiQueryRealColors.
+ */
+typedef struct _GpiQueryRealColors_Args {
+    ULONG flOptions;     /*!< LCOL_* options.                  */
+    LONG  lStart;        /*!< First color index.               */
+    LONG  lCount;        /*!< Number of entries.               */
+    LONG  aColors[1];    /*!< Output RGB array (variable).     */
+} GpiQueryRealColors_Args, *PGpiQueryRealColors_Args;
+
+/*!
+ * @struct _GpiCreatePalette_Args
+ * @brief Wire arguments for NGpiCreatePalette.
+ */
+typedef struct _GpiCreatePalette_Args {
+    ULONG flOptions;     /*!< Palette creation options.        */
+    ULONG ulFormat;      /*!< Entry format (LCOLF_*).          */
+    ULONG ulCount;       /*!< Number of entries.               */
+    ULONG aTable[1];     /*!< Entry table (variable).          */
+} GpiCreatePalette_Args, *PGpiCreatePalette_Args;
+
+/*!
+ * @struct _GpiAnimatePalette_Args
+ * @brief Wire arguments for NGpiAnimatePalette.
+ */
+typedef struct _GpiAnimatePalette_Args {
+    ULONG ulFormat;      /*!< Entry format (LCOLF_*).          */
+    ULONG ulStart;       /*!< First entry.                     */
+    ULONG ulCount;       /*!< Number of entries.               */
+    ULONG aTable[1];     /*!< Entry table (variable).          */
+} GpiAnimatePalette_Args, *PGpiAnimatePalette_Args;
+
+/*!
+ * @struct _GpiSetPaletteEntries_Args
+ * @brief Wire arguments for NGpiSetPaletteEntries.
+ */
+typedef struct _GpiSetPaletteEntries_Args {
+    ULONG ulFormat;      /*!< Entry format (LCOLF_*).          */
+    ULONG ulStart;       /*!< First entry.                     */
+    ULONG ulCount;       /*!< Number of entries.               */
+    ULONG aTable[1];     /*!< Entry table (variable).          */
+} GpiSetPaletteEntries_Args, *PGpiSetPaletteEntries_Args;
+
+/*!
+ * @struct _GpiQueryPaletteInfo_Args
+ * @brief Wire arguments for NGpiQueryPaletteInfo.
+ */
+typedef struct _GpiQueryPaletteInfo_Args {
+    ULONG flOptions;     /*!< Query options.                   */
+    ULONG ulStart;       /*!< First entry.                     */
+    ULONG ulCount;       /*!< Number of entries.               */
+    ULONG aData[1];      /*!< Output array (variable).         */
+} GpiQueryPaletteInfo_Args, *PGpiQueryPaletteInfo_Args;
+
+/*!
+ * @struct _GpiPolyLine_Args
+ * @brief Wire arguments for NGpiPolyLine (also used by PolyMarker, PolySpline,
+ *        PolyFillet, PolyLineDisjoint, StrokeInkPath).
+ */
+typedef struct _GpiPolyLine_Args {
+    LONG   lCount;       /*!< Number of points.                */
+    POINTL aptl[1];      /*!< Point array (variable).          */
+} GpiPolyLine_Args, *PGpiPolyLine_Args;
+
+/*!
+ * @struct _GpiCharString_Args
+ * @brief Wire arguments for NGpiCharString.
+ */
+typedef struct _GpiCharString_Args {
+    LONG lCount;         /*!< Number of characters.            */
+    char szString[1];    /*!< Character data (variable).       */
+} GpiCharString_Args, *PGpiCharString_Args;
+
+/*!
+ * @struct _GpiCharStringAt_Args
+ * @brief Wire arguments for NGpiCharStringAt.
+ */
+typedef struct _GpiCharStringAt_Args {
+    POINTL ptl;          /*!< Starting position.               */
+    LONG lCount;         /*!< Number of characters.            */
+    char szString[1];    /*!< Character data (variable).       */
+} GpiCharStringAt_Args, *PGpiCharStringAt_Args;
+
+/*!
+ * @struct _GpiSetAttrs_Args
+ * @brief Wire arguments for NGpiSetAttrs.
+ */
+typedef struct _GpiSetAttrs_Args {
+    LONG  lPrimType;     /*!< Primitive type (PRIM_*).         */
+    ULONG flAttrMask;    /*!< Attribute mask (LBB_/CBB_/...).  */
+    ULONG flDefMask;     /*!< Default mask.                    */
+    BYTE  abBundle[1];   /*!< Attribute bundle (variable).     */
+} GpiSetAttrs_Args, *PGpiSetAttrs_Args;
+
+/*!
+ * @struct _GpiQueryAttrs_Args
+ * @brief Wire arguments for NGpiQueryAttrs.
+ */
+typedef struct _GpiQueryAttrs_Args {
+    LONG  lPrimType;     /*!< Primitive type (PRIM_*).         */
+    ULONG flAttrMask;    /*!< Attribute mask.                  */
+    BYTE  abBundle[1];   /*!< Output bundle (variable).        */
+} GpiQueryAttrs_Args, *PGpiQueryAttrs_Args;
+
+/*!
+ * @struct _GpiOval_Args
+ * @brief Wire arguments for NGpiOval.
+ */
+typedef struct _GpiOval_Args {
+    POINTL aptl[2];      /*!< Center and radii (x, y).         */
+    FIXED fxStart;       /*!< Start angle.                     */
+    FIXED fxSweep;       /*!< Sweep angle.                     */
+    ULONG ulOptions;     /*!< Drawing options.                 */
+} GpiOval_Args, *PGpiOval_Args;
+
+/*!
+ * @struct _GpiPolyFilletSharp_Args
+ * @brief Wire arguments for NGpiPolyFilletSharp.
+ */
+typedef struct _GpiPolyFilletSharp_Args {
+    LONG   lCount;       /*!< Number of points.                */
+    POINTL aptl[1];      /*!< Point array (variable).          */
+    FIXED  afx[1];       /*!< Sharpness array (variable).      */
+} GpiPolyFilletSharp_Args, *PGpiPolyFilletSharp_Args;
+
+/*!
+ * @struct _GpiQueryCharStringPos_Args
+ * @brief Wire arguments for NGpiQueryCharStringPos.
+ */
+typedef struct _GpiQueryCharStringPos_Args {
+    ULONG flOptions;     /*!< Options (CHS_*).                 */
+    LONG lCount;         /*!< Number of characters.            */
+    char szString[1];    /*!< Character data (variable).       */
+    LONG aXinc[1];       /*!< X-increment array (variable).    */
+    POINTL aptl[1];      /*!< Position array (variable).       */
+} GpiQueryCharStringPos_Args, *PGpiQueryCharStringPos_Args;
+
+/*!
+ * @struct _GpiQueryCharStringPosAt_Args
+ * @brief Wire arguments for NGpiQueryCharStringPosAt.
+ */
+typedef struct _GpiQueryCharStringPosAt_Args {
+    POINTL ptlStart;     /*!< Starting position.               */
+    ULONG flOptions;     /*!< Options (CHS_*).                 */
+    LONG lCount;         /*!< Number of characters.            */
+    char szString[1];    /*!< Character data (variable).       */
+    LONG aXinc[1];       /*!< X-increment array (variable).    */
+    POINTL aptl[1];      /*!< Position array (variable).       */
+} GpiQueryCharStringPosAt_Args, *PGpiQueryCharStringPosAt_Args;
+
+/*!
+ * @struct _GpiQueryTabbedTextExtent_Args
+ * @brief Wire arguments for NGpiQueryTabbedTextExtent.
+ */
+typedef struct _GpiQueryTabbedTextExtent_Args {
+    LONG lCount;         /*!< Number of characters.            */
+    LONG lTabCount;      /*!< Number of tab stops.             */
+    char szString[1];    /*!< Character data (variable).       */
+    ULONG aTabStops[1];  /*!< Tab stop array (variable).       */
+} GpiQueryTabbedTextExtent_Args, *PGpiQueryTabbedTextExtent_Args;
+
+/*!
+ * @struct _GpiQueryTextBox_Args
+ * @brief Wire arguments for NGpiQueryTextBox.
+ */
+typedef struct _GpiQueryTextBox_Args {
+    LONG lCount1;        /*!< Number of characters.            */
+    LONG lCount2;        /*!< Number of output points.         */
+    char szString[1];    /*!< Character data (variable).       */
+    POINTL aptl[1];      /*!< Output point array (variable).   */
+} GpiQueryTextBox_Args, *PGpiQueryTextBox_Args;
+
+/*!
+ * @struct _GpiQueryTextAlignment_Args
+ * @brief Wire arguments for NGpiQueryTextAlignment.
+ */
+typedef struct _GpiQueryTextAlignment_Args {
+    LONG lHoriz;         /*!< Horizontal alignment (output).   */
+    LONG lVert;          /*!< Vertical alignment (output).     */
+} GpiQueryTextAlignment_Args, *PGpiQueryTextAlignment_Args;
+
+/*!
+ * @struct _GpiCharStringPos_Args
+ * @brief Wire arguments for NGpiCharStringPos.
+ */
+typedef struct _GpiCharStringPos_Args {
+    RECTL prclRect;      /*!< Character box.                   */
+    ULONG flOptions;     /*!< Options (CHS_*).                 */
+    LONG lCount;         /*!< Number of characters.            */
+    char szString[1];    /*!< Character data (variable).       */
+    LONG aAdx[1];        /*!< Advance-width array (variable).  */
+} GpiCharStringPos_Args, *PGpiCharStringPos_Args;
+
+/*!
+ * @struct _GpiTabbedCharStringAt_Args
+ * @brief Wire arguments for NGpiTabbedCharStringAt.
+ */
+typedef struct _GpiTabbedCharStringAt_Args {
+    POINTL ptStart;      /*!< Starting position.               */
+    RECTL prclRect;      /*!< Character box.                   */
+    ULONG flOptions;     /*!< Options (CHS_*).                 */
+    LONG lCount;         /*!< Number of characters.            */
+    LONG lTabCount;      /*!< Number of tab stops.             */
+    LONG lTabOrigin;     /*!< Tab origin.                      */
+    char szString[1];    /*!< Character data (variable).       */
+    ULONG aTabStops[1];  /*!< Tab stop array (variable).       */
+} GpiTabbedCharStringAt_Args, *PGpiTabbedCharStringAt_Args;
+
+/*!
+ * @struct _GpiCharStringPosAt_Args
+ * @brief Wire arguments for NGpiCharStringPosAt.
+ */
+typedef struct _GpiCharStringPosAt_Args {
+    POINTL ptlStart;     /*!< Starting position.               */
+    RECTL prclRect;      /*!< Character box.                   */
+    ULONG flOptions;     /*!< Options (CHS_*).                 */
+    LONG lCount;         /*!< Number of characters.            */
+    char szString[1];    /*!< Character data (variable).       */
+    LONG aAdx[1];        /*!< Advance-width array (variable).  */
+} GpiCharStringPosAt_Args, *PGpiCharStringPosAt_Args;
+
+/*!
+ * @struct _GpiImage_Args
+ * @brief Wire arguments for NGpiImage.
+ */
+typedef struct _GpiImage_Args {
+    LONG lFormat;        /*!< Image format.                    */
+    SIZEL size;          /*!< Image size.                      */
+    LONG lLength;        /*!< Image data length.               */
+    BYTE abData[1];      /*!< Image data (variable).           */
+} GpiImage_Args, *PGpiImage_Args;
+
+/*!
+ * @struct _GpiComment_Args
+ * @brief Wire arguments for NGpiComment.
+ */
+typedef struct _GpiComment_Args {
+    LONG lLength;        /*!< Comment data length.             */
+    BYTE abData[1];      /*!< Comment data (variable).         */
+} GpiComment_Args, *PGpiComment_Args;
+
+/*!
+ * @struct _GpiCreateLogFont_Args
+ * @brief Wire arguments for NGpiCreateLogFont.
+ */
+typedef struct _GpiCreateLogFont_Args {
+    LONG lLcid;          /*!< Logical font id.                 */
+    char szName[256];    /*!< Font name (NUL-terminated).      */
+    FATTRS attrs;        /*!< Font attributes.                 */
+} GpiCreateLogFont_Args, *PGpiCreateLogFont_Args;
+
+/*!
+ * @struct _GpiLoadFonts_Args
+ * @brief Wire arguments for NGpiLoadFonts / NGpiUnloadFonts /
+ *        NGpiLoadPublicFonts / NGpiUnloadPublicFonts.
+ */
+typedef struct _GpiLoadFonts_Args {
+    char szFilename[256]; /*!< Font file name (NUL-terminated). */
+} GpiLoadFonts_Args, *PGpiLoadFonts_Args;
+
+/*!
+ * @struct _GpiQueryFonts_Args
+ * @brief Wire arguments for NGpiQueryFonts.
+ */
+typedef struct _GpiQueryFonts_Args {
+    ULONG flOptions;     /*!< Query options.                   */
+    LONG lReqFonts;      /*!< Number of requested fonts.       */
+    LONG lMetricsLength; /*!< Size of one metrics record.      */
+    char szFacename[256];/*!< Face name (NUL-terminated).      */
+    BYTE abMetrics[1];   /*!< Output metrics (variable).       */
+} GpiQueryFonts_Args, *PGpiQueryFonts_Args;
+
+/*!
+ * @struct _GpiQueryFontMetrics_Args
+ * @brief Wire arguments for NGpiQueryFontMetrics.
+ */
+typedef struct _GpiQueryFontMetrics_Args {
+    LONG lMetricsLength; /*!< Size of one metrics record.      */
+    BYTE abMetrics[1];   /*!< Output metrics (variable).       */
+} GpiQueryFontMetrics_Args, *PGpiQueryFontMetrics_Args;
+
+/*!
+ * @struct _GpiQueryKerningPairs_Args
+ * @brief Wire arguments for NGpiQueryKerningPairs.
+ */
+typedef struct _GpiQueryKerningPairs_Args {
+    LONG lCount;         /*!< Number of kerning pairs.         */
+    KERNINGPAIRS aData[1]; /*!< Output array (variable).       */
+} GpiQueryKerningPairs_Args, *PGpiQueryKerningPairs_Args;
+
+/*!
+ * @struct _GpiQueryWidthTable_Args
+ * @brief Wire arguments for NGpiQueryWidthTable.
+ */
+typedef struct _GpiQueryWidthTable_Args {
+    LONG lFirstChar;     /*!< First character code.            */
+    LONG lCount;         /*!< Number of characters.            */
+    LONG aData[1];       /*!< Output width array (variable).   */
+} GpiQueryWidthTable_Args, *PGpiQueryWidthTable_Args;
+
+/*!
+ * @struct _GpiQuerySetIds_Args
+ * @brief Wire arguments for NGpiQuerySetIds.
+ */
+typedef struct _GpiQuerySetIds_Args {
+    LONG lCount;         /*!< Number of entries.               */
+    BYTE abData[1];      /*!< Interleaved types/lcids/names (variable). */
+} GpiQuerySetIds_Args, *PGpiQuerySetIds_Args;
+
+/*!
+ * @struct _GpiQueryFaceString_Args
+ * @brief Wire arguments for NGpiQueryFaceString.
+ */
+typedef struct _GpiQueryFaceString_Args {
+    FACENAMEDESC desc;   /*!< Face name descriptor.            */
+    LONG length;         /*!< Output buffer length.            */
+    char szFamily[256];  /*!< Family name (NUL-terminated).    */
+    char szCompound[256];/*!< Compound face name (NUL-terminated). */
+} GpiQueryFaceString_Args, *PGpiQueryFaceString_Args;
+
+/*!
+ * @struct _GpiQueryLogicalFont_Args
+ * @brief Wire arguments for NGpiQueryLogicalFont.
+ */
+typedef struct _GpiQueryLogicalFont_Args {
+    LONG lcid;           /*!< Logical font id.                 */
+    LONG length;         /*!< Output buffer length.            */
+    char szName[256];    /*!< Font name (NUL-terminated).      */
+    FATTRS attrs;        /*!< Output font attributes.          */
+} GpiQueryLogicalFont_Args, *PGpiQueryLogicalFont_Args;
+
+/*!
+ * @struct _GpiQueryFullFontFileDescs_Args
+ * @brief Wire arguments for NGpiQueryFullFontFileDescs.
+ */
+typedef struct _GpiQueryFullFontFileDescs_Args {
+    LONG lCount;         /*!< Number of requested descriptors. */
+    LONG lNamesBuffLength; /*!< Names buffer length.           */
+    char szFilename[256];/*!< Font file name (NUL-terminated). */
+    BYTE abNames[1];     /*!< Output names buffer (variable).  */
+} GpiQueryFullFontFileDescs_Args, *PGpiQueryFullFontFileDescs_Args;
+
+/*!
+ * @struct _GpiQueryFontFileDescriptions_Args
+ * @brief Wire arguments for NGpiQueryFontFileDescriptions.
+ */
+typedef struct _GpiQueryFontFileDescriptions_Args {
+    LONG lCount;         /*!< Number of requested descriptions. */
+    char szFilename[256];/*!< Font file name (NUL-terminated). */
+    BYTE abDescs[1];     /*!< Output descriptions (variable).  */
+} GpiQueryFontFileDescriptions_Args, *PGpiQueryFontFileDescriptions_Args;
+
+/*!
+ * @struct _GpiBitBlt_Args
+ * @brief Wire arguments for NGpiBitBlt.
+ */
+typedef struct _GpiBitBlt_Args {
+    HPS    hpsSource;    /*!< Source PS.                       */
+    LONG   lCount;       /*!< Number of points.                */
+    LONG   lRop;         /*!< Raster operation code.           */
+    ULONG  flOptions;    /*!< BitBlt options.                  */
+    POINTL aptl[1];      /*!< Point array (variable).          */
+} GpiBitBlt_Args, *PGpiBitBlt_Args;
+
+/*!
+ * @struct _GpiWCBitBlt_Args
+ * @brief Wire arguments for NGpiWCBitBlt.
+ */
+typedef struct _GpiWCBitBlt_Args {
+    HBITMAP hbmSource;   /*!< Source bitmap.                   */
+    LONG    lCount;      /*!< Number of points.                */
+    LONG    lRop;        /*!< Raster operation code.           */
+    ULONG   flOptions;   /*!< BitBlt options.                  */
+    POINTL  aptl[1];     /*!< Point array (variable).          */
+} GpiWCBitBlt_Args, *PGpiWCBitBlt_Args;
+
+/*!
+ * @struct _GpiCreateBitmap_Args
+ * @brief Wire arguments for NGpiCreateBitmap.
+ */
+typedef struct _GpiCreateBitmap_Args {
+    BITMAPINFOHEADER2 hdr; /*!< Bitmap header.                 */
+    ULONG             flOptions;   /*!< Creation options.     */
+    ULONG             cbInitData;  /*!< Size of init data.    */
+    ULONG             cbInfo;      /*!< Size of info table.   */
+    BYTE              abData[1];   /*!< Init data + info (variable). */
+} GpiCreateBitmap_Args, *PGpiCreateBitmap_Args;
+
+/*!
+ * @struct _GpiSetBitmapBits_Args
+ * @brief Wire arguments for NGpiSetBitmapBits.
+ */
+typedef struct _GpiSetBitmapBits_Args {
+    LONG  lScanStart;    /*!< First scan line.                 */
+    LONG  lScans;        /*!< Number of scan lines.            */
+    ULONG cbBuffer;      /*!< Size of the bits buffer.         */
+    ULONG cbInfo;        /*!< Size of the info table.          */
+    BYTE  abData[1];     /*!< Bits + info (variable).          */
+} GpiSetBitmapBits_Args, *PGpiSetBitmapBits_Args;
+
+/*!
+ * @struct _GpiSetBitmapDimension_Args
+ * @brief Wire arguments for NGpiSetBitmapDimension.
+ */
+typedef struct _GpiSetBitmapDimension_Args {
+    HBITMAP hbm;         /*!< Target bitmap.                   */
+    SIZEL   size;        /*!< New dimensions.                  */
+} GpiSetBitmapDimension_Args, *PGpiSetBitmapDimension_Args;
+
+/*!
+ * @struct _GpiQueryBitmapBits_Args
+ * @brief Wire arguments for NGpiQueryBitmapBits.
+ */
+typedef struct _GpiQueryBitmapBits_Args {
+    LONG  lScanStart;    /*!< First scan line.                 */
+    LONG  lScans;        /*!< Number of scan lines.            */
+    ULONG cbBuffer;      /*!< Size of the output buffer.       */
+    ULONG cbInfo;        /*!< Size of the info table.          */
+    BYTE  abData[1];     /*!< Output bits + info (variable).   */
+} GpiQueryBitmapBits_Args, *PGpiQueryBitmapBits_Args;
+
+/*!
+ * @struct _GpiQueryBitmapDimension_Args
+ * @brief Wire arguments for NGpiQueryBitmapDimension.
+ */
+typedef struct _GpiQueryBitmapDimension_Args {
+    HBITMAP hbm;         /*!< Target bitmap.                   */
+    SIZEL   size;        /*!< Output dimensions.               */
+} GpiQueryBitmapDimension_Args, *PGpiQueryBitmapDimension_Args;
+
+/*!
+ * @struct _GpiQueryBitmapParameters_Args
+ * @brief Wire arguments for NGpiQueryBitmapParameters.
+ */
+typedef struct _GpiQueryBitmapParameters_Args {
+    HBITMAP hbm;         /*!< Target bitmap.                   */
+    BITMAPINFOHEADER hdr;/*!< Output header.                   */
+} GpiQueryBitmapParameters_Args, *PGpiQueryBitmapParameters_Args;
+
+/*!
+ * @struct _GpiQueryBitmapInfoHeader_Args
+ * @brief Wire arguments for NGpiQueryBitmapInfoHeader.
+ */
+typedef struct _GpiQueryBitmapInfoHeader_Args {
+    HBITMAP hbm;         /*!< Target bitmap.                   */
+    BITMAPINFOHEADER2 hdr; /*!< Output header.                 */
+} GpiQueryBitmapInfoHeader_Args, *PGpiQueryBitmapInfoHeader_Args;
+
+/*!
+ * @struct _GpiQueryDeviceBitmapFormats_Args
+ * @brief Wire arguments for NGpiQueryDeviceBitmapFormats.
+ */
+typedef struct _GpiQueryDeviceBitmapFormats_Args {
+    LONG lCount;         /*!< Number of entries.               */
+    LONG aData[1];       /*!< Output format array (variable).  */
+} GpiQueryDeviceBitmapFormats_Args, *PGpiQueryDeviceBitmapFormats_Args;
+
+/*!
+ * @struct _GpiDrawBits_Args
+ * @brief Wire arguments for NGpiDrawBits.
+ */
+typedef struct _GpiDrawBits_Args {
+    LONG   lCount;       /*!< Number of points.                */
+    LONG   lRop;         /*!< Raster operation code.           */
+    ULONG  flOptions;    /*!< Drawing options.                 */
+    ULONG  cbInfo;       /*!< Size of the info table.          */
+    ULONG  cbBits;       /*!< Size of the bits buffer.         */
+    POINTL aptl[1];      /*!< Point array (variable).          */
+} GpiDrawBits_Args, *PGpiDrawBits_Args;
+
+/*!
+ * @struct _GpiCreateRegion_Args
+ * @brief Wire arguments for NGpiCreateRegion.
+ */
+typedef struct _GpiCreateRegion_Args {
+    LONG  lCount;        /*!< Number of rectangles.            */
+    RECTL arcl[1];       /*!< Rectangle array (variable).      */
+} GpiCreateRegion_Args, *PGpiCreateRegion_Args;
+
+/*!
+ * @struct _GpiQueryRegionBox_Args
+ * @brief Wire arguments for NGpiQueryRegionBox.
+ */
+typedef struct _GpiQueryRegionBox_Args {
+    HRGN  hrgn;          /*!< Region handle.                   */
+    RECTL rclBound;      /*!< Output bounding box.             */
+} GpiQueryRegionBox_Args, *PGpiQueryRegionBox_Args;
+
+/*!
+ * @struct _GpiQueryRegionRects_Args
+ * @brief Wire arguments for NGpiQueryRegionRects.
+ */
+typedef struct _GpiQueryRegionRects_Args {
+    HRGN    hrgn;        /*!< Region handle.                   */
+    RECTL   rclBound;    /*!< Bounding box.                    */
+    RGNRECT rgnrcControl;/*!< Query control block.             */
+    RECTL   arclRect[1]; /*!< Output rectangle array (variable). */
+} GpiQueryRegionRects_Args, *PGpiQueryRegionRects_Args;
+
+/*!
+ * @struct _GpiSetRegion_Args
+ * @brief Wire arguments for NGpiSetRegion.
+ */
+typedef struct _GpiSetRegion_Args {
+    HRGN  hrgn;          /*!< Region handle.                   */
+    LONG  lCount;        /*!< Number of rectangles.            */
+    RECTL arcl[1];       /*!< Rectangle array (variable).      */
+} GpiSetRegion_Args, *PGpiSetRegion_Args;
+
+/*!
+ * @struct _GpiSetClipRegion_Args
+ * @brief Wire arguments for NGpiSetClipRegion.
+ */
+typedef struct _GpiSetClipRegion_Args {
+    HRGN hrgn;           /*!< New clip region.                 */
+    HRGN hrgnOld;        /*!< Previous clip region (output).   */
+} GpiSetClipRegion_Args, *PGpiSetClipRegion_Args;
+
+/*!
+ * @struct _GpiLoadMetaFile_Args
+ * @brief Wire arguments for NGpiLoadMetaFile.
+ */
+typedef struct _GpiLoadMetaFile_Args {
+    char szFilename[256];/*!< Metafile name (NUL-terminated).  */
+} GpiLoadMetaFile_Args, *PGpiLoadMetaFile_Args;
+
+/*!
+ * @struct _GpiPlayMetaFile_Args
+ * @brief Wire arguments for NGpiPlayMetaFile.
+ */
+typedef struct _GpiPlayMetaFile_Args {
+    HMF  hmf;            /*!< Metafile handle.                 */
+    LONG lCount1;        /*!< Number of option entries.        */
+    LONG lCount2;        /*!< Description length.              */
+    LONG lSegCount;      /*!< Segment count (output).          */
+    LONG aOptarray[1];   /*!< Option array (variable).         */
+    char szDesc[256];    /*!< Description (NUL-terminated).    */
+} GpiPlayMetaFile_Args, *PGpiPlayMetaFile_Args;
+
+/*!
+ * @struct _GpiQueryMetaFileBits_Args
+ * @brief Wire arguments for NGpiQueryMetaFileBits.
+ */
+typedef struct _GpiQueryMetaFileBits_Args {
+    HMF  hmf;            /*!< Metafile handle.                 */
+    LONG lOffset;        /*!< Byte offset.                     */
+    LONG lLength;        /*!< Number of bytes.                 */
+    BYTE abData[1];      /*!< Output data (variable).          */
+} GpiQueryMetaFileBits_Args, *PGpiQueryMetaFileBits_Args;
+
+/*!
+ * @struct _GpiSaveMetaFile_Args
+ * @brief Wire arguments for NGpiSaveMetaFile.
+ */
+typedef struct _GpiSaveMetaFile_Args {
+    HMF  hmf;            /*!< Metafile handle.                 */
+    char szFilename[256];/*!< Target file name (NUL-terminated). */
+} GpiSaveMetaFile_Args, *PGpiSaveMetaFile_Args;
+
+/*!
+ * @struct _GpiSetMetaFileBits_Args
+ * @brief Wire arguments for NGpiSetMetaFileBits.
+ */
+typedef struct _GpiSetMetaFileBits_Args {
+    HMF  hmf;            /*!< Metafile handle.                 */
+    LONG lOffset;        /*!< Byte offset.                     */
+    LONG lLength;        /*!< Number of bytes.                 */
+    BYTE abData[1];      /*!< Data buffer (variable).          */
+} GpiSetMetaFileBits_Args, *PGpiSetMetaFileBits_Args;
+
+/*!
+ * @struct _GpiQueryDefAttrs_Args
+ * @brief Wire arguments for NGpiQueryDefAttrs.
+ */
+typedef struct _GpiQueryDefAttrs_Args {
+    LONG  lPrimType;     /*!< Primitive type (PRIM_*).         */
+    ULONG flAttrMask;    /*!< Attribute mask.                  */
+    BYTE  abBundle[1];   /*!< Output bundle (variable).        */
+} GpiQueryDefAttrs_Args, *PGpiQueryDefAttrs_Args;
+
+/*!
+ * @struct _GpiSetDefAttrs_Args
+ * @brief Wire arguments for NGpiSetDefAttrs.
+ */
+typedef struct _GpiSetDefAttrs_Args {
+    LONG  lPrimType;     /*!< Primitive type (PRIM_*).         */
+    ULONG flAttrMask;    /*!< Attribute mask.                  */
+    BYTE  abBundle[1];   /*!< Input bundle (variable).         */
+} GpiSetDefAttrs_Args, *PGpiSetDefAttrs_Args;
+
+/*!
+ * @struct _GpiPolygons_Args
+ * @brief Wire arguments for NGpiPolygons.
+ */
+typedef struct _GpiPolygons_Args {
+    ULONG ulCount;       /*!< Number of polygons.              */
+    ULONG flOptions;     /*!< Drawing options.                 */
+    ULONG flModel;       /*!< Fill model (POLYGON_*).          */
+    ULONG ulTotalPoints; /*!< Total number of points.          */
+    BYTE  abData[1];     /*!< Interleaved (LONG n; POINTL[n]) (variable). */
+} GpiPolygons_Args, *PGpiPolygons_Args;
+
+/*!
+ * @struct _GpiCreatePolygonRegion_Args
+ * @brief Wire arguments for NGpiCreatePolygonRegion.
+ */
+typedef struct _GpiCreatePolygonRegion_Args {
+    ULONG ulCount;       /*!< Number of polygons.              */
+    ULONG flOptions;     /*!< Region options.                  */
+    ULONG ulTotalPoints; /*!< Total number of points.          */
+    BYTE  abData[1];     /*!< Interleaved polygon data (variable). */
+} GpiCreatePolygonRegion_Args, *PGpiCreatePolygonRegion_Args;
+
+/*!
+ * @struct _GpiStrokeInkPath_Args
+ * @brief Wire arguments for NGpiStrokeInkPath.
+ */
+typedef struct _GpiStrokeInkPath_Args {
+    LONG   lPath;        /*!< Ink path id.                     */
+    LONG   lCount;       /*!< Number of points.                */
+    ULONG  flOptions;    /*!< Stroke options.                  */
+    POINTL aptl[1];      /*!< Point array (variable).          */
+} GpiStrokeInkPath_Args, *PGpiStrokeInkPath_Args;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

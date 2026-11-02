@@ -53,62 +53,19 @@ static void GocaTrace(GOCA_CTX *c, const char *fmt, ...)
 #define GocaCallResult(fmt, ...) GocaTrace(c, "[GOCA] OUT: %s -> " fmt "\n", __FUNCTION__, ##__VA_ARGS__)
 
 /* ======================================================================== */
-/*  Format selection                                                        */
-/* ======================================================================== */
-
-void GocaSetFormat(GOCA_CTX *c, GOCA_COORD_SIZE size, GOCA_COORD_ENDIAN endian)
-{
-    c->coordSize   = size;
-    c->coordEndian = endian;
-}
-
-void GocaSetFormatFromOptions(GOCA_CTX *c, ULONG flOptions)
-{
-    GOCA_COORD_SIZE   size = GOCA_COORD_LONG;
-    GOCA_COORD_ENDIAN endian = GOCA_ENDIAN_LE;
-
-    if ((flOptions & 0x0000FF00UL) == GPIF_SHORT) {
-        size = GOCA_COORD_SHORT;
-    }
-    /* GPIF_LONG, GPIF_DEFAULT, or unknown -> LONG.
-     * On x86 (OS/2, Win32) endianness is always LE. */
-    GocaSetFormat(c, size, endian);
-}
-
-/* ======================================================================== */
 /*  Endian-aware / size-aware readers                                       */
 /* ======================================================================== */
 
 /*! @brief Read signed 16-bit coordinate. */
 static SHORT GocaRdS16(GOCA_CTX *c, const BYTE *p)
 {
-    if (c->coordEndian == GOCA_ENDIAN_LE)
-        return (SHORT)(((USHORT)p[1] << 8) | p[0]);
-    return (SHORT)(((USHORT)p[0] << 8) | p[1]);
-}
-
-/*! @brief Read unsigned 16-bit coordinate. */
-static USHORT GocaRdU16(GOCA_CTX *c, const BYTE *p)
-{
-    if (c->coordEndian == GOCA_ENDIAN_LE)
-        return (USHORT)(((USHORT)p[1] << 8) | p[0]);
-    return (USHORT)(((USHORT)p[0] << 8) | p[1]);
+    return (SHORT)GocaGetU16(c, p);
 }
 
 /*! @brief Read signed 32-bit coordinate. */
 static LONG GocaRdS32(GOCA_CTX *c, const BYTE *p)
 {
-    if (c->coordEndian == GOCA_ENDIAN_LE)
-        return ((LONG)p[3] << 24) | ((LONG)p[2] << 16) | ((LONG)p[1] << 8) | (LONG)p[0];
-    return ((LONG)p[0] << 24) | ((LONG)p[1] << 16) | ((LONG)p[2] << 8) | (LONG)p[3];
-}
-
-/*! @brief Read unsigned 32-bit coordinate. */
-static ULONG GocaRdU32(GOCA_CTX *c, const BYTE *p)
-{
-    if (c->coordEndian == GOCA_ENDIAN_LE)
-        return ((ULONG)p[3] << 24) | ((ULONG)p[2] << 16) | ((ULONG)p[1] << 8) | (ULONG)p[0];
-    return ((ULONG)p[0] << 24) | ((ULONG)p[1] << 16) | ((ULONG)p[2] << 8) | (ULONG)p[3];
+    return (LONG)GocaGetU32(c, p);
 }
 
 /* ======================================================================== */
@@ -132,7 +89,7 @@ static ULONG OrderLength(GOCA_CTX *c, const BYTE *p, ULONG cbAvail)
     if (BYTE_ORDER(oc))  return 1;
     if (oc == OCODE_VLONG) {
         if (cbAvail < 4) return 0;
-        return 4u + GocaRdU16(c, p + 2);
+        return 4u + GocaGetU16(c, p + 2);
     }
     if (SHORT_ORDER(oc)) return 2;
     if (cbAvail < 2) return 0;
@@ -612,9 +569,9 @@ static LONG DoPartialArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     }
 
     ptCenter = PtsToPtl(c, q + off); off += pointSize;
-    fxMult   = (FIXED)((ULONG)GocaRdU16(c, q + off) << 8); off += 2;
-    fxStart  = (FIXED)GocaRdU32(c, q + off); off += 4;
-    fxSweep  = (FIXED)GocaRdU32(c, q + off);
+    fxMult   = (FIXED)((ULONG)GocaGetU16(c, q + off) << 8); off += 2;
+    fxStart  = (FIXED)GocaGetU32(c, q + off); off += 4;
+    fxSweep  = (FIXED)GocaGetU32(c, q + off);
 
     GocaTrace(c, "[GOCA]   %s: c=(%ld,%ld) mult=%04X start=%08lX sweep=%08lX\n",
               bCur ? "GCPARC" : "GPARC",
@@ -659,7 +616,7 @@ static LONG DoFullArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
         return GOCA_ERR_FORMAT;
     }
 
-    fxMult = (FIXED)((ULONG)GocaRdU16(c, q + off) << 8);
+    fxMult = (FIXED)((ULONG)GocaGetU16(c, q + off) << 8);
 
     GocaTrace(c, "[GOCA]   %s: mult=%04X\n",
               bCur ? "GCFARC" : "GFARC", (unsigned)fxMult);
@@ -847,8 +804,8 @@ static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
     }
     cxInt  = GocaRdS16(c, p + 2);
     cyInt  = GocaRdS16(c, p + 4);
-    cxFrac = GocaRdU16(c, p + 6);
-    cyFrac = GocaRdU16(c, p + 8);
+    cxFrac = GocaGetU16(c, p + 6);
+    cyFrac = GocaGetU16(c, p + 8);
     fbFlags = p[10];
     (void)fbFlags;
     
@@ -958,7 +915,7 @@ static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
     rcl.xRight  = (ptCorner0.x > ptCorner1.x) ? ptCorner0.x : ptCorner1.x;
     rcl.yTop    = (ptCorner0.y > ptCorner1.y) ? ptCorner0.y : ptCorner1.y;
 
-    cch = GocaRdU16(c, q + 2 + pointSize * 2);
+    cch = GocaGetU16(c, q + 2 + pointSize * 2);
     if (cb < baseSize + cch) {
         GocaCallResult("GOCA_ERR_TRUNC");
         return GOCA_ERR_TRUNC;
@@ -1099,7 +1056,7 @@ LONG GocaParseStream(GOCA_CTX *c)
                 USHORT raw;
                 COLOR  clr;
                 if (p[1] < 2) { rc = GOCA_ERR_FORMAT; break; }
-                raw = GocaRdU16(c, p + 2);
+                raw = GocaGetU16(c, p + 2);
                 GocaCallEnter("GSECOL color=%04X", (unsigned)raw);
                 clr = ((raw & 0xFF00) == 0xFF00)
                       ? (COLOR)(raw & 0x00FF)

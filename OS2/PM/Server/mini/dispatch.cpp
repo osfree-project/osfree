@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#include "goca_parser.hpp"   /* includes F_platform.h + pmord.h + pmddi.h */
+#include "goca_parser.hpp"   /* includes goca_common.h + pmord.h + pmddi.h */
 #include "F_cmd.h"
 
 /*!
@@ -121,35 +121,6 @@ static void SrvPsDestroy(PSRV_PS ps)
 /* ======================================================================== */
 
 /*!
- * @brief Write one coordinate in the current PS format.
- * @param [out] p     Destination buffer.
- * @param [in]  v     Coordinate value.
- * @param [in]  size  GOCA_COORD_SHORT or GOCA_COORD_LONG.
- * @param [in]  endian GOCA_ENDIAN_LE or GOCA_ENDIAN_BE.
- * @return Number of bytes written (2 or 4).
- */
-static ULONG SrvPutCoord(PBYTE p, LONG v, GOCA_COORD_SIZE size,
-                         GOCA_COORD_ENDIAN endian)
-{
-    if (size == GOCA_COORD_SHORT) {
-        USHORT u = (USHORT)v;
-        if (endian == GOCA_ENDIAN_LE) { p[0] = (BYTE)u; p[1] = (BYTE)(u >> 8); }
-        else                          { p[0] = (BYTE)(u >> 8); p[1] = (BYTE)u; }
-        return 2;
-    } else {
-        ULONG u = (ULONG)v;
-        if (endian == GOCA_ENDIAN_LE) {
-            p[0] = (BYTE)u; p[1] = (BYTE)(u >> 8);
-            p[2] = (BYTE)(u >> 16); p[3] = (BYTE)(u >> 24);
-        } else {
-            p[0] = (BYTE)(u >> 24); p[1] = (BYTE)(u >> 16);
-            p[2] = (BYTE)(u >> 8);  p[3] = (BYTE)u;
-        }
-        return 4;
-    }
-}
-
-/*!
  * @brief Feed a single order to the GOCA parser.
  * @param [in] ps       Target PS entry.
  * @param [in] pOrder   Order bytes.
@@ -172,8 +143,8 @@ static void SrvEmitMove(SRV_PS *ps, POINTL ptl)
 
     buf[pos++] = OCODE_GSCP;
     buf[pos++] = (BYTE)(2 * ps->goca.coordSize);
-    pos += SrvPutCoord(buf + pos, ptl.x, ps->goca.coordSize, ps->goca.coordEndian);
-    pos += SrvPutCoord(buf + pos, ptl.y, ps->goca.coordSize, ps->goca.coordEndian);
+    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.x);
+    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.y);
 
     SrvParseOrder(ps, buf, pos);
 }
@@ -188,8 +159,8 @@ static void SrvEmitLine(SRV_PS *ps, POINTL ptl)
 
     buf[pos++] = OCODE_GCLINE;
     buf[pos++] = (BYTE)(2 * ps->goca.coordSize);
-    pos += SrvPutCoord(buf + pos, ptl.x, ps->goca.coordSize, ps->goca.coordEndian);
-    pos += SrvPutCoord(buf + pos, ptl.y, ps->goca.coordSize, ps->goca.coordEndian);
+    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.x);
+    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.y);
 
     SrvParseOrder(ps, buf, pos);
 }
@@ -213,11 +184,11 @@ static void SrvEmitBox(SRV_PS *ps, LONG lControl, POINTL ptl,
                         (bAxes ? 2 * ps->goca.coordSize : 0));
     buf[pos++] = fbFlags;
     buf[pos++] = 0;  /* pad */
-    pos += SrvPutCoord(buf + pos, ptl.x, ps->goca.coordSize, ps->goca.coordEndian);
-    pos += SrvPutCoord(buf + pos, ptl.y, ps->goca.coordSize, ps->goca.coordEndian);
+    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.x);
+    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.y);
     if (bAxes) {
-        pos += SrvPutCoord(buf + pos, lHRound, ps->goca.coordSize, ps->goca.coordEndian);
-        pos += SrvPutCoord(buf + pos, lVRound, ps->goca.coordSize, ps->goca.coordEndian);
+        pos += GocaPutCoord(&ps->goca, buf + pos, lHRound);
+        pos += GocaPutCoord(&ps->goca, buf + pos, lVRound);
     }
 
     SrvParseOrder(ps, buf, pos);
@@ -243,13 +214,7 @@ static BOOL SrvEmitColor(SRV_PS *ps, LONG lColor)
     if (lColor <= 0xFFFF) {
         buf[0] = OCODE_GSECOL;
         buf[1] = 2;
-        if (ps->goca.coordEndian == GOCA_ENDIAN_LE) {
-            buf[2] = (BYTE)lColor;
-            buf[3] = (BYTE)(lColor >> 8);
-        } else {
-            buf[2] = (BYTE)(lColor >> 8);
-            buf[3] = (BYTE)lColor;
-        }
+        GocaPutU16(&ps->goca, buf + 2, (USHORT)lColor);
         SrvParseOrder(ps, buf, 4);
         return TRUE;
     }
@@ -276,8 +241,8 @@ static void SrvEmitPolyLine(SRV_PS *ps, LONG lCount, PPOINTL aptl)
     p[pos++] = OCODE_GLINE;
     p[pos++] = (BYTE)(lCount * 2 * pointSize);
     for (i = 0; i < lCount; i++) {
-        pos += SrvPutCoord(p + pos, aptl[i].x, ps->goca.coordSize, ps->goca.coordEndian);
-        pos += SrvPutCoord(p + pos, aptl[i].y, ps->goca.coordSize, ps->goca.coordEndian);
+        pos += GocaPutCoord(&ps->goca, p + pos, aptl[i].x);
+        pos += GocaPutCoord(&ps->goca, p + pos, aptl[i].y);
     }
 
     SrvParseOrder(ps, p, pos);
@@ -323,8 +288,8 @@ static void SrvEmitCharStringAt(SRV_PS *ps, POINTL ptl, LONG lCount,
     p = (PBYTE)pv;
     p[pos++] = OCODE_GCHST;
     p[pos++] = (BYTE)(2 * pointSize + lCount);
-    pos += SrvPutCoord(p + pos, ptl.x, ps->goca.coordSize, ps->goca.coordEndian);
-    pos += SrvPutCoord(p + pos, ptl.y, ps->goca.coordSize, ps->goca.coordEndian);
+    pos += GocaPutCoord(&ps->goca, p + pos, ptl.x);
+    pos += GocaPutCoord(&ps->goca, p + pos, ptl.y);
     memcpy(p + pos, pchString, lCount);
     pos += lCount;
 
@@ -342,8 +307,8 @@ static void SrvEmitMarker(SRV_PS *ps, POINTL ptl)
 
     buf[pos++] = OCODE_GMRK;
     buf[pos++] = (BYTE)(2 * ps->goca.coordSize);
-    pos += SrvPutCoord(buf + pos, ptl.x, ps->goca.coordSize, ps->goca.coordEndian);
-    pos += SrvPutCoord(buf + pos, ptl.y, ps->goca.coordSize, ps->goca.coordEndian);
+    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.x);
+    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.y);
 
     SrvParseOrder(ps, buf, pos);
 }
@@ -366,8 +331,8 @@ static void SrvEmitPolyMarker(SRV_PS *ps, LONG lCount, PPOINTL aptl)
     p[pos++] = OCODE_GMRK;
     p[pos++] = (BYTE)(lCount * 2 * pointSize);
     for (i = 0; i < lCount; i++) {
-        pos += SrvPutCoord(p + pos, aptl[i].x, ps->goca.coordSize, ps->goca.coordEndian);
-        pos += SrvPutCoord(p + pos, aptl[i].y, ps->goca.coordSize, ps->goca.coordEndian);
+        pos += GocaPutCoord(&ps->goca, p + pos, aptl[i].x);
+        pos += GocaPutCoord(&ps->goca, p + pos, aptl[i].y);
     }
 
     SrvParseOrder(ps, p, pos);
@@ -462,47 +427,13 @@ static void SrvEmitSetAttrs(SRV_PS *ps, LONG lPrimType, ULONG flAttrMask,
             buf[2] = 0;
             buf[3] = 0;
             pos = 4;
-            pos += SrvPutCoord(buf + pos, ab->ptlRefPoint.x, ps->goca.coordSize, ps->goca.coordEndian);
-            pos += SrvPutCoord(buf + pos, ab->ptlRefPoint.y, ps->goca.coordSize, ps->goca.coordEndian);
+            pos += GocaPutCoord(&ps->goca, buf + pos, ab->ptlRefPoint.x);
+            pos += GocaPutCoord(&ps->goca, buf + pos, ab->ptlRefPoint.y);
             SrvParseOrder(ps, buf, pos);
         }
     }
 }
 
-/* ======================================================================== */
-/*  Wire argument structures                                                */
-/* ======================================================================== */
-
-/*!
- * @struct _GpiCreatePS_Args
- * @brief Wire arguments for NGpiCreatePS.
- */
-typedef struct _GpiCreatePS_Args {
-    HAB   hab;        /*!< Anchor block.                    */
-    HDC   hdc;        /*!< Device context.                  */
-    SIZEL psizlSize;  /*!< Presentation space size.         */
-    ULONG flOptions;  /*!< PS_UNITS / PS_FORMAT / PS_NORESET. */
-} GpiCreatePS_Args, *PGpiCreatePS_Args;
-
-/*!
- * @struct _GpiSetPS_Args
- * @brief Wire arguments for NGpiSetPS.
- */
-typedef struct _GpiSetPS_Args {
-    SIZEL psizlSize;  /*!< Presentation space size.         */
-    ULONG flOptions;  /*!< PS_UNITS / PS_FORMAT / PS_NORESET. */
-} GpiSetPS_Args, *PGpiSetPS_Args;
-
-/*!
- * @struct _GpiBox_Args
- * @brief Wire arguments for NGpiBox.
- */
-typedef struct _GpiBox_Args {
-    LONG   lControl;  /*!< DRO_* control flags.      */
-    POINTL ptl;       /*!< Opposite corner.          */
-    LONG   lHRound;   /*!< Horizontal corner radius. */
-    LONG   lVRound;   /*!< Vertical corner radius.   */
-} GpiBox_Args, *PGpiBox_Args;
 
 /*!
  * @def DISPATCH_STUB
