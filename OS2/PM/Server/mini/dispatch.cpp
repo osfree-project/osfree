@@ -6,6 +6,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include "goca_parser.hpp"   /* includes goca_common.h + pmord.h + pmddi.h */
+#include "goca_emit.h"       /* GocaEmit* order emitters */
 #include "F_cmd.h"
 
 /*!
@@ -134,223 +135,24 @@ static void SrvParseOrder(SRV_PS *ps, const BYTE *pOrder, ULONG cbOrder)
 }
 
 /*!
- * @brief Emit OCODE_GSCP (set current position).
- */
-static void SrvEmitMove(SRV_PS *ps, POINTL ptl)
-{
-    BYTE  buf[10];
-    ULONG pos = 0;
-
-    buf[pos++] = OCODE_GSCP;
-    buf[pos++] = (BYTE)(2 * ps->goca.coordSize);
-    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.x);
-    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.y);
-
-    SrvParseOrder(ps, buf, pos);
-}
-
-/*!
- * @brief Emit OCODE_GCLINE (line from current position to endpoint).
- */
-static void SrvEmitLine(SRV_PS *ps, POINTL ptl)
-{
-    BYTE  buf[10];
-    ULONG pos = 0;
-
-    buf[pos++] = OCODE_GCLINE;
-    buf[pos++] = (BYTE)(2 * ps->goca.coordSize);
-    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.x);
-    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.y);
-
-    SrvParseOrder(ps, buf, pos);
-}
-
-/*!
- * @brief Emit OCODE_GCBOX (box from current position to opposite corner).
- */
-static void SrvEmitBox(SRV_PS *ps, LONG lControl, POINTL ptl,
-                       LONG lHRound, LONG lVRound)
-{
-    BYTE  buf[22];
-    ULONG pos = 0;
-    UCHAR fbFlags = 0;
-    BOOL  bAxes = (lHRound || lVRound) ? TRUE : FALSE;
-
-    if (lControl & 2) fbFlags |= 0x40;  /* DRO_OUTLINE -> boundary */
-    if (lControl & 1) fbFlags |= 0x20;  /* DRO_FILL    -> fill     */
-
-    buf[pos++] = OCODE_GCBOX;
-    buf[pos++] = (BYTE)(2 + 2 * ps->goca.coordSize +
-                        (bAxes ? 2 * ps->goca.coordSize : 0));
-    buf[pos++] = fbFlags;
-    buf[pos++] = 0;  /* pad */
-    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.x);
-    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.y);
-    if (bAxes) {
-        pos += GocaPutCoord(&ps->goca, buf + pos, lHRound);
-        pos += GocaPutCoord(&ps->goca, buf + pos, lVRound);
-    }
-
-    SrvParseOrder(ps, buf, pos);
-}
-
-/*!
- * @brief Emit color order (GSCOL for 0..255, GSECOL for 256..0xFFFF).
- * @return TRUE if emitted, FALSE if the color value is unsupported.
- */
-static BOOL SrvEmitColor(SRV_PS *ps, LONG lColor)
-{
-    BYTE buf[4];
-
-    if (lColor < 0) return FALSE;
-
-    if (lColor <= 0xFF) {
-        buf[0] = OCODE_GSCOL;
-        buf[1] = (BYTE)lColor;
-        SrvParseOrder(ps, buf, 2);
-        return TRUE;
-    }
-
-    if (lColor <= 0xFFFF) {
-        buf[0] = OCODE_GSECOL;
-        buf[1] = 2;
-        GocaPutU16(&ps->goca, buf + 2, (USHORT)lColor);
-        SrvParseOrder(ps, buf, 4);
-        return TRUE;
-    }
-
-    return FALSE;
-}
-
-/*!
- * @brief Emit OCODE_GLINE for a multi-point polyline.
- */
-static void SrvEmitPolyLine(SRV_PS *ps, LONG lCount, PPOINTL aptl)
-{
-    PVOID pv = NULL;
-    PBYTE p;
-    ULONG pos = 0;
-    LONG  i;
-    ULONG pointSize = ps->goca.coordSize;
-    ULONG cbOrder = 2 + lCount * 2 * pointSize;
-
-    if (lCount <= 0) return;
-    if (DosAllocMem(&pv, cbOrder, PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) return;
-    p = (PBYTE)pv;
-
-    p[pos++] = OCODE_GLINE;
-    p[pos++] = (BYTE)(lCount * 2 * pointSize);
-    for (i = 0; i < lCount; i++) {
-        pos += GocaPutCoord(&ps->goca, p + pos, aptl[i].x);
-        pos += GocaPutCoord(&ps->goca, p + pos, aptl[i].y);
-    }
-
-    SrvParseOrder(ps, p, pos);
-    DosFreeMem(pv);
-}
-
-/*!
- * @brief Emit OCODE_GCCHST (char string at current position).
- */
-static void SrvEmitCharString(SRV_PS *ps, LONG lCount, const char *pchString)
-{
-    PVOID pv = NULL;
-    PBYTE p;
-    ULONG pos = 0;
-    ULONG cbOrder = 2 + lCount;
-
-    if (lCount <= 0) return;
-    if (DosAllocMem(&pv, cbOrder, PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) return;
-    p = (PBYTE)pv;
-    p[pos++] = OCODE_GCCHST;
-    p[pos++] = (BYTE)lCount;
-    memcpy(p + pos, pchString, lCount);
-    pos += lCount;
-
-    SrvParseOrder(ps, p, pos);
-    DosFreeMem(pv);
-}
-
-/*!
- * @brief Emit OCODE_GCHST (char string at explicit point).
- */
-static void SrvEmitCharStringAt(SRV_PS *ps, POINTL ptl, LONG lCount,
-                                const char *pchString)
-{
-    PVOID pv = NULL;
-    PBYTE p;
-    ULONG pos = 0;
-    ULONG pointSize = ps->goca.coordSize;
-    ULONG cbOrder = 2 + 2 * pointSize + lCount;
-
-    if (lCount <= 0) return;
-    if (DosAllocMem(&pv, cbOrder, PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) return;
-    p = (PBYTE)pv;
-    p[pos++] = OCODE_GCHST;
-    p[pos++] = (BYTE)(2 * pointSize + lCount);
-    pos += GocaPutCoord(&ps->goca, p + pos, ptl.x);
-    pos += GocaPutCoord(&ps->goca, p + pos, ptl.y);
-    memcpy(p + pos, pchString, lCount);
-    pos += lCount;
-
-    SrvParseOrder(ps, p, pos);
-    DosFreeMem(pv);
-}
-
-/*!
- * @brief Emit OCODE_GMRK (single marker).
- */
-static void SrvEmitMarker(SRV_PS *ps, POINTL ptl)
-{
-    BYTE  buf[10];
-    ULONG pos = 0;
-
-    buf[pos++] = OCODE_GMRK;
-    buf[pos++] = (BYTE)(2 * ps->goca.coordSize);
-    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.x);
-    pos += GocaPutCoord(&ps->goca, buf + pos, ptl.y);
-
-    SrvParseOrder(ps, buf, pos);
-}
-
-/*!
- * @brief Emit OCODE_GMRK for a multi-point marker set.
- */
-static void SrvEmitPolyMarker(SRV_PS *ps, LONG lCount, PPOINTL aptl)
-{
-    PVOID pv = NULL;
-    PBYTE p;
-    ULONG pos = 0;
-    LONG  i;
-    ULONG pointSize = ps->goca.coordSize;
-    ULONG cbOrder = 2 + lCount * 2 * pointSize;
-
-    if (lCount <= 0) return;
-    if (DosAllocMem(&pv, cbOrder, PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) return;
-    p = (PBYTE)pv;
-    p[pos++] = OCODE_GMRK;
-    p[pos++] = (BYTE)(lCount * 2 * pointSize);
-    for (i = 0; i < lCount; i++) {
-        pos += GocaPutCoord(&ps->goca, p + pos, aptl[i].x);
-        pos += GocaPutCoord(&ps->goca, p + pos, aptl[i].y);
-    }
-
-    SrvParseOrder(ps, p, pos);
-    DosFreeMem(pv);
-}
-
-/*!
  * @brief Emit attribute orders for GpiSetAttrs.
+ *
+ * Composite: one GPI call may emit multiple GOCA orders.
+ * Individual orders are produced by the shared GocaEmit* emitters.
  */
 static void SrvEmitSetAttrs(SRV_PS *ps, LONG lPrimType, ULONG flAttrMask,
                             PBUNDLE pb)
 {
     BYTE  buf[32];
     ULONG pos;
+    LONG  len;
 
     if (lPrimType == PRIM_LINE) {
         PLINEBUNDLE lb = (PLINEBUNDLE)pb;
-        if (flAttrMask & LBB_COLOR) SrvEmitColor(ps, lb->lColor);
+        if (flAttrMask & LBB_COLOR) {
+            len = GocaEmitSetColor(&ps->goca, buf, sizeof(buf), lb->lColor);
+            if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
+        }
         if (flAttrMask & LBB_MIX_MODE) {
             buf[0] = OCODE_GSMX; buf[1] = 1; buf[2] = (BYTE)lb->usMixMode;
             SrvParseOrder(ps, buf, 3);
@@ -373,7 +175,10 @@ static void SrvEmitSetAttrs(SRV_PS *ps, LONG lPrimType, ULONG flAttrMask,
         }
     } else if (lPrimType == PRIM_CHAR) {
         PCHARBUNDLE cb = (PCHARBUNDLE)pb;
-        if (flAttrMask & CBB_COLOR) SrvEmitColor(ps, cb->lColor);
+        if (flAttrMask & CBB_COLOR) {
+            len = GocaEmitSetColor(&ps->goca, buf, sizeof(buf), cb->lColor);
+            if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
+        }
         if (flAttrMask & CBB_MIX_MODE) {
             buf[0] = OCODE_GSMX; buf[1] = 1; buf[2] = (BYTE)cb->usMixMode;
             SrvParseOrder(ps, buf, 3);
@@ -392,7 +197,10 @@ static void SrvEmitSetAttrs(SRV_PS *ps, LONG lPrimType, ULONG flAttrMask,
         }
     } else if (lPrimType == PRIM_MARKER) {
         PMARKERBUNDLE mb = (PMARKERBUNDLE)pb;
-        if (flAttrMask & MBB_COLOR) SrvEmitColor(ps, mb->lColor);
+        if (flAttrMask & MBB_COLOR) {
+            len = GocaEmitSetColor(&ps->goca, buf, sizeof(buf), mb->lColor);
+            if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
+        }
         if (flAttrMask & MBB_MIX_MODE) {
             buf[0] = OCODE_GSMX; buf[1] = 1; buf[2] = (BYTE)mb->usMixMode;
             SrvParseOrder(ps, buf, 3);
@@ -407,7 +215,10 @@ static void SrvEmitSetAttrs(SRV_PS *ps, LONG lPrimType, ULONG flAttrMask,
         }
     } else if (lPrimType == PRIM_AREA) {
         PAREABUNDLE ab = (PAREABUNDLE)pb;
-        if (flAttrMask & ABB_COLOR) SrvEmitColor(ps, ab->lColor);
+        if (flAttrMask & ABB_COLOR) {
+            len = GocaEmitSetColor(&ps->goca, buf, sizeof(buf), ab->lColor);
+            if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
+        }
         if (flAttrMask & ABB_MIX_MODE) {
             buf[0] = OCODE_GSMX; buf[1] = 1; buf[2] = (BYTE)ab->usMixMode;
             SrvParseOrder(ps, buf, 3);
@@ -527,6 +338,8 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
 
     case NGpiSetColor: {
         LONG lColor;
+        BYTE buf[4];
+        LONG len;
         PSRV_PS ps;
 
         log("[PMSERVER] IN  : NGpiSetColor(hps=%p, cbArgs=%u)\n",
@@ -539,17 +352,21 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         ps = SrvPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
-        if (!SrvEmitColor(ps, lColor)) {
+        len = GocaEmitSetColor(&ps->goca, buf, sizeof(buf), lColor);
+        if (len < 0) {
             log("[PMSERVER] OUT : NGpiSetColor -> GPI_ERROR (unsupported color 0x%lx)\n",
                 (unsigned long)lColor);
             return (ULONG)GPI_ERROR;
         }
+        SrvParseOrder(ps, buf, (ULONG)len);
         log("[PMSERVER] OUT : NGpiSetColor -> 1\n");
         return 1;
     }
 
     case NGpiMove: {
         POINTL ptl;
+        BYTE buf[10];
+        LONG len;
         PSRV_PS ps;
 
         log("[PMSERVER] IN  : NGpiMove(hps=%p, cbArgs=%u)\n",
@@ -562,13 +379,17 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         ps = SrvPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
-        SrvEmitMove(ps, ptl);
+        len = GocaEmitMove(&ps->goca, buf, sizeof(buf), ptl);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        SrvParseOrder(ps, buf, (ULONG)len);
         log("[PMSERVER] OUT : NGpiMove -> 1\n");
         return 1;
     }
 
     case NGpiLine: {
         POINTL ptl;
+        BYTE buf[10];
+        LONG len;
         PSRV_PS ps;
 
         log("[PMSERVER] IN  : NGpiLine(hps=%p, cbArgs=%u)\n",
@@ -581,13 +402,17 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         ps = SrvPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
-        SrvEmitLine(ps, ptl);
+        len = GocaEmitLine(&ps->goca, buf, sizeof(buf), ptl);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        SrvParseOrder(ps, buf, (ULONG)len);
         log("[PMSERVER] OUT : NGpiLine -> 1\n");
         return 1;
     }
 
     case NGpiBox: {
         PGpiBox_Args a = (PGpiBox_Args)pArgs;
+        BYTE buf[22];
+        LONG len;
         PSRV_PS ps;
 
         log("[PMSERVER] IN  : NGpiBox(hps=%p, cbArgs=%u)\n",
@@ -599,7 +424,10 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         ps = SrvPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
-        SrvEmitBox(ps, a->lControl, a->ptl, a->lHRound, a->lVRound);
+        len = GocaEmitBox(&ps->goca, buf, sizeof(buf),
+                          a->lControl, a->ptl, a->lHRound, a->lVRound);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        SrvParseOrder(ps, buf, (ULONG)len);
         log("[PMSERVER] OUT : NGpiBox -> 1\n");
         return 1;
     }
@@ -607,7 +435,11 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
     case NGpiPolyLine: {
         LONG lCount;
         PPOINTL aptl;
+        LONG len;
         PSRV_PS ps;
+        BYTE  stackBuf[64];
+        PBYTE buf = stackBuf;
+        PVOID heap = NULL;
 
         log("[PMSERVER] IN  : NGpiPolyLine(hps=%p, cbArgs=%u)\n",
             (void*)hps, (unsigned)cbArgs);
@@ -625,7 +457,21 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         ps = SrvPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
-        SrvEmitPolyLine(ps, lCount, aptl);
+        len = GocaEmitPolyLine(&ps->goca, NULL, 0, lCount, aptl);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        if ((ULONG)len > sizeof(stackBuf)) {
+            if (DosAllocMem(&heap, (ULONG)len,
+                            PAG_COMMIT | PAG_READ | PAG_WRITE) != 0)
+                return (ULONG)GPI_ERROR;
+            buf = (PBYTE)heap;
+        }
+        len = GocaEmitPolyLine(&ps->goca, buf, (ULONG)len, lCount, aptl);
+        if (len < 0) {
+            if (heap) DosFreeMem(heap);
+            return (ULONG)GPI_ERROR;
+        }
+        SrvParseOrder(ps, buf, (ULONG)len);
+        if (heap) DosFreeMem(heap);
         log("[PMSERVER] OUT : NGpiPolyLine -> 1\n");
         return 1;
     }
@@ -633,7 +479,11 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
     case NGpiCharString: {
         LONG lCount;
         char *pchString;
+        LONG len;
         PSRV_PS ps;
+        BYTE  stackBuf[64];
+        PBYTE buf = stackBuf;
+        PVOID heap = NULL;
 
         log("[PMSERVER] IN  : NGpiCharString(hps=%p, cbArgs=%u)\n",
             (void*)hps, (unsigned)cbArgs);
@@ -650,7 +500,21 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         ps = SrvPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
-        SrvEmitCharString(ps, lCount, pchString);
+        len = GocaEmitCharString(&ps->goca, NULL, 0, lCount, pchString);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        if ((ULONG)len > sizeof(stackBuf)) {
+            if (DosAllocMem(&heap, (ULONG)len,
+                            PAG_COMMIT | PAG_READ | PAG_WRITE) != 0)
+                return (ULONG)GPI_ERROR;
+            buf = (PBYTE)heap;
+        }
+        len = GocaEmitCharString(&ps->goca, buf, (ULONG)len, lCount, pchString);
+        if (len < 0) {
+            if (heap) DosFreeMem(heap);
+            return (ULONG)GPI_ERROR;
+        }
+        SrvParseOrder(ps, buf, (ULONG)len);
+        if (heap) DosFreeMem(heap);
         log("[PMSERVER] OUT : NGpiCharString -> 1\n");
         return 1;
     }
@@ -659,7 +523,11 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         POINTL ptl;
         LONG lCount;
         char *pchString;
+        LONG len;
         PSRV_PS ps;
+        BYTE  stackBuf[64];
+        PBYTE buf = stackBuf;
+        PVOID heap = NULL;
 
         log("[PMSERVER] IN  : NGpiCharStringAt(hps=%p, cbArgs=%u)\n",
             (void*)hps, (unsigned)cbArgs);
@@ -678,13 +546,29 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         ps = SrvPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
-        SrvEmitCharStringAt(ps, ptl, lCount, pchString);
+        len = GocaEmitCharStringAt(&ps->goca, NULL, 0, ptl, lCount, pchString);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        if ((ULONG)len > sizeof(stackBuf)) {
+            if (DosAllocMem(&heap, (ULONG)len,
+                            PAG_COMMIT | PAG_READ | PAG_WRITE) != 0)
+                return (ULONG)GPI_ERROR;
+            buf = (PBYTE)heap;
+        }
+        len = GocaEmitCharStringAt(&ps->goca, buf, (ULONG)len, ptl, lCount, pchString);
+        if (len < 0) {
+            if (heap) DosFreeMem(heap);
+            return (ULONG)GPI_ERROR;
+        }
+        SrvParseOrder(ps, buf, (ULONG)len);
+        if (heap) DosFreeMem(heap);
         log("[PMSERVER] OUT : NGpiCharStringAt -> 1\n");
         return 1;
     }
 
     case NGpiMarker: {
         POINTL ptl;
+        BYTE buf[10];
+        LONG len;
         PSRV_PS ps;
 
         log("[PMSERVER] IN  : NGpiMarker(hps=%p, cbArgs=%u)\n",
@@ -697,7 +581,9 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         ps = SrvPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
-        SrvEmitMarker(ps, ptl);
+        len = GocaEmitMarker(&ps->goca, buf, sizeof(buf), ptl);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        SrvParseOrder(ps, buf, (ULONG)len);
         log("[PMSERVER] OUT : NGpiMarker -> 1\n");
         return 1;
     }
@@ -705,7 +591,11 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
     case NGpiPolyMarker: {
         LONG lCount;
         PPOINTL aptl;
+        LONG len;
         PSRV_PS ps;
+        BYTE  stackBuf[64];
+        PBYTE buf = stackBuf;
+        PVOID heap = NULL;
 
         log("[PMSERVER] IN  : NGpiPolyMarker(hps=%p, cbArgs=%u)\n",
             (void*)hps, (unsigned)cbArgs);
@@ -723,7 +613,21 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         ps = SrvPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
-        SrvEmitPolyMarker(ps, lCount, aptl);
+        len = GocaEmitPolyMarker(&ps->goca, NULL, 0, lCount, aptl);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        if ((ULONG)len > sizeof(stackBuf)) {
+            if (DosAllocMem(&heap, (ULONG)len,
+                            PAG_COMMIT | PAG_READ | PAG_WRITE) != 0)
+                return (ULONG)GPI_ERROR;
+            buf = (PBYTE)heap;
+        }
+        len = GocaEmitPolyMarker(&ps->goca, buf, (ULONG)len, lCount, aptl);
+        if (len < 0) {
+            if (heap) DosFreeMem(heap);
+            return (ULONG)GPI_ERROR;
+        }
+        SrvParseOrder(ps, buf, (ULONG)len);
+        if (heap) DosFreeMem(heap);
         log("[PMSERVER] OUT : NGpiPolyMarker -> 1\n");
         return 1;
     }
