@@ -86,6 +86,21 @@ int main(void)
     rc_box = GpiBox(hps, DRO_OUTLINE, &ptl2, 0, 0); /* противоположный угол */
     printf("GpiBox -> %ld\n", (long)rc_box);
 
+//////////
+/* Draw mode — direct rendering, nothing retained. */
+GpiSetDrawingMode(hps, DM_RETAIN);
+GpiOpenSegment(hps, 1);
+GpiSetColor(hps, CLR_RED);
+GpiMove(hps, &ptl1);
+GpiLine(hps, &ptl2);
+GpiCloseSegment(hps);
+
+/* No visible effect yet: in DM_RETAIN nothing is drawn. */
+GpiSetDrawingMode(hps, DM_DRAW);
+GpiDrawSegment(hps, 1);   /* now the red line appears via GOCA replay */
+//////////
+
+
     printf("Calling WinReleasePS(hps=%p)\n", (void*)hps);
     rc_rel_ps = WinReleasePS(hps); /* обязательное освобождение */
     printf("WinReleasePS -> %d\n", (int)rc_rel_ps);

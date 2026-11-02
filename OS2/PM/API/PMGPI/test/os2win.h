@@ -79,6 +79,11 @@ typedef void *HMODULE;   /*!< Module handle. */
 #define DRO_OUTLINE     2L       /*!< Outline only. */
 #define DRO_OUTLINEFILL 3L       /*!< Outline and fill. */
 
+/* Drawing modes */
+#define DM_DRAW             0L   /*!< Immediate rendering.       */
+#define DM_RETAIN           1L   /*!< Record-only (segments).    */
+#define DM_DRAWANDRETAIN    2L   /*!< Record and render.         */
+
 /* ---------- Structures ---------- */
 typedef struct _POINTL { LONG x; LONG y; } POINTL, *PPOINTL;                 /*!< Point. */
 typedef struct _SIZEL  { LONG cx; LONG cy; } SIZEL, *PSIZEL;                 /*!< Size. */
@@ -110,6 +115,15 @@ BOOL APIENTRY GpiMove(HPS hps, PPOINTL pptlPoint);
 LONG APIENTRY GpiLine(HPS hps, PPOINTL pptlEndPoint);
 LONG APIENTRY GpiBox(HPS hps, LONG lControl, PPOINTL pptlPoint,
                      LONG lHRound, LONG lVRound);
+
+/* Drawing state */
+BOOL APIENTRY GpiSetDrawingMode(HPS hps, LONG lMode);
+LONG APIENTRY GpiQueryDrawingMode(HPS hps);
+
+/* Segments */
+BOOL APIENTRY GpiOpenSegment(HPS hps, LONG lSegment);
+BOOL APIENTRY GpiCloseSegment(HPS hps);
+BOOL APIENTRY GpiDrawSegment(HPS hps, LONG lSegment);
 
 #ifdef __cplusplus
 }

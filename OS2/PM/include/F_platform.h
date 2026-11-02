@@ -190,13 +190,6 @@
   #define DM_DRAWANDRETAIN     2L
   #endif
 
-  #ifndef SEGEM_INSERT
-  #define SEGEM_INSERT         1L
-  #endif
-  #ifndef SEGEM_REPLACE
-  #define SEGEM_REPLACE        2L
-  #endif
-
   #ifndef ATTR_DETECTABLE
   #define ATTR_DETECTABLE      1L
   #endif

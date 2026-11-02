@@ -2,27 +2,167 @@ Win64 build host
 root=D:\yuri\osfree\
 CD       OS2\PM\Server\mini\win32\ 
 CXX      dispatch.obj 
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:59: warning: function 'SrvEmitSetAttrs': missing @param ps
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:59: warning: function 'SrvEmitSetAttrs': missing @param lPrimType
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:59: warning: function 'SrvEmitSetAttrs': missing @param flAttrMask
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:59: warning: function 'SrvEmitSetAttrs': missing @param pb
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(143): Error! E029: col(35) symbol 'DM_DRAW' has not been declared
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(143): Note! N393: col(35) included from D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp(9)
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(144): Error! E029: col(35) symbol 'SEGEM_INSERT' has not been declared
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(146): Error! E029: col(41) symbol 'ATTR_VISIBLE' has not been declared
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(147): Error! E029: col(41) symbol 'ATTR_CHAINED' has not been declared
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(148): Error! E029: col(43) symbol 'ATTR_FASTCHAIN' has not been declared
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(149): Error! E029: col(49) symbol 'ATTR_PROP_DETECTABLE' has not been declared
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(150): Error! E029: col(46) symbol 'ATTR_PROP_VISIBLE' has not been declared
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(152): Error! E029: col(26) symbol 'DCTL_ERASE' has not been declared
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(153): Error! E029: col(26) symbol 'DCTL_DISPLAY' has not been declared
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(154): Error! E029: col(26) symbol 'DCTL_BOUNDARY' has not been declared
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(155): Error! E029: col(26) symbol 'DCTL_DYNAMIC' has not been declared
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(156): Error! E029: col(26) symbol 'DCTL_CORRELATE' has not been declared
-D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(157): Error! E029: col(35) symbol 'SDW_OFF' has not been declared
-Error(E42): Last command making (D:\yuri\osfree\build\OS2\PM\Server\mini\win32\dispatch.obj) returned a bad status
-Should this file be deleted [Yes/No] ? Error(E02): Make execution terminated
-Error(E42): Last command making (targets) returned a bad status
-Error(E02): Make execution terminated
-Error(E42): Last command making (gen_sources) returned a bad status
-Error(E02): Make execution terminated
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:39: warning: macro 'DCTL_BIT': missing @def
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:39: warning: macro 'DCTL_BIT': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:68: warning: function 'SrvBuildGbsegFlags': missing @param ulAttrs
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:68: warning: function 'SrvBuildGbsegFlags': missing @param pFlag1
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:68: warning: function 'SrvBuildGbsegFlags': missing @param pFlag2
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:96: warning: function 'SrvDeliver': missing @param ps
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:96: warning: function 'SrvDeliver': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:96: warning: function 'SrvDeliver': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:96: warning: function 'SrvDeliver': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:96: warning: function 'SrvDeliver': return 'FALSE' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:96: warning: function 'SrvDeliver': return 'TRUE' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:130: warning: function 'SrvEmitSetAttrs': missing @param ps
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:130: warning: function 'SrvEmitSetAttrs': missing @param lPrimType
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:130: warning: function 'SrvEmitSetAttrs': missing @param flAttrMask
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:130: warning: function 'SrvEmitSetAttrs': missing @param pb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:255: warning: function 'DispatchGpi': return '1' not documented with @retval
+CXX      goca_parser.obj 
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:60: warning: function 'GocaRdS16': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:60: warning: function 'GocaRdS16': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:60: warning: function 'GocaRdS16': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:66: warning: function 'GocaRdS32': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:66: warning: function 'GocaRdS32': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:66: warning: function 'GocaRdS32': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:77: warning: function 'PtsToPtl': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:77: warning: function 'PtsToPtl': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:77: warning: function 'PtsToPtl': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:91: warning: function 'AllocPtlArray': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:91: warning: function 'AllocPtlArray': missing @param pData
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:91: warning: function 'AllocPtlArray': missing @param nPts
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:91: warning: function 'AllocPtlArray': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:118: warning: function 'RefreshCurPos': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:131: warning: function 'GocaSetAttr': @param hdc lacks direction qualifier [in]/[out]/[in,out]
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:131: warning: function 'GocaSetAttr': @param lPrimType lacks direction qualifier [in]/[out]/[in,out]
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:131: warning: function 'GocaSetAttr': @param flAttrs lacks direction qualifier [in]/[out]/[in,out]
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:131: warning: function 'GocaSetAttr': @param pBundle lacks direction qualifier [in]/[out]/[in,out]
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:142: warning: function 'DoGSCP': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:142: warning: function 'DoGSCP': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:142: warning: function 'DoGSCP': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:142: warning: function 'DoGSCP': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:142: warning: function 'DoGSCP': return 'GOCA_ERR_TRUNC' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:142: warning: function 'DoGSCP': return 'GOCA_OK' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:164: warning: function 'DoLine': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:164: warning: function 'DoLine': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:164: warning: function 'DoLine': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:164: warning: function 'DoLine': missing @param bCur
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:164: warning: function 'DoLine': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:164: warning: function 'DoLine': return 'GOCA_ERR_TRUNC' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:164: warning: function 'DoLine': return 'GOCA_ERR_FORMAT' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:164: warning: function 'DoLine': return 'GOCA_ERR_NOMEM' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:164: warning: function 'DoLine': return 'GOCA_OK' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:232: warning: function 'DoMark': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:232: warning: function 'DoMark': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:232: warning: function 'DoMark': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:232: warning: function 'DoMark': missing @param bCur
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:232: warning: function 'DoMark': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:232: warning: function 'DoMark': return 'GOCA_ERR_TRUNC' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:232: warning: function 'DoMark': return 'GOCA_ERR_FORMAT' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:232: warning: function 'DoMark': return 'GOCA_ERR_NOMEM' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:232: warning: function 'DoMark': return 'GOCA_OK' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:300: warning: function 'DoRelativeLine': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:300: warning: function 'DoRelativeLine': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:300: warning: function 'DoRelativeLine': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:300: warning: function 'DoRelativeLine': missing @param bCur
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:300: warning: function 'DoRelativeLine': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:300: warning: function 'DoRelativeLine': return 'GOCA_ERR_TRUNC' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:300: warning: function 'DoRelativeLine': return 'GOCA_ERR_FORMAT' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:300: warning: function 'DoRelativeLine': return 'GOCA_ERR_NOMEM' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:300: warning: function 'DoRelativeLine': return 'GOCA_OK' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:375: warning: function 'DoCharString': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:375: warning: function 'DoCharString': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:375: warning: function 'DoCharString': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:375: warning: function 'DoCharString': missing @param bCur
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:375: warning: function 'DoCharString': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:375: warning: function 'DoCharString': return 'GOCA_ERR_TRUNC' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:375: warning: function 'DoCharString': return 'GOCA_ERR_FORMAT' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:375: warning: function 'DoCharString': return 'GOCA_OK' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:427: warning: function 'DoBox': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:427: warning: function 'DoBox': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:427: warning: function 'DoBox': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:427: warning: function 'DoBox': missing @param bCur
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:427: warning: function 'DoBox': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:427: warning: function 'DoBox': return 'GOCA_ERR_TRUNC' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:427: warning: function 'DoBox': return 'GOCA_ERR_FORMAT' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:427: warning: function 'DoBox': return 'GOCA_OK' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:519: warning: function 'DoPartialArc': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:519: warning: function 'DoPartialArc': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:519: warning: function 'DoPartialArc': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:519: warning: function 'DoPartialArc': missing @param bCur
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:519: warning: function 'DoPartialArc': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:519: warning: function 'DoPartialArc': return 'GOCA_ERR_TRUNC' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:519: warning: function 'DoPartialArc': return 'GOCA_ERR_FORMAT' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:519: warning: function 'DoPartialArc': return 'GOCA_OK' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:568: warning: function 'DoFullArc': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:568: warning: function 'DoFullArc': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:568: warning: function 'DoFullArc': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:568: warning: function 'DoFullArc': missing @param bCur
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:568: warning: function 'DoFullArc': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:568: warning: function 'DoFullArc': return 'GOCA_ERR_TRUNC' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:568: warning: function 'DoFullArc': return 'GOCA_ERR_FORMAT' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:568: warning: function 'DoFullArc': return 'GOCA_OK' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:604: warning: function 'DoBezier': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:604: warning: function 'DoBezier': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:604: warning: function 'DoBezier': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:604: warning: function 'DoBezier': missing @param bCur
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:604: warning: function 'DoBezier': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:604: warning: function 'DoBezier': return 'GOCA_ERR_TRUNC' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:604: warning: function 'DoBezier': return 'GOCA_ERR_FORMAT' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:604: warning: function 'DoBezier': return 'GOCA_ERR_NOMEM' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:604: warning: function 'DoBezier': return 'GOCA_OK' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:669: warning: function 'DoFillet': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:669: warning: function 'DoFillet': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:669: warning: function 'DoFillet': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:669: warning: function 'DoFillet': missing @param bCur
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:669: warning: function 'DoFillet': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:669: warning: function 'DoFillet': return 'GOCA_ERR_TRUNC' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:669: warning: function 'DoFillet': return 'GOCA_ERR_FORMAT' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:669: warning: function 'DoFillet': return 'GOCA_ERR_NOMEM' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:669: warning: function 'DoFillet': return 'GOCA_OK' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:734: warning: function 'DoSetArcParams': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:734: warning: function 'DoSetArcParams': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:734: warning: function 'DoSetArcParams': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:734: warning: function 'DoSetArcParams': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:734: warning: function 'DoSetArcParams': return 'GOCA_ERR_TRUNC' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:734: warning: function 'DoSetArcParams': return 'GOCA_ERR_FORMAT' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:734: warning: function 'DoSetArcParams': return 'GOCA_OK' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:762: warning: function 'DoSetCharCell': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:762: warning: function 'DoSetCharCell': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:762: warning: function 'DoSetCharCell': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:762: warning: function 'DoSetCharCell': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:762: warning: function 'DoSetCharCell': return 'GOCA_ERR_TRUNC' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:762: warning: function 'DoSetCharCell': return 'GOCA_ERR_FORMAT' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:762: warning: function 'DoSetCharCell': return 'GOCA_OK' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:796: warning: function 'DoSetMarkerCell': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:796: warning: function 'DoSetMarkerCell': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:796: warning: function 'DoSetMarkerCell': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:796: warning: function 'DoSetMarkerCell': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:796: warning: function 'DoSetMarkerCell': return 'GOCA_ERR_TRUNC' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:796: warning: function 'DoSetMarkerCell': return 'GOCA_ERR_FORMAT' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:796: warning: function 'DoSetMarkerCell': return 'GOCA_OK' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:823: warning: function 'DoSetPatternRefPoint': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:823: warning: function 'DoSetPatternRefPoint': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:823: warning: function 'DoSetPatternRefPoint': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:823: warning: function 'DoSetPatternRefPoint': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:823: warning: function 'DoSetPatternRefPoint': return 'GOCA_ERR_TRUNC' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:823: warning: function 'DoSetPatternRefPoint': return 'GOCA_ERR_FORMAT' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:823: warning: function 'DoSetPatternRefPoint': return 'GOCA_OK' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:854: warning: function 'DoVLongCharString': missing @param c
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:854: warning: function 'DoVLongCharString': missing @param p
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:854: warning: function 'DoVLongCharString': missing @param cb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:854: warning: function 'DoVLongCharString': missing @param bGiven
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:854: warning: function 'DoVLongCharString': missing @return
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:854: warning: function 'DoVLongCharString': return 'GOCA_ERR_TRUNC' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:854: warning: function 'DoVLongCharString': return 'GOCA_OK' not documented with @retval
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:923: warning: function 'GocaInit': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:969: warning: function 'GocaParseStream': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:1261: warning: function 'GocaErrorName': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\goca_parser.cpp:1273: warning: function 'GocaOrderName': missing Doxygen comment
+CXX      gre.obj 
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\gre.cpp:34: warning: function 'log': missing Doxygen comment
+CXX      pmserver.obj 
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\pmserver.cpp:68: warning: macro 'PMCAPIENTRY': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\pmserver.cpp:70: warning: macro 'PMCAPIENTRY': missing Doxygen comment
+LINK     pmserver.exe 
+INST     pmserver.exe 

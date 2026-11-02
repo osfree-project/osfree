@@ -36,6 +36,20 @@ extern "C" {
 /*! @brief Maximum number of simultaneous PS entries. */
 #define GPI_MAX_PS 64
 
+#ifndef PS_IS_RECORDING
+#define PS_IS_RECORDING(m)  ((m) == DM_RETAIN || (m) == DM_DRAWANDRETAIN)
+#endif
+#ifndef PS_IS_DRAWING
+#define PS_IS_DRAWING(m)    ((m) == DM_DRAW   || (m) == DM_DRAWANDRETAIN)
+#endif
+
+#ifndef SEGEM_INSERT
+#define SEGEM_INSERT   1L
+#endif
+#ifndef SEGEM_REPLACE
+#define SEGEM_REPLACE  2L
+#endif
+
 #ifndef SEGATTR_BIT
 /*! @brief Bit mask for one attribute in ulInitialSegAttrs. */
 #define SEGATTR_BIT(a)  (1UL << (ULONG)(a))

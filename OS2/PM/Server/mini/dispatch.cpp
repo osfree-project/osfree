@@ -1,5 +1,5 @@
 /*!
- * @file dispatch.cpp
+ * @file dispatch.c
  * @brief Server-side GPI dispatcher with GOCA parser integration.
  */
 #define GPI_SERVER
@@ -33,8 +33,13 @@ void log(const char *fmt, ...)
  */
 GPI_PS g_psTable[GPI_MAX_PS];
 
+/*!
+ * @brief Bit mask for DCTL_* in ps->ulDrawControl.
+ */
+#define DCTL_BIT(c)  (1UL << ((c) - 1))
+
 /* ======================================================================== */
-/*  Order emitters                                                          */
+/*  Order routing                                                           */
 /* ======================================================================== */
 
 /*!
@@ -49,6 +54,72 @@ static void SrvParseOrder(PGPI_PS ps, const BYTE *pOrder, ULONG cbOrder)
     ps->goca.cbStream = cbOrder;
     GocaParseStream(&ps->goca);
 }
+
+/*!
+ * @brief Fill FLAG1 / FLAG2 of a GBSEG header from ulInitialSegAttrs.
+ *
+ * FLAG1 (SC31-6804, p. 102): INVISIBLE, PROPINV, PICK, PROPICK,
+ * HILITE, PROPHI, DYNAMIC, FASTCH.
+ * FLAG2 (AFPC-0008-03, p. 75): CHAIN (bit 0), APP_NEW (bits 5-6 = 00).
+ *
+ * Inverted attributes: ATTR_VISIBLE = !FLAG1.INVISIBLE,
+ * ATTR_PROP_VISIBLE = !FLAG1.PROPINV, ATTR_CHAINED = !FLAG2.CHAIN.
+ */
+static void SrvBuildGbsegFlags(ULONG ulAttrs, UCHAR *pFlag1, UCHAR *pFlag2)
+{
+    UCHAR f1 = 0, f2 = 0;
+
+    if (!(ulAttrs & SEGATTR_BIT(ATTR_VISIBLE)))         f1 |= GBSEG_INVISIBLE;
+    if (!(ulAttrs & SEGATTR_BIT(ATTR_PROP_VISIBLE)))    f1 |= GBSEG_PROPINV;
+    if ( (ulAttrs & SEGATTR_BIT(ATTR_DETECTABLE)))      f1 |= GBSEG_PICK;
+    if ( (ulAttrs & SEGATTR_BIT(ATTR_PROP_DETECTABLE))) f1 |= GBSEG_PROPICK;
+    if ( (ulAttrs & SEGATTR_BIT(ATTR_DYNAMIC)))         f1 |= GBSEG_DYNAMIC;
+    if ( (ulAttrs & SEGATTR_BIT(ATTR_FASTCHAIN)))       f1 |= GBSEG_FASTCH;
+
+    if (!(ulAttrs & SEGATTR_BIT(ATTR_CHAINED)))         f2 |= GBSEG_CHAIN;
+
+    *pFlag1 = f1;
+    *pFlag2 = f2;
+}
+
+/*!
+ * @brief Route a GOCA order: record into pbGoca (DM_RETAIN) and/or
+ *        dispatch through the parser (DM_DRAW).
+ *
+ * If no segment is open, the order is drawn immediately regardless of
+ * ulDrawingMode (per PM GPI: DM_RETAIN without an open segment is an
+ * error, but there is nothing to retain into — we just draw).
+ *
+ * An unchained open segment forces DM_RETAIN even when the caller set
+ * DM_DRAW / DM_DRAWANDRETAIN.
+ */
+static BOOL SrvDeliver(PGPI_PS ps, const BYTE *p, ULONG cb)
+{
+    ULONG am;
+
+    if (!ps || !p || cb == 0) return FALSE;
+
+    if (ps->lOpenSeg == 0) {
+        SrvParseOrder(ps, p, cb);
+        return TRUE;
+    }
+
+    am = ps->ulDrawingMode;
+    if (!(ps->ulInitialSegAttrs & SEGATTR_BIT(ATTR_CHAINED)))
+        am = DM_RETAIN;
+
+    if (PS_IS_RECORDING(am)) {
+        if (!GpiPsGocaAppend(ps, p, cb)) return FALSE;
+    }
+    if (PS_IS_DRAWING(am)) {
+        SrvParseOrder(ps, p, cb);
+    }
+    return TRUE;
+}
+
+/* ======================================================================== */
+/*  Order emitters                                                          */
+/* ======================================================================== */
 
 /*!
  * @brief Emit attribute orders for GpiSetAttrs.
@@ -67,85 +138,85 @@ static void SrvEmitSetAttrs(PGPI_PS ps, LONG lPrimType, ULONG flAttrMask,
         PLINEBUNDLE lb = (PLINEBUNDLE)pb;
         if (flAttrMask & LBB_COLOR) {
             len = GocaEmitSetColor(&ps->goca, buf, sizeof(buf), lb->lColor);
-            if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
+            if (len >= 0) SrvDeliver(ps, buf, (ULONG)len);
         }
         if (flAttrMask & LBB_MIX_MODE) {
             buf[0] = OCODE_GSMX; buf[1] = 1; buf[2] = (BYTE)lb->usMixMode;
-            SrvParseOrder(ps, buf, 3);
+            SrvDeliver(ps, buf, 3);
         }
         if (flAttrMask & LBB_TYPE) {
             buf[0] = OCODE_GSLT; buf[1] = 1; buf[2] = (BYTE)lb->usType;
-            SrvParseOrder(ps, buf, 3);
+            SrvDeliver(ps, buf, 3);
         }
         if (flAttrMask & LBB_WIDTH) {
             buf[0] = OCODE_GSLW; buf[1] = 1; buf[2] = (BYTE)lb->lGeomWidth;
-            SrvParseOrder(ps, buf, 3);
+            SrvDeliver(ps, buf, 3);
         }
         if (flAttrMask & LBB_END) {
             buf[0] = OCODE_GSLE; buf[1] = 1; buf[2] = (BYTE)lb->usEnd;
-            SrvParseOrder(ps, buf, 3);
+            SrvDeliver(ps, buf, 3);
         }
         if (flAttrMask & LBB_JOIN) {
             buf[0] = OCODE_GSLJ; buf[1] = 1; buf[2] = (BYTE)lb->usJoin;
-            SrvParseOrder(ps, buf, 3);
+            SrvDeliver(ps, buf, 3);
         }
     } else if (lPrimType == PRIM_CHAR) {
         PCHARBUNDLE cb = (PCHARBUNDLE)pb;
         if (flAttrMask & CBB_COLOR) {
             len = GocaEmitSetColor(&ps->goca, buf, sizeof(buf), cb->lColor);
-            if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
+            if (len >= 0) SrvDeliver(ps, buf, (ULONG)len);
         }
         if (flAttrMask & CBB_MIX_MODE) {
             buf[0] = OCODE_GSMX; buf[1] = 1; buf[2] = (BYTE)cb->usMixMode;
-            SrvParseOrder(ps, buf, 3);
+            SrvDeliver(ps, buf, 3);
         }
         if (flAttrMask & CBB_SET) {
             buf[0] = OCODE_GSCS; buf[1] = 1; buf[2] = (BYTE)cb->usSet;
-            SrvParseOrder(ps, buf, 3);
+            SrvDeliver(ps, buf, 3);
         }
         if (flAttrMask & CBB_DIRECTION) {
             buf[0] = OCODE_GSCD; buf[1] = 1; buf[2] = (BYTE)cb->usDirection;
-            SrvParseOrder(ps, buf, 3);
+            SrvDeliver(ps, buf, 3);
         }
         if (flAttrMask & CBB_MODE) {
             buf[0] = OCODE_GSCR; buf[1] = 1; buf[2] = (BYTE)cb->usPrecision;
-            SrvParseOrder(ps, buf, 3);
+            SrvDeliver(ps, buf, 3);
         }
     } else if (lPrimType == PRIM_MARKER) {
         PMARKERBUNDLE mb = (PMARKERBUNDLE)pb;
         if (flAttrMask & MBB_COLOR) {
             len = GocaEmitSetColor(&ps->goca, buf, sizeof(buf), mb->lColor);
-            if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
+            if (len >= 0) SrvDeliver(ps, buf, (ULONG)len);
         }
         if (flAttrMask & MBB_MIX_MODE) {
             buf[0] = OCODE_GSMX; buf[1] = 1; buf[2] = (BYTE)mb->usMixMode;
-            SrvParseOrder(ps, buf, 3);
+            SrvDeliver(ps, buf, 3);
         }
         if (flAttrMask & MBB_SET) {
             buf[0] = OCODE_GSMS; buf[1] = 1; buf[2] = (BYTE)mb->usSet;
-            SrvParseOrder(ps, buf, 3);
+            SrvDeliver(ps, buf, 3);
         }
         if (flAttrMask & MBB_SYMBOL) {
             buf[0] = OCODE_GSMT; buf[1] = 1; buf[2] = (BYTE)mb->usSymbol;
-            SrvParseOrder(ps, buf, 3);
+            SrvDeliver(ps, buf, 3);
         }
     } else if (lPrimType == PRIM_AREA) {
         PAREABUNDLE ab = (PAREABUNDLE)pb;
         if (flAttrMask & ABB_COLOR) {
             len = GocaEmitSetColor(&ps->goca, buf, sizeof(buf), ab->lColor);
-            if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
+            if (len >= 0) SrvDeliver(ps, buf, (ULONG)len);
         }
         if (flAttrMask & ABB_MIX_MODE) {
             buf[0] = OCODE_GSMX; buf[1] = 1; buf[2] = (BYTE)ab->usMixMode;
-            SrvParseOrder(ps, buf, 3);
+            SrvDeliver(ps, buf, 3);
         }
         if (flAttrMask & ABB_SET) {
             buf[0] = OCODE_GSPS; buf[1] = 1; buf[2] = (BYTE)ab->usSet;
-            SrvParseOrder(ps, buf, 3);
+            SrvDeliver(ps, buf, 3);
         }
         if (flAttrMask & ABB_SYMBOL) {
             buf[0] = OCODE_GSPT; buf[1] = 1; buf[2] = (BYTE)ab->usSymbol;
-            SrvParseOrder(ps, buf, 3);
+            SrvDeliver(ps, buf, 3);
         }
         if (flAttrMask & ABB_REF_POINT) {
             ULONG pointSize = ps->goca.coordSize;
@@ -156,11 +227,10 @@ static void SrvEmitSetAttrs(PGPI_PS ps, LONG lPrimType, ULONG flAttrMask,
             pos = 4;
             pos += GocaPutCoord(&ps->goca, buf + pos, ab->ptlRefPoint.x);
             pos += GocaPutCoord(&ps->goca, buf + pos, ab->ptlRefPoint.y);
-            SrvParseOrder(ps, buf, pos);
+            SrvDeliver(ps, buf, pos);
         }
     }
 }
-
 
 /*!
  * @def DISPATCH_STUB
@@ -181,12 +251,6 @@ static void SrvEmitSetAttrs(PGPI_PS ps, LONG lPrimType, ULONG flAttrMask,
  * @param [in] pArgs    Marshaled arguments.
  * @param [in] cbArgs   Size of pArgs in bytes.
  * @return GPI result.
- * @retval GPI_ERROR  Unknown or unimplemented function code.
- * @retval 1          Successful NGpiSetPS / NGpiMove / NGpiLine /
- *                    NGpiBox / NGpiSetColor / NGpiDestroyPS /
- *                    NGpiPolyLine / NGpiCharString / NGpiCharStringAt /
- *                    NGpiMarker / NGpiPolyMarker / NGpiSetAttrs.
- * @retval p          NGpiCreatePS: pointer to the new GPI_PS entry.
  */
 ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
 {
@@ -248,6 +312,172 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
     }
 
     /* ==================================================================== */
+    /*  Drawing state (no GOCA)                                             */
+    /* ==================================================================== */
+
+    case NGpiSetDrawingMode: {
+        LONG lMode;
+        PGPI_PS ps;
+
+        log("[PMSERVER] IN  : NGpiSetDrawingMode(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lMode = *(LONG*)pArgs;
+        if (lMode != DM_DRAW && lMode != DM_RETAIN && lMode != DM_DRAWANDRETAIN)
+            return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        ps->ulDrawingMode = (ULONG)lMode;
+        log("[PMSERVER] OUT : NGpiSetDrawingMode -> 1\n");
+        return 1;
+    }
+
+    case NGpiQueryDrawingMode: {
+        PGPI_PS ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        log("[PMSERVER] OUT : NGpiQueryDrawingMode -> %lu\n",
+            (unsigned long)ps->ulDrawingMode);
+        return (ULONG)ps->ulDrawingMode;
+    }
+
+    case NGpiSetDrawControl: {
+        LONG lControl, lValue;
+        PGPI_PS ps;
+
+        log("[PMSERVER] IN  : NGpiSetDrawControl(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        memcpy(&lControl, pArgs, sizeof(LONG));
+        memcpy(&lValue,   pArgs + sizeof(LONG), sizeof(LONG));
+        if (lControl < DCTL_ERASE || lControl > DCTL_CORRELATE)
+            return (ULONG)GPI_ERROR;
+        if (lValue != DCTL_ON && lValue != DCTL_OFF)
+            return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (lValue == DCTL_ON)
+            ps->ulDrawControl |=  DCTL_BIT(lControl);
+        else
+            ps->ulDrawControl &= ~DCTL_BIT(lControl);
+        log("[PMSERVER] OUT : NGpiSetDrawControl -> 1\n");
+        return 1;
+    }
+
+    case NGpiQueryDrawControl: {
+        LONG lControl;
+        PGPI_PS ps;
+
+        log("[PMSERVER] IN  : NGpiQueryDrawControl(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lControl = *(LONG*)pArgs;
+        if (lControl < DCTL_ERASE || lControl > DCTL_CORRELATE)
+            return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        return (ps->ulDrawControl & DCTL_BIT(lControl)) ? DCTL_ON : DCTL_OFF;
+    }
+
+    case NGpiSetStopDraw: {
+        LONG lValue;
+        PGPI_PS ps;
+
+        log("[PMSERVER] IN  : NGpiSetStopDraw(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lValue = *(LONG*)pArgs;
+        if (lValue != SDW_OFF && lValue != SDW_ON) return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        ps->ulStopDraw = (ULONG)lValue;
+        return 1;
+    }
+
+    case NGpiQueryStopDraw: {
+        PGPI_PS ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        return (ULONG)ps->ulStopDraw;
+    }
+
+    case NGpiSetEditMode: {
+        LONG lMode;
+        PGPI_PS ps;
+
+        log("[PMSERVER] IN  : NGpiSetEditMode(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lMode = *(LONG*)pArgs;
+        if (lMode != SEGEM_INSERT && lMode != SEGEM_REPLACE)
+            return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        ps->ulEditMode = (ULONG)lMode;
+        return 1;
+    }
+
+    case NGpiQueryEditMode: {
+        PGPI_PS ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        return (ULONG)ps->ulEditMode;
+    }
+
+    case NGpiSetInitialSegmentAttrs: {
+        LONG lAttribute, lValue;
+        PGPI_PS ps;
+
+        log("[PMSERVER] IN  : NGpiSetInitialSegmentAttrs(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        memcpy(&lAttribute, pArgs, sizeof(LONG));
+        memcpy(&lValue,     pArgs + sizeof(LONG), sizeof(LONG));
+        if (lValue != ATTR_ON && lValue != ATTR_OFF)
+            return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        switch (lAttribute) {
+        case ATTR_DETECTABLE:
+        case ATTR_VISIBLE:
+        case ATTR_CHAINED:
+        case ATTR_DYNAMIC:
+        case ATTR_FASTCHAIN:
+        case ATTR_PROP_DETECTABLE:
+        case ATTR_PROP_VISIBLE:
+            if (lValue == ATTR_ON)
+                ps->ulInitialSegAttrs |=  SEGATTR_BIT(lAttribute);
+            else
+                ps->ulInitialSegAttrs &= ~SEGATTR_BIT(lAttribute);
+            return 1;
+        default:
+            return (ULONG)GPI_ERROR;
+        }
+    }
+
+    case NGpiQueryInitialSegmentAttrs: {
+        LONG lAttribute;
+        PGPI_PS ps;
+
+        log("[PMSERVER] IN  : NGpiQueryInitialSegmentAttrs(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lAttribute = *(LONG*)pArgs;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        switch (lAttribute) {
+        case ATTR_DETECTABLE:
+        case ATTR_VISIBLE:
+        case ATTR_CHAINED:
+        case ATTR_DYNAMIC:
+        case ATTR_FASTCHAIN:
+        case ATTR_PROP_DETECTABLE:
+        case ATTR_PROP_VISIBLE:
+            return (ps->ulInitialSegAttrs & SEGATTR_BIT(lAttribute))
+                   ? ATTR_ON : ATTR_OFF;
+        default:
+            return (ULONG)GPI_ERROR;
+        }
+    }
+
+    /* ==================================================================== */
     /*  Drawing primitives (emit GOCA orders)                               */
     /* ==================================================================== */
 
@@ -273,7 +503,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
                 (unsigned long)lColor);
             return (ULONG)GPI_ERROR;
         }
-        SrvParseOrder(ps, buf, (ULONG)len);
+        SrvDeliver(ps, buf, (ULONG)len);
         log("[PMSERVER] OUT : NGpiSetColor -> 1\n");
         return 1;
     }
@@ -296,8 +526,26 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
 
         len = GocaEmitMove(&ps->goca, buf, sizeof(buf), ptl);
         if (len < 0) return (ULONG)GPI_ERROR;
-        SrvParseOrder(ps, buf, (ULONG)len);
+        SrvDeliver(ps, buf, (ULONG)len);
         log("[PMSERVER] OUT : NGpiMove -> 1\n");
+        return 1;
+    }
+
+    case NGpiSetCurrentPosition: {
+        POINTL ptl;
+        BYTE buf[10];
+        LONG len;
+        PGPI_PS ps;
+
+        log("[PMSERVER] IN  : NGpiSetCurrentPosition(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(POINTL)) return (ULONG)GPI_ERROR;
+        memcpy(&ptl, pArgs, sizeof(POINTL));
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        len = GocaEmitMove(&ps->goca, buf, sizeof(buf), ptl);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        SrvDeliver(ps, buf, (ULONG)len);
         return 1;
     }
 
@@ -319,7 +567,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
 
         len = GocaEmitLine(&ps->goca, buf, sizeof(buf), ptl);
         if (len < 0) return (ULONG)GPI_ERROR;
-        SrvParseOrder(ps, buf, (ULONG)len);
+        SrvDeliver(ps, buf, (ULONG)len);
         log("[PMSERVER] OUT : NGpiLine -> 1\n");
         return 1;
     }
@@ -342,7 +590,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         len = GocaEmitBox(&ps->goca, buf, sizeof(buf),
                           a->lControl, a->ptl, a->lHRound, a->lVRound);
         if (len < 0) return (ULONG)GPI_ERROR;
-        SrvParseOrder(ps, buf, (ULONG)len);
+        SrvDeliver(ps, buf, (ULONG)len);
         log("[PMSERVER] OUT : NGpiBox -> 1\n");
         return 1;
     }
@@ -385,7 +633,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
             if (heap) DosFreeMem(heap);
             return (ULONG)GPI_ERROR;
         }
-        SrvParseOrder(ps, buf, (ULONG)len);
+        SrvDeliver(ps, buf, (ULONG)len);
         if (heap) DosFreeMem(heap);
         log("[PMSERVER] OUT : NGpiPolyLine -> 1\n");
         return 1;
@@ -428,7 +676,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
             if (heap) DosFreeMem(heap);
             return (ULONG)GPI_ERROR;
         }
-        SrvParseOrder(ps, buf, (ULONG)len);
+        SrvDeliver(ps, buf, (ULONG)len);
         if (heap) DosFreeMem(heap);
         log("[PMSERVER] OUT : NGpiCharString -> 1\n");
         return 1;
@@ -474,7 +722,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
             if (heap) DosFreeMem(heap);
             return (ULONG)GPI_ERROR;
         }
-        SrvParseOrder(ps, buf, (ULONG)len);
+        SrvDeliver(ps, buf, (ULONG)len);
         if (heap) DosFreeMem(heap);
         log("[PMSERVER] OUT : NGpiCharStringAt -> 1\n");
         return 1;
@@ -498,7 +746,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
 
         len = GocaEmitMarker(&ps->goca, buf, sizeof(buf), ptl);
         if (len < 0) return (ULONG)GPI_ERROR;
-        SrvParseOrder(ps, buf, (ULONG)len);
+        SrvDeliver(ps, buf, (ULONG)len);
         log("[PMSERVER] OUT : NGpiMarker -> 1\n");
         return 1;
     }
@@ -541,9 +789,27 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
             if (heap) DosFreeMem(heap);
             return (ULONG)GPI_ERROR;
         }
-        SrvParseOrder(ps, buf, (ULONG)len);
+        SrvDeliver(ps, buf, (ULONG)len);
         if (heap) DosFreeMem(heap);
         log("[PMSERVER] OUT : NGpiPolyMarker -> 1\n");
+        return 1;
+    }
+
+    case NGpiSetArcParams: {
+        ARCPARAMS ap;
+        BYTE buf[10];
+        LONG len;
+        PGPI_PS ps;
+
+        log("[PMSERVER] IN  : NGpiSetArcParams(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(ARCPARAMS)) return (ULONG)GPI_ERROR;
+        memcpy(&ap, pArgs, sizeof(ARCPARAMS));
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        len = GocaEmitSetArcParams(&ps->goca, buf, sizeof(buf), &ap);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        SrvDeliver(ps, buf, (ULONG)len);
         return 1;
     }
 
@@ -573,6 +839,105 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
     }
 
     /* ==================================================================== */
+    /*  Segments                                                            */
+    /* ==================================================================== */
+
+    case NGpiOpenSegment: {
+        LONG lSegId;
+        PGPI_PS ps;
+        BYTE gbseg[14];
+        UCHAR f1, f2;
+        ULONG start, end;
+
+        log("[PMSERVER] IN  : NGpiOpenSegment(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lSegId = *(LONG*)pArgs;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        if (lSegId <= 0) {
+            log("[PMSERVER] OUT : NGpiOpenSegment -> GPI_ERROR (bad id)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenSeg != 0) {
+            log("[PMSERVER] OUT : NGpiOpenSegment -> GPI_ERROR (already in seg %ld)\n",
+                (long)ps->lOpenSeg);
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->ulDrawingMode == DM_DRAW) {
+            log("[PMSERVER] OUT : NGpiOpenSegment -> GPI_ERROR (in DM_DRAW)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        if (GpiPsGocaFindSeg(ps, lSegId, &start, &end)) {
+            log("[PMSERVER] OUT : NGpiOpenSegment -> GPI_ERROR (dup seg %ld)\n",
+                (long)lSegId);
+            return (ULONG)GPI_ERROR;
+        }
+
+        SrvBuildGbsegFlags(ps->ulInitialSegAttrs, &f1, &f2);
+
+        gbseg[0] = OCODE_GBSEG;
+        gbseg[1] = GBSEG_LENGTH;
+        GocaPutU32(&ps->goca, gbseg + 2, (ULONG)lSegId);
+        gbseg[6] = f1;
+        gbseg[7] = f2;
+        GocaPutU16(&ps->goca, gbseg + 8, 0);   /* SEGL */
+        GocaPutU32(&ps->goca, gbseg + 10, 0);  /* P/SNAME */
+
+        if (!GpiPsGocaAppend(ps, gbseg, sizeof(gbseg)))
+            return (ULONG)GPI_ERROR;
+        ps->uOpenSegStart = ps->cbGoca - sizeof(gbseg);
+        ps->lOpenSeg      = lSegId;
+
+        log("[PMSERVER] OUT : NGpiOpenSegment -> 1 (off=%lu)\n",
+            (unsigned long)ps->uOpenSegStart);
+        return 1;
+    }
+
+    case NGpiCloseSegment: {
+        PGPI_PS ps = GpiPsGet(hps);
+
+        log("[PMSERVER] IN  : NGpiCloseSegment(hps=%p)\n", (void*)hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg == 0) {
+            log("[PMSERVER] OUT : NGpiCloseSegment -> GPI_ERROR (not in seg)\n");
+            return (ULONG)GPI_ERROR;
+        }
+        ps->lOpenSeg      = 0;
+        ps->uOpenSegStart = 0;
+        log("[PMSERVER] OUT : NGpiCloseSegment -> 1\n");
+        return 1;
+    }
+
+    case NGpiDrawSegment: {
+        LONG lSegId;
+        PGPI_PS ps;
+        ULONG start, end;
+
+        log("[PMSERVER] IN  : NGpiDrawSegment(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lSegId = *(LONG*)pArgs;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        if (!GpiPsGocaFindSeg(ps, lSegId, &start, &end)) {
+            log("[PMSERVER] OUT : NGpiDrawSegment -> GPI_ERROR (seg %ld not found)\n",
+                (long)lSegId);
+            return (ULONG)GPI_ERROR;
+        }
+
+        ps->goca.pbStream = ps->pbGoca + start;
+        ps->goca.cbStream = end - start;
+        GocaParseStream(&ps->goca);   /* GBSEG is a no-op in the parser */
+
+        log("[PMSERVER] OUT : NGpiDrawSegment -> 1 (off=%lu..%lu)\n",
+            (unsigned long)start, (unsigned long)end);
+        return 1;
+    }
+
+    /* ==================================================================== */
     /*  Everything else: stub                                               */
     /* ==================================================================== */
 
@@ -584,12 +949,6 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
     DISPATCH_STUB(NGpiResetPS)
     DISPATCH_STUB(NGpiQueryPS)
     DISPATCH_STUB(NGpiErrorSegmentData)
-    DISPATCH_STUB(NGpiQueryDrawControl)
-    DISPATCH_STUB(NGpiSetDrawControl)
-    DISPATCH_STUB(NGpiQueryDrawingMode)
-    DISPATCH_STUB(NGpiSetDrawingMode)
-    DISPATCH_STUB(NGpiQueryStopDraw)
-    DISPATCH_STUB(NGpiSetStopDraw)
     DISPATCH_STUB(NGpiCorrelateChain)
     DISPATCH_STUB(NGpiQueryTag)
     DISPATCH_STUB(NGpiSetTag)
@@ -601,11 +960,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
     DISPATCH_STUB(NGpiResetBoundaryData)
     DISPATCH_STUB(NGpiCorrelateFrom)
     DISPATCH_STUB(NGpiCorrelateSegment)
-    DISPATCH_STUB(NGpiOpenSegment)
-    DISPATCH_STUB(NGpiCloseSegment)
     DISPATCH_STUB(NGpiDeleteSegment)
-    DISPATCH_STUB(NGpiQueryInitialSegmentAttrs)
-    DISPATCH_STUB(NGpiSetInitialSegmentAttrs)
     DISPATCH_STUB(NGpiQuerySegmentAttrs)
     DISPATCH_STUB(NGpiSetSegmentAttrs)
     DISPATCH_STUB(NGpiQuerySegmentPriority)
@@ -616,7 +971,6 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
     DISPATCH_STUB(NGpiPutData)
     DISPATCH_STUB(NGpiDrawChain)
     DISPATCH_STUB(NGpiDrawFrom)
-    DISPATCH_STUB(NGpiDrawSegment)
     DISPATCH_STUB(NGpiDrawDynamics)
     DISPATCH_STUB(NGpiRemoveDynamics)
     DISPATCH_STUB(NGpiBeginElement)
@@ -627,8 +981,6 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
     DISPATCH_STUB(NGpiDeleteElement)
     DISPATCH_STUB(NGpiDeleteElementRange)
     DISPATCH_STUB(NGpiDeleteElementsBetweenLabels)
-    DISPATCH_STUB(NGpiQueryEditMode)
-    DISPATCH_STUB(NGpiSetEditMode)
     DISPATCH_STUB(NGpiQueryElementPointer)
     DISPATCH_STUB(NGpiSetElementPointer)
     DISPATCH_STUB(NGpiOffsetElementPointer)
@@ -704,9 +1056,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
     DISPATCH_STUB(NGpiQueryLineEnd)
     DISPATCH_STUB(NGpiSetLineJoin)
     DISPATCH_STUB(NGpiQueryLineJoin)
-    DISPATCH_STUB(NGpiSetCurrentPosition)
     DISPATCH_STUB(NGpiQueryCurrentPosition)
-    DISPATCH_STUB(NGpiSetArcParams)
     DISPATCH_STUB(NGpiQueryArcParams)
     DISPATCH_STUB(NGpiPointArc)
     DISPATCH_STUB(NGpiFullArc)
