@@ -28,6 +28,9 @@ typedef int            BOOL;       /*!< Boolean. */
 typedef unsigned short USHORT;     /*!< 16-bit unsigned. */
 typedef short          SHORT;      /*!< 16-bit signed. */
 typedef unsigned char  BYTE;       /*!< 8-bit unsigned. */
+typedef unsigned char *PBYTE;     /*!< Pointer to BYTE. */
+typedef char          *PCH;       /*!< Pointer to CHAR. */
+typedef char          *PSTR8;     /*!< Pointer to 8-bit string. */
 typedef char           CHAR;       /*!< 8-bit character. */
 typedef void          *PVOID;      /*!< Generic pointer. */
 typedef long          *PLONG;      /*!< Pointer to LONG. */
@@ -84,6 +87,17 @@ typedef void *HMODULE;   /*!< Module handle. */
 #define DM_RETAIN           1L   /*!< Record-only (segments).    */
 #define DM_DRAWANDRETAIN    2L   /*!< Record and render.         */
 
+/* Segment attributes (ATTR_*) */
+#define ATTR_DETECTABLE         1L
+#define ATTR_VISIBLE            2L
+#define ATTR_CHAINED            6L
+#define ATTR_DYNAMIC            8L
+#define ATTR_FASTCHAIN          9L
+#define ATTR_PROP_DETECTABLE   10L
+#define ATTR_PROP_VISIBLE      11L
+#define ATTR_OFF                0L
+#define ATTR_ON                 1L
+
 /* ---------- Structures ---------- */
 typedef struct _POINTL { LONG x; LONG y; } POINTL, *PPOINTL;                 /*!< Point. */
 typedef struct _SIZEL  { LONG cx; LONG cy; } SIZEL, *PSIZEL;                 /*!< Size. */
@@ -124,6 +138,15 @@ LONG APIENTRY GpiQueryDrawingMode(HPS hps);
 BOOL APIENTRY GpiOpenSegment(HPS hps, LONG lSegment);
 BOOL APIENTRY GpiCloseSegment(HPS hps);
 BOOL APIENTRY GpiDrawSegment(HPS hps, LONG lSegment);
+
+LONG APIENTRY GpiQuerySegmentNames(HPS hps, LONG lFirstSegid, LONG lLastSegid,
+                                   LONG lMax, PLONG alSegids);
+LONG APIENTRY GpiQuerySegmentAttrs(HPS hps, LONG lSegid, LONG lAttribute);
+BOOL APIENTRY GpiSetSegmentAttrs(HPS hps, LONG lSegid, LONG lAttribute, LONG lValue);
+BOOL APIENTRY GpiDeleteSegment(HPS hps, LONG lSegid);
+BOOL APIENTRY GpiDeleteSegments(HPS hps, LONG lFirstSegment, LONG lLastSegment);
+LONG APIENTRY GpiGetData(HPS hps, LONG lSegid, PLONG plOffset, LONG lFormat, LONG lLength, PBYTE pbData);
+LONG APIENTRY GpiPutData(HPS hps, LONG lFormat, PLONG plCount, PBYTE pbData);
 
 #ifdef __cplusplus
 }

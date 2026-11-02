@@ -252,8 +252,10 @@ static void SrvEmitSetAttrs(PGPI_PS ps, LONG lPrimType, ULONG flAttrMask,
  * @param [in] cbArgs   Size of pArgs in bytes.
  * @return GPI result.
  */
-ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
+ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
+                  PULONG pcbPayload)
 {
+    if (pcbPayload) *pcbPayload = 0;   /* default: no payload */
     log("[PMSERVER] Dispatch IN : FnCode=0x%x, ArgsSize=%u\n", ulFnCode, cbArgs);
 
     switch (ulFnCode) {
@@ -937,6 +939,309 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         return 1;
     }
 
+
+    /* ==================================================================== */
+    /*  Segment editing                                                     */
+    /* ==================================================================== */
+
+    case NGpiDeleteSegment: {
+        LONG lSegId;
+        PGPI_PS ps;
+        ULONG start, end;
+
+        log("[PMSERVER] IN  : NGpiDeleteSegment(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lSegId = *(LONG*)pArgs;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        if (ps->lOpenSeg == lSegId) {
+            log("[PMSERVER] OUT : NGpiDeleteSegment -> GPI_ERROR (seg %ld is open)\n",
+                (long)lSegId);
+            return (ULONG)GPI_ERROR;
+        }
+        if (!GpiPsGocaFindSeg(ps, lSegId, &start, &end)) {
+            log("[PMSERVER] OUT : NGpiDeleteSegment -> GPI_ERROR (seg %ld not found)\n",
+                (long)lSegId);
+            return (ULONG)GPI_ERROR;
+        }
+        if (!GpiPsGocaDelete(ps, start, end))
+            return (ULONG)GPI_ERROR;
+
+        log("[PMSERVER] OUT : NGpiDeleteSegment -> 1 (removed %lu bytes)\n",
+            (unsigned long)(end - start));
+        return 1;
+    }
+
+    case NGpiDeleteSegments: {
+        LONG lFirst, lLast;
+        PGPI_PS ps;
+        ULONG off;
+
+        log("[PMSERVER] IN  : NGpiDeleteSegments(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        memcpy(&lFirst, pArgs, sizeof(LONG));
+        memcpy(&lLast,  pArgs + sizeof(LONG), sizeof(LONG));
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        off = 0;
+        while (off < ps->cbGoca) {
+            const BYTE *p = ps->pbGoca + off;
+            ULONG cb = GocaOrderLength(&ps->goca, p, ps->cbGoca - off);
+            if (cb == 0) break;
+
+            if (p[0] == OCODE_GBSEG && cb >= 6) {
+                ULONG name = GocaGetU32(&ps->goca, p + 2);
+                if ((LONG)name >= lFirst && (LONG)name <= lLast) {
+                    ULONG start, end;
+                    if (ps->lOpenSeg == (LONG)name) {
+                        log("[PMSERVER] OUT : NGpiDeleteSegments -> GPI_ERROR (seg %lu open)\n",
+                            (unsigned long)name);
+                        return (ULONG)GPI_ERROR;
+                    }
+                    if (!GpiPsGocaFindSeg(ps, (LONG)name, &start, &end))
+                        break;
+                    GpiPsGocaDelete(ps, start, end);
+                    off = start;   /* re-scan from same position */
+                    continue;
+                }
+            }
+            off += cb;
+        }
+        log("[PMSERVER] OUT : NGpiDeleteSegments -> 1\n");
+        return 1;
+    }
+
+    case NGpiSetSegmentAttrs: {
+        LONG lSegId, lAttr, lValue;
+        PGPI_PS ps;
+        ULONG start, end;
+        UCHAR f1 = 0, f2 = 0;
+
+        log("[PMSERVER] IN  : NGpiSetSegmentAttrs(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 3 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        memcpy(&lSegId, pArgs, sizeof(LONG));
+        memcpy(&lAttr,  pArgs + sizeof(LONG), sizeof(LONG));
+        memcpy(&lValue, pArgs + 2 * sizeof(LONG), sizeof(LONG));
+        if (lValue != ATTR_ON && lValue != ATTR_OFF)
+            return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        if (!GpiPsGocaFindSeg(ps, lSegId, &start, &end))
+            return (ULONG)GPI_ERROR;
+        if (start + 8 > end) return (ULONG)GPI_ERROR;
+
+        f1 = ps->pbGoca[start + 6];
+        f2 = ps->pbGoca[start + 7];
+
+        switch (lAttr) {
+        case ATTR_VISIBLE:
+            if (lValue == ATTR_ON) f1 &= (UCHAR)~GBSEG_INVISIBLE;
+            else                   f1 |= GBSEG_INVISIBLE;
+            break;
+        case ATTR_PROP_VISIBLE:
+            if (lValue == ATTR_ON) f1 &= (UCHAR)~GBSEG_PROPINV;
+            else                   f1 |= GBSEG_PROPINV;
+            break;
+        case ATTR_DETECTABLE:
+            if (lValue == ATTR_ON) f1 |= GBSEG_PICK;
+            else                   f1 &= (UCHAR)~GBSEG_PICK;
+            break;
+        case ATTR_PROP_DETECTABLE:
+            if (lValue == ATTR_ON) f1 |= GBSEG_PROPICK;
+            else                   f1 &= (UCHAR)~GBSEG_PROPICK;
+            break;
+        case ATTR_DYNAMIC:
+            if (lValue == ATTR_ON) f1 |= GBSEG_DYNAMIC;
+            else                   f1 &= (UCHAR)~GBSEG_DYNAMIC;
+            break;
+        case ATTR_FASTCHAIN:
+            if (lValue == ATTR_ON) f1 |= GBSEG_FASTCH;
+            else                   f1 &= (UCHAR)~GBSEG_FASTCH;
+            break;
+        case ATTR_CHAINED:
+            if (lValue == ATTR_ON) f2 &= (UCHAR)~GBSEG_CHAIN;
+            else                   f2 |= GBSEG_CHAIN;
+            break;
+        default:
+            return (ULONG)GPI_ERROR;
+        }
+
+        ps->pbGoca[start + 6] = f1;
+        ps->pbGoca[start + 7] = f2;
+        return 1;
+    }
+
+    case NGpiQuerySegmentAttrs: {
+        LONG lSegId, lAttr;
+        PGPI_PS ps;
+        ULONG start, end;
+        UCHAR f1, f2;
+
+        log("[PMSERVER] IN  : NGpiQuerySegmentAttrs(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        memcpy(&lSegId, pArgs, sizeof(LONG));
+        memcpy(&lAttr,  pArgs + sizeof(LONG), sizeof(LONG));
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        if (!GpiPsGocaFindSeg(ps, lSegId, &start, &end))
+            return (ULONG)GPI_ERROR;
+        if (start + 8 > end) return (ULONG)GPI_ERROR;
+
+        f1 = ps->pbGoca[start + 6];
+        f2 = ps->pbGoca[start + 7];
+
+        switch (lAttr) {
+        case ATTR_VISIBLE:          return (f1 & GBSEG_INVISIBLE) ? ATTR_OFF : ATTR_ON;
+        case ATTR_PROP_VISIBLE:     return (f1 & GBSEG_PROPINV)   ? ATTR_OFF : ATTR_ON;
+        case ATTR_DETECTABLE:       return (f1 & GBSEG_PICK)      ? ATTR_ON  : ATTR_OFF;
+        case ATTR_PROP_DETECTABLE:  return (f1 & GBSEG_PROPICK)   ? ATTR_ON  : ATTR_OFF;
+        case ATTR_DYNAMIC:          return (f1 & GBSEG_DYNAMIC)   ? ATTR_ON  : ATTR_OFF;
+        case ATTR_FASTCHAIN:        return (f1 & GBSEG_FASTCH)    ? ATTR_ON  : ATTR_OFF;
+        case ATTR_CHAINED:          return (f2 & GBSEG_CHAIN)     ? ATTR_OFF : ATTR_ON;
+        default:                    return (ULONG)GPI_ERROR;
+        }
+    }
+
+    case NGpiQuerySegmentNames: {
+        LONG lFirst, lLast, lMax;
+        PGPI_PS ps;
+        ULONG off;
+        LONG  n = 0;
+        LONG *pOut;
+
+        log("[PMSERVER] IN  : NGpiQuerySegmentNames(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 3 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        memcpy(&lFirst, pArgs, sizeof(LONG));
+        memcpy(&lLast,  pArgs + sizeof(LONG), sizeof(LONG));
+        memcpy(&lMax,   pArgs + 2 * sizeof(LONG), sizeof(LONG));
+        if (lMax <= 0 || cbArgs < 3 * sizeof(LONG) + (ULONG)lMax * sizeof(LONG))
+            return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        pOut = (LONG*)(pArgs + 3 * sizeof(LONG));
+        off  = 0;
+        while (off < ps->cbGoca && n < lMax) {
+            const BYTE *p = ps->pbGoca + off;
+            ULONG cb = GocaOrderLength(&ps->goca, p, ps->cbGoca - off);
+            if (cb == 0) break;
+
+            if (p[0] == OCODE_GBSEG && cb >= 6) {
+                ULONG name = GocaGetU32(&ps->goca, p + 2);
+                if ((LONG)name >= lFirst && (LONG)name <= lLast)
+                    pOut[n++] = (LONG)name;
+            }
+            off += cb;
+        }
+
+        if (pcbPayload) *pcbPayload = cbArgs;   /* send back modified pArgs */
+        log("[PMSERVER] OUT : NGpiQuerySegmentNames -> %ld names, payload=%u\n",
+            (long)n, (unsigned)cbArgs);
+        return (ULONG)n;
+    }
+
+    case NGpiGetData: {
+        PGpiGetData_Args a = (PGpiGetData_Args)pArgs;
+        PGPI_PS ps;
+        ULONG start, end, avail, avail_from_off, toCopy;
+
+        log("[PMSERVER] IN  : NGpiGetData(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!a || cbArgs < 4 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        if (a->lFormat != 0 /* DFORM_NOCONV */) {
+            log("[PMSERVER] OUT : NGpiGetData -> GPI_ERROR (unsupported format %ld)\n",
+                (long)a->lFormat);
+            return (ULONG)GPI_ERROR;
+        }
+        if (a->lLength < 0 || a->lOffset < 0) return (ULONG)GPI_ERROR;
+        if (cbArgs < 4 * sizeof(LONG) + (ULONG)a->lLength) return (ULONG)GPI_ERROR;
+
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        if (!GpiPsGocaFindSeg(ps, a->lSegid, &start, &end)) {
+            log("[PMSERVER] OUT : NGpiGetData -> GPI_ERROR (seg %ld not found)\n",
+                (long)a->lSegid);
+            return (ULONG)GPI_ERROR;
+        }
+
+        /* Skip the GBSEG header: GpiGetData returns the segment body
+           only. GBSEG is 2-byte fixed code + X'0C' length = 14 bytes
+           per pmord.h ORDERL_GBSEG (uchCode + uchLength + 12 payload). */
+        if (end - start > 14)
+            start += 14;
+        else
+            start = end;   /* empty body */
+
+        avail = end - start;
+        avail_from_off = ((ULONG)a->lOffset < avail) ? (avail - (ULONG)a->lOffset) : 0;
+        toCopy = ((ULONG)a->lLength < avail_from_off) ? (ULONG)a->lLength : avail_from_off;
+        if (toCopy > 0)
+            memcpy(a->abData, ps->pbGoca + start + (ULONG)a->lOffset, toCopy);
+        a->lOffset += (LONG)toCopy;
+
+        if (pcbPayload) *pcbPayload = cbArgs;   /* send back updated pArgs */
+        log("[PMSERVER] OUT : NGpiGetData -> %lu bytes (seg %ld, off %ld)\n",
+            (unsigned long)toCopy, (long)a->lSegid, (long)a->lOffset);
+        return (ULONG)toCopy;
+    }
+
+    case NGpiPutData: {
+        PGpiPutData_Args a = (PGpiPutData_Args)pArgs;
+        PGPI_PS ps;
+        ULONG off, total, processed;
+
+        log("[PMSERVER] IN  : NGpiPutData(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!a || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        if (a->lCount < 0 ||
+            cbArgs < 2 * sizeof(LONG) + (ULONG)a->lCount)
+            return (ULONG)GPI_ERROR;
+
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        total     = (ULONG)a->lCount;
+        off       = 0;
+        processed = 0;
+
+        while (off < total) {
+            ULONG cb = GocaOrderLength(&ps->goca, a->abData + off, total - off);
+            if (cb == 0) break;   /* trailing partial order */
+
+            /* GBSEG in the input is a segment marker, not drawing data.
+               Segment boundaries are the responsibility of OpenSegment /
+               CloseSegment, not PutData. Skip it without recording or
+               dispatching, but count it as processed so that *plCount
+               reflects the whole consumed buffer. */
+            if (a->abData[off] == OCODE_GBSEG) {
+                off       += cb;
+                processed += cb;
+                continue;
+            }
+
+            if (!SrvDeliver(ps, a->abData + off, cb)) break;
+            off       += cb;
+            processed += cb;
+        }
+
+        a->lCount = (LONG)processed;
+
+        if (pcbPayload) *pcbPayload = cbArgs;   /* send back updated pArgs */
+        log("[PMSERVER] OUT : NGpiPutData -> %lu/%lu bytes processed\n",
+            (unsigned long)processed, (unsigned long)total);
+        return 1;
+    }
+
     /* ==================================================================== */
     /*  Everything else: stub                                               */
     /* ==================================================================== */
@@ -960,15 +1265,8 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
     DISPATCH_STUB(NGpiResetBoundaryData)
     DISPATCH_STUB(NGpiCorrelateFrom)
     DISPATCH_STUB(NGpiCorrelateSegment)
-    DISPATCH_STUB(NGpiDeleteSegment)
-    DISPATCH_STUB(NGpiQuerySegmentAttrs)
-    DISPATCH_STUB(NGpiSetSegmentAttrs)
     DISPATCH_STUB(NGpiQuerySegmentPriority)
     DISPATCH_STUB(NGpiSetSegmentPriority)
-    DISPATCH_STUB(NGpiDeleteSegments)
-    DISPATCH_STUB(NGpiQuerySegmentNames)
-    DISPATCH_STUB(NGpiGetData)
-    DISPATCH_STUB(NGpiPutData)
     DISPATCH_STUB(NGpiDrawChain)
     DISPATCH_STUB(NGpiDrawFrom)
     DISPATCH_STUB(NGpiDrawDynamics)

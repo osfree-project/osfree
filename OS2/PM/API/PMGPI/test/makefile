@@ -25,8 +25,13 @@ IMPORTS = WinInitialize      PMWIN.246, &
           GpiSetDrawingMode  PMGPI.522, &
           GpiOpenSegment     PMGPI.408, &
           GpiCloseSegment    PMGPI.361, &
-          GpiDrawSegment     PMGPI.383
-
+          GpiDrawSegment     PMGPI.383, &
+          GpiQuerySegmentNames    PMGPI.483, &
+          GpiQuerySegmentAttrs    PMGPI.482, &
+          GpiSetSegmentAttrs PMGPI.547, &
+          GpiGetData         PMGPI.394, &
+          GpiPutData         PMGPI.421, &
+          GpiDeleteSegment   PMGPI.376
 
 !include $(%ROOT)tools/mk/build.mk
 

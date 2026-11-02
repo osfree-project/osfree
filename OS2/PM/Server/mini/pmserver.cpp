@@ -101,7 +101,8 @@ static HMTX g_hmtx = 0;
  * @param [in] cbArgs   Size of pArgs in bytes.
  * @return GPI result.
  */
-extern ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs);
+extern ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
+                         PULONG pcbPayload);
 
 /*! @brief Cleanup function, registered via atexit and signal handlers.
     Closes the mutex and releases any held resources. */
@@ -150,9 +151,10 @@ static void HandleGpiCall(void *recvobj, ULONG fnCode, HPS hps)
         ULONG cbPayload;
         ULONG ulLastError;
     } resp;
-    ULONG cbArgs = 0;
-    PVOID pv     = NULL;
-    PBYTE pArgs  = NULL;
+    ULONG cbArgs    = 0;
+    ULONG cbPayload = 0;
+    PVOID pv        = NULL;
+    PBYTE pArgs     = NULL;
     int   rc, len;
 
     if (!g_RecvData) {
@@ -177,9 +179,18 @@ static void HandleGpiCall(void *recvobj, ULONG fnCode, HPS hps)
         }
 
         resp.ulStatus    = 0;
-        resp.ulResult    = DispatchGpi(hps, fnCode, pArgs, cbArgs);
-        resp.cbPayload   = 0;
+        resp.ulResult    = DispatchGpi(hps, fnCode, pArgs, cbArgs, &cbPayload);
+        resp.cbPayload   = cbPayload;
         resp.ulLastError = 0;
+
+        if (g_SendData) {
+            /* Header first. */
+            g_SendData(recvobj, &resp, sizeof(resp));
+
+            /* Then the payload, if any (DispatchGpi filled pArgs in place). */
+            if (cbPayload > 0 && pArgs != NULL && cbPayload <= cbArgs)
+                g_SendData(recvobj, pArgs, (int)cbPayload);
+        }
 
         if (pv) DosFreeMem(pv);
     } else {
@@ -187,9 +198,9 @@ static void HandleGpiCall(void *recvobj, ULONG fnCode, HPS hps)
         resp.ulResult    = (ULONG)GPI_ERROR;
         resp.cbPayload   = 0;
         resp.ulLastError = 0;
-    }
 
-    if (g_SendData) g_SendData(recvobj, &resp, sizeof(resp));
+        if (g_SendData) g_SendData(recvobj, &resp, sizeof(resp));
+    }
 }
 
 /*! @brief Test handler: echoes back the command code.

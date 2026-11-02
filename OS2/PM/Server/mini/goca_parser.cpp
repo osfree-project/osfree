@@ -1219,6 +1219,9 @@ LONG GocaParseStream(GOCA_CTX *c)
             case OCODE_GSMC:    rc = DoSetMarkerCell(c, p, cbOrder); break;
             case OCODE_GSPRP:   rc = DoSetPatternRefPoint(c, p, cbOrder); break;
 
+            case OCODE_GBSEG:   /* segment marker; content is replayed by the
+                       server's DrawSegment/DrawChain, no Gre action */
+                break;
             /* ============ very long ============ */
             case OCODE_VLONG:
                 switch (p[1]) {
@@ -1321,6 +1324,7 @@ const char *GocaOrderName(UCHAR uCode)
     case OCODE_GSMC:    return "GSMC";
     case OCODE_GSPRP:   return "GSPRP";
     case OCODE_VLONG:   return "VLONG";
+    case OCODE_GBSEG:   return "GBSEG";
     default:            return "?";
     }
 }

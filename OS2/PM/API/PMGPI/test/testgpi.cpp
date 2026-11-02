@@ -86,19 +86,85 @@ int main(void)
     rc_box = GpiBox(hps, DRO_OUTLINE, &ptl2, 0, 0); /* противоположный угол */
     printf("GpiBox -> %ld\n", (long)rc_box);
 
-//////////
-/* Draw mode Ч direct rendering, nothing retained. */
-GpiSetDrawingMode(hps, DM_RETAIN);
-GpiOpenSegment(hps, 1);
-GpiSetColor(hps, CLR_RED);
-GpiMove(hps, &ptl1);
-GpiLine(hps, &ptl2);
-GpiCloseSegment(hps);
+    printf("Calling GpiSetDrawingMode(hps=%p, DM_RETAIN=%ld)\n",
+           (void*)hps, (long)DM_RETAIN);
+    GpiSetDrawingMode(hps, DM_RETAIN);
 
-/* No visible effect yet: in DM_RETAIN nothing is drawn. */
-GpiSetDrawingMode(hps, DM_DRAW);
-GpiDrawSegment(hps, 1);   /* now the red line appears via GOCA replay */
-//////////
+    printf("Calling GpiOpenSegment(hps=%p, 1)\n", (void*)hps);
+    GpiOpenSegment(hps, 1);
+
+    printf("Calling GpiSetColor(hps=%p, CLR_RED=%ld) [in segment]\n",
+           (void*)hps, (long)CLR_RED);
+    GpiSetColor(hps, CLR_RED);
+
+    printf("Calling GpiMove(hps=%p, ptl1={%ld, %ld}) [in segment]\n",
+           (void*)hps, (long)ptl1.x, (long)ptl1.y);
+    GpiMove(hps, &ptl1);
+
+    printf("Calling GpiLine(hps=%p, ptl2={%ld, %ld}) [in segment]\n",
+           (void*)hps, (long)ptl2.x, (long)ptl2.y);
+    GpiLine(hps, &ptl2);
+
+    printf("Calling GpiCloseSegment(hps=%p)\n", (void*)hps);
+    GpiCloseSegment(hps);
+
+    printf("Calling GpiSetDrawingMode(hps=%p, DM_DRAW=%ld)\n",
+           (void*)hps, (long)DM_DRAW);
+    GpiSetDrawingMode(hps, DM_DRAW);
+
+    printf("Calling GpiDrawSegment(hps=%p, 1)\n", (void*)hps);
+    GpiDrawSegment(hps, 1);
+
+
+{
+    LONG segids[4] = {0};
+    LONG n;
+
+    printf("Calling GpiQuerySegmentNames(hps=%p, 1, 10, 4)\n", (void*)hps);
+    n = GpiQuerySegmentNames(hps, 1, 10, 4, segids);
+    printf("GpiQuerySegmentNames -> %ld (ids: %ld, %ld, %ld, %ld)\n",
+           (long)n, (long)segids[0], (long)segids[1],
+           (long)segids[2], (long)segids[3]);
+
+    printf("Calling GpiQuerySegmentAttrs(hps=%p, 1, ATTR_VISIBLE)\n", (void*)hps);
+    printf("GpiQuerySegmentAttrs -> %ld (ATTR_ON=%ld)\n",
+           (long)GpiQuerySegmentAttrs(hps, 1, ATTR_VISIBLE),
+           (long)ATTR_ON);
+}
+
+{
+    /* SetSegmentAttrs / QuerySegmentAttrs на не-дефолтный атрибут */
+    GpiSetSegmentAttrs(hps, 1, ATTR_DYNAMIC, ATTR_ON);
+    printf("GpiQuerySegmentAttrs(1, ATTR_DYNAMIC) -> %ld\n",
+           (long)GpiQuerySegmentAttrs(hps, 1, ATTR_DYNAMIC));
+    GpiSetSegmentAttrs(hps, 1, ATTR_DYNAMIC, ATTR_OFF);
+
+    /* GetData/PutData round-trip */
+{
+    BYTE  goca[64];
+    LONG  offset = 0, n, n2;
+    BOOL  rc;
+
+    n = GpiGetData(hps, 1, &offset, 0, sizeof(goca), goca);
+    printf("GpiGetData(seg 1) -> %ld bytes, offset=%ld\n",
+           (long)n, (long)offset);
+
+    GpiSetDrawingMode(hps, DM_RETAIN);
+    rc = GpiOpenSegment(hps, 2);
+    printf("GpiOpenSegment(2) -> %d\n", (int)rc);
+
+    n2 = GpiPutData(hps, 0, &n, goca);
+    printf("GpiPutData(seg 2) -> %ld (n=%ld)\n", (long)n2, (long)n);
+
+    GpiCloseSegment(hps);
+    GpiSetDrawingMode(hps, DM_DRAW);
+
+    printf("GpiDeleteSegment(2) -> %d\n", (int)GpiDeleteSegment(hps, 2));
+}
+
+    /* DeleteSegment */
+    GpiDeleteSegment(hps, 2);
+}
 
 
     printf("Calling WinReleasePS(hps=%p)\n", (void*)hps);
