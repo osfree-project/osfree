@@ -178,6 +178,82 @@
   #ifndef SYNCHRONIZE
     #define SYNCHRONIZE    0x00100000L
   #endif
+
+  /* ---------- OS/2 GPI constants (Win32 fallback) ---------- */
+  #ifndef DM_DRAW
+  #define DM_DRAW              0L
+  #endif
+  #ifndef DM_RETAIN
+  #define DM_RETAIN            1L
+  #endif
+  #ifndef DM_DRAWANDRETAIN
+  #define DM_DRAWANDRETAIN     2L
+  #endif
+
+  #ifndef SEGEM_INSERT
+  #define SEGEM_INSERT         1L
+  #endif
+  #ifndef SEGEM_REPLACE
+  #define SEGEM_REPLACE        2L
+  #endif
+
+  #ifndef ATTR_DETECTABLE
+  #define ATTR_DETECTABLE      1L
+  #endif
+  #ifndef ATTR_VISIBLE
+  #define ATTR_VISIBLE         2L
+  #endif
+  #ifndef ATTR_CHAINED
+  #define ATTR_CHAINED         6L
+  #endif
+  #ifndef ATTR_DYNAMIC
+  #define ATTR_DYNAMIC         8L
+  #endif
+  #ifndef ATTR_FASTCHAIN
+  #define ATTR_FASTCHAIN       9L
+  #endif
+  #ifndef ATTR_PROP_DETECTABLE
+  #define ATTR_PROP_DETECTABLE 10L
+  #endif
+  #ifndef ATTR_PROP_VISIBLE
+  #define ATTR_PROP_VISIBLE    11L
+  #endif
+  #ifndef ATTR_OFF
+  #define ATTR_OFF             0L
+  #endif
+  #ifndef ATTR_ON
+  #define ATTR_ON              1L
+  #endif
+
+  #ifndef DCTL_ERASE
+  #define DCTL_ERASE           1L
+  #endif
+  #ifndef DCTL_DISPLAY
+  #define DCTL_DISPLAY         2L
+  #endif
+  #ifndef DCTL_BOUNDARY
+  #define DCTL_BOUNDARY        3L
+  #endif
+  #ifndef DCTL_DYNAMIC
+  #define DCTL_DYNAMIC         4L
+  #endif
+  #ifndef DCTL_CORRELATE
+  #define DCTL_CORRELATE       5L
+  #endif
+  #ifndef DCTL_OFF
+  #define DCTL_OFF             0L
+  #endif
+  #ifndef DCTL_ON
+  #define DCTL_ON              1L
+  #endif
+
+  #ifndef SDW_OFF
+  #define SDW_OFF              0L
+  #endif
+  #ifndef SDW_ON
+  #define SDW_ON               1L
+  #endif
+
   /* ---------- MAKELONG (Win32) ---------- */
   #ifndef MAKELONG
     #define MAKELONG(a, b) \

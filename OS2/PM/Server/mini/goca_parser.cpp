@@ -68,33 +68,6 @@ static LONG GocaRdS32(GOCA_CTX *c, const BYTE *p)
     return (LONG)GocaGetU32(c, p);
 }
 
-/* ======================================================================== */
-/*  Order length                                                            */
-/* ======================================================================== */
-
-/*!
- * @brief Wire length of the order starting at p (0 on truncation).
- *
- * Format predicates are from pmord.h:
- *   BYTE_ORDER(oc)   — 1 byte
- *   SHORT_ORDER(oc)  — 2 bytes
- *   oc == OCODE_VLONG — 4 + U16 from p+2
- *   otherwise        — long, 2 + p[1]
- */
-static ULONG OrderLength(GOCA_CTX *c, const BYTE *p, ULONG cbAvail)
-{
-    UCHAR oc;
-    if (cbAvail < 1) return 0;
-    oc = p[0];
-    if (BYTE_ORDER(oc))  return 1;
-    if (oc == OCODE_VLONG) {
-        if (cbAvail < 4) return 0;
-        return 4u + GocaGetU16(c, p + 2);
-    }
-    if (SHORT_ORDER(oc)) return 2;
-    if (cbAvail < 2) return 0;
-    return 2u + (ULONG)p[1];
-}
 
 /* ======================================================================== */
 /*  Small helpers                                                           */
@@ -956,32 +929,35 @@ void GocaInit(GOCA_CTX *c, HDC hdc, PBYTE pb, ULONG cb)
     c->pbStream = pb;
     c->cbStream = cb;
     c->bDebug   = TRUE;
-    
+
     /* Default format (x86 PC, LONG). Can be overridden by GocaSetFormatFromOptions. */
     GocaSetFormat(c, GOCA_COORD_LONG, GOCA_ENDIAN_LE);
 
     GocaTrace(c, "[GOCA] init: %u bytes\n", (unsigned)cb);
 
-    /* Pull live bundles so untouched attributes keep the DC defaults. */
-    GreGetAttributes(hdc, PRIM_LINE,
-        LBB_COLOR|LBB_BACK_COLOR|LBB_MIX_MODE|LBB_BACK_MIX_MODE|
-        LBB_WIDTH|LBB_GEOM_WIDTH|LBB_TYPE|LBB_END|LBB_JOIN,
-        (PBUNDLE)&c->lb);
-    GreGetAttributes(hdc, PRIM_CHAR,
-        CBB_COLOR|CBB_BACK_COLOR|CBB_MIX_MODE|CBB_BACK_MIX_MODE|
-        CBB_SET|CBB_MODE|CBB_BOX|CBB_ANGLE|CBB_SHEAR|
-        CBB_DIRECTION|CBB_TEXT_ALIGN|CBB_EXTRA|CBB_BREAK_EXTRA,
-        (PBUNDLE)&c->cb);
-    GreGetAttributes(hdc, PRIM_MARKER,
-        MBB_COLOR|MBB_BACK_COLOR|MBB_MIX_MODE|MBB_BACK_MIX_MODE|
-        MBB_SET|MBB_SYMBOL|MBB_BOX,
-        (PBUNDLE)&c->mb);
-    GreGetAttributes(hdc, PRIM_AREA,
-        ABB_COLOR|ABB_BACK_COLOR|ABB_MIX_MODE|ABB_BACK_MIX_MODE|
-        ABB_SET|ABB_SYMBOL|ABB_REF_POINT,
-        (PBUNDLE)&c->ab);
+    /* Server only: pull live bundles so untouched attributes keep the
+       DC defaults, and seed the current position. Client passes hdc == NULL. */
+    if (hdc) {
+        GreGetAttributes(hdc, PRIM_LINE,
+            LBB_COLOR|LBB_BACK_COLOR|LBB_MIX_MODE|LBB_BACK_MIX_MODE|
+            LBB_WIDTH|LBB_GEOM_WIDTH|LBB_TYPE|LBB_END|LBB_JOIN,
+            (PBUNDLE)&c->lb);
+        GreGetAttributes(hdc, PRIM_CHAR,
+            CBB_COLOR|CBB_BACK_COLOR|CBB_MIX_MODE|CBB_BACK_MIX_MODE|
+            CBB_SET|CBB_MODE|CBB_BOX|CBB_ANGLE|CBB_SHEAR|
+            CBB_DIRECTION|CBB_TEXT_ALIGN|CBB_EXTRA|CBB_BREAK_EXTRA,
+            (PBUNDLE)&c->cb);
+        GreGetAttributes(hdc, PRIM_MARKER,
+            MBB_COLOR|MBB_BACK_COLOR|MBB_MIX_MODE|MBB_BACK_MIX_MODE|
+            MBB_SET|MBB_SYMBOL|MBB_BOX,
+            (PBUNDLE)&c->mb);
+        GreGetAttributes(hdc, PRIM_AREA,
+            ABB_COLOR|ABB_BACK_COLOR|ABB_MIX_MODE|ABB_BACK_MIX_MODE|
+            ABB_SET|ABB_SYMBOL|ABB_REF_POINT,
+            (PBUNDLE)&c->ab);
 
-    RefreshCurPos(c);
+        RefreshCurPos(c);
+    }
 
     GocaCallResult("void");
 }
@@ -1003,7 +979,7 @@ LONG GocaParseStream(GOCA_CTX *c)
     while (c->uPos < c->cbStream) {
         const BYTE *p       = c->pbStream + c->uPos;
         ULONG       cbAvail = c->cbStream - c->uPos;
-        ULONG       cbOrder = OrderLength(c, p, cbAvail);
+        ULONG       cbOrder = GocaOrderLength(c, p, cbAvail);
         UCHAR       oc;
         LONG        rc;
         BOOL        bHandled = FALSE;

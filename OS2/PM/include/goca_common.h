@@ -192,6 +192,30 @@ static inline ULONG GocaPutCoord(GOCA_CTX *c, PBYTE p, LONG v)
     return GocaPutU32(c, p, (ULONG)v);
 }
 
+/*!
+ * @brief Wire length of the order starting at p (0 on truncation).
+ *
+ * Format predicates are from pmord.h:
+ *   BYTE_ORDER(oc)   — 1 byte
+ *   SHORT_ORDER(oc)  — 2 bytes
+ *   oc == OCODE_VLONG — 4 + U16 from p+2
+ *   otherwise        — long, 2 + p[1]
+ */
+static inline ULONG GocaOrderLength(GOCA_CTX *c, const BYTE *p, ULONG cbAvail)
+{
+    UCHAR oc;
+    if (cbAvail < 1) return 0;
+    oc = p[0];
+    if (BYTE_ORDER(oc))  return 1;
+    if (oc == OCODE_VLONG) {
+        if (cbAvail < 4) return 0;
+        return 4u + GocaGetU16(c, p + 2);
+    }
+    if (SHORT_ORDER(oc)) return 2;
+    if (cbAvail < 2) return 0;
+    return 2u + (ULONG)p[1];
+}
+
 #ifdef __cplusplus
 }
 #endif

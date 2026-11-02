@@ -1,11 +1,12 @@
 /*!
- * @file dispatch.c
+ * @file dispatch.cpp
  * @brief Server-side GPI dispatcher with GOCA parser integration.
  */
+#define GPI_SERVER
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#include "goca_parser.hpp"   /* includes goca_common.h + pmord.h + pmddi.h */
+#include "gpi_ps.h"          /* pulls in goca_parser.hpp + goca_common.h */
 #include "goca_emit.h"       /* GocaEmit* order emitters */
 #include "F_cmd.h"
 
@@ -25,97 +26,12 @@ void log(const char *fmt, ...)
 }
 
 /*!
- * @def SRV_MAX_PS
- * @brief Maximum number of simultaneous server-side PS entries.
+ * @brief Server-side storage for the shared PS table.
+ *
+ * The GpiPs* helpers live as static inline in gpi_ps.h; only the table
+ * itself is allocated here, one instance for the whole server.
  */
-#define SRV_MAX_PS 64
-
-/*!
- * @struct _SRV_PS
- * @brief Server-side per-PS state.
- */
-typedef struct _SRV_PS {
-    BOOL     inUse;      /*!< Slot occupied.                              */
-    HPS      hps;        /*!< Client-facing handle, or NULL if unset.     */
-    ULONG    flOptions;  /*!< Last flOptions from NGpiCreatePS/NGpiSetPS. */
-    GOCA_CTX goca;       /*!< GOCA parser context.                        */
-} SRV_PS, *PSRV_PS;
-
-/*!
- * @brief Server-side PS table (one entry per live PS).
- */
-static SRV_PS g_srvPsTable[SRV_MAX_PS];
-
-/*!
- * @brief Look up a PS entry by handle.
- * @param [in] hps Handle previously returned by SrvPsCreate.
- * @return Entry pointer, or NULL if not found / out of range / freed.
- */
-static PSRV_PS SrvPsFind(HPS hps)
-{
-    int i;
-    PSRV_PS ps = (PSRV_PS)hps;
-
-    if (ps >= g_srvPsTable && ps < g_srvPsTable + SRV_MAX_PS && ps->inUse) {
-        return ps;
-    }
-
-    for (i = 0; i < SRV_MAX_PS; i++) {
-        if (g_srvPsTable[i].inUse &&
-            g_srvPsTable[i].hps != NULL &&
-            g_srvPsTable[i].hps == hps) {
-            return &g_srvPsTable[i];
-        }
-    }
-    return (PSRV_PS)NULL;
-}
-
-/*!
- * @brief Register a new PS entry.
- * @param [in] hps       Client handle, or NULL if returned to client as pointer.
- * @param [in] flOptions Options from NGpiCreatePS.
- * @return Entry pointer (used as HPS), or NULL if the table is full.
- */
-static PSRV_PS SrvPsCreate(HPS hps, ULONG flOptions)
-{
-    int i;
-    for (i = 0; i < SRV_MAX_PS; i++) {
-        if (!g_srvPsTable[i].inUse) {
-            g_srvPsTable[i].inUse     = TRUE;
-            g_srvPsTable[i].hps       = hps;
-            g_srvPsTable[i].flOptions = flOptions;
-            GocaInit(&g_srvPsTable[i].goca, (HDC)hps, NULL, 0);
-            GocaSetFormatFromOptions(&g_srvPsTable[i].goca, flOptions);
-            return &g_srvPsTable[i];
-        }
-    }
-    return (PSRV_PS)NULL;
-}
-
-/*!
- * @brief Find or auto-create a PS entry.
- * @param [in] hps Handle from the client.
- * @return Entry pointer, or NULL if the table is full.
- */
-static PSRV_PS SrvPsGet(HPS hps)
-{
-    PSRV_PS ps = SrvPsFind(hps);
-    if (ps) return ps;
-    return SrvPsCreate(hps, 0);
-}
-
-/*!
- * @brief Release a PS entry.
- * @param [in] ps Entry to release.
- */
-static void SrvPsDestroy(PSRV_PS ps)
-{
-    if (ps) {
-        ps->inUse     = FALSE;
-        ps->hps       = NULL;
-        ps->flOptions = 0;
-    }
-}
+GPI_PS g_psTable[GPI_MAX_PS];
 
 /* ======================================================================== */
 /*  Order emitters                                                          */
@@ -127,7 +43,7 @@ static void SrvPsDestroy(PSRV_PS ps)
  * @param [in] pOrder   Order bytes.
  * @param [in] cbOrder  Order length.
  */
-static void SrvParseOrder(SRV_PS *ps, const BYTE *pOrder, ULONG cbOrder)
+static void SrvParseOrder(PGPI_PS ps, const BYTE *pOrder, ULONG cbOrder)
 {
     ps->goca.pbStream = (PBYTE)pOrder;
     ps->goca.cbStream = cbOrder;
@@ -140,7 +56,7 @@ static void SrvParseOrder(SRV_PS *ps, const BYTE *pOrder, ULONG cbOrder)
  * Composite: one GPI call may emit multiple GOCA orders.
  * Individual orders are produced by the shared GocaEmit* emitters.
  */
-static void SrvEmitSetAttrs(SRV_PS *ps, LONG lPrimType, ULONG flAttrMask,
+static void SrvEmitSetAttrs(PGPI_PS ps, LONG lPrimType, ULONG flAttrMask,
                             PBUNDLE pb)
 {
     BYTE  buf[32];
@@ -270,7 +186,7 @@ static void SrvEmitSetAttrs(SRV_PS *ps, LONG lPrimType, ULONG flAttrMask,
  *                    NGpiBox / NGpiSetColor / NGpiDestroyPS /
  *                    NGpiPolyLine / NGpiCharString / NGpiCharStringAt /
  *                    NGpiMarker / NGpiPolyMarker / NGpiSetAttrs.
- * @retval p          NGpiCreatePS: pointer to the new SRV_PS entry.
+ * @retval p          NGpiCreatePS: pointer to the new GPI_PS entry.
  */
 ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
 {
@@ -284,7 +200,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
 
     case NGpiCreatePS: {
         PGpiCreatePS_Args a = (PGpiCreatePS_Args)pArgs;
-        PSRV_PS ps;
+        PGPI_PS ps;
 
         if (!a || cbArgs < sizeof(*a)) {
             log("[PMSERVER] IN  : NGpiCreatePS (bad args, cbArgs=%u)\n",
@@ -292,7 +208,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
             return (ULONG)GPI_ERROR;
         }
 
-        ps = SrvPsCreate(NULL, a->flOptions);
+        ps = GpiPsCreate(NULL, a->flOptions);
         if (!ps) {
             log("[PMSERVER] IN  : NGpiCreatePS (PS table full)\n");
             return (ULONG)GPI_ERROR;
@@ -307,7 +223,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
 
     case NGpiSetPS: {
         PGpiSetPS_Args a = (PGpiSetPS_Args)pArgs;
-        PSRV_PS ps = SrvPsFind(hps);
+        PGPI_PS ps = GpiPsFind(hps);
 
         log("[PMSERVER] IN  : NGpiSetPS(hps=%p, cbArgs=%u)\n",
             (void*)hps, (unsigned)cbArgs);
@@ -316,17 +232,16 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
             return (ULONG)GPI_ERROR;
         }
         if (a && cbArgs >= sizeof(*a)) {
-            ps->flOptions = a->flOptions;
-            GocaSetFormatFromOptions(&ps->goca, a->flOptions);
+            GpiPsSetOptions(hps, a->flOptions);
         }
         log("[PMSERVER] OUT : NGpiSetPS -> 1\n");
         return 1;
     }
 
     case NGpiDestroyPS: {
-        PSRV_PS ps = SrvPsFind(hps);
+        PGPI_PS ps = GpiPsFind(hps);
         log("[PMSERVER] IN  : NGpiDestroyPS(hps=%p)\n", (void*)hps);
-        if (ps) SrvPsDestroy(ps);
+        if (ps) GpiPsDestroy(hps);
         log("[PMSERVER] OUT : NGpiDestroyPS -> %d\n",
             ps ? 1 : (int)GPI_ERROR);
         return (ULONG)(ps ? 1 : GPI_ERROR);
@@ -340,7 +255,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         LONG lColor;
         BYTE buf[4];
         LONG len;
-        PSRV_PS ps;
+        PGPI_PS ps;
 
         log("[PMSERVER] IN  : NGpiSetColor(hps=%p, cbArgs=%u)\n",
             (void*)hps, (unsigned)cbArgs);
@@ -349,7 +264,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
             return (ULONG)GPI_ERROR;
         }
         memcpy(&lColor, pArgs, sizeof(LONG));
-        ps = SrvPsGet(hps);
+        ps = GpiPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
         len = GocaEmitSetColor(&ps->goca, buf, sizeof(buf), lColor);
@@ -367,7 +282,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         POINTL ptl;
         BYTE buf[10];
         LONG len;
-        PSRV_PS ps;
+        PGPI_PS ps;
 
         log("[PMSERVER] IN  : NGpiMove(hps=%p, cbArgs=%u)\n",
             (void*)hps, (unsigned)cbArgs);
@@ -376,7 +291,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
             return (ULONG)GPI_ERROR;
         }
         memcpy(&ptl, pArgs, sizeof(POINTL));
-        ps = SrvPsGet(hps);
+        ps = GpiPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
         len = GocaEmitMove(&ps->goca, buf, sizeof(buf), ptl);
@@ -390,7 +305,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         POINTL ptl;
         BYTE buf[10];
         LONG len;
-        PSRV_PS ps;
+        PGPI_PS ps;
 
         log("[PMSERVER] IN  : NGpiLine(hps=%p, cbArgs=%u)\n",
             (void*)hps, (unsigned)cbArgs);
@@ -399,7 +314,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
             return (ULONG)GPI_ERROR;
         }
         memcpy(&ptl, pArgs, sizeof(POINTL));
-        ps = SrvPsGet(hps);
+        ps = GpiPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
         len = GocaEmitLine(&ps->goca, buf, sizeof(buf), ptl);
@@ -413,7 +328,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         PGpiBox_Args a = (PGpiBox_Args)pArgs;
         BYTE buf[22];
         LONG len;
-        PSRV_PS ps;
+        PGPI_PS ps;
 
         log("[PMSERVER] IN  : NGpiBox(hps=%p, cbArgs=%u)\n",
             (void*)hps, (unsigned)cbArgs);
@@ -421,7 +336,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
             log("[PMSERVER] OUT : NGpiBox -> GPI_ERROR (bad args)\n");
             return (ULONG)GPI_ERROR;
         }
-        ps = SrvPsGet(hps);
+        ps = GpiPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
         len = GocaEmitBox(&ps->goca, buf, sizeof(buf),
@@ -436,7 +351,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         LONG lCount;
         PPOINTL aptl;
         LONG len;
-        PSRV_PS ps;
+        PGPI_PS ps;
         BYTE  stackBuf[64];
         PBYTE buf = stackBuf;
         PVOID heap = NULL;
@@ -454,7 +369,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
             return (ULONG)GPI_ERROR;
         }
         aptl = (PPOINTL)(pArgs + sizeof(LONG));
-        ps = SrvPsGet(hps);
+        ps = GpiPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
         len = GocaEmitPolyLine(&ps->goca, NULL, 0, lCount, aptl);
@@ -480,7 +395,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         LONG lCount;
         char *pchString;
         LONG len;
-        PSRV_PS ps;
+        PGPI_PS ps;
         BYTE  stackBuf[64];
         PBYTE buf = stackBuf;
         PVOID heap = NULL;
@@ -497,7 +412,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
             return (ULONG)GPI_ERROR;
         }
         pchString = (char*)(pArgs + sizeof(LONG));
-        ps = SrvPsGet(hps);
+        ps = GpiPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
         len = GocaEmitCharString(&ps->goca, NULL, 0, lCount, pchString);
@@ -524,7 +439,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         LONG lCount;
         char *pchString;
         LONG len;
-        PSRV_PS ps;
+        PGPI_PS ps;
         BYTE  stackBuf[64];
         PBYTE buf = stackBuf;
         PVOID heap = NULL;
@@ -543,7 +458,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
             return (ULONG)GPI_ERROR;
         }
         pchString = (char*)(pArgs + sizeof(POINTL) + sizeof(LONG));
-        ps = SrvPsGet(hps);
+        ps = GpiPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
         len = GocaEmitCharStringAt(&ps->goca, NULL, 0, ptl, lCount, pchString);
@@ -569,7 +484,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         POINTL ptl;
         BYTE buf[10];
         LONG len;
-        PSRV_PS ps;
+        PGPI_PS ps;
 
         log("[PMSERVER] IN  : NGpiMarker(hps=%p, cbArgs=%u)\n",
             (void*)hps, (unsigned)cbArgs);
@@ -578,7 +493,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
             return (ULONG)GPI_ERROR;
         }
         memcpy(&ptl, pArgs, sizeof(POINTL));
-        ps = SrvPsGet(hps);
+        ps = GpiPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
         len = GocaEmitMarker(&ps->goca, buf, sizeof(buf), ptl);
@@ -592,7 +507,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         LONG lCount;
         PPOINTL aptl;
         LONG len;
-        PSRV_PS ps;
+        PGPI_PS ps;
         BYTE  stackBuf[64];
         PBYTE buf = stackBuf;
         PVOID heap = NULL;
@@ -610,7 +525,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
             return (ULONG)GPI_ERROR;
         }
         aptl = (PPOINTL)(pArgs + sizeof(LONG));
-        ps = SrvPsGet(hps);
+        ps = GpiPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
         len = GocaEmitPolyMarker(&ps->goca, NULL, 0, lCount, aptl);
@@ -637,7 +552,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         ULONG flAttrMask;
         ULONG flDefMask;
         PBUNDLE pb;
-        PSRV_PS ps;
+        PGPI_PS ps;
 
         log("[PMSERVER] IN  : NGpiSetAttrs(hps=%p, cbArgs=%u)\n",
             (void*)hps, (unsigned)cbArgs);
@@ -649,7 +564,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs)
         flAttrMask = *(ULONG*)(pArgs + sizeof(LONG));
         flDefMask = *(ULONG*)(pArgs + sizeof(LONG) + sizeof(ULONG));
         pb = (PBUNDLE)(pArgs + sizeof(LONG) + sizeof(ULONG) + sizeof(ULONG));
-        ps = SrvPsGet(hps);
+        ps = GpiPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
         SrvEmitSetAttrs(ps, lPrimType, flAttrMask, pb);

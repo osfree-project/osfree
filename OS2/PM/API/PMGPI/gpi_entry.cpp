@@ -5,18 +5,13 @@
 #define INCL_GPI
 #include "F_platform.h"
 #include "F_cmd.h"
-#include "gpi_entry.h"
+#include "gpi_entry.h"   /* also defines GPI_CLIENT and includes gpi_ps.h */
 #include "pmclient.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/*!
- * @brief Unified logging function (defined in unimpl.cpp).
- * @param [in] fmt  printf-style format string.
- * @param [in] ...  Arguments for the format string.
- */
 extern void log(const char *fmt, ...);
 
 /* Response header (16 bytes on the wire) */
@@ -28,74 +23,12 @@ struct FPM_RESP_HEADER {
 };
 
 /*!
- * @def GPI_MAX_PS
- * @brief Maximum number of simultaneous PS entries tracked on the client.
+ * @brief Client-side storage for the shared PS table.
+ *
+ * The GpiPs* helpers live as static inline in gpi_ps.h; only the table
+ * itself is allocated here, one instance per binary.
  */
-#define GPI_MAX_PS 64
-
-static GPI_PS g_psTable[GPI_MAX_PS];
-
-/* --------------------------------------------------------------------- */
-/*  Per-PS table                                                         */
-/* --------------------------------------------------------------------- */
-
-PGPI_PS GpiPsCreate(HPS hps, ULONG flOptions)
-{
-    int i;
-
-    if (hps == NULL || (ULONG)hps == (ULONG)GPI_ERROR)
-        return (PGPI_PS)NULL;
-
-    for (i = 0; i < GPI_MAX_PS; i++) {
-        if (g_psTable[i].inUse && g_psTable[i].hps == hps) {
-            g_psTable[i].flOptions = flOptions;
-            return &g_psTable[i];
-        }
-    }
-
-    for (i = 0; i < GPI_MAX_PS; i++) {
-        if (!g_psTable[i].inUse) {
-            g_psTable[i].inUse     = TRUE;
-            g_psTable[i].hps       = hps;
-            g_psTable[i].flOptions = flOptions;
-            return &g_psTable[i];
-        }
-    }
-
-    log("[PMGPI] WARN: PS table full, dropping hps=%p\n", (void*)hps);
-    return (PGPI_PS)NULL;
-}
-
-PGPI_PS GpiPsFind(HPS hps)
-{
-    int i;
-
-    if (hps == NULL)
-        return (PGPI_PS)NULL;
-
-    for (i = 0; i < GPI_MAX_PS; i++) {
-        if (g_psTable[i].inUse && g_psTable[i].hps == hps)
-            return &g_psTable[i];
-    }
-    return (PGPI_PS)NULL;
-}
-
-void GpiPsSetOptions(HPS hps, ULONG flOptions)
-{
-    PGPI_PS ps = GpiPsFind(hps);
-    if (ps)
-        ps->flOptions = flOptions;
-}
-
-void GpiPsDestroy(HPS hps)
-{
-    PGPI_PS ps = GpiPsFind(hps);
-    if (ps) {
-        ps->inUse     = FALSE;
-        ps->hps       = NULL;
-        ps->flOptions = 0;
-    }
-}
+GPI_PS g_psTable[GPI_MAX_PS];
 
 /* --------------------------------------------------------------------- */
 /*  Transport                                                            */

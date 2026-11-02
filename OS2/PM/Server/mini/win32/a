@@ -1,0 +1,28 @@
+Win64 build host
+root=D:\yuri\osfree\
+CD       OS2\PM\Server\mini\win32\ 
+CXX      dispatch.obj 
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:59: warning: function 'SrvEmitSetAttrs': missing @param ps
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:59: warning: function 'SrvEmitSetAttrs': missing @param lPrimType
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:59: warning: function 'SrvEmitSetAttrs': missing @param flAttrMask
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp:59: warning: function 'SrvEmitSetAttrs': missing @param pb
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(143): Error! E029: col(35) symbol 'DM_DRAW' has not been declared
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(143): Note! N393: col(35) included from D:\yuri\osfree\OS2\PM\Server\mini\win32\..\dispatch.cpp(9)
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(144): Error! E029: col(35) symbol 'SEGEM_INSERT' has not been declared
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(146): Error! E029: col(41) symbol 'ATTR_VISIBLE' has not been declared
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(147): Error! E029: col(41) symbol 'ATTR_CHAINED' has not been declared
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(148): Error! E029: col(43) symbol 'ATTR_FASTCHAIN' has not been declared
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(149): Error! E029: col(49) symbol 'ATTR_PROP_DETECTABLE' has not been declared
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(150): Error! E029: col(46) symbol 'ATTR_PROP_VISIBLE' has not been declared
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(152): Error! E029: col(26) symbol 'DCTL_ERASE' has not been declared
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(153): Error! E029: col(26) symbol 'DCTL_DISPLAY' has not been declared
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(154): Error! E029: col(26) symbol 'DCTL_BOUNDARY' has not been declared
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(155): Error! E029: col(26) symbol 'DCTL_DYNAMIC' has not been declared
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(156): Error! E029: col(26) symbol 'DCTL_CORRELATE' has not been declared
+D:\yuri\osfree\OS2\PM\Server\mini\win32\..\..\..\include\gpi_ps.h(157): Error! E029: col(35) symbol 'SDW_OFF' has not been declared
+Error(E42): Last command making (D:\yuri\osfree\build\OS2\PM\Server\mini\win32\dispatch.obj) returned a bad status
+Should this file be deleted [Yes/No] ? Error(E02): Make execution terminated
+Error(E42): Last command making (targets) returned a bad status
+Error(E02): Make execution terminated
+Error(E42): Last command making (gen_sources) returned a bad status
+Error(E02): Make execution terminated
