@@ -3,7 +3,7 @@
  * @brief Hand-written client-side PMGPI proxies (stubs).
  */
 #define INCL_GPI
-#include "gpi_platform.h"
+#include "F_platform.h"
 #include "gpi_entry.h"
 
 /* Объявление функции логирования из unimpl.cpp */

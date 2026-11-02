@@ -7,9 +7,9 @@
  * come from <pmord.h>.
  */
 
-#define INCL_GREALL
 #define INCL_PM
-#include <F_platform.hpp>
+#include <F_platform.h>
+#define INCL_GREALL
 #include "pmddi.h"
 #include <string.h>
 #include <stdlib.h>
@@ -103,9 +103,9 @@ static POINTL PtsToPtl(const BYTE *p)
 /*! @brief Allocate and fill POINTL[] from packed BE SHORT pairs. */
 static PPOINTL AllocPtlArray(const BYTE *pData, ULONG nPts)
 {
+    ULONG i;
     PPOINTL pptl = (PPOINTL)malloc(nPts * sizeof(POINTL));
-    ULONG   i;
-    if (!pptl) return NULL;
+    if (!pptl) return (PPOINTL)NULL;
     for (i = 0; i < nPts; i++) {
         pptl[i].x = RD_S16(pData + i * 4);
         pptl[i].y = RD_S16(pData + i * 4 + 2);

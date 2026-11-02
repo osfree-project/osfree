@@ -23,7 +23,7 @@ SRCDIR  = $(MYDIR)..$(SEP)
 ADD_COPT = -bt=nt
 !endif
 
-ADD_COPT     += -i=$(SRCDIR) -sg -of+ -bd -3s
+ADD_COPT     += -i=$(SRCDIR) -i=$(SRCDIR)..$(SEP)..$(SEP)include -sg -of+ -bd -3s
 
 OPTIONS  += caseexact
 

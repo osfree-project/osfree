@@ -3,7 +3,7 @@
  * @brief Client-side dispatcher.
  */
 #define INCL_GPI
-#include "gpi_platform.h"
+#include "F_platform.h"
 #include "gpi_entry.h"
 #include "gpi_wire.h"
 #include "pmclient.h"

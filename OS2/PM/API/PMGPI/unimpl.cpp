@@ -20,7 +20,7 @@
 #include <stdarg.h>
 
 #define INCL_DOSMODULEMGR
-#include <gpi_platform.h>
+#include <F_platform.h>
 
 
 /*!

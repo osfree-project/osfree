@@ -28,7 +28,7 @@
  * duplicate-symbol error at link time.
  */
 
-#include "F_platform.hpp"
+#include "F_platform.h"
 
 /* Same logger as dispatch.cpp. */
 extern void log(const char *fmt, ...);

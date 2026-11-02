@@ -21,7 +21,7 @@
 
 // OS/2 includes must be from OS/2 2.1 or higher for correct building.
 #define INCL_PM
-#include <gpi_platform.h>
+#include <F_platform.h>
 
 
 

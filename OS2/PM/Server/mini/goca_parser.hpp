@@ -10,11 +10,11 @@
 #define GOCA_PARSER_H
 
 #define INCL_PM
-#include <F_platform.hpp>
+#include <F_platform.h>
 #include "pmord.h"
 
 /* GRE feature set — must precede pmddim.h */
-#define INCL_GRE_ALL
+#define INCL_GREALL
 #include "pmddi.h"
 
 #ifdef __cplusplus

@@ -4,7 +4,7 @@
  */
 #include <stdio.h>
 #include <stdarg.h>
-#include "F_platform.hpp"
+#include "F_platform.h"
 #include "gpi_wire.h"
 
 /*!

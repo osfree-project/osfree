@@ -12,7 +12,7 @@
 #include <signal.h>
 #include <malloc.h>
 
-#include "F_platform.hpp" /* Platform abstraction (PMC_*) */
+#include "F_platform.h"   /* Platform, GPI/Dev, Dos* (OS/2 signatures) */
 #include "F_config.hpp"   /* FREEPM_MUTEX_NAME */
 #include "FreePM_cmd.hpp" /* F_CMD_* and NGpi* (via gpi_wire.h) */
 
@@ -52,6 +52,7 @@ extern void log(const char *fmt, ...);
   #endif
 #endif
 
+#if 0
 /*! @brief Handler callback type, matching the one in PMTCP. */
 typedef void (APIENTRY *PMC_HANDLER)(void *obj, int ncmd, int data, int threadNum);
 
@@ -63,6 +64,25 @@ typedef APIRET (APIENTRY *PMC_RECV_DATA)(void *recvobj, void *data, int *len, in
 
 /*! @brief Prototype for _F_SendDataToClient (ordinal 11). */
 typedef APIRET (APIENTRY *PMC_SEND_DATA)(void *recvobj, void *data, int len);
+#else
+#if defined(__OS2__) || defined(__OS2V2__)
+#define PMCAPIENTRY _System
+#elif defined(__WIN32__) || defined(_WIN32)
+#define PMCAPIENTRY __stdcall
+#endif
+
+/*! @brief Handler callback type, matching the one in PMTCP. */
+typedef void (PMCAPIENTRY *PMC_HANDLER)(void *obj, int ncmd, int data, int threadNum);
+
+/*! @brief Prototype for _startServerThreads (ordinal 3). */
+typedef APIRET (PMCAPIENTRY *PMC_START_SRV)(void *handl);
+
+/*! @brief Prototype for _F_RecvDataFromClient (ordinal 10). */
+typedef APIRET (PMCAPIENTRY *PMC_RECV_DATA)(void *recvobj, void *data, int *len, int maxlen);
+
+/*! @brief Prototype for _F_SendDataToClient (ordinal 11). */
+typedef APIRET (PMCAPIENTRY *PMC_SEND_DATA)(void *recvobj, void *data, int len);
+#endif
 
 /*! @brief Global pointer to the send function, used by the handler. */
 static PMC_SEND_DATA g_SendData = 0;
@@ -71,7 +91,7 @@ static PMC_SEND_DATA g_SendData = 0;
 static PMC_RECV_DATA g_RecvData = 0;
 
 /*! @brief Handle of the server presence mutex. */
-static PMC_HMTX g_hmtx = 0;
+static HMTX g_hmtx = 0;
 
 /*!
  * @brief External GPI dispatcher (implemented in dispatch.cpp).
@@ -92,7 +112,7 @@ static void CleanupServer(void)
 
     if (g_hmtx != 0)
     {
-        PMC_MutexClose(g_hmtx);
+        DosCloseMutexSem(g_hmtx);
         g_hmtx = 0;
     }
 }
@@ -111,7 +131,8 @@ static void SignalHandler(int sig)
     @param [in] ncmd      Received command code.
     @param [in] data      Received 32-bit argument.
     @param [in] threadNum Thread index (always 0 for now). */
-static void APIENTRY pm_handler(void *recvobj, int ncmd, int data, int threadNum)
+static void PMCAPIENTRY pm_handler(void *recvobj, int ncmd, int data, int threadNum)
+//static void APIENTRY pm_handler(void *recvobj, int ncmd, int data, int threadNum)
 {
     int rc, len;
     char buf[256];
@@ -158,7 +179,7 @@ static void APIENTRY pm_handler(void *recvobj, int ncmd, int data, int threadNum
             struct { ULONG ulFnCode; ULONG cbArgs; ULONG ulFlags; } call;
             struct { ULONG ulStatus; ULONG ulResult; ULONG cbPayload; ULONG ulLastError; } resp;
             ULONG hps = (ULONG)data;
-            PBYTE pArgs = NULL;
+            PBYTE pArgs = (PBYTE)NULL;
 
             if (!g_RecvData) {
                 log("PMSERVER: ERROR - g_RecvData is NULL!\n");
@@ -240,10 +261,11 @@ static void APIENTRY pm_handler(void *recvobj, int ncmd, int data, int threadNum
     @retval 1 Initialization or runtime error. */
 int main(int argc, char *argv[])
 {
-    PMC_HMODULE hmod = 0;
+    HMODULE hmod = 0;
     APIRET  rc;
-    void   *pfn = 0;
+    PFN     pfn = 0;
     PMC_START_SRV pStartSrv = 0;
+    char    szFail[256];
 
     (void)argc;
     (void)argv;
@@ -251,7 +273,7 @@ int main(int argc, char *argv[])
     log("PMSERVER: starting\n");
 
     /* Create the server presence mutex expected by PMCLIENT. */
-    rc = PMC_CreateMutex(FREEPM_MUTEX_NAME, &g_hmtx);
+    rc = DosCreateMutexSem((PSZ)FREEPM_MUTEX_NAME, &g_hmtx, 0, FALSE);
     if (rc != 0)
     {
         log("PMSERVER: failed to create mutex '%s', rc=%u\n", FREEPM_MUTEX_NAME, rc);
@@ -263,22 +285,19 @@ int main(int argc, char *argv[])
     atexit(CleanupServer);
     signal(SIGINT, SignalHandler);
     signal(SIGTERM, SignalHandler);
-#if defined(__WIN32__) || defined(_WIN32)
-//    SetConsoleCtrlHandler((PHANDLER_ROUTINE)SignalHandler, TRUE);
-#endif
 
-    rc = PMC_LoadModule("PMTCP", &hmod);
+    rc = DosLoadModule(szFail, sizeof(szFail), (PSZ)"PMTCP", &hmod);
     if (rc) { log("PMSERVER: cannot load PMTCP.DLL, rc=%u\n", rc); system("pause"); return 1; }
 
-    rc = PMC_QueryOrdinal(hmod, 3, &pfn);
+    rc = DosQueryProcAddr(hmod, 3, 0, &pfn);
     if (rc) { log("PMSERVER: missing ordinal 3\n"); system("pause"); return 1; }
     pStartSrv = (PMC_START_SRV)pfn;
 
-    rc = PMC_QueryOrdinal(hmod, 10, &pfn);
+    rc = DosQueryProcAddr(hmod, 10, 0, &pfn);
     if (rc) { log("PMSERVER: missing ordinal 10\n"); system("pause"); return 1; }
     g_RecvData = (PMC_RECV_DATA)pfn;
 
-    rc = PMC_QueryOrdinal(hmod, 11, &pfn);
+    rc = DosQueryProcAddr(hmod, 11, 0, &pfn);
     if (rc) { log("PMSERVER: missing ordinal 11\n"); system("pause"); return 1; }
     g_SendData = (PMC_SEND_DATA)pfn;
 

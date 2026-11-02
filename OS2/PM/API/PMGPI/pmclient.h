@@ -5,7 +5,7 @@
 #if defined(__OS2__) || defined(__OS2V2__)
 #include <os2def.h>
 #else
-#include "gpi_platform.h"
+#include "F_platform.h"
 #endif
 
 #ifdef __cplusplus
