@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
     signal(SIGINT, SignalHandler);
     signal(SIGTERM, SignalHandler);
 #if defined(__WIN32__) || defined(_WIN32)
-    SetConsoleCtrlHandler((PHANDLER_ROUTINE)SignalHandler, TRUE);
+//    SetConsoleCtrlHandler((PHANDLER_ROUTINE)SignalHandler, TRUE);
 #endif
 
     rc = PMC_LoadModule("PMTCP", &hmod);

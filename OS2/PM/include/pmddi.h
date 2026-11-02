@@ -1,3 +1,6 @@
+#ifndef PMDDI_H
+#define PMDDI_H
+
 #define DDI_INCLUDED
 
 #ifdef INCL_GREALL
@@ -27,6 +30,10 @@
    #define INCL_GRE_STRINGS
    #define INCL_GRE_XFORMS
 #endif /* INCL_GREALL */
+
+#ifdef __cplusplus
+      extern "C" {
+#endif
 
 #ifdef INCL_GRE_ARCS
 
@@ -68,6 +75,10 @@ typedef struct _XFORM {
     LONG  lM33;
 } XFORM, *PXFORM;
 
+#ifdef __cplusplus
+      }
+#endif
 
 #include <pmddim.h>
 
+#endif
