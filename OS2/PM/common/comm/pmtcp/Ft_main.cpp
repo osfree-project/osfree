@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <process.h>
 
 #include "F_tcp.hpp"
 
@@ -383,64 +384,106 @@ extern "C" APIRET EXPENTRY _F_SendDataToClient(void *recvobj, void *data, int le
     @return 0 on success, PMC_ERR_OPEN on setup failure.
     @retval 0            Loop exited (normally unreachable).
     @retval PMC_ERR_OPEN Setup failed. */
+/* ---- Add near the top, after PMTCP_Dbg ---- */
+
+struct TCP_ClientArg {
+    TCPipe      *pClient;
+    PMC_HANDLER  h;
+    int          threadNum;
+};
+
+static void ClientThreadProc(void *param)
+{
+    TCP_ClientArg *pArg = (TCP_ClientArg *)param;
+    TCPipe        *pClient = pArg->pClient;
+    PMC_HANDLER    h = pArg->h;
+    int            ncmd, data;
+
+    while (_F_RecvCmdFromClient(pClient, &ncmd, &data) == 0)
+    {
+        if (ncmd == 0) break;
+        if (h) h(pClient, ncmd, data, pArg->threadNum);
+    }
+
+    pClient->Close();
+    delete pClient;
+    delete pArg;
+}
+
+/* ---- Replace _startServerThreads ---- */
+
 extern "C" APIRET EXPENTRY _startServerThreads(void *handl)
 {
     PMC_HANDLER h = (PMC_HANDLER)handl;
-    TCPipe      server;
-    int         threadNum = 0;
+    TCPipe     *pServer = new TCPipe();
     int         wsaRc;
+    int         threadCounter = 0;
+
+    if (!pServer) return PMC_ERR_OPEN;
 
     wsaRc = PMC_WSA_STARTUP();
     if (wsaRc != 0)
     {
         PMTCP_Dbg("PMTCP: _startServerThreads: WSAStartup failed (rc=%d)\n", wsaRc);
+        delete pServer;
         return PMC_ERR_OPEN;
     }
 
-    server.mode = TCP_SERVER_MODE;
-    server.port = FREEPM_TCP_DEFAULT_PORT;
-    
-    if (server.Create() != 0)
+    pServer->mode = TCP_SERVER_MODE;
+    pServer->port = FREEPM_TCP_DEFAULT_PORT;
+
+    if (pServer->Create() != 0)
     {
-        PMTCP_Dbg("PMTCP: _startServerThreads: Create() failed (port %d might be in use)\n", server.port);
+        PMTCP_Dbg("PMTCP: _startServerThreads: Create() failed (port %d)\n", pServer->port);
+        delete pServer;
         PMC_WSA_CLEANUP();
         return PMC_ERR_OPEN;
     }
 
-    PMTCP_Dbg("PMTCP: _startServerThreads: listening on port %d\n", server.port);
+    PMTCP_Dbg("PMTCP: _startServerThreads: listening on port %d (multi-thread)\n",
+              pServer->port);
 
     for (;;)
     {
         TCPipe *pClient = new TCPipe();
-        if (server.Accept(pClient) != 0)
+        if (!pClient) continue;
+
+        if (pServer->Accept(pClient) != 0)
         {
             delete pClient;
             continue;
         }
 
-        PMTCP_Dbg("PMTCP: Accepted connection, pClient=%p\n", pClient);
+        PMTCP_Dbg("PMTCP: accepted connection, pClient=%p\n", pClient);
 
         if (pClient->HandShake() == HAND_SHAKE_ERROR)
         {
-            PMTCP_Dbg("PMTCP: _startServerThreads: handshake failed\n");
+            PMTCP_Dbg("PMTCP: _startServerThreads: handshake failed, dropping\n");
             pClient->Close();
             delete pClient;
             continue;
         }
 
-        int ncmd, data;
-        while (_F_RecvCmdFromClient(pClient, &ncmd, &data) == 0)
-        {
-            if (ncmd == 0)
-                break;
-            PMTCP_Dbg("PMTCP: Dispatching to handler: recvobj=%p, ncmd=0x%x\n", pClient, ncmd);
-            if (h) h(pClient, ncmd, data, threadNum);
+        TCP_ClientArg *pArg = new TCP_ClientArg;
+        if (!pArg) {
+            pClient->Close();
+            delete pClient;
+            continue;
         }
+        pArg->pClient   = pClient;
+        pArg->h         = h;
+        pArg->threadNum = threadCounter++;
 
-        pClient->Close();
-        delete pClient;
-        threadNum++;
+
+#if defined(__OS2__) || defined(__OS2V2__)
+    /* OS/2: 4 arguments — (start, stack, stack_size, arglist) */
+    _beginthread(ClientThreadProc, NULL, FREEPM_TCP_THREAD_STACK, pArg);
+#else
+    /* Win32: 3 arguments — (start, stack_size, arglist) */
+    _beginthread(ClientThreadProc, FREEPM_TCP_THREAD_STACK, pArg);
+#endif
+
     }
 
-    return 0;
+    return 0; /* unreachable */
 }

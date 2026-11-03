@@ -43,7 +43,12 @@
 
 /* ---- CORE class ------------------------------------------------------- */
 
+/* ---- CORE class: client lifecycle ------------------------------------- */
 #define F_CMD_CLIENT_EXIT         F_CMD_CORE(0x0000)
+#define F_CMD_CLIENT_CONNECT      F_CMD_CORE(0x0004)
+#define F_CMD_CLIENT_RECONNECT    F_CMD_CORE(0x0005)
+#define F_CMD_CLIENT_PING         F_CMD_CORE(0x0006)
+
 #define F_CMD_GET_IHAB            F_CMD_CORE(0x0001)
 #define F_CMD_WINPOSTMSG          F_CMD_CORE(0x0002)
 #define F_CMD_WINSENDMSG          F_CMD_CORE(0x0003)
@@ -117,5 +122,29 @@
 
 #define F_GLPM_WININITIALIZE         F_CMD_MAKE(F_CMD_CLASS_GLPM, 0x0000)
 #define F_GLPM_WINCREATEMSGQUEUE     F_CMD_MAKE(F_CMD_CLASS_GLPM, 0x0001)
+
+/* ======================================================================== */
+/*  Client lifecycle structures (shared client/server)                       */
+/* ======================================================================== */
+
+/*!
+ * @struct F_CLIENTCONFIG
+ * @brief Client configuration, sent by server after CONNECT/RECONNECT.
+ */
+typedef struct _F_CLIENTCONFIG {
+    ULONG idClient;     /*!< Client identifier, stable across reconnect. */
+    ULONG ulInactive;   /*!< Inactivity timeout, seconds. */
+    ULONG ulGrace;      /*!< Grace timeout (DETACHED->FREE), seconds. */
+    ULONG flConfig;     /*!< F_CFG_* flags. */
+} F_CLIENTCONFIG, *PF_CLIENTCONFIG;
+
+/*! @brief Body of F_CMD_CLIENT_RECONNECT (sent by client on link loss). */
+typedef struct _F_CLIENT_RECONNECT {
+    ULONG idClient;     /*!< idClient from previous CONNECT. */
+} F_CLIENT_RECONNECT, *PF_CLIENT_RECONNECT;
+
+/* ---- flConfig bits ---------------------------------------------------- */
+#define F_CFG_WANT_LOGS        0x00000001UL  /*!< Server accepts logs from client. */
+#define F_CFG_PING_REQUIRED    0x00000002UL  /*!< Client must PING within ulInactive. */
 
 #endif /* FREEPM_CMD */

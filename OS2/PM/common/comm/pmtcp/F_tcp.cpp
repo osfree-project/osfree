@@ -84,7 +84,7 @@ int TCPipe::Create(void)
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == PMC_INVALID_SOCK) {
-        PMTCP_Dbg("PMTCP: TCPipe::Create ERROR: socket() failed. WSAError=%d\n", WSAGetLastError());
+        PMTCP_Dbg("PMTCP: TCPipe::Create ERROR: socket() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
         return -1;
     }
 
@@ -97,11 +97,11 @@ int TCPipe::Create(void)
     sa.sin_addr.s_addr = INADDR_ANY;
 
     if (bind(sock, (struct sockaddr *)&sa, sizeof(sa)) == PMC_SOCK_ERROR) {
-        PMTCP_Dbg("PMTCP: TCPipe::Create ERROR: bind() failed. WSAError=%d\n", WSAGetLastError());
+        PMTCP_Dbg("PMTCP: TCPipe::Create ERROR: bind() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
         return -1;
     }
     if (listen(sock, FREEPM_TCP_BACKLOG) == PMC_SOCK_ERROR) {
-        PMTCP_Dbg("PMTCP: TCPipe::Create ERROR: listen() failed. WSAError=%d\n", WSAGetLastError());
+        PMTCP_Dbg("PMTCP: TCPipe::Create ERROR: listen() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
         return -1;
     }
     return 0;
@@ -125,7 +125,7 @@ int TCPipe::Accept(TCPipe *pClient)
 
     pClient->sock = accept(sock, (struct sockaddr *)&sa, &iLen);
     if (pClient->sock == PMC_INVALID_SOCK) {
-        PMTCP_Dbg("PMTCP: TCPipe::Accept ERROR: accept() failed. WSAError=%d\n", WSAGetLastError());
+        PMTCP_Dbg("PMTCP: TCPipe::Accept ERROR: accept() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
         return -1;
     }
 
@@ -151,7 +151,7 @@ int TCPipe::Connect(void)
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == PMC_INVALID_SOCK) {
-        PMTCP_Dbg("PMTCP: TCPipe::Connect ERROR: socket() failed. WSAError=%d\n", WSAGetLastError());
+        PMTCP_Dbg("PMTCP: TCPipe::Connect ERROR: socket() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
         return -1;
     }
 
@@ -166,7 +166,7 @@ int TCPipe::Connect(void)
         sa.sin_addr.s_addr = inet_addr(host);
 
     if (connect(sock, (struct sockaddr *)&sa, sizeof(sa)) == PMC_SOCK_ERROR) {
-        PMTCP_Dbg("PMTCP: TCPipe::Connect ERROR: connect() failed. WSAError=%d\n", WSAGetLastError());
+        PMTCP_Dbg("PMTCP: TCPipe::Connect ERROR: connect() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
         return -1;
     }
     connected = 1;
@@ -190,7 +190,7 @@ int TCPipe::Send(const void *pvData, int cbData)
     }
     iSent = send(sock, (const char *)pvData, cbData, 0);
     if (iSent == PMC_SOCK_ERROR) {
-        PMTCP_Dbg("PMTCP: TCPipe::Send ERROR: send() failed. WSAError=%d\n", WSAGetLastError());
+        PMTCP_Dbg("PMTCP: TCPipe::Send ERROR: send() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
         return -1;
     }
     return (iSent == cbData) ? 0 : -1;
@@ -214,7 +214,7 @@ int TCPipe::Recv(void *pvData, int *pcbReceived, int cbBuffer)
     }
     iRead = recv(sock, (char *)pvData, cbBuffer, 0);
     if (iRead < 0) {
-        PMTCP_Dbg("PMTCP: TCPipe::Recv ERROR: recv() failed. WSAError=%d\n", WSAGetLastError());
+        PMTCP_Dbg("PMTCP: TCPipe::Recv ERROR: recv() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
         return -1;
     }
     *pcbReceived = iRead;

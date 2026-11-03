@@ -78,6 +78,8 @@
   typedef void *HANDLE;
   typedef void *HMQ;
   typedef HANDLE HMTX;
+  typedef void *HINSTANCE;
+  typedef void *LPVOID;
 
   /* ---------- Строковые и указательные типы ---------- */
   typedef const char   *PCSZ;
@@ -106,6 +108,10 @@
   #endif
 
   #define EXTERN extern "C" 
+
+  #ifndef WINAPI
+    #define WINAPI __stdcall
+  #endif
 
   /* ---------- Коды ошибок GPI ---------- */
   #define GPI_ERROR 0
@@ -281,7 +287,125 @@
   __declspec(dllimport) DWORD __stdcall GetEnvironmentVariableA(const char *lpName, char *lpBuffer, DWORD nSize);
   __declspec(dllimport) void __stdcall Sleep(DWORD dwMilliseconds);
 
+  /* ---------- Error codes used by the client/server ---------- */
+  #ifndef ERROR_OPEN_FAILED
+    #define ERROR_OPEN_FAILED   110L
+  #endif
+  #ifndef ERROR_BROKEN_PIPE
+    #define ERROR_BROKEN_PIPE   109L
+  #endif
+
+  /* ---------- DosExecPgm constants & RESULTCODES ---------- */
+  #ifndef EXEC_ASYNC
+    #define EXEC_ASYNC          0L
+    #define EXEC_ASYNCB         1L
+    #define EXEC_SYNC           2L
+    #define EXEC_SYNCB          3L
+    #define EXEC_LOAD           4L
+    #define EXEC_ASYNCRESULT    5L
+  #endif
+  /* Legacy name used by F_platform.hpp. */
+  #ifndef EXEC_BACKGROUND
+    #define EXEC_BACKGROUND     EXEC_ASYNCRESULT
+  #endif
+
+  typedef struct _RESULTCODES {
+      ULONG codeTerminate;
+      ULONG codeResult;
+      ULONG pidProcess;
+  } RESULTCODES, *PRESULTCODES;
+
+  /* ---------- Minimal STARTUPINFOA/PROCESS_INFORMATION for DosExecPgm ----------
+     Layout matches the Win32 ANSI ABI (cb = 68 / 16 bytes on Win32).
+     Declared locally so this header does not need <windows.h>, which
+     would clash with the OS/2-compatible typedefs above. */
+  typedef struct _STARTUPINFOA_LITE {
+      DWORD   cb;
+      char   *lpReserved;
+      char   *lpDesktop;
+      char   *lpTitle;
+      DWORD   dwX, dwY, dwXSize, dwYSize;
+      DWORD   dwXCountChars, dwYCountChars, dwFillAttribute, dwFlags;
+      USHORT  wShowWindow, cbReserved2;
+      BYTE   *lpReserved2;
+      HANDLE  hStdInput, hStdOutput, hStdError;
+  } STARTUPINFOA_LITE;
+
+  typedef struct _PROCESS_INFORMATION_LITE {
+      HANDLE hProcess, hThread;
+      DWORD  dwProcessId, dwThreadId;
+  } PROCESS_INFORMATION_LITE;
+
+  #ifndef DETACHED_PROCESS
+    #define DETACHED_PROCESS    0x00000008L
+  #endif
+
+  #ifndef DLL_PROCESS_ATTACH
+    #define DLL_PROCESS_ATTACH  1
+  #endif
+  #ifndef DLL_PROCESS_DETACH
+    #define DLL_PROCESS_DETACH  0
+  #endif
+
+  __declspec(dllimport) void __stdcall ExitProcess(UINT uExitCode);
+
+  __declspec(dllimport) BOOL __stdcall CreateProcessA(
+      const char *lpApplicationName,
+      char       *lpCommandLine,
+      void       *lpProcessAttributes,
+      void       *lpThreadAttributes,
+      BOOL        bInheritHandles,
+      DWORD       dwCreationFlags,
+      void       *lpEnvironment,
+      const char *lpCurrentDirectory,
+      STARTUPINFOA_LITE        *lpStartupInfo,
+      PROCESS_INFORMATION_LITE *lpProcessInformation);
+
+  #ifndef CREATE_NEW_CONSOLE
+    #define CREATE_NEW_CONSOLE  0x00000010L
+  #endif
+
   /* ---------- Эмуляция OS/2 API ---------- */
+  static inline APIRET DosExecPgm(char *pszFailName, LONG cbFailName,
+                                  ULONG execFlags,
+                                  const char *pszArg,
+                                  const char *pszEnv,
+                                  PRESULTCODES pResCodes,
+                                  const char *pszExe)
+  {
+      STARTUPINFOA_LITE        si;
+      PROCESS_INFORMATION_LITE pi;
+      char szCmd[1024];
+      char *p;
+      int   n;
+
+      (void)pszFailName; (void)cbFailName;
+      (void)pszArg;      (void)pszEnv; (void)execFlags;
+
+      p = (char *)&si;
+      for (n = 0; n < (int)sizeof(si); n++) p[n] = 0;
+      p = (char *)&pi;
+      for (n = 0; n < (int)sizeof(pi); n++) p[n] = 0;
+      si.cb = sizeof(si);
+
+      n = 0;
+      while (pszExe[n] && n < 1023) { szCmd[n] = pszExe[n]; n++; }
+      szCmd[n] = 0;
+
+      if (!CreateProcessA(NULL, szCmd, NULL, NULL, FALSE,
+                          CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
+          return 1;
+
+      if (pResCodes) {
+          pResCodes->codeTerminate = 0;
+          pResCodes->codeResult    = 0;
+          pResCodes->pidProcess    = pi.dwProcessId;
+      }
+      CloseHandle(pi.hProcess);
+      CloseHandle(pi.hThread);
+      return 0;
+  }
+
   static inline APIRET DosAllocMem(PVOID *ppv, ULONG cb, ULONG flags) {
       (void)flags;
       *ppv = VirtualAlloc(NULL, cb, MEM_COMMIT, PAGE_READWRITE);
@@ -334,6 +458,30 @@
   }
   static inline APIRET DosCloseMutexSem(HMTX hmtx) {
       return CloseHandle(hmtx) ? 0 : 1;
+  }
+
+  /* ---------- Semaphore helpers for Fs_ClientList ---------- */
+    #define SEM_INDEFINITE_WAIT  0xFFFFFFFFUL
+    #define INFINITE             0xFFFFFFFFUL
+    #define WAIT_OBJECT_0        0x00000000UL
+    #define WAIT_ABANDONED       0x00000080UL
+
+  __declspec(dllimport) DWORD __stdcall WaitForSingleObject(HANDLE hHandle, DWORD dwMilliseconds);
+  __declspec(dllimport) BOOL  __stdcall ReleaseMutex(HANDLE hMutex);
+  __declspec(dllimport) HANDLE __stdcall CreateThread(void *lpThreadAttributes,
+                                                      SIZE_T dwStackSize,
+                                                      unsigned long (__stdcall *lpStartAddress)(void *),
+                                                      void *lpParameter,
+                                                      DWORD dwCreationFlags,
+                                                      DWORD *lpThreadId);
+
+  static inline APIRET DosRequestMutexSem(HMTX hmtx, ULONG ulTimeout) {
+      DWORD dwTimeout = (ulTimeout == SEM_INDEFINITE_WAIT) ? INFINITE : (DWORD)ulTimeout;
+      DWORD dwWait = WaitForSingleObject((HANDLE)hmtx, dwTimeout);
+      return (dwWait == WAIT_OBJECT_0 || dwWait == WAIT_ABANDONED) ? 0 : 1;
+  }
+  static inline APIRET DosReleaseMutexSem(HMTX hmtx) {
+      return ReleaseMutex((HANDLE)hmtx) ? 0 : 1;
   }
 
   /* ---------- Структуры ---------- */

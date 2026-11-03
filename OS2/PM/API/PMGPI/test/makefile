@@ -1,13 +1,14 @@
 PROJECT = testgpi
 DESCRIPTION = Minimal PMGPI tests
-SOURCES = testgpi
+SOURCES = tests_common tests_edge_stress tests_elements tests_gorder tests_legacy_port tests_lifecycle tests_main tests_multi_ps &
+tests_p0_regressions tests_paths tests_primitives tests_queries tests_segments_advanced tests_segments_basic tests_state &
+tests_transport win_compat
 
 !ifndef TARGETBLD
 SRCDIR  = $(MYDIR)
 !else
 SRCDIR  = $(MYDIR)..$(SEP)
 ADD_COPT = -bt=nt
-SOURCES += win_compat
 !endif
 
 ADD_COPT += -i=$(SRCDIR).. -i=$(SRCDIR)..$(SEP)..$(SEP)..$(SEP)include
@@ -60,8 +61,35 @@ IMPORTS = WinInitialize      PMWIN.246, &
           GpiOutlinePath                  PMGPI.563, &
           GpiModifyPath                   PMGPI.403, &
           GpiStrokePath                   PMGPI.554, &
-          GpiSetClipPath                  PMGPI.515
-
+          GpiSetClipPath                  PMGPI.515, &
+          GpiCharString                   PMGPI.358, &
+          GpiPolyLine                     PMGPI.415, &
+          GpiCreatePS                     PMGPI.369, &
+          GpiDestroyPS                    PMGPI.379, &
+          GpiQueryPS                      PMGPI.471, &
+          GpiSetPS                        PMGPI.539, &
+          GpiQueryDevice                  PMGPI.444, &
+          GpiAssociate                    PMGPI.351, &
+          GpiErase                        PMGPI.389, &
+          GpiResetPS                      PMGPI.498, &
+          GpiQueryDrawingMode             PMGPI.447, &
+          GpiSavePS                       PMGPI.501, &
+          GpiRestorePS                    PMGPI.499, &
+          GpiSetStopDraw                  PMGPI.550, &
+          GpiSetDrawControl               PMGPI.521, &
+          GpiMarker                       PMGPI.402, &
+          GpiPolyMarker                   PMGPI.416, &
+          GpiCharStringAt                 PMGPI.359, &
+          GpiSetArcParams                 PMGPI.502, &
+          GpiSetAttrs                     PMGPI.588, &
+          GpiQueryColor                   PMGPI.437, &
+          GpiQueryCurrentPosition         PMGPI.441, &
+          GpiQueryMix                     PMGPI.467, &
+          GpiQueryDrawControl             PMGPI.446, &
+          GpiQueryStopDraw                PMGPI.487, &
+          GpiQueryEditMode                PMGPI.448, &
+          GpiSetInitialSegmentAttrs       PMGPI.527, &
+          GpiQueryInitialSegmentAttrs     PMGPI.455
 
 !include $(%ROOT)tools/mk/build.mk
 

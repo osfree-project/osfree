@@ -36,6 +36,7 @@
   #define PMC_SLEEP(ms)       DosSleep(ms)
   #define PMC_ERR_OPEN        ERROR_OPEN_FAILED
   #define PMC_ERR_BROKEN      ERROR_BROKEN_PIPE
+  #define PMC_LAST_SOCK_ERR() sock_errno()
 
 #elif defined(__WIN32__) || defined(__NT__) || defined(_WIN32)
 
@@ -98,6 +99,7 @@
   #define PMC_SLEEP(ms)       Sleep(ms)
   #define PMC_ERR_OPEN        WSAECONNREFUSED
   #define PMC_ERR_BROKEN      WSAECONNABORTED
+  #define PMC_LAST_SOCK_ERR() WSAGetLastError()
 
 #else
   #error Unsupported platform for PMTCP
@@ -106,6 +108,7 @@
 #define FREEPM_TCP_DEFAULT_HOST  "127.0.0.1"
 #define FREEPM_TCP_DEFAULT_PORT  9876
 #define FREEPM_TCP_BACKLOG       5
+#define FREEPM_TCP_THREAD_STACK  65536   /* NEW: per-client thread stack size */
 
 /* Backend connection modes (same values as F_pipe.hpp). */
 #define TCP_SERVER_MODE   1

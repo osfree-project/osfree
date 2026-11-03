@@ -11,6 +11,7 @@ PROJECT      = pmtcp
 DESCRIPTION  = FreePM TCP communication backend
 TARGET_CLASS = LIBRARY
 
+ADD_COPT = -bm -sg
 #srcfiles = $(p)F_tcp$(e) $(p)Ft_main$(e) $(p)F_globals$(e) $(p)F_utils$(e) &
 #           $(p)F_errors$(e) $(p)F_debug$(e)
 
@@ -23,7 +24,7 @@ ADD_COPT += -bt=nt
 ADD_LINKOPT = lib wsock32.lib
 !endif
 
-ADD_COPT     = -i=$(SRCDIR). -sg -of+ -bd -3s
+ADD_COPT     += -i=$(SRCDIR). -sg -of+ -bd -3s
 
 ADD_LINKOPT += segment   type DATA nonshared
 NOLIBS       = 1
