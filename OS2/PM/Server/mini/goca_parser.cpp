@@ -1328,6 +1328,13 @@ const char *GocaOrderName(UCHAR uCode)
     case OCODE_GBEL:    return "GBEL";
     case OCODE_GEEL:    return "GEEL";
     case OCODE_GLABL:   return "GLABL";
+    case OCODE_GBPTH:   return "GBPTH";
+    case OCODE_GEPTH:   return "GEPTH";
+    case OCODE_GCFIG:   return "GCFIG";
+    case OCODE_GFPTH:   return "GFPTH";
+    case OCODE_GOPTH:   return "GOPTH";
+    case OCODE_GMPTH:   return "GMPTH";
+    case OCODE_GSCPTH:  return "GSCPTH";
     default:            return "?";
     }
 }

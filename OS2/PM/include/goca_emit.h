@@ -13,5 +13,6 @@
 #include "goca_emit_text.h"
 #include "goca_emit_ctrl.h"
 #include "goca_emit_elem.h"
+#include "goca_emit_path.h"
 
 #endif /* GOCA_EMIT_H */

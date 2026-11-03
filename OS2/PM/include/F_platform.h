@@ -181,6 +181,20 @@
   #endif
 
   /* ---------- OS/2 GPI constants (Win32 fallback) ---------- */
+
+  /* ---------- Paths (Win32 fallback) ---------- */
+  #define MPATH_STROKE          6L
+  #define FPATH_ALTERNATE       0L
+  #define FPATH_WINDING         2L
+  #define FPATH_INCL            0L
+  #define FPATH_EXCL            8L
+  #define SCP_ALTERNATE         0L
+  #define SCP_WINDING           2L
+  #define SCP_AND               4L
+  #define SCP_RESET             0L
+  #define SCP_INCL              0L
+  #define SCP_EXCL              8L
+
    #define DM_ERROR                        0L
    #define DM_DRAW                         1L
    #define DM_RETAIN                       2L

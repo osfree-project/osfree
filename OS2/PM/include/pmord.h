@@ -1309,8 +1309,17 @@ typedef struct _ORDER_GFPTH
    @brief Outline Path order (PM GPI extension).
 
    Not part of AFP GOCA.
+
+   Opcode X'D9' per IBM OS/2 PM Reference 64F0277, Chapter 27
+   "Graphics Orders" (Outline Path / GOPTH). This file previously had
+   X'D4' (likely a typo, since neighbours are X'D7' Fill, X'D8' Modify).
+
+   @warning Requires a practical test on real OS/2 to confirm which byte
+            GRE actually emits (X'D4' or X'D9'). See test_gopth.cpp.
+            If the test shows X'D4', revert this define and update the
+            project documentation accordingly.
 */
-#define OCODE_GOPTH    0xD4            /* Outline Path                */
+#define OCODE_GOPTH    0xD9            /* Outline Path                */
 
 /*!
    @brief Structure for Outline Path order (PM GPI extension).

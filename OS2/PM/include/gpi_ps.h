@@ -86,6 +86,9 @@ typedef struct _GPI_PS {
     LONG     lCurrentElement;   /* 0 = before first; 1..N = element index  */
     BOOL     bInElement;        /* TRUE between BeginElement/EndElement    */
     ULONG    uOpenElementStart; /* offset in pbGoca where current bracket begins */
+    /* ---- Path state --------------------------------------------------- */
+    LONG     lOpenPath;     /* 0 = no path state; 1 = between Begin/End  */
+    BOOL     bPathDefined;  /* TRUE = EndPath seen, awaiting Fill/...    */
 #endif
 } GPI_PS, *PGPI_PS;
 
@@ -178,6 +181,7 @@ static inline PGPI_PS GpiPsCreate(HPS hps, ULONG flOptions)
             ps->lCurrentElement = 0;
             ps->bInElement      = FALSE;
             ps->uOpenElementStart = 0;
+            ps->lOpenPath         = 0;
             /* On client, memset above has zeroed goca; on server,
                GocaInit has re-zeroed it and set hdc. */
 #endif

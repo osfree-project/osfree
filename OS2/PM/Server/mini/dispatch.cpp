@@ -110,6 +110,18 @@ static BOOL SrvDeliver(PGPI_PS ps, const BYTE *p, ULONG cb)
 
     if (PS_IS_RECORDING(am)) {
         if (!GpiPsGocaAppend(ps, p, cb)) return FALSE;
+        /* Each non-bracket order emitted in SEGEM_INSERT becomes one
+           element; advance the pointer so a subsequent GpiBeginElement
+           bracket is inserted AFTER the preamble, not before the
+           first element.  Bracket delimiters (GBEL/GEEL) do not
+           advance here: GBEL arrives before bInElement is set, and
+           the whole GBEL..GEEL bracket is one element whose pointer
+           advance is performed by SrvGocaInsertElement on the GEEL
+           re-pack.  Orders emitted inside an open bracket do not
+           advance either. */
+        if (!ps->bInElement && ps->ulEditMode == SEGEM_INSERT &&
+            p[0] != OCODE_GBEL && p[0] != OCODE_GEEL)
+            ps->lCurrentElement++;
     }
     if (PS_IS_DRAWING(am)) {
         SrvParseOrder(ps, p, cb);
@@ -1421,10 +1433,22 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
                 (long)ps->lOpenSeg);
             return (ULONG)GPI_ERROR;
         }
+        /* PMERR_PATH_INCOMPLETE: an attempt was made to open a segment
+           while there is an open path bracket. */
+        if (ps->lOpenPath != 0) {
+            log("[PMSERVER] OUT : NGpiOpenSegment -> GPI_ERROR (path open)\n");
+            return (ULONG)GPI_ERROR;
+        }
         if (ps->ulDrawingMode == DM_DRAW) {
             log("[PMSERVER] OUT : NGpiOpenSegment -> GPI_ERROR (in DM_DRAW)\n");
             return (ULONG)GPI_ERROR;
         }
+
+        /* A path defined in the previous segment is bound to that
+           segment; when a new segment is opened it is no longer
+           available (PMERR_PATH_UNKNOWN on any path op).  Clear the
+           stale defined-flag.  lOpenPath is already 0 (checked above). */
+        ps->bPathDefined = FALSE;
 
         /* Edit an existing segment: locate its GBSEG (spec: GpiOpenSegment
            is the way to begin editing a retained segment). */
@@ -1433,6 +1457,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
             ps->lOpenSeg        = lSegId;
             ps->lCurrentElement = 0;
             ps->bInElement      = FALSE;
+            ps->bPathDefined    = FALSE;
             log("[PMSERVER] OUT : NGpiOpenSegment -> 1 (edit off=%lu)\n",
                 (unsigned long)start);
             return 1;
@@ -1454,6 +1479,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         ps->lOpenSeg        = lSegId;
         ps->lCurrentElement = 0;
         ps->bInElement      = FALSE;
+        ps->bPathDefined    = FALSE;
 
         log("[PMSERVER] OUT : NGpiOpenSegment -> 1 (off=%lu)\n",
             (unsigned long)ps->uOpenSegStart);
@@ -1498,6 +1524,17 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
             }
             ps->bInElement = FALSE;
         }
+
+        /* Path bracket, if still open, is terminated.  Per OS/2 PM Ref
+           (GpiCloseSegment - Remarks): "If an area or path is open when
+           a segment is closed, the area or path is terminated.  When the
+           drawing mode is draw or draw-and-retain, a warning is given,
+           but the close processing continues.  No warning is given for
+           retain mode."  No GEPTH order is emitted.  bPathDefined is
+           cleared: a path defined in this segment cannot be consumed
+           from a later segment (PMERR_PATH_UNKNOWN). */
+        ps->lOpenPath    = 0;
+        ps->bPathDefined = FALSE;
 
         ps->lOpenSeg          = 0;
         ps->uOpenSegStart     = 0;
@@ -2126,6 +2163,9 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         if (ps->ulDrawingMode != DM_RETAIN &&
             ps->ulDrawingMode != DM_DRAWANDRETAIN) return (ULONG)GPI_ERROR;
         if (ps->bInElement)             return (ULONG)GPI_ERROR;
+        /* Element type for a user-defined element must be in the range
+           [0x81000000, 0xFFFFFFFF] (GpiBeginElement/GpiElement - Remarks). */
+        if ((ULONG)a->lType < 0x81000000UL) return (ULONG)GPI_ERROR;
 
         len = GocaEmitBeginElement(&ps->goca, buf, sizeof(buf),
                                     a->lType, a->szDesc);
@@ -2138,7 +2178,6 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         log("[PMSERVER] OUT : NGpiBeginElement -> 1\n");
         return 1;
     }
-
     case NGpiEndElement: {
         PGPI_PS ps;
         BYTE  buf[2];
@@ -2232,6 +2271,9 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         if (ps->ulDrawingMode != DM_RETAIN &&
             ps->ulDrawingMode != DM_DRAWANDRETAIN) return (ULONG)GPI_ERROR;
         if (ps->bInElement)             return (ULONG)GPI_ERROR;
+        /* Element type for a user-defined element must be in the range
+           [0x81000000, 0xFFFFFFFF] (GpiBeginElement/GpiElement - Remarks). */
+        if ((ULONG)a->lType < 0x81000000UL) return (ULONG)GPI_ERROR;
 
         /* Validate: no GBEL / GEEL in body. */
         off = 0;
@@ -2616,15 +2658,205 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
     DISPATCH_STUB(NGpiQueryGraphicsField)
     DISPATCH_STUB(NGpiSetViewingLimits)
     DISPATCH_STUB(NGpiQueryViewingLimits)
-    DISPATCH_STUB(NGpiBeginPath)
-    DISPATCH_STUB(NGpiEndPath)
-    DISPATCH_STUB(NGpiCloseFigure)
-    DISPATCH_STUB(NGpiModifyPath)
-    DISPATCH_STUB(NGpiFillPath)
-    DISPATCH_STUB(NGpiSetClipPath)
-    DISPATCH_STUB(NGpiOutlinePath)
+    case NGpiBeginPath: {
+        LONG lPath;
+        PGPI_PS ps;
+        BYTE buf[8];
+        LONG len;
+
+        log("[PMSERVER] IN  : NGpiBeginPath(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lPath = *(LONG*)pArgs;
+        if (lPath != 1) return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenPath != 0) return (ULONG)GPI_ERROR; /* path state already active */
+
+        len = GocaEmitBeginPath(&ps->goca, buf, sizeof(buf), lPath);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        SrvDeliver(ps, buf, (ULONG)len);
+        ps->lOpenPath    = lPath;
+        ps->bPathDefined = FALSE;   /* new path replaces any previous one */
+        return 1;
+    }
+
+    case NGpiEndPath: {
+        PGPI_PS ps;
+        BYTE buf[2];
+        LONG len;
+
+        log("[PMSERVER] IN  : NGpiEndPath(hps=%p)\n", (void*)hps);
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenPath == 0) return (ULONG)GPI_ERROR;
+
+        len = GocaEmitEndPath(&ps->goca, buf, sizeof(buf));
+        if (len < 0) return (ULONG)GPI_ERROR;
+        SrvDeliver(ps, buf, (ULONG)len);
+        ps->lOpenPath    = 0;
+        ps->bPathDefined = TRUE;
+        return 1;
+    }
+
+    case NGpiCloseFigure: {
+        PGPI_PS ps;
+        BYTE buf[2];
+        LONG len;
+
+        log("[PMSERVER] IN  : NGpiCloseFigure(hps=%p)\n", (void*)hps);
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenPath == 0) return (ULONG)GPI_ERROR;
+
+        len = GocaEmitCloseFigure(&ps->goca, buf, sizeof(buf));
+        if (len < 0) return (ULONG)GPI_ERROR;
+        SrvDeliver(ps, buf, (ULONG)len);
+        return 1;
+    }
+
+    case NGpiFillPath: {
+        LONG lPath, lOptions;
+        PGPI_PS ps;
+        BYTE buf[8];
+        LONG len;
+        ULONG ulFlags = 0;
+
+        log("[PMSERVER] IN  : NGpiFillPath(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lPath    = *(LONG*)pArgs;
+        lOptions = *(LONG*)(pArgs + sizeof(LONG));
+        if (lPath != 1) return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenPath != 0)     return (ULONG)GPI_ERROR; /* still in path state */
+        if (!ps->bPathDefined)      return (ULONG)GPI_ERROR; /* no path defined     */
+
+        if (lOptions & 0x0002L) ulFlags |= GFPTH_WINDING;   /* FPATH_WINDING */
+
+        len = GocaEmitFillPath(&ps->goca, buf, sizeof(buf), ulFlags, lPath);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        SrvDeliver(ps, buf, (ULONG)len);
+        ps->bPathDefined = FALSE;
+        return 1;
+    }
+
+    case NGpiOutlinePath: {
+        LONG lPath;
+        PGPI_PS ps;
+        BYTE buf[8];
+        LONG len;
+
+        log("[PMSERVER] IN  : NGpiOutlinePath(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lPath = *(LONG*)pArgs;
+        if (lPath != 1) return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenPath != 0)     return (ULONG)GPI_ERROR;
+        if (!ps->bPathDefined)      return (ULONG)GPI_ERROR;
+
+        len = GocaEmitOutlinePath(&ps->goca, buf, sizeof(buf), lPath);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        SrvDeliver(ps, buf, (ULONG)len);
+        ps->bPathDefined = FALSE;
+        return 1;
+    }
+
+    case NGpiModifyPath: {
+        LONG lPath, lMode;
+        PGPI_PS ps;
+        BYTE buf[8];
+        LONG len;
+
+        log("[PMSERVER] IN  : NGpiModifyPath(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lPath = *(LONG*)pArgs;
+        lMode = *(LONG*)(pArgs + sizeof(LONG));
+        if (lPath != 1 || lMode != 6L /* MPATH_STROKE */)
+            return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenPath != 0)     return (ULONG)GPI_ERROR;
+        if (!ps->bPathDefined)      return (ULONG)GPI_ERROR;
+
+        len = GocaEmitModifyPath(&ps->goca, buf, sizeof(buf),
+                                  (UCHAR)GMPTH_STROKE, lPath);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        SrvDeliver(ps, buf, (ULONG)len);
+        /* Path stays defined (modified); bPathDefined remains TRUE. */
+        return 1;
+    }
+
+    case NGpiSetClipPath: {
+        LONG lPath, lOptions;
+        PGPI_PS ps;
+        BYTE buf[8];
+        LONG len;
+        ULONG ulFlags = 0;
+
+        log("[PMSERVER] IN  : NGpiSetClipPath(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lPath    = *(LONG*)pArgs;
+        lOptions = *(LONG*)(pArgs + sizeof(LONG));
+
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+
+        if (lPath == 0) {
+            /* Reset clip path (infinite clip). Works regardless of path state. */
+            len = GocaEmitSetClipPath(&ps->goca, buf, sizeof(buf), 0, 0);
+            if (len < 0) return (ULONG)GPI_ERROR;
+            SrvDeliver(ps, buf, (ULONG)len);
+            return 1;
+        }
+
+        if (lPath != 1)         return (ULONG)GPI_ERROR;
+        if (ps->lOpenPath != 0) return (ULONG)GPI_ERROR;
+        if (!ps->bPathDefined)  return (ULONG)GPI_ERROR;
+
+        if (lOptions & 0x0002L) ulFlags |= GSCPTH_WINDING;    /* SCP_WINDING */
+        if (lOptions & 0x0004L) ulFlags |= GSCPTH_INTERSECT;  /* SCP_AND */
+
+        len = GocaEmitSetClipPath(&ps->goca, buf, sizeof(buf),
+                                   ulFlags, lPath);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        SrvDeliver(ps, buf, (ULONG)len);
+        ps->bPathDefined = FALSE;   /* consumed */
+        return 1;
+    }
+
+    case NGpiStrokePath: {
+        LONG lPath;
+        ULONG flOptions;
+        PGPI_PS ps;
+        BYTE buf[8];
+        LONG len;
+
+        log("[PMSERVER] IN  : NGpiStrokePath(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG) + sizeof(ULONG))
+            return (ULONG)GPI_ERROR;
+        lPath     = *(LONG*)pArgs;
+        flOptions = *(ULONG*)(pArgs + sizeof(LONG));
+        if (lPath != 1 || flOptions != 0) return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenPath != 0)     return (ULONG)GPI_ERROR;
+        if (!ps->bPathDefined)      return (ULONG)GPI_ERROR;
+
+        len = GocaEmitFillPath(&ps->goca, buf, sizeof(buf),
+                                GFPTH_WINDING | GFPTH_MODIFY, lPath);
+        if (len < 0) return (ULONG)GPI_ERROR;
+        SrvDeliver(ps, buf, (ULONG)len);
+        ps->bPathDefined = FALSE;
+        return 1;
+    }
     DISPATCH_STUB(NGpiPathToRegion)
-    DISPATCH_STUB(NGpiStrokePath)
     DISPATCH_STUB(NGpiCreateLogColorTable)
     DISPATCH_STUB(NGpiQueryColorData)
     DISPATCH_STUB(NGpiQueryLogColorTable)

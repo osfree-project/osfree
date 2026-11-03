@@ -63,8 +63,9 @@ typedef void *HMODULE;   /*!< Module handle. */
 /* ---------- Constants ---------- */
 #define HWND_DESKTOP ((HWND)1)   /*!< Desktop window handle. */
 
-#define GPI_ERROR (-1L)          /*!< GPI failure return. */
+#define GPI_ERROR 0L             /*!< GPI failure return. */
 #define GPI_OK     1L            /*!< GPI success return. */
+#define GPI_ALTERROR (-1L)       /*!< GPI alternate error return. */
 
 /* Default color table indices */
 #define CLR_BLACK      (-1L)     /*!< Black. */
@@ -190,6 +191,30 @@ BOOL APIENTRY GpiDeleteElementRange(HPS hps, LONG lFirstElement,
                                     LONG lLastElement);
 BOOL APIENTRY GpiDeleteElementsBetweenLabels(HPS hps, LONG lFirstLabel,
                                              LONG lLastLabel);
+
+
+/* ---------- Paths (Step I) ---------- */
+BOOL APIENTRY GpiBeginPath(HPS hps, LONG lPath);
+BOOL APIENTRY GpiEndPath(HPS hps);
+BOOL APIENTRY GpiCloseFigure(HPS hps);
+LONG APIENTRY GpiFillPath(HPS hps, LONG lPath, LONG lOptions);
+LONG APIENTRY GpiOutlinePath(HPS hps, LONG lPath, LONG lOptions);
+BOOL APIENTRY GpiModifyPath(HPS hps, LONG lPath, LONG lMode);
+BOOL APIENTRY GpiSetClipPath(HPS hps, LONG lPath, LONG lOptions);
+LONG APIENTRY GpiStrokePath(HPS hps, LONG lPath, ULONG flOptions);
+
+#define MPATH_STROKE    6L
+#define FPATH_ALTERNATE 0L
+#define FPATH_WINDING   2L
+#define FPATH_INCL      0L
+#define FPATH_EXCL      8L
+#define SCP_ALTERNATE   0L
+#define SCP_WINDING     2L
+#define SCP_AND         4L
+#define SCP_RESET       0L
+#define SCP_INCL        0L
+#define SCP_EXCL        8L
+
 #ifdef __cplusplus
 }
 #endif

@@ -52,7 +52,15 @@ IMPORTS = WinInitialize      PMWIN.246, &
           GpiElement                      PMGPI.384, &
           GpiDeleteElement                PMGPI.372, &
           GpiDeleteElementRange           PMGPI.373, &
-          GpiDeleteElementsBetweenLabels  PMGPI.374
+          GpiDeleteElementsBetweenLabels  PMGPI.374, &
+          GpiBeginPath                    PMGPI.354, &
+          GpiEndPath                      PMGPI.387, &
+          GpiFillPath                     PMGPI.392, &
+          GpiCloseFigure                  PMGPI.360, &
+          GpiOutlinePath                  PMGPI.563, &
+          GpiModifyPath                   PMGPI.403, &
+          GpiStrokePath                   PMGPI.554, &
+          GpiSetClipPath                  PMGPI.515
 
 
 !include $(%ROOT)tools/mk/build.mk

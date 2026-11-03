@@ -817,6 +817,305 @@ int main(void)
     GpiDeleteSegment(hps, 212);
 }
 
+{
+    /* I1: BeginPath/EndPath/FillPath(ALTERNATE) */
+    BOOL rc_begin, rc_end, rc_close;
+    LONG rc_fill;
+
+    printf("\n=== Step I1: BeginPath/EndPath/FillPath ===\n");
+
+    GpiSetDrawingMode(hps, DM_RETAIN);
+    GpiSetEditMode(hps, SEGEM_INSERT);
+    GpiOpenSegment(hps, 300);
+
+    rc_begin = GpiBeginPath(hps, 1L);
+    GpiMove(hps, &ptl1);
+    GpiLine(hps, &ptl2);
+    rc_end   = GpiEndPath(hps);
+    rc_fill  = GpiFillPath(hps, 1L, FPATH_ALTERNATE);
+    rc_close = GpiCloseSegment(hps);
+
+    printf("  BeginPath -> %d\n", (int)rc_begin);
+    printf("  EndPath   -> %d\n", (int)rc_end);
+    printf("  FillPath(ALTERNATE) -> %ld\n", (long)rc_fill);
+    printf("  CloseSegment -> %d\n", (int)rc_close);
+
+    GpiSetDrawingMode(hps, DM_DRAW);
+    GpiDrawSegment(hps, 300);
+    GpiDeleteSegment(hps, 300);
+}
+
+{
+    /* I2: CloseFigure + OutlinePath */
+    BOOL rc_begin, rc_close_fig, rc_end, rc_close;
+    LONG rc_outline;
+
+    printf("\n=== Step I2: CloseFigure + OutlinePath ===\n");
+
+    GpiSetDrawingMode(hps, DM_RETAIN);
+    GpiSetEditMode(hps, SEGEM_INSERT);
+    GpiOpenSegment(hps, 301);
+
+    rc_begin     = GpiBeginPath(hps, 1L);
+    GpiMove(hps, &ptl1);
+    GpiLine(hps, &ptl2);
+    rc_close_fig = GpiCloseFigure(hps);
+    rc_end       = GpiEndPath(hps);
+    rc_outline   = GpiOutlinePath(hps, 1L, 0L);
+    rc_close     = GpiCloseSegment(hps);
+
+    printf("  BeginPath -> %d\n", (int)rc_begin);
+    printf("  CloseFigure -> %d\n", (int)rc_close_fig);
+    printf("  EndPath -> %d\n", (int)rc_end);
+    printf("  OutlinePath -> %ld\n", (long)rc_outline);
+    printf("  CloseSegment -> %d\n", (int)rc_close);
+
+    GpiSetDrawingMode(hps, DM_DRAW);
+    GpiDrawSegment(hps, 301);
+    GpiDeleteSegment(hps, 301);
+}
+
+{
+    /* I3: ModifyPath(MPATH_STROKE) + FillPath(FPATH_WINDING) */
+    BOOL rc_begin, rc_end, rc_mod, rc_close;
+    LONG rc_fill;
+
+    printf("\n=== Step I3: ModifyPath + FillPath ===\n");
+
+    GpiSetDrawingMode(hps, DM_RETAIN);
+    GpiSetEditMode(hps, SEGEM_INSERT);
+    GpiOpenSegment(hps, 302);
+
+    rc_begin = GpiBeginPath(hps, 1L);
+    GpiMove(hps, &ptl1);
+    GpiLine(hps, &ptl2);
+    rc_end   = GpiEndPath(hps);
+    rc_mod   = GpiModifyPath(hps, 1L, MPATH_STROKE);
+    rc_fill  = GpiFillPath(hps, 1L, FPATH_WINDING);
+    rc_close = GpiCloseSegment(hps);
+
+    printf("  BeginPath -> %d\n", (int)rc_begin);
+    printf("  EndPath -> %d\n", (int)rc_end);
+    printf("  ModifyPath(STROKE) -> %d\n", (int)rc_mod);
+    printf("  FillPath(WINDING) -> %ld\n", (long)rc_fill);
+    printf("  CloseSegment -> %d\n", (int)rc_close);
+
+    GpiSetDrawingMode(hps, DM_DRAW);
+    GpiDrawSegment(hps, 302);
+    GpiDeleteSegment(hps, 302);
+}
+
+{
+    /* I4: StrokePath */
+    BOOL rc_begin, rc_end, rc_close;
+    LONG rc_stroke;
+
+    printf("\n=== Step I4: StrokePath ===\n");
+
+    GpiSetDrawingMode(hps, DM_RETAIN);
+    GpiSetEditMode(hps, SEGEM_INSERT);
+    GpiOpenSegment(hps, 303);
+
+    rc_begin  = GpiBeginPath(hps, 1L);
+    GpiMove(hps, &ptl1);
+    GpiLine(hps, &ptl2);
+    rc_end    = GpiEndPath(hps);
+    rc_stroke = GpiStrokePath(hps, 1L, 0L);
+    rc_close  = GpiCloseSegment(hps);
+
+    printf("  BeginPath -> %d\n", (int)rc_begin);
+    printf("  EndPath -> %d\n", (int)rc_end);
+    printf("  StrokePath -> %ld\n", (long)rc_stroke);
+    printf("  CloseSegment -> %d\n", (int)rc_close);
+
+    GpiSetDrawingMode(hps, DM_DRAW);
+    GpiDrawSegment(hps, 303);
+    GpiDeleteSegment(hps, 303);
+}
+
+{
+    /* I5: SetClipPath(1, WINDING|AND) then SetClipPath(0, RESET) */
+    BOOL rc_begin, rc_end, rc_set, rc_reset, rc_close;
+
+    printf("\n=== Step I5: SetClipPath ===\n");
+
+    GpiSetDrawingMode(hps, DM_RETAIN);
+    GpiSetEditMode(hps, SEGEM_INSERT);
+    GpiOpenSegment(hps, 304);
+
+    rc_begin = GpiBeginPath(hps, 1L);
+    GpiMove(hps, &ptl1);
+    GpiLine(hps, &ptl2);
+    rc_end   = GpiEndPath(hps);
+    rc_set   = GpiSetClipPath(hps, 1L, SCP_WINDING | SCP_AND);
+    rc_reset = GpiSetClipPath(hps, 0L, SCP_RESET);
+    rc_close = GpiCloseSegment(hps);
+
+    printf("  BeginPath -> %d\n", (int)rc_begin);
+    printf("  EndPath -> %d\n", (int)rc_end);
+    printf("  SetClipPath(1, WINDING|AND) -> %d\n", (int)rc_set);
+    printf("  SetClipPath(0, RESET) -> %d\n", (int)rc_reset);
+    printf("  CloseSegment -> %d\n", (int)rc_close);
+
+    GpiSetDrawingMode(hps, DM_DRAW);
+    GpiDrawSegment(hps, 304);
+    GpiDeleteSegment(hps, 304);
+}
+
+{
+    /* I6: path state guards */
+    BOOL rc_end1, rc_begin1, rc_begin2, rc_end2, rc_close;
+
+    printf("\n=== Step I6: path state guards ===\n");
+
+    GpiSetDrawingMode(hps, DM_RETAIN);
+    GpiSetEditMode(hps, SEGEM_INSERT);
+    GpiOpenSegment(hps, 305);
+
+    rc_end1   = GpiEndPath(hps);         /* no path open, expect 0 */
+    rc_begin1 = GpiBeginPath(hps, 1L);   /* expect 1 */
+    rc_begin2 = GpiBeginPath(hps, 1L);   /* already open, expect 0 */
+    rc_end2   = GpiEndPath(hps);         /* expect 1 */
+    rc_close  = GpiCloseSegment(hps);
+
+    printf("  EndPath (no path) -> %d (expect 0)\n", (int)rc_end1);
+    printf("  BeginPath -> %d\n", (int)rc_begin1);
+    printf("  BeginPath (dup) -> %d (expect 0)\n", (int)rc_begin2);
+    printf("  EndPath -> %d\n", (int)rc_end2);
+    printf("  CloseSegment -> %d\n", (int)rc_close);
+
+    GpiSetDrawingMode(hps, DM_DRAW);
+    GpiDeleteSegment(hps, 305);
+}
+
+{
+    /* I9: CloseSegment wire form + bracket insertion position.
+       - Case A: open element bracket -> implicit GEEL is emitted and is
+                 the LAST order in the segment body.
+       - Case B: open path bracket    -> NO GEPTH emitted (path is
+                 "terminated", not "closed automatically", per
+                 GpiCloseSegment - Remarks); the path is left incomplete.
+       - Case C: regression for SrvDeliver element-pointer advance:
+                 a non-bracket emit (GSCOL) preceding GpiBeginElement
+                 must appear BEFORE the GBEL..GEEL bracket in the
+                 resulting order stream.  If the pointer is not
+                 advanced for the preamble, the bracket is inserted at
+                 position 0 and the tests below would show FAIL. */
+    BYTE  buf[160];
+    LONG  off, n, i;
+    BOOL  hasGeel, hasGepth;
+    LONG  posGeel, posGSCOL, posGBEL;
+    BOOL  rc_close;
+
+    printf("\n=== Step I9: CloseSegment wire form ===\n");
+
+    /* --- Case A: open element bracket --- */
+    GpiSetDrawingMode(hps, DM_RETAIN);
+    GpiSetEditMode(hps, SEGEM_INSERT);
+    GpiOpenSegment(hps, 310);
+    GpiBeginElement(hps, 0x81000099L, "I9");
+    GpiMove(hps, &ptl1);
+    GpiLine(hps, &ptl2);
+    /* Intentionally no GpiEndElement */
+    rc_close = GpiCloseSegment(hps);
+    printf("  Case A CloseSegment (element open) -> %d (expect 1)\n",
+           (int)rc_close);
+
+    off = 0;
+    n = GpiGetData(hps, 310, &off, 0, sizeof(buf), buf);
+    hasGeel  = FALSE;
+    hasGepth = FALSE;
+    posGeel  = -1;
+    i = 0;  /* GpiGetData returns body only, no GBSEG header */
+    while (i < n) {
+        if (buf[i] == 0x49) { hasGeel = TRUE; posGeel = i; }  /* GEEL */
+        if (buf[i] == 0x7F) { hasGepth = TRUE; }              /* GEPTH */
+        if (buf[i] == 0xD2) {          /* GBEL: long */
+            i += 2 + buf[i + 1];
+        } else if (buf[i] == 0x21 || buf[i] == 0x81) { /* GSCP / GCLINE */
+            i += 2 + buf[i + 1];
+        } else if (buf[i] == 0x49) {   /* GEEL: fixed 2-byte */
+            i += 2;
+        } else {
+            break;
+        }
+    }
+    printf("  Case A wire: GEEL=%d (expect 1), GEPTH=%d (expect 0)\n",
+           (int)hasGeel, (int)hasGepth);
+    printf("  Case A GEEL is last order: %s (pos=%ld, n=%ld)\n",
+           (posGeel >= 0 && posGeel == n - 2) ? "PASS" : "FAIL",
+           (long)posGeel, (long)n);
+    GpiDeleteSegment(hps, 310);
+
+    /* --- Case B: open path bracket --- */
+    GpiOpenSegment(hps, 311);
+    GpiBeginPath(hps, 1L);
+    GpiMove(hps, &ptl1);
+    GpiLine(hps, &ptl2);
+    /* Intentionally no GpiEndPath */
+    rc_close = GpiCloseSegment(hps);
+    printf("  Case B CloseSegment (path open) -> %d (expect 1)\n",
+           (int)rc_close);
+
+    off = 0;
+    n = GpiGetData(hps, 311, &off, 0, sizeof(buf), buf);
+    hasGeel  = FALSE;
+    hasGepth = FALSE;
+    i = 0;
+    while (i < n) {
+        if (buf[i] == 0x49) hasGeel  = TRUE;    /* GEEL */
+        if (buf[i] == 0x7F) hasGepth = TRUE;    /* GEPTH */
+        if (buf[i] == 0xD0) {          /* GBPTH: long */
+            i += 2 + buf[i + 1];
+        } else if (buf[i] == 0x21 || buf[i] == 0x81) { /* GSCP / GCLINE */
+            i += 2 + buf[i + 1];
+        } else {
+            break;
+        }
+    }
+    printf("  Case B wire: GEEL=%d (expect 0), GEPTH=%d (expect 0)\n",
+           (int)hasGeel, (int)hasGepth);
+    GpiDeleteSegment(hps, 311);
+
+    /* --- Case C: SrvDeliver element-pointer regression --- */
+    GpiOpenSegment(hps, 312);
+    GpiSetColor(hps, CLR_RED);                /* element 1: GSCOL */
+    GpiBeginElement(hps, 0x810000AAL, "C");   /* element 2: bracket */
+    GpiMove(hps, &ptl1);
+    GpiEndElement(hps);
+    rc_close = GpiCloseSegment(hps);
+    printf("  Case C CloseSegment -> %d (expect 1)\n", (int)rc_close);
+
+    off = 0;
+    n = GpiGetData(hps, 312, &off, 0, sizeof(buf), buf);
+    posGSCOL = -1;
+    posGBEL  = -1;
+    i = 0;
+    while (i < n) {
+        if (buf[i] == 0x0A && posGSCOL < 0) { posGSCOL = i; } /* GSCOL */
+        if (buf[i] == 0xD2 && posGBEL  < 0) { posGBEL  = i; } /* GBEL  */
+        if (buf[i] == 0x0A) {          /* GSCOL: fixed 2-byte */
+            i += 2;
+        } else if (buf[i] == 0xD2) {   /* GBEL: long */
+            i += 2 + buf[i + 1];
+        } else if (buf[i] == 0x21) {   /* GSCP: long */
+            i += 2 + buf[i + 1];
+        } else if (buf[i] == 0x49) {   /* GEEL: fixed 2-byte */
+            i += 2;
+        } else {
+            break;
+        }
+    }
+    printf("  Case C pos(GSCOL)=%ld pos(GBEL)=%ld (n=%ld)\n",
+           (long)posGSCOL, (long)posGBEL, (long)n);
+    printf("  Case C bracket after preamble: %s (expect PASS)\n",
+           (posGSCOL >= 0 && posGBEL >= 0 && posGSCOL < posGBEL)
+               ? "PASS" : "FAIL");
+    GpiDeleteSegment(hps, 312);
+
+    GpiSetDrawingMode(hps, DM_DRAW);
+}
+
     printf("Calling WinReleasePS(hps=%p)\n", (void*)hps);
     rc_rel_ps = WinReleasePS(hps); /* обязательное освобождение */
     printf("WinReleasePS -> %d\n", (int)rc_rel_ps);
