@@ -10,7 +10,7 @@ ADD_COPT = -bt=nt
 SOURCES += win_compat
 !endif
 
-ADD_COPT += -i=$(SRCDIR)..
+ADD_COPT += -i=$(SRCDIR).. -i=$(SRCDIR)..$(SEP)..$(SEP)..$(SEP)include
 
 IMPORTS = WinInitialize      PMWIN.246, &
           WinCreateMsgQueue  PMWIN.58,  &
@@ -37,7 +37,22 @@ IMPORTS = WinInitialize      PMWIN.246, &
           GpiRemoveDynamics  PMGPI.496, &
           GpiDrawFrom        PMGPI.382, &
           GpiQuerySegmentPriority         PMGPI.484, &
-          GpiSetSegmentPriority           PMGPI.548
+          GpiSetSegmentPriority           PMGPI.548, &
+          GpiDeleteSegments               PMGPI.377, &
+          GpiSetEditMode                  PMGPI.523, &
+          GpiLabel                        PMGPI.397, &
+          GpiBeginElement                 PMGPI.353, &
+          GpiEndElement                   PMGPI.386, &
+          GpiSetElementPointer            PMGPI.524, &
+          GpiQueryElementType             PMGPI.451, &
+          GpiQueryElement                 PMGPI.449, &
+          GpiQueryElementPointer          PMGPI.450, &
+          GpiSetElementPointerAtLabel     PMGPI.525, &
+          GpiOffsetElementPointer         PMGPI.406, &
+          GpiElement                      PMGPI.384, &
+          GpiDeleteElement                PMGPI.372, &
+          GpiDeleteElementRange           PMGPI.373, &
+          GpiDeleteElementsBetweenLabels  PMGPI.374
 
 
 !include $(%ROOT)tools/mk/build.mk

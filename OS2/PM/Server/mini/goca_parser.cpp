@@ -1325,6 +1325,9 @@ const char *GocaOrderName(UCHAR uCode)
     case OCODE_GSPRP:   return "GSPRP";
     case OCODE_VLONG:   return "VLONG";
     case OCODE_GBSEG:   return "GBSEG";
+    case OCODE_GBEL:    return "GBEL";
+    case OCODE_GEEL:    return "GEEL";
+    case OCODE_GLABL:   return "GLABL";
     default:            return "?";
     }
 }

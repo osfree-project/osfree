@@ -38,12 +38,13 @@
   typedef unsigned char *PBYTE;
   typedef LONG         *PLONG;
   typedef ULONG        *PULONG;
+  typedef int           BOOL;
+  typedef BOOL         *PBOOL;
   typedef LONG          FIXED;
   typedef FIXED        *PFIXED;
   typedef char         *PSTR8;
   typedef unsigned int  SIZE_T;
   typedef unsigned long APIRET;
-  typedef int           BOOL;
   typedef int           INT;
   typedef unsigned long ULONG32;
   typedef long          LONG32;
@@ -854,12 +855,16 @@ EXTERN ULONG APIENTRY GpiQueryDCData(void);
       extern "C" {
 #endif
 
+#define SEGEM_INSERT   1L
+#define SEGEM_REPLACE  2L
+
 #ifdef __cplusplus
 BOOL APIENTRY GpiBeginElement(HPS, LONG, PCSZ);
 #else
 BOOL APIENTRY GpiBeginElement(HPS, LONG, PSZ);
 #endif
 
+BOOL APIENTRY GpiSetEditMode(HPS, LONG);
 LONG APIENTRY GpiQueryEditMode(HPS);
 BOOL APIENTRY GpiSetElementPointer(HPS, LONG);
 LONG APIENTRY GpiQueryElementPointer(HPS);

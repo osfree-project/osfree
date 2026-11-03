@@ -81,6 +81,11 @@ typedef struct _GPI_PS {
     ULONG    ulInitialSegAttrs; /*!< SEGATTR_BIT bits                       */
     ULONG    ulDrawControl;     /*!< DCTL_* bits                            */
     ULONG    ulStopDraw;        /*!< SDW_OFF / SDW_ON                       */
+
+    /* ---- Segment editing (GpiBeginElement .. GpiEndElement) ---------- */
+    LONG     lCurrentElement;   /* 0 = before first; 1..N = element index  */
+    BOOL     bInElement;        /* TRUE between BeginElement/EndElement    */
+    ULONG    uOpenElementStart; /* offset in pbGoca where current bracket begins */
 #endif
 } GPI_PS, *PGPI_PS;
 
@@ -170,6 +175,9 @@ static inline PGPI_PS GpiPsCreate(HPS hps, ULONG flOptions)
                 (1UL << (DCTL_DYNAMIC - 1)) |
                 (1UL << (DCTL_CORRELATE - 1));
             ps->ulStopDraw      = SDW_OFF;
+            ps->lCurrentElement = 0;
+            ps->bInElement      = FALSE;
+            ps->uOpenElementStart = 0;
             /* On client, memset above has zeroed goca; on server,
                GocaInit has re-zeroed it and set hdc. */
 #endif

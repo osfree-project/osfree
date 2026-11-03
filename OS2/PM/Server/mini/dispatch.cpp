@@ -583,6 +583,208 @@ static BOOL SrvMoveRange(PGPI_PS ps, ULONG start, ULONG end, ULONG insertPos)
     return TRUE;
 }
 
+/* ======================================================================== */
+/*  Element traversal helpers (Step H)                                      */
+/* ======================================================================== */
+
+/*!
+ * @brief Offset of the first element in a segment (skip GBSEG header).
+ */
+static ULONG SrvSegBodyStart(PGPI_PS ps, ULONG segStart, ULONG segEnd)
+{
+    if (segStart < segEnd && ps->pbGoca[segStart] == OCODE_GBSEG) {
+        ULONG cb = GocaOrderLength(&ps->goca, ps->pbGoca + segStart,
+                                   segEnd - segStart);
+        if (cb > 0) return segStart + cb;
+    }
+    return segStart;
+}
+
+/*!
+ * @brief Locate an element within a segment by 1-based index.
+ *
+ * Element = single order, or GBEL ... GEEL group.
+ *
+ * @param [in]  ps          Target PS.
+ * @param [in]  segStart    Segment start offset (GBSEG).
+ * @param [in]  segEnd      Segment end offset (exclusive).
+ * @param [in]  lIndex      1-based element index.
+ * @param [out] pStart      Element start offset (GBEL or single order).
+ * @param [out] pEnd        Element end offset (exclusive, after GEEL).
+ * @param [out] pBodyStart  Body start (after GBEL, or == *pStart).
+ * @param [out] pBodyEnd    Body end (before GEEL, or == *pEnd).
+ * @param [out] pbHasGbel   TRUE if element is a GBEL..GEEL group.
+ * @return TRUE if found, FALSE otherwise.
+ */
+static BOOL SrvFindElement(PGPI_PS ps, ULONG segStart, ULONG segEnd,
+                           LONG lIndex,
+                           PULONG pStart, PULONG pEnd,
+                           PULONG pBodyStart, PULONG pBodyEnd,
+                           PBOOL  pbHasGbel)
+{
+    ULONG off = SrvSegBodyStart(ps, segStart, segEnd);
+    LONG  idx = 0;
+
+    if (lIndex <= 0) return FALSE;
+
+    while (off < segEnd) {
+        ULONG start = off;
+        ULONG len   = GocaOrderLength(&ps->goca, ps->pbGoca + off,
+                                      segEnd - off);
+        if (len == 0) return FALSE;
+
+        if (ps->pbGoca[off] == OCODE_GBEL) {
+            ULONG bodyStart = off + len;
+            ULONG scan      = bodyStart;
+            BOOL  found     = FALSE;
+
+            while (scan < segEnd) {
+                ULONG l2 = GocaOrderLength(&ps->goca, ps->pbGoca + scan,
+                                           segEnd - scan);
+                if (l2 == 0) return FALSE;
+                if (ps->pbGoca[scan] == OCODE_GEEL) {
+                    if (idx + 1 == lIndex) {
+                        if (pStart)     *pStart = start;
+                        if (pEnd)       *pEnd = scan + l2;
+                        if (pBodyStart) *pBodyStart = bodyStart;
+                        if (pBodyEnd)   *pBodyEnd = scan;
+                        if (pbHasGbel)  *pbHasGbel = TRUE;
+                        return TRUE;
+                    }
+                    idx++;
+                    off = scan + l2;
+                    found = TRUE;
+                    break;
+                }
+                scan += l2;
+            }
+            if (!found) return FALSE;
+        } else {
+            if (idx + 1 == lIndex) {
+                if (pStart)     *pStart = start;
+                if (pEnd)       *pEnd = off + len;
+                if (pBodyStart) *pBodyStart = start;
+                if (pBodyEnd)   *pBodyEnd = off + len;
+                if (pbHasGbel)  *pbHasGbel = FALSE;
+                return TRUE;
+            }
+            idx++;
+            off += len;
+        }
+    }
+    return FALSE;
+}
+
+/*!
+ * @brief Count elements in a segment.
+ */
+static LONG SrvCountElements(PGPI_PS ps, ULONG segStart, ULONG segEnd)
+{
+    ULONG off = SrvSegBodyStart(ps, segStart, segEnd);
+    LONG  n   = 0;
+
+    while (off < segEnd) {
+        ULONG len = GocaOrderLength(&ps->goca, ps->pbGoca + off,
+                                    segEnd - off);
+        if (len == 0) break;
+
+        if (ps->pbGoca[off] == OCODE_GBEL) {
+            ULONG scan = off + len;
+            BOOL  found = FALSE;
+            while (scan < segEnd) {
+                ULONG l2 = GocaOrderLength(&ps->goca, ps->pbGoca + scan,
+                                           segEnd - scan);
+                if (l2 == 0) break;
+                if (ps->pbGoca[scan] == OCODE_GEEL) {
+                    off = scan + l2;
+                    found = TRUE;
+                    break;
+                }
+                scan += l2;
+            }
+            if (!found) break;
+        } else {
+            off += len;
+        }
+        n++;
+    }
+    return n;
+}
+
+/*!
+ * @brief Insert bytes into pbGoca at offset @p at.
+ */
+static BOOL SrvGocaInsertBytes(PGPI_PS ps, ULONG at, const BYTE *p, ULONG cb)
+{
+    PVOID pvNew;
+    ULONG newAlloc;
+
+    if (!ps || !p || cb == 0) return FALSE;
+    if (at > ps->cbGoca) return FALSE;
+
+    if (ps->cbGoca + cb > ps->cbGocaAlloc) {
+        newAlloc = ps->cbGocaAlloc ? ps->cbGocaAlloc * 2 : 256;
+        while (newAlloc < ps->cbGoca + cb) newAlloc *= 2;
+        pvNew = NULL;
+        if (DosAllocMem(&pvNew, newAlloc,
+                        PAG_COMMIT | PAG_READ | PAG_WRITE) != 0)
+            return FALSE;
+        if (ps->pbGoca && at > 0) memcpy(pvNew, ps->pbGoca, at);
+        if (ps->pbGoca) DosFreeMem(ps->pbGoca);
+        ps->pbGoca      = (PBYTE)pvNew;
+        ps->cbGocaAlloc = newAlloc;
+    }
+
+    memmove(ps->pbGoca + at + cb, ps->pbGoca + at, ps->cbGoca - at);
+    memcpy(ps->pbGoca + at, p, cb);
+    ps->cbGoca += cb;
+    return TRUE;
+}
+
+/*!
+ * @brief Insert a complete element (single order or GBEL..GEEL) into the
+ *        open segment at the position determined by lCurrentElement and
+ *        ulEditMode. Updates lCurrentElement in INSERT mode.
+ *
+ * @param [in] ps       Target PS.
+ * @param [in] segStart Segment start offset (GBSEG).
+ * @param [in] segEnd   Segment end offset (exclusive).
+ * @param [in] p        Element bytes.
+ * @param [in] cb       Element size.
+ * @return TRUE on success, FALSE on error.
+ */
+static BOOL SrvGocaInsertElement(PGPI_PS ps, ULONG segStart, ULONG segEnd,
+                                  const BYTE *p, ULONG cb)
+{
+    ULONG at;
+
+    if (ps->ulEditMode == SEGEM_REPLACE) {
+        ULONG s, e, bs, be;
+        BOOL  hasGbel;
+        if (ps->lCurrentElement <= 0) return FALSE;
+        if (!SrvFindElement(ps, segStart, segEnd, ps->lCurrentElement,
+                            &s, &e, &bs, &be, &hasGbel))
+            return FALSE;
+        if (!GpiPsGocaDelete(ps, s, e)) return FALSE;
+        at = s;
+    } else {  /* SEGEM_INSERT */
+        if (ps->lCurrentElement <= 0) {
+            at = SrvSegBodyStart(ps, segStart, segEnd);
+        } else {
+            ULONG s, e, bs, be;
+            BOOL  hasGbel;
+            if (!SrvFindElement(ps, segStart, segEnd, ps->lCurrentElement,
+                                &s, &e, &bs, &be, &hasGbel))
+                return FALSE;
+            at = e;
+        }
+    }
+
+    if (!SrvGocaInsertBytes(ps, at, p, cb)) return FALSE;
+    if (ps->ulEditMode == SEGEM_INSERT) ps->lCurrentElement++;
+    return TRUE;
+}
+
 /*!
  * @def DISPATCH_STUB
  * @brief Log entry/exit for a single stub case and return GPI_ERROR.
@@ -764,6 +966,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
             return (ULONG)GPI_ERROR;
         ps = GpiPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->bInElement) return (ULONG)GPI_ERROR;
         ps->ulEditMode = (ULONG)lMode;
         return 1;
     }
@@ -1222,10 +1425,17 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
             log("[PMSERVER] OUT : NGpiOpenSegment -> GPI_ERROR (in DM_DRAW)\n");
             return (ULONG)GPI_ERROR;
         }
+
+        /* Edit an existing segment: locate its GBSEG (spec: GpiOpenSegment
+           is the way to begin editing a retained segment). */
         if (GpiPsGocaFindSeg(ps, lSegId, &start, &end)) {
-            log("[PMSERVER] OUT : NGpiOpenSegment -> GPI_ERROR (dup seg %ld)\n",
-                (long)lSegId);
-            return (ULONG)GPI_ERROR;
+            ps->uOpenSegStart   = start;
+            ps->lOpenSeg        = lSegId;
+            ps->lCurrentElement = 0;
+            ps->bInElement      = FALSE;
+            log("[PMSERVER] OUT : NGpiOpenSegment -> 1 (edit off=%lu)\n",
+                (unsigned long)start);
+            return 1;
         }
 
         SrvBuildGbsegFlags(ps->ulInitialSegAttrs, &f1, &f2);
@@ -1240,8 +1450,10 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
 
         if (!GpiPsGocaAppend(ps, gbseg, sizeof(gbseg)))
             return (ULONG)GPI_ERROR;
-        ps->uOpenSegStart = ps->cbGoca - sizeof(gbseg);
-        ps->lOpenSeg      = lSegId;
+        ps->uOpenSegStart   = ps->cbGoca - sizeof(gbseg);
+        ps->lOpenSeg        = lSegId;
+        ps->lCurrentElement = 0;
+        ps->bInElement      = FALSE;
 
         log("[PMSERVER] OUT : NGpiOpenSegment -> 1 (off=%lu)\n",
             (unsigned long)ps->uOpenSegStart);
@@ -1257,8 +1469,41 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
             log("[PMSERVER] OUT : NGpiCloseSegment -> GPI_ERROR (not in seg)\n");
             return (ULONG)GPI_ERROR;
         }
-        ps->lOpenSeg      = 0;
-        ps->uOpenSegStart = 0;
+
+        /* Implicit GpiEndElement at close (GPI Guide). */
+        if (ps->bInElement) {
+            BYTE  buf[2];
+            ULONG segStart, segEnd;
+            LONG  len;
+            PVOID pvElem = NULL;
+            PBYTE pElem;
+            ULONG cbElem;
+
+            len = GocaEmitEndElement(&ps->goca, buf, sizeof(buf));
+            if (len < 0) return (ULONG)GPI_ERROR;
+            SrvDeliver(ps, buf, (ULONG)len);
+
+            if (GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
+                cbElem = ps->cbGoca - ps->uOpenElementStart;
+                if (cbElem > 0 &&
+                    DosAllocMem(&pvElem, cbElem,
+                                PAG_COMMIT | PAG_READ | PAG_WRITE) == 0) {
+                    pElem = (PBYTE)pvElem;
+                    memcpy(pElem, ps->pbGoca + ps->uOpenElementStart, cbElem);
+                    GpiPsGocaDelete(ps, ps->uOpenElementStart, ps->cbGoca);
+                    SrvGocaInsertElement(ps, segStart, segEnd,
+                                          pElem, cbElem);
+                    DosFreeMem(pvElem);
+                }
+            }
+            ps->bInElement = FALSE;
+        }
+
+        ps->lOpenSeg          = 0;
+        ps->uOpenSegStart     = 0;
+        ps->uOpenElementStart = 0;
+        ps->lCurrentElement   = 0;
+        ps->bInElement        = FALSE;
         log("[PMSERVER] OUT : NGpiCloseSegment -> 1\n");
         return 1;
     }
@@ -1649,6 +1894,22 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         ps = GpiPsGet(hps);
         if (!ps) return (ULONG)GPI_ERROR;
 
+        /* GPI Guide: PutData cannot be used in SEGEM_REPLACE. */
+        if (ps->ulEditMode == SEGEM_REPLACE)
+            return (ULONG)GPI_ERROR;
+
+        /* GPI Guide: in SEGEM_INSERT, pointer must be at the last
+           element of the current segment. */
+        if (ps->lOpenSeg != 0) {
+            ULONG segStart, segEnd;
+            LONG  n;
+            if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
+                return (ULONG)GPI_ERROR;
+            n = SrvCountElements(ps, segStart, segEnd);
+            if (ps->lCurrentElement != n)
+                return (ULONG)GPI_ERROR;
+        }
+
         total     = (ULONG)a->lCount;
         off       = 0;
         processed = 0;
@@ -1675,7 +1936,14 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
 
         a->lCount = (LONG)processed;
 
-        if (pcbPayload) *pcbPayload = cbArgs;   /* send back updated pArgs */
+        /* Keep the pointer at the end of the current segment. */
+        if (ps->lOpenSeg != 0) {
+            ULONG segStart, segEnd;
+            if (GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
+                ps->lCurrentElement = SrvCountElements(ps, segStart, segEnd);
+        }
+
+        if (pcbPayload) *pcbPayload = cbArgs;
         log("[PMSERVER] OUT : NGpiPutData -> %lu/%lu bytes processed\n",
             (unsigned long)processed, (unsigned long)total);
         return 1;
@@ -1843,19 +2111,491 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         log("[PMSERVER] OUT : NGpiSetSegmentPriority -> 1\n");
         return 1;
     }
-    DISPATCH_STUB(NGpiBeginElement)
-    DISPATCH_STUB(NGpiEndElement)
-    DISPATCH_STUB(NGpiLabel)
-    DISPATCH_STUB(NGpiElement)
-    DISPATCH_STUB(NGpiQueryElement)
-    DISPATCH_STUB(NGpiDeleteElement)
-    DISPATCH_STUB(NGpiDeleteElementRange)
-    DISPATCH_STUB(NGpiDeleteElementsBetweenLabels)
-    DISPATCH_STUB(NGpiQueryElementPointer)
-    DISPATCH_STUB(NGpiSetElementPointer)
-    DISPATCH_STUB(NGpiOffsetElementPointer)
-    DISPATCH_STUB(NGpiQueryElementType)
-    DISPATCH_STUB(NGpiSetElementPointerAtLabel)
+    case NGpiBeginElement: {
+        PGpiBeginElement_Args a = (PGpiBeginElement_Args)pArgs;
+        PGPI_PS ps;
+        BYTE buf[6 + GBEL_DL];
+        LONG len;
+
+        log("[PMSERVER] IN  : NGpiBeginElement(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!a || cbArgs < sizeof(*a)) return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
+        if (ps->ulDrawingMode != DM_RETAIN &&
+            ps->ulDrawingMode != DM_DRAWANDRETAIN) return (ULONG)GPI_ERROR;
+        if (ps->bInElement)             return (ULONG)GPI_ERROR;
+
+        len = GocaEmitBeginElement(&ps->goca, buf, sizeof(buf),
+                                    a->lType, a->szDesc);
+        if (len < 0) return (ULONG)GPI_ERROR;
+
+        ps->uOpenElementStart = ps->cbGoca;
+        SrvDeliver(ps, buf, (ULONG)len);
+        ps->bInElement = TRUE;
+
+        log("[PMSERVER] OUT : NGpiBeginElement -> 1\n");
+        return 1;
+    }
+
+    case NGpiEndElement: {
+        PGPI_PS ps;
+        BYTE  buf[2];
+        ULONG segStart, segEnd;
+        LONG  len;
+        PVOID pvElem = NULL;
+        PBYTE pElem;
+        ULONG cbElem;
+
+        log("[PMSERVER] IN  : NGpiEndElement(hps=%p)\n", (void*)hps);
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg == 0) return (ULONG)GPI_ERROR;
+        if (!ps->bInElement)   return (ULONG)GPI_ERROR;
+
+        len = GocaEmitEndElement(&ps->goca, buf, sizeof(buf));
+        if (len < 0) return (ULONG)GPI_ERROR;
+        SrvDeliver(ps, buf, (ULONG)len);
+
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
+            return (ULONG)GPI_ERROR;
+
+        cbElem = ps->cbGoca - ps->uOpenElementStart;
+        if (cbElem > 0 &&
+            DosAllocMem(&pvElem, cbElem,
+                        PAG_COMMIT | PAG_READ | PAG_WRITE) == 0) {
+            pElem = (PBYTE)pvElem;
+            memcpy(pElem, ps->pbGoca + ps->uOpenElementStart, cbElem);
+            GpiPsGocaDelete(ps, ps->uOpenElementStart, ps->cbGoca);
+            SrvGocaInsertElement(ps, segStart, segEnd, pElem, cbElem);
+            DosFreeMem(pvElem);
+        }
+        ps->bInElement        = FALSE;
+        ps->uOpenElementStart = 0;
+
+        log("[PMSERVER] OUT : NGpiEndElement -> 1\n");
+        return 1;
+    }
+
+    case NGpiLabel: {
+        LONG   lLabel;
+        PGPI_PS ps;
+        BYTE   buf[6];
+        LONG   len;
+        ULONG  segStart, segEnd;
+
+        log("[PMSERVER] IN  : NGpiLabel(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lLabel = *(LONG*)pArgs;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
+        if (ps->ulDrawingMode != DM_RETAIN &&
+            ps->ulDrawingMode != DM_DRAWANDRETAIN) return (ULONG)GPI_ERROR;
+        if (ps->bInElement)             return (ULONG)GPI_ERROR;
+
+        len = GocaEmitLabel(&ps->goca, buf, sizeof(buf), lLabel);
+        if (len < 0) return (ULONG)GPI_ERROR;
+
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
+            return (ULONG)GPI_ERROR;
+        if (!SrvGocaInsertElement(ps, segStart, segEnd, buf, (ULONG)len))
+            return (ULONG)GPI_ERROR;
+
+        log("[PMSERVER] OUT : NGpiLabel -> 1\n");
+        return 1;
+    }
+
+    case NGpiElement: {
+        PGpiElement_Args a = (PGpiElement_Args)pArgs;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        ULONG  cbElem;
+        PVOID  pvElem = NULL;
+        PBYTE  pElem;
+        LONG   cbGbel, cbGeel;
+        BYTE   gbel[6 + GBEL_DL];
+        BYTE   geel[2];
+        ULONG  off;
+
+        log("[PMSERVER] IN  : NGpiElement(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!a || cbArgs < 3 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        if (a->lLength < 0 || a->lLength > 64512) return (ULONG)GPI_ERROR;
+        if (cbArgs < 3 * sizeof(LONG) + (ULONG)a->lLength)
+            return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
+        if (ps->ulDrawingMode != DM_RETAIN &&
+            ps->ulDrawingMode != DM_DRAWANDRETAIN) return (ULONG)GPI_ERROR;
+        if (ps->bInElement)             return (ULONG)GPI_ERROR;
+
+        /* Validate: no GBEL / GEEL in body. */
+        off = 0;
+        while (off < (ULONG)a->lLength) {
+            ULONG cbO = GocaOrderLength(&ps->goca,
+                                        a->abData + off,
+                                        (ULONG)a->lLength - off);
+            if (cbO == 0) return (ULONG)GPI_ERROR;
+            if (a->abData[off] == OCODE_GBEL ||
+                a->abData[off] == OCODE_GEEL) return (ULONG)GPI_ERROR;
+            off += cbO;
+        }
+
+        cbGbel = GocaEmitBeginElement(&ps->goca, gbel, sizeof(gbel),
+                                       a->lType, a->szDesc);
+        if (cbGbel < 0) return (ULONG)GPI_ERROR;
+        cbGeel = GocaEmitEndElement(&ps->goca, geel, sizeof(geel));
+        if (cbGeel < 0) return (ULONG)GPI_ERROR;
+
+        cbElem = (ULONG)cbGbel + (ULONG)a->lLength + (ULONG)cbGeel;
+        if (DosAllocMem(&pvElem, cbElem,
+                        PAG_COMMIT | PAG_READ | PAG_WRITE) != 0)
+            return (ULONG)GPI_ERROR;
+        pElem = (PBYTE)pvElem;
+        memcpy(pElem, gbel, (ULONG)cbGbel);
+        if (a->lLength > 0)
+            memcpy(pElem + cbGbel, a->abData, (ULONG)a->lLength);
+        memcpy(pElem + cbGbel + a->lLength, geel, (ULONG)cbGeel);
+
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
+            DosFreeMem(pvElem);
+            return (ULONG)GPI_ERROR;
+        }
+        if (!SrvGocaInsertElement(ps, segStart, segEnd, pElem, cbElem)) {
+            DosFreeMem(pvElem);
+            return (ULONG)GPI_ERROR;
+        }
+        DosFreeMem(pvElem);
+
+        log("[PMSERVER] OUT : NGpiElement -> 1\n");
+        return 1;
+    }
+
+    case NGpiQueryElementType: {
+        PGpiQueryElementType_Args a = (PGpiQueryElementType_Args)pArgs;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        ULONG  s, e, bs, be;
+        BOOL   hasGbel;
+        LONG   lType;
+        const char *pszDesc = "";
+        ULONG  cchDesc = 0;
+        ULONG  cbReq;
+
+        log("[PMSERVER] IN  : NGpiQueryElementType(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!a || cbArgs < sizeof(*a)) return (ULONG)(LONG)GPI_ALTERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)(LONG)GPI_ALTERROR;
+        if (ps->lOpenSeg == 0)          return (ULONG)(LONG)GPI_ALTERROR;
+        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)(LONG)GPI_ALTERROR;
+        if (ps->bInElement)             return (ULONG)(LONG)GPI_ALTERROR;
+        if (ps->lCurrentElement <= 0)   return (ULONG)(LONG)GPI_ALTERROR;
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
+            return (ULONG)(LONG)GPI_ALTERROR;
+        if (!SrvFindElement(ps, segStart, segEnd, ps->lCurrentElement,
+                            &s, &e, &bs, &be, &hasGbel))
+            return (ULONG)(LONG)GPI_ALTERROR;
+
+        if (hasGbel) {
+            ULONG gbelLen = GocaOrderLength(&ps->goca, ps->pbGoca + s,
+                                             segEnd - s);
+            if (gbelLen < 6) return (ULONG)(LONG)GPI_ALTERROR;
+            lType = (LONG)GocaGetU32(&ps->goca, ps->pbGoca + s + 2);
+            cchDesc = gbelLen - 6;
+            if (cchDesc > 0) pszDesc = (const char *)(ps->pbGoca + s + 6);
+        } else {
+            lType = (LONG)ps->pbGoca[s];
+        }
+
+        a->lType = lType;
+        if (a->szData && a->lLength > 0) {
+            ULONG n = cchDesc;
+            if (n > (ULONG)(a->lLength - 1)) n = (ULONG)(a->lLength - 1);
+            if (n > 0) memcpy(a->szData, pszDesc, n);
+            a->szData[n] = '\0';
+        }
+
+        cbReq = be - bs;
+        if (pcbPayload) *pcbPayload = cbArgs;
+        log("[PMSERVER] OUT : NGpiQueryElementType -> %lu bytes\n",
+            (unsigned long)cbReq);
+        return (ULONG)cbReq;
+    }
+
+    case NGpiQueryElement: {
+        PGpiQueryElement_Args a = (PGpiQueryElement_Args)pArgs;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        ULONG  s, e, bs, be;
+        BOOL   hasGbel;
+        ULONG  toCopy;
+
+        log("[PMSERVER] IN  : NGpiQueryElement(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!a || cbArgs < 2 * sizeof(LONG)) return (ULONG)(LONG)GPI_ALTERROR;
+        if (a->lOff < 0 || a->lMaxLength < 0) return (ULONG)(LONG)GPI_ALTERROR;
+        if (cbArgs < 2 * sizeof(LONG) + (ULONG)a->lMaxLength)
+            return (ULONG)(LONG)GPI_ALTERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)(LONG)GPI_ALTERROR;
+        if (ps->lOpenSeg == 0)          return (ULONG)(LONG)GPI_ALTERROR;
+        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)(LONG)GPI_ALTERROR;
+        if (ps->bInElement)             return (ULONG)(LONG)GPI_ALTERROR;
+        if (ps->lCurrentElement <= 0)   return (ULONG)(LONG)GPI_ALTERROR;
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
+            return (ULONG)(LONG)GPI_ALTERROR;
+        if (!SrvFindElement(ps, segStart, segEnd, ps->lCurrentElement,
+                            &s, &e, &bs, &be, &hasGbel))
+            return (ULONG)(LONG)GPI_ALTERROR;
+
+        toCopy = be - bs;
+        if ((ULONG)a->lOff >= toCopy) toCopy = 0;
+        else toCopy -= (ULONG)a->lOff;
+        if ((ULONG)a->lMaxLength < toCopy) toCopy = (ULONG)a->lMaxLength;
+        if (toCopy > 0)
+            memcpy(a->abData, ps->pbGoca + bs + (ULONG)a->lOff, toCopy);
+
+        if (pcbPayload) *pcbPayload = cbArgs;
+        log("[PMSERVER] OUT : NGpiQueryElement -> %lu bytes\n",
+            (unsigned long)toCopy);
+        return (ULONG)toCopy;
+    }
+
+    case NGpiDeleteElement: {
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        ULONG  s, e, bs, be;
+        BOOL   hasGbel;
+
+        log("[PMSERVER] IN  : NGpiDeleteElement(hps=%p)\n", (void*)hps);
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
+        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)GPI_ERROR;
+        if (ps->bInElement)             return (ULONG)GPI_ERROR;
+        if (ps->lCurrentElement <= 0)   return (ULONG)GPI_ERROR;
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
+            return (ULONG)GPI_ERROR;
+        if (!SrvFindElement(ps, segStart, segEnd, ps->lCurrentElement,
+                            &s, &e, &bs, &be, &hasGbel))
+            return (ULONG)GPI_ERROR;
+        if (!GpiPsGocaDelete(ps, s, e)) return (ULONG)GPI_ERROR;
+        ps->lCurrentElement--;
+
+        log("[PMSERVER] OUT : NGpiDeleteElement -> 1\n");
+        return 1;
+    }
+
+    case NGpiDeleteElementRange: {
+        LONG lFirst, lLast, lTmp;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        ULONG  s1, e1, bs1, be1, s2, e2, bs2, be2;
+        BOOL   has1, has2;
+
+        log("[PMSERVER] IN  : NGpiDeleteElementRange(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        memcpy(&lFirst, pArgs, sizeof(LONG));
+        memcpy(&lLast,  pArgs + sizeof(LONG), sizeof(LONG));
+        if (lFirst > lLast) { lTmp = lFirst; lFirst = lLast; lLast = lTmp; }
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
+        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)GPI_ERROR;
+        if (ps->bInElement)             return (ULONG)GPI_ERROR;
+        if (lFirst <= 0)                return (ULONG)GPI_ERROR;
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
+            return (ULONG)GPI_ERROR;
+        if (!SrvFindElement(ps, segStart, segEnd, lFirst,
+                            &s1, &e1, &bs1, &be1, &has1))
+            return (ULONG)GPI_ERROR;
+        if (!SrvFindElement(ps, segStart, segEnd, lLast,
+                            &s2, &e2, &bs2, &be2, &has2))
+            return (ULONG)GPI_ERROR;
+        if (!GpiPsGocaDelete(ps, s1, e2)) return (ULONG)GPI_ERROR;
+        ps->lCurrentElement = lFirst - 1;
+
+        log("[PMSERVER] OUT : NGpiDeleteElementRange -> 1\n");
+        return 1;
+    }
+
+    case NGpiDeleteElementsBetweenLabels: {
+        LONG lFirst, lLast;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        LONG   idx;
+        LONG   lIdxFirst = -1, lIdxLast = -1;
+        ULONG  sFirst = 0, eFirst = 0, sLast = 0;
+
+        log("[PMSERVER] IN  : NGpiDeleteElementsBetweenLabels(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        memcpy(&lFirst, pArgs, sizeof(LONG));
+        memcpy(&lLast,  pArgs + sizeof(LONG), sizeof(LONG));
+        if (lFirst < 0 || lLast < 0) return (ULONG)GPI_ERROR;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
+        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)GPI_ERROR;
+        if (ps->bInElement)             return (ULONG)GPI_ERROR;
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
+            return (ULONG)GPI_ERROR;
+
+        /* Find first GLBL with lFirst (from element 1). */
+        for (idx = 1; ; idx++) {
+            ULONG s, e, bs, be;
+            BOOL  hasGbel;
+            if (!SrvFindElement(ps, segStart, segEnd, idx,
+                                &s, &e, &bs, &be, &hasGbel))
+                break;
+            if (hasGbel) continue;
+            if (ps->pbGoca[s] != OCODE_GLABL) continue;
+            if (e - s < 6) continue;
+            if ((LONG)GocaGetU32(&ps->goca, ps->pbGoca + s + 2) != lFirst)
+                continue;
+            lIdxFirst = idx;
+            sFirst = s;
+            eFirst = e;
+            break;
+        }
+        if (lIdxFirst < 0) return (ULONG)GPI_ERROR;
+
+        /* Find first GLBL with lLast after the first label. */
+        for (idx = lIdxFirst + 1; ; idx++) {
+            ULONG s, e, bs, be;
+            BOOL  hasGbel;
+            if (!SrvFindElement(ps, segStart, segEnd, idx,
+                                &s, &e, &bs, &be, &hasGbel))
+                break;
+            if (hasGbel) continue;
+            if (ps->pbGoca[s] != OCODE_GLABL) continue;
+            if (e - s < 6) continue;
+            if ((LONG)GocaGetU32(&ps->goca, ps->pbGoca + s + 2) != lLast)
+                continue;
+            lIdxLast = idx;
+            sLast = s;
+            break;
+        }
+        if (lIdxLast < 0) return (ULONG)GPI_ERROR;
+
+        /* Delete all elements strictly between the two labels. */
+        if (lIdxLast > lIdxFirst + 1) {
+            if (!GpiPsGocaDelete(ps, eFirst, sLast))
+                return (ULONG)GPI_ERROR;
+        }
+
+        /* Pointer to element immediately preceding the deleted ones. */
+        ps->lCurrentElement = lIdxFirst;
+
+        log("[PMSERVER] OUT : NGpiDeleteElementsBetweenLabels -> 1\n");
+        return 1;
+    }
+
+    case NGpiQueryElementPointer: {
+        PGPI_PS ps;
+        log("[PMSERVER] IN  : NGpiQueryElementPointer(hps=%p)\n", (void*)hps);
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)(LONG)GPI_ALTERROR;
+        if (ps->lOpenSeg == 0)          return (ULONG)(LONG)GPI_ALTERROR;
+        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)(LONG)GPI_ALTERROR;
+        if (ps->bInElement)             return (ULONG)(LONG)GPI_ALTERROR;
+        return (ULONG)ps->lCurrentElement;
+    }
+
+    case NGpiSetElementPointer: {
+        LONG   lNew;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        LONG   n;
+
+        log("[PMSERVER] IN  : NGpiSetElementPointer(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lNew = *(LONG*)pArgs;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
+        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)GPI_ERROR;
+        if (ps->bInElement)             return (ULONG)GPI_ERROR;
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
+            return (ULONG)GPI_ERROR;
+        n = SrvCountElements(ps, segStart, segEnd);
+        if (lNew < 0) lNew = 0;
+        if (lNew > n) lNew = n;
+        ps->lCurrentElement = lNew;
+        return 1;
+    }
+
+    case NGpiOffsetElementPointer: {
+        LONG   lDelta;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        LONG   n, lNew;
+
+        log("[PMSERVER] IN  : NGpiOffsetElementPointer(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lDelta = *(LONG*)pArgs;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
+        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)GPI_ERROR;
+        if (ps->bInElement)             return (ULONG)GPI_ERROR;
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
+            return (ULONG)GPI_ERROR;
+        n = SrvCountElements(ps, segStart, segEnd);
+        lNew = ps->lCurrentElement + lDelta;
+        if (lNew < 0) lNew = 0;
+        if (lNew > n) lNew = n;
+        ps->lCurrentElement = lNew;
+        return 1;
+    }
+
+    case NGpiSetElementPointerAtLabel: {
+        LONG   lLabel;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        LONG   idx;
+        BOOL   bFound = FALSE;
+
+        log("[PMSERVER] IN  : NGpiSetElementPointerAtLabel(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        lLabel = *(LONG*)pArgs;
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
+        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)GPI_ERROR;
+        if (ps->bInElement)             return (ULONG)GPI_ERROR;
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
+            return (ULONG)GPI_ERROR;
+
+        for (idx = 1; ; idx++) {
+            ULONG s, e, bs, be;
+            BOOL  hasGbel;
+            if (!SrvFindElement(ps, segStart, segEnd, idx,
+                                &s, &e, &bs, &be, &hasGbel))
+                break;
+            if (idx <= ps->lCurrentElement) continue;
+            if (hasGbel) continue;
+            if (ps->pbGoca[s] != OCODE_GLABL) continue;
+            if (e - s < 6) continue;
+            if ((LONG)GocaGetU32(&ps->goca, ps->pbGoca + s + 2) != lLabel)
+                continue;
+            ps->lCurrentElement = idx;
+            bFound = TRUE;
+            break;
+        }
+        if (!bFound) return (ULONG)GPI_ERROR;
+        return 1;
+    }
+
     DISPATCH_STUB(NGpiQuerySegmentTransformMatrix)
     DISPATCH_STUB(NGpiSetSegmentTransformMatrix)
     DISPATCH_STUB(NGpiConvert)

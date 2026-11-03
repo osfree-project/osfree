@@ -12,5 +12,6 @@
 #include "goca_emit_arc.h"
 #include "goca_emit_text.h"
 #include "goca_emit_ctrl.h"
+#include "goca_emit_elem.h"
 
 #endif /* GOCA_EMIT_H */

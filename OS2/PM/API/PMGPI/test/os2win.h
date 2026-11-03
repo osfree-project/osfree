@@ -160,6 +160,36 @@ BOOL APIENTRY GpiRemoveDynamics(HPS hps, LONG lFirstSegid, LONG lLastSegid);
 
 LONG APIENTRY GpiQuerySegmentPriority(HPS hps, LONG lRefSegid, LONG lOrder);
 BOOL APIENTRY GpiSetSegmentPriority(HPS hps, LONG lSegid, LONG lRefSegid, LONG lOrder);
+/* ---------- Segment editing (Step H) ---------- */
+typedef const char *PCSZ;
+
+#define SEGEM_INSERT    1L
+#define SEGEM_REPLACE   2L
+
+BOOL APIENTRY GpiSetEditMode(HPS hps, LONG lMode);
+LONG APIENTRY GpiQueryEditMode(HPS hps);
+
+BOOL APIENTRY GpiBeginElement(HPS hps, LONG lType, PCSZ pszDesc);
+BOOL APIENTRY GpiEndElement(HPS hps);
+LONG APIENTRY GpiElement(HPS hps, LONG lType, PCSZ pszDesc,
+                         LONG lLength, PBYTE pbData);
+BOOL APIENTRY GpiLabel(HPS hps, LONG lLabel);
+
+LONG APIENTRY GpiQueryElement(HPS hps, LONG lOff, LONG lMaxLength,
+                              PBYTE pbData);
+LONG APIENTRY GpiQueryElementType(HPS hps, PLONG plType, LONG lLength,
+                                  PCSZ pszData);
+
+BOOL APIENTRY GpiSetElementPointer(HPS hps, LONG lElement);
+LONG APIENTRY GpiQueryElementPointer(HPS hps);
+BOOL APIENTRY GpiOffsetElementPointer(HPS hps, LONG lOffset);
+BOOL APIENTRY GpiSetElementPointerAtLabel(HPS hps, LONG lLabel);
+
+BOOL APIENTRY GpiDeleteElement(HPS hps);
+BOOL APIENTRY GpiDeleteElementRange(HPS hps, LONG lFirstElement,
+                                    LONG lLastElement);
+BOOL APIENTRY GpiDeleteElementsBetweenLabels(HPS hps, LONG lFirstLabel,
+                                             LONG lLastLabel);
 #ifdef __cplusplus
 }
 #endif
