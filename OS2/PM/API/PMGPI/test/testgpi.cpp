@@ -166,6 +166,85 @@ int main(void)
     GpiDeleteSegment(hps, 2);
 }
 
+{
+    /* Step E: DrawChain / DrawDynamics / RemoveDynamics / DrawFrom */
+    LONG rc;
+    BOOL open_rc;
+
+    printf("=== Step E test: DrawChain / DrawDynamics ===\n");
+
+    /* Segment 1: ensure chained and non-dynamic */
+    GpiSetSegmentAttrs(hps, 1, ATTR_CHAINED, ATTR_ON);
+    GpiSetSegmentAttrs(hps, 1, ATTR_DYNAMIC, ATTR_OFF);
+
+    /* Create segment 3 (dynamic) */
+    GpiSetDrawingMode(hps, DM_RETAIN);
+    GpiOpenSegment(hps, 3);
+    GpiSetColor(hps, CLR_GREEN);
+    GpiMove(hps, &ptl1);
+    GpiLine(hps, &ptl2);
+    GpiCloseSegment(hps);
+    GpiSetSegmentAttrs(hps, 3, ATTR_DYNAMIC, ATTR_ON);
+    GpiSetDrawingMode(hps, DM_DRAW);
+
+    printf("GpiDrawChain(hps=%p) - expect only seg 1 in [GOCA]\n", (void*)hps);
+    rc = GpiDrawChain(hps);
+    printf("GpiDrawChain -> %d\n", (int)rc);
+
+    printf("GpiDrawDynamics(hps=%p) - expect only seg 3 with GSMX/GSBMX XOR/LEAVEALONE\n",
+           (void*)hps);
+    rc = GpiDrawDynamics(hps);
+    printf("GpiDrawDynamics -> %d\n", (int)rc);
+
+    printf("GpiRemoveDynamics(hps=%p, 1, 10) - expect only seg 3, same mix\n",
+           (void*)hps);
+    rc = GpiRemoveDynamics(hps, 1, 10);
+    printf("GpiRemoveDynamics -> %d\n", (int)rc);
+
+    /* Step E: DrawFrom (positive range, dynamic filtered out, empty range) */
+    printf("=== Step E test: DrawFrom ===\n");
+
+    printf("GpiDrawFrom(hps=%p, 1, 1) - expect only seg 1\n", (void*)hps);
+    rc = GpiDrawFrom(hps, 1, 1);
+    printf("GpiDrawFrom(1,1) -> %d\n", (int)rc);
+
+    printf("GpiDrawFrom(hps=%p, 2, 10) - expect empty (seg 1 out of range, seg 3 dynamic)\n",
+           (void*)hps);
+    rc = GpiDrawFrom(hps, 2, 10);
+    printf("GpiDrawFrom(2,10) -> %d\n", (int)rc);
+
+    printf("GpiDrawFrom(hps=%p, 1, 10) - expect only seg 1\n", (void*)hps);
+    rc = GpiDrawFrom(hps, 1, 10);
+    printf("GpiDrawFrom(1,10) -> %d\n", (int)rc);
+
+    /* Step E: open-segment guard (Draw* must refuse while a segment is open) */
+    printf("=== Step E test: open-segment guard ===\n");
+
+    GpiSetDrawingMode(hps, DM_RETAIN);
+    open_rc = GpiOpenSegment(hps, 4);
+    printf("GpiOpenSegment(4) -> %d\n", (int)open_rc);
+
+    printf("GpiDrawChain(hps=%p) - expect GPI_ERROR (seg 4 open)\n", (void*)hps);
+    rc = GpiDrawChain(hps);
+    printf("GpiDrawChain (open seg) -> %d (expect GPI_ERROR)\n", (int)rc);
+
+    GpiCloseSegment(hps);
+    GpiDeleteSegment(hps, 4);
+    GpiSetDrawingMode(hps, DM_DRAW);
+
+    /* Step E: invisible segment filtered out of DrawChain */
+    printf("=== Step E test: invisible segment filtered ===\n");
+
+    GpiSetSegmentAttrs(hps, 1, ATTR_VISIBLE, ATTR_OFF);
+
+    printf("GpiDrawChain(hps=%p) - expect empty (seg 1 invisible)\n", (void*)hps);
+    rc = GpiDrawChain(hps);
+    printf("GpiDrawChain (invisible) -> %d\n", (int)rc);
+
+    GpiSetSegmentAttrs(hps, 1, ATTR_VISIBLE, ATTR_ON);
+
+    GpiDeleteSegment(hps, 3);
+}
 
     printf("Calling WinReleasePS(hps=%p)\n", (void*)hps);
     rc_rel_ps = WinReleasePS(hps); /* обязательное освобождение */

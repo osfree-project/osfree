@@ -180,15 +180,10 @@
   #endif
 
   /* ---------- OS/2 GPI constants (Win32 fallback) ---------- */
-  #ifndef DM_DRAW
-  #define DM_DRAW              0L
-  #endif
-  #ifndef DM_RETAIN
-  #define DM_RETAIN            1L
-  #endif
-  #ifndef DM_DRAWANDRETAIN
-  #define DM_DRAWANDRETAIN     2L
-  #endif
+   #define DM_ERROR                        0L
+   #define DM_DRAW                         1L
+   #define DM_RETAIN                       2L
+   #define DM_DRAWANDRETAIN                3L
 
   #ifndef ATTR_DETECTABLE
   #define ATTR_DETECTABLE      1L
@@ -245,6 +240,14 @@
   #endif
   #ifndef SDW_ON
   #define SDW_ON               1L
+  #endif
+
+  /* ---------- Foreground/background mix (Win32 fallback) ---------- */
+  #ifndef FM_XOR
+  #define FM_XOR               4L    /* PMGPI.H */
+  #endif
+  #ifndef BM_LEAVEALONE
+  #define BM_LEAVEALONE        5L    /* PMGPI.H */
   #endif
 
   /* ---------- MAKELONG (Win32) ---------- */

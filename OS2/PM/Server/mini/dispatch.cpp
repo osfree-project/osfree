@@ -232,6 +232,220 @@ static void SrvEmitSetAttrs(PGPI_PS ps, LONG lPrimType, ULONG flAttrMask,
     }
 }
 
+/* ======================================================================== */
+/*  Segment iteration helpers (DrawChain / DrawFrom / DrawDynamics)         */
+/* ======================================================================== */
+
+/*!
+ * @brief Callback for SrvForEachSegment.
+ *
+ * @param [in] ps      Target PS.
+ * @param [in] lSegId  Segment identifier (from GBSEG NAME field).
+ * @param [in] start   Offset of the GBSEG header in ps->pbGoca.
+ * @param [in] end     End offset (exclusive).
+ * @param [in] f1      FLAG1 byte (SC31-6804).
+ * @param [in] f2      FLAG2 byte (AFPC-0008-03).
+ * @param [in] pUser   Opaque pointer passed through from the caller.
+ * @return TRUE to continue iteration, FALSE to stop.
+ */
+typedef BOOL (*PFN_SRV_SEG_CB)(PGPI_PS ps, LONG lSegId,
+                               ULONG start, ULONG end,
+                               UCHAR f1, UCHAR f2, PVOID pUser);
+
+/*!
+ * @brief Iterate over all segments in ps->pbGoca.
+ *
+ * Walks the accumulated GOCA stream, finds each GBSEG header, computes
+ * its [start, end) range (end = next GBSEG or end of buffer), and
+ * invokes pfn. Stops on callback FALSE or on stream corruption.
+ *
+ * @param [in] ps     Target PS.
+ * @param [in] pfn    Callback.
+ * @param [in] pUser  Opaque pointer passed to the callback.
+ * @return TRUE on full traversal, FALSE on corruption.
+ */
+static BOOL SrvForEachSegment(PGPI_PS ps, PFN_SRV_SEG_CB pfn, PVOID pUser)
+{
+    ULONG off;
+
+    if (!ps || !ps->pbGoca || !pfn) return FALSE;
+
+    off = 0;
+    while (off < ps->cbGoca) {
+        const BYTE *p = ps->pbGoca + off;
+        ULONG cb = GocaOrderLength(&ps->goca, p, ps->cbGoca - off);
+        if (cb == 0) return FALSE;
+
+        if (p[0] == OCODE_GBSEG && cb >= 14) {
+            ULONG name  = GocaGetU32(&ps->goca, p + 2);
+            UCHAR f1    = p[6];
+            UCHAR f2    = p[7];
+            ULONG start = off;
+            ULONG end   = ps->cbGoca;
+            ULONG scan  = off + cb;
+
+            while (scan < ps->cbGoca) {
+                const BYTE *q = ps->pbGoca + scan;
+                ULONG cq = GocaOrderLength(&ps->goca, q,
+                                           ps->cbGoca - scan);
+                if (cq == 0) return FALSE;
+                if (q[0] == OCODE_GBSEG) { end = scan; break; }
+                scan += cq;
+            }
+
+            if (!pfn(ps, (LONG)name, start, end, f1, f2, pUser))
+                return TRUE;   /* callback asked to stop */
+
+            off = end;
+        } else {
+            off += cb;
+        }
+    }
+    return TRUE;
+}
+
+/*!
+ * @brief Replay one segment's body through the GOCA parser.
+ *
+ * The GBSEG header itself is a no-op in GocaParseStream, so the whole
+ * [start, end) range can be fed to it unchanged.
+ *
+ * @param [in] ps     Target PS.
+ * @param [in] start  Offset of GBSEG in ps->pbGoca.
+ * @param [in] end    End offset (exclusive).
+ */
+static void SrvReplaySegment(PGPI_PS ps, ULONG start, ULONG end)
+{
+    ps->goca.pbStream = ps->pbGoca + start;
+    ps->goca.cbStream = end - start;
+    GocaParseStream(&ps->goca);
+}
+
+/*!
+ * @brief Save current foreground/background mix from the cached line
+ *        bundle (GSMX/GSBMX synchronously update all four primitive
+ *        bundles, so one cache is sufficient).
+ *
+ * @param [in]  ps        Target PS.
+ * @param [out] pusFgMix  Saved foreground mix.
+ * @param [out] pusBgMix  Saved background mix.
+ */
+static void SrvSaveMix(PGPI_PS ps, USHORT *pusFgMix, USHORT *pusBgMix)
+{
+    *pusFgMix = ps->goca.lb.usMixMode;
+    *pusBgMix = ps->goca.lb.usBackMixMode;
+}
+
+/*!
+ * @brief Install FM_XOR / BM_LEAVEALONE for all primitives via GSMX/GSBMX.
+ *
+ * @param [in] ps  Target PS.
+ */
+static void SrvEnterDynamicsMix(PGPI_PS ps)
+{
+    BYTE buf[2];
+    LONG len;
+
+    len = GocaEmitSetMix(&ps->goca, buf, sizeof(buf), (LONG)FM_XOR);
+    if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
+
+    len = GocaEmitSetBackMix(&ps->goca, buf, sizeof(buf), (LONG)BM_LEAVEALONE);
+    if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
+}
+
+/*!
+ * @brief Restore foreground/background mix saved by SrvSaveMix.
+ *
+ * @param [in] ps      Target PS.
+ * @param [in] usFgMix Saved foreground mix.
+ * @param [in] usBgMix Saved background mix.
+ */
+static void SrvLeaveDynamicsMix(PGPI_PS ps, USHORT usFgMix, USHORT usBgMix)
+{
+    BYTE buf[2];
+    LONG len;
+
+    len = GocaEmitSetMix(&ps->goca, buf, sizeof(buf), (LONG)usFgMix);
+    if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
+
+    len = GocaEmitSetBackMix(&ps->goca, buf, sizeof(buf), (LONG)usBgMix);
+    if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
+}
+
+/*!
+ * @brief Range used by DrawFrom / RemoveDynamics callbacks.
+ */
+typedef struct _SRV_SEGRANGE {
+    LONG lFirst;
+    LONG lLast;
+} SRV_SEGRANGE;
+
+/*!
+ * @brief Callback for NGpiDrawChain: visible, chained, non-dynamic.
+ */
+static BOOL SrvCbDrawChain(PGPI_PS ps, LONG lSegId, ULONG start, ULONG end,
+                           UCHAR f1, UCHAR f2, PVOID pUser)
+{
+    (void)lSegId; (void)pUser;
+
+    if (f1 & GBSEG_INVISIBLE) return TRUE;
+    if (f1 & GBSEG_DYNAMIC)   return TRUE;
+    if (f2 & GBSEG_CHAIN)     return TRUE;
+
+    SrvReplaySegment(ps, start, end);
+    return TRUE;
+}
+
+/*!
+ * @brief Callback for NGpiDrawFrom: same filter as DrawChain + range.
+ */
+static BOOL SrvCbDrawFrom(PGPI_PS ps, LONG lSegId, ULONG start, ULONG end,
+                          UCHAR f1, UCHAR f2, PVOID pUser)
+{
+    SRV_SEGRANGE *pRange = (SRV_SEGRANGE *)pUser;
+
+    if (lSegId < pRange->lFirst || lSegId > pRange->lLast) return TRUE;
+    if (f1 & GBSEG_INVISIBLE) return TRUE;
+    if (f1 & GBSEG_DYNAMIC)   return TRUE;
+    if (f2 & GBSEG_CHAIN)     return TRUE;
+
+    SrvReplaySegment(ps, start, end);
+    return TRUE;
+}
+
+/*!
+ * @brief Callback for NGpiDrawDynamics: visible, chained, dynamic.
+ */
+static BOOL SrvCbDrawDynamics(PGPI_PS ps, LONG lSegId, ULONG start, ULONG end,
+                              UCHAR f1, UCHAR f2, PVOID pUser)
+{
+    (void)lSegId; (void)pUser;
+
+    if (f1 & GBSEG_INVISIBLE)  return TRUE;
+    if (!(f1 & GBSEG_DYNAMIC)) return TRUE;
+    if (f2 & GBSEG_CHAIN)      return TRUE;
+
+    SrvReplaySegment(ps, start, end);
+    return TRUE;
+}
+
+/*!
+ * @brief Callback for NGpiRemoveDynamics: visible, chained, dynamic, in range.
+ */
+static BOOL SrvCbRemoveDynamics(PGPI_PS ps, LONG lSegId, ULONG start, ULONG end,
+                                UCHAR f1, UCHAR f2, PVOID pUser)
+{
+    SRV_SEGRANGE *pRange = (SRV_SEGRANGE *)pUser;
+
+    if (lSegId < pRange->lFirst || lSegId > pRange->lLast) return TRUE;
+    if (f1 & GBSEG_INVISIBLE)  return TRUE;
+    if (!(f1 & GBSEG_DYNAMIC)) return TRUE;
+    if (f2 & GBSEG_CHAIN)      return TRUE;
+
+    SrvReplaySegment(ps, start, end);
+    return TRUE;
+}
+
 /*!
  * @def DISPATCH_STUB
  * @brief Log entry/exit for a single stub case and return GPI_ERROR.
@@ -940,6 +1154,94 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
     }
 
 
+    case NGpiDrawChain: {
+        PGPI_PS ps;
+
+        log("[PMSERVER] IN  : NGpiDrawChain(hps=%p)\n", (void*)hps);
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg != 0) {
+            log("[PMSERVER] OUT : NGpiDrawChain -> GPI_ERROR (seg %ld open)\n",
+                (long)ps->lOpenSeg);
+            return (ULONG)GPI_ERROR;
+        }
+        SrvForEachSegment(ps, SrvCbDrawChain, NULL);
+        log("[PMSERVER] OUT : NGpiDrawChain -> 1\n");
+        return 1;
+    }
+
+    case NGpiDrawFrom: {
+        LONG lFirst, lLast;
+        SRV_SEGRANGE range;
+        PGPI_PS ps;
+
+        log("[PMSERVER] IN  : NGpiDrawFrom(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        memcpy(&lFirst, pArgs, sizeof(LONG));
+        memcpy(&lLast,  pArgs + sizeof(LONG), sizeof(LONG));
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg != 0) {
+            log("[PMSERVER] OUT : NGpiDrawFrom -> GPI_ERROR (seg %ld open)\n",
+                (long)ps->lOpenSeg);
+            return (ULONG)GPI_ERROR;
+        }
+        range.lFirst = lFirst;
+        range.lLast  = lLast;
+        SrvForEachSegment(ps, SrvCbDrawFrom, &range);
+        log("[PMSERVER] OUT : NGpiDrawFrom -> 1\n");
+        return 1;
+    }
+
+    case NGpiDrawDynamics: {
+        USHORT usFgMix, usBgMix;
+        PGPI_PS ps;
+
+        log("[PMSERVER] IN  : NGpiDrawDynamics(hps=%p)\n", (void*)hps);
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg != 0) {
+            log("[PMSERVER] OUT : NGpiDrawDynamics -> GPI_ERROR (seg %ld open)\n",
+                (long)ps->lOpenSeg);
+            return (ULONG)GPI_ERROR;
+        }
+        SrvSaveMix(ps, &usFgMix, &usBgMix);
+        SrvEnterDynamicsMix(ps);
+        SrvForEachSegment(ps, SrvCbDrawDynamics, NULL);
+        SrvLeaveDynamicsMix(ps, usFgMix, usBgMix);
+        log("[PMSERVER] OUT : NGpiDrawDynamics -> 1\n");
+        return 1;
+    }
+
+    case NGpiRemoveDynamics: {
+        LONG lFirst, lLast;
+        SRV_SEGRANGE range;
+        USHORT usFgMix, usBgMix;
+        PGPI_PS ps;
+
+        log("[PMSERVER] IN  : NGpiRemoveDynamics(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        memcpy(&lFirst, pArgs, sizeof(LONG));
+        memcpy(&lLast,  pArgs + sizeof(LONG), sizeof(LONG));
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg != 0) {
+            log("[PMSERVER] OUT : NGpiRemoveDynamics -> GPI_ERROR (seg %ld open)\n",
+                (long)ps->lOpenSeg);
+            return (ULONG)GPI_ERROR;
+        }
+        range.lFirst = lFirst;
+        range.lLast  = lLast;
+        SrvSaveMix(ps, &usFgMix, &usBgMix);
+        SrvEnterDynamicsMix(ps);
+        SrvForEachSegment(ps, SrvCbRemoveDynamics, &range);
+        SrvLeaveDynamicsMix(ps, usFgMix, usBgMix);
+        log("[PMSERVER] OUT : NGpiRemoveDynamics -> 1\n");
+        return 1;
+    }
+
     /* ==================================================================== */
     /*  Segment editing                                                     */
     /* ==================================================================== */
@@ -1267,10 +1569,6 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
     DISPATCH_STUB(NGpiCorrelateSegment)
     DISPATCH_STUB(NGpiQuerySegmentPriority)
     DISPATCH_STUB(NGpiSetSegmentPriority)
-    DISPATCH_STUB(NGpiDrawChain)
-    DISPATCH_STUB(NGpiDrawFrom)
-    DISPATCH_STUB(NGpiDrawDynamics)
-    DISPATCH_STUB(NGpiRemoveDynamics)
     DISPATCH_STUB(NGpiBeginElement)
     DISPATCH_STUB(NGpiEndElement)
     DISPATCH_STUB(NGpiLabel)

@@ -83,9 +83,10 @@ typedef void *HMODULE;   /*!< Module handle. */
 #define DRO_OUTLINEFILL 3L       /*!< Outline and fill. */
 
 /* Drawing modes */
-#define DM_DRAW             0L   /*!< Immediate rendering.       */
-#define DM_RETAIN           1L   /*!< Record-only (segments).    */
-#define DM_DRAWANDRETAIN    2L   /*!< Record and render.         */
+   #define DM_ERROR                        0L
+   #define DM_DRAW                         1L
+   #define DM_RETAIN                       2L
+   #define DM_DRAWANDRETAIN                3L
 
 /* Segment attributes (ATTR_*) */
 #define ATTR_DETECTABLE         1L
@@ -147,6 +148,11 @@ BOOL APIENTRY GpiDeleteSegment(HPS hps, LONG lSegid);
 BOOL APIENTRY GpiDeleteSegments(HPS hps, LONG lFirstSegment, LONG lLastSegment);
 LONG APIENTRY GpiGetData(HPS hps, LONG lSegid, PLONG plOffset, LONG lFormat, LONG lLength, PBYTE pbData);
 LONG APIENTRY GpiPutData(HPS hps, LONG lFormat, PLONG plCount, PBYTE pbData);
+
+BOOL APIENTRY GpiDrawChain(HPS hps);
+BOOL APIENTRY GpiDrawFrom(HPS hps, LONG lFirstSegment, LONG lLastSegment);
+BOOL APIENTRY GpiDrawDynamics(HPS hps);
+BOOL APIENTRY GpiRemoveDynamics(HPS hps, LONG lFirstSegid, LONG lLastSegid);
 
 #ifdef __cplusplus
 }
