@@ -99,6 +99,10 @@ typedef void *HMODULE;   /*!< Module handle. */
 #define ATTR_OFF                0L
 #define ATTR_ON                 1L
 
+/* Segment priority (GpiSet/QuerySegmentPriority) */
+#define LOWER_PRI            (-1L)
+#define HIGHER_PRI              1L
+
 /* ---------- Structures ---------- */
 typedef struct _POINTL { LONG x; LONG y; } POINTL, *PPOINTL;                 /*!< Point. */
 typedef struct _SIZEL  { LONG cx; LONG cy; } SIZEL, *PSIZEL;                 /*!< Size. */
@@ -154,6 +158,8 @@ BOOL APIENTRY GpiDrawFrom(HPS hps, LONG lFirstSegment, LONG lLastSegment);
 BOOL APIENTRY GpiDrawDynamics(HPS hps);
 BOOL APIENTRY GpiRemoveDynamics(HPS hps, LONG lFirstSegid, LONG lLastSegid);
 
+LONG APIENTRY GpiQuerySegmentPriority(HPS hps, LONG lRefSegid, LONG lOrder);
+BOOL APIENTRY GpiSetSegmentPriority(HPS hps, LONG lSegid, LONG lRefSegid, LONG lOrder);
 #ifdef __cplusplus
 }
 #endif

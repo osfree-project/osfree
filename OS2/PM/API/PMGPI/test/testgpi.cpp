@@ -246,6 +246,59 @@ int main(void)
     GpiDeleteSegment(hps, 3);
 }
 
+{
+    LONG prio, ids[8] = {0};
+
+    printf("=== Step F test: Segment Priority ===\n");
+
+    /* Isolate: remove seg 1 left over from Step E so chain starts empty. */
+    GpiDeleteSegment(hps, 1);
+
+    /* Build 3 chained non-dynamic segments: 10, 20, 30 */
+    GpiSetDrawingMode(hps, DM_RETAIN);
+    GpiOpenSegment(hps, 10); GpiSetColor(hps, CLR_RED);
+    GpiMove(hps, &ptl1); GpiLine(hps, &ptl2); GpiCloseSegment(hps);
+    GpiOpenSegment(hps, 20); GpiSetColor(hps, CLR_GREEN);
+    GpiMove(hps, &ptl1); GpiLine(hps, &ptl2); GpiCloseSegment(hps);
+    GpiOpenSegment(hps, 30); GpiSetColor(hps, CLR_BLUE);
+    GpiMove(hps, &ptl1); GpiLine(hps, &ptl2); GpiCloseSegment(hps);
+    GpiSetDrawingMode(hps, DM_DRAW);
+    GpiSetSegmentAttrs(hps, 10, ATTR_CHAINED, ATTR_ON);
+    GpiSetSegmentAttrs(hps, 20, ATTR_CHAINED, ATTR_ON);
+    GpiSetSegmentAttrs(hps, 30, ATTR_CHAINED, ATTR_ON);
+    GpiSetSegmentAttrs(hps, 10, ATTR_DYNAMIC, ATTR_OFF);
+    GpiSetSegmentAttrs(hps, 20, ATTR_DYNAMIC, ATTR_OFF);
+    GpiSetSegmentAttrs(hps, 30, ATTR_DYNAMIC, ATTR_OFF);
+
+    /* Query: 0/HIGHER -> 30, 0/LOWER -> 10 */
+    prio = GpiQuerySegmentPriority(hps, 0, HIGHER_PRI);
+    printf("GpiQuerySegmentPriority(0, HIGHER) -> %ld (expect 30)\n", (long)prio);
+    prio = GpiQuerySegmentPriority(hps, 0, LOWER_PRI);
+    printf("GpiQuerySegmentPriority(0, LOWER)  -> %ld (expect 10)\n", (long)prio);
+    prio = GpiQuerySegmentPriority(hps, 20, HIGHER_PRI);
+    printf("GpiQuerySegmentPriority(20, HIGHER)-> %ld (expect 30)\n", (long)prio);
+    prio = GpiQuerySegmentPriority(hps, 20, LOWER_PRI);
+    printf("GpiQuerySegmentPriority(20, LOWER) -> %ld (expect 10)\n", (long)prio);
+    prio = GpiQuerySegmentPriority(hps, 30, HIGHER_PRI);
+    printf("GpiQuerySegmentPriority(30, HIGHER)-> %ld (expect 0)\n", (long)prio);
+
+    /* Move 30 to lowest priority (before 10) */
+    printf("GpiSetSegmentPriority(30, 10, LOWER_PRI) -> %d\n",
+           (int)GpiSetSegmentPriority(hps, 30, 10, LOWER_PRI));
+    prio = GpiQuerySegmentPriority(hps, 0, LOWER_PRI);
+    printf("Lowest after move -> %ld (expect 30)\n", (long)prio);
+
+    /* Move 30 to highest priority (after end) */
+    printf("GpiSetSegmentPriority(30, 0, HIGHER_PRI) -> %d\n",
+           (int)GpiSetSegmentPriority(hps, 30, 0, HIGHER_PRI));
+    prio = GpiQuerySegmentPriority(hps, 0, HIGHER_PRI);
+    printf("Highest after move -> %ld (expect 30)\n", (long)prio);
+
+    GpiDeleteSegment(hps, 10);
+    GpiDeleteSegment(hps, 20);
+    GpiDeleteSegment(hps, 30);
+}
+
     printf("Calling WinReleasePS(hps=%p)\n", (void*)hps);
     rc_rel_ps = WinReleasePS(hps); /* обязательное освобождение */
     printf("WinReleasePS -> %d\n", (int)rc_rel_ps);

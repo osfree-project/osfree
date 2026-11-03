@@ -235,20 +235,16 @@
   #define DCTL_ON              1L
   #endif
 
-  #ifndef SDW_OFF
   #define SDW_OFF              0L
-  #endif
-  #ifndef SDW_ON
   #define SDW_ON               1L
-  #endif
+
+  /* ---------- Segment priority (Win32 fallback) ---------- */
+  #define LOWER_PRI            (-1L)
+  #define HIGHER_PRI              1L
 
   /* ---------- Foreground/background mix (Win32 fallback) ---------- */
-  #ifndef FM_XOR
   #define FM_XOR               4L    /* PMGPI.H */
-  #endif
-  #ifndef BM_LEAVEALONE
   #define BM_LEAVEALONE        5L    /* PMGPI.H */
-  #endif
 
   /* ---------- MAKELONG (Win32) ---------- */
   #ifndef MAKELONG

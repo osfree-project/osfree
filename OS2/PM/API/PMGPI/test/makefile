@@ -35,7 +35,9 @@ IMPORTS = WinInitialize      PMWIN.246, &
           GpiDrawChain       PMGPI.380, &
           GpiDrawDynamics    PMGPI.381, &
           GpiRemoveDynamics  PMGPI.496, &
-          GpiDrawFrom        PMGPI.382
+          GpiDrawFrom        PMGPI.382, &
+          GpiQuerySegmentPriority         PMGPI.484, &
+          GpiSetSegmentPriority           PMGPI.548
 
 
 !include $(%ROOT)tools/mk/build.mk

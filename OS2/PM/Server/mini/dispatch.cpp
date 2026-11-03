@@ -446,6 +446,143 @@ static BOOL SrvCbRemoveDynamics(PGPI_PS ps, LONG lSegId, ULONG start, ULONG end,
     return TRUE;
 }
 
+/* ======================================================================== */
+/*  Segment priority helpers (Step F)                                       */
+/* ======================================================================== */
+
+/*!
+ * @brief TRUE if a segment is in the chain: CHAINED=ON and DYNAMIC=OFF.
+ *
+ * FLAG1 bit 6 = DYNAMIC (SC31-6804); FLAG2 bit 0 = CHAIN (inverted).
+ * VISIBLE does not affect chain membership (only DrawChain output).
+ */
+static BOOL SrvSegInChain(UCHAR f1, UCHAR f2)
+{
+    if (f1 & GBSEG_DYNAMIC) return FALSE;
+    if (f2 & GBSEG_CHAIN)   return FALSE;
+    return TRUE;
+}
+
+/*!
+ * @brief Get flags of a segment by id.
+ * @param [in]  ps      Target PS.
+ * @param [in]  lSegId  Segment identifier.
+ * @param [out] pStart  Start offset (may be NULL).
+ * @param [out] pEnd    End offset, exclusive (may be NULL).
+ * @param [out] pF1     FLAG1 byte (may be NULL).
+ * @param [out] pF2     FLAG2 byte (may be NULL).
+ * @return TRUE if found, FALSE otherwise.
+ */
+static BOOL SrvSegInfo(PGPI_PS ps, LONG lSegId,
+                       PULONG pStart, PULONG pEnd,
+                       PBYTE pF1, PBYTE pF2)
+{
+    ULONG s, e;
+    if (!GpiPsGocaFindSeg(ps, lSegId, &s, &e)) return FALSE;
+    if (e - s < 14) return FALSE;
+    if (pStart) *pStart = s;
+    if (pEnd)   *pEnd   = e;
+    if (pF1)    *pF1    = ps->pbGoca[s + 6];
+    if (pF2)    *pF2    = ps->pbGoca[s + 7];
+    return TRUE;
+}
+
+/*!
+ * @brief Find first (lowest-priority) chained segment.
+ * @return TRUE if found; *pStart = offset of its GBSEG.
+ */
+static BOOL SrvFindFirstChainSeg(PGPI_PS ps, PULONG pStart)
+{
+    ULONG off = 0;
+    while (off < ps->cbGoca) {
+        const BYTE *p = ps->pbGoca + off;
+        ULONG cb = GocaOrderLength(&ps->goca, p, ps->cbGoca - off);
+        if (cb == 0) return FALSE;
+        if (p[0] == OCODE_GBSEG && cb >= 14) {
+            if (SrvSegInChain(p[6], p[7])) { *pStart = off; return TRUE; }
+        }
+        off += cb;
+    }
+    return FALSE;
+}
+
+/*!
+ * @brief Find last (highest-priority) chained segment.
+ * @return TRUE if found; *pStart = offset of its GBSEG.
+ */
+static BOOL SrvFindLastChainSeg(PGPI_PS ps, PULONG pStart)
+{
+    ULONG off = 0, last = 0;
+    BOOL  found = FALSE;
+    while (off < ps->cbGoca) {
+        const BYTE *p = ps->pbGoca + off;
+        ULONG cb = GocaOrderLength(&ps->goca, p, ps->cbGoca - off);
+        if (cb == 0) break;
+        if (p[0] == OCODE_GBSEG && cb >= 14) {
+            if (SrvSegInChain(p[6], p[7])) { last = off; found = TRUE; }
+        }
+        off += cb;
+    }
+    if (found) *pStart = last;
+    return found;
+}
+
+/*!
+ * @brief Cut [start, end) from pbGoca and re-insert at insertPos.
+ *
+ * insertPos is interpreted in the original buffer (before the cut).
+ * Corrects ps->uOpenSegStart so the open segment stays valid.
+ *
+ * @param [in] ps         Target PS.
+ * @param [in] start      Start offset of the range.
+ * @param [in] end        End offset of the range (exclusive).
+ * @param [in] insertPos  Offset to insert the range at (pre-cut).
+ * @return TRUE on success, FALSE otherwise.
+ */
+static BOOL SrvMoveRange(PGPI_PS ps, ULONG start, ULONG end, ULONG insertPos)
+{
+    ULONG len, tail, openPos;
+    BOOL  hasOpen;
+    PVOID pv = NULL;
+    BYTE *tmp;
+
+    if (start >= end || end > ps->cbGoca) return FALSE;
+    if (insertPos >= start && insertPos <= end) return TRUE; /* no-op */
+
+    hasOpen = (ps->lOpenSeg != 0 && ps->uOpenSegStart != 0);
+    openPos = ps->uOpenSegStart;
+    if (hasOpen && openPos >= start && openPos < end)
+        return FALSE;   /* open segment inside moved range */
+
+    len = end - start;
+    if (DosAllocMem(&pv, len, PAG_COMMIT | PAG_READ | PAG_WRITE) != 0)
+        return FALSE;
+    tmp = (BYTE *)pv;
+    memcpy(tmp, ps->pbGoca + start, len);
+
+    tail = ps->cbGoca - end;
+    if (tail > 0)
+        memmove(ps->pbGoca + start, ps->pbGoca + end, tail);
+    ps->cbGoca -= len;
+
+    if (insertPos > start) insertPos -= len;
+
+    if (insertPos < ps->cbGoca)
+        memmove(ps->pbGoca + insertPos + len,
+                ps->pbGoca + insertPos,
+                ps->cbGoca - insertPos);
+    memcpy(ps->pbGoca + insertPos, tmp, len);
+    ps->cbGoca += len;
+    DosFreeMem(pv);
+
+    if (hasOpen) {
+        if (openPos >= end) openPos -= len;
+        if (openPos >= insertPos) openPos += len;
+        ps->uOpenSegStart = openPos;
+    }
+    return TRUE;
+}
+
 /*!
  * @def DISPATCH_STUB
  * @brief Log entry/exit for a single stub case and return GPI_ERROR.
@@ -1567,8 +1704,145 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
     DISPATCH_STUB(NGpiResetBoundaryData)
     DISPATCH_STUB(NGpiCorrelateFrom)
     DISPATCH_STUB(NGpiCorrelateSegment)
-    DISPATCH_STUB(NGpiQuerySegmentPriority)
-    DISPATCH_STUB(NGpiSetSegmentPriority)
+    case NGpiQuerySegmentPriority: {
+        LONG lRefSegid, lOrder;
+        PGPI_PS ps;
+
+        log("[PMSERVER] IN  : NGpiQuerySegmentPriority(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG))
+            return (ULONG)(LONG)GPI_ALTERROR;
+        memcpy(&lRefSegid, pArgs, sizeof(LONG));
+        memcpy(&lOrder,   pArgs + sizeof(LONG), sizeof(LONG));
+        if (lOrder != LOWER_PRI && lOrder != HIGHER_PRI)
+            return (ULONG)(LONG)GPI_ALTERROR;
+        if (lRefSegid < 0)
+            return (ULONG)(LONG)GPI_ALTERROR;
+
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)(LONG)GPI_ALTERROR;
+
+        if (lRefSegid == 0) {
+            ULONG pos;
+            if (lOrder == LOWER_PRI) {
+                if (!SrvFindFirstChainSeg(ps, &pos))
+                    return (ULONG)(LONG)GPI_ALTERROR; /* empty chain */
+            } else {
+                if (!SrvFindLastChainSeg(ps, &pos))
+                    return (ULONG)(LONG)GPI_ALTERROR;
+            }
+            return (ULONG)GocaGetU32(&ps->goca, ps->pbGoca + pos + 2);
+        }
+
+        {
+            ULONG s, e, pos;
+            UCHAR f1, f2;
+            if (!SrvSegInfo(ps, lRefSegid, &s, &e, &f1, &f2))
+                return (ULONG)(LONG)GPI_ALTERROR;   /* SEG_NOT_FOUND */
+            if (!SrvSegInChain(f1, f2))
+                return (ULONG)(LONG)GPI_ALTERROR;   /* SEG_NOT_CHAINED */
+
+            if (lOrder == LOWER_PRI) {
+                /* Walk backwards: find chain segment immediately before s. */
+                ULONG off = 0, prev = 0;
+                BOOL  found = FALSE;
+                while (off < s) {
+                    const BYTE *p = ps->pbGoca + off;
+                    ULONG cb = GocaOrderLength(&ps->goca, p, s - off);
+                    if (cb == 0) break;
+                    if (p[0] == OCODE_GBSEG && cb >= 14 &&
+                        SrvSegInChain(p[6], p[7])) { prev = off; found = TRUE; }
+                    off += cb;
+                }
+                if (!found) return 0;
+                pos = prev;
+            } else {
+                /* Walk forwards: find chain segment immediately after e. */
+                ULONG off = e;
+                BOOL  found = FALSE;
+                while (off < ps->cbGoca) {
+                    const BYTE *p = ps->pbGoca + off;
+                    ULONG cb = GocaOrderLength(&ps->goca, p, ps->cbGoca - off);
+                    if (cb == 0) break;
+                    if (p[0] == OCODE_GBSEG && cb >= 14 &&
+                        SrvSegInChain(p[6], p[7])) { found = TRUE; break; }
+                    off += cb;
+                }
+                if (!found) return 0;
+                pos = off;
+            }
+            return (ULONG)GocaGetU32(&ps->goca, ps->pbGoca + pos + 2);
+        }
+    }
+    case NGpiSetSegmentPriority: {
+        LONG lSegid, lRefSegid, lOrder;
+        PGPI_PS ps;
+        ULONG s, e, ins;
+        UCHAR f1, f2;
+
+        log("[PMSERVER] IN  : NGpiSetSegmentPriority(hps=%p, cbArgs=%u)\n",
+            (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 3 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        memcpy(&lSegid,    pArgs,                     sizeof(LONG));
+        memcpy(&lRefSegid, pArgs +     sizeof(LONG),  sizeof(LONG));
+        memcpy(&lOrder,    pArgs + 2 * sizeof(LONG),  sizeof(LONG));
+
+        if (lSegid <= 0) return (ULONG)GPI_ERROR;
+        if (lRefSegid < 0) return (ULONG)GPI_ERROR;
+        if (lOrder != LOWER_PRI && lOrder != HIGHER_PRI)
+            return (ULONG)GPI_ERROR;
+        if (lSegid == lRefSegid) return 1;   /* no-op */
+
+        ps = GpiPsGet(hps);
+        if (!ps) return (ULONG)GPI_ERROR;
+        if (ps->lOpenSeg != 0 &&
+            (ps->lOpenSeg == lSegid || ps->lOpenSeg == lRefSegid))
+            return (ULONG)GPI_ERROR;
+
+        if (!SrvSegInfo(ps, lSegid, &s, &e, &f1, &f2))
+            return (ULONG)GPI_ERROR;
+
+        /* Attach lSegid to chain before searching (spec: not-chained is added). */
+        if (!SrvSegInChain(f1, f2)) {
+            ps->pbGoca[s + 6] &= (UCHAR)~GBSEG_DYNAMIC;
+            ps->pbGoca[s + 7] &= (UCHAR)~GBSEG_CHAIN;
+        }
+
+        if (lRefSegid != 0) {
+            ULONG rs, re;
+            UCHAR rf1, rf2;
+            if (!SrvSegInfo(ps, lRefSegid, &rs, &re, &rf1, &rf2))
+                return (ULONG)GPI_ERROR;          /* SEG_NOT_FOUND */
+            if (!SrvSegInChain(rf1, rf2))
+                return (ULONG)GPI_ERROR;          /* SEG_NOT_CHAINED */
+            ins = (lOrder == LOWER_PRI) ? rs : re;
+        } else {
+            ULONG pos;
+            if (lOrder == LOWER_PRI) {
+                if (!SrvFindFirstChainSeg(ps, &pos))
+                    ins = 0;                       /* should not happen */
+                else
+                    ins = pos;
+            } else {
+                if (!SrvFindLastChainSeg(ps, &pos)) {
+                    ins = ps->cbGoca;
+                } else {
+                    ULONG posEnd;
+                    LONG  lastId = (LONG)GocaGetU32(&ps->goca,
+                                                    ps->pbGoca + pos + 2);
+                    if (!SrvSegInfo(ps, lastId, &pos, &posEnd, NULL, NULL))
+                        return (ULONG)GPI_ERROR;
+                    ins = posEnd;
+                }
+            }
+        }
+
+        if (!SrvMoveRange(ps, s, e, ins))
+            return (ULONG)GPI_ERROR;
+
+        log("[PMSERVER] OUT : NGpiSetSegmentPriority -> 1\n");
+        return 1;
+    }
     DISPATCH_STUB(NGpiBeginElement)
     DISPATCH_STUB(NGpiEndElement)
     DISPATCH_STUB(NGpiLabel)
