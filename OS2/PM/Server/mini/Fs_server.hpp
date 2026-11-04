@@ -61,11 +61,14 @@ public:
     /*! Main command entry point (called by pm_handler). */
     void HandleCommand(void *pRecvobj, int ncmd, int data, int threadNum);
 
+    /*! @brief Called by PMTCP's per-connection thread when the socket
+        is gone (recv failed or returned EOF). Transitions the session
+        from ACTIVE to DETACHED so a legitimate RECONNECT can resume it
+        without waiting for ulInactive. No reply is sent. */
+    void HandleDisconnect(void *pRecvobj);
+
     /*! Monitor loop body (called by monitor thread). */
     void MonitorLoop();
-
-    /*! Shutdown flag (set by monitor before exit). */
-    BOOL IsShuttingDown() const { return m_fShutdown; }
 
     /*! Active + DETACHED session count (for tests / logs). */
     int  ActiveCount() const { return m_clients.CountActive(); }

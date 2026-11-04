@@ -1,0 +1,38 @@
+Win64 build host
+root=D:\yuri\osfree\
+CD       OS2\PM\common\debug\test\win32\ 
+CXX      fpmdebug_test.obj 
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:12: warning: missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:13: warning: missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:15: warning: function 'Check': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:21: warning: function 'ReadFile': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:32: warning: function 'FileExists': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:41: warning: missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:42: warning: missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:43: warning: missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:44: warning: missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:46: warning: function '__declspec': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:60: warning: function 'ChildFatal': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:72: warning: function 'ChildFatalf': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:83: warning: function 'ChildAssert': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:95: warning: function 'RunChild': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:107: warning: function 'RunInProcessTests': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:239: warning: function 'ThreadBody': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:248: warning: function 'RunThreadTest': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp:280: warning: function 'main': missing Doxygen comment
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\..\..\..\include\F_debug.h(47): Error! E671: col(38) function modifier cannot be used on a variable
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\..\..\..\include\F_debug.h(47): Note! N393: col(38) included from D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp(10)
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\..\..\..\include\F_debug.h(47): Error! E121: col(39) syntax error
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\..\..\..\include\F_debug.h(78): Error! E498: col(46) syntax error before 'sink'; probable cause: incorrectly spelled type name
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp(12): Error! E121: col(1) syntax error
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp(18): Error! E029: col(19) symbol 'g_pass' has not been declared
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp(67): Error! E029: col(5) symbol 'F_DbgSetWireSink' has not been declared
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp(178): Error! E029: col(5) symbol 'F_DbgSetWireSink' has not been declared
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp(266): Error! E029: col(24) symbol 'PTID' has not been declared
+D:\yuri\osfree\OS2\PM\common\debug\test\win32\..\fpmdebug_test.cpp(324): Error! E029: col(45) symbol 'g_pass' has not been declared
+Error(E42): Last command making (D:\yuri\osfree\build\OS2\PM\common\debug\test\win32\fpmdebug_test.obj) returned a bad status
+Should this file be deleted [Yes/No] ? Error(E02): Make execution terminated
+Error(E42): Last command making (targets) returned a bad status
+Error(E02): Make execution terminated
+Error(E42): Last command making (gen_sources) returned a bad status
+Error(E02): Make execution terminated

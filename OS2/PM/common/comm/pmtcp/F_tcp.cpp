@@ -26,8 +26,8 @@ static void PMTCP_Dbg(const char *fmt, ...)
 #if defined(__WIN32__) || defined(_WIN32)
     OutputDebugStringA(buf);
 #endif
-    fprintf(stderr, "%s", buf);
-    fflush(stderr);
+    printf("%s", buf);
+    fflush(stdout);
 }
 /* --- йнмеж опюбнй --- */
 
@@ -229,7 +229,7 @@ int TCPipe::Close(void)
 {
     if (sock != PMC_INVALID_SOCK)
     {
-        shutdown(sock, 2);
+        shutdown(sock, 1);
         PMC_CLOSESOCKET(sock);
         sock = PMC_INVALID_SOCK;
     }

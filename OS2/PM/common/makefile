@@ -2,7 +2,7 @@
 #  Handle makefiles in subdirs
 #
 
-DIRS = comm
+DIRS = debug comm
 
 !include $(%ROOT)tools/mk/all.mk
 

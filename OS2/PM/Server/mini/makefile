@@ -19,7 +19,7 @@ SRCDIR  = $(MYDIR)..$(SEP)
 ADD_COPT = -bt=nt
 !endif
 
-ADD_COPT += -i=$(SRCDIR) -i=$(SRCDIR)..$(SEP)..$(SEP)include
+ADD_COPT += -bm -i=$(SRCDIR) -i=$(SRCDIR)..$(SEP)..$(SEP)include
 
 !include $(%ROOT)tools/mk/build.mk
 

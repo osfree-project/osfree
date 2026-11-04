@@ -6,7 +6,16 @@
     (F_CMD_CLIENT_CONNECT), and runs a keepalive thread that sends
     F_CMD_CLIENT_PING. On unload, sends F_CMD_CLIENT_EXIT.
 
-    Reconnect-on-link-loss is NOT implemented yet (deferred).
+    Reconnect-on-link-loss: when a transport error is detected, a
+    background thread retries _InitServerConnection + RECONNECT(idClient)
+    until F_CLIENTCONFIG.ulGrace seconds have elapsed. On giving up, the
+    session is considered lost.
+
+    Shutdown: PMTCP's DllMain(DETACH) calls back into PMC_ShutdownCallback
+    (registered via _InitServerConnection), which sends F_CMD_CLIENT_EXIT
+    over the still-live socket. atexit is NOT used: on OS/2 and Win32
+    atexit inside a DLL runs after the OS has already started unloading
+    dependent DLLs (PMTCP), so pfnSendCmdToServer would target freed code.
 */
 
 #if !defined(INCL_GPI)
@@ -16,10 +25,10 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#include <time.h>
+#include <process.h>
 
-#if defined(__OS2__) || defined(__OS2V2__)
-  #include <process.h>
-#endif
 #include "F_platform.h"
 #include "Fc_config.hpp"
 #include "F_config.hpp"
@@ -46,8 +55,8 @@ static void PMC_Dbg(const char *fmt, ...)
 #if defined(__WIN32__) || defined(_WIN32)
     OutputDebugStringA(buf);
 #endif
-    fprintf(stderr, "%s", buf);
-    fflush(stderr);
+    printf("%s", buf);
+    fflush(stdout);
 }
 
 /*! @brief Print a debug message followed by a human-readable OS error.
@@ -75,7 +84,7 @@ static void PMC_DbgError(const char *func, int err)
   #define PMC_CB __stdcall
 #endif
 
-static APIRET (PMC_CB *pfnInitServerConnection)(PCSZ, PULONG) = 0;
+static APIRET (PMC_CB *pfnInitServerConnection)(PCSZ, PULONG, void *) = 0;
 static APIRET (PMC_CB *pfnCloseServerConnection)(void) = 0;
 static APIRET (PMC_CB *pfnSendCmdToServer)(ULONG, ULONG, ULONG) = 0;
 static APIRET (PMC_CB *pfnSendDataToServer)(ULONG, PVOID, LONG) = 0;
@@ -97,19 +106,45 @@ static APIRET ResolveProc(HMODULE hmod, ULONG ord, void **ppfn)
 }
 class F_ClientConfig FPM_config;
 
-/*! @brief Process-wide connection to the FreePM server. */
+/*! @brief Process-wide connection to the FreePM server. Protected by
+    g_hmtxState. */
 static ULONG client_obj = 0;
 
 /* ---- Client session state ---- */
 static F_CLIENTCONFIG g_clientConfig;    /* idClient, ulInactive, ulGrace, flConfig */
 static volatile BOOL  g_fKeepaliveRun = FALSE;
 static volatile BOOL  g_fConnected    = FALSE;
+static volatile BOOL  g_fReconnecting = FALSE;
+static volatile BOOL  g_fTerminated   = FALSE;
+
+/*! @brief Protects client_obj, g_fConnected, g_fReconnecting and
+    g_clientConfig against concurrent access from public wrappers,
+    the keepalive thread, the reconnect thread, and the shutdown
+    callback. Never hold while calling any pfn* (I/O may block). */
+static HMTX g_hmtxState = NULL;
+
+static void PMC_ServerTerm(void);
+static void APIENTRY PMC_ShutdownCallback(void);
+
+/* ======================================================================== */
+/*  State lock                                                              */
+/* ======================================================================== */
+
+static void LockState(void)
+{
+    if (g_hmtxState) DosRequestMutexSem(g_hmtxState, SEM_INDEFINITE_WAIT);
+}
+
+static void UnlockState(void)
+{
+    if (g_hmtxState) DosReleaseMutexSem(g_hmtxState);
+}
 
 /* ======================================================================== */
 /*  Server startup / detection                                              */
 /* ======================================================================== */
 
-    Called when the local server is not running.
+/*    Called when the local server is not running.
     @return 0 on success, non-zero on failure. */
 static int ExecuteFreePMServer(void)
 {
@@ -174,6 +209,141 @@ static int PMC_ClientConnect(void)
 }
 
 /* ======================================================================== */
+/*  Transport error handling / reconnect                                    */
+/* ======================================================================== */
+
+static void StartReconnect(void);
+
+/*! @brief Called from any public wrapper or keepalive when a
+    transport-level failure is detected. Flips g_fConnected to FALSE
+    and, if no reconnect is in progress, starts the reconnect thread. */
+static void OnTransportError(void)
+{
+    BOOL start = FALSE;
+
+    LockState();
+    if (g_fConnected && !g_fReconnecting && !g_fTerminated) {
+        g_fConnected = FALSE;
+        start = TRUE;
+    }
+    UnlockState();
+
+    if (start) {
+        PMC_Dbg("PMC: transport error, starting reconnect\n");
+        StartReconnect();
+    }
+}
+
+/*! @brief Reconnect thread: retries _InitServerConnection + RECONNECT
+    until ulGrace seconds have elapsed or the process is terminating.
+
+    @param [in] param  idClient as ULONG cast to void*. */
+#if defined(__OS2__) || defined(__OS2V2__)
+static void ReconnectThreadProc(void *param)
+#else
+static unsigned long __stdcall ReconnectThreadProc(void *param)
+#endif
+{
+    ULONG  idClient = (ULONG)param;
+    ULONG  grace;
+    ULONG  deadline;
+    ULONG  wait;
+    APIRET rc;
+    ULONG  newobj;
+    LONG   len;
+
+    LockState();
+    grace = g_clientConfig.ulGrace;
+    UnlockState();
+    if (grace == 0) grace = 5;
+    wait = (grace / 3) * 1000;
+    if (wait < 1000) wait = 1000;
+
+    deadline = (ULONG)time(NULL) + grace;
+
+    while (!g_fTerminated && (ULONG)time(NULL) < deadline) {
+        DosSleep(wait);
+        if (g_fTerminated) break;
+
+        newobj = 0;
+        rc = pfnInitServerConnection(NULL, &newobj,
+                                     (void *)PMC_ShutdownCallback);
+        if (rc == 0 && newobj != 0) {
+            APIRET rc2 = pfnSendCmdToServer(newobj, F_CMD_CLIENT_RECONNECT,
+                                            idClient);
+            if (rc2 == 0) {
+                F_CLIENTCONFIG cfg;
+                len = 0;
+                rc2 = pfnRecvDataFromServer(newobj, &cfg, &len, sizeof(cfg));
+                if (rc2 == 0 && len == (LONG)sizeof(cfg) &&
+                    cfg.idClient == idClient) {
+                    LockState();
+                    client_obj     = newobj;
+                    g_clientConfig = cfg;
+                    g_fConnected   = TRUE;
+                    g_fReconnecting = FALSE;
+                    UnlockState();
+                    PMC_Dbg("PMC: reconnect ok, idClient=%lu\n",
+                            (unsigned long)idClient);
+#if !(defined(__OS2__) || defined(__OS2V2__))
+                    return 0;
+#else
+                    return;
+#endif
+                }
+            }
+            pfnCloseServerConnection();
+        }
+    }
+
+    LockState();
+    g_fConnected   = FALSE;
+    g_fReconnecting = FALSE;
+    client_obj     = 0;
+    UnlockState();
+    PMC_Dbg("PMC: reconnect failed or grace expired\n");
+
+#if !(defined(__OS2__) || defined(__OS2V2__))
+    return 0;
+#endif
+}
+
+static void StartReconnect(void)
+{
+    ULONG  idClient;
+
+    LockState();
+    if (g_fReconnecting || g_fTerminated || g_clientConfig.idClient == 0) {
+        UnlockState();
+        return;
+    }
+    g_fReconnecting = TRUE;
+    idClient = g_clientConfig.idClient;
+    UnlockState();
+
+#if defined(__OS2__) || defined(__OS2V2__)
+    {
+        int thrc = _beginthread(ReconnectThreadProc, NULL, 65536,
+                                (void *)idClient);
+        if (thrc == -1) {
+            PMC_Dbg("PMC: _beginthread for reconnect failed\n");
+            LockState();
+            g_fReconnecting = FALSE;
+            UnlockState();
+        }
+    }
+#else
+    if (CreateThread(NULL, 0, ReconnectThreadProc,
+                     (void *)idClient, 0, NULL) == NULL) {
+        PMC_Dbg("PMC: CreateThread for reconnect failed\n");
+        LockState();
+        g_fReconnecting = FALSE;
+        UnlockState();
+    }
+#endif
+}
+
+/* ======================================================================== */
 /*  Keepalive thread                                                        */
 /* ======================================================================== */
 
@@ -193,12 +363,25 @@ static unsigned long __stdcall KeepaliveProc(void *param)
             (unsigned long)pingSec);
 
     while (g_fKeepaliveRun) {
+        ULONG obj = 0;
+        ULONG idc = 0;
+        BOOL  connected = FALSE;
+
         DosSleep(pingSec * 1000);
         if (!g_fKeepaliveRun) break;
-        if (!g_fConnected)     continue;
 
-        pfnSendCmdToServer(client_obj, F_CMD_CLIENT_PING,
-                           g_clientConfig.idClient);
+        LockState();
+        if (g_fConnected) {
+            obj = client_obj;
+            idc = g_clientConfig.idClient;
+            connected = TRUE;
+        }
+        UnlockState();
+        if (!connected || obj == 0) continue;
+
+        if (pfnSendCmdToServer(obj, F_CMD_CLIENT_PING, idc) != 0) {
+            OnTransportError();
+        }
     }
 
 #if !(defined(__OS2__) || defined(__OS2V2__))
@@ -230,14 +413,34 @@ static void StopKeepalive(void)
 
 extern "C" APIRET EXPENTRY PmcPostCommand(ULONG ulCommand, ULONG ulData)
 {
+    APIRET rc;
+    ULONG  obj;
+
     if (!pfnSendCmdToServer) return (APIRET)-1;
-    return pfnSendCmdToServer(client_obj, ulCommand, ulData);
+    LockState();
+    obj = client_obj;
+    UnlockState();
+    if (obj == 0) return (APIRET)-1;
+
+    rc = pfnSendCmdToServer(obj, ulCommand, ulData);
+    if (rc != 0) OnTransportError();
+    return rc;
 }
 
 extern "C" APIRET EXPENTRY PmcSendData(PVOID pvData, LONG cbData)
 {
+    APIRET rc;
+    ULONG  obj;
+
     if (!pfnSendDataToServer) return (APIRET)-1;
-    return pfnSendDataToServer(client_obj, pvData, cbData);
+    LockState();
+    obj = client_obj;
+    UnlockState();
+    if (obj == 0) return (APIRET)-1;
+
+    rc = pfnSendDataToServer(obj, pvData, cbData);
+    if (rc != 0) OnTransportError();
+    return rc;
 }
 
 /*! @brief Get raw data from the server.
@@ -250,8 +453,18 @@ extern "C" APIRET EXPENTRY PmcSendData(PVOID pvData, LONG cbData)
     @return 0 on success, non-zero on transport error. */
 extern "C" APIRET EXPENTRY PmcGetData(PVOID pvBuffer, PLONG pcbReceived, LONG cbBuffer)
 {
+    APIRET rc;
+    ULONG  obj;
+
     if (!pfnRecvDataFromServer) return (APIRET)-1;
-    return pfnRecvDataFromServer(client_obj, pvBuffer, pcbReceived, cbBuffer);
+    LockState();
+    obj = client_obj;
+    UnlockState();
+    if (obj == 0) return (APIRET)-1;
+
+    rc = pfnRecvDataFromServer(obj, pvBuffer, pcbReceived, cbBuffer);
+    if (rc != 0) OnTransportError();
+    return rc;
 }
 
 /*! @brief Send a command with a 32-bit parameter and wait for reply.
@@ -260,11 +473,21 @@ extern "C" APIRET EXPENTRY PmcGetData(PVOID pvBuffer, PLONG pcbReceived, LONG cb
 
     @param [in] ulCommand    Command code.
     @param [in] ulParameter  32-bit parameter.
-    @return Server reply code, or a transport error code. */
+    @return Server reply code, or (APIRET)-1 on transport error. */
 extern "C" APIRET EXPENTRY PmcSendCommand(ULONG ulCommand, ULONG ulParameter)
 {
+    APIRET rc;
+    ULONG  obj;
+
     if (!pfnSendGenCmdToServer) return (APIRET)-1;
-    return pfnSendGenCmdToServer(client_obj, ulCommand, ulParameter);
+    LockState();
+    obj = client_obj;
+    UnlockState();
+    if (obj == 0) return (APIRET)-1;
+
+    rc = pfnSendGenCmdToServer(obj, ulCommand, ulParameter);
+    if (rc == (APIRET)-1) OnTransportError();
+    return rc;
 }
 
 /*! @brief Send a command with a payload and wait for reply.
@@ -275,13 +498,22 @@ extern "C" APIRET EXPENTRY PmcSendCommand(ULONG ulCommand, ULONG ulParameter)
     @param [in] ulParameter  32-bit parameter.
     @param [in] pvData       Pointer to the payload.
     @param [in] cbData       Payload size in bytes.
-    @return Server reply code, or a transport error code. */
+    @return Server reply code, or (APIRET)-1 on transport error. */
 extern "C" APIRET EXPENTRY PmcSendCommandData(ULONG ulCommand, ULONG ulParameter,
                                               PVOID pvData, LONG cbData)
 {
+    APIRET rc;
+    ULONG  obj;
+
     if (!pfnSendGenCmdDataToServer) return (APIRET)-1;
-    return pfnSendGenCmdDataToServer(client_obj, ulCommand, ulParameter,
-                                     pvData, cbData);
+    LockState();
+    obj = client_obj;
+    UnlockState();
+    if (obj == 0) return (APIRET)-1;
+
+    rc = pfnSendGenCmdDataToServer(obj, ulCommand, ulParameter, pvData, cbData);
+    if (rc == (APIRET)-1) OnTransportError();
+    return rc;
 }
 
 /* ======================================================================== */
@@ -304,6 +536,12 @@ static int PMC_ServerInit(void)
     int    startRc;
 
     PMC_Dbg("PMC: PMC_ServerInit started\n");
+
+    if (DosCreateMutexSem(NULL, &g_hmtxState, 0, FALSE) != 0) {
+        PMC_Dbg("PMC: DosCreateMutexSem failed\n");
+        g_hmtxState = NULL;
+        return 0;
+    }
 
     FPM_config.Read("fpm.ini");
 
@@ -348,7 +586,8 @@ static int PMC_ServerInit(void)
         }
     }
 
-    rc = pfnInitServerConnection(serverName, &client_obj);
+    rc = pfnInitServerConnection(serverName, &client_obj,
+                                 (void *)PMC_ShutdownCallback);
     if (rc) {
         PMC_Dbg("PMC: pfnInitServerConnection rc=0x%x\n", rc);
         return 0;
@@ -368,34 +607,71 @@ static int PMC_ServerInit(void)
     if (g_clientConfig.flConfig & F_CFG_PING_REQUIRED)
         StartKeepalive();
 
+    /* NOTE: no atexit(PMC_ServerTerm) here. On OS/2 and Win32, atexit
+       callbacks inside a DLL run AFTER the loader has started
+       unloading dependent DLLs (LIFO: PMTCP before PMCLIENT), so
+       pfnSendCmdToServer would target freed code. Instead, PMTCP
+       invokes PMC_ShutdownCallback from its own DllMain(DETACH),
+       when both DLLs are still alive. */
+
     PMC_Dbg("PMC: ServerInit completed\n");
     return 1;
 }
 
-static void PMC_ServerTerm(void)
-{
-    PMC_Dbg("PMC: PMC_ServerTerm started\n");
+/*! @brief Shutdown callback invoked from PMTCP's DllMain(DETACH).
 
-    /* NEW: stop keepalive, send EXIT */
+    At this point PMTCP and PMCLIENT are both fully loaded, so
+    pfnSendCmdToServer goes through live code and the socket is still
+    open. Sends F_CMD_CLIENT_EXIT; PMTCP then closes the socket in the
+    continuation of its own DllMain(DETACH). */
+static void APIENTRY PMC_ShutdownCallback(void)
+{
+    APIRET rc;
+    ULONG  obj;
+    ULONG  idc;
+
+    if (g_fTerminated) return;
+    g_fTerminated = TRUE;
+
+    PMC_Dbg("PMC: PMC_ShutdownCallback (from PMTCP DETACH)\n");
+
     StopKeepalive();
 
-    if (g_fConnected && pfnSendCmdToServer) {
-        PMC_Dbg("PMC: sending F_CMD_CLIENT_EXIT\n");
-        pfnSendCmdToServer(client_obj, F_CMD_CLIENT_EXIT,
-                           g_clientConfig.idClient);
+    LockState();
+    obj = client_obj;
+    idc = g_clientConfig.idClient;
+    if (obj != 0 && g_fConnected && pfnSendCmdToServer) {
+        UnlockState();
+        rc = pfnSendCmdToServer(obj, F_CMD_CLIENT_EXIT, idc);
+        PMC_Dbg("PMC: EXIT sent (rc=0x%lx)\n", (unsigned long)rc);
+        LockState();
         g_fConnected = FALSE;
     }
+    client_obj      = 0;
+    g_fReconnecting = FALSE;
+    UnlockState();
+}
 
-    if (pfnCloseServerConnection) {
-        PMC_Dbg("PMC: calling pfnCloseServerConnection\n");
-        pfnCloseServerConnection();
+/*! @brief Fallback term, invoked from DllMain(DLL_PROCESS_DETACH) /
+    _DLL_InitTerm(unload) if PMTCP's callback did not run (e.g.
+    abnormal termination where PMTCP was unloaded without invoking
+    the callback). Performs state-only cleanup; never calls pfn*. */
+static void PMC_ServerTerm(void)
+{
+    if (g_fTerminated) return;
+    g_fTerminated = TRUE;
+
+    PMC_Dbg("PMC: PMC_ServerTerm started\n");
+
+    StopKeepalive();
+
+    if (g_hmtxState) {
+        DosCloseMutexSem(g_hmtxState);
+        g_hmtxState = NULL;
     }
+
     client_obj = 0;
-
-    if (hmodBE) {
-        DosFreeModule(hmodBE);
-        hmodBE = 0;
-    }
+    hmodBE = 0;
     PMC_Dbg("PMC: ServerTerm completed\n");
 }
 

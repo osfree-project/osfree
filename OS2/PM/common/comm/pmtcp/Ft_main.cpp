@@ -28,8 +28,8 @@ static void PMTCP_Dbg(const char *fmt, ...)
 #if defined(__WIN32__) || defined(_WIN32)
     OutputDebugStringA(buf);
 #endif
-    fprintf(stderr, "%s", buf);
-    fflush(stderr);
+    printf( "%s", buf);
+    fflush(stdout);
 }
 /* --- ÊÎÍÅÖ ÏÐÀÂÎÊ --- */
 
@@ -51,8 +51,23 @@ extern "C" void PMC_WsaCleanup(void)
 
 #endif /* Win32 */
 
+/* APIENTRY on Win32 expands to __declspec(__pragma(...)), which Watcom
+   rejects inside pointer declarators (E671). Use the plain calling
+   convention keyword there; on OS/2 APIENTRY (_System) is a real type
+   modifier and works as-is. */
+#if defined(__OS2__) || defined(__OS2V2__)
+  #define PMC_CB APIENTRY
+#else
+  #define PMC_CB __stdcall
+#endif
+
 /*! @brief Handler callback type, same as in PMPIPE. */
-typedef void (APIENTRY *PMC_HANDLER)(void *obj, int ncmd, int data, int threadNum);
+typedef void (PMC_CB *PMC_HANDLER)(void *obj, int ncmd, int data, int threadNum);
+
+/*! @brief Transport-level disconnect callback. Called by PMTCP's
+    per-connection thread when the socket is gone (recv failed or
+    returned EOF). Not a protocol command; no response is sent. */
+typedef void (PMC_CB *PMC_DISCONNECT_CB)(void *obj);
 
 /* Forward declarations, same for all platforms. */
 /*! @brief Server-side receive of a message buffer.
@@ -122,25 +137,71 @@ static char    PipeHost[256] = FREEPM_TCP_DEFAULT_HOST;
 /*! @brief Port of the server we are connected to. */
 static int     PipePort     = FREEPM_TCP_DEFAULT_PORT;
 
+/*! @brief Function-pointer type for the shutdown callback passed by
+    PMCLIENT through _InitServerConnection. */
+typedef void (PMC_CB *PMC_SHUTDOWN_CB)(void);
+
+/*! @brief Callback registered by PMCLIENT; invoked from
+    DllMain(DETACH) before PMTCP's CRT is torn down, while both DLLs
+    are fully alive. */
+static PMC_SHUTDOWN_CB g_shutdownCb = NULL;
+
 /*! @brief Open a client TCP connection and perform the handshake.
     @param [in]  ExternMachine  Server host name, or NULL for the default.
     @param [out] obj            Receives the connection object.
+    @param [in]  cb             Shutdown callback invoked from
+                                DllMain(DETACH) before this DLL's CRT is
+                                torn down. May be NULL.
     @return 0 on success, ERROR_OPEN_FAILED on connect failure, HAND_SHAKE_ERROR on mismatch.
     @retval 0                  Connected.
     @retval PMC_ERR_OPEN       Connect failed.
     @retval HAND_SHAKE_ERROR   Handshake mismatch. */
-extern "C" APIRET EXPENTRY _InitServerConnection(char *ExternMachine, ULONG *obj)
+extern "C" APIRET EXPENTRY _InitServerConnection(char *ExternMachine, ULONG *obj,
+                                                 void *cb)
 {
-    PMTCP_Dbg("PMTCP: _InitServerConnection IN -> ExternMachine=%s\n", ExternMachine ? ExternMachine : "NULL");
+    PMTCP_Dbg("PMTCP: _InitServerConnection IN -> ExternMachine=%s, cb=%p\n",
+              ExternMachine ? ExternMachine : "NULL", cb);
+
+    if (cb) g_shutdownCb = (PMC_SHUTDOWN_CB)cb;
+
     if (PMC_WSA_STARTUP() != 0) {
         PMTCP_Dbg("PMTCP: _InitServerConnection ERROR: WSAStartup failed\n");
         return PMC_ERR_OPEN;
     }
 
+#if defined(__WIN32__) || defined(_WIN32)
+    /* ws2_32 is loaded by WSAStartup inside this DLL, so on ExitProcess
+       its DllMain(DETACH) runs before ours (LIFO) and resets Winsock
+       state, making send() in our shutdown callback fail with 10093.
+       Pin it via GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_PIN,
+       0x00000001) so its DllMain(DETACH) is not called on process exit.
+       The function and the flag constant are missing from Watcom's
+       windows.h, so resolve by name at runtime. */
+    {
+        typedef BOOL (__stdcall *PFN_GME)(DWORD, const char *, HMODULE *);
+        HMODULE hKernel = GetModuleHandleA("kernel32.dll");
+        if (hKernel != NULL) {
+            PFN_GME pfnGME = (PFN_GME)GetProcAddress(hKernel,
+                                                     "GetModuleHandleExA");
+            if (pfnGME != NULL) {
+                HMODULE hPin = NULL;
+                pfnGME(0x00000001UL, "ws2_32.dll", &hPin);
+            }
+        }
+    }
+#endif
+
     if (ExternMachine != NULL)
     {
         strncpy(PipeHost, ExternMachine, sizeof(PipeHost) - 1);
         PipeHost[sizeof(PipeHost) - 1] = 0;
+    }
+
+    /* A previous TCPipe may still be around from an earlier session
+       (reconnect retry). Drop it before creating the new one. */
+    if (pF_pipe != NULL) {
+        delete pF_pipe;
+        pF_pipe = NULL;
     }
 
     pF_pipe = new TCPipe(PipeHost, PipePort, TCP_CLIENT_MODE);
@@ -256,47 +317,65 @@ extern "C" APIRET EXPENTRY _F_RecvDataFromServer(void *recvobj, void *data, int 
 }
 
 /*! @brief Send a generic command and wait for the server reply.
+
+    On transport error (send or recv failed) returns (APIRET)-1 so
+    callers can distinguish it from a legitimate server reply.
     @param [in] recvobj  Connection object.
     @param [in] cmd      Command code.
     @param [in] par      32-bit parameter.
-    @return Server reply code, or the transport error code. */
+    @return Server reply code, or (APIRET)-1 on transport error. */
 extern "C" APIRET EXPENTRY _F_SendGenCmdToServer(void *recvobj, int cmd, int par)
 {
-    PMTCP_Dbg("PMTCP: _F_SendGenCmdToServer IN -> recvobj=%p, cmd=0x%x, par=0x%x\n", recvobj, cmd, par);
+    int rc, retcode, l;
+
+    PMTCP_Dbg("PMTCP: _F_SendGenCmdToServer IN -> recvobj=%p, cmd=0x%x, par=0x%x\n",
+              recvobj, cmd, par);
     if (!recvobj) {
         PMTCP_Dbg("PMTCP: _F_SendGenCmdToServer ERROR: recvobj is NULL!\n");
-        return PMC_ERR_BROKEN;
+        return (APIRET)-1;
     }
-    int rc, retcode, l;
+
     rc = _F_SendCmdToServer(recvobj, cmd, par);
-    if (rc) return rc;
+    if (rc) return (APIRET)-1;
+
     rc = _F_RecvDataFromServer(recvobj, &retcode, &l, sizeof(retcode));
-    if (rc) return rc;
+    if (rc) return (APIRET)-1;
+
     PMTCP_Dbg("PMTCP: _F_SendGenCmdToServer OUT -> retcode=0x%x\n", retcode);
     return (APIRET)retcode;
 }
 
 /*! @brief Send a command with a payload and wait for the server reply.
+
+    On transport error (send or recv failed) returns (APIRET)-1 so
+    callers can distinguish it from a legitimate server reply.
     @param [in] recvobj  Connection object.
     @param [in] cmd      Command code.
     @param [in] par      32-bit parameter.
     @param [in] data     Payload.
     @param [in] datalen  Payload size in dwords.
-    @return Server reply code, or the transport error code. */
-extern "C" APIRET EXPENTRY _F_SendGenCmdDataToServer(void *recvobj, int cmd, int par, void *data, int datalen)
+    @return Server reply code, or (APIRET)-1 on transport error. */
+extern "C" APIRET EXPENTRY _F_SendGenCmdDataToServer(void *recvobj, int cmd, int par,
+                                                     void *data, int datalen)
 {
-    PMTCP_Dbg("PMTCP: _F_SendGenCmdDataToServer IN -> recvobj=%p, cmd=0x%x, par=0x%x\n", recvobj, cmd, par);
+    int rc, retcode, l;
+
+    PMTCP_Dbg("PMTCP: _F_SendGenCmdDataToServer IN -> recvobj=%p, cmd=0x%x, par=0x%x\n",
+              recvobj, cmd, par);
     if (!recvobj) {
         PMTCP_Dbg("PMTCP: _F_SendGenCmdDataToServer ERROR: recvobj is NULL!\n");
-        return PMC_ERR_BROKEN;
+        return (APIRET)-1;
     }
-    int rc, retcode, l;
+
     rc = _F_SendCmdToServer(recvobj, cmd, par);
-    if (rc) return rc;
+    if (rc) return (APIRET)-1;
+
     rc = _F_SendDataToServer(recvobj, data, datalen * sizeof(int));
-    if (rc) return rc;
+    if (rc) return (APIRET)-1;
+
     rc = _F_RecvDataFromServer(recvobj, &retcode, &l, sizeof(retcode));
-    if (rc) return rc;
+    if (rc) return (APIRET)-1;
+
     PMTCP_Dbg("PMTCP: _F_SendGenCmdDataToServer OUT -> retcode=0x%x\n", retcode);
     return (APIRET)retcode;
 }
@@ -387,23 +466,31 @@ extern "C" APIRET EXPENTRY _F_SendDataToClient(void *recvobj, void *data, int le
 /* ---- Add near the top, after PMTCP_Dbg ---- */
 
 struct TCP_ClientArg {
-    TCPipe      *pClient;
-    PMC_HANDLER  h;
-    int          threadNum;
+    TCPipe           *pClient;
+    PMC_HANDLER       h;
+    PMC_DISCONNECT_CB disc;
+    int               threadNum;
 };
 
 static void ClientThreadProc(void *param)
 {
-    TCP_ClientArg *pArg = (TCP_ClientArg *)param;
-    TCPipe        *pClient = pArg->pClient;
-    PMC_HANDLER    h = pArg->h;
-    int            ncmd, data;
+    TCP_ClientArg    *pArg    = (TCP_ClientArg *)param;
+    TCPipe           *pClient = pArg->pClient;
+    PMC_HANDLER       h       = pArg->h;
+    PMC_DISCONNECT_CB disc    = pArg->disc;
+    int               ncmd, data;
 
     while (_F_RecvCmdFromClient(pClient, &ncmd, &data) == 0)
     {
         if (ncmd == 0) break;
         if (h) h(pClient, ncmd, data, pArg->threadNum);
     }
+
+    /* Transport-level notification: socket is gone. Fs_Server
+       transitions the session to DETACHED so a legitimate RECONNECT
+       can resume it without waiting for ulInactive. The recvobj
+       (pClient) is still valid here; it is deleted below. */
+    if (disc) disc(pClient);
 
     pClient->Close();
     delete pClient;
@@ -412,12 +499,13 @@ static void ClientThreadProc(void *param)
 
 /* ---- Replace _startServerThreads ---- */
 
-extern "C" APIRET EXPENTRY _startServerThreads(void *handl)
+extern "C" APIRET EXPENTRY _startServerThreads(void *handl, void *disc_cb)
 {
-    PMC_HANDLER h = (PMC_HANDLER)handl;
-    TCPipe     *pServer = new TCPipe();
-    int         wsaRc;
-    int         threadCounter = 0;
+    PMC_HANDLER       h    = (PMC_HANDLER)handl;
+    PMC_DISCONNECT_CB disc = (PMC_DISCONNECT_CB)disc_cb;
+    TCPipe           *pServer = new TCPipe();
+    int               wsaRc;
+    int               threadCounter = 0;
 
     if (!pServer) return PMC_ERR_OPEN;
 
@@ -472,8 +560,8 @@ extern "C" APIRET EXPENTRY _startServerThreads(void *handl)
         }
         pArg->pClient   = pClient;
         pArg->h         = h;
+        pArg->disc      = disc;
         pArg->threadNum = threadCounter++;
-
 
 #if defined(__OS2__) || defined(__OS2V2__)
     /* OS/2: 4 arguments — (start, stack, stack_size, arglist) */
@@ -487,3 +575,57 @@ extern "C" APIRET EXPENTRY _startServerThreads(void *handl)
 
     return 0; /* unreachable */
 }
+
+
+
+
+/* ======================================================================== */
+/*  Platform entry points                                                   */
+/* ======================================================================== */
+
+#if defined(__OS2__) || defined(__OS2V2__)
+
+unsigned long _System _DLL_InitTerm(unsigned long hModule, unsigned long flag)
+{
+    (void)hModule;
+    if (flag == 0) return 1;
+
+    if (g_shutdownCb) {
+        g_shutdownCb();
+        g_shutdownCb = NULL;
+    }
+    if (pF_pipe != NULL) {
+        delete pF_pipe;
+        pF_pipe = NULL;
+    }
+    PMC_WSA_CLEANUP();
+    return 1;
+}
+
+#else /* Win32 */
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
+{
+    (void)hinstDLL; (void)lpReserved;
+    if (fdwReason == DLL_PROCESS_DETACH) {
+        /* ws2_32.dll is loaded by WSAStartup inside this DLL, so on
+           ExitProcess it is detached first (LIFO) and its DllMain
+           resets Winsock state. Re-init WSA here so send(EXIT) inside
+           the shutdown callback goes through live code. */
+        WSADATA wsa;
+        int     wsaOk = (WSAStartup(MAKEWORD(1, 1), &wsa) == 0);
+
+        if (g_shutdownCb) {
+            g_shutdownCb();
+            g_shutdownCb = NULL;
+        }
+        if (pF_pipe != NULL) {
+            delete pF_pipe;
+            pF_pipe = NULL;
+        }
+        if (wsaOk) WSACleanup();
+    }
+    return TRUE;
+}
+
+#endif

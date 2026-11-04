@@ -361,50 +361,112 @@
       STARTUPINFOA_LITE        *lpStartupInfo,
       PROCESS_INFORMATION_LITE *lpProcessInformation);
 
+  __declspec(dllimport) DWORD __stdcall WaitForSingleObject(HANDLE hHandle, DWORD dwMilliseconds);
+  __declspec(dllimport) BOOL  __stdcall ReleaseMutex(HANDLE hMutex);
+  __declspec(dllimport) HANDLE __stdcall CreateThread(void *lpThreadAttributes,
+                                                      SIZE_T dwStackSize,
+                                                      unsigned long (__stdcall *lpStartAddress)(void *),
+                                                      void *lpParameter,
+                                                      DWORD dwCreationFlags,
+                                                      DWORD *lpThreadId);
+
+
   #ifndef CREATE_NEW_CONSOLE
     #define CREATE_NEW_CONSOLE  0x00000010L
   #endif
 
+  __declspec(dllimport) BOOL __stdcall Beep(DWORD dwFreq, DWORD dwDuration);
+
+  __declspec(dllimport) BOOL __stdcall GetExitCodeProcess(HANDLE hProcess, DWORD *lpExitCode);
   /* ---------- Ёмул€ци€ OS/2 API ---------- */
-  static inline APIRET DosExecPgm(char *pszFailName, LONG cbFailName,
-                                  ULONG execFlags,
-                                  const char *pszArg,
-                                  const char *pszEnv,
-                                  PRESULTCODES pResCodes,
-                                  const char *pszExe)
+
+  #define CCHMAXPATH   260
+
+    #define SEM_INDEFINITE_WAIT  0xFFFFFFFFUL
+    #define INFINITE             0xFFFFFFFFUL
+    #define WAIT_OBJECT_0        0x00000000UL
+    #define WAIT_ABANDONED       0x00000080UL
+
+  static inline APIRET DosBeep(ULONG freq, ULONG duration)
   {
-      STARTUPINFOA_LITE        si;
-      PROCESS_INFORMATION_LITE pi;
-      char szCmd[1024];
-      char *p;
-      int   n;
-
-      (void)pszFailName; (void)cbFailName;
-      (void)pszArg;      (void)pszEnv; (void)execFlags;
-
-      p = (char *)&si;
-      for (n = 0; n < (int)sizeof(si); n++) p[n] = 0;
-      p = (char *)&pi;
-      for (n = 0; n < (int)sizeof(pi); n++) p[n] = 0;
-      si.cb = sizeof(si);
-
-      n = 0;
-      while (pszExe[n] && n < 1023) { szCmd[n] = pszExe[n]; n++; }
-      szCmd[n] = 0;
-
-      if (!CreateProcessA(NULL, szCmd, NULL, NULL, FALSE,
-                          CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
-          return 1;
-
-      if (pResCodes) {
-          pResCodes->codeTerminate = 0;
-          pResCodes->codeResult    = 0;
-          pResCodes->pidProcess    = pi.dwProcessId;
-      }
-      CloseHandle(pi.hProcess);
-      CloseHandle(pi.hThread);
+      Beep(freq, duration);
       return 0;
   }
+
+static inline APIRET DosExecPgm(char *pszFailName, LONG cbFailName,
+                                ULONG execFlags,
+                                const char *pszArg,
+                                const char *pszEnv,
+                                PRESULTCODES pResCodes,
+                                const char *pszExe)
+{
+    STARTUPINFOA_LITE        si;
+    PROCESS_INFORMATION_LITE pi;
+    char szCmd[1024];
+    char *p;
+    int   n;
+    DWORD flags = 0;
+    BOOL  wait  = FALSE;
+
+    (void)pszFailName; (void)cbFailName; (void)pszEnv;
+
+    p = (char *)&si;
+    for (n = 0; n < (int)sizeof(si); n++) p[n] = 0;
+    p = (char *)&pi;
+    for (n = 0; n < (int)sizeof(pi); n++) p[n] = 0;
+    si.cb = sizeof(si);
+
+    /* Build "exe arg" (pszArg may be NULL or empty). */
+    n = 0;
+    while (pszExe[n] && n < 1023) { szCmd[n] = pszExe[n]; n++; }
+    if (pszArg && *pszArg) {
+        szCmd[n++] = ' ';
+        while (*pszArg && n < 1023) { szCmd[n++] = *pszArg++; }
+    }
+    szCmd[n] = 0;
+
+    /* EXEC_ASYNC* -> don't wait, own console (caller wants it visible).
+       EXEC_SYNC*  -> wait for completion, inherit parent's console. */
+    switch (execFlags) {
+    case EXEC_ASYNC:
+    case EXEC_ASYNCB:
+    case EXEC_ASYNCRESULT:
+        flags = CREATE_NEW_CONSOLE;
+        wait  = FALSE;
+        break;
+    case EXEC_SYNC:
+    case EXEC_SYNCB:
+    case EXEC_LOAD:
+    default:
+        flags = 0;
+        wait  = TRUE;
+        break;
+    }
+
+    if (!CreateProcessA((const char *)NULL, szCmd, NULL, NULL, FALSE,
+                        flags, NULL, (const char *)NULL,
+                        &si, &pi))
+        return 1;
+
+    if (wait) {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+        if (pResCodes) {
+            DWORD code = 0;
+            GetExitCodeProcess(pi.hProcess, &code);
+            pResCodes->codeTerminate = code;
+            pResCodes->codeResult    = 0;
+            pResCodes->pidProcess    = pi.dwProcessId;
+        }
+    } else if (pResCodes) {
+        pResCodes->codeTerminate = 0;
+        pResCodes->codeResult    = 0;
+        pResCodes->pidProcess    = pi.dwProcessId;
+    }
+
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+    return 0;
+}
 
   static inline APIRET DosAllocMem(PVOID *ppv, ULONG cb, ULONG flags) {
       (void)flags;
@@ -446,6 +508,23 @@
       Sleep(msec);
       return 0;
   }
+
+  /* ---------- Thread handle emulation for DosWaitThread ----------
+     _beginthread() on Win32 Watcom returns a thread HANDLE cast to
+     int; on OS/2 it returns a TID. Callers treat the two opaquely
+     and only pass them to DosWaitThread(). */
+  typedef ULONG TID;
+  typedef TID  *PTID;
+
+  #define DCWW_WAIT     0
+  #define DCWW_NOWAIT   1
+
+  static inline APIRET DosWaitThread(PTID ptid, ULONG option) {
+      (void)option;
+      WaitForSingleObject((HANDLE)(*ptid), INFINITE);
+      return 0;
+  }
+
   static inline APIRET DosCreateMutexSem(const char *pszName, HMTX *phmtx,
                                          ULONG flAttr, BOOL fState) {
       (void)flAttr;
@@ -461,19 +540,7 @@
   }
 
   /* ---------- Semaphore helpers for Fs_ClientList ---------- */
-    #define SEM_INDEFINITE_WAIT  0xFFFFFFFFUL
-    #define INFINITE             0xFFFFFFFFUL
-    #define WAIT_OBJECT_0        0x00000000UL
-    #define WAIT_ABANDONED       0x00000080UL
 
-  __declspec(dllimport) DWORD __stdcall WaitForSingleObject(HANDLE hHandle, DWORD dwMilliseconds);
-  __declspec(dllimport) BOOL  __stdcall ReleaseMutex(HANDLE hMutex);
-  __declspec(dllimport) HANDLE __stdcall CreateThread(void *lpThreadAttributes,
-                                                      SIZE_T dwStackSize,
-                                                      unsigned long (__stdcall *lpStartAddress)(void *),
-                                                      void *lpParameter,
-                                                      DWORD dwCreationFlags,
-                                                      DWORD *lpThreadId);
 
   static inline APIRET DosRequestMutexSem(HMTX hmtx, ULONG ulTimeout) {
       DWORD dwTimeout = (ulTimeout == SEM_INDEFINITE_WAIT) ? INFINITE : (DWORD)ulTimeout;
@@ -1004,6 +1071,120 @@ EXTERN ULONG APIENTRY GpiQueryDCData(void);
   BOOL   APIENTRY DevQueryDeviceNames(HAB, PCSZ, PLONG, PSTR32, PSTR64, PLONG, PSTR16);
   LONG   APIENTRY DevQueryHardcopyCaps(HDC, LONG, LONG, PHCINFO);
 
+  /* ---------- Winsock (без <windows.h>) ---------- */
+
+  #ifndef INADDR_ANY
+    #define INADDR_ANY       ((ULONG)0x00000000)
+  #endif
+
+  #ifndef SOCKET
+    typedef UINT SOCKET;
+  #endif
+  #ifndef INVALID_SOCKET
+    #define INVALID_SOCKET   ((SOCKET)(~0))
+  #endif
+  #ifndef SOCKET_ERROR
+    #define SOCKET_ERROR     (-1)
+  #endif
+
+  #ifndef AF_INET
+    #define AF_INET          2
+  #endif
+  #ifndef SOCK_STREAM
+    #define SOCK_STREAM      1
+  #endif
+  #ifndef SOL_SOCKET
+    #define SOL_SOCKET       0xFFFF
+  #endif
+  #ifndef SO_REUSEADDR
+    #define SO_REUSEADDR     0x0004
+  #endif
+  #ifndef SHUT_WR
+    #define SHUT_WR          1
+  #endif
+  #ifndef SD_SEND
+    #define SD_SEND          1
+  #endif
+
+  struct in_addr {
+      ULONG s_addr;
+  };
+  struct sockaddr {
+      USHORT sa_family;
+      CHAR   sa_data[14];
+  };
+  struct sockaddr_in {
+      SHORT  sin_family;
+      USHORT sin_port;
+      struct in_addr sin_addr;
+      CHAR   sin_zero[8];
+  };
+
+  typedef struct WSAData {
+      USHORT wVersion;
+      USHORT wHighVersion;
+      char   szDescription[257];
+      char   szSystemStatus[129];
+      USHORT iMaxSockets;
+      USHORT iMaxUdpDg;
+      char  *lpVendorInfo;
+  } WSADATA, *LPWSADATA;
+
+  #ifndef MAKEWORD
+    #define MAKEWORD(a, b) ((USHORT)(((BYTE)(a)) | ((BYTE)(b)) << 8))
+  #endif
+
+  #define WSAECONNREFUSED   10061
+  #define WSAECONNABORTED   10053
+  #define WSAECONNRESET     10054
+  #define WSANOTINITIALISED 10093
+
+  __declspec(dllimport) int __stdcall WSAStartup(USHORT wVersionRequested,
+                                                 LPWSADATA lpWSAData);
+  __declspec(dllimport) int __stdcall WSACleanup(void);
+  __declspec(dllimport) int __stdcall WSAGetLastError(void);
+
+
+  #define MAXGETHOSTSTRUCT 1024
+
+  struct hostent {
+      char  *h_name;
+      char **h_aliases;
+      short  h_addrtype;
+      short  h_length;
+      char **h_addr_list;
+  };
+  #define h_addr h_addr_list[0]
+
+  __declspec(dllimport) struct hostent * __stdcall gethostbyname(const char *name);
+
+  __declspec(dllimport) SOCKET __stdcall socket(int af, int type, int protocol);
+  __declspec(dllimport) int    __stdcall connect(SOCKET s,
+                                                 const struct sockaddr *name,
+                                                 int namelen);
+  __declspec(dllimport) int    __stdcall bind(SOCKET s,
+                                              const struct sockaddr *name,
+                                              int namelen);
+  __declspec(dllimport) int    __stdcall listen(SOCKET s, int backlog);
+  __declspec(dllimport) SOCKET __stdcall accept(SOCKET s,
+                                                struct sockaddr *addr,
+                                                int *addrlen);
+  __declspec(dllimport) int    __stdcall send(SOCKET s,
+                                              const char *buf, int len, int flags);
+  __declspec(dllimport) int    __stdcall recv(SOCKET s,
+                                              char *buf, int len, int flags);
+  __declspec(dllimport) int    __stdcall closesocket(SOCKET s);
+  __declspec(dllimport) int    __stdcall shutdown(SOCKET s, int how);
+  __declspec(dllimport) int    __stdcall setsockopt(SOCKET s, int level,
+                                                    int optname,
+                                                    const char *optval,
+                                                    int optlen);
+  __declspec(dllimport) USHORT __stdcall htons(USHORT hostshort);
+  __declspec(dllimport) ULONG  __stdcall htonl(ULONG hostlong);
+  __declspec(dllimport) USHORT __stdcall ntohs(USHORT netshort);
+  __declspec(dllimport) ULONG  __stdcall ntohl(ULONG netlong);
+  __declspec(dllimport) ULONG  __stdcall inet_addr(const char *cp);
+
 #ifdef __cplusplus
   }
 #endif
@@ -1055,6 +1236,41 @@ BOOL APIENTRY GpiEndElement(HPS);
 
 BOOL APIENTRY GpiQueryArcParams(HPS, PARCPARAMS);
 
+  /* ---------- PMWIN entry points ---------- */
+  HAB   APIENTRY WinInitialize(ULONG flOptions);
+  HMQ   APIENTRY WinCreateMsgQueue(HAB hab, LONG cMsg);
+  BOOL  APIENTRY WinDestroyMsgQueue(HMQ hmq);
+  BOOL  APIENTRY WinTerminate(HAB hab);
+  HPS   APIENTRY WinGetScreenPS(HWND hwndDesktop);
+  BOOL  APIENTRY WinReleasePS(HPS hps);
+
+  /* ---------- PM/GPI constants (Win32 fallback) ---------- */
+  #ifndef HWND_DESKTOP
+    #define HWND_DESKTOP     ((HWND)1)
+  #endif
+
+  #ifndef GPIA_ASSOC
+    #define GPIA_ASSOC       0x0001L
+  #endif
+
+  #ifndef DRO_FILL
+    #define DRO_FILL         1L
+    #define DRO_OUTLINE      2L
+    #define DRO_OUTLINEFILL  3L
+  #endif
+
+  #ifndef CLR_BLACK
+    #define CLR_BLACK       (-1L)
+    #define CLR_BACKGROUND     0L
+    #define CLR_BLUE           1L
+    #define CLR_RED            2L
+    #define CLR_PINK           3L
+    #define CLR_GREEN          4L
+    #define CLR_CYAN           5L
+    #define CLR_YELLOW         6L
+    #define CLR_NEUTRAL        7L
+    #define CLR_WHITE          0L
+  #endif
 
 #ifdef __cplusplus
   }

@@ -37,7 +37,7 @@ extern void log(const char *fmt, ...);
 #endif
 
 typedef void (PMCAPIENTRY *PMC_HANDLER)(void *obj, int ncmd, int data, int threadNum);
-typedef APIRET (PMCAPIENTRY *PMC_START_SRV)(void *handl);
+typedef APIRET (PMCAPIENTRY *PMC_START_SRV)(void *handl, void *disc_cb);
 typedef APIRET (PMCAPIENTRY *PMC_RECV_DATA)(void *recvobj, void *data, int *len, int maxlen);
 typedef APIRET (PMCAPIENTRY *PMC_SEND_DATA)(void *recvobj, void *data, int len);
 
@@ -63,6 +63,11 @@ static void SignalHandler(int sig)
 static void PMCAPIENTRY pm_handler(void *recvobj, int ncmd, int data, int threadNum)
 {
     g_server.HandleCommand(recvobj, ncmd, data, threadNum);
+}
+
+static void PMCAPIENTRY pm_disconnect(void *recvobj)
+{
+    g_server.HandleDisconnect(recvobj);
 }
 
 int main(int argc, char *argv[])
@@ -93,12 +98,11 @@ int main(int argc, char *argv[])
     rc = DosLoadModule(szFail, sizeof(szFail), (PSZ)"PMTCP", &hmod);
     if (rc) {
         log("PMSERVER: cannot load PMTCP.DLL, rc=%u\n", rc);
-        system("pause");
         return 1;
     }
 
     rc = DosQueryProcAddr(hmod, 3, 0, &pfn);
-    if (rc) { log("PMSERVER: missing ordinal 3\n");  system("pause"); return 1; }
+    if (rc) { log("PMSERVER: missing ordinal 3\n");  return 1; }
     pStartSrv = (PMC_START_SRV)pfn;
 
     {
@@ -106,11 +110,11 @@ int main(int argc, char *argv[])
         PMC_SEND_DATA pfnSend = NULL;
 
         rc = DosQueryProcAddr(hmod, 10, 0, &pfn);
-        if (rc) { log("PMSERVER: missing ordinal 10\n"); system("pause"); return 1; }
+        if (rc) { log("PMSERVER: missing ordinal 10\n"); return 1; }
         pfnRecv = (PMC_RECV_DATA)pfn;
 
         rc = DosQueryProcAddr(hmod, 11, 0, &pfn);
-        if (rc) { log("PMSERVER: missing ordinal 11\n"); system("pause"); return 1; }
+        if (rc) { log("PMSERVER: missing ordinal 11\n"); return 1; }
         pfnSend = (PMC_SEND_DATA)pfn;
 
         g_server.SetWire((Fs_PfnRecv)pfnRecv, (Fs_PfnSend)pfnSend);
@@ -120,9 +124,8 @@ int main(int argc, char *argv[])
 
     log("PMSERVER: monitor started, listening on port 9876\n");
 
-    rc = pStartSrv((void*)pm_handler);
+    rc = pStartSrv((void*)pm_handler, (void*)pm_disconnect);
     log("PMSERVER: _startServerThreads returned %u\n", rc);
 
-    system("pause");
     return (rc == 0) ? 0 : 1;
 }

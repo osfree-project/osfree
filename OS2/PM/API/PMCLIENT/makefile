@@ -15,7 +15,7 @@ SRCDIR  = $(MYDIR)..$(SEP)
 ADD_COPT += -bt=nt
 !endif
 
-ADD_COPT     += -i=$(SRCDIR) -i=$(SRCDIR)..$(SEP)..$(SEP)include -sg -of+ -bd -3s -bm
+ADD_COPT     += -i=$(SRCDIR) -i=$(SRCDIR)..$(SEP)..$(SEP)include -i=$(SRCDIR)..$(SEP)include  -sg -of+ -bd -3s -bm
 
 ADD_LINKOPT  = segment   type DATA nonshared
 NOLIBS       = 1

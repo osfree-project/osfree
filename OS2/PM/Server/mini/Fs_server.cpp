@@ -144,23 +144,30 @@ void Fs_Server::SendClientConfig(void *pRecvobj, Fs_ClientConnection *pConn)
 
 void Fs_Server::HandleClientConnect(void *pRecvobj)
 {
-    ULONG idNew = 0;
-    Fs_ClientConnection *pConn = m_clients.GetOrCreate(pRecvobj, &idNew);
-
-    if (!pConn) {
-        log("[SERVER] CONNECT: table full, rejecting %p\n", pRecvobj);
-        SendClientConfig(pRecvobj, NULL);   /* idClient=0 signals error */
+    /* Strict CONNECT: a recvobj may carry at most one session. If it
+       already has an Active session, reject. A client that lost its
+       transport must use RECONNECT (after the session transitions to
+       DETACHED via the disconnect notification), not a second CONNECT
+       on the same connection. */
+    Fs_ClientConnection *pExisting = m_clients.FindByRecvobj(pRecvobj);
+    if (pExisting) {
+        log("[SERVER] CONNECT: recvobj=%p already has session "
+            "idClient=%lu, rejecting\n",
+            pRecvobj, (unsigned long)pExisting->GetIdClient());
+        SendClientConfig(pRecvobj, NULL);   /* idClient=0 */
         return;
     }
 
-    if (idNew != 0) {
-        log("[SERVER] CONNECT: new session idClient=%lu recvobj=%p\n",
-            (unsigned long)idNew, pRecvobj);
-        m_fEverHadClient = TRUE;
-    } else {
-        log("[SERVER] CONNECT: existing session idClient=%lu recvobj=%p\n",
-            (unsigned long)pConn->GetIdClient(), pRecvobj);
+    ULONG idNew = 0;
+    Fs_ClientConnection *pConn = m_clients.GetOrCreate(pRecvobj, &idNew);
+    if (!pConn) {
+        log("[SERVER] CONNECT: table full, rejecting %p\n", pRecvobj);
+        SendClientConfig(pRecvobj, NULL);
+        return;
     }
+    log("[SERVER] CONNECT: new session idClient=%lu recvobj=%p\n",
+        (unsigned long)idNew, pRecvobj);
+    m_fEverHadClient = TRUE;
     pConn->Touch();
     SendClientConfig(pRecvobj, pConn);
 }
@@ -185,13 +192,12 @@ void Fs_Server::HandleClientReconnect(void *pRecvobj, ULONG idClient)
         return;
     }
 
-    if (pConn->IsActive() && pConn->GetRecvobj() != pRecvobj) {
-        /* Old connection still alive. In a proper system we'd have to
-           decide: refuse the new one, or kick the old one. For now,
-           refuse the new one — the old client may still be live. */
-        log("[SERVER] RECONNECT: idClient=%lu still ACTIVE on old recvobj=%p, "
-            "refusing new recvobj=%p\n",
-            (unsigned long)idClient, pConn->GetRecvobj(), pRecvobj);
+    if (pConn->IsActive()) {
+        /* Session is still ACTIVE. RECONNECT is only valid for a
+           DETACHED session (after the old socket is known dead). A
+           live session must not be taken over. */
+        log("[SERVER] RECONNECT: idClient=%lu still ACTIVE, rejecting\n",
+            (unsigned long)idClient);
         SendClientConfig(pRecvobj, NULL);
         return;
     }
@@ -212,6 +218,18 @@ void Fs_Server::HandleClientExit(Fs_ClientConnection *pConn)
     if (!pConn) return;
     log("[SERVER] EXIT: idClient=%lu\n", (unsigned long)pConn->GetIdClient());
     pConn->Shutdown();
+}
+
+void Fs_Server::HandleDisconnect(void *pRecvobj)
+{
+    Fs_ClientConnection *pConn = m_clients.FindByRecvobj(pRecvobj);
+
+    if (!pConn) return;
+    if (!pConn->IsActive()) return;
+
+    log("[SERVER] DISCONNECT: idClient=%lu recvobj=%p -> DETACHED\n",
+        (unsigned long)pConn->GetIdClient(), pRecvobj);
+    pConn->ToDetached(time(NULL));
 }
 
 /* ======================================================================== */
@@ -320,7 +338,7 @@ void Fs_Server::HandleCommand(void *pRecvobj, int ncmd, int data, int threadNum)
     log("[SERVER] IN  -> recvobj=%p, ncmd=0x%x, data=0x%x\n",
         pRecvobj, ncmd, data);
 
-    /* Lifecycle commands (do not require an existing session for CONNECT) */
+    /* Lifecycle commands (do not require an existing session) */
     switch (ncmd) {
     case F_CMD_CLIENT_CONNECT:
         HandleClientConnect(pRecvobj);
@@ -330,22 +348,15 @@ void Fs_Server::HandleCommand(void *pRecvobj, int ncmd, int data, int threadNum)
         return;
     }
 
-    /* All other commands need an ACTIVE session. Fallback: auto-create
-       (backward-compatible with a client that does not yet send CONNECT). */
     Fs_ClientConnection *pConn = m_clients.FindByRecvobj(pRecvobj);
+
+    /* Every remaining command requires an existing session. */
     if (!pConn) {
-        ULONG idNew = 0;
-        pConn = m_clients.GetOrCreate(pRecvobj, &idNew);
-        if (!pConn) {
-            log("[SERVER] ERROR: no session for recvobj=%p, cmd 0x%x dropped\n",
-                pRecvobj, ncmd);
-            return;
-        }
-        if (idNew != 0) {
-            log("[SERVER] auto-created session idClient=%lu (no CONNECT)\n",
-                (unsigned long)idNew);
-            m_fEverHadClient = TRUE;
-        }
+        ULONG err = (ULONG)-1;
+        log("[SERVER] ERROR: no session for recvobj=%p, cmd 0x%x, "
+            "returning error\n", pRecvobj, ncmd);
+        if (m_pfnSend) m_pfnSend(pRecvobj, &err, sizeof(err));
+        return;
     }
     pConn->Touch();
 
