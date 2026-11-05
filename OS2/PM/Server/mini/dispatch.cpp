@@ -841,7 +841,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
 
         ps = GpiPsCreate(NULL, a->flOptions);
         if (!ps) {
-            log("[PMSERVER] IN  : NGpiCreatePS (PS table full)\n");
+            log("[PMSERVER] IN  : NGpiCreatePS -> GPI_ERROR (no free slot)\n");
             return (ULONG)GPI_ERROR;
         }
 

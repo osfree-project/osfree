@@ -15,20 +15,12 @@
 #include <signal.h>
 
 #include "F_platform.h"
-#include "F_config.hpp"
+#include "F_config.h"
 #include "F_cmd.h"
 #include "Fs_config.hpp"
 #include "Fs_server.hpp"
 
 extern void log(const char *fmt, ...);
-
-#ifndef FREEPM_MUTEX_NAME
-  #if defined(__OS2__) || defined(__OS2V2__)
-    #define FREEPM_MUTEX_NAME "\\SEM32\\_FREE_PM"
-  #else
-    #define FREEPM_MUTEX_NAME "Global\\_FREE_PM"
-  #endif
-#endif
 
 #if defined(__OS2__) || defined(__OS2V2__)
 #define PMCAPIENTRY _System

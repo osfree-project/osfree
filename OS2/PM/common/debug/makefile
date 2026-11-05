@@ -27,13 +27,17 @@ EXPORTS      =  F_DbgInit        .1, &
                 F_DbgRotate      .3, &
                 F_DbgSetWireSink .4, &
                 F_DbgPrint       .5, &
-                F_DbgTrace       .6, &
+#                F_DbgTrace       .6, &
                 F_DbgFatal       .7, &
                 F_DbgFatalf      .8, &
                 F_DbgAssert      .9, &
                 F_DbgCtxEnter    .10, &
                 F_DbgCtxExit     .11, &
-                F_DbgSetShuttingDown .12
+                F_DbgSetShuttingDown .12, &
+                F_DbgSetConfig   .13, &
+                F_DbgFlush       .14, &
+                F_DbgCtxEnterf   .15, &
+                F_DbgCtxExitf    .16
 
 !include $(%ROOT)tools/mk/build.mk
 

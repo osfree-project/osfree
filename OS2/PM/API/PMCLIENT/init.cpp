@@ -31,46 +31,9 @@
 
 #include "F_platform.h"
 #include "Fc_config.hpp"
-#include "F_config.hpp"
+#include "F_config.h"
 #include "F_cmd.h"
-
-/*! @def PMC_DEBUG
-    @brief Enable (1) or disable (0) debug logging. */
-#ifndef PMC_DEBUG
-#define PMC_DEBUG 1
-#endif
-
-#if PMC_DEBUG
-/*! @brief Print a debug message to stderr and OutputDebugString.
-
-    @param [in] fmt  printf-style format string.
-    @param [in] ...  Arguments for the format string. */
-static void PMC_Dbg(const char *fmt, ...)
-{
-    char buf[512];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(buf, sizeof(buf), fmt, args);
-    va_end(args);
-#if defined(__WIN32__) || defined(_WIN32)
-    OutputDebugStringA(buf);
-#endif
-    printf("%s", buf);
-    fflush(stdout);
-}
-
-/*! @brief Print a debug message followed by a human-readable OS error.
-
-    @param [in] func  Name of the failed function.
-    @param [in] err   OS error code (GetLastError or APIRET). */
-static void PMC_DbgError(const char *func, int err)
-{
-    PMC_Dbg("PMC: %s failed: 0x%x\n", func, err);
-}
-#else
-#define PMC_Dbg(...) do {} while(0)
-#define PMC_DbgError(func, err) do {} while(0)
-#endif
+#include "F_debug.h"
 
 /* ---- Backend function pointers (resolved at load) ----
    On OS/2 APIENTRY (_System) is a real type modifier and is valid in
@@ -152,10 +115,15 @@ static int ExecuteFreePMServer(void)
     char        szFail[256];
     APIRET      rc;
 
-    PMC_Dbg("PMC: ExecuteFreePMServer (PMSERVER.EXE)\n");
+    F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+               "PMC: ExecuteFreePMServer (PMSERVER.EXE)");
     rc = DosExecPgm(szFail, sizeof(szFail), EXEC_BACKGROUND,
                     (PSZ)"PMSERVER.EXE", NULL, &rcode, (PSZ)"PMSERVER.EXE");
-    if (rc != 0) { PMC_DbgError("DosExecPgm", (int)rc); return -1; }
+    if (rc != 0) {
+        F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
+                   "PMC: DosExecPgm failed: 0x%x", (int)rc);
+        return -1;
+    }
     return 0;
 }
 
@@ -164,7 +132,8 @@ static int LocalServerRunning(void)
     HMTX     hmtx = NULL;
     APIRET   rc = DosOpenMutexSem((PSZ)FREEPM_MUTEX_NAME, &hmtx);
     if (rc == 0) DosCloseMutexSem(hmtx);
-    PMC_Dbg("PMC: LocalServerRunning mutex rc=%u\n", rc);
+    F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+               "PMC: LocalServerRunning mutex rc=%u", rc);
     return (rc == 0);
 }
 
@@ -176,12 +145,19 @@ static int PMC_ClientConnect(void)
 {
     APIRET rc;
     LONG   len = 0;
+    int    ctx;
 
-    PMC_Dbg("PMC: sending F_CMD_CLIENT_CONNECT\n");
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+                         "PMC: ClientConnect");
+
+    F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+               "PMC: sending F_CMD_CLIENT_CONNECT");
 
     rc = pfnSendCmdToServer(client_obj, F_CMD_CLIENT_CONNECT, 0);
     if (rc != 0) {
-        PMC_Dbg("PMC: F_CMD_CLIENT_CONNECT send failed rc=%u\n", rc);
+        F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
+                   "PMC: F_CMD_CLIENT_CONNECT send failed rc=%u", rc);
+        F_DbgCtxExitf(ctx, "send failed rc=%u", rc);
         return -1;
     }
 
@@ -189,22 +165,26 @@ static int PMC_ClientConnect(void)
     rc = pfnRecvDataFromServer(client_obj, &g_clientConfig, &len,
                                sizeof(g_clientConfig));
     if (rc != 0 || len != (LONG)sizeof(g_clientConfig)) {
-        PMC_Dbg("PMC: CONNECT reply read failed rc=%u, len=%d\n",
-                rc, (int)len);
+        F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
+                   "PMC: CONNECT reply read failed rc=%u, len=%d",
+                   rc, (int)len);
+        F_DbgCtxExitf(ctx, "reply read failed rc=%u, len=%d", rc, (int)len);
         return -1;
     }
 
     if (g_clientConfig.idClient == 0) {
-        PMC_Dbg("PMC: CONNECT rejected by server (idClient=0)\n");
+        F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
+                   "PMC: CONNECT rejected by server (idClient=0)");
+        F_DbgCtxExitf(ctx, "rejected (idClient=0)");
         return -1;
     }
 
-    PMC_Dbg("PMC: CONNECT ok, idClient=%lu, ulInactive=%lu, ulGrace=%lu, "
-            "flConfig=0x%lx\n",
-            (unsigned long)g_clientConfig.idClient,
-            (unsigned long)g_clientConfig.ulInactive,
-            (unsigned long)g_clientConfig.ulGrace,
-            (unsigned long)g_clientConfig.flConfig);
+    F_DbgCtxExitf(ctx,
+                  "ok idClient=%lu, ulInactive=%lu, ulGrace=%lu, flConfig=0x%lx",
+                  (unsigned long)g_clientConfig.idClient,
+                  (unsigned long)g_clientConfig.ulInactive,
+                  (unsigned long)g_clientConfig.ulGrace,
+                  (unsigned long)g_clientConfig.flConfig);
     return 0;
 }
 
@@ -229,7 +209,8 @@ static void OnTransportError(void)
     UnlockState();
 
     if (start) {
-        PMC_Dbg("PMC: transport error, starting reconnect\n");
+        F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
+                   "PMC: transport error, starting reconnect");
         StartReconnect();
     }
 }
@@ -251,6 +232,11 @@ static unsigned long __stdcall ReconnectThreadProc(void *param)
     APIRET rc;
     ULONG  newobj;
     LONG   len;
+    int    ctx;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+                         "PMC: ReconnectThreadProc(idClient=%lu)",
+                         (unsigned long)idClient);
 
     LockState();
     grace = g_clientConfig.ulGrace;
@@ -283,8 +269,8 @@ static unsigned long __stdcall ReconnectThreadProc(void *param)
                     g_fConnected   = TRUE;
                     g_fReconnecting = FALSE;
                     UnlockState();
-                    PMC_Dbg("PMC: reconnect ok, idClient=%lu\n",
-                            (unsigned long)idClient);
+                    F_DbgCtxExitf(ctx, "reconnect ok idClient=%lu",
+                                  (unsigned long)idClient);
 #if !(defined(__OS2__) || defined(__OS2V2__))
                     return 0;
 #else
@@ -301,7 +287,7 @@ static unsigned long __stdcall ReconnectThreadProc(void *param)
     g_fReconnecting = FALSE;
     client_obj     = 0;
     UnlockState();
-    PMC_Dbg("PMC: reconnect failed or grace expired\n");
+    F_DbgCtxExitf(ctx, "grace expired");
 
 #if !(defined(__OS2__) || defined(__OS2V2__))
     return 0;
@@ -326,7 +312,8 @@ static void StartReconnect(void)
         int thrc = _beginthread(ReconnectThreadProc, NULL, 65536,
                                 (void *)idClient);
         if (thrc == -1) {
-            PMC_Dbg("PMC: _beginthread for reconnect failed\n");
+            F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
+                       "PMC: _beginthread for reconnect failed");
             LockState();
             g_fReconnecting = FALSE;
             UnlockState();
@@ -335,7 +322,8 @@ static void StartReconnect(void)
 #else
     if (CreateThread(NULL, 0, ReconnectThreadProc,
                      (void *)idClient, 0, NULL) == NULL) {
-        PMC_Dbg("PMC: CreateThread for reconnect failed\n");
+        F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
+                   "PMC: CreateThread for reconnect failed");
         LockState();
         g_fReconnecting = FALSE;
         UnlockState();
@@ -359,8 +347,9 @@ static unsigned long __stdcall KeepaliveProc(void *param)
     ULONG pingSec = g_clientConfig.ulInactive / 2;
     if (pingSec < 5) pingSec = 5;
 
-    PMC_Dbg("PMC: keepalive thread started (ping every %lu sec)\n",
-            (unsigned long)pingSec);
+    F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+               "PMC: keepalive thread started (ping every %lu sec)",
+               (unsigned long)pingSec);
 
     while (g_fKeepaliveRun) {
         ULONG obj = 0;
@@ -415,15 +404,27 @@ extern "C" APIRET EXPENTRY PmcPostCommand(ULONG ulCommand, ULONG ulData)
 {
     APIRET rc;
     ULONG  obj;
+    int    ctx;
 
-    if (!pfnSendCmdToServer) return (APIRET)-1;
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+                         "PMC: PmcPostCommand(cmd=0x%lx, data=0x%lx)",
+                         (unsigned long)ulCommand, (unsigned long)ulData);
+
+    if (!pfnSendCmdToServer) {
+        F_DbgCtxExitf(ctx, "no backend");
+        return (APIRET)-1;
+    }
     LockState();
     obj = client_obj;
     UnlockState();
-    if (obj == 0) return (APIRET)-1;
+    if (obj == 0) {
+        F_DbgCtxExitf(ctx, "not connected");
+        return (APIRET)-1;
+    }
 
     rc = pfnSendCmdToServer(obj, ulCommand, ulData);
     if (rc != 0) OnTransportError();
+    F_DbgCtxExitf(ctx, "rc=0x%lx", (unsigned long)rc);
     return rc;
 }
 
@@ -431,15 +432,27 @@ extern "C" APIRET EXPENTRY PmcSendData(PVOID pvData, LONG cbData)
 {
     APIRET rc;
     ULONG  obj;
+    int    ctx;
 
-    if (!pfnSendDataToServer) return (APIRET)-1;
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+                         "PMC: PmcSendData(data=%p, cbData=%ld)",
+                         pvData, (long)cbData);
+
+    if (!pfnSendDataToServer) {
+        F_DbgCtxExitf(ctx, "no backend");
+        return (APIRET)-1;
+    }
     LockState();
     obj = client_obj;
     UnlockState();
-    if (obj == 0) return (APIRET)-1;
+    if (obj == 0) {
+        F_DbgCtxExitf(ctx, "not connected");
+        return (APIRET)-1;
+    }
 
     rc = pfnSendDataToServer(obj, pvData, cbData);
     if (rc != 0) OnTransportError();
+    F_DbgCtxExitf(ctx, "rc=0x%lx", (unsigned long)rc);
     return rc;
 }
 
@@ -455,15 +468,31 @@ extern "C" APIRET EXPENTRY PmcGetData(PVOID pvBuffer, PLONG pcbReceived, LONG cb
 {
     APIRET rc;
     ULONG  obj;
+    int    ctx;
 
-    if (!pfnRecvDataFromServer) return (APIRET)-1;
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+                         "PMC: PmcGetData(buffer=%p, cbBuffer=%ld)",
+                         pvBuffer, (long)cbBuffer);
+
+    if (!pfnRecvDataFromServer) {
+        F_DbgCtxExitf(ctx, "no backend");
+        return (APIRET)-1;
+    }
     LockState();
     obj = client_obj;
     UnlockState();
-    if (obj == 0) return (APIRET)-1;
+    if (obj == 0) {
+        F_DbgCtxExitf(ctx, "not connected");
+        return (APIRET)-1;
+    }
 
     rc = pfnRecvDataFromServer(obj, pvBuffer, pcbReceived, cbBuffer);
-    if (rc != 0) OnTransportError();
+    if (rc != 0) {
+        OnTransportError();
+        F_DbgCtxExitf(ctx, "Recv failed rc=0x%lx", (unsigned long)rc);
+        return rc;
+    }
+    F_DbgCtxExitf(ctx, "rc=0, received=%ld", (long)*pcbReceived);
     return rc;
 }
 
@@ -478,15 +507,27 @@ extern "C" APIRET EXPENTRY PmcSendCommand(ULONG ulCommand, ULONG ulParameter)
 {
     APIRET rc;
     ULONG  obj;
+    int    ctx;
 
-    if (!pfnSendGenCmdToServer) return (APIRET)-1;
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+                         "PMC: PmcSendCommand(cmd=0x%lx, par=0x%lx)",
+                         (unsigned long)ulCommand, (unsigned long)ulParameter);
+
+    if (!pfnSendGenCmdToServer) {
+        F_DbgCtxExitf(ctx, "no backend");
+        return (APIRET)-1;
+    }
     LockState();
     obj = client_obj;
     UnlockState();
-    if (obj == 0) return (APIRET)-1;
+    if (obj == 0) {
+        F_DbgCtxExitf(ctx, "not connected");
+        return (APIRET)-1;
+    }
 
     rc = pfnSendGenCmdToServer(obj, ulCommand, ulParameter);
     if (rc == (APIRET)-1) OnTransportError();
+    F_DbgCtxExitf(ctx, "rc=0x%lx", (unsigned long)rc);
     return rc;
 }
 
@@ -504,15 +545,28 @@ extern "C" APIRET EXPENTRY PmcSendCommandData(ULONG ulCommand, ULONG ulParameter
 {
     APIRET rc;
     ULONG  obj;
+    int    ctx;
 
-    if (!pfnSendGenCmdDataToServer) return (APIRET)-1;
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+                         "PMC: PmcSendCommandData(cmd=0x%lx, par=0x%lx, data=%p, cbData=%ld)",
+                         (unsigned long)ulCommand, (unsigned long)ulParameter,
+                         pvData, (long)cbData);
+
+    if (!pfnSendGenCmdDataToServer) {
+        F_DbgCtxExitf(ctx, "no backend");
+        return (APIRET)-1;
+    }
     LockState();
     obj = client_obj;
     UnlockState();
-    if (obj == 0) return (APIRET)-1;
+    if (obj == 0) {
+        F_DbgCtxExitf(ctx, "not connected");
+        return (APIRET)-1;
+    }
 
     rc = pfnSendGenCmdDataToServer(obj, ulCommand, ulParameter, pvData, cbData);
     if (rc == (APIRET)-1) OnTransportError();
+    F_DbgCtxExitf(ctx, "rc=0x%lx", (unsigned long)rc);
     return rc;
 }
 
@@ -534,16 +588,21 @@ static int PMC_ServerInit(void)
     char  *serverName;
     APIRET rc;
     int    startRc;
+    int    ctx;
 
-    PMC_Dbg("PMC: PMC_ServerInit started\n");
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+                         "PMC: ServerInit");
 
     if (DosCreateMutexSem(NULL, &g_hmtxState, 0, FALSE) != 0) {
-        PMC_Dbg("PMC: DosCreateMutexSem failed\n");
+        F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
+                   "PMC: DosCreateMutexSem failed");
         g_hmtxState = NULL;
+        F_DbgCtxExitf(ctx, "DosCreateMutexSem failed");
         return 0;
     }
 
     FPM_config.Read("fpm.ini");
+    F_DbgSetLevels(FPM_config.debugOptions);
 
     if (DosScanEnv((PSZ)"PM_COMM_BACKEND", &pszValue) == 0 && pszValue != NULL)
         strncpy(szBackend, pszValue, sizeof(szBackend) - 1);
@@ -557,18 +616,45 @@ static int PMC_ServerInit(void)
 #endif
     }
     szBackend[sizeof(szBackend) - 1] = 0;
-    PMC_Dbg("PMC: Backend selected = %s\n", szBackend);
+    F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+               "PMC: Backend selected = %s", szBackend);
 
     rc = DosLoadModule(NULL, 0, szBackend, &hmodBE);
-    if (rc) { PMC_DbgError("DosLoadModule", (int)rc); return 0; }
+    if (rc) {
+        F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
+                   "PMC: DosLoadModule failed: 0x%x", (int)rc);
+        F_DbgCtxExitf(ctx, "DosLoadModule failed rc=0x%x", (int)rc);
+        return 0;
+    }
 
-    if (ResolveProc(hmodBE, 1, (void **)&pfnInitServerConnection))   return 0;
-    if (ResolveProc(hmodBE, 2, (void **)&pfnCloseServerConnection))  return 0;
-    if (ResolveProc(hmodBE, 4, (void **)&pfnSendCmdToServer))        return 0;
-    if (ResolveProc(hmodBE, 5, (void **)&pfnSendDataToServer))       return 0;
-    if (ResolveProc(hmodBE, 6, (void **)&pfnRecvDataFromServer))     return 0;
-    if (ResolveProc(hmodBE, 7, (void **)&pfnSendGenCmdToServer))     return 0;
-    if (ResolveProc(hmodBE, 8, (void **)&pfnSendGenCmdDataToServer)) return 0;
+    if (ResolveProc(hmodBE, 1, (void **)&pfnInitServerConnection)) {
+        F_DbgCtxExitf(ctx, "ResolveProc(1) failed");
+        return 0;
+    }
+    if (ResolveProc(hmodBE, 2, (void **)&pfnCloseServerConnection)) {
+        F_DbgCtxExitf(ctx, "ResolveProc(2) failed");
+        return 0;
+    }
+    if (ResolveProc(hmodBE, 4, (void **)&pfnSendCmdToServer)) {
+        F_DbgCtxExitf(ctx, "ResolveProc(4) failed");
+        return 0;
+    }
+    if (ResolveProc(hmodBE, 5, (void **)&pfnSendDataToServer)) {
+        F_DbgCtxExitf(ctx, "ResolveProc(5) failed");
+        return 0;
+    }
+    if (ResolveProc(hmodBE, 6, (void **)&pfnRecvDataFromServer)) {
+        F_DbgCtxExitf(ctx, "ResolveProc(6) failed");
+        return 0;
+    }
+    if (ResolveProc(hmodBE, 7, (void **)&pfnSendGenCmdToServer)) {
+        F_DbgCtxExitf(ctx, "ResolveProc(7) failed");
+        return 0;
+    }
+    if (ResolveProc(hmodBE, 8, (void **)&pfnSendGenCmdDataToServer)) {
+        F_DbgCtxExitf(ctx, "ResolveProc(8) failed");
+        return 0;
+    }
 
     if (FPM_config.ExternMachineName[0])
         serverName = &FPM_config.ExternMachineName[0];
@@ -577,27 +663,33 @@ static int PMC_ServerInit(void)
 
     if (serverName == NULL && !LocalServerRunning())
     {
-        PMC_Dbg("PMC: Local server not running, attempting to start...\n");
+        F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+                   "PMC: Local server not running, attempting to start...");
         startRc = ExecuteFreePMServer();
         if (startRc == 0) {
             DosSleep(1000);
         } else {
-            PMC_Dbg("PMC: Failed to start PMSERVER.EXE.\n");
+            F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
+                       "PMC: Failed to start PMSERVER.EXE.");
         }
     }
 
     rc = pfnInitServerConnection(serverName, &client_obj,
                                  (void *)PMC_ShutdownCallback);
     if (rc) {
-        PMC_Dbg("PMC: pfnInitServerConnection rc=0x%x\n", rc);
+        F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
+                   "PMC: pfnInitServerConnection rc=0x%x", rc);
+        F_DbgCtxExitf(ctx, "InitServerConnection rc=0x%x", rc);
         return 0;
     }
 
     /* NEW: client handshake */
     if (PMC_ClientConnect() != 0) {
-        PMC_Dbg("PMC: CONNECT failed, aborting init\n");
+        F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
+                   "PMC: CONNECT failed, aborting init");
         pfnCloseServerConnection();
         client_obj = 0;
+        F_DbgCtxExitf(ctx, "CONNECT failed");
         return 0;
     }
 
@@ -614,7 +706,8 @@ static int PMC_ServerInit(void)
        invokes PMC_ShutdownCallback from its own DllMain(DETACH),
        when both DLLs are still alive. */
 
-    PMC_Dbg("PMC: ServerInit completed\n");
+    F_DbgCtxExitf(ctx, "Success (idClient=%lu)",
+                  (unsigned long)g_clientConfig.idClient);
     return 1;
 }
 
@@ -630,10 +723,13 @@ static void APIENTRY PMC_ShutdownCallback(void)
     ULONG  obj;
     ULONG  idc;
 
+    F_DbgSetShuttingDown(1);
+
     if (g_fTerminated) return;
     g_fTerminated = TRUE;
 
-    PMC_Dbg("PMC: PMC_ShutdownCallback (from PMTCP DETACH)\n");
+    F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+               "PMC: PMC_ShutdownCallback (from PMTCP DETACH)");
 
     StopKeepalive();
 
@@ -643,7 +739,8 @@ static void APIENTRY PMC_ShutdownCallback(void)
     if (obj != 0 && g_fConnected && pfnSendCmdToServer) {
         UnlockState();
         rc = pfnSendCmdToServer(obj, F_CMD_CLIENT_EXIT, idc);
-        PMC_Dbg("PMC: EXIT sent (rc=0x%lx)\n", (unsigned long)rc);
+        F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+                   "PMC: EXIT sent (rc=0x%lx)", (unsigned long)rc);
         LockState();
         g_fConnected = FALSE;
     }
@@ -658,10 +755,13 @@ static void APIENTRY PMC_ShutdownCallback(void)
     the callback). Performs state-only cleanup; never calls pfn*. */
 static void PMC_ServerTerm(void)
 {
+    F_DbgSetShuttingDown(1);
+
     if (g_fTerminated) return;
     g_fTerminated = TRUE;
 
-    PMC_Dbg("PMC: PMC_ServerTerm started\n");
+    F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+               "PMC: PMC_ServerTerm started");
 
     StopKeepalive();
 
@@ -672,7 +772,8 @@ static void PMC_ServerTerm(void)
 
     client_obj = 0;
     hmodBE = 0;
-    PMC_Dbg("PMC: ServerTerm completed\n");
+    F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+               "PMC: ServerTerm completed");
 }
 
 /* ======================================================================== */

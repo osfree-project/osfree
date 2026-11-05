@@ -1,0 +1,400 @@
+﻿# Уточнённая спецификация и план (версия 2)
+
+Правок не вносил. Учтены все Ваши уточнения. Принял к работе правило: **перед правкой любого файла — запрашивать его текущее содержимое**.
+
+---
+
+## Исправления к предыдущей версии
+
+| Что было | Что стало |
+|---|---|
+| `ctx` без counter/timestamp | `ctx` **с** counter/timestamp, как обычное сообщение |
+| Отдельный `syslogLevel` | Один общий `thresholdLevel` для всех каналов |
+| `F_DbgTrace` — отдельная функция | Убрана. Всё через `F_DbgPrint` с высоким `level` |
+| PMTCP = 32, PMCLIENT = 33 | PMTCP **ниже** PMCLIENT и **шумнее** — переставлены |
+| TLS через абстракцию `CtxGetTls` | `DosAllocThreadLocalMemory` напрямую; на не-OS/2 эмулируется в `F_platform.h` |
+| Bootstrap-каналы `PMC_Dbg` / `PMTCP_Dbg` | **Убраны.** Единая система в PMDEBUG.DLL, `F_DbgInit` вызывается сразу |
+| Порядок миграции: ядро → сервер → клиент → PMTCP | **PMDEBUG → PMTCP → PMCLIENT(+pmserver ACK) → PMGPI** |
+
+---
+
+# Часть I. Спецификация
+
+## 1. Архитектура
+
+**Единственная реализация — PMDEBUG.DLL.** Все остальные бинари (PMSERVER.EXE, PMCLIENT.DLL, PMTCP.DLL, PMGPI) линкуются с ней и вызывают `F_DbgPrint` / `F_DbgCtxEnterf` / `F_DbgCtxExitf` / `F_DbgFatal`.
+
+```
+PMSERVER.EXE ─┐
+PMCLIENT.DLL ─┼──► PMDEBUG.DLL ──► файл / stderr / syslog / wire
+PMTCP.DLL ────┤
+PMGPI ────────┘
+```
+
+`F_DbgInit` вызывается **из DllMain(ATTACH) самой PMDEBUG.DLL** с дефолтной конфигурацией (из кода). К моменту, когда PMDEBUG вернула управление загрузчику, mutex создан, файл открыт (если путь задан по умолчанию), stderr готов. Модули, загружающиеся **после** PMDEBUG (а все остальные загружаются после, так как PMDEBUG — их зависимость), сразу имеют работающий `F_DbgPrint`.
+
+Позже загружающий процесс читает свой `fpmsrv.ini` / `fpm.ini` и **переопределяет** конфигурацию через `F_DbgSetConfig`. Wire sink поднимается процессом, когда транспорт готов.
+
+**Параллельных систем нет:**
+- `PMC_Dbg` — удалить.
+- `PMTCP_Dbg` — удалить.
+- `GocaTrace` / `GocaCallEnter` / `GocaCallResult` — заменить на `F_DbgCtxEnterf` / `F_DbgCtxExitf`.
+- `unimpl.cpp::_db_print` / `log_init` / `DosLogWrite` — удалить; `log()` идёт через `F_DbgPrint`.
+- Своя `F_debug.cpp` в PMTCP — удалить.
+- Всякий `fprintf(stderr, ...)` / `printf` вне `F_debug.cpp` — удалить.
+
+## 2. Модель сообщения
+
+| Ось | Значения | Где задаётся |
+|---|---|---|
+| `section` | `F_DBG_SEC_*` из `F_config.h` | На месте вызова |
+| `level` | 0..10 | На месте вызова |
+| `kind` | `PRINT`/`WARNING`/`IGNORING`/`FATAL` | На месте вызова |
+| `ctx` | 0..`F_DBG_CTX_MAX` | `F_DbgCtxEnterf` / `Exitf`, per-thread |
+
+**Фильтр:** `level <= F_DbgLevels[section]`. `F_DbgLevels[section] == -1` — отбрасывается всё. `section` вне `[0, 64)` — отбрасывается.
+
+**Единый порог `thresholdLevel`** определяет, идёт ли сообщение в каналы. Если `level > thresholdLevel` — не идёт ни в файл, ни в stderr, ни в syslog, ни в wire. `F_DbgLevels[section]` фильтрует раньше — до порога.
+
+## 3. API
+
+```c
+struct F_DbgConfig {
+    const char *logfile;
+    int         rotateNumber;
+    int         rotateSize;
+    int         buffered;
+    int         ansiColor;
+    int         beepOnFatal;
+    int         useSyslog;
+    int         thresholdLevel;   /* единый порог для всех каналов */
+};
+
+void APIENTRY F_DbgInit(const F_DbgConfig *cfg, const char *levels);
+void APIENTRY F_DbgSetConfig(const F_DbgConfig *cfg);   /* [новое] переопределение из ini */
+void APIENTRY F_DbgSetLevels(const char *levels);
+void APIENTRY F_DbgRotate(void);
+void APIENTRY F_DbgFlush(void);
+
+void APIENTRY F_DbgPrint(int section, int level, const char *fmt, ...);
+void APIENTRY F_DbgPrintKind(int section, int level, F_DbgKind kind,
+                             const char *fmt, ...);
+
+int  APIENTRY F_DbgCtxEnterf(int section, int level, const char *fmt, ...);
+void APIENTRY F_DbgCtxExitf(int ctx, const char *fmt, ...);
+int  APIENTRY F_DbgCtxEnter(const char *descr);
+void APIENTRY F_DbgCtxExit(int ctx);
+
+void APIENTRY F_DbgFatal(const char *msg);
+void APIENTRY F_DbgFatalf(const char *fmt, ...);
+void APIENTRY F_DbgAssert(const char *msg, const char *file, int line);
+void APIENTRY F_DbgSetShuttingDown(int flag);
+
+typedef void (F_DBG_WIRE_CALLBACK *F_DbgWireSink)(
+    F_DbgKind kind, int section, int level, const char *msg);
+void APIENTRY F_DbgSetWireSink(F_DbgWireSink sink);
+```
+
+`F_DbgTrace` **убрана**.
+
+## 4. Формат (все строки одинаковые)
+
+| Тип | Формат |
+|---|---|
+| Обычное | `<counter> <YYYY/MM/DD HH:MM:SS>\|<msg>\n` |
+| FATAL | `<counter> <YYYY/MM/DD HH:MM:SS>\|FATAL: <msg>\n` |
+| ctx enter | `<counter> <YYYY/MM/DD HH:MM:SS>\|ctx: enter level <N>: '<descr>'\n` |
+| ctx exit | `<counter> <YYYY/MM/DD HH:MM:SS>\|ctx: exit  level <N>: '<descr> -> <result>'\n` |
+
+**`ctx`-строки имеют counter и timestamp, как обычные сообщения.** Единственное отличие — текст `ctx: enter/exit` вместо `<msg>`. Все строки в логе — одного формата.
+
+## 5. Контекст
+
+- **Per-thread.** `DosAllocThreadLocalMemory` (см. §7).
+- Стек: `char s_ctxDescr[F_DBG_CTX_MAX][F_DBG_CTX_MAX_LEN]` в TLS-памяти.
+- `F_DBG_CTX_MAX = 32`, `F_DBG_CTX_MAX_LEN = 256`.
+- **Eager с фильтром.** `Enterf`/`Exitf` печатают сразу, если `level <= threshold`. Иначе — `-1` / no-op.
+- `F_DbgFatal` **печатает ctx-prelude** (весь активный стек), затем `FATAL:`.
+- `F_CMD_CTX_OPEN` от клиента → `F_DbgCtxEnterf` в потоке клиента. `F_CMD_CTX_CLOSE` → `F_DbgCtxExit(-1)`.
+- `Fs_Server::HandleDisconnect` → `F_DbgCtxExit(-1)`.
+
+## 6. Wire
+
+| Команда | Opcode | Payload |
+|---|---|---|
+| `F_CMD_DB_PRINT` | `0x0064` | `struct FDBG_WIRE { int section; int level; int kind; int cbText; char text[cbText]; }` |
+| `F_CMD_FATAL_COMMON` | `0x0065` | то же, kind=FATAL |
+| `F_CMD_CTX_OPEN` | `0x0066` | `struct FDBG_CTX_OPEN { int section; int level; int cbDescr; char descr[cbDescr]; }` |
+| `F_CMD_CTX_CLOSE` | `0x0067` | пусто |
+
+**`section` и `level` от клиента передаются на сервер.** Сервер пишет клиентское сообщение под клиентской секцией и с клиентским `level`, что позволяет клиенту управлять детализацией через `fpm.ini` и видеть это в `server.log`.
+
+`F_DbgKind` расширяется: `F_DBG_KIND_CTX_OPEN`, `F_DBG_KIND_CTX_CLOSE`. Wire sink вызывается для ctx-строк тоже — клиентский wire sink их отправляет как `F_CMD_CTX_OPEN/CLOSE`.
+
+## 7. TLS — `DosAllocThreadLocalMemory` напрямую
+
+`F_debug.cpp` использует **`DosAllocThreadLocalMemory`** (не обёртку):
+
+```c
+static ULONG s_ctxTls[1];   /* 1 word = 1 per-thread pointer */
+
+/* в F_DbgInit: */
+DosAllocThreadLocalMemory(1, s_ctxTls);
+
+/* получить текущий стек: */
+DBG_CTX_STACK *p = (DBG_CTX_STACK *)(ULONG_PTR)*s_ctxTls;
+```
+
+На OS/2 — `DosAllocThreadLocalMemory` из `<os2.h>`. На других платформах **`F_platform.h`** эмулирует её так же, как остальные `Dos*`-функции:
+
+```c
+/* F_platform.h, не-OS/2 ветка */
+static inline APIRET DosAllocThreadLocalMemory(ULONG cWords, PULONG pWords)
+{
+    DWORD idx = TlsAlloc();
+    if (idx == TLS_OUT_OF_INDEXES) return 1;
+    *pWords = idx;
+    return 0;
+}
+static inline APIRET DosFreeThreadLocalMemory(PULONG pWords)
+{
+    return TlsFree(*pWords) ? 0 : 1;
+}
+static inline PVOID DosThreadLocalMemory(PULONG pWords)
+{
+    return TlsGetValue(*pWords);
+}
+static inline void DosSetThreadLocalMemory(PULONG pWords, PVOID v)
+{
+    TlsSetValue(*pWords, v);
+}
+```
+
+Для OS/2 `DosThreadLocalMemory` / `DosSetThreadLocalMemory` определяются в `F_debug.cpp` через разыменование (`*(PVOID *)s_ctxTls`). Различие — только в аксессоре. `F_platform.h` — единая точка для эмуляции.
+
+## 8. Секции (в `F_config.h`)
+
+Порядок сверху вниз — от ядра к транспорту; PMTCP ниже PMCLIENT и шумнее.
+
+| # | Модуль | Слой |
+|---|---|---|
+| 0 | PMDEBUG ядро | — |
+| 1 | PMSERVER main | сервер |
+| 2 | Fs_Server | сервер |
+| 3 | Fs_ClientList | сервер |
+| 4 | Fs_config | сервер |
+| 5 | dispatch | сервер |
+| 6 | GOCA emit | сервер |
+| 7 | GOCA parse | сервер |
+| 8 | GRE | сервер |
+| 9 | GPI PS (server) | сервер |
+| 10–15 | Серверные подсистемы | сервер |
+| 20 | GPI dispatch (client) | PMGPI |
+| 21 | GPI proxies | PMGPI |
+| 22 | GPI manual | PMGPI |
+| 23 | GPI PS (client) | PMGPI |
+| 24 | GPI unimpl | PMGPI |
+| 25 | GPI wire sink (outgoing) | PMGPI |
+| 30 | PMCLIENT (init, connect, reconnect, keepalive) | PMCLIENT |
+| 31 | PMCLIENT wire sink (outgoing) | PMCLIENT |
+| 32 | Приём от клиента (DB_PRINT, FATAL, CTX) | сервер |
+| 33 | `log()` агрегат | сервер |
+| **40** | **PMTCP** (транспорт, шумный) | **PMTCP** |
+| **41** | **PMTCP wire** (recv/send на сокете) | **PMTCP** |
+| 50+ | резерв | — |
+
+PMTCP на 40–41 — намеренно отдельно и «выше» клиентских, отражая «ниже по стеку и шумнее».
+
+## 9. FATAL
+
+- Guard `s_fatalInProgress`.
+- **Печатает ctx-prelude** (`ctx: enter level 0..N`), затем `FATAL:`.
+- Файл, stderr (при `thresholdLevel > 0`), syslog (`LOG_ALERT`), wire sink (`kind=FATAL`).
+- `beepOnFatal` → `DosBeep`.
+- `fflush`.
+- `abort()`.
+
+`F_DbgAssert` при `s_shuttingDown` возвращает управление, иначе — `F_DbgFatal("assertion failed: ...")`.
+
+## 10. Thread-safety
+
+Один mutex в `F_debug.cpp` (per-process, так как PMDEBUG.DLL загружена один раз в процесс). Под mutex — `s_counter`, `s_log`, `s_cfg`, `s_inited`, `F_DbgLevels[]` (запись), `s_wireSink`, `s_fatalInProgress`. TLS-стек ctx — без mutex; печать под mutex.
+
+## 11. Конфигурация
+
+### 11.1. Дефолты
+
+```c
+static const F_DbgConfig F_DBG_DEFAULT_CFG = {
+    "freepm.log", 10, 0, 0, 1, 0, 1, 5
+};
+```
+
+`F_DbgInit(&F_DBG_DEFAULT_CFG, NULL)` в DllMain(ATTACH) PMDEBUG.DLL.
+
+### 11.2. Переопределение
+
+Загружающий процесс после чтения своего `.ini`:
+```c
+F_DbgConfig cfg = F_DBG_DEFAULT_CFG;  /* копия дефолтов */
+/* заполняем из ini... */
+F_DbgSetConfig(&cfg);
+F_DbgSetLevels(fpmdebug_debugOptions);
+```
+
+`F_DbgSetConfig` переоткрывает файл (если путь изменился), обновляет `thresholdLevel`, `ansiColor` и т.д. Wire sink не трогает.
+
+### 11.3. `fpmsrv.ini` / `fpm.ini`
+
+```ini
+fpmdebug.logfile=fpmsrv.log
+fpmdebug.rotateNumber=10
+fpmdebug.rotateSize=0
+fpmdebug.buffered=0
+fpmdebug.ansiColor=1
+fpmdebug.beepOnFatal=0
+fpmdebug.useSyslog=1
+fpmdebug.thresholdLevel=5
+fpmdebug.debugOptions=ALL,7 5,3 7,5 8,0 40,3
+```
+
+Ключи, отсутствующие в ini, берутся из дефолтов. `debugOptions` уже читается `Fc_config.cpp` (клиент) и `Fs_config.cpp` (сервер).
+
+---
+
+# Часть II. План миграции
+
+Порядок: **PMDEBUG → PMTCP → PMCLIENT(+pmserver ACK) → PMGPI**. Возможно уточнение в процессе.
+
+## Этап 1. PMDEBUG.DLL
+
+**Цель:** отдельная DLL, в которой живёт вся система логирования.
+
+1. Создать проект `PMDEBUG.DLL`.
+2. `F_debug.cpp`, `F_debug.h`, `F_config.h` — с учётом §2–§10.
+3. DllMain(ATTACH) → `F_DbgInit(&F_DBG_DEFAULT_CFG, NULL)`.
+4. Экспортировать: `F_DbgInit`, `F_DbgSetConfig`, `F_DbgSetLevels`, `F_DbgRotate`, `F_DbgFlush`, `F_DbgPrint`, `F_DbgPrintKind`, `F_DbgCtxEnter`, `F_DbgCtxExit`, `F_DbgCtxEnterf`, `F_DbgCtxExitf`, `F_DbgFatal`, `F_DbgFatalf`, `F_DbgAssert`, `F_DbgSetShuttingDown`, `F_DbgSetWireSink`.
+5. `F_platform.h` — добавить эмуляцию `DosAllocThreadLocalMemory` / `DosFreeThreadLocalMemory` / `DosThreadLocalMemory` / `DosSetThreadLocalMemory` для не-OS/2.
+6. `F_config.h` — `F_DBG_MAX_SECTIONS`, `F_DBG_CTX_MAX`, `F_DBG_CTX_MAX_LEN`, `F_DBG_BUFSIZE`, `F_DBG_SEC_*` (по §8).
+
+**Acceptance:** юнит-тест (на базе существующего `fpmdebug_test.exe`, но с линковкой на PMDEBUG.DLL) проходит, включая TLS-ctx в многопотоке.
+
+## Этап 2. PMTCP
+
+**Цель:** PMTCP использует PMDEBUG.DLL, свой `F_debug.cpp` удалён.
+
+1. Удалить `F_debug.cpp` из PMTCP-проекта.
+2. Удалить `PMTCP_Dbg` из `F_tcp.cpp` и `Ft_main.cpp` — все `PMTCP_Dbg(...)` → `F_DbgPrint(F_DBG_SEC_PMTCP, level, ...)`.
+3. `F_utils.cpp` (PMTCP) — `_db_print(...)` → `F_DbgPrint(F_DBG_SEC_PMTCP, 0, ...)`.
+4. `F_globals.cpp` (PMTCP) — удалить `_FreePM_db_level`, `_FreePM_debugLevels`, `_FreePM_opt_debug_stderr`, `_FreePM_debug_log`, `w_space`, `w_t1`.
+5. `F_tcp.cpp` / `Ft_main.cpp` — `PMTCP_Dbg` удалить, вызовы заменить.
+6. `Ft_main.cpp::DllMain(ATTACH)` — не вызывает `F_DbgInit` (это уже сделала PMDEBUG); читает `fpmtcp.ini` (если есть), `F_DbgSetConfig`.
+
+**Acceptance:** PMTCP собирается без своей `F_debug.cpp`; все транспортные сообщения видны в `freepm.log` под секцией 40/41.
+
+## Этап 3. PMCLIENT + pmserver ACK
+
+**Цель:** PMCLIENT использует PMDEBUG.DLL; pmserver принимает сообщения от клиента (пока только ACK).
+
+### 3.1. PMCLIENT
+
+1. Удалить `_db_print` / `log_init` / `DosLogWrite` из `unimpl.cpp`.
+2. `unimpl.cpp::log()` → `F_DbgPrint(F_DBG_SEC_GPI_UNIMPL, 5, "%s", buf)`.
+3. `unimpl.cpp::unimplemented()` → `F_DbgPrint(F_DBG_SEC_GPI_UNIMPL, 0, "%s is not yet implemented!", func)`.
+4. `init.cpp::PMC_ServerInit`:
+   - после `FPM_config.Read("fpm.ini")` → `F_DbgSetConfig` (если нужно) и `F_DbgSetLevels(FPM_config.debugOptions)`;
+   - после `PMC_ClientConnect` → `F_DbgSetWireSink(ClientWireSink)`.
+5. `ClientWireSink` — по §6: `F_CMD_DB_PRINT`, `F_CMD_FATAL_COMMON`, `F_CMD_CTX_OPEN`, `F_CMD_CTX_CLOSE`.
+6. `PMC_ShutdownCallback` / `PMC_ServerTerm` → `F_DbgSetShuttingDown(1)`.
+
+### 3.2. pmserver — приём без логирования
+
+В `Fs_Server::HandleCommand` (или в `pm_handler` — в зависимости от того, что собирается; **[запрос файла]**):
+
+```c
+case F_CMD_DB_PRINT: {
+    FDBG_WIRE hdr;
+    char text[F_DBG_BUFSIZE];
+    if (m_pfnRecv(recvobj, &hdr, &len, sizeof(hdr)) != 0) break;
+    if (hdr.cbText <= 0 || hdr.cbText >= (int)sizeof(text)) break;
+    m_pfnRecv(recvobj, text, &len, hdr.cbText);
+    /* Пока только ACK. Запись в F_Debug — следующий этап. */
+    SendHeader(recvobj, 0, 1, 0, 0);
+    break;
+}
+case F_CMD_FATAL_COMMON: /* аналогично, ACK */ ...
+case F_CMD_CTX_OPEN:     /* принять, ACK */ ...
+case F_CMD_CTX_CLOSE:    /* ACK */ ...
+```
+
+**Acceptance:** клиент шлёт `[PMGPI]` строки → pmserver отвечает ACK → клиент не блокируется.
+
+## Этап 4. PMGPI (клиент) + серверный приём
+
+**Цель:** GPI-код клиента шлёт в единую систему; pmserver логирует клиентские сообщения в свой `freepm.log`.
+
+### 4.1. `gpi_entry.cpp`
+
+`GpiDispatch`:
+- `F_DbgCtxEnterf(F_DBG_SEC_GPI_DISPATCH, 4, "fn=0x%04x", (unsigned)ulFnCode)` в начале;
+- `F_DbgCtxExitf(ctx, "-> %u", (unsigned)rc)` в конце;
+- существующие `log("[PMGPI] Transport IN/OUT")` остаются (идут через `F_DbgPrint` через общий `log()`).
+
+### 4.2. `gpi_proxies.cpp` / `gpi_manual.cpp`
+
+`GPICallEnter` / `GPICallResult` — опционально заменить на `F_DbgCtxEnterf` / `F_DbgCtxExitf`. Не обязательно для единой системы, но полезно для получения полного ctx-стека.
+
+### 4.3. `gpi_ps.h` (клиент)
+
+`GpiPsCreate` / `GpiPsDestroy` → `F_DbgPrint(F_DBG_SEC_GPI_PS, 2, ...)`.
+
+### 4.4. pmserver — логирование клиентских сообщений
+
+Заменить ACK-only на запись:
+```c
+F_DbgPrintKind(hdr.section, hdr.level, (F_DbgKind)hdr.kind,
+               "[client %u] %s", id, text);
+```
+
+Для `F_CMD_CTX_OPEN` / `CLOSE` — `F_DbgCtxEnterf` / `F_DbgCtxExit(-1)` в потоке клиента.
+
+`Fs_Server::HandleDisconnect` — `F_DbgCtxExit(-1)`.
+
+### 4.5. Серверный GPI (dispatch, goca_parser, gre)
+
+После PMGPI-клиента — перевести серверные модули:
+
+- `dispatch.cpp::log()` → `F_DbgPrint(F_DBG_SEC_AGGREGATE, 5, "%s", buf)`.
+- `dispatch.cpp::DispatchGpi` — ctx-обёртка.
+- `goca_parser.cpp` — `GocaTrace`/`GocaCallEnter`/`GocaCallResult` → `F_DbgPrint` / `F_DbgCtxEnterf` / `F_DbgCtxExitf` (секция 7). `GOCA_CTX.bDebug` удалить.
+- `gre.cpp` — `log()` → `F_DbgPrint(F_DBG_SEC_GRE, 5, ...)`.
+- `Fs_server.cpp` / `Fs_client.cpp` / `pmserver.cpp` — ctx-обёртки, `F_DbgPrint` с явными секциями.
+
+**Acceptance:** клиентский `GpiBox` → клиент шлёт `F_DbgCtxEnterf(21, 4, "GpiBox(...)")` → сервер видит `ctx: enter level 0: 'GpiBox(...)'` под секцией 21 в `freepm.log`; затем `ctx: enter level 1: 'cmd 0x00C0'` (серверный), …, `ctx: exit level 0`.
+
+## Этап 5. Уборка
+
+Удалить:
+- `debug.h` (2002), `F_def.hpp` (макрос `debug()`), `F_globals.cpp` (2002), `F_globals.hpp` (только debug-часть);
+- `_FreePM_debug_log`, `_FreePM_opt_debug_stderr`, `_FreePM_db_level`, `_FreePM_debugLevels` — если больше нигде не используются;
+- `GOCA_CTX.bDebug` из `goca_common.h`;
+- `F_DbgTrace` из `F_debug.h`.
+
+**Acceptance:** в проекте только `F_Dbg*` API; ни одного вызова `_db_print`/`_db_init`/`debug()`; ни одного `fprintf(stderr, ...)` вне `F_debug.cpp`.
+
+---
+
+## Открытые вопросы
+
+1. **PMDEBUG.DLL** — как существующий проект (если есть) или с нуля? **[запрос]** текущего `F_debug.cpp`, `F_debug.h`, `F_config.h`, `F_platform.h`.
+2. **`F_DbgSetConfig`** — нужен отдельный API или `F_DbgInit` после DllMain должен уметь переинициализироваться? По §11.2 — отдельный setter.
+3. **`fpmtcp.ini`** — PMTCP имеет свой ini? Или читает `fpm.ini` / `fpmsrv.ini` того процесса, в котором загружен? **[запрос]** текущей документации по конфигурации PMTCP.
+4. **PMGPI** — отдельная DLL или статически линкуется в приложение? От этого зависит, где вызывается `F_DbgSetConfig` для клиента. **[фактчекинг]**
+
+---
+
+## Процессное правило
+
+**Перед правкой любого файла — запрашиваю его текущее содержимое.** Не правлю по памяти или по предыдущим версиям. Если файл не прислан — жду.
+
+Готов начать **Этап 1** по Вашей команде. Первым запрошу текущие `F_debug.cpp`, `F_debug.h`, `F_config.h`, `F_platform.h` — если они отличаются от ранее присланных.

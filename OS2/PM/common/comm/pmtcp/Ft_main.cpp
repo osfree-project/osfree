@@ -14,25 +14,6 @@
 
 #include "F_tcp.hpp"
 
-/* --- ÍÀ×ÀËÎ ÏÐÀÂÎÊ: Ëîêàëüíàÿ ôóíêöèÿ îòëàäêè --- */
-/*! @brief Print a debug message to stderr and OutputDebugString.
-    @param [in] fmt  printf-style format string.
-    @param [in] ...  Arguments for the format string. */
-static void PMTCP_Dbg(const char *fmt, ...)
-{
-    char buf[512];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(buf, sizeof(buf), fmt, args);
-    va_end(args);
-#if defined(__WIN32__) || defined(_WIN32)
-    OutputDebugStringA(buf);
-#endif
-    printf( "%s", buf);
-    fflush(stdout);
-}
-/* --- ÊÎÍÅÖ ÏÐÀÂÎÊ --- */
-
 #if defined(__WIN32__) || defined(__NT__) || defined(_WIN32)
 
 /*! @brief Initialize Winsock for Win32.
@@ -159,13 +140,18 @@ static PMC_SHUTDOWN_CB g_shutdownCb = NULL;
 extern "C" APIRET EXPENTRY _InitServerConnection(char *ExternMachine, ULONG *obj,
                                                  void *cb)
 {
-    PMTCP_Dbg("PMTCP: _InitServerConnection IN -> ExternMachine=%s, cb=%p\n",
-              ExternMachine ? ExternMachine : "NULL", cb);
+    int ctx;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_PMTCP, F_DBG_LVL_VERBOSE,
+                         "PMTCP: _InitServerConnection(ExternMachine=%s, cb=%p)",
+                         ExternMachine ? ExternMachine : "NULL", cb);
 
     if (cb) g_shutdownCb = (PMC_SHUTDOWN_CB)cb;
 
     if (PMC_WSA_STARTUP() != 0) {
-        PMTCP_Dbg("PMTCP: _InitServerConnection ERROR: WSAStartup failed\n");
+        F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
+                   "PMTCP: _InitServerConnection ERROR: WSAStartup failed");
+        F_DbgCtxExitf(ctx, "WSAStartup failed");
         return PMC_ERR_OPEN;
     }
 
@@ -206,32 +192,38 @@ extern "C" APIRET EXPENTRY _InitServerConnection(char *ExternMachine, ULONG *obj
 
     pF_pipe = new TCPipe(PipeHost, PipePort, TCP_CLIENT_MODE);
     if (pF_pipe == NULL) {
-        PMTCP_Dbg("PMTCP: _InitServerConnection ERROR: new TCPipe failed\n");
+        F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
+                   "PMTCP: _InitServerConnection ERROR: new TCPipe failed");
         PMC_WSA_CLEANUP();
+        F_DbgCtxExitf(ctx, "new TCPipe failed");
         return PMC_ERR_OPEN;
     }
 
     if (pF_pipe->Connect() != 0)
     {
-        PMTCP_Dbg("PMTCP: _InitServerConnection ERROR: Connect failed\n");
+        F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
+                   "PMTCP: _InitServerConnection ERROR: Connect failed");
         delete pF_pipe;
         pF_pipe = NULL;
         PMC_WSA_CLEANUP();
+        F_DbgCtxExitf(ctx, "Connect failed");
         return PMC_ERR_OPEN;
     }
 
     if (pF_pipe->HandShake() == HAND_SHAKE_ERROR)
     {
-        PMTCP_Dbg("PMTCP: _InitServerConnection ERROR: HandShake failed\n");
+        F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
+                   "PMTCP: _InitServerConnection ERROR: HandShake failed");
         pF_pipe->Close();
         delete pF_pipe;
         pF_pipe = NULL;
         PMC_WSA_CLEANUP();
+        F_DbgCtxExitf(ctx, "HandShake failed");
         return HAND_SHAKE_ERROR;
     }
 
     *obj = (ULONG)pF_pipe;
-    PMTCP_Dbg("PMTCP: _InitServerConnection OUT -> Success (obj=%p)\n", pF_pipe);
+    F_DbgCtxExitf(ctx, "Success (obj=%p)", pF_pipe);
     return 0;
 }
 
@@ -240,14 +232,18 @@ extern "C" APIRET EXPENTRY _InitServerConnection(char *ExternMachine, ULONG *obj
     @retval 0 Always. */
 extern "C" APIRET EXPENTRY _CloseServerConnection(void)
 {
-    PMTCP_Dbg("PMTCP: _CloseServerConnection IN\n");
+    int ctx;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_PMTCP, F_DBG_LVL_VERBOSE,
+                         "PMTCP: _CloseServerConnection");
+
     if (pF_pipe != NULL)
     {
         delete pF_pipe;
         pF_pipe = NULL;
     }
     PMC_WSA_CLEANUP();
-    PMTCP_Dbg("PMTCP: _CloseServerConnection OUT\n");
+    F_DbgCtxExitf(ctx, "Success");
     return 0;
 }
 
@@ -258,19 +254,29 @@ extern "C" APIRET EXPENTRY _CloseServerConnection(void)
     @return 0 on success, ERROR_BROKEN_PIPE on failure. */
 extern "C" APIRET EXPENTRY _F_SendCmdToServer(void *recvobj, int ncmd, int data)
 {
-    PMTCP_Dbg("PMTCP: _F_SendCmdToServer IN -> recvobj=%p, ncmd=0x%x, data=0x%x\n", recvobj, ncmd, data);
+    int  ctx;
+    char buf[8];
+    int  rc;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_WIRE, F_DBG_LVL_VERBOSE,
+                         "PMTCP: _F_SendCmdToServer(recvobj=%p, ncmd=0x%x, data=0x%x)",
+                         recvobj, ncmd, data);
     if (!recvobj) {
-        PMTCP_Dbg("PMTCP: _F_SendCmdToServer ERROR: recvobj is NULL!\n");
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: _F_SendCmdToServer ERROR: recvobj is NULL!");
+        F_DbgCtxExitf(ctx, "recvobj is NULL");
         return PMC_ERR_BROKEN;
     }
-    char buf[8];
     memcpy(buf,     &ncmd, 4);
     memcpy(buf + 4, &data, 4);
-    int rc = ((TCPipe *)recvobj)->Send(buf, 8);
+    rc = ((TCPipe *)recvobj)->Send(buf, 8);
     if (rc != 0) {
-        PMTCP_Dbg("PMTCP: _F_SendCmdToServer ERROR: Send failed\n");
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: _F_SendCmdToServer ERROR: Send failed");
+        F_DbgCtxExitf(ctx, "Send failed");
         return PMC_ERR_BROKEN;
     }
+    F_DbgCtxExitf(ctx, "Success");
     return 0;
 }
 
@@ -281,16 +287,26 @@ extern "C" APIRET EXPENTRY _F_SendCmdToServer(void *recvobj, int ncmd, int data)
     @return 0 on success, ERROR_BROKEN_PIPE on failure. */
 extern "C" APIRET EXPENTRY _F_SendDataToServer(void *recvobj, void *data, int len)
 {
-    PMTCP_Dbg("PMTCP: _F_SendDataToServer IN -> recvobj=%p, data=%p, len=%d\n", recvobj, data, len);
+    int ctx;
+    int rc;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_WIRE, F_DBG_LVL_VERBOSE,
+                         "PMTCP: _F_SendDataToServer(recvobj=%p, data=%p, len=%d)",
+                         recvobj, data, len);
     if (!recvobj) {
-        PMTCP_Dbg("PMTCP: _F_SendDataToServer ERROR: recvobj is NULL!\n");
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: _F_SendDataToServer ERROR: recvobj is NULL!");
+        F_DbgCtxExitf(ctx, "recvobj is NULL");
         return PMC_ERR_BROKEN;
     }
-    int rc = ((TCPipe *)recvobj)->Send(data, len);
+    rc = ((TCPipe *)recvobj)->Send(data, len);
     if (rc != 0) {
-        PMTCP_Dbg("PMTCP: _F_SendDataToServer ERROR: Send failed\n");
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: _F_SendDataToServer ERROR: Send failed");
+        F_DbgCtxExitf(ctx, "Send failed");
         return PMC_ERR_BROKEN;
     }
+    F_DbgCtxExitf(ctx, "Success");
     return 0;
 }
 
@@ -302,17 +318,26 @@ extern "C" APIRET EXPENTRY _F_SendDataToServer(void *recvobj, void *data, int le
     @return 0 on success, -1 on failure. */
 extern "C" APIRET EXPENTRY _F_RecvDataFromServer(void *recvobj, void *data, int *len, int maxlen)
 {
-    PMTCP_Dbg("PMTCP: _F_RecvDataFromServer IN -> recvobj=%p, maxlen=%d\n", recvobj, maxlen);
+    int ctx;
+    int rc;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_WIRE, F_DBG_LVL_VERBOSE,
+                         "PMTCP: _F_RecvDataFromServer(recvobj=%p, maxlen=%d)",
+                         recvobj, maxlen);
     if (!recvobj) {
-        PMTCP_Dbg("PMTCP: _F_RecvDataFromServer ERROR: recvobj is NULL!\n");
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: _F_RecvDataFromServer ERROR: recvobj is NULL!");
+        F_DbgCtxExitf(ctx, "recvobj is NULL");
         return -1;
     }
-    int rc = ((TCPipe *)recvobj)->Recv(data, len, maxlen);
+    rc = ((TCPipe *)recvobj)->Recv(data, len, maxlen);
     if (rc != 0) {
-        PMTCP_Dbg("PMTCP: _F_RecvDataFromServer ERROR: Recv failed\n");
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: _F_RecvDataFromServer ERROR: Recv failed");
+        F_DbgCtxExitf(ctx, "Recv failed");
         return -1;
     }
-    PMTCP_Dbg("PMTCP: _F_RecvDataFromServer OUT -> len=%d\n", *len);
+    F_DbgCtxExitf(ctx, "len=%d", *len);
     return 0;
 }
 
@@ -326,22 +351,31 @@ extern "C" APIRET EXPENTRY _F_RecvDataFromServer(void *recvobj, void *data, int 
     @return Server reply code, or (APIRET)-1 on transport error. */
 extern "C" APIRET EXPENTRY _F_SendGenCmdToServer(void *recvobj, int cmd, int par)
 {
-    int rc, retcode, l;
+    int ctx, rc, retcode, l;
 
-    PMTCP_Dbg("PMTCP: _F_SendGenCmdToServer IN -> recvobj=%p, cmd=0x%x, par=0x%x\n",
-              recvobj, cmd, par);
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_PMTCP, F_DBG_LVL_VERBOSE,
+                         "PMTCP: _F_SendGenCmdToServer(recvobj=%p, cmd=0x%x, par=0x%x)",
+                         recvobj, cmd, par);
     if (!recvobj) {
-        PMTCP_Dbg("PMTCP: _F_SendGenCmdToServer ERROR: recvobj is NULL!\n");
+        F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
+                   "PMTCP: _F_SendGenCmdToServer ERROR: recvobj is NULL!");
+        F_DbgCtxExitf(ctx, "recvobj is NULL");
         return (APIRET)-1;
     }
 
     rc = _F_SendCmdToServer(recvobj, cmd, par);
-    if (rc) return (APIRET)-1;
+    if (rc) {
+        F_DbgCtxExitf(ctx, "SendCmd failed");
+        return (APIRET)-1;
+    }
 
     rc = _F_RecvDataFromServer(recvobj, &retcode, &l, sizeof(retcode));
-    if (rc) return (APIRET)-1;
+    if (rc) {
+        F_DbgCtxExitf(ctx, "RecvData failed");
+        return (APIRET)-1;
+    }
 
-    PMTCP_Dbg("PMTCP: _F_SendGenCmdToServer OUT -> retcode=0x%x\n", retcode);
+    F_DbgCtxExitf(ctx, "retcode=0x%x", retcode);
     return (APIRET)retcode;
 }
 
@@ -358,25 +392,37 @@ extern "C" APIRET EXPENTRY _F_SendGenCmdToServer(void *recvobj, int cmd, int par
 extern "C" APIRET EXPENTRY _F_SendGenCmdDataToServer(void *recvobj, int cmd, int par,
                                                      void *data, int datalen)
 {
-    int rc, retcode, l;
+    int ctx, rc, retcode, l;
 
-    PMTCP_Dbg("PMTCP: _F_SendGenCmdDataToServer IN -> recvobj=%p, cmd=0x%x, par=0x%x\n",
-              recvobj, cmd, par);
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_PMTCP, F_DBG_LVL_VERBOSE,
+                         "PMTCP: _F_SendGenCmdDataToServer(recvobj=%p, cmd=0x%x, par=0x%x)",
+                         recvobj, cmd, par);
     if (!recvobj) {
-        PMTCP_Dbg("PMTCP: _F_SendGenCmdDataToServer ERROR: recvobj is NULL!\n");
+        F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
+                   "PMTCP: _F_SendGenCmdDataToServer ERROR: recvobj is NULL!");
+        F_DbgCtxExitf(ctx, "recvobj is NULL");
         return (APIRET)-1;
     }
 
     rc = _F_SendCmdToServer(recvobj, cmd, par);
-    if (rc) return (APIRET)-1;
+    if (rc) {
+        F_DbgCtxExitf(ctx, "SendCmd failed");
+        return (APIRET)-1;
+    }
 
     rc = _F_SendDataToServer(recvobj, data, datalen * sizeof(int));
-    if (rc) return (APIRET)-1;
+    if (rc) {
+        F_DbgCtxExitf(ctx, "SendData failed");
+        return (APIRET)-1;
+    }
 
     rc = _F_RecvDataFromServer(recvobj, &retcode, &l, sizeof(retcode));
-    if (rc) return (APIRET)-1;
+    if (rc) {
+        F_DbgCtxExitf(ctx, "RecvData failed");
+        return (APIRET)-1;
+    }
 
-    PMTCP_Dbg("PMTCP: _F_SendGenCmdDataToServer OUT -> retcode=0x%x\n", retcode);
+    F_DbgCtxExitf(ctx, "retcode=0x%x", retcode);
     return (APIRET)retcode;
 }
 
@@ -389,25 +435,34 @@ extern "C" APIRET EXPENTRY _F_SendGenCmdDataToServer(void *recvobj, int cmd, int
     @retval -1 Failure or short read. */
 extern "C" APIRET EXPENTRY _F_RecvCmdFromClient(void *recvobj, int *ncmd, int *data)
 {
-    PMTCP_Dbg("PMTCP: _F_RecvCmdFromClient IN -> recvobj=%p\n", recvobj);
-    if (!recvobj) {
-        PMTCP_Dbg("PMTCP: _F_RecvCmdFromClient ERROR: recvobj is NULL!\n");
-        return -1;
-    }
+    int  ctx;
     char buf[8];
     int  len = 0;
-    int rc = ((TCPipe *)recvobj)->Recv(buf, &len, 8);
+    int  rc;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_WIRE, F_DBG_LVL_VERBOSE,
+                         "PMTCP: _F_RecvCmdFromClient(recvobj=%p)", recvobj);
+    if (!recvobj) {
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: _F_RecvCmdFromClient ERROR: recvobj is NULL!");
+        F_DbgCtxExitf(ctx, "recvobj is NULL");
+        return -1;
+    }
+    rc = ((TCPipe *)recvobj)->Recv(buf, &len, 8);
     if (rc != 0 || len != 8) {
         int err = 0;
 #if defined(__WIN32__) || defined(__NT__) || defined(_WIN32)
         err = WSAGetLastError();
 #endif
-        PMTCP_Dbg("PMTCP: _F_RecvCmdFromClient ERROR: Recv failed or short read. rc=%d, len=%d, WSAError=%d\n", rc, len, err);
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: _F_RecvCmdFromClient ERROR: Recv failed or short read. "
+                   "rc=%d, len=%d, WSAError=%d", rc, len, err);
+        F_DbgCtxExitf(ctx, "Recv failed rc=%d, len=%d", rc, len);
         return -1;
     }
     memcpy(ncmd, buf,     4);
     memcpy(data, buf + 4, 4);
-    PMTCP_Dbg("PMTCP: _F_RecvCmdFromClient OUT -> ncmd=0x%x, data=0x%x\n", *ncmd, *data);
+    F_DbgCtxExitf(ctx, "ncmd=0x%x, data=0x%x", *ncmd, *data);
     return 0;
 }
 
@@ -419,17 +474,26 @@ extern "C" APIRET EXPENTRY _F_RecvCmdFromClient(void *recvobj, int *ncmd, int *d
     @return 0 on success, -1 on failure. */
 extern "C" APIRET EXPENTRY _F_RecvDataFromClient(void *recvobj, void *sqmsg, int *l, int size)
 {
-    PMTCP_Dbg("PMTCP: _F_RecvDataFromClient IN -> recvobj=%p, size=%d\n", recvobj, size);
+    int ctx;
+    int rc;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_WIRE, F_DBG_LVL_VERBOSE,
+                         "PMTCP: _F_RecvDataFromClient(recvobj=%p, size=%d)",
+                         recvobj, size);
     if (!recvobj) {
-        PMTCP_Dbg("PMTCP: _F_RecvDataFromClient ERROR: recvobj is NULL!\n");
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: _F_RecvDataFromClient ERROR: recvobj is NULL!");
+        F_DbgCtxExitf(ctx, "recvobj is NULL");
         return -1;
     }
-    int rc = ((TCPipe *)recvobj)->Recv(sqmsg, l, size);
+    rc = ((TCPipe *)recvobj)->Recv(sqmsg, l, size);
     if (rc != 0) {
-        PMTCP_Dbg("PMTCP: _F_RecvDataFromClient ERROR: Recv failed\n");
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: _F_RecvDataFromClient ERROR: Recv failed");
+        F_DbgCtxExitf(ctx, "Recv failed");
         return -1;
     }
-    PMTCP_Dbg("PMTCP: _F_RecvDataFromClient OUT -> l=%d\n", *l);
+    F_DbgCtxExitf(ctx, "l=%d", *l);
     return 0;
 }
 
@@ -440,21 +504,31 @@ extern "C" APIRET EXPENTRY _F_RecvDataFromClient(void *recvobj, void *sqmsg, int
     @return 0 on success, ERROR_BROKEN_PIPE on failure. */
 extern "C" APIRET EXPENTRY _F_SendDataToClient(void *recvobj, void *data, int len)
 {
-    PMTCP_Dbg("PMTCP: _F_SendDataToClient IN -> recvobj=%p, data=%p, len=%d\n", recvobj, data, len);
+    int ctx;
+    int rc;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_WIRE, F_DBG_LVL_VERBOSE,
+                         "PMTCP: _F_SendDataToClient(recvobj=%p, data=%p, len=%d)",
+                         recvobj, data, len);
     if (!recvobj) {
-        PMTCP_Dbg("PMTCP: _F_SendDataToClient ERROR: recvobj is NULL!\n");
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: _F_SendDataToClient ERROR: recvobj is NULL!");
+        F_DbgCtxExitf(ctx, "recvobj is NULL");
         return PMC_ERR_BROKEN; 
     }
-    int rc = ((TCPipe *)recvobj)->Send(data, len);
+    rc = ((TCPipe *)recvobj)->Send(data, len);
     if (rc != 0) {
         int err = 0;
 #if defined(__WIN32__) || defined(__NT__) || defined(_WIN32)
         err = WSAGetLastError();
 #endif
-        PMTCP_Dbg("PMTCP: _F_SendDataToClient ERROR: Send failed. rc=%d, WSAError=%d\n", rc, err);
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: _F_SendDataToClient ERROR: Send failed. "
+                   "rc=%d, WSAError=%d", rc, err);
+        F_DbgCtxExitf(ctx, "Send failed rc=%d", rc);
         return PMC_ERR_BROKEN;
     }
-    PMTCP_Dbg("PMTCP: _F_SendDataToClient OUT -> Success (0)\n");
+    F_DbgCtxExitf(ctx, "Success");
     return 0;
 }
 
@@ -463,7 +537,6 @@ extern "C" APIRET EXPENTRY _F_SendDataToClient(void *recvobj, void *data, int le
     @return 0 on success, PMC_ERR_OPEN on setup failure.
     @retval 0            Loop exited (normally unreachable).
     @retval PMC_ERR_OPEN Setup failed. */
-/* ---- Add near the top, after PMTCP_Dbg ---- */
 
 struct TCP_ClientArg {
     TCPipe           *pClient;
@@ -497,8 +570,6 @@ static void ClientThreadProc(void *param)
     delete pArg;
 }
 
-/* ---- Replace _startServerThreads ---- */
-
 extern "C" APIRET EXPENTRY _startServerThreads(void *handl, void *disc_cb)
 {
     PMC_HANDLER       h    = (PMC_HANDLER)handl;
@@ -512,7 +583,8 @@ extern "C" APIRET EXPENTRY _startServerThreads(void *handl, void *disc_cb)
     wsaRc = PMC_WSA_STARTUP();
     if (wsaRc != 0)
     {
-        PMTCP_Dbg("PMTCP: _startServerThreads: WSAStartup failed (rc=%d)\n", wsaRc);
+        F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
+                   "PMTCP: _startServerThreads: WSAStartup failed (rc=%d)", wsaRc);
         delete pServer;
         return PMC_ERR_OPEN;
     }
@@ -522,14 +594,17 @@ extern "C" APIRET EXPENTRY _startServerThreads(void *handl, void *disc_cb)
 
     if (pServer->Create() != 0)
     {
-        PMTCP_Dbg("PMTCP: _startServerThreads: Create() failed (port %d)\n", pServer->port);
+        F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
+                   "PMTCP: _startServerThreads: Create() failed (port %d)",
+                   pServer->port);
         delete pServer;
         PMC_WSA_CLEANUP();
         return PMC_ERR_OPEN;
     }
 
-    PMTCP_Dbg("PMTCP: _startServerThreads: listening on port %d (multi-thread)\n",
-              pServer->port);
+    F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_VERBOSE,
+               "PMTCP: _startServerThreads: listening on port %d (multi-thread)",
+               pServer->port);
 
     for (;;)
     {
@@ -542,11 +617,13 @@ extern "C" APIRET EXPENTRY _startServerThreads(void *handl, void *disc_cb)
             continue;
         }
 
-        PMTCP_Dbg("PMTCP: accepted connection, pClient=%p\n", pClient);
+        F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_VERBOSE,
+                   "PMTCP: accepted connection, pClient=%p", pClient);
 
         if (pClient->HandShake() == HAND_SHAKE_ERROR)
         {
-            PMTCP_Dbg("PMTCP: _startServerThreads: handshake failed, dropping\n");
+            F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
+                       "PMTCP: _startServerThreads: handshake failed, dropping");
             pClient->Close();
             delete pClient;
             continue;
@@ -575,8 +652,6 @@ extern "C" APIRET EXPENTRY _startServerThreads(void *handl, void *disc_cb)
 
     return 0; /* unreachable */
 }
-
-
 
 
 /* ======================================================================== */

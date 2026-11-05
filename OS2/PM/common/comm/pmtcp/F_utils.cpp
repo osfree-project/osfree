@@ -6,16 +6,14 @@
 
 #if defined(__OS2__) || defined(__OS2V2__)
 #define INCL_DOS
-#define INCL_DOSERRORS
+#define INCL_DOSERRORS      
+#define INCL_PM
 #include <os2.h>
 #else
 #include "F_tcp.hpp"
 #endif
 
-/*! @brief Debug print function (defined in F_debug.cpp).
-    @param [in] format  printf-style format string.
-    @param [in] ...     Arguments for the format string. */
-extern "C" void APIENTRY _db_print(const char *format,...);
+#include "F_debug.h"
 
 #if defined(__OS2__) || defined(__OS2V2__)
 
@@ -28,7 +26,8 @@ int OS2SetRelMaxFH(int ReqCount)
   int rc;
   rc = DosSetRelMaxFH((PLONG)&ReqCount, &CurMaxFH);
   if (rc) {
-    _db_print("OS2SetRelMaxFH: rc =%d\n", rc);
+    F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
+               "OS2SetRelMaxFH: rc =%d", rc);
   }
   return (int)CurMaxFH;
 }

@@ -132,9 +132,6 @@ static inline PGPI_PS GpiPsCreate(HPS hps, ULONG flOptions)
 {
     int i;
 
-    if (hps == NULL && (ULONG)hps == (ULONG)GPI_ERROR)
-        return (PGPI_PS)NULL;
-
     /* Update in place when hps is a real handle. Server-side
        NGpiCreatePS calls with hps == NULL to request a fresh slot. */
     if (hps != NULL) {

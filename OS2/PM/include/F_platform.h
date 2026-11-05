@@ -551,6 +551,15 @@ static inline APIRET DosExecPgm(char *pszFailName, LONG cbFailName,
       return ReleaseMutex((HANDLE)hmtx) ? 0 : 1;
   }
 
+  /* ---------- Thread-local storage (Win32) ---------- */
+  #ifndef TLS_OUT_OF_INDEXES
+    #define TLS_OUT_OF_INDEXES  ((DWORD)0xFFFFFFFF)
+  #endif
+  __declspec(dllimport) DWORD __stdcall TlsAlloc(void);
+  __declspec(dllimport) PVOID __stdcall TlsGetValue(DWORD dwTlsIndex);
+  __declspec(dllimport) BOOL  __stdcall TlsSetValue(DWORD dwTlsIndex, PVOID lpTlsValue);
+  __declspec(dllimport) BOOL  __stdcall TlsFree(DWORD dwTlsIndex);
+	
   /* ---------- Структуры ---------- */
   typedef struct _POINTL { LONG x; LONG y; } POINTL, *PPOINTL;
   typedef struct _POINTS { SHORT x; SHORT y; } POINTS, *PPOINTS;
