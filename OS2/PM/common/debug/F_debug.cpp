@@ -415,9 +415,9 @@ void F_DbgInit(const F_DbgConfig *cfg, const char *levels)
 {
     int i;
 
-    if (s_inited) return;
-    s_inited = 1;
 
+    if (!s_inited) 
+    {
     if (DosCreateMutexSem(NULL, &s_mutex, 0, FALSE) != 0)
         s_mutex = NULL;
 
@@ -429,6 +429,7 @@ void F_DbgInit(const F_DbgConfig *cfg, const char *levels)
     /* s_ctxTls == TLS_OUT_OF_INDEXES signals failure; CtxTlsGet /
        CtxTlsSet check for it and act as no-ops. */
 #endif
+    }
 
     if (cfg) s_cfg = *cfg;
     else {
@@ -448,6 +449,8 @@ void F_DbgInit(const F_DbgConfig *cfg, const char *levels)
     if (levels) F_DbgSetLevels(levels);
 
     DbgOpenLog();
+
+    s_inited = 1;
 }
 
 /*! @brief Re-apply configuration at runtime (e.g. after reading ini).

@@ -1,5 +1,5 @@
 /*
- $Id: F_config.hp,v 1.5 2003/06/18 22:51:49 evgen2 Exp $
+ $Id: F_config.h,v 1.5 2003/06/18 22:51:49 evgen2 Exp $
 */
 /* F_config.h
  *
@@ -60,6 +60,20 @@
 /*! @brief Debug section identifiers. More are added as components
     migrate to the unified debug system. */
 #define F_DBG_SEC_DEBUG         0
+/*! @brief Debug section: PMSERVER main (pmserver.cpp). */
+#define F_DBG_SEC_PMSERVER      1
+/*! @brief Debug section: Fs_Server (sessions, monitor, wire). */
+#define F_DBG_SEC_FS_SERVER     2
+/*! @brief Debug section: Fs_ClientList (per-client slots). */
+#define F_DBG_SEC_FS_CLIENT     3
+/*! @brief Debug section: server GPI dispatcher (dispatch.cpp). */
+#define F_DBG_SEC_DISPATCH      5
+/*! @brief Debug section: GOCA order emitters (goca_emit*.h). */
+#define F_DBG_SEC_GOCA_EMIT     6
+/*! @brief Debug section: GOCA parser (goca_parser.cpp). */
+#define F_DBG_SEC_GOCA_PARSE    7
+/*! @brief Debug section: GRE (gre.cpp). */
+#define F_DBG_SEC_GRE           8
 /*! @brief Debug section: GPI dispatcher (gpi_entry.cpp). */
 #define F_DBG_SEC_GPI_DISPATCH  20
 /*! @brief Debug section: GPI proxy functions (gpi_manual.cpp, gpi_proxies.cpp). */

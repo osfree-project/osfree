@@ -9,21 +9,7 @@
 #include "gpi_ps.h"          /* pulls in goca_parser.hpp + goca_common.h */
 #include "goca_emit.h"       /* GocaEmit* order emitters */
 #include "F_cmd.h"
-
-/*!
- * @brief Unified logging function for the mini server.
- *
- * @param [in] fmt  printf-style format string.
- * @param [in] ...  Arguments for the format string.
- */
-void log(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    vfprintf(stderr, fmt, args);
-    va_end(args);
-    fflush(stderr);
-}
+#include "F_debug.h"
 
 /*!
  * @brief Server-side storage for the shared PS table.
@@ -799,14 +785,18 @@ static BOOL SrvGocaInsertElement(PGPI_PS ps, ULONG segStart, ULONG segEnd,
 
 /*!
  * @def DISPATCH_STUB
- * @brief Log entry/exit for a single stub case and return GPI_ERROR.
+ * @brief Enter a debug context for a single stub case, log the
+ *        arguments, close the context with GPI_ERROR, and return.
  * @param [in] code  NGpi* constant from gpi_wire.h.
  */
 #define DISPATCH_STUB(code) \
-    case code: \
-        log("[PMSERVER] IN  : " #code " (hps=%p, cbArgs=%u)\n", (void*)hps, (unsigned)cbArgs); \
-        log("[PMSERVER] OUT : " #code " -> 0x%x\n", (unsigned int)GPI_ERROR); \
-        return (ULONG)GPI_ERROR;
+    case code: { \
+        int _ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE, \
+                                  "[PMSERVER] " #code "(hps=%p, cbArgs=%u)", \
+                                  (void*)hps, (unsigned)cbArgs); \
+        F_DbgCtxExitf(_ctx, "GPI_ERROR"); \
+        return (ULONG)GPI_ERROR; \
+    }
 
 /*!
  * @brief Server dispatch for GPI calls.
@@ -821,7 +811,9 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
                   PULONG pcbPayload)
 {
     if (pcbPayload) *pcbPayload = 0;   /* default: no payload */
-    log("[PMSERVER] Dispatch IN : FnCode=0x%x, ArgsSize=%u\n", ulFnCode, cbArgs);
+    F_DbgPrint(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+               "[PMSERVER] Dispatch IN : FnCode=0x%x, ArgsSize=%u",
+               ulFnCode, cbArgs);
 
     switch (ulFnCode) {
 
@@ -832,49 +824,58 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
     case NGpiCreatePS: {
         PGpiCreatePS_Args a = (PGpiCreatePS_Args)pArgs;
         PGPI_PS ps;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiCreatePS(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
 
         if (!a || cbArgs < sizeof(*a)) {
-            log("[PMSERVER] IN  : NGpiCreatePS (bad args, cbArgs=%u)\n",
-                (unsigned)cbArgs);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args, cbArgs=%u)",
+                          (unsigned)cbArgs);
             return (ULONG)GPI_ERROR;
         }
 
         ps = GpiPsCreate(NULL, a->flOptions);
         if (!ps) {
-            log("[PMSERVER] IN  : NGpiCreatePS -> GPI_ERROR (no free slot)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (PS table full)");
             return (ULONG)GPI_ERROR;
         }
 
-        log("[PMSERVER] IN  : NGpiCreatePS(size={%ld,%ld}, flOptions=0x%lx) -> %p\n",
-            (long)a->psizlSize.cx, (long)a->psizlSize.cy,
-            (unsigned long)a->flOptions, (void*)ps);
-        log("[PMSERVER] OUT : NGpiCreatePS -> %p\n", (void*)ps);
+        F_DbgCtxExitf(ctx, "size={%ld,%ld}, flOptions=0x%lx -> %p",
+                      (long)a->psizlSize.cx, (long)a->psizlSize.cy,
+                      (unsigned long)a->flOptions, (void*)ps);
         return (ULONG)ps;
     }
 
     case NGpiSetPS: {
         PGpiSetPS_Args a = (PGpiSetPS_Args)pArgs;
         PGPI_PS ps = GpiPsFind(hps);
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiSetPS(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiSetPS(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
         if (!ps) {
-            log("[PMSERVER] OUT : NGpiSetPS -> GPI_ERROR (no ps)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
             return (ULONG)GPI_ERROR;
         }
         if (a && cbArgs >= sizeof(*a)) {
             GpiPsSetOptions(hps, a->flOptions);
         }
-        log("[PMSERVER] OUT : NGpiSetPS -> 1\n");
+        F_DbgCtxExitf(ctx, "1");
         return 1;
     }
 
     case NGpiDestroyPS: {
         PGPI_PS ps = GpiPsFind(hps);
-        log("[PMSERVER] IN  : NGpiDestroyPS(hps=%p)\n", (void*)hps);
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiDestroyPS(hps=%p)",
+                             (void*)hps);
         if (ps) GpiPsDestroy(hps);
-        log("[PMSERVER] OUT : NGpiDestroyPS -> %d\n",
-            ps ? 1 : (int)GPI_ERROR);
+        F_DbgCtxExitf(ctx, "%d", ps ? 1 : (int)GPI_ERROR);
         return (ULONG)(ps ? 1 : GPI_ERROR);
     }
 
@@ -885,123 +886,219 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
     case NGpiSetDrawingMode: {
         LONG lMode;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiSetDrawingMode(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
-        lMode = *(LONG*)pArgs;
-        if (lMode != DM_DRAW && lMode != DM_RETAIN && lMode != DM_DRAWANDRETAIN)
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiSetDrawingMode(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
             return (ULONG)GPI_ERROR;
+        }
+        lMode = *(LONG*)pArgs;
+        if (lMode != DM_DRAW && lMode != DM_RETAIN && lMode != DM_DRAWANDRETAIN) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad mode %ld)", (long)lMode);
+            return (ULONG)GPI_ERROR;
+        }
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
         ps->ulDrawingMode = (ULONG)lMode;
-        log("[PMSERVER] OUT : NGpiSetDrawingMode -> 1\n");
+        F_DbgCtxExitf(ctx, "1");
         return 1;
     }
 
     case NGpiQueryDrawingMode: {
         PGPI_PS ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        log("[PMSERVER] OUT : NGpiQueryDrawingMode -> %lu\n",
-            (unsigned long)ps->ulDrawingMode);
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiQueryDrawingMode(hps=%p)",
+                             (void*)hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        F_DbgCtxExitf(ctx, "%lu", (unsigned long)ps->ulDrawingMode);
         return (ULONG)ps->ulDrawingMode;
     }
 
     case NGpiSetDrawControl: {
         LONG lControl, lValue;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiSetDrawControl(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiSetDrawControl(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
         memcpy(&lControl, pArgs, sizeof(LONG));
         memcpy(&lValue,   pArgs + sizeof(LONG), sizeof(LONG));
-        if (lControl < DCTL_ERASE || lControl > DCTL_CORRELATE)
+        if (lControl < DCTL_ERASE || lControl > DCTL_CORRELATE) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad control %ld)", (long)lControl);
             return (ULONG)GPI_ERROR;
-        if (lValue != DCTL_ON && lValue != DCTL_OFF)
+        }
+        if (lValue != DCTL_ON && lValue != DCTL_OFF) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad value %ld)", (long)lValue);
             return (ULONG)GPI_ERROR;
+        }
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
         if (lValue == DCTL_ON)
             ps->ulDrawControl |=  DCTL_BIT(lControl);
         else
             ps->ulDrawControl &= ~DCTL_BIT(lControl);
-        log("[PMSERVER] OUT : NGpiSetDrawControl -> 1\n");
+        F_DbgCtxExitf(ctx, "1");
         return 1;
     }
 
     case NGpiQueryDrawControl: {
         LONG lControl;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiQueryDrawControl(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
-        lControl = *(LONG*)pArgs;
-        if (lControl < DCTL_ERASE || lControl > DCTL_CORRELATE)
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiQueryDrawControl(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
             return (ULONG)GPI_ERROR;
+        }
+        lControl = *(LONG*)pArgs;
+        if (lControl < DCTL_ERASE || lControl > DCTL_CORRELATE) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad control %ld)", (long)lControl);
+            return (ULONG)GPI_ERROR;
+        }
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        F_DbgCtxExitf(ctx, "%d",
+                      (ps->ulDrawControl & DCTL_BIT(lControl))
+                      ? (int)DCTL_ON : (int)DCTL_OFF);
         return (ps->ulDrawControl & DCTL_BIT(lControl)) ? DCTL_ON : DCTL_OFF;
     }
 
     case NGpiSetStopDraw: {
         LONG lValue;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiSetStopDraw(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiSetStopDraw(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
         lValue = *(LONG*)pArgs;
-        if (lValue != SDW_OFF && lValue != SDW_ON) return (ULONG)GPI_ERROR;
+        if (lValue != SDW_OFF && lValue != SDW_ON) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad value %ld)", (long)lValue);
+            return (ULONG)GPI_ERROR;
+        }
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
         ps->ulStopDraw = (ULONG)lValue;
+        F_DbgCtxExitf(ctx, "1");
         return 1;
     }
 
     case NGpiQueryStopDraw: {
         PGPI_PS ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiQueryStopDraw(hps=%p)",
+                             (void*)hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        F_DbgCtxExitf(ctx, "%lu", (unsigned long)ps->ulStopDraw);
         return (ULONG)ps->ulStopDraw;
     }
 
     case NGpiSetEditMode: {
         LONG lMode;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiSetEditMode(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
-        lMode = *(LONG*)pArgs;
-        if (lMode != SEGEM_INSERT && lMode != SEGEM_REPLACE)
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiSetEditMode(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
             return (ULONG)GPI_ERROR;
+        }
+        lMode = *(LONG*)pArgs;
+        if (lMode != SEGEM_INSERT && lMode != SEGEM_REPLACE) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad mode %ld)", (long)lMode);
+            return (ULONG)GPI_ERROR;
+        }
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->bInElement) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->bInElement) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (in element)");
+            return (ULONG)GPI_ERROR;
+        }
         ps->ulEditMode = (ULONG)lMode;
+        F_DbgCtxExitf(ctx, "1");
         return 1;
     }
 
     case NGpiQueryEditMode: {
         PGPI_PS ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiQueryEditMode(hps=%p)",
+                             (void*)hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        F_DbgCtxExitf(ctx, "%lu", (unsigned long)ps->ulEditMode);
         return (ULONG)ps->ulEditMode;
     }
 
     case NGpiSetInitialSegmentAttrs: {
         LONG lAttribute, lValue;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiSetInitialSegmentAttrs(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiSetInitialSegmentAttrs(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
         memcpy(&lAttribute, pArgs, sizeof(LONG));
         memcpy(&lValue,     pArgs + sizeof(LONG), sizeof(LONG));
-        if (lValue != ATTR_ON && lValue != ATTR_OFF)
+        if (lValue != ATTR_ON && lValue != ATTR_OFF) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad value %ld)", (long)lValue);
             return (ULONG)GPI_ERROR;
+        }
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
         switch (lAttribute) {
         case ATTR_DETECTABLE:
         case ATTR_VISIBLE:
@@ -1014,8 +1111,10 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
                 ps->ulInitialSegAttrs |=  SEGATTR_BIT(lAttribute);
             else
                 ps->ulInitialSegAttrs &= ~SEGATTR_BIT(lAttribute);
+            F_DbgCtxExitf(ctx, "1");
             return 1;
         default:
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad attribute %ld)", (long)lAttribute);
             return (ULONG)GPI_ERROR;
         }
     }
@@ -1023,13 +1122,22 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
     case NGpiQueryInitialSegmentAttrs: {
         LONG lAttribute;
         PGPI_PS ps;
+        ULONG result;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiQueryInitialSegmentAttrs(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiQueryInitialSegmentAttrs(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
         lAttribute = *(LONG*)pArgs;
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
         switch (lAttribute) {
         case ATTR_DETECTABLE:
         case ATTR_VISIBLE:
@@ -1038,11 +1146,15 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         case ATTR_FASTCHAIN:
         case ATTR_PROP_DETECTABLE:
         case ATTR_PROP_VISIBLE:
-            return (ps->ulInitialSegAttrs & SEGATTR_BIT(lAttribute))
-                   ? ATTR_ON : ATTR_OFF;
+            result = (ps->ulInitialSegAttrs & SEGATTR_BIT(lAttribute))
+                     ? ATTR_ON : ATTR_OFF;
+            break;
         default:
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad attribute %ld)", (long)lAttribute);
             return (ULONG)GPI_ERROR;
         }
+        F_DbgCtxExitf(ctx, "%lu", (unsigned long)result);
+        return result;
     }
 
     /* ==================================================================== */
@@ -1054,25 +1166,30 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         BYTE buf[4];
         LONG len;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiSetColor(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiSetColor(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
         if (!pArgs || cbArgs < sizeof(LONG)) {
-            log("[PMSERVER] OUT : NGpiSetColor -> GPI_ERROR (bad args)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
             return (ULONG)GPI_ERROR;
         }
         memcpy(&lColor, pArgs, sizeof(LONG));
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         len = GocaEmitSetColor(&ps->goca, buf, sizeof(buf), lColor);
         if (len < 0) {
-            log("[PMSERVER] OUT : NGpiSetColor -> GPI_ERROR (unsupported color 0x%lx)\n",
-                (unsigned long)lColor);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (unsupported color 0x%lx)",
+                          (unsigned long)lColor);
             return (ULONG)GPI_ERROR;
         }
         SrvDeliver(ps, buf, (ULONG)len);
-        log("[PMSERVER] OUT : NGpiSetColor -> 1\n");
+        F_DbgCtxExitf(ctx, "1 (color=0x%lx)", (unsigned long)lColor);
         return 1;
     }
 
@@ -1081,21 +1198,29 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         BYTE buf[10];
         LONG len;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiMove(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiMove(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
         if (!pArgs || cbArgs < sizeof(POINTL)) {
-            log("[PMSERVER] OUT : NGpiMove -> GPI_ERROR (bad args)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
             return (ULONG)GPI_ERROR;
         }
         memcpy(&ptl, pArgs, sizeof(POINTL));
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         len = GocaEmitMove(&ps->goca, buf, sizeof(buf), ptl);
-        if (len < 0) return (ULONG)GPI_ERROR;
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
         SrvDeliver(ps, buf, (ULONG)len);
-        log("[PMSERVER] OUT : NGpiMove -> 1\n");
+        F_DbgCtxExitf(ctx, "1 (pt={%ld,%ld})", (long)ptl.x, (long)ptl.y);
         return 1;
     }
 
@@ -1104,16 +1229,28 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         BYTE buf[10];
         LONG len;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiSetCurrentPosition(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(POINTL)) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiSetCurrentPosition(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(POINTL)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
         memcpy(&ptl, pArgs, sizeof(POINTL));
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
         len = GocaEmitMove(&ps->goca, buf, sizeof(buf), ptl);
-        if (len < 0) return (ULONG)GPI_ERROR;
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
         SrvDeliver(ps, buf, (ULONG)len);
+        F_DbgCtxExitf(ctx, "1 (pt={%ld,%ld})", (long)ptl.x, (long)ptl.y);
         return 1;
     }
 
@@ -1122,21 +1259,29 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         BYTE buf[10];
         LONG len;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiLine(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiLine(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
         if (!pArgs || cbArgs < sizeof(POINTL)) {
-            log("[PMSERVER] OUT : NGpiLine -> GPI_ERROR (bad args)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
             return (ULONG)GPI_ERROR;
         }
         memcpy(&ptl, pArgs, sizeof(POINTL));
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         len = GocaEmitLine(&ps->goca, buf, sizeof(buf), ptl);
-        if (len < 0) return (ULONG)GPI_ERROR;
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
         SrvDeliver(ps, buf, (ULONG)len);
-        log("[PMSERVER] OUT : NGpiLine -> 1\n");
+        F_DbgCtxExitf(ctx, "1 (end={%ld,%ld})", (long)ptl.x, (long)ptl.y);
         return 1;
     }
 
@@ -1145,21 +1290,30 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         BYTE buf[22];
         LONG len;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiBox(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiBox(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
         if (!a || cbArgs < sizeof(*a)) {
-            log("[PMSERVER] OUT : NGpiBox -> GPI_ERROR (bad args)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
             return (ULONG)GPI_ERROR;
         }
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         len = GocaEmitBox(&ps->goca, buf, sizeof(buf),
                           a->lControl, a->ptl, a->lHRound, a->lVRound);
-        if (len < 0) return (ULONG)GPI_ERROR;
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
         SrvDeliver(ps, buf, (ULONG)len);
-        log("[PMSERVER] OUT : NGpiBox -> 1\n");
+        F_DbgCtxExitf(ctx, "1 (ptl={%ld,%ld}, lControl=%ld)",
+                      (long)a->ptl.x, (long)a->ptl.y, (long)a->lControl);
         return 1;
     }
 
@@ -1171,39 +1325,50 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         BYTE  stackBuf[64];
         PBYTE buf = stackBuf;
         PVOID heap = NULL;
+        int   ctx;
 
-        log("[PMSERVER] IN  : NGpiPolyLine(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiPolyLine(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
         if (cbArgs < sizeof(LONG)) {
-            log("[PMSERVER] OUT : NGpiPolyLine -> GPI_ERROR (bad args)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
             return (ULONG)GPI_ERROR;
         }
         lCount = *(LONG*)pArgs;
         if (lCount <= 0 ||
             cbArgs < sizeof(LONG) + (ULONG)lCount * sizeof(POINTL)) {
-            log("[PMSERVER] OUT : NGpiPolyLine -> GPI_ERROR (bad size)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad size, lCount=%ld)", (long)lCount);
             return (ULONG)GPI_ERROR;
         }
         aptl = (PPOINTL)(pArgs + sizeof(LONG));
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         len = GocaEmitPolyLine(&ps->goca, NULL, 0, lCount, aptl);
-        if (len < 0) return (ULONG)GPI_ERROR;
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (size query failed)");
+            return (ULONG)GPI_ERROR;
+        }
         if ((ULONG)len > sizeof(stackBuf)) {
             if (DosAllocMem(&heap, (ULONG)len,
-                            PAG_COMMIT | PAG_READ | PAG_WRITE) != 0)
+                            PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
+                F_DbgCtxExitf(ctx, "GPI_ERROR (no memory, need=%ld)", (long)len);
                 return (ULONG)GPI_ERROR;
+            }
             buf = (PBYTE)heap;
         }
         len = GocaEmitPolyLine(&ps->goca, buf, (ULONG)len, lCount, aptl);
         if (len < 0) {
             if (heap) DosFreeMem(heap);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
             return (ULONG)GPI_ERROR;
         }
         SrvDeliver(ps, buf, (ULONG)len);
         if (heap) DosFreeMem(heap);
-        log("[PMSERVER] OUT : NGpiPolyLine -> 1\n");
+        F_DbgCtxExitf(ctx, "1 (lCount=%ld)", (long)lCount);
         return 1;
     }
 
@@ -1215,38 +1380,49 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         BYTE  stackBuf[64];
         PBYTE buf = stackBuf;
         PVOID heap = NULL;
+        int   ctx;
 
-        log("[PMSERVER] IN  : NGpiCharString(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiCharString(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
         if (cbArgs < sizeof(LONG)) {
-            log("[PMSERVER] OUT : NGpiCharString -> GPI_ERROR (bad args)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
             return (ULONG)GPI_ERROR;
         }
         lCount = *(LONG*)pArgs;
         if (lCount < 0 || cbArgs < sizeof(LONG) + (ULONG)lCount) {
-            log("[PMSERVER] OUT : NGpiCharString -> GPI_ERROR (bad size)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad size, lCount=%ld)", (long)lCount);
             return (ULONG)GPI_ERROR;
         }
         pchString = (char*)(pArgs + sizeof(LONG));
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         len = GocaEmitCharString(&ps->goca, NULL, 0, lCount, pchString);
-        if (len < 0) return (ULONG)GPI_ERROR;
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (size query failed)");
+            return (ULONG)GPI_ERROR;
+        }
         if ((ULONG)len > sizeof(stackBuf)) {
             if (DosAllocMem(&heap, (ULONG)len,
-                            PAG_COMMIT | PAG_READ | PAG_WRITE) != 0)
+                            PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
+                F_DbgCtxExitf(ctx, "GPI_ERROR (no memory, need=%ld)", (long)len);
                 return (ULONG)GPI_ERROR;
+            }
             buf = (PBYTE)heap;
         }
         len = GocaEmitCharString(&ps->goca, buf, (ULONG)len, lCount, pchString);
         if (len < 0) {
             if (heap) DosFreeMem(heap);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
             return (ULONG)GPI_ERROR;
         }
         SrvDeliver(ps, buf, (ULONG)len);
         if (heap) DosFreeMem(heap);
-        log("[PMSERVER] OUT : NGpiCharString -> 1\n");
+        F_DbgCtxExitf(ctx, "1 (lCount=%ld)", (long)lCount);
         return 1;
     }
 
@@ -1259,40 +1435,52 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         BYTE  stackBuf[64];
         PBYTE buf = stackBuf;
         PVOID heap = NULL;
+        int   ctx;
 
-        log("[PMSERVER] IN  : NGpiCharStringAt(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiCharStringAt(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
         if (cbArgs < sizeof(POINTL) + sizeof(LONG)) {
-            log("[PMSERVER] OUT : NGpiCharStringAt -> GPI_ERROR (bad args)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
             return (ULONG)GPI_ERROR;
         }
         memcpy(&ptl, pArgs, sizeof(POINTL));
         lCount = *(LONG*)(pArgs + sizeof(POINTL));
         if (lCount < 0 ||
             cbArgs < sizeof(POINTL) + sizeof(LONG) + (ULONG)lCount) {
-            log("[PMSERVER] OUT : NGpiCharStringAt -> GPI_ERROR (bad size)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad size, lCount=%ld)", (long)lCount);
             return (ULONG)GPI_ERROR;
         }
         pchString = (char*)(pArgs + sizeof(POINTL) + sizeof(LONG));
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         len = GocaEmitCharStringAt(&ps->goca, NULL, 0, ptl, lCount, pchString);
-        if (len < 0) return (ULONG)GPI_ERROR;
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (size query failed)");
+            return (ULONG)GPI_ERROR;
+        }
         if ((ULONG)len > sizeof(stackBuf)) {
             if (DosAllocMem(&heap, (ULONG)len,
-                            PAG_COMMIT | PAG_READ | PAG_WRITE) != 0)
+                            PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
+                F_DbgCtxExitf(ctx, "GPI_ERROR (no memory, need=%ld)", (long)len);
                 return (ULONG)GPI_ERROR;
+            }
             buf = (PBYTE)heap;
         }
         len = GocaEmitCharStringAt(&ps->goca, buf, (ULONG)len, ptl, lCount, pchString);
         if (len < 0) {
             if (heap) DosFreeMem(heap);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
             return (ULONG)GPI_ERROR;
         }
         SrvDeliver(ps, buf, (ULONG)len);
         if (heap) DosFreeMem(heap);
-        log("[PMSERVER] OUT : NGpiCharStringAt -> 1\n");
+        F_DbgCtxExitf(ctx, "1 (ptl={%ld,%ld}, lCount=%ld)",
+                      (long)ptl.x, (long)ptl.y, (long)lCount);
         return 1;
     }
 
@@ -1301,21 +1489,29 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         BYTE buf[10];
         LONG len;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiMarker(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiMarker(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
         if (!pArgs || cbArgs < sizeof(POINTL)) {
-            log("[PMSERVER] OUT : NGpiMarker -> GPI_ERROR (bad args)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
             return (ULONG)GPI_ERROR;
         }
         memcpy(&ptl, pArgs, sizeof(POINTL));
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         len = GocaEmitMarker(&ps->goca, buf, sizeof(buf), ptl);
-        if (len < 0) return (ULONG)GPI_ERROR;
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
         SrvDeliver(ps, buf, (ULONG)len);
-        log("[PMSERVER] OUT : NGpiMarker -> 1\n");
+        F_DbgCtxExitf(ctx, "1 (pt={%ld,%ld})", (long)ptl.x, (long)ptl.y);
         return 1;
     }
 
@@ -1327,39 +1523,50 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         BYTE  stackBuf[64];
         PBYTE buf = stackBuf;
         PVOID heap = NULL;
+        int   ctx;
 
-        log("[PMSERVER] IN  : NGpiPolyMarker(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiPolyMarker(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
         if (cbArgs < sizeof(LONG)) {
-            log("[PMSERVER] OUT : NGpiPolyMarker -> GPI_ERROR (bad args)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
             return (ULONG)GPI_ERROR;
         }
         lCount = *(LONG*)pArgs;
         if (lCount <= 0 ||
             cbArgs < sizeof(LONG) + (ULONG)lCount * sizeof(POINTL)) {
-            log("[PMSERVER] OUT : NGpiPolyMarker -> GPI_ERROR (bad size)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad size, lCount=%ld)", (long)lCount);
             return (ULONG)GPI_ERROR;
         }
         aptl = (PPOINTL)(pArgs + sizeof(LONG));
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         len = GocaEmitPolyMarker(&ps->goca, NULL, 0, lCount, aptl);
-        if (len < 0) return (ULONG)GPI_ERROR;
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (size query failed)");
+            return (ULONG)GPI_ERROR;
+        }
         if ((ULONG)len > sizeof(stackBuf)) {
             if (DosAllocMem(&heap, (ULONG)len,
-                            PAG_COMMIT | PAG_READ | PAG_WRITE) != 0)
+                            PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
+                F_DbgCtxExitf(ctx, "GPI_ERROR (no memory, need=%ld)", (long)len);
                 return (ULONG)GPI_ERROR;
+            }
             buf = (PBYTE)heap;
         }
         len = GocaEmitPolyMarker(&ps->goca, buf, (ULONG)len, lCount, aptl);
         if (len < 0) {
             if (heap) DosFreeMem(heap);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
             return (ULONG)GPI_ERROR;
         }
         SrvDeliver(ps, buf, (ULONG)len);
         if (heap) DosFreeMem(heap);
-        log("[PMSERVER] OUT : NGpiPolyMarker -> 1\n");
+        F_DbgCtxExitf(ctx, "1 (lCount=%ld)", (long)lCount);
         return 1;
     }
 
@@ -1368,16 +1575,29 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         BYTE buf[10];
         LONG len;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiSetArcParams(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(ARCPARAMS)) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiSetArcParams(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(ARCPARAMS)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
         memcpy(&ap, pArgs, sizeof(ARCPARAMS));
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
         len = GocaEmitSetArcParams(&ps->goca, buf, sizeof(buf), &ap);
-        if (len < 0) return (ULONG)GPI_ERROR;
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
         SrvDeliver(ps, buf, (ULONG)len);
+        F_DbgCtxExitf(ctx, "1 (P=%ld Q=%ld R=%ld S=%ld)",
+                      (long)ap.lP, (long)ap.lQ, (long)ap.lR, (long)ap.lS);
         return 1;
     }
 
@@ -1387,22 +1607,28 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         ULONG flDefMask;
         PBUNDLE pb;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiSetAttrs(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiSetAttrs(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
         if (cbArgs < sizeof(LONG) + sizeof(ULONG) + sizeof(ULONG)) {
-            log("[PMSERVER] OUT : NGpiSetAttrs -> GPI_ERROR (bad args)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
             return (ULONG)GPI_ERROR;
         }
-        lPrimType = *(LONG*)pArgs;
+        lPrimType  = *(LONG*)pArgs;
         flAttrMask = *(ULONG*)(pArgs + sizeof(LONG));
-        flDefMask = *(ULONG*)(pArgs + sizeof(LONG) + sizeof(ULONG));
+        flDefMask  = *(ULONG*)(pArgs + sizeof(LONG) + sizeof(ULONG));
         pb = (PBUNDLE)(pArgs + sizeof(LONG) + sizeof(ULONG) + sizeof(ULONG));
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         SrvEmitSetAttrs(ps, lPrimType, flAttrMask, pb);
-        log("[PMSERVER] OUT : NGpiSetAttrs -> 1\n");
+        F_DbgCtxExitf(ctx, "1 (primType=%ld, mask=0x%lx)",
+                      (long)lPrimType, (unsigned long)flAttrMask);
         return 1;
     }
 
@@ -1416,31 +1642,39 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         BYTE gbseg[14];
         UCHAR f1, f2;
         ULONG start, end;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiOpenSegment(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiOpenSegment(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
         lSegId = *(LONG*)pArgs;
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         if (lSegId <= 0) {
-            log("[PMSERVER] OUT : NGpiOpenSegment -> GPI_ERROR (bad id)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad id %ld)", (long)lSegId);
             return (ULONG)GPI_ERROR;
         }
         if (ps->lOpenSeg != 0) {
-            log("[PMSERVER] OUT : NGpiOpenSegment -> GPI_ERROR (already in seg %ld)\n",
-                (long)ps->lOpenSeg);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (already in seg %ld)",
+                          (long)ps->lOpenSeg);
             return (ULONG)GPI_ERROR;
         }
         /* PMERR_PATH_INCOMPLETE: an attempt was made to open a segment
            while there is an open path bracket. */
         if (ps->lOpenPath != 0) {
-            log("[PMSERVER] OUT : NGpiOpenSegment -> GPI_ERROR (path open)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (path open)");
             return (ULONG)GPI_ERROR;
         }
         if (ps->ulDrawingMode == DM_DRAW) {
-            log("[PMSERVER] OUT : NGpiOpenSegment -> GPI_ERROR (in DM_DRAW)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (in DM_DRAW)");
             return (ULONG)GPI_ERROR;
         }
 
@@ -1458,8 +1692,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
             ps->lCurrentElement = 0;
             ps->bInElement      = FALSE;
             ps->bPathDefined    = FALSE;
-            log("[PMSERVER] OUT : NGpiOpenSegment -> 1 (edit off=%lu)\n",
-                (unsigned long)start);
+            F_DbgCtxExitf(ctx, "1 (edit off=%lu)", (unsigned long)start);
             return 1;
         }
 
@@ -1473,26 +1706,33 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         GocaPutU16(&ps->goca, gbseg + 8, 0);   /* SEGL */
         GocaPutU32(&ps->goca, gbseg + 10, 0);  /* P/SNAME */
 
-        if (!GpiPsGocaAppend(ps, gbseg, sizeof(gbseg)))
+        if (!GpiPsGocaAppend(ps, gbseg, sizeof(gbseg))) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (append failed)");
             return (ULONG)GPI_ERROR;
+        }
         ps->uOpenSegStart   = ps->cbGoca - sizeof(gbseg);
         ps->lOpenSeg        = lSegId;
         ps->lCurrentElement = 0;
         ps->bInElement      = FALSE;
         ps->bPathDefined    = FALSE;
 
-        log("[PMSERVER] OUT : NGpiOpenSegment -> 1 (off=%lu)\n",
-            (unsigned long)ps->uOpenSegStart);
+        F_DbgCtxExitf(ctx, "1 (off=%lu)", (unsigned long)ps->uOpenSegStart);
         return 1;
     }
 
     case NGpiCloseSegment: {
         PGPI_PS ps = GpiPsGet(hps);
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiCloseSegment(hps=%p)\n", (void*)hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiCloseSegment(hps=%p)",
+                             (void*)hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
         if (ps->lOpenSeg == 0) {
-            log("[PMSERVER] OUT : NGpiCloseSegment -> GPI_ERROR (not in seg)\n");
+            F_DbgCtxExitf(ctx, "GPI_ERROR (not in seg)");
             return (ULONG)GPI_ERROR;
         }
 
@@ -1506,7 +1746,10 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
             ULONG cbElem;
 
             len = GocaEmitEndElement(&ps->goca, buf, sizeof(buf));
-            if (len < 0) return (ULONG)GPI_ERROR;
+            if (len < 0) {
+                F_DbgCtxExitf(ctx, "GPI_ERROR (emit EndElement failed)");
+                return (ULONG)GPI_ERROR;
+            }
             SrvDeliver(ps, buf, (ULONG)len);
 
             if (GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
@@ -1541,7 +1784,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         ps->uOpenElementStart = 0;
         ps->lCurrentElement   = 0;
         ps->bInElement        = FALSE;
-        log("[PMSERVER] OUT : NGpiCloseSegment -> 1\n");
+        F_DbgCtxExitf(ctx, "1");
         return 1;
     }
 
@@ -1549,17 +1792,24 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         LONG lSegId;
         PGPI_PS ps;
         ULONG start, end;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiDrawSegment(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiDrawSegment(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
         lSegId = *(LONG*)pArgs;
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         if (!GpiPsGocaFindSeg(ps, lSegId, &start, &end)) {
-            log("[PMSERVER] OUT : NGpiDrawSegment -> GPI_ERROR (seg %ld not found)\n",
-                (long)lSegId);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (seg %ld not found)", (long)lSegId);
             return (ULONG)GPI_ERROR;
         }
 
@@ -1567,25 +1817,30 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         ps->goca.cbStream = end - start;
         GocaParseStream(&ps->goca);   /* GBSEG is a no-op in the parser */
 
-        log("[PMSERVER] OUT : NGpiDrawSegment -> 1 (off=%lu..%lu)\n",
-            (unsigned long)start, (unsigned long)end);
+        F_DbgCtxExitf(ctx, "1 (off=%lu..%lu)",
+                      (unsigned long)start, (unsigned long)end);
         return 1;
     }
 
-
     case NGpiDrawChain: {
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiDrawChain(hps=%p)\n", (void*)hps);
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiDrawChain(hps=%p)",
+                             (void*)hps);
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
         if (ps->lOpenSeg != 0) {
-            log("[PMSERVER] OUT : NGpiDrawChain -> GPI_ERROR (seg %ld open)\n",
-                (long)ps->lOpenSeg);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (seg %ld open)",
+                          (long)ps->lOpenSeg);
             return (ULONG)GPI_ERROR;
         }
         SrvForEachSegment(ps, SrvCbDrawChain, NULL);
-        log("[PMSERVER] OUT : NGpiDrawChain -> 1\n");
+        F_DbgCtxExitf(ctx, "1");
         return 1;
     }
 
@@ -1593,43 +1848,57 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         LONG lFirst, lLast;
         SRV_SEGRANGE range;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiDrawFrom(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiDrawFrom(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
         memcpy(&lFirst, pArgs, sizeof(LONG));
         memcpy(&lLast,  pArgs + sizeof(LONG), sizeof(LONG));
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
         if (ps->lOpenSeg != 0) {
-            log("[PMSERVER] OUT : NGpiDrawFrom -> GPI_ERROR (seg %ld open)\n",
-                (long)ps->lOpenSeg);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (seg %ld open)",
+                          (long)ps->lOpenSeg);
             return (ULONG)GPI_ERROR;
         }
         range.lFirst = lFirst;
         range.lLast  = lLast;
         SrvForEachSegment(ps, SrvCbDrawFrom, &range);
-        log("[PMSERVER] OUT : NGpiDrawFrom -> 1\n");
+        F_DbgCtxExitf(ctx, "1 (range %ld..%ld)", (long)lFirst, (long)lLast);
         return 1;
     }
 
     case NGpiDrawDynamics: {
         USHORT usFgMix, usBgMix;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiDrawDynamics(hps=%p)\n", (void*)hps);
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiDrawDynamics(hps=%p)",
+                             (void*)hps);
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
         if (ps->lOpenSeg != 0) {
-            log("[PMSERVER] OUT : NGpiDrawDynamics -> GPI_ERROR (seg %ld open)\n",
-                (long)ps->lOpenSeg);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (seg %ld open)",
+                          (long)ps->lOpenSeg);
             return (ULONG)GPI_ERROR;
         }
         SrvSaveMix(ps, &usFgMix, &usBgMix);
         SrvEnterDynamicsMix(ps);
         SrvForEachSegment(ps, SrvCbDrawDynamics, NULL);
         SrvLeaveDynamicsMix(ps, usFgMix, usBgMix);
-        log("[PMSERVER] OUT : NGpiDrawDynamics -> 1\n");
+        F_DbgCtxExitf(ctx, "1");
         return 1;
     }
 
@@ -1638,17 +1907,25 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         SRV_SEGRANGE range;
         USHORT usFgMix, usBgMix;
         PGPI_PS ps;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiRemoveDynamics(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiRemoveDynamics(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
         memcpy(&lFirst, pArgs, sizeof(LONG));
         memcpy(&lLast,  pArgs + sizeof(LONG), sizeof(LONG));
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
         if (ps->lOpenSeg != 0) {
-            log("[PMSERVER] OUT : NGpiRemoveDynamics -> GPI_ERROR (seg %ld open)\n",
-                (long)ps->lOpenSeg);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (seg %ld open)",
+                          (long)ps->lOpenSeg);
             return (ULONG)GPI_ERROR;
         }
         range.lFirst = lFirst;
@@ -1657,7 +1934,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         SrvEnterDynamicsMix(ps);
         SrvForEachSegment(ps, SrvCbRemoveDynamics, &range);
         SrvLeaveDynamicsMix(ps, usFgMix, usBgMix);
-        log("[PMSERVER] OUT : NGpiRemoveDynamics -> 1\n");
+        F_DbgCtxExitf(ctx, "1 (range %ld..%ld)", (long)lFirst, (long)lLast);
         return 1;
     }
 
@@ -1669,29 +1946,37 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         LONG lSegId;
         PGPI_PS ps;
         ULONG start, end;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiDeleteSegment(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiDeleteSegment(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
         lSegId = *(LONG*)pArgs;
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         if (ps->lOpenSeg == lSegId) {
-            log("[PMSERVER] OUT : NGpiDeleteSegment -> GPI_ERROR (seg %ld is open)\n",
-                (long)lSegId);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (seg %ld is open)", (long)lSegId);
             return (ULONG)GPI_ERROR;
         }
         if (!GpiPsGocaFindSeg(ps, lSegId, &start, &end)) {
-            log("[PMSERVER] OUT : NGpiDeleteSegment -> GPI_ERROR (seg %ld not found)\n",
-                (long)lSegId);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (seg %ld not found)", (long)lSegId);
             return (ULONG)GPI_ERROR;
         }
-        if (!GpiPsGocaDelete(ps, start, end))
+        if (!GpiPsGocaDelete(ps, start, end)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (delete failed)");
             return (ULONG)GPI_ERROR;
+        }
 
-        log("[PMSERVER] OUT : NGpiDeleteSegment -> 1 (removed %lu bytes)\n",
-            (unsigned long)(end - start));
+        F_DbgCtxExitf(ctx, "1 (removed %lu bytes)",
+                      (unsigned long)(end - start));
         return 1;
     }
 
@@ -1699,14 +1984,22 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         LONG lFirst, lLast;
         PGPI_PS ps;
         ULONG off;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiDeleteSegments(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiDeleteSegments(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
         memcpy(&lFirst, pArgs, sizeof(LONG));
         memcpy(&lLast,  pArgs + sizeof(LONG), sizeof(LONG));
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         off = 0;
         while (off < ps->cbGoca) {
@@ -1719,8 +2012,8 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
                 if ((LONG)name >= lFirst && (LONG)name <= lLast) {
                     ULONG start, end;
                     if (ps->lOpenSeg == (LONG)name) {
-                        log("[PMSERVER] OUT : NGpiDeleteSegments -> GPI_ERROR (seg %lu open)\n",
-                            (unsigned long)name);
+                        F_DbgCtxExitf(ctx, "GPI_ERROR (seg %lu open)",
+                                      (unsigned long)name);
                         return (ULONG)GPI_ERROR;
                     }
                     if (!GpiPsGocaFindSeg(ps, (LONG)name, &start, &end))
@@ -1732,7 +2025,7 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
             }
             off += cb;
         }
-        log("[PMSERVER] OUT : NGpiDeleteSegments -> 1\n");
+        F_DbgCtxExitf(ctx, "1 (range %ld..%ld)", (long)lFirst, (long)lLast);
         return 1;
     }
 
@@ -1741,21 +2034,36 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         PGPI_PS ps;
         ULONG start, end;
         UCHAR f1 = 0, f2 = 0;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiSetSegmentAttrs(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 3 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiSetSegmentAttrs(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 3 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
         memcpy(&lSegId, pArgs, sizeof(LONG));
         memcpy(&lAttr,  pArgs + sizeof(LONG), sizeof(LONG));
         memcpy(&lValue, pArgs + 2 * sizeof(LONG), sizeof(LONG));
-        if (lValue != ATTR_ON && lValue != ATTR_OFF)
+        if (lValue != ATTR_ON && lValue != ATTR_OFF) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad value %ld)", (long)lValue);
             return (ULONG)GPI_ERROR;
+        }
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-
-        if (!GpiPsGocaFindSeg(ps, lSegId, &start, &end))
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
             return (ULONG)GPI_ERROR;
-        if (start + 8 > end) return (ULONG)GPI_ERROR;
+        }
+
+        if (!GpiPsGocaFindSeg(ps, lSegId, &start, &end)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (seg %ld not found)", (long)lSegId);
+            return (ULONG)GPI_ERROR;
+        }
+        if (start + 8 > end) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (seg %ld truncated)", (long)lSegId);
+            return (ULONG)GPI_ERROR;
+        }
 
         f1 = ps->pbGoca[start + 6];
         f2 = ps->pbGoca[start + 7];
@@ -1790,11 +2098,14 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
             else                   f2 |= GBSEG_CHAIN;
             break;
         default:
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad attribute %ld)", (long)lAttr);
             return (ULONG)GPI_ERROR;
         }
 
         ps->pbGoca[start + 6] = f1;
         ps->pbGoca[start + 7] = f2;
+        F_DbgCtxExitf(ctx, "1 (seg=%ld, attr=%ld, val=%ld)",
+                      (long)lSegId, (long)lAttr, (long)lValue);
         return 1;
     }
 
@@ -1803,32 +2114,51 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         PGPI_PS ps;
         ULONG start, end;
         UCHAR f1, f2;
+        ULONG result;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiQuerySegmentAttrs(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiQuerySegmentAttrs(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
         memcpy(&lSegId, pArgs, sizeof(LONG));
         memcpy(&lAttr,  pArgs + sizeof(LONG), sizeof(LONG));
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-
-        if (!GpiPsGocaFindSeg(ps, lSegId, &start, &end))
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
             return (ULONG)GPI_ERROR;
-        if (start + 8 > end) return (ULONG)GPI_ERROR;
+        }
+
+        if (!GpiPsGocaFindSeg(ps, lSegId, &start, &end)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (seg %ld not found)", (long)lSegId);
+            return (ULONG)GPI_ERROR;
+        }
+        if (start + 8 > end) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (seg %ld truncated)", (long)lSegId);
+            return (ULONG)GPI_ERROR;
+        }
 
         f1 = ps->pbGoca[start + 6];
         f2 = ps->pbGoca[start + 7];
 
         switch (lAttr) {
-        case ATTR_VISIBLE:          return (f1 & GBSEG_INVISIBLE) ? ATTR_OFF : ATTR_ON;
-        case ATTR_PROP_VISIBLE:     return (f1 & GBSEG_PROPINV)   ? ATTR_OFF : ATTR_ON;
-        case ATTR_DETECTABLE:       return (f1 & GBSEG_PICK)      ? ATTR_ON  : ATTR_OFF;
-        case ATTR_PROP_DETECTABLE:  return (f1 & GBSEG_PROPICK)   ? ATTR_ON  : ATTR_OFF;
-        case ATTR_DYNAMIC:          return (f1 & GBSEG_DYNAMIC)   ? ATTR_ON  : ATTR_OFF;
-        case ATTR_FASTCHAIN:        return (f1 & GBSEG_FASTCH)    ? ATTR_ON  : ATTR_OFF;
-        case ATTR_CHAINED:          return (f2 & GBSEG_CHAIN)     ? ATTR_OFF : ATTR_ON;
-        default:                    return (ULONG)GPI_ERROR;
+        case ATTR_VISIBLE:          result = (f1 & GBSEG_INVISIBLE) ? ATTR_OFF : ATTR_ON; break;
+        case ATTR_PROP_VISIBLE:     result = (f1 & GBSEG_PROPINV)   ? ATTR_OFF : ATTR_ON; break;
+        case ATTR_DETECTABLE:       result = (f1 & GBSEG_PICK)      ? ATTR_ON  : ATTR_OFF; break;
+        case ATTR_PROP_DETECTABLE:  result = (f1 & GBSEG_PROPICK)   ? ATTR_ON  : ATTR_OFF; break;
+        case ATTR_DYNAMIC:          result = (f1 & GBSEG_DYNAMIC)   ? ATTR_ON  : ATTR_OFF; break;
+        case ATTR_FASTCHAIN:        result = (f1 & GBSEG_FASTCH)    ? ATTR_ON  : ATTR_OFF; break;
+        case ATTR_CHAINED:          result = (f2 & GBSEG_CHAIN)     ? ATTR_OFF : ATTR_ON; break;
+        default:
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad attribute %ld)", (long)lAttr);
+            return (ULONG)GPI_ERROR;
         }
+        F_DbgCtxExitf(ctx, "%lu (seg=%ld, attr=%ld)",
+                      (unsigned long)result, (long)lSegId, (long)lAttr);
+        return result;
     }
 
     case NGpiQuerySegmentNames: {
@@ -1837,17 +2167,27 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         ULONG off;
         LONG  n = 0;
         LONG *pOut;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiQuerySegmentNames(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 3 * sizeof(LONG)) return (ULONG)GPI_ERROR;
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiQuerySegmentNames(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 3 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
         memcpy(&lFirst, pArgs, sizeof(LONG));
         memcpy(&lLast,  pArgs + sizeof(LONG), sizeof(LONG));
         memcpy(&lMax,   pArgs + 2 * sizeof(LONG), sizeof(LONG));
-        if (lMax <= 0 || cbArgs < 3 * sizeof(LONG) + (ULONG)lMax * sizeof(LONG))
+        if (lMax <= 0 || cbArgs < 3 * sizeof(LONG) + (ULONG)lMax * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad max %ld)", (long)lMax);
             return (ULONG)GPI_ERROR;
+        }
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         pOut = (LONG*)(pArgs + 3 * sizeof(LONG));
         off  = 0;
@@ -1865,8 +2205,8 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         }
 
         if (pcbPayload) *pcbPayload = cbArgs;   /* send back modified pArgs */
-        log("[PMSERVER] OUT : NGpiQuerySegmentNames -> %ld names, payload=%u\n",
-            (long)n, (unsigned)cbArgs);
+        F_DbgCtxExitf(ctx, "%ld names, payload=%u (range %ld..%ld)",
+                      (long)n, (unsigned)cbArgs, (long)lFirst, (long)lLast);
         return (ULONG)n;
     }
 
@@ -1874,24 +2214,38 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         PGpiGetData_Args a = (PGpiGetData_Args)pArgs;
         PGPI_PS ps;
         ULONG start, end, avail, avail_from_off, toCopy;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiGetData(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!a || cbArgs < 4 * sizeof(LONG)) return (ULONG)GPI_ERROR;
-        if (a->lFormat != 0 /* DFORM_NOCONV */) {
-            log("[PMSERVER] OUT : NGpiGetData -> GPI_ERROR (unsupported format %ld)\n",
-                (long)a->lFormat);
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiGetData(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!a || cbArgs < 4 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
             return (ULONG)GPI_ERROR;
         }
-        if (a->lLength < 0 || a->lOffset < 0) return (ULONG)GPI_ERROR;
-        if (cbArgs < 4 * sizeof(LONG) + (ULONG)a->lLength) return (ULONG)GPI_ERROR;
+        if (a->lFormat != 0 /* DFORM_NOCONV */) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (unsupported format %ld)",
+                          (long)a->lFormat);
+            return (ULONG)GPI_ERROR;
+        }
+        if (a->lLength < 0 || a->lOffset < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad len/off)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (cbArgs < 4 * sizeof(LONG) + (ULONG)a->lLength) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (payload short)");
+            return (ULONG)GPI_ERROR;
+        }
 
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         if (!GpiPsGocaFindSeg(ps, a->lSegid, &start, &end)) {
-            log("[PMSERVER] OUT : NGpiGetData -> GPI_ERROR (seg %ld not found)\n",
-                (long)a->lSegid);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (seg %ld not found)",
+                          (long)a->lSegid);
             return (ULONG)GPI_ERROR;
         }
 
@@ -1911,8 +2265,8 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         a->lOffset += (LONG)toCopy;
 
         if (pcbPayload) *pcbPayload = cbArgs;   /* send back updated pArgs */
-        log("[PMSERVER] OUT : NGpiGetData -> %lu bytes (seg %ld, off %ld)\n",
-            (unsigned long)toCopy, (long)a->lSegid, (long)a->lOffset);
+        F_DbgCtxExitf(ctx, "%lu bytes (seg %ld, off %ld)",
+                      (unsigned long)toCopy, (long)a->lSegid, (long)a->lOffset);
         return (ULONG)toCopy;
     }
 
@@ -1920,31 +2274,48 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         PGpiPutData_Args a = (PGpiPutData_Args)pArgs;
         PGPI_PS ps;
         ULONG off, total, processed;
+        int ctx;
 
-        log("[PMSERVER] IN  : NGpiPutData(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!a || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
-        if (a->lCount < 0 ||
-            cbArgs < 2 * sizeof(LONG) + (ULONG)a->lCount)
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiPutData(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!a || cbArgs < 2 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
             return (ULONG)GPI_ERROR;
+        }
+        if (a->lCount < 0 ||
+            cbArgs < 2 * sizeof(LONG) + (ULONG)a->lCount) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad count %ld)", (long)a->lCount);
+            return (ULONG)GPI_ERROR;
+        }
 
         ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
 
         /* GPI Guide: PutData cannot be used in SEGEM_REPLACE. */
-        if (ps->ulEditMode == SEGEM_REPLACE)
+        if (ps->ulEditMode == SEGEM_REPLACE) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (in SEGEM_REPLACE)");
             return (ULONG)GPI_ERROR;
+        }
 
         /* GPI Guide: in SEGEM_INSERT, pointer must be at the last
            element of the current segment. */
         if (ps->lOpenSeg != 0) {
             ULONG segStart, segEnd;
             LONG  n;
-            if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
+            if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
+                F_DbgCtxExitf(ctx, "GPI_ERROR (open seg not found)");
                 return (ULONG)GPI_ERROR;
+            }
             n = SrvCountElements(ps, segStart, segEnd);
-            if (ps->lCurrentElement != n)
+            if (ps->lCurrentElement != n) {
+                F_DbgCtxExitf(ctx, "GPI_ERROR (pointer not at end, %ld != %ld)",
+                              (long)ps->lCurrentElement, (long)n);
                 return (ULONG)GPI_ERROR;
+            }
         }
 
         total     = (ULONG)a->lCount;
@@ -1981,8 +2352,1393 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
         }
 
         if (pcbPayload) *pcbPayload = cbArgs;
-        log("[PMSERVER] OUT : NGpiPutData -> %lu/%lu bytes processed\n",
-            (unsigned long)processed, (unsigned long)total);
+        F_DbgCtxExitf(ctx, "%lu/%lu bytes processed",
+                      (unsigned long)processed, (unsigned long)total);
+        return 1;
+    }
+
+    case NGpiQuerySegmentPriority: {
+        LONG lRefSegid, lOrder;
+        PGPI_PS ps;
+        ULONG result;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiQuerySegmentPriority(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (bad args)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        memcpy(&lRefSegid, pArgs, sizeof(LONG));
+        memcpy(&lOrder,   pArgs + sizeof(LONG), sizeof(LONG));
+        if (lOrder != LOWER_PRI && lOrder != HIGHER_PRI) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (bad order %ld)", (long)lOrder);
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (lRefSegid < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (bad refseg %ld)", (long)lRefSegid);
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (no ps)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+
+        if (lRefSegid == 0) {
+            ULONG pos;
+            if (lOrder == LOWER_PRI) {
+                if (!SrvFindFirstChainSeg(ps, &pos)) {
+                    F_DbgCtxExitf(ctx, "GPI_ALTERROR (empty chain)");
+                    return (ULONG)(LONG)GPI_ALTERROR;
+                }
+            } else {
+                if (!SrvFindLastChainSeg(ps, &pos)) {
+                    F_DbgCtxExitf(ctx, "GPI_ALTERROR (empty chain)");
+                    return (ULONG)(LONG)GPI_ALTERROR;
+                }
+            }
+            result = (ULONG)GocaGetU32(&ps->goca, ps->pbGoca + pos + 2);
+            F_DbgCtxExitf(ctx, "%lu (refseg=0, order=%ld)",
+                          (unsigned long)result, (long)lOrder);
+            return result;
+        }
+
+        {
+            ULONG s, e, pos;
+            UCHAR f1, f2;
+            if (!SrvSegInfo(ps, lRefSegid, &s, &e, &f1, &f2)) {
+                F_DbgCtxExitf(ctx, "GPI_ALTERROR (SEG_NOT_FOUND %ld)",
+                              (long)lRefSegid);
+                return (ULONG)(LONG)GPI_ALTERROR;
+            }
+            if (!SrvSegInChain(f1, f2)) {
+                F_DbgCtxExitf(ctx, "GPI_ALTERROR (SEG_NOT_CHAINED %ld)",
+                              (long)lRefSegid);
+                return (ULONG)(LONG)GPI_ALTERROR;
+            }
+
+            if (lOrder == LOWER_PRI) {
+                /* Walk backwards: find chain segment immediately before s. */
+                ULONG off = 0, prev = 0;
+                BOOL  found = FALSE;
+                while (off < s) {
+                    const BYTE *p = ps->pbGoca + off;
+                    ULONG cb = GocaOrderLength(&ps->goca, p, s - off);
+                    if (cb == 0) break;
+                    if (p[0] == OCODE_GBSEG && cb >= 14 &&
+                        SrvSegInChain(p[6], p[7])) { prev = off; found = TRUE; }
+                    off += cb;
+                }
+                if (!found) {
+                    F_DbgCtxExitf(ctx, "0 (no lower chain seg)");
+                    return 0;
+                }
+                pos = prev;
+            } else {
+                /* Walk forwards: find chain segment immediately after e. */
+                ULONG off = e;
+                BOOL  found = FALSE;
+                while (off < ps->cbGoca) {
+                    const BYTE *p = ps->pbGoca + off;
+                    ULONG cb = GocaOrderLength(&ps->goca, p, ps->cbGoca - off);
+                    if (cb == 0) break;
+                    if (p[0] == OCODE_GBSEG && cb >= 14 &&
+                        SrvSegInChain(p[6], p[7])) { found = TRUE; break; }
+                    off += cb;
+                }
+                if (!found) {
+                    F_DbgCtxExitf(ctx, "0 (no higher chain seg)");
+                    return 0;
+                }
+                pos = off;
+            }
+            result = (ULONG)GocaGetU32(&ps->goca, ps->pbGoca + pos + 2);
+            F_DbgCtxExitf(ctx, "%lu (refseg=%ld, order=%ld)",
+                          (unsigned long)result, (long)lRefSegid, (long)lOrder);
+            return result;
+        }
+    }
+
+    case NGpiSetSegmentPriority: {
+        LONG lSegid, lRefSegid, lOrder;
+        PGPI_PS ps;
+        ULONG s, e, ins;
+        UCHAR f1, f2;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiSetSegmentPriority(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 3 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
+        memcpy(&lSegid,    pArgs,                     sizeof(LONG));
+        memcpy(&lRefSegid, pArgs +     sizeof(LONG),  sizeof(LONG));
+        memcpy(&lOrder,    pArgs + 2 * sizeof(LONG),  sizeof(LONG));
+
+        if (lSegid <= 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad segid %ld)", (long)lSegid);
+            return (ULONG)GPI_ERROR;
+        }
+        if (lRefSegid < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad refsegid %ld)", (long)lRefSegid);
+            return (ULONG)GPI_ERROR;
+        }
+        if (lOrder != LOWER_PRI && lOrder != HIGHER_PRI) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad order %ld)", (long)lOrder);
+            return (ULONG)GPI_ERROR;
+        }
+        if (lSegid == lRefSegid) {
+            F_DbgCtxExitf(ctx, "1 (no-op, segid == refsegid)");
+            return 1;   /* no-op */
+        }
+
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenSeg != 0 &&
+            (ps->lOpenSeg == lSegid || ps->lOpenSeg == lRefSegid)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (seg %ld open)", (long)ps->lOpenSeg);
+            return (ULONG)GPI_ERROR;
+        }
+
+        if (!SrvSegInfo(ps, lSegid, &s, &e, &f1, &f2)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (seg %ld not found)", (long)lSegid);
+            return (ULONG)GPI_ERROR;
+        }
+
+        /* Attach lSegid to chain before searching (spec: not-chained is added). */
+        if (!SrvSegInChain(f1, f2)) {
+            ps->pbGoca[s + 6] &= (UCHAR)~GBSEG_DYNAMIC;
+            ps->pbGoca[s + 7] &= (UCHAR)~GBSEG_CHAIN;
+        }
+
+        if (lRefSegid != 0) {
+            ULONG rs, re;
+            UCHAR rf1, rf2;
+            if (!SrvSegInfo(ps, lRefSegid, &rs, &re, &rf1, &rf2)) {
+                F_DbgCtxExitf(ctx, "GPI_ERROR (refseg %ld not found)",
+                              (long)lRefSegid);
+                return (ULONG)GPI_ERROR;
+            }
+            if (!SrvSegInChain(rf1, rf2)) {
+                F_DbgCtxExitf(ctx, "GPI_ERROR (refseg %ld not chained)",
+                              (long)lRefSegid);
+                return (ULONG)GPI_ERROR;
+            }
+            ins = (lOrder == LOWER_PRI) ? rs : re;
+        } else {
+            ULONG pos;
+            if (lOrder == LOWER_PRI) {
+                if (!SrvFindFirstChainSeg(ps, &pos))
+                    ins = 0;                       /* should not happen */
+                else
+                    ins = pos;
+            } else {
+                if (!SrvFindLastChainSeg(ps, &pos)) {
+                    ins = ps->cbGoca;
+                } else {
+                    ULONG posEnd;
+                    LONG  lastId = (LONG)GocaGetU32(&ps->goca,
+                                                    ps->pbGoca + pos + 2);
+                    if (!SrvSegInfo(ps, lastId, &pos, &posEnd, NULL, NULL)) {
+                        F_DbgCtxExitf(ctx, "GPI_ERROR (last chain seg %ld lost)",
+                                      (long)lastId);
+                        return (ULONG)GPI_ERROR;
+                    }
+                    ins = posEnd;
+                }
+            }
+        }
+
+        if (!SrvMoveRange(ps, s, e, ins)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (MoveRange failed)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        F_DbgCtxExitf(ctx, "1 (seg=%ld, refseg=%ld, order=%ld)",
+                      (long)lSegid, (long)lRefSegid, (long)lOrder);
+        return 1;
+    }
+
+    case NGpiBeginElement: {
+        PGpiBeginElement_Args a = (PGpiBeginElement_Args)pArgs;
+        PGPI_PS ps;
+        BYTE buf[6 + GBEL_DL];
+        LONG len;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiBeginElement(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!a || cbArgs < sizeof(*a)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenSeg == 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no open segment)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->ulDrawingMode != DM_RETAIN &&
+            ps->ulDrawingMode != DM_DRAWANDRETAIN) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (not in retain mode)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->bInElement) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (already in element)");
+            return (ULONG)GPI_ERROR;
+        }
+        /* Element type for a user-defined element must be in the range
+           [0x81000000, 0xFFFFFFFF] (GpiBeginElement/GpiElement - Remarks). */
+        if ((ULONG)a->lType < 0x81000000UL) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad type 0x%lx)",
+                          (unsigned long)a->lType);
+            return (ULONG)GPI_ERROR;
+        }
+
+        len = GocaEmitBeginElement(&ps->goca, buf, sizeof(buf),
+                                    a->lType, a->szDesc);
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        ps->uOpenElementStart = ps->cbGoca;
+        SrvDeliver(ps, buf, (ULONG)len);
+        ps->bInElement = TRUE;
+
+        F_DbgCtxExitf(ctx, "1 (type=0x%lx)", (unsigned long)a->lType);
+        return 1;
+    }
+
+    case NGpiEndElement: {
+        PGPI_PS ps;
+        BYTE  buf[2];
+        ULONG segStart, segEnd;
+        LONG  len;
+        PVOID pvElem = NULL;
+        PBYTE pElem;
+        ULONG cbElem;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiEndElement(hps=%p)",
+                             (void*)hps);
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenSeg == 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no open segment)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (!ps->bInElement) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (not in element)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        len = GocaEmitEndElement(&ps->goca, buf, sizeof(buf));
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
+        SrvDeliver(ps, buf, (ULONG)len);
+
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (open seg not found)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        cbElem = ps->cbGoca - ps->uOpenElementStart;
+        if (cbElem > 0 &&
+            DosAllocMem(&pvElem, cbElem,
+                        PAG_COMMIT | PAG_READ | PAG_WRITE) == 0) {
+            pElem = (PBYTE)pvElem;
+            memcpy(pElem, ps->pbGoca + ps->uOpenElementStart, cbElem);
+            GpiPsGocaDelete(ps, ps->uOpenElementStart, ps->cbGoca);
+            SrvGocaInsertElement(ps, segStart, segEnd, pElem, cbElem);
+            DosFreeMem(pvElem);
+        }
+        ps->bInElement        = FALSE;
+        ps->uOpenElementStart = 0;
+
+        F_DbgCtxExitf(ctx, "1");
+        return 1;
+    }
+
+    case NGpiLabel: {
+        LONG   lLabel;
+        PGPI_PS ps;
+        BYTE   buf[6];
+        LONG   len;
+        ULONG  segStart, segEnd;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiLabel(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
+        lLabel = *(LONG*)pArgs;
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenSeg == 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no open segment)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->ulDrawingMode != DM_RETAIN &&
+            ps->ulDrawingMode != DM_DRAWANDRETAIN) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (not in retain mode)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->bInElement) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (in element)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        len = GocaEmitLabel(&ps->goca, buf, sizeof(buf), lLabel);
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (open seg not found)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (!SrvGocaInsertElement(ps, segStart, segEnd, buf, (ULONG)len)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (insert failed)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        F_DbgCtxExitf(ctx, "1 (label=%ld)", (long)lLabel);
+        return 1;
+    }
+
+    case NGpiElement: {
+        PGpiElement_Args a = (PGpiElement_Args)pArgs;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        ULONG  cbElem;
+        PVOID  pvElem = NULL;
+        PBYTE  pElem;
+        LONG   cbGbel, cbGeel;
+        BYTE   gbel[6 + GBEL_DL];
+        BYTE   geel[2];
+        ULONG  off;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiElement(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!a || cbArgs < 3 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (a->lLength < 0 || a->lLength > 64512) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad length %ld)", (long)a->lLength);
+            return (ULONG)GPI_ERROR;
+        }
+        if (cbArgs < 3 * sizeof(LONG) + (ULONG)a->lLength) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (payload short)");
+            return (ULONG)GPI_ERROR;
+        }
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenSeg == 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no open segment)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->ulDrawingMode != DM_RETAIN &&
+            ps->ulDrawingMode != DM_DRAWANDRETAIN) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (not in retain mode)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->bInElement) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (in element)");
+            return (ULONG)GPI_ERROR;
+        }
+        /* Element type for a user-defined element must be in the range
+           [0x81000000, 0xFFFFFFFF] (GpiBeginElement/GpiElement - Remarks). */
+        if ((ULONG)a->lType < 0x81000000UL) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad type 0x%lx)",
+                          (unsigned long)a->lType);
+            return (ULONG)GPI_ERROR;
+        }
+
+        /* Validate: no GBEL / GEEL in body. */
+        off = 0;
+        while (off < (ULONG)a->lLength) {
+            ULONG cbO = GocaOrderLength(&ps->goca,
+                                        a->abData + off,
+                                        (ULONG)a->lLength - off);
+            if (cbO == 0) {
+                F_DbgCtxExitf(ctx, "GPI_ERROR (body truncated)");
+                return (ULONG)GPI_ERROR;
+            }
+            if (a->abData[off] == OCODE_GBEL ||
+                a->abData[off] == OCODE_GEEL) {
+                F_DbgCtxExitf(ctx, "GPI_ERROR (nested GBEL/GEEL in body)");
+                return (ULONG)GPI_ERROR;
+            }
+            off += cbO;
+        }
+
+        cbGbel = GocaEmitBeginElement(&ps->goca, gbel, sizeof(gbel),
+                                       a->lType, a->szDesc);
+        if (cbGbel < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit GBEL failed)");
+            return (ULONG)GPI_ERROR;
+        }
+        cbGeel = GocaEmitEndElement(&ps->goca, geel, sizeof(geel));
+        if (cbGeel < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit GEEL failed)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        cbElem = (ULONG)cbGbel + (ULONG)a->lLength + (ULONG)cbGeel;
+        if (DosAllocMem(&pvElem, cbElem,
+                        PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no memory)");
+            return (ULONG)GPI_ERROR;
+        }
+        pElem = (PBYTE)pvElem;
+        memcpy(pElem, gbel, (ULONG)cbGbel);
+        if (a->lLength > 0)
+            memcpy(pElem + cbGbel, a->abData, (ULONG)a->lLength);
+        memcpy(pElem + cbGbel + a->lLength, geel, (ULONG)cbGeel);
+
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
+            DosFreeMem(pvElem);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (open seg not found)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (!SrvGocaInsertElement(ps, segStart, segEnd, pElem, cbElem)) {
+            DosFreeMem(pvElem);
+            F_DbgCtxExitf(ctx, "GPI_ERROR (insert failed)");
+            return (ULONG)GPI_ERROR;
+        }
+        DosFreeMem(pvElem);
+
+        F_DbgCtxExitf(ctx, "1 (type=0x%lx, len=%ld)",
+                      (unsigned long)a->lType, (long)a->lLength);
+        return 1;
+    }
+
+    case NGpiQueryElementType: {
+        PGpiQueryElementType_Args a = (PGpiQueryElementType_Args)pArgs;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        ULONG  s, e, bs, be;
+        BOOL   hasGbel;
+        LONG   lType;
+        const char *pszDesc = "";
+        ULONG  cchDesc = 0;
+        ULONG  cbReq;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiQueryElementType(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!a || cbArgs < sizeof(*a)) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (bad args)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (no ps)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (ps->lOpenSeg == 0) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (no open segment)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (ps->ulDrawingMode != DM_RETAIN) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (not in DM_RETAIN)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (ps->bInElement) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (in element)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (ps->lCurrentElement <= 0) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (pointer not positioned)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (open seg not found)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (!SrvFindElement(ps, segStart, segEnd, ps->lCurrentElement,
+                            &s, &e, &bs, &be, &hasGbel)) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (element not found)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+
+        if (hasGbel) {
+            ULONG gbelLen = GocaOrderLength(&ps->goca, ps->pbGoca + s,
+                                             segEnd - s);
+            if (gbelLen < 6) {
+                F_DbgCtxExitf(ctx, "GPI_ALTERROR (GBEL truncated)");
+                return (ULONG)(LONG)GPI_ALTERROR;
+            }
+            lType = (LONG)GocaGetU32(&ps->goca, ps->pbGoca + s + 2);
+            cchDesc = gbelLen - 6;
+            if (cchDesc > 0) pszDesc = (const char *)(ps->pbGoca + s + 6);
+        } else {
+            lType = (LONG)ps->pbGoca[s];
+        }
+
+        a->lType = lType;
+        if (a->szData && a->lLength > 0) {
+            ULONG n = cchDesc;
+            if (n > (ULONG)(a->lLength - 1)) n = (ULONG)(a->lLength - 1);
+            if (n > 0) memcpy(a->szData, pszDesc, n);
+            a->szData[n] = '\0';
+        }
+
+        cbReq = be - bs;
+        if (pcbPayload) *pcbPayload = cbArgs;
+        F_DbgCtxExitf(ctx, "%lu bytes (type=0x%lx)",
+                      (unsigned long)cbReq, (unsigned long)lType);
+        return (ULONG)cbReq;
+    }
+
+    case NGpiQueryElement: {
+        PGpiQueryElement_Args a = (PGpiQueryElement_Args)pArgs;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        ULONG  s, e, bs, be;
+        BOOL   hasGbel;
+        ULONG  toCopy;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiQueryElement(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!a || cbArgs < 2 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (bad args)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (a->lOff < 0 || a->lMaxLength < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (bad off/len)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (cbArgs < 2 * sizeof(LONG) + (ULONG)a->lMaxLength) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (payload short)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (no ps)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (ps->lOpenSeg == 0) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (no open segment)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (ps->ulDrawingMode != DM_RETAIN) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (not in DM_RETAIN)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (ps->bInElement) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (in element)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (ps->lCurrentElement <= 0) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (pointer not positioned)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (open seg not found)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (!SrvFindElement(ps, segStart, segEnd, ps->lCurrentElement,
+                            &s, &e, &bs, &be, &hasGbel)) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (element not found)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+
+        toCopy = be - bs;
+        if ((ULONG)a->lOff >= toCopy) toCopy = 0;
+        else toCopy -= (ULONG)a->lOff;
+        if ((ULONG)a->lMaxLength < toCopy) toCopy = (ULONG)a->lMaxLength;
+        if (toCopy > 0)
+            memcpy(a->abData, ps->pbGoca + bs + (ULONG)a->lOff, toCopy);
+
+        if (pcbPayload) *pcbPayload = cbArgs;
+        F_DbgCtxExitf(ctx, "%lu bytes (off=%ld, max=%ld)",
+                      (unsigned long)toCopy, (long)a->lOff, (long)a->lMaxLength);
+        return (ULONG)toCopy;
+    }
+
+    case NGpiDeleteElement: {
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        ULONG  s, e, bs, be;
+        BOOL   hasGbel;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiDeleteElement(hps=%p)",
+                             (void*)hps);
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenSeg == 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no open segment)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->ulDrawingMode != DM_RETAIN) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (not in DM_RETAIN)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->bInElement) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (in element)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lCurrentElement <= 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (pointer not positioned)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (open seg not found)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (!SrvFindElement(ps, segStart, segEnd, ps->lCurrentElement,
+                            &s, &e, &bs, &be, &hasGbel)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (element not found)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (!GpiPsGocaDelete(ps, s, e)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (delete failed)");
+            return (ULONG)GPI_ERROR;
+        }
+        ps->lCurrentElement--;
+
+        F_DbgCtxExitf(ctx, "1");
+        return 1;
+    }
+
+    case NGpiDeleteElementRange: {
+        LONG lFirst, lLast, lTmp;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        ULONG  s1, e1, bs1, be1, s2, e2, bs2, be2;
+        BOOL   has1, has2;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiDeleteElementRange(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
+        memcpy(&lFirst, pArgs, sizeof(LONG));
+        memcpy(&lLast,  pArgs + sizeof(LONG), sizeof(LONG));
+        if (lFirst > lLast) { lTmp = lFirst; lFirst = lLast; lLast = lTmp; }
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenSeg == 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no open segment)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->ulDrawingMode != DM_RETAIN) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (not in DM_RETAIN)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->bInElement) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (in element)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (lFirst <= 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad first=%ld)", (long)lFirst);
+            return (ULONG)GPI_ERROR;
+        }
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (open seg not found)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (!SrvFindElement(ps, segStart, segEnd, lFirst,
+                            &s1, &e1, &bs1, &be1, &has1)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (first=%ld not found)", (long)lFirst);
+            return (ULONG)GPI_ERROR;
+        }
+        if (!SrvFindElement(ps, segStart, segEnd, lLast,
+                            &s2, &e2, &bs2, &be2, &has2)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (last=%ld not found)", (long)lLast);
+            return (ULONG)GPI_ERROR;
+        }
+        if (!GpiPsGocaDelete(ps, s1, e2)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (delete failed)");
+            return (ULONG)GPI_ERROR;
+        }
+        ps->lCurrentElement = lFirst - 1;
+
+        F_DbgCtxExitf(ctx, "1 (range %ld..%ld)", (long)lFirst, (long)lLast);
+        return 1;
+    }
+
+    case NGpiDeleteElementsBetweenLabels: {
+        LONG lFirst, lLast;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        LONG   idx;
+        LONG   lIdxFirst = -1, lIdxLast = -1;
+        ULONG  sFirst = 0, eFirst = 0, sLast = 0;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiDeleteElementsBetweenLabels(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
+        memcpy(&lFirst, pArgs, sizeof(LONG));
+        memcpy(&lLast,  pArgs + sizeof(LONG), sizeof(LONG));
+        if (lFirst < 0 || lLast < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (negative label)");
+            return (ULONG)GPI_ERROR;
+        }
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenSeg == 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no open segment)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->ulDrawingMode != DM_RETAIN) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (not in DM_RETAIN)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->bInElement) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (in element)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (open seg not found)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        /* Find first GLBL with lFirst (from element 1). */
+        for (idx = 1; ; idx++) {
+            ULONG s, e, bs, be;
+            BOOL  hasGbel;
+            if (!SrvFindElement(ps, segStart, segEnd, idx,
+                                &s, &e, &bs, &be, &hasGbel))
+                break;
+            if (hasGbel) continue;
+            if (ps->pbGoca[s] != OCODE_GLABL) continue;
+            if (e - s < 6) continue;
+            if ((LONG)GocaGetU32(&ps->goca, ps->pbGoca + s + 2) != lFirst)
+                continue;
+            lIdxFirst = idx;
+            sFirst = s;
+            eFirst = e;
+            break;
+        }
+        if (lIdxFirst < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (label %ld not found)", (long)lFirst);
+            return (ULONG)GPI_ERROR;
+        }
+
+        /* Find first GLBL with lLast after the first label. */
+        for (idx = lIdxFirst + 1; ; idx++) {
+            ULONG s, e, bs, be;
+            BOOL  hasGbel;
+            if (!SrvFindElement(ps, segStart, segEnd, idx,
+                                &s, &e, &bs, &be, &hasGbel))
+                break;
+            if (hasGbel) continue;
+            if (ps->pbGoca[s] != OCODE_GLABL) continue;
+            if (e - s < 6) continue;
+            if ((LONG)GocaGetU32(&ps->goca, ps->pbGoca + s + 2) != lLast)
+                continue;
+            lIdxLast = idx;
+            sLast = s;
+            break;
+        }
+        if (lIdxLast < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (label %ld not found)", (long)lLast);
+            return (ULONG)GPI_ERROR;
+        }
+
+        /* Delete all elements strictly between the two labels. */
+        if (lIdxLast > lIdxFirst + 1) {
+            if (!GpiPsGocaDelete(ps, eFirst, sLast)) {
+                F_DbgCtxExitf(ctx, "GPI_ERROR (delete failed)");
+                return (ULONG)GPI_ERROR;
+            }
+        }
+
+        /* Pointer to element immediately preceding the deleted ones. */
+        ps->lCurrentElement = lIdxFirst;
+
+        F_DbgCtxExitf(ctx, "1 (labels %ld..%ld)", (long)lFirst, (long)lLast);
+        return 1;
+    }
+
+    case NGpiQueryElementPointer: {
+        PGPI_PS ps;
+        LONG result;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiQueryElementPointer(hps=%p)",
+                             (void*)hps);
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (no ps)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (ps->lOpenSeg == 0) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (no open segment)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (ps->ulDrawingMode != DM_RETAIN) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (not in DM_RETAIN)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        if (ps->bInElement) {
+            F_DbgCtxExitf(ctx, "GPI_ALTERROR (in element)");
+            return (ULONG)(LONG)GPI_ALTERROR;
+        }
+        result = ps->lCurrentElement;
+        F_DbgCtxExitf(ctx, "%ld", (long)result);
+        return (ULONG)result;
+    }
+
+    case NGpiSetElementPointer: {
+        LONG   lNew;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        LONG   n;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiSetElementPointer(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
+        lNew = *(LONG*)pArgs;
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenSeg == 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no open segment)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->ulDrawingMode != DM_RETAIN) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (not in DM_RETAIN)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->bInElement) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (in element)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (open seg not found)");
+            return (ULONG)GPI_ERROR;
+        }
+        n = SrvCountElements(ps, segStart, segEnd);
+        if (lNew < 0) lNew = 0;
+        if (lNew > n) lNew = n;
+        ps->lCurrentElement = lNew;
+        F_DbgCtxExitf(ctx, "1 (pointer=%ld, max=%ld)", (long)lNew, (long)n);
+        return 1;
+    }
+
+    case NGpiOffsetElementPointer: {
+        LONG   lDelta;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        LONG   n, lNew;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiOffsetElementPointer(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
+        lDelta = *(LONG*)pArgs;
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenSeg == 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no open segment)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->ulDrawingMode != DM_RETAIN) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (not in DM_RETAIN)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->bInElement) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (in element)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (open seg not found)");
+            return (ULONG)GPI_ERROR;
+        }
+        n = SrvCountElements(ps, segStart, segEnd);
+        lNew = ps->lCurrentElement + lDelta;
+        if (lNew < 0) lNew = 0;
+        if (lNew > n) lNew = n;
+        ps->lCurrentElement = lNew;
+        F_DbgCtxExitf(ctx, "1 (pointer=%ld, delta=%ld, max=%ld)",
+                      (long)lNew, (long)lDelta, (long)n);
+        return 1;
+    }
+
+    case NGpiSetElementPointerAtLabel: {
+        LONG   lLabel;
+        PGPI_PS ps;
+        ULONG  segStart, segEnd;
+        LONG   idx;
+        BOOL   bFound = FALSE;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiSetElementPointerAtLabel(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
+        lLabel = *(LONG*)pArgs;
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenSeg == 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no open segment)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->ulDrawingMode != DM_RETAIN) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (not in DM_RETAIN)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->bInElement) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (in element)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (open seg not found)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        for (idx = 1; ; idx++) {
+            ULONG s, e, bs, be;
+            BOOL  hasGbel;
+            if (!SrvFindElement(ps, segStart, segEnd, idx,
+                                &s, &e, &bs, &be, &hasGbel))
+                break;
+            if (idx <= ps->lCurrentElement) continue;
+            if (hasGbel) continue;
+            if (ps->pbGoca[s] != OCODE_GLABL) continue;
+            if (e - s < 6) continue;
+            if ((LONG)GocaGetU32(&ps->goca, ps->pbGoca + s + 2) != lLabel)
+                continue;
+            ps->lCurrentElement = idx;
+            bFound = TRUE;
+            break;
+        }
+        if (!bFound) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (label %ld not found)", (long)lLabel);
+            return (ULONG)GPI_ERROR;
+        }
+        F_DbgCtxExitf(ctx, "1 (pointer=%ld, label=%ld)",
+                      (long)ps->lCurrentElement, (long)lLabel);
+        return 1;
+    }
+
+    case NGpiBeginPath: {
+        LONG lPath;
+        PGPI_PS ps;
+        BYTE buf[8];
+        LONG len;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiBeginPath(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
+        lPath = *(LONG*)pArgs;
+        if (lPath != 1) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad path id %ld)", (long)lPath);
+            return (ULONG)GPI_ERROR;
+        }
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenPath != 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (path already active)");
+            return (ULONG)GPI_ERROR; /* path state already active */
+        }
+
+        len = GocaEmitBeginPath(&ps->goca, buf, sizeof(buf), lPath);
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
+        SrvDeliver(ps, buf, (ULONG)len);
+        ps->lOpenPath    = lPath;
+        ps->bPathDefined = FALSE;   /* new path replaces any previous one */
+        F_DbgCtxExitf(ctx, "1 (path=%ld)", (long)lPath);
+        return 1;
+    }
+
+    case NGpiEndPath: {
+        PGPI_PS ps;
+        BYTE buf[2];
+        LONG len;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiEndPath(hps=%p)",
+                             (void*)hps);
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenPath == 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no open path)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        len = GocaEmitEndPath(&ps->goca, buf, sizeof(buf));
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
+        SrvDeliver(ps, buf, (ULONG)len);
+        ps->lOpenPath    = 0;
+        ps->bPathDefined = TRUE;
+        F_DbgCtxExitf(ctx, "1");
+        return 1;
+    }
+
+    case NGpiCloseFigure: {
+        PGPI_PS ps;
+        BYTE buf[2];
+        LONG len;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiCloseFigure(hps=%p)",
+                             (void*)hps);
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenPath == 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no open path)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        len = GocaEmitCloseFigure(&ps->goca, buf, sizeof(buf));
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
+        SrvDeliver(ps, buf, (ULONG)len);
+        F_DbgCtxExitf(ctx, "1");
+        return 1;
+    }
+
+    case NGpiFillPath: {
+        LONG lPath, lOptions;
+        PGPI_PS ps;
+        BYTE buf[8];
+        LONG len;
+        ULONG ulFlags = 0;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiFillPath(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
+        lPath    = *(LONG*)pArgs;
+        lOptions = *(LONG*)(pArgs + sizeof(LONG));
+        if (lPath != 1) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad path id %ld)", (long)lPath);
+            return (ULONG)GPI_ERROR;
+        }
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenPath != 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (still in path state)");
+            return (ULONG)GPI_ERROR; /* still in path state */
+        }
+        if (!ps->bPathDefined) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no path defined)");
+            return (ULONG)GPI_ERROR; /* no path defined     */
+        }
+
+        if (lOptions & 0x0002L) ulFlags |= GFPTH_WINDING;   /* FPATH_WINDING */
+
+        len = GocaEmitFillPath(&ps->goca, buf, sizeof(buf), ulFlags, lPath);
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
+        SrvDeliver(ps, buf, (ULONG)len);
+        ps->bPathDefined = FALSE;
+        F_DbgCtxExitf(ctx, "1 (options=0x%lx)", (unsigned long)lOptions);
+        return 1;
+    }
+
+    case NGpiOutlinePath: {
+        LONG lPath;
+        PGPI_PS ps;
+        BYTE buf[8];
+        LONG len;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiOutlinePath(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
+        lPath = *(LONG*)pArgs;
+        if (lPath != 1) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad path id %ld)", (long)lPath);
+            return (ULONG)GPI_ERROR;
+        }
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenPath != 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (still in path state)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (!ps->bPathDefined) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no path defined)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        len = GocaEmitOutlinePath(&ps->goca, buf, sizeof(buf), lPath);
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
+        SrvDeliver(ps, buf, (ULONG)len);
+        ps->bPathDefined = FALSE;
+        F_DbgCtxExitf(ctx, "1 (path=%ld)", (long)lPath);
+        return 1;
+    }
+
+    case NGpiModifyPath: {
+        LONG lPath, lMode;
+        PGPI_PS ps;
+        BYTE buf[8];
+        LONG len;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiModifyPath(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
+        lPath = *(LONG*)pArgs;
+        lMode = *(LONG*)(pArgs + sizeof(LONG));
+        if (lPath != 1 || lMode != 6L /* MPATH_STROKE */) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad path/mode, path=%ld, mode=%ld)",
+                          (long)lPath, (long)lMode);
+            return (ULONG)GPI_ERROR;
+        }
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenPath != 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (still in path state)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (!ps->bPathDefined) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no path defined)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        len = GocaEmitModifyPath(&ps->goca, buf, sizeof(buf),
+                                  (UCHAR)GMPTH_STROKE, lPath);
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
+        SrvDeliver(ps, buf, (ULONG)len);
+        /* Path stays defined (modified); bPathDefined remains TRUE. */
+        F_DbgCtxExitf(ctx, "1 (path=%ld)", (long)lPath);
+        return 1;
+    }
+
+    case NGpiSetClipPath: {
+        LONG lPath, lOptions;
+        PGPI_PS ps;
+        BYTE buf[8];
+        LONG len;
+        ULONG ulFlags = 0;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiSetClipPath(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < 2 * sizeof(LONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
+        lPath    = *(LONG*)pArgs;
+        lOptions = *(LONG*)(pArgs + sizeof(LONG));
+
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        if (lPath == 0) {
+            /* Reset clip path (infinite clip). Works regardless of path state. */
+            len = GocaEmitSetClipPath(&ps->goca, buf, sizeof(buf), 0, 0);
+            if (len < 0) {
+                F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+                return (ULONG)GPI_ERROR;
+            }
+            SrvDeliver(ps, buf, (ULONG)len);
+            F_DbgCtxExitf(ctx, "1 (reset clip)");
+            return 1;
+        }
+
+        if (lPath != 1) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad path id %ld)", (long)lPath);
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenPath != 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (still in path state)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (!ps->bPathDefined) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no path defined)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        if (lOptions & 0x0002L) ulFlags |= GSCPTH_WINDING;    /* SCP_WINDING */
+        if (lOptions & 0x0004L) ulFlags |= GSCPTH_INTERSECT;  /* SCP_AND */
+
+        len = GocaEmitSetClipPath(&ps->goca, buf, sizeof(buf),
+                                   ulFlags, lPath);
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
+        SrvDeliver(ps, buf, (ULONG)len);
+        ps->bPathDefined = FALSE;   /* consumed */
+        F_DbgCtxExitf(ctx, "1 (options=0x%lx)", (unsigned long)lOptions);
+        return 1;
+    }
+
+    case NGpiStrokePath: {
+        LONG lPath;
+        ULONG flOptions;
+        PGPI_PS ps;
+        BYTE buf[8];
+        LONG len;
+        int ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NGpiStrokePath(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+        if (!pArgs || cbArgs < sizeof(LONG) + sizeof(ULONG)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            return (ULONG)GPI_ERROR;
+        }
+        lPath     = *(LONG*)pArgs;
+        flOptions = *(ULONG*)(pArgs + sizeof(LONG));
+        if (lPath != 1 || flOptions != 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad path/options, path=%ld, opt=0x%lx)",
+                          (long)lPath, (unsigned long)flOptions);
+            return (ULONG)GPI_ERROR;
+        }
+        ps = GpiPsGet(hps);
+        if (!ps) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no ps)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (ps->lOpenPath != 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (still in path state)");
+            return (ULONG)GPI_ERROR;
+        }
+        if (!ps->bPathDefined) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no path defined)");
+            return (ULONG)GPI_ERROR;
+        }
+
+        len = GocaEmitFillPath(&ps->goca, buf, sizeof(buf),
+                                GFPTH_WINDING | GFPTH_MODIFY, lPath);
+        if (len < 0) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (emit failed)");
+            return (ULONG)GPI_ERROR;
+        }
+        SrvDeliver(ps, buf, (ULONG)len);
+        ps->bPathDefined = FALSE;
+        F_DbgCtxExitf(ctx, "1 (path=%ld)", (long)lPath);
         return 1;
     }
 
@@ -2009,635 +3765,6 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
     DISPATCH_STUB(NGpiResetBoundaryData)
     DISPATCH_STUB(NGpiCorrelateFrom)
     DISPATCH_STUB(NGpiCorrelateSegment)
-    case NGpiQuerySegmentPriority: {
-        LONG lRefSegid, lOrder;
-        PGPI_PS ps;
-
-        log("[PMSERVER] IN  : NGpiQuerySegmentPriority(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 2 * sizeof(LONG))
-            return (ULONG)(LONG)GPI_ALTERROR;
-        memcpy(&lRefSegid, pArgs, sizeof(LONG));
-        memcpy(&lOrder,   pArgs + sizeof(LONG), sizeof(LONG));
-        if (lOrder != LOWER_PRI && lOrder != HIGHER_PRI)
-            return (ULONG)(LONG)GPI_ALTERROR;
-        if (lRefSegid < 0)
-            return (ULONG)(LONG)GPI_ALTERROR;
-
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)(LONG)GPI_ALTERROR;
-
-        if (lRefSegid == 0) {
-            ULONG pos;
-            if (lOrder == LOWER_PRI) {
-                if (!SrvFindFirstChainSeg(ps, &pos))
-                    return (ULONG)(LONG)GPI_ALTERROR; /* empty chain */
-            } else {
-                if (!SrvFindLastChainSeg(ps, &pos))
-                    return (ULONG)(LONG)GPI_ALTERROR;
-            }
-            return (ULONG)GocaGetU32(&ps->goca, ps->pbGoca + pos + 2);
-        }
-
-        {
-            ULONG s, e, pos;
-            UCHAR f1, f2;
-            if (!SrvSegInfo(ps, lRefSegid, &s, &e, &f1, &f2))
-                return (ULONG)(LONG)GPI_ALTERROR;   /* SEG_NOT_FOUND */
-            if (!SrvSegInChain(f1, f2))
-                return (ULONG)(LONG)GPI_ALTERROR;   /* SEG_NOT_CHAINED */
-
-            if (lOrder == LOWER_PRI) {
-                /* Walk backwards: find chain segment immediately before s. */
-                ULONG off = 0, prev = 0;
-                BOOL  found = FALSE;
-                while (off < s) {
-                    const BYTE *p = ps->pbGoca + off;
-                    ULONG cb = GocaOrderLength(&ps->goca, p, s - off);
-                    if (cb == 0) break;
-                    if (p[0] == OCODE_GBSEG && cb >= 14 &&
-                        SrvSegInChain(p[6], p[7])) { prev = off; found = TRUE; }
-                    off += cb;
-                }
-                if (!found) return 0;
-                pos = prev;
-            } else {
-                /* Walk forwards: find chain segment immediately after e. */
-                ULONG off = e;
-                BOOL  found = FALSE;
-                while (off < ps->cbGoca) {
-                    const BYTE *p = ps->pbGoca + off;
-                    ULONG cb = GocaOrderLength(&ps->goca, p, ps->cbGoca - off);
-                    if (cb == 0) break;
-                    if (p[0] == OCODE_GBSEG && cb >= 14 &&
-                        SrvSegInChain(p[6], p[7])) { found = TRUE; break; }
-                    off += cb;
-                }
-                if (!found) return 0;
-                pos = off;
-            }
-            return (ULONG)GocaGetU32(&ps->goca, ps->pbGoca + pos + 2);
-        }
-    }
-    case NGpiSetSegmentPriority: {
-        LONG lSegid, lRefSegid, lOrder;
-        PGPI_PS ps;
-        ULONG s, e, ins;
-        UCHAR f1, f2;
-
-        log("[PMSERVER] IN  : NGpiSetSegmentPriority(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 3 * sizeof(LONG)) return (ULONG)GPI_ERROR;
-        memcpy(&lSegid,    pArgs,                     sizeof(LONG));
-        memcpy(&lRefSegid, pArgs +     sizeof(LONG),  sizeof(LONG));
-        memcpy(&lOrder,    pArgs + 2 * sizeof(LONG),  sizeof(LONG));
-
-        if (lSegid <= 0) return (ULONG)GPI_ERROR;
-        if (lRefSegid < 0) return (ULONG)GPI_ERROR;
-        if (lOrder != LOWER_PRI && lOrder != HIGHER_PRI)
-            return (ULONG)GPI_ERROR;
-        if (lSegid == lRefSegid) return 1;   /* no-op */
-
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenSeg != 0 &&
-            (ps->lOpenSeg == lSegid || ps->lOpenSeg == lRefSegid))
-            return (ULONG)GPI_ERROR;
-
-        if (!SrvSegInfo(ps, lSegid, &s, &e, &f1, &f2))
-            return (ULONG)GPI_ERROR;
-
-        /* Attach lSegid to chain before searching (spec: not-chained is added). */
-        if (!SrvSegInChain(f1, f2)) {
-            ps->pbGoca[s + 6] &= (UCHAR)~GBSEG_DYNAMIC;
-            ps->pbGoca[s + 7] &= (UCHAR)~GBSEG_CHAIN;
-        }
-
-        if (lRefSegid != 0) {
-            ULONG rs, re;
-            UCHAR rf1, rf2;
-            if (!SrvSegInfo(ps, lRefSegid, &rs, &re, &rf1, &rf2))
-                return (ULONG)GPI_ERROR;          /* SEG_NOT_FOUND */
-            if (!SrvSegInChain(rf1, rf2))
-                return (ULONG)GPI_ERROR;          /* SEG_NOT_CHAINED */
-            ins = (lOrder == LOWER_PRI) ? rs : re;
-        } else {
-            ULONG pos;
-            if (lOrder == LOWER_PRI) {
-                if (!SrvFindFirstChainSeg(ps, &pos))
-                    ins = 0;                       /* should not happen */
-                else
-                    ins = pos;
-            } else {
-                if (!SrvFindLastChainSeg(ps, &pos)) {
-                    ins = ps->cbGoca;
-                } else {
-                    ULONG posEnd;
-                    LONG  lastId = (LONG)GocaGetU32(&ps->goca,
-                                                    ps->pbGoca + pos + 2);
-                    if (!SrvSegInfo(ps, lastId, &pos, &posEnd, NULL, NULL))
-                        return (ULONG)GPI_ERROR;
-                    ins = posEnd;
-                }
-            }
-        }
-
-        if (!SrvMoveRange(ps, s, e, ins))
-            return (ULONG)GPI_ERROR;
-
-        log("[PMSERVER] OUT : NGpiSetSegmentPriority -> 1\n");
-        return 1;
-    }
-    case NGpiBeginElement: {
-        PGpiBeginElement_Args a = (PGpiBeginElement_Args)pArgs;
-        PGPI_PS ps;
-        BYTE buf[6 + GBEL_DL];
-        LONG len;
-
-        log("[PMSERVER] IN  : NGpiBeginElement(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!a || cbArgs < sizeof(*a)) return (ULONG)GPI_ERROR;
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
-        if (ps->ulDrawingMode != DM_RETAIN &&
-            ps->ulDrawingMode != DM_DRAWANDRETAIN) return (ULONG)GPI_ERROR;
-        if (ps->bInElement)             return (ULONG)GPI_ERROR;
-        /* Element type for a user-defined element must be in the range
-           [0x81000000, 0xFFFFFFFF] (GpiBeginElement/GpiElement - Remarks). */
-        if ((ULONG)a->lType < 0x81000000UL) return (ULONG)GPI_ERROR;
-
-        len = GocaEmitBeginElement(&ps->goca, buf, sizeof(buf),
-                                    a->lType, a->szDesc);
-        if (len < 0) return (ULONG)GPI_ERROR;
-
-        ps->uOpenElementStart = ps->cbGoca;
-        SrvDeliver(ps, buf, (ULONG)len);
-        ps->bInElement = TRUE;
-
-        log("[PMSERVER] OUT : NGpiBeginElement -> 1\n");
-        return 1;
-    }
-    case NGpiEndElement: {
-        PGPI_PS ps;
-        BYTE  buf[2];
-        ULONG segStart, segEnd;
-        LONG  len;
-        PVOID pvElem = NULL;
-        PBYTE pElem;
-        ULONG cbElem;
-
-        log("[PMSERVER] IN  : NGpiEndElement(hps=%p)\n", (void*)hps);
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenSeg == 0) return (ULONG)GPI_ERROR;
-        if (!ps->bInElement)   return (ULONG)GPI_ERROR;
-
-        len = GocaEmitEndElement(&ps->goca, buf, sizeof(buf));
-        if (len < 0) return (ULONG)GPI_ERROR;
-        SrvDeliver(ps, buf, (ULONG)len);
-
-        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
-            return (ULONG)GPI_ERROR;
-
-        cbElem = ps->cbGoca - ps->uOpenElementStart;
-        if (cbElem > 0 &&
-            DosAllocMem(&pvElem, cbElem,
-                        PAG_COMMIT | PAG_READ | PAG_WRITE) == 0) {
-            pElem = (PBYTE)pvElem;
-            memcpy(pElem, ps->pbGoca + ps->uOpenElementStart, cbElem);
-            GpiPsGocaDelete(ps, ps->uOpenElementStart, ps->cbGoca);
-            SrvGocaInsertElement(ps, segStart, segEnd, pElem, cbElem);
-            DosFreeMem(pvElem);
-        }
-        ps->bInElement        = FALSE;
-        ps->uOpenElementStart = 0;
-
-        log("[PMSERVER] OUT : NGpiEndElement -> 1\n");
-        return 1;
-    }
-
-    case NGpiLabel: {
-        LONG   lLabel;
-        PGPI_PS ps;
-        BYTE   buf[6];
-        LONG   len;
-        ULONG  segStart, segEnd;
-
-        log("[PMSERVER] IN  : NGpiLabel(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
-        lLabel = *(LONG*)pArgs;
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
-        if (ps->ulDrawingMode != DM_RETAIN &&
-            ps->ulDrawingMode != DM_DRAWANDRETAIN) return (ULONG)GPI_ERROR;
-        if (ps->bInElement)             return (ULONG)GPI_ERROR;
-
-        len = GocaEmitLabel(&ps->goca, buf, sizeof(buf), lLabel);
-        if (len < 0) return (ULONG)GPI_ERROR;
-
-        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
-            return (ULONG)GPI_ERROR;
-        if (!SrvGocaInsertElement(ps, segStart, segEnd, buf, (ULONG)len))
-            return (ULONG)GPI_ERROR;
-
-        log("[PMSERVER] OUT : NGpiLabel -> 1\n");
-        return 1;
-    }
-
-    case NGpiElement: {
-        PGpiElement_Args a = (PGpiElement_Args)pArgs;
-        PGPI_PS ps;
-        ULONG  segStart, segEnd;
-        ULONG  cbElem;
-        PVOID  pvElem = NULL;
-        PBYTE  pElem;
-        LONG   cbGbel, cbGeel;
-        BYTE   gbel[6 + GBEL_DL];
-        BYTE   geel[2];
-        ULONG  off;
-
-        log("[PMSERVER] IN  : NGpiElement(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!a || cbArgs < 3 * sizeof(LONG)) return (ULONG)GPI_ERROR;
-        if (a->lLength < 0 || a->lLength > 64512) return (ULONG)GPI_ERROR;
-        if (cbArgs < 3 * sizeof(LONG) + (ULONG)a->lLength)
-            return (ULONG)GPI_ERROR;
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
-        if (ps->ulDrawingMode != DM_RETAIN &&
-            ps->ulDrawingMode != DM_DRAWANDRETAIN) return (ULONG)GPI_ERROR;
-        if (ps->bInElement)             return (ULONG)GPI_ERROR;
-        /* Element type for a user-defined element must be in the range
-           [0x81000000, 0xFFFFFFFF] (GpiBeginElement/GpiElement - Remarks). */
-        if ((ULONG)a->lType < 0x81000000UL) return (ULONG)GPI_ERROR;
-
-        /* Validate: no GBEL / GEEL in body. */
-        off = 0;
-        while (off < (ULONG)a->lLength) {
-            ULONG cbO = GocaOrderLength(&ps->goca,
-                                        a->abData + off,
-                                        (ULONG)a->lLength - off);
-            if (cbO == 0) return (ULONG)GPI_ERROR;
-            if (a->abData[off] == OCODE_GBEL ||
-                a->abData[off] == OCODE_GEEL) return (ULONG)GPI_ERROR;
-            off += cbO;
-        }
-
-        cbGbel = GocaEmitBeginElement(&ps->goca, gbel, sizeof(gbel),
-                                       a->lType, a->szDesc);
-        if (cbGbel < 0) return (ULONG)GPI_ERROR;
-        cbGeel = GocaEmitEndElement(&ps->goca, geel, sizeof(geel));
-        if (cbGeel < 0) return (ULONG)GPI_ERROR;
-
-        cbElem = (ULONG)cbGbel + (ULONG)a->lLength + (ULONG)cbGeel;
-        if (DosAllocMem(&pvElem, cbElem,
-                        PAG_COMMIT | PAG_READ | PAG_WRITE) != 0)
-            return (ULONG)GPI_ERROR;
-        pElem = (PBYTE)pvElem;
-        memcpy(pElem, gbel, (ULONG)cbGbel);
-        if (a->lLength > 0)
-            memcpy(pElem + cbGbel, a->abData, (ULONG)a->lLength);
-        memcpy(pElem + cbGbel + a->lLength, geel, (ULONG)cbGeel);
-
-        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd)) {
-            DosFreeMem(pvElem);
-            return (ULONG)GPI_ERROR;
-        }
-        if (!SrvGocaInsertElement(ps, segStart, segEnd, pElem, cbElem)) {
-            DosFreeMem(pvElem);
-            return (ULONG)GPI_ERROR;
-        }
-        DosFreeMem(pvElem);
-
-        log("[PMSERVER] OUT : NGpiElement -> 1\n");
-        return 1;
-    }
-
-    case NGpiQueryElementType: {
-        PGpiQueryElementType_Args a = (PGpiQueryElementType_Args)pArgs;
-        PGPI_PS ps;
-        ULONG  segStart, segEnd;
-        ULONG  s, e, bs, be;
-        BOOL   hasGbel;
-        LONG   lType;
-        const char *pszDesc = "";
-        ULONG  cchDesc = 0;
-        ULONG  cbReq;
-
-        log("[PMSERVER] IN  : NGpiQueryElementType(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!a || cbArgs < sizeof(*a)) return (ULONG)(LONG)GPI_ALTERROR;
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)(LONG)GPI_ALTERROR;
-        if (ps->lOpenSeg == 0)          return (ULONG)(LONG)GPI_ALTERROR;
-        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)(LONG)GPI_ALTERROR;
-        if (ps->bInElement)             return (ULONG)(LONG)GPI_ALTERROR;
-        if (ps->lCurrentElement <= 0)   return (ULONG)(LONG)GPI_ALTERROR;
-        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
-            return (ULONG)(LONG)GPI_ALTERROR;
-        if (!SrvFindElement(ps, segStart, segEnd, ps->lCurrentElement,
-                            &s, &e, &bs, &be, &hasGbel))
-            return (ULONG)(LONG)GPI_ALTERROR;
-
-        if (hasGbel) {
-            ULONG gbelLen = GocaOrderLength(&ps->goca, ps->pbGoca + s,
-                                             segEnd - s);
-            if (gbelLen < 6) return (ULONG)(LONG)GPI_ALTERROR;
-            lType = (LONG)GocaGetU32(&ps->goca, ps->pbGoca + s + 2);
-            cchDesc = gbelLen - 6;
-            if (cchDesc > 0) pszDesc = (const char *)(ps->pbGoca + s + 6);
-        } else {
-            lType = (LONG)ps->pbGoca[s];
-        }
-
-        a->lType = lType;
-        if (a->szData && a->lLength > 0) {
-            ULONG n = cchDesc;
-            if (n > (ULONG)(a->lLength - 1)) n = (ULONG)(a->lLength - 1);
-            if (n > 0) memcpy(a->szData, pszDesc, n);
-            a->szData[n] = '\0';
-        }
-
-        cbReq = be - bs;
-        if (pcbPayload) *pcbPayload = cbArgs;
-        log("[PMSERVER] OUT : NGpiQueryElementType -> %lu bytes\n",
-            (unsigned long)cbReq);
-        return (ULONG)cbReq;
-    }
-
-    case NGpiQueryElement: {
-        PGpiQueryElement_Args a = (PGpiQueryElement_Args)pArgs;
-        PGPI_PS ps;
-        ULONG  segStart, segEnd;
-        ULONG  s, e, bs, be;
-        BOOL   hasGbel;
-        ULONG  toCopy;
-
-        log("[PMSERVER] IN  : NGpiQueryElement(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!a || cbArgs < 2 * sizeof(LONG)) return (ULONG)(LONG)GPI_ALTERROR;
-        if (a->lOff < 0 || a->lMaxLength < 0) return (ULONG)(LONG)GPI_ALTERROR;
-        if (cbArgs < 2 * sizeof(LONG) + (ULONG)a->lMaxLength)
-            return (ULONG)(LONG)GPI_ALTERROR;
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)(LONG)GPI_ALTERROR;
-        if (ps->lOpenSeg == 0)          return (ULONG)(LONG)GPI_ALTERROR;
-        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)(LONG)GPI_ALTERROR;
-        if (ps->bInElement)             return (ULONG)(LONG)GPI_ALTERROR;
-        if (ps->lCurrentElement <= 0)   return (ULONG)(LONG)GPI_ALTERROR;
-        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
-            return (ULONG)(LONG)GPI_ALTERROR;
-        if (!SrvFindElement(ps, segStart, segEnd, ps->lCurrentElement,
-                            &s, &e, &bs, &be, &hasGbel))
-            return (ULONG)(LONG)GPI_ALTERROR;
-
-        toCopy = be - bs;
-        if ((ULONG)a->lOff >= toCopy) toCopy = 0;
-        else toCopy -= (ULONG)a->lOff;
-        if ((ULONG)a->lMaxLength < toCopy) toCopy = (ULONG)a->lMaxLength;
-        if (toCopy > 0)
-            memcpy(a->abData, ps->pbGoca + bs + (ULONG)a->lOff, toCopy);
-
-        if (pcbPayload) *pcbPayload = cbArgs;
-        log("[PMSERVER] OUT : NGpiQueryElement -> %lu bytes\n",
-            (unsigned long)toCopy);
-        return (ULONG)toCopy;
-    }
-
-    case NGpiDeleteElement: {
-        PGPI_PS ps;
-        ULONG  segStart, segEnd;
-        ULONG  s, e, bs, be;
-        BOOL   hasGbel;
-
-        log("[PMSERVER] IN  : NGpiDeleteElement(hps=%p)\n", (void*)hps);
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
-        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)GPI_ERROR;
-        if (ps->bInElement)             return (ULONG)GPI_ERROR;
-        if (ps->lCurrentElement <= 0)   return (ULONG)GPI_ERROR;
-        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
-            return (ULONG)GPI_ERROR;
-        if (!SrvFindElement(ps, segStart, segEnd, ps->lCurrentElement,
-                            &s, &e, &bs, &be, &hasGbel))
-            return (ULONG)GPI_ERROR;
-        if (!GpiPsGocaDelete(ps, s, e)) return (ULONG)GPI_ERROR;
-        ps->lCurrentElement--;
-
-        log("[PMSERVER] OUT : NGpiDeleteElement -> 1\n");
-        return 1;
-    }
-
-    case NGpiDeleteElementRange: {
-        LONG lFirst, lLast, lTmp;
-        PGPI_PS ps;
-        ULONG  segStart, segEnd;
-        ULONG  s1, e1, bs1, be1, s2, e2, bs2, be2;
-        BOOL   has1, has2;
-
-        log("[PMSERVER] IN  : NGpiDeleteElementRange(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
-        memcpy(&lFirst, pArgs, sizeof(LONG));
-        memcpy(&lLast,  pArgs + sizeof(LONG), sizeof(LONG));
-        if (lFirst > lLast) { lTmp = lFirst; lFirst = lLast; lLast = lTmp; }
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
-        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)GPI_ERROR;
-        if (ps->bInElement)             return (ULONG)GPI_ERROR;
-        if (lFirst <= 0)                return (ULONG)GPI_ERROR;
-        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
-            return (ULONG)GPI_ERROR;
-        if (!SrvFindElement(ps, segStart, segEnd, lFirst,
-                            &s1, &e1, &bs1, &be1, &has1))
-            return (ULONG)GPI_ERROR;
-        if (!SrvFindElement(ps, segStart, segEnd, lLast,
-                            &s2, &e2, &bs2, &be2, &has2))
-            return (ULONG)GPI_ERROR;
-        if (!GpiPsGocaDelete(ps, s1, e2)) return (ULONG)GPI_ERROR;
-        ps->lCurrentElement = lFirst - 1;
-
-        log("[PMSERVER] OUT : NGpiDeleteElementRange -> 1\n");
-        return 1;
-    }
-
-    case NGpiDeleteElementsBetweenLabels: {
-        LONG lFirst, lLast;
-        PGPI_PS ps;
-        ULONG  segStart, segEnd;
-        LONG   idx;
-        LONG   lIdxFirst = -1, lIdxLast = -1;
-        ULONG  sFirst = 0, eFirst = 0, sLast = 0;
-
-        log("[PMSERVER] IN  : NGpiDeleteElementsBetweenLabels(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
-        memcpy(&lFirst, pArgs, sizeof(LONG));
-        memcpy(&lLast,  pArgs + sizeof(LONG), sizeof(LONG));
-        if (lFirst < 0 || lLast < 0) return (ULONG)GPI_ERROR;
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
-        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)GPI_ERROR;
-        if (ps->bInElement)             return (ULONG)GPI_ERROR;
-        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
-            return (ULONG)GPI_ERROR;
-
-        /* Find first GLBL with lFirst (from element 1). */
-        for (idx = 1; ; idx++) {
-            ULONG s, e, bs, be;
-            BOOL  hasGbel;
-            if (!SrvFindElement(ps, segStart, segEnd, idx,
-                                &s, &e, &bs, &be, &hasGbel))
-                break;
-            if (hasGbel) continue;
-            if (ps->pbGoca[s] != OCODE_GLABL) continue;
-            if (e - s < 6) continue;
-            if ((LONG)GocaGetU32(&ps->goca, ps->pbGoca + s + 2) != lFirst)
-                continue;
-            lIdxFirst = idx;
-            sFirst = s;
-            eFirst = e;
-            break;
-        }
-        if (lIdxFirst < 0) return (ULONG)GPI_ERROR;
-
-        /* Find first GLBL with lLast after the first label. */
-        for (idx = lIdxFirst + 1; ; idx++) {
-            ULONG s, e, bs, be;
-            BOOL  hasGbel;
-            if (!SrvFindElement(ps, segStart, segEnd, idx,
-                                &s, &e, &bs, &be, &hasGbel))
-                break;
-            if (hasGbel) continue;
-            if (ps->pbGoca[s] != OCODE_GLABL) continue;
-            if (e - s < 6) continue;
-            if ((LONG)GocaGetU32(&ps->goca, ps->pbGoca + s + 2) != lLast)
-                continue;
-            lIdxLast = idx;
-            sLast = s;
-            break;
-        }
-        if (lIdxLast < 0) return (ULONG)GPI_ERROR;
-
-        /* Delete all elements strictly between the two labels. */
-        if (lIdxLast > lIdxFirst + 1) {
-            if (!GpiPsGocaDelete(ps, eFirst, sLast))
-                return (ULONG)GPI_ERROR;
-        }
-
-        /* Pointer to element immediately preceding the deleted ones. */
-        ps->lCurrentElement = lIdxFirst;
-
-        log("[PMSERVER] OUT : NGpiDeleteElementsBetweenLabels -> 1\n");
-        return 1;
-    }
-
-    case NGpiQueryElementPointer: {
-        PGPI_PS ps;
-        log("[PMSERVER] IN  : NGpiQueryElementPointer(hps=%p)\n", (void*)hps);
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)(LONG)GPI_ALTERROR;
-        if (ps->lOpenSeg == 0)          return (ULONG)(LONG)GPI_ALTERROR;
-        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)(LONG)GPI_ALTERROR;
-        if (ps->bInElement)             return (ULONG)(LONG)GPI_ALTERROR;
-        return (ULONG)ps->lCurrentElement;
-    }
-
-    case NGpiSetElementPointer: {
-        LONG   lNew;
-        PGPI_PS ps;
-        ULONG  segStart, segEnd;
-        LONG   n;
-
-        log("[PMSERVER] IN  : NGpiSetElementPointer(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
-        lNew = *(LONG*)pArgs;
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
-        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)GPI_ERROR;
-        if (ps->bInElement)             return (ULONG)GPI_ERROR;
-        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
-            return (ULONG)GPI_ERROR;
-        n = SrvCountElements(ps, segStart, segEnd);
-        if (lNew < 0) lNew = 0;
-        if (lNew > n) lNew = n;
-        ps->lCurrentElement = lNew;
-        return 1;
-    }
-
-    case NGpiOffsetElementPointer: {
-        LONG   lDelta;
-        PGPI_PS ps;
-        ULONG  segStart, segEnd;
-        LONG   n, lNew;
-
-        log("[PMSERVER] IN  : NGpiOffsetElementPointer(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
-        lDelta = *(LONG*)pArgs;
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
-        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)GPI_ERROR;
-        if (ps->bInElement)             return (ULONG)GPI_ERROR;
-        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
-            return (ULONG)GPI_ERROR;
-        n = SrvCountElements(ps, segStart, segEnd);
-        lNew = ps->lCurrentElement + lDelta;
-        if (lNew < 0) lNew = 0;
-        if (lNew > n) lNew = n;
-        ps->lCurrentElement = lNew;
-        return 1;
-    }
-
-    case NGpiSetElementPointerAtLabel: {
-        LONG   lLabel;
-        PGPI_PS ps;
-        ULONG  segStart, segEnd;
-        LONG   idx;
-        BOOL   bFound = FALSE;
-
-        log("[PMSERVER] IN  : NGpiSetElementPointerAtLabel(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
-        lLabel = *(LONG*)pArgs;
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenSeg == 0)          return (ULONG)GPI_ERROR;
-        if (ps->ulDrawingMode != DM_RETAIN) return (ULONG)GPI_ERROR;
-        if (ps->bInElement)             return (ULONG)GPI_ERROR;
-        if (!GpiPsGocaFindSeg(ps, ps->lOpenSeg, &segStart, &segEnd))
-            return (ULONG)GPI_ERROR;
-
-        for (idx = 1; ; idx++) {
-            ULONG s, e, bs, be;
-            BOOL  hasGbel;
-            if (!SrvFindElement(ps, segStart, segEnd, idx,
-                                &s, &e, &bs, &be, &hasGbel))
-                break;
-            if (idx <= ps->lCurrentElement) continue;
-            if (hasGbel) continue;
-            if (ps->pbGoca[s] != OCODE_GLABL) continue;
-            if (e - s < 6) continue;
-            if ((LONG)GocaGetU32(&ps->goca, ps->pbGoca + s + 2) != lLabel)
-                continue;
-            ps->lCurrentElement = idx;
-            bFound = TRUE;
-            break;
-        }
-        if (!bFound) return (ULONG)GPI_ERROR;
-        return 1;
-    }
-
     DISPATCH_STUB(NGpiQuerySegmentTransformMatrix)
     DISPATCH_STUB(NGpiSetSegmentTransformMatrix)
     DISPATCH_STUB(NGpiConvert)
@@ -2658,204 +3785,6 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
     DISPATCH_STUB(NGpiQueryGraphicsField)
     DISPATCH_STUB(NGpiSetViewingLimits)
     DISPATCH_STUB(NGpiQueryViewingLimits)
-    case NGpiBeginPath: {
-        LONG lPath;
-        PGPI_PS ps;
-        BYTE buf[8];
-        LONG len;
-
-        log("[PMSERVER] IN  : NGpiBeginPath(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(LONG)) return (ULONG)GPI_ERROR;
-        lPath = *(LONG*)pArgs;
-        if (lPath != 1) return (ULONG)GPI_ERROR;
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenPath != 0) return (ULONG)GPI_ERROR; /* path state already active */
-
-        len = GocaEmitBeginPath(&ps->goca, buf, sizeof(buf), lPath);
-        if (len < 0) return (ULONG)GPI_ERROR;
-        SrvDeliver(ps, buf, (ULONG)len);
-        ps->lOpenPath    = lPath;
-        ps->bPathDefined = FALSE;   /* new path replaces any previous one */
-        return 1;
-    }
-
-    case NGpiEndPath: {
-        PGPI_PS ps;
-        BYTE buf[2];
-        LONG len;
-
-        log("[PMSERVER] IN  : NGpiEndPath(hps=%p)\n", (void*)hps);
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenPath == 0) return (ULONG)GPI_ERROR;
-
-        len = GocaEmitEndPath(&ps->goca, buf, sizeof(buf));
-        if (len < 0) return (ULONG)GPI_ERROR;
-        SrvDeliver(ps, buf, (ULONG)len);
-        ps->lOpenPath    = 0;
-        ps->bPathDefined = TRUE;
-        return 1;
-    }
-
-    case NGpiCloseFigure: {
-        PGPI_PS ps;
-        BYTE buf[2];
-        LONG len;
-
-        log("[PMSERVER] IN  : NGpiCloseFigure(hps=%p)\n", (void*)hps);
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenPath == 0) return (ULONG)GPI_ERROR;
-
-        len = GocaEmitCloseFigure(&ps->goca, buf, sizeof(buf));
-        if (len < 0) return (ULONG)GPI_ERROR;
-        SrvDeliver(ps, buf, (ULONG)len);
-        return 1;
-    }
-
-    case NGpiFillPath: {
-        LONG lPath, lOptions;
-        PGPI_PS ps;
-        BYTE buf[8];
-        LONG len;
-        ULONG ulFlags = 0;
-
-        log("[PMSERVER] IN  : NGpiFillPath(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
-        lPath    = *(LONG*)pArgs;
-        lOptions = *(LONG*)(pArgs + sizeof(LONG));
-        if (lPath != 1) return (ULONG)GPI_ERROR;
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenPath != 0)     return (ULONG)GPI_ERROR; /* still in path state */
-        if (!ps->bPathDefined)      return (ULONG)GPI_ERROR; /* no path defined     */
-
-        if (lOptions & 0x0002L) ulFlags |= GFPTH_WINDING;   /* FPATH_WINDING */
-
-        len = GocaEmitFillPath(&ps->goca, buf, sizeof(buf), ulFlags, lPath);
-        if (len < 0) return (ULONG)GPI_ERROR;
-        SrvDeliver(ps, buf, (ULONG)len);
-        ps->bPathDefined = FALSE;
-        return 1;
-    }
-
-    case NGpiOutlinePath: {
-        LONG lPath;
-        PGPI_PS ps;
-        BYTE buf[8];
-        LONG len;
-
-        log("[PMSERVER] IN  : NGpiOutlinePath(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
-        lPath = *(LONG*)pArgs;
-        if (lPath != 1) return (ULONG)GPI_ERROR;
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenPath != 0)     return (ULONG)GPI_ERROR;
-        if (!ps->bPathDefined)      return (ULONG)GPI_ERROR;
-
-        len = GocaEmitOutlinePath(&ps->goca, buf, sizeof(buf), lPath);
-        if (len < 0) return (ULONG)GPI_ERROR;
-        SrvDeliver(ps, buf, (ULONG)len);
-        ps->bPathDefined = FALSE;
-        return 1;
-    }
-
-    case NGpiModifyPath: {
-        LONG lPath, lMode;
-        PGPI_PS ps;
-        BYTE buf[8];
-        LONG len;
-
-        log("[PMSERVER] IN  : NGpiModifyPath(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
-        lPath = *(LONG*)pArgs;
-        lMode = *(LONG*)(pArgs + sizeof(LONG));
-        if (lPath != 1 || lMode != 6L /* MPATH_STROKE */)
-            return (ULONG)GPI_ERROR;
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenPath != 0)     return (ULONG)GPI_ERROR;
-        if (!ps->bPathDefined)      return (ULONG)GPI_ERROR;
-
-        len = GocaEmitModifyPath(&ps->goca, buf, sizeof(buf),
-                                  (UCHAR)GMPTH_STROKE, lPath);
-        if (len < 0) return (ULONG)GPI_ERROR;
-        SrvDeliver(ps, buf, (ULONG)len);
-        /* Path stays defined (modified); bPathDefined remains TRUE. */
-        return 1;
-    }
-
-    case NGpiSetClipPath: {
-        LONG lPath, lOptions;
-        PGPI_PS ps;
-        BYTE buf[8];
-        LONG len;
-        ULONG ulFlags = 0;
-
-        log("[PMSERVER] IN  : NGpiSetClipPath(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < 2 * sizeof(LONG)) return (ULONG)GPI_ERROR;
-        lPath    = *(LONG*)pArgs;
-        lOptions = *(LONG*)(pArgs + sizeof(LONG));
-
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-
-        if (lPath == 0) {
-            /* Reset clip path (infinite clip). Works regardless of path state. */
-            len = GocaEmitSetClipPath(&ps->goca, buf, sizeof(buf), 0, 0);
-            if (len < 0) return (ULONG)GPI_ERROR;
-            SrvDeliver(ps, buf, (ULONG)len);
-            return 1;
-        }
-
-        if (lPath != 1)         return (ULONG)GPI_ERROR;
-        if (ps->lOpenPath != 0) return (ULONG)GPI_ERROR;
-        if (!ps->bPathDefined)  return (ULONG)GPI_ERROR;
-
-        if (lOptions & 0x0002L) ulFlags |= GSCPTH_WINDING;    /* SCP_WINDING */
-        if (lOptions & 0x0004L) ulFlags |= GSCPTH_INTERSECT;  /* SCP_AND */
-
-        len = GocaEmitSetClipPath(&ps->goca, buf, sizeof(buf),
-                                   ulFlags, lPath);
-        if (len < 0) return (ULONG)GPI_ERROR;
-        SrvDeliver(ps, buf, (ULONG)len);
-        ps->bPathDefined = FALSE;   /* consumed */
-        return 1;
-    }
-
-    case NGpiStrokePath: {
-        LONG lPath;
-        ULONG flOptions;
-        PGPI_PS ps;
-        BYTE buf[8];
-        LONG len;
-
-        log("[PMSERVER] IN  : NGpiStrokePath(hps=%p, cbArgs=%u)\n",
-            (void*)hps, (unsigned)cbArgs);
-        if (!pArgs || cbArgs < sizeof(LONG) + sizeof(ULONG))
-            return (ULONG)GPI_ERROR;
-        lPath     = *(LONG*)pArgs;
-        flOptions = *(ULONG*)(pArgs + sizeof(LONG));
-        if (lPath != 1 || flOptions != 0) return (ULONG)GPI_ERROR;
-        ps = GpiPsGet(hps);
-        if (!ps) return (ULONG)GPI_ERROR;
-        if (ps->lOpenPath != 0)     return (ULONG)GPI_ERROR;
-        if (!ps->bPathDefined)      return (ULONG)GPI_ERROR;
-
-        len = GocaEmitFillPath(&ps->goca, buf, sizeof(buf),
-                                GFPTH_WINDING | GFPTH_MODIFY, lPath);
-        if (len < 0) return (ULONG)GPI_ERROR;
-        SrvDeliver(ps, buf, (ULONG)len);
-        ps->bPathDefined = FALSE;
-        return 1;
-    }
     DISPATCH_STUB(NGpiPathToRegion)
     DISPATCH_STUB(NGpiCreateLogColorTable)
     DISPATCH_STUB(NGpiQueryColorData)
@@ -3047,10 +3976,13 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
     DISPATCH_STUB(NGpiAllocateDCData)
     DISPATCH_STUB(NGpiQueryDCData)
 
-    default:
-        log("[PMSERVER] Dispatch OUT: Unknown FnCode=0x%x -> 0x%x\n",
-            ulFnCode, (unsigned int)GPI_ERROR);
+    default: {
+        int ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_WARNING,
+                                 "[PMSERVER] Unknown FnCode=0x%x",
+                                 ulFnCode);
+        F_DbgCtxExitf(ctx, "GPI_ERROR");
         return (ULONG)GPI_ERROR;
+    }
     }
 }
 

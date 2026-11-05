@@ -17,10 +17,28 @@
 #include "F_platform.h"
 #include "F_config.h"
 #include "F_cmd.h"
+#include "F_debug.h"
 #include "Fs_config.hpp"
 #include "Fs_server.hpp"
 
-extern void log(const char *fmt, ...);
+/*! @brief Server-specific debug configuration.
+
+    Applied once at the start of main() before any output, so that
+    server traces go to a dedicated file (pmserver.log) rather than
+    competing with clients for the default freepm.log. The path is
+    hardcoded for now; a server-side .ini reader will replace it
+    later.
+*/
+static const F_DbgConfig F_DBG_SERVER_CFG = {
+    "pmserver.log",
+    F_DBG_DEFAULT_ROTATENUMBER,
+    F_DBG_DEFAULT_ROTATESIZE,
+    F_DBG_DEFAULT_BUFFERED,
+    F_DBG_DEFAULT_ANSICOLOR,
+    F_DBG_DEFAULT_BEEPONFATAL,
+    F_DBG_DEFAULT_USESYSLOG,
+    F_DBG_DEFAULT_THRESHOLDLEVEL
+};
 
 #if defined(__OS2__) || defined(__OS2V2__)
 #define PMCAPIENTRY _System
@@ -38,7 +56,7 @@ static Fs_Server g_server;
 
 static void CleanupServer(void)
 {
-    log("PMSERVER: cleaning up\n");
+    F_DbgPrint(F_DBG_SEC_PMSERVER, F_DBG_LVL_INFO, "PMSERVER: cleaning up");
     if (g_hmtx != 0) {
         DosCloseMutexSem(g_hmtx);
         g_hmtx = 0;
@@ -73,12 +91,18 @@ int main(int argc, char *argv[])
     (void)argc;
     (void)argv;
 
-    log("PMSERVER: starting\n");
+    /* Configure the debug subsystem before any F_DbgPrint call.
+       This is the consumer-side init: it applies pmserver.log as
+       the log file and the default levels. */
+    F_DbgInit(&F_DBG_SERVER_CFG, F_DBG_DEFAULT_LEVELS);
+
+    F_DbgPrint(F_DBG_SEC_PMSERVER, F_DBG_LVL_INFO, "PMSERVER: starting");
 
     rc = DosCreateMutexSem((PSZ)FREEPM_MUTEX_NAME, &g_hmtx, 0, FALSE);
     if (rc != 0) {
-        log("PMSERVER: failed to create mutex '%s', rc=%u\n",
-            FREEPM_MUTEX_NAME, rc);
+        F_DbgPrint(F_DBG_SEC_PMSERVER, F_DBG_LVL_ERROR,
+                   "PMSERVER: failed to create mutex '%s', rc=%u",
+                   FREEPM_MUTEX_NAME, rc);
         system("pause");
         return 1;
     }
@@ -89,12 +113,17 @@ int main(int argc, char *argv[])
 
     rc = DosLoadModule(szFail, sizeof(szFail), (PSZ)"PMTCP", &hmod);
     if (rc) {
-        log("PMSERVER: cannot load PMTCP.DLL, rc=%u\n", rc);
+        F_DbgPrint(F_DBG_SEC_PMSERVER, F_DBG_LVL_ERROR,
+                   "PMSERVER: cannot load PMTCP.DLL, rc=%u", rc);
         return 1;
     }
 
     rc = DosQueryProcAddr(hmod, 3, 0, &pfn);
-    if (rc) { log("PMSERVER: missing ordinal 3\n");  return 1; }
+    if (rc) {
+        F_DbgPrint(F_DBG_SEC_PMSERVER, F_DBG_LVL_ERROR,
+                   "PMSERVER: missing ordinal 3");
+        return 1;
+    }
     pStartSrv = (PMC_START_SRV)pfn;
 
     {
@@ -102,11 +131,19 @@ int main(int argc, char *argv[])
         PMC_SEND_DATA pfnSend = NULL;
 
         rc = DosQueryProcAddr(hmod, 10, 0, &pfn);
-        if (rc) { log("PMSERVER: missing ordinal 10\n"); return 1; }
+        if (rc) {
+            F_DbgPrint(F_DBG_SEC_PMSERVER, F_DBG_LVL_ERROR,
+                       "PMSERVER: missing ordinal 10");
+            return 1;
+        }
         pfnRecv = (PMC_RECV_DATA)pfn;
 
         rc = DosQueryProcAddr(hmod, 11, 0, &pfn);
-        if (rc) { log("PMSERVER: missing ordinal 11\n"); return 1; }
+        if (rc) {
+            F_DbgPrint(F_DBG_SEC_PMSERVER, F_DBG_LVL_ERROR,
+                       "PMSERVER: missing ordinal 11");
+            return 1;
+        }
         pfnSend = (PMC_SEND_DATA)pfn;
 
         g_server.SetWire((Fs_PfnRecv)pfnRecv, (Fs_PfnSend)pfnSend);
@@ -114,10 +151,12 @@ int main(int argc, char *argv[])
 
     g_server.StartMonitor();
 
-    log("PMSERVER: monitor started, listening on port 9876\n");
+    F_DbgPrint(F_DBG_SEC_PMSERVER, F_DBG_LVL_INFO,
+               "PMSERVER: monitor started, listening on port 9876");
 
     rc = pStartSrv((void*)pm_handler, (void*)pm_disconnect);
-    log("PMSERVER: _startServerThreads returned %u\n", rc);
+    F_DbgPrint(F_DBG_SEC_PMSERVER, F_DBG_LVL_INFO,
+               "PMSERVER: _startServerThreads returned %u", rc);
 
     return (rc == 0) ? 0 : 1;
 }

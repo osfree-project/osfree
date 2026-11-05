@@ -4,8 +4,7 @@
  */
 #include <time.h>
 #include "Fs_client.hpp"
-
-extern void log(const char *fmt, ...);
+#include "F_debug.h"
 
 /* ======================================================================== */
 /*  Fs_ClientConnection                                                     */
@@ -37,8 +36,9 @@ void Fs_ClientConnection::Shutdown()
 {
     if (m_state == StateFree) return;
 
-    log("[CLIENT %lu] shutdown (recvobj=%p, prev state=%d)\n",
-        (unsigned long)m_idClient, m_pRecvobj, (int)m_state);
+    F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_INFO,
+               "[CLIENT %lu] shutdown (recvobj=%p, prev state=%d)",
+               (unsigned long)m_idClient, m_pRecvobj, (int)m_state);
 
     m_state            = StateFree;
     m_idClient         = 0;
@@ -71,8 +71,9 @@ void Fs_ClientConnection::ToDetached(time_t now)
 {
     if (m_state != StateActive) return;
 
-    log("[CLIENT %lu] ACTIVE -> DETACHED (recvobj=%p)\n",
-        (unsigned long)m_idClient, m_pRecvobj);
+    F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_INFO,
+               "[CLIENT %lu] ACTIVE -> DETACHED (recvobj=%p)",
+               (unsigned long)m_idClient, m_pRecvobj);
 
     m_state        = StateDetached;
     m_pRecvobj     = NULL;
@@ -84,8 +85,9 @@ void Fs_ClientConnection::ToActive(void *pRecvobj, time_t now)
     if (m_state != StateDetached) return;
     if (pRecvobj == NULL)         return;
 
-    log("[CLIENT %lu] DETACHED -> ACTIVE (recvobj=%p)\n",
-        (unsigned long)m_idClient, pRecvobj);
+    F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_INFO,
+               "[CLIENT %lu] DETACHED -> ACTIVE (recvobj=%p)",
+               (unsigned long)m_idClient, pRecvobj);
 
     m_state            = StateActive;
     m_pRecvobj         = pRecvobj;
@@ -102,7 +104,8 @@ Fs_ClientList::Fs_ClientList()
 {
     m_hmtx = NULL;
     if (DosCreateMutexSem(NULL, &m_hmtx, 0, FALSE) != 0) {
-        log("[CLIENTLIST] ERROR: DosCreateMutexSem failed\n");
+        F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_ERROR,
+                   "[CLIENTLIST] ERROR: DosCreateMutexSem failed");
         m_hmtx = NULL;
     }
 }
@@ -218,7 +221,9 @@ Fs_ClientConnection *Fs_ClientList::GetOrCreate(void *pRecvobj,
     Unlock();
 
     if (pConn == NULL) {
-        log("[CLIENTLIST] ERROR: table full (%d slots)\n", F_MAX_CLIENTS);
+        F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_ERROR,
+                   "[CLIENTLIST] ERROR: table full (%d slots)",
+                   F_MAX_CLIENTS);
     }
     return pConn;
 }
@@ -238,8 +243,9 @@ int Fs_ClientList::Expire(time_t now, ULONG ulInactive, ULONG ulGrace)
             continue;
         }
         if (p->IsDetached() && p->IsExpiredGrace(now, ulGrace)) {
-            log("[CLIENT %lu] grace timeout expired\n",
-                (unsigned long)p->GetIdClient());
+            F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_WARNING,
+                       "[CLIENT %lu] grace timeout expired",
+                       (unsigned long)p->GetIdClient());
             p->Shutdown();
             nChanged++;
         }

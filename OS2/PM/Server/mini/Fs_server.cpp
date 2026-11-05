@@ -11,8 +11,7 @@
 #endif
 
 #include "Fs_server.hpp"
-
-extern void log(const char *fmt, ...);
+#include "F_debug.h"
 
 /* DispatchGpi is declared in dispatch.cpp. */
 extern ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
@@ -64,8 +63,9 @@ static unsigned long __stdcall MonitorThreadProc(void *param)
 
 void Fs_Server::StartMonitor()
 {
-    log("[SERVER] starting monitor thread (tick=%lu ms)\n",
-        (unsigned long)m_cfg.ulMonitorTick);
+    F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
+               "[SERVER] starting monitor thread (tick=%lu ms)",
+               (unsigned long)m_cfg.ulMonitorTick);
 
 #if defined(__OS2__) || defined(__OS2V2__)
     _beginthread(MonitorThreadProc, NULL, 65536, this);
@@ -90,7 +90,8 @@ void Fs_Server::MonitorLoop()
            any client connects, and cleanly shuts down after the last
            client disconnects or times out. */
         if (m_fEverHadClient && nActive == 0) {
-            log("[SERVER] all sessions gone, shutting down\n");
+            F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
+                       "[SERVER] all sessions gone, shutting down");
             m_fShutdown = TRUE;
             /* Freeze state, then exit. exit(0) runs atexit handlers
                (closes the server presence mutex) and terminates any
@@ -134,8 +135,9 @@ void Fs_Server::SendClientConfig(void *pRecvobj, Fs_ClientConnection *pConn)
 
     if (m_pfnSend) m_pfnSend(pRecvobj, &cfg, sizeof(cfg));
 
-    log("[SERVER] sent F_CLIENTCONFIG to %p (idClient=%lu)\n",
-        pRecvobj, (unsigned long)cfg.idClient);
+    F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+               "[SERVER] sent F_CLIENTCONFIG to %p (idClient=%lu)",
+               pRecvobj, (unsigned long)cfg.idClient);
 }
 
 /* ======================================================================== */
@@ -151,9 +153,10 @@ void Fs_Server::HandleClientConnect(void *pRecvobj)
        on the same connection. */
     Fs_ClientConnection *pExisting = m_clients.FindByRecvobj(pRecvobj);
     if (pExisting) {
-        log("[SERVER] CONNECT: recvobj=%p already has session "
-            "idClient=%lu, rejecting\n",
-            pRecvobj, (unsigned long)pExisting->GetIdClient());
+        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_WARNING,
+                   "[SERVER] CONNECT: recvobj=%p already has session "
+                   "idClient=%lu, rejecting",
+                   pRecvobj, (unsigned long)pExisting->GetIdClient());
         SendClientConfig(pRecvobj, NULL);   /* idClient=0 */
         return;
     }
@@ -161,12 +164,14 @@ void Fs_Server::HandleClientConnect(void *pRecvobj)
     ULONG idNew = 0;
     Fs_ClientConnection *pConn = m_clients.GetOrCreate(pRecvobj, &idNew);
     if (!pConn) {
-        log("[SERVER] CONNECT: table full, rejecting %p\n", pRecvobj);
+        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_ERROR,
+                   "[SERVER] CONNECT: table full, rejecting %p", pRecvobj);
         SendClientConfig(pRecvobj, NULL);
         return;
     }
-    log("[SERVER] CONNECT: new session idClient=%lu recvobj=%p\n",
-        (unsigned long)idNew, pRecvobj);
+    F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
+               "[SERVER] CONNECT: new session idClient=%lu recvobj=%p",
+               (unsigned long)idNew, pRecvobj);
     m_fEverHadClient = TRUE;
     pConn->Touch();
     SendClientConfig(pRecvobj, pConn);
@@ -176,8 +181,9 @@ void Fs_Server::HandleClientReconnect(void *pRecvobj, ULONG idClient)
 {
     Fs_ClientConnection *pConn;
 
-    log("[SERVER] RECONNECT: idClient=%lu recvobj=%p\n",
-        (unsigned long)idClient, pRecvobj);
+    F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
+               "[SERVER] RECONNECT: idClient=%lu recvobj=%p",
+               (unsigned long)idClient, pRecvobj);
 
     if (idClient == 0) {
         SendClientConfig(pRecvobj, NULL);
@@ -186,8 +192,9 @@ void Fs_Server::HandleClientReconnect(void *pRecvobj, ULONG idClient)
 
     pConn = m_clients.FindByIdClient(idClient);
     if (!pConn) {
-        log("[SERVER] RECONNECT: idClient=%lu not found, rejecting\n",
-            (unsigned long)idClient);
+        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_WARNING,
+                   "[SERVER] RECONNECT: idClient=%lu not found, rejecting",
+                   (unsigned long)idClient);
         SendClientConfig(pRecvobj, NULL);
         return;
     }
@@ -196,8 +203,9 @@ void Fs_Server::HandleClientReconnect(void *pRecvobj, ULONG idClient)
         /* Session is still ACTIVE. RECONNECT is only valid for a
            DETACHED session (after the old socket is known dead). A
            live session must not be taken over. */
-        log("[SERVER] RECONNECT: idClient=%lu still ACTIVE, rejecting\n",
-            (unsigned long)idClient);
+        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_WARNING,
+                   "[SERVER] RECONNECT: idClient=%lu still ACTIVE, rejecting",
+                   (unsigned long)idClient);
         SendClientConfig(pRecvobj, NULL);
         return;
     }
@@ -216,7 +224,9 @@ void Fs_Server::HandleClientPing(Fs_ClientConnection *pConn)
 void Fs_Server::HandleClientExit(Fs_ClientConnection *pConn)
 {
     if (!pConn) return;
-    log("[SERVER] EXIT: idClient=%lu\n", (unsigned long)pConn->GetIdClient());
+    F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
+               "[SERVER] EXIT: idClient=%lu",
+               (unsigned long)pConn->GetIdClient());
     pConn->Shutdown();
 }
 
@@ -227,8 +237,9 @@ void Fs_Server::HandleDisconnect(void *pRecvobj)
     if (!pConn) return;
     if (!pConn->IsActive()) return;
 
-    log("[SERVER] DISCONNECT: idClient=%lu recvobj=%p -> DETACHED\n",
-        (unsigned long)pConn->GetIdClient(), pRecvobj);
+    F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
+               "[SERVER] DISCONNECT: idClient=%lu recvobj=%p -> DETACHED",
+               (unsigned long)pConn->GetIdClient(), pRecvobj);
     pConn->ToDetached(time(NULL));
 }
 
@@ -288,15 +299,17 @@ void Fs_Server::HandleCoreCommand(Fs_ClientConnection *pConn, int ncmd, int data
 
         case F_CMD_GET_HPS: {
             HPS hps = (HPS)1;
-            log("[SERVER] GET_HPS(hwnd=0x%x) -> hps=%p (stub)\n",
-                data, (void*)hps);
+            F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                       "[SERVER] GET_HPS(hwnd=0x%x) -> hps=%p (stub)",
+                       data, (void*)hps);
             if (m_pfnSend) m_pfnSend(pRecvobj, &hps, sizeof(HPS));
             break;
         }
 
         case F_CMD_RELEASE_HPS: {
             int rc1 = 0;
-            log("[SERVER] RELEASE_HPS(hps=0x%x) -> 0\n", data);
+            F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                       "[SERVER] RELEASE_HPS(hps=0x%x) -> 0", data);
             if (m_pfnSend) m_pfnSend(pRecvobj, &rc1, sizeof(int));
             break;
         }
@@ -304,8 +317,9 @@ void Fs_Server::HandleCoreCommand(Fs_ClientConnection *pConn, int ncmd, int data
         case F_CMD_DB_PRINT: {
             if (m_pfnRecv && m_cfg.fAcceptLogs) {
                 m_pfnRecv(pRecvobj, buf, &len, sizeof(buf));
-                log("DEBUG[id=%lu]: %s\n",
-                    (unsigned long)pConn->GetIdClient(), buf);
+                F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
+                           "DEBUG[id=%lu]: %s",
+                           (unsigned long)pConn->GetIdClient(), buf);
             }
             break;
         }
@@ -313,8 +327,9 @@ void Fs_Server::HandleCoreCommand(Fs_ClientConnection *pConn, int ncmd, int data
         case F_CMD_FATAL_COMMON: {
             if (m_pfnRecv) {
                 m_pfnRecv(pRecvobj, buf, &len, sizeof(buf));
-                log("FATAL[id=%lu]: %s\n",
-                    (unsigned long)pConn->GetIdClient(), buf);
+                F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_FATAL,
+                           "FATAL[id=%lu]: %s",
+                           (unsigned long)pConn->GetIdClient(), buf);
             }
             break;
         }
@@ -335,8 +350,9 @@ void Fs_Server::HandleCommand(void *pRecvobj, int ncmd, int data, int threadNum)
 {
     (void)threadNum;
 
-    log("[SERVER] IN  -> recvobj=%p, ncmd=0x%x, data=0x%x\n",
-        pRecvobj, ncmd, data);
+    F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+               "[SERVER] IN  -> recvobj=%p, ncmd=0x%x, data=0x%x",
+               pRecvobj, ncmd, data);
 
     /* Lifecycle commands (do not require an existing session) */
     switch (ncmd) {
@@ -353,8 +369,9 @@ void Fs_Server::HandleCommand(void *pRecvobj, int ncmd, int data, int threadNum)
     /* Every remaining command requires an existing session. */
     if (!pConn) {
         ULONG err = (ULONG)-1;
-        log("[SERVER] ERROR: no session for recvobj=%p, cmd 0x%x, "
-            "returning error\n", pRecvobj, ncmd);
+        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_ERROR,
+                   "[SERVER] ERROR: no session for recvobj=%p, cmd 0x%x, "
+                   "returning error", pRecvobj, ncmd);
         if (m_pfnSend) m_pfnSend(pRecvobj, &err, sizeof(err));
         return;
     }

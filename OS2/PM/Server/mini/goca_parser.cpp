@@ -15,42 +15,61 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "goca_parser.hpp"
+#include "F_debug.h"
 
 /* ======================================================================== */
 /*  Debug trace                                                             */
 /* ======================================================================== */
 
 /*!
- * @brief Conditional trace to stderr.
- * @param [in] c   Parser context (checks c->bDebug).
- * @param [in] fmt printf-style format string.
- * @param [in] ... Arguments for the format string.
+ * @brief Conditional trace routed to F_DbgPrint.
+ *
+ * The c->bDebug flag is no longer consulted: per-level filtering in
+ * F_DbgPrint (F_DBG_SEC_GOCA_PARSE) handles enable/disable. The flag
+ * is still set by GocaInit but currently unused.
+ *
+ * @param [in] c    Parser context (unused in the current version).
+ * @param [in] fmt  printf-style format string.
+ * @param [in] ...  Arguments for the format string.
  */
 static void GocaTrace(GOCA_CTX *c, const char *fmt, ...)
 {
     va_list args;
-    if (!c || !c->bDebug) return;
+    char    buf[1024];
+
+    (void)c;
+
     va_start(args, fmt);
-    vfprintf(stderr, fmt, args);
+    vsnprintf(buf, sizeof(buf), fmt, args);
     va_end(args);
-    fflush(stderr);
+
+    {
+        size_t n = strlen(buf);
+        if (n > 0 && buf[n - 1] == '\n') buf[n - 1] = 0;
+    }
+
+    F_DbgPrint(F_DBG_SEC_GOCA_PARSE, F_DBG_LVL_VERBOSE, "%s", buf);
 }
 
 /*!
  * @def GocaCallEnter
- * @brief Log the entry of a Do* handler with its arguments.
- * @param [in] fmt  printf-style format string for the arguments.
+ * @brief Open a debug context for a Do* handler.
+ * @param [in] fmt  printf-style format for the arguments.
  * @param [in] ...  Arguments for the format string.
  */
-#define GocaCallEnter(fmt, ...)  GocaTrace(c, "[GOCA] IN : %s(" fmt ")\n", __FUNCTION__, ##__VA_ARGS__)
+#define GocaCallEnter(fmt, ...) \
+    int _goca_ctx = F_DbgCtxEnterf(F_DBG_SEC_GOCA_PARSE, F_DBG_LVL_VERBOSE, \
+                                   "[GOCA] IN : %s(" fmt ")", \
+                                   __FUNCTION__, ##__VA_ARGS__)
 
 /*!
  * @def GocaCallResult
- * @brief Log the exit of a Do* handler with its result.
- * @param [in] fmt  printf-style format string for the result.
+ * @brief Close the debug context opened by GocaCallEnter.
+ * @param [in] fmt  printf-style format for the result.
  * @param [in] ...  Arguments for the format string.
  */
-#define GocaCallResult(fmt, ...) GocaTrace(c, "[GOCA] OUT: %s -> " fmt "\n", __FUNCTION__, ##__VA_ARGS__)
+#define GocaCallResult(fmt, ...) \
+    F_DbgCtxExitf(_goca_ctx, fmt, ##__VA_ARGS__)
 
 /* ======================================================================== */
 /*  Endian-aware / size-aware readers                                       */
@@ -156,7 +175,7 @@ static LONG DoGSCP(GOCA_CTX *c, const BYTE *p, ULONG cb)
     GreSetCurrentPosition(c->hdc, &pt);
     c->ptlCurPos = pt;
 
-    GocaCallResult("GOCA_OK");
+    GocaCallResult("GOCA_OK (pos=(%ld,%ld))", (long)pt.x, (long)pt.y);
     return GOCA_OK;
 }
 
@@ -222,9 +241,9 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     GrePolyLine(c->hdc, pptl, (LONG)nTotal);
     c->ptlCurPos = pptl[nTotal - 1];
-    
+
     DosFreeMem(pptl);
-    GocaCallResult("GOCA_OK");
+    GocaCallResult("GOCA_OK (%u pts)", (unsigned)nTotal);
     return GOCA_OK;
 }
 
@@ -288,9 +307,9 @@ static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     GrePolyMarker(c->hdc, pptl, (LONG)nTotal);
     c->ptlCurPos = pptl[nTotal - 1];
-    
+
     DosFreeMem(pptl);
-    GocaCallResult("GOCA_OK");
+    GocaCallResult("GOCA_OK (%u pts)", (unsigned)nTotal);
     return GOCA_OK;
 }
 
@@ -365,9 +384,9 @@ static LONG DoRelativeLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     GrePolyLine(c->hdc, pptl, (LONG)nTotal);
     c->ptlCurPos = pptl[nTotal - 1];
-    
+
     DosFreeMem(pptl);
-    GocaCallResult("GOCA_OK");
+    GocaCallResult("GOCA_OK (%u pts)", (unsigned)nTotal);
     return GOCA_OK;
 }
 
@@ -659,7 +678,7 @@ static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     GrePolySpline(c->hdc, pptl, (LONG)nPts);
     c->ptlCurPos = pptl[nPts - 1];
-    
+
     DosFreeMem(pptl);
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
@@ -724,7 +743,7 @@ static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     GrePolyFillet(c->hdc, pptl, (LONG)nPts);
     c->ptlCurPos = pptl[nPts - 1];
-    
+
     DosFreeMem(pptl);
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
@@ -749,7 +768,7 @@ static LONG DoSetArcParams(GOCA_CTX *c, const BYTE *p, ULONG cb)
     ap.lQ = GocaRdS16(c, p + 4);
     ap.lR = GocaRdS16(c, p + 6);
     ap.lS = GocaRdS16(c, p + 8);
-    
+
     GocaTrace(c, "[GOCA]   GSAP: P=%ld Q=%ld R=%ld S=%ld\n",
               (long)ap.lP, (long)ap.lQ, (long)ap.lR, (long)ap.lS);
     GreSetArcParameters(c->hdc, &ap);
@@ -781,7 +800,7 @@ static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
     cyFrac = GocaGetU16(c, p + 8);
     fbFlags = p[10];
     (void)fbFlags;
-    
+
     GocaTrace(c, "[GOCA]   GSCC: cell=(%d.%04X,%d.%04X)\n",
               (int)cxInt, (unsigned)cxFrac, (int)cyInt, (unsigned)cyFrac);
     c->cb.sizfxCell.cx = MAKEFIXED(cxInt, cxFrac);
@@ -809,7 +828,7 @@ static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
     }
     cx = GocaRdS16(c, p + 2);
     cy = GocaRdS16(c, p + 4);
-    
+
     GocaTrace(c, "[GOCA]   GSMC: cell=(%d,%d)\n", (int)cx, (int)cy);
     c->mb.sizfxCell.cx = MAKEFIXED(cx, 0);
     c->mb.sizfxCell.cy = MAKEFIXED(cy, 0);
@@ -838,7 +857,7 @@ static LONG DoSetPatternRefPoint(GOCA_CTX *c, const BYTE *p, ULONG cb)
     }
     fbFlags = p[2];
     pt = PtsToPtl(c, p + 4);
-    
+
     GocaTrace(c, "[GOCA]   GSPRP: ref=(%ld,%ld) flags=%02X\n",
               (long)pt.x, (long)pt.y, (unsigned)fbFlags);
     c->ab.ptlRefPoint = pt;
@@ -1048,7 +1067,7 @@ LONG GocaParseStream(GOCA_CTX *c)
             }
 
             /* ============ mix ============ */
-            case OCODE_GSMX:
+            case OCODE_GSMX: {
                 GocaCallEnter("GSMX mix=%u", (unsigned)p[1]);
                 c->lb.usMixMode = c->cb.usMixMode =
                 c->mb.usMixMode = c->ab.usMixMode = (USHORT)p[1];
@@ -1058,8 +1077,9 @@ LONG GocaParseStream(GOCA_CTX *c)
                 GocaSetAttr(c->hdc, PRIM_AREA,   ABB_MIX_MODE, &c->ab);
                 GocaCallResult("GOCA_OK");
                 break;
+            }
 
-            case OCODE_GSBMX:
+            case OCODE_GSBMX: {
                 GocaCallEnter("GSBMX backmix=%u", (unsigned)p[1]);
                 c->lb.usBackMixMode = c->cb.usBackMixMode =
                 c->mb.usBackMixMode = c->ab.usBackMixMode = (USHORT)p[1];
@@ -1069,14 +1089,16 @@ LONG GocaParseStream(GOCA_CTX *c)
                 GocaSetAttr(c->hdc, PRIM_AREA,   ABB_BACK_MIX_MODE, &c->ab);
                 GocaCallResult("GOCA_OK");
                 break;
+            }
 
             /* ============ line attributes ============ */
-            case OCODE_GSLT:
+            case OCODE_GSLT: {
                 GocaCallEnter("GSLT type=%u", (unsigned)p[1]);
                 c->lb.usType = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_LINE, LBB_TYPE, &c->lb);
                 GocaCallResult("GOCA_OK");
                 break;
+            }
 
             case OCODE_GSLW: {
                 FIXED fx = MAKEFIXED(p[1], 0);
@@ -1104,71 +1126,80 @@ LONG GocaParseStream(GOCA_CTX *c)
                 break;
             }
 
-            case OCODE_GSLE:
+            case OCODE_GSLE: {
                 GocaCallEnter("GSLE end=%u", (unsigned)p[1]);
                 c->lb.usEnd = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_LINE, LBB_END, &c->lb);
                 GocaCallResult("GOCA_OK");
                 break;
+            }
 
-            case OCODE_GSLJ:
+            case OCODE_GSLJ: {
                 GocaCallEnter("GSLJ join=%u", (unsigned)p[1]);
                 c->lb.usJoin = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_LINE, LBB_JOIN, &c->lb);
                 GocaCallResult("GOCA_OK");
                 break;
+            }
 
             /* ============ marker attributes ============ */
-            case OCODE_GSMS:
+            case OCODE_GSMS: {
                 GocaCallEnter("GSMS set=%u", (unsigned)p[1]);
                 c->mb.usSet = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_MARKER, MBB_SET, &c->mb);
                 GocaCallResult("GOCA_OK");
                 break;
+            }
 
-            case OCODE_GSMT:
+            case OCODE_GSMT: {
                 GocaCallEnter("GSMT symbol=%u", (unsigned)p[1]);
                 c->mb.usSymbol = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_MARKER, MBB_SYMBOL, &c->mb);
                 GocaCallResult("GOCA_OK");
                 break;
+            }
 
             /* ============ area attributes ============ */
-            case OCODE_GSPS:
+            case OCODE_GSPS: {
                 GocaCallEnter("GSPS set=%u", (unsigned)p[1]);
                 c->ab.usSet = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_AREA, ABB_SET, &c->ab);
                 GocaCallResult("GOCA_OK");
                 break;
+            }
 
-            case OCODE_GSPT:
+            case OCODE_GSPT: {
                 GocaCallEnter("GSPT symbol=%u", (unsigned)p[1]);
                 c->ab.usSymbol = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_AREA, ABB_SYMBOL, &c->ab);
                 GocaCallResult("GOCA_OK");
                 break;
+            }
 
             /* ============ char attributes ============ */
-            case OCODE_GSCS:
+            case OCODE_GSCS: {
                 GocaCallEnter("GSCS lcid=%u", (unsigned)p[1]);
                 c->cb.usSet = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_CHAR, CBB_SET, &c->cb);
                 GocaCallResult("GOCA_OK");
                 break;
+            }
 
-            case OCODE_GSCD:
+            case OCODE_GSCD: {
                 GocaCallEnter("GSCD dir=%u", (unsigned)p[1]);
                 c->cb.usDirection = (USHORT)p[1];
                 GocaSetAttr(c->hdc, PRIM_CHAR, CBB_DIRECTION, &c->cb);
                 GocaCallResult("GOCA_OK");
                 break;
+            }
 
-            case OCODE_GSCR:
+            case OCODE_GSCR: {
                 GocaCallEnter("GSCR prec=%u", (unsigned)(p[1] & GSCR_PRECISION));
                 c->cb.usPrecision = (USHORT)(p[1] & GSCR_PRECISION);
                 GocaSetAttr(c->hdc, PRIM_CHAR, CBB_MODE, &c->cb);
                 GocaCallResult("GOCA_OK");
                 break;
+            }
 
             /* ============ areas ============ */
             case OCODE_GBAR: {
@@ -1183,7 +1214,7 @@ LONG GocaParseStream(GOCA_CTX *c)
                 break;
             }
 
-            case OCODE_GEAR:
+            case OCODE_GEAR: {
                 GocaCallEnter("GEAR");
                 if (c->bInArea) {
                     GreEndArea(c->hdc, 0);
@@ -1191,6 +1222,7 @@ LONG GocaParseStream(GOCA_CTX *c)
                 }
                 GocaCallResult("GOCA_OK");
                 break;
+            }
 
             /* ============ long: primitives ============ */
             case OCODE_GSCP:    rc = DoGSCP(c, p, cbOrder); break;
@@ -1253,7 +1285,7 @@ LONG GocaParseStream(GOCA_CTX *c)
 
     GocaTrace(c, "[GOCA] ===== stream done: %u bytes =====\n",
               (unsigned)c->uPos);
-    GocaCallResult("GOCA_OK");
+    GocaCallResult("GOCA_OK (%u bytes)", (unsigned)c->uPos);
     return GOCA_OK;
 }
 
