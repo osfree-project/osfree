@@ -1,0 +1,598 @@
+﻿# P6 — Обновлённая спецификация
+
+Полная актуализированная версия под состояние после P0–P8, CM1, CM2, W131, W138, D1. TBD-1 (реализация `--comment-style`) и TBD-2 (удаление мёртвого кода после TBD-1) — вне текущего плана.
+
+---
+
+## Часть I. Архитектура
+
+### 1.1 Уровни
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│ Уровень 3 — приложения                                               │
+│   reuse-lint.exe     линтер; отчёт + exit code                       │
+│   reuse-annotate.exe writer; dry-run / --write                       │
+│   spdx-sbom.exe      SBOM generator                                  │
+│                                                                      │
+│   Знают: CLI, exit code, отчётность, формат вывода.                  │
+│   Не знают: tag-value, comment markers, precedence.                  │
+│                                                                      │
+│   Вспомогательные (SBOM):                                            │
+│   spdx_sbom_opts.c/h       CLI парсер                                │
+│   spdx_sbom_types.h        IR структуры                              │
+│   spdx_sbom_scan.c/h       сбор файлов и сниппетов                   │
+│   spdx_sbom_doc.c/h        построение документа                      │
+│   spdx_sbom_extracted.c/h  LicenseRef-* тексты                       │
+│   spdx_sbom_out.c/h        диспетчер вывода                          │
+│   spdx_sbom_out_json.c     spdx-json                                 │
+│   spdx_sbom_out_tag.c      spdx-tag                                  │
+│   spdx_sbom_utils.c/h      идентификаторы, типы файлов, контейнеры   │
+├──────────────────────────────────────────────────────────────────────┤
+│ Уровень 2 — REUSE library (tools/shared/reuse/)                     │
+│   reuse_glob.c/h         REUSE 3.3 glob                              │
+│   reuse_comments.c/h     comments.toml → HREUSECOMMENTSCFG/STYLE    │
+│   reuse_tags.c/h         файл + style → {license, copyright,        │
+│                                              snippets}              │
+│   reuse_toml.c/h         REUSE.toml → HREUSETOML                    │
+│   dep5.c/h               .reuse/dep5 → HDEP5DOC                     │
+│   reuse_licenses.c/h     LICENSES/ (validate / ensure)              │
+│   reuse_discover.c/h     обход дерева, .gitignore                   │
+│   reuse_lic.c/h          публичный per-file резолвер (тонкая        │
+│                            обёртка над ReuseOpenFile)               │
+│   reuse.c                открытие дерева, resolve_file,             │
+│                            fold (override/aggregate/closest),       │
+│                            публичный ReuseOpenFile/CloseFile/Query* │
+│   reuse.h, reuse_internal.h, reuseerr.h, reusedef.h                 │
+│                                                                      │
+│   Единственный слой, знающий и REUSE, и SPDX.                       │
+├──────────────────────────────────────────────────────────────────────┤
+│ Уровень 1 — SPDX library (tools/shared/spdx/)                       │
+│   spdx_tag.c/h           одна строка tag-value → SPDXTAG + value;   │
+│                            метаданные тегов (Clause 6–13, Annex E/H)│
+│   spdx_db.c/h            License List, expression grammar           │
+│   spdx.c/h               утилиты (read file, normalize, basename)   │
+│                                                                      │
+│   Не знает: комментариев, файлов, sidecar, REUSE.toml,              │
+│             precedence, REUSE-IgnoreStart/End, сниппетов как модели.│
+├──────────────────────────────────────────────────────────────────────┤
+│ Уровень 0 — базовые библиотеки                                       │
+│   ccl:  vector, strset, hashtable, set, heap, rbtree, stack, alloc  │
+│   toml, path, git, json, sha1, sha256                                │
+│   omf, res, lib, def, dll, lxexe, newexe, mzexe, map, wmp, sym,     │
+│   abi, x86len                                                        │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+### 1.2 Направление зависимостей
+
+| Заголовок | Что включает |
+|---|---|
+| `reuse.h` | `os2types.h`, `reusedef.h`, `reuseerr.h`, `spdx_tag.h` (только для `SPDXTAG`, `SPDXTAGINFO`, `SPDX_TAG_ERROR_SYNTAX`) |
+| `reuse_internal.h` | `os2types.h`, `os2err.h`, `reuse.h`, `reuse_toml.h`, `dep5.h` |
+| `reuse_lic.h` | `os2types.h`, `os2err.h`, `<reuse.h>` |
+| `reuse_licenses.h` | `os2types.h`, `os2err.h`, `ccl.h`, `reuse.h`, `reuseerr.h` |
+| `spdx_tag.h` | `os2types.h`, `os2err.h` (без `ccl.h`, без `reuse.h`) |
+| `spdx_sbom_scan.h` | `os2types.h`, `os2err.h`, `ccl.h`, `<reuse.h>` |
+
+`spdx_tag.h` не включает `reuse.h`. `reuse.h` включает `spdx_tag.h` — только ради `SPDXTAG`, `SPDXTAGINFO`, `SPDX_TAG_ERROR_SYNTAX` (используются в `ReuseQueryFileSnippets` и внутреннем `reuse_tags.c`).
+
+### 1.3 Матрица ответственности
+
+| Компонент | Читает файл | Снимает comment marker | Парсит tag-value | Знает precedence | Публичный API |
+|---|---|---|---|---|---|
+| `spdx_tag.c` | — | — | ✔ | — | `SPDXTAG`, `SPDXTAGINFO`, `SPDX_TAG_ERROR_SYNTAX`, `SpdxQueryTagLine`, `SpdxQueryTagInfo` |
+| `spdx_db.c` | ✔ (JSON) | — | — | — | License List, expression grammar |
+| `reuse_comments.c` | ✔ (TOML) | ✔ | — | — | `HREUSECOMMENTSCFG`, `HREUSECOMMENTSTYLE`, `REUSECOMMENTSTYLEINFO`, `ReuseOpenComments`/`CloseComments`/`QueryCommentStyle`/`QueryCommentStyleByName`/`QueryCommentStyleInfo`/`QueryCommentBody`/`QueryCommentBlock`/`QueryShebang` |
+| `reuse_tags.c` | ✔ | ✔ (через `reuse_comments`) | ✔ (через `spdx_tag`) | — | `HREUSETAGSREPORT`, `REUSE_TAGS_*`, `SPDXSNIPPET*`, `ReuseCreateTagsReport`/`CloseTagsReport`/`QueryTagsReportCount`/`QueryTagsReport`/`SnippetListInit`/`SnippetListFree`, `ReuseQueryFileTags`/`HasTag`/`Snippets` |
+| `reuse_toml.c` | ✔ (TOML) | — | — | — | `HREUSETOML`, `HREUSEANN`, `ReuseOpen`/`Close`/`GetVersion`/`GetSourceDir`/`GetAnnotationCount`/`GetAnnotation`, `ReuseAnnGet*` |
+| `dep5.c` | ✔ (DEP5) | — | — | — | `HDEP5DOC`, `HDEP5FIND`, `Dep5*` |
+| `reuse_glob.c` | — | — | — | — | `ReuseQueryGlobMatch` |
+| `reuse_licenses.c` | ✔ | — | — | — | `HREUSELICENSEREPORT`, `REUSE_LICENSES_*`, `ReuseLicensesReportCreate`/`Free`/`GetCount`/`Get`, `ReuseLicensesValidate`/`Ensure` |
+| `reuse_discover.c` | ✔ (каталоги) | — | — | — | `REUSEDISCOVEROPTIONS`, `ReuseSetDiscoverOptionsDefault`, `ReuseDiscoverWalkTree`/`FromArtifacts`/`Discover` |
+| **`reuse.c::resolve_file`** (static) | ✔ (sidecar, in-file) | ✔ (через `reuse_comments`) | ✔ (через `reuse_tags`) | ✔ | (внутренняя) |
+| `reuse.c` (публичный) | — | — | — | — | `ReuseOpenTree`, `ReuseCloseTree`, `ReuseQueryTreeCommentStyle`, `ReuseQueryTreeTagsReport`, `ReuseTreeGetErrorCount`, `ReuseTreeGetError`, `ReuseOpenFile`, `ReuseCloseFile`, `ReuseQueryFile*`, `ReuseQueryFilePrecedence`, `ReuseQueryFileSource` |
+| `reuse_lic.c` | **—** | **—** | **—** | — | `ReuseResolveLicense` (тонкая обёртка) |
+| `reuse-lint.c`, `reuse-annotate.c`, `spdx-sbom.c` | — (через REUSE) | — | — | — | CLI, exit code, отчёт |
+
+**Правило:** `resolve_file` (static в `reuse.c`) — единственное место, где читаются sidecar и in-file. Все остальные компоненты получают уже готовые данные.
+
+### 1.4 Поток данных для одного файла
+
+```
+path
+ │
+ ├─ ReuseOpenFile(hTree, path, &hFile, &err):
+ │    │
+ │    ├─ resolve_file(pd, path, &ulErr):
+ │    │    ├─ if (pd->hComments == NULLHANDLE):
+ │    │    │    ulErr = REUSE_ERROR_NO_COMMENT_STYLE; return NULL;
+ │    │    │
+ │    │    ├─ ReuseQueryCommentStyle(pd->hComments, path, &found, &style)
+ │    │    │    └─ if (!found):
+ │    │    │         ulErr = REUSE_ERROR_NO_COMMENT_STYLE; return NULL;
+ │    │    │
+ │    │    ├─ sidecar = "<path>.license":
+ │    │    │    if exists:
+ │    │    │        ReuseQueryFileTags(sidecar, NULLHANDLE, …, NULLHANDLE)
+ │    │    │        /* hStyle == NULLHANDLE — raw tag-value (sidecar-режим) */
+ │    │    │
+ │    │    ├─ in-file:
+ │    │    │    ReuseQueryFileTags(path, style, …, pd->hReport):
+ │    │    │    │
+ │    │    │    └─ построчно:
+ │    │    │         fgets → trim_trailing → strip_bom (first line)
+ │    │    │              → ReuseQueryCommentBody(style, line, &off)
+ │    │    │                  (или off=0, если hStyle==NULLHANDLE)
+ │    │    │                  (внутри — regexp, потом literal,
+ │    │    │                   потом multi_start/multi_middle
+ │    │    │                   с trim trailing multi_end)
+ │    │    │              → REUSE-IgnoreStart/End
+ │    │    │              → SpdxQueryTagLine(body, …)
+ │    │    │              → фильтр по nDepth и fInFile
+ │    │    │              → accum_add("\n"|" AND ", …)
+ │    │    │
+ │    │    ├─ configs: for each pd->paCfgs[i]:
+ │    │    │    └─ cfg_find_best:
+ │    │    │         ├─ TOML: ReuseQueryGlobMatch → match_from_toml
+ │    │    │         └─ DEP5: matches_pattern → match_from_dep5
+ │    │    │
+ │    │    ├─ fold: override > aggregate > closest; in-file
+ │    │    │         участвует как closest
+ │    │    │
+ │    │    └─ nSource = SIDECAR | TAG | REUSE | NONE
+ │    │
+ │    └─ if (fail): *pErr заполняется {code, severity, file, detail}
+ │
+ ├─ ReuseQueryFileLicense(hFile, …)      ─── size-query
+ ├─ ReuseQueryFileCopyright(hFile, …)
+ ├─ ReuseQueryFileContributors(hFile, …)
+ ├─ ReuseQueryFilePackageName/Supplier/DownloadLocation/Comment
+ ├─ ReuseQueryFilePrecedence(hFile, &prec)
+ ├─ ReuseQueryFileSource(hFile, &src)
+ │
+ └─ ReuseCloseFile(hFile)
+```
+
+### 1.5 Инварианты
+
+1. **Sidecar — raw tag-value.** `<file>.license` содержит `SPDX-License-Identifier:` без comment marker. Читается `ReuseQueryFileTags` с `hStyle == NULLHANDLE` (offset = 0).
+2. **In-file — только через style.** Если `ReuseQueryCommentStyle` вернул `fFound == FALSE`, in-file теги прочитать нельзя → `REUSE_ERROR_NO_COMMENT_STYLE`.
+3. **Дерево без `comments.toml`** — `ReuseOpenTree(pszDir, NULL, …)` возвращает `REUSE_ERROR_NO_COMMENT_STYLE`, дерево не открывается. Fatal.
+4. **`REUSE-IgnoreStart`/`REUSE-IgnoreEnd`** — REUSE-домен, обрабатывается в `reuse_tags.c` до `SpdxQueryTagLine`.
+5. **`REUSE.toml`/DEP5** — не зависят от comment style. Работают всегда, когда открыто дерево.
+6. **`--comments-config`** — обязателен для всех трёх приложений (P1/P2/P3a).
+7. **`REUSE_ERROR_NO_COMMENT_STYLE`** — фатален. Два источника (`ReuseOpenTree`, `ReuseOpenFile`), два разных сообщения в приложениях.
+8. **`SPDXSNIPPET`, `SPDXSNIPPETLIST`** — типы REUSE-слоя, объявлены в `reuse.h`. `SpdxSnippetListInit/Free` перенесены из `spdx_tag.c` как `ReuseSnippetListInit/Free` в `reuse_tags.c`.
+9. **`ReuseQueryFileTags`** — единственный читатель in-file и sidecar; вызывается только из `reuse.c::resolve_file`.
+10. **`ReuseQueryCommentBlock`** требует `pszSingleLine` для single-line вывода. `pszSingleLineRegexp` — только для чтения. Оба поля могут сосуществовать.
+11. **`shebangs`** — не «обязательная первая строка», а «если первая строка совпадает с одной из записей, оставить на строке 1, теги вставить после». Не совпало → теги на строку 1.
+12. **`ReuseQueryCommentBody`** при совпадении `multi_start`/`multi_middle` обрезает trailing `multi_end` прямо в `pszLine` (in place). Сигнатура `PSZ`, не `PCSZ`.
+
+### 1.6 Архитектурные дефекты — статус
+
+| # | Дефект | Статус |
+|---|---|---|
+| D1 | `ReuseTreeResolveFile` игнорировал `PREUSEERR pErr` | ✅ закрыт (P1) |
+| D2 | `resolve_file` читал sidecar/in-file через legacy `query_file_*` | ✅ закрыт (P1) |
+| D3 | `reuse_lic.c` дублировал чтение sidecar/in-file | ✅ закрыт (P4) |
+| D4 | `SPDXSNIPPET*`, `SpdxSnippetListInit/Free` в `spdx_tag.h` | ✅ закрыт (P5) |
+| D5 | `reuse.h` включает `spdx_tag.h` — только ради `SPDXTAG`/`SPDXTAGINFO`/`SPDX_TAG_ERROR_SYNTAX` | ✅ |
+| D6 | `snippetlist_add` (в `spdx_tag.c`) и `snippetlist_append` (в `reuse_tags.c`) | ✅ закрыт (P5, оставлен один в `reuse_tags.c`) |
+| D7 | `SpdxQueryFile*` (legacy) | ✅ закрыт (P5) |
+| D8 | `reuse_lic.h` docstring «Sidecar and in-file tags are read directly by this module» | ✅ закрыт (P4) |
+
+---
+
+## Часть II. Спецификация
+
+### 2.1 Нормативные ссылки
+
+- REUSE Specification 3.3 — https://reuse.software/spec-3.3/
+- SPDX 2.3, Clause 6–13, Annex D, Annex E, Annex H
+- TOML 1.0.0
+- SAA CPI C Reference, Level 2 (SC09-1308-02, Sep 1991)
+- IBM i 7.6, API naming conventions
+- reference-implementation `reuse-tool`, `src/reuse/comment.py`
+- gitignore(5), RFC 8259, FIPS 180-1, FIPS 180-2
+
+### 2.2 Соглашения
+
+- Все публичные функции — `APIENTRY`, возвращают `APIRET`.
+- Выходные строки — size-query convention: `pszBuf == NULL && ulSize == 0` → только `*pulUsed` (размер с NUL); иначе копирование с NUL; если буфер мал — `ERROR_BUFFER_OVERFLOW`, `*pulUsed = required`.
+- Глаголы: `Open`, `Close`, `Query`, `Get`, `Create`. `Resolve` — не из IBM-таблицы, не используется в публичном API.
+- `Tree` в именах публичных функций — контекст, не объект. Убран из `resolve_file`/`FileClose`/`FileGet*` (P1); `ReuseQueryTree*` и `ReuseTreeGetError*` остались как есть (не менялись).
+- Handles — `HANDLE` (указатель с magic внутри). `NULLHANDLE` = `0`.
+
+### 2.3 `spdx_tag.h` — SPDX tag-value parser
+
+**После P5** содержит только:
+- `SPDXTAG` enum (Clause 6–13, Annex E, Annex H, Annex H.3);
+- `SPDXTAGINFO` struct;
+- `SPDX_TAG_ERROR_SYNTAX` (0xFF01);
+- `SpdxQueryTagLine(pszLine, pTag, pfDeprecated, pfInFileForm, pszValue, ulSize, pulUsed)` — 7 аргументов;
+- `SpdxQueryTagInfo(tag, pInfo)`.
+
+**Не содержит** (перенесено в `reuse.h` в P5):
+- `SPDXSNIPPET`, `SPDXSNIPPETLIST`, `PSPDXSNIPPET`, `PSPDXSNIPPETLIST`;
+- `SpdxSnippetListInit`, `SpdxSnippetListFree`;
+- `SpdxQueryFileHasTag`, `SpdxQueryFileLicense`, `SpdxQueryFileCopyright`, `SpdxQueryFileSnippets`;
+- `skip_comment_prefix`, `line_ignore_marker`, `line_starts_with_tag`, `tag_value`, `strip_trailing_markers`, `append_line`, `snippetlist_add`.
+
+`SpdxQueryTagLine`:
+- Распознаёт canonical Clause 6–13, Annex E (`SPDX-License-Identifier:`), Annex H (`SPDX-<Clause 8 field>:`), Annex H.3 (`SPDX-SnippetBegin`/`End`, `SPDX-<Clause 9 field>:`).
+- `pfInFileForm = TRUE` для форм с префиксом `SPDX-`; FALSE для canonical Clause 6–13 / `SPDXTAG_NONE` / `SPDXTAG_OTHER`.
+- BOM (`EF BB BF`) на начале строки пропускается.
+- size-query convention для `pszValue`.
+
+`SpdxQueryTagInfo` возвращает **каноническую** форму (Clause 8.8 `FileCopyrightText:` для `SPDXTAG_COPYRIGHT`), независимо от того, какая форма была в файле.
+
+### 2.4 `reuse_glob.h`
+
+Без изменений с §2.4 предыдущей версии. `ReuseQueryGlobMatch(pszPattern, pszPath, pfMatched)`. Синтаксис REUSE 3.3 (`*`, `**`, `**/`, `***`, `\*`, `\\`, `\X`, trailing `\`).
+
+### 2.5 `reuse_comments.c` — API
+
+**`REUSECOMMENTSTYLEINFO`:**
+```c
+typedef struct _REUSECOMMENTSTYLEINFO {
+    PCSZ pszName;
+    BOOL fSingleLine;
+    BOOL fMultiLine;
+    BOOL fSidecar;
+} REUSECOMMENTSTYLEINFO, *PREUSECOMMENTSTYLEINFO;
+```
+
+**Внутренняя `REUSECOMMENTSTYLE`** (в `reuse_comments.c`):
+```c
+typedef struct _REUSECOMMENTSTYLE {
+    ULONG ulMagic;
+    PSZ   pszName;
+    PSZ   pszSingleLine;           /* literal для записи */
+    PSZ   pszSingleLineRegexp;     /* паттерн для чтения */
+    PSZ   pszIndentAfterSingle;
+    PSZ   pszMultiStart;
+    PSZ   pszMultiMiddle;
+    PSZ   pszMultiEnd;
+    PSZ   pszIndentBeforeMiddle;
+    PSZ   pszIndentAfterMiddle;
+    PSZ   pszIndentBeforeEnd;
+    PSZ  *papszShebangs;
+    ULONG ulShebangCount;
+    BOOL  fCaseInsensitive;
+} REUSECOMMENTSTYLE;
+```
+
+`pszSingleLine` и `pszSingleLineRegexp` **могут сосуществовать**. При чтении (`ReuseQueryCommentBody`) сначала пробуется regexp, затем literal. При записи (`ReuseQueryCommentBlock`) используется `pszSingleLine`. Если `pszSingleLine == NULL` — только multi-line запись.
+
+**API:**
+```c
+APIRET APIENTRY ReuseOpenComments(PCSZ pszConfigPath,
+                                  HREUSECOMMENTSCFG *phCfg);
+APIRET APIENTRY ReuseCloseComments(HREUSECOMMENTSCFG hCfg);
+APIRET APIENTRY ReuseQueryCommentStyle(HREUSECOMMENTSCFG hCfg,
+                                       PCSZ pszFilePath,
+                                       PBOOL pfFound,
+                                       HREUSECOMMENTSTYLE *phStyle);
+APIRET APIENTRY ReuseQueryCommentStyleByName(HREUSECOMMENTSCFG hCfg,
+                                             PCSZ pszName,
+                                             PBOOL pfFound,
+                                             HREUSECOMMENTSTYLE *phStyle);
+APIRET APIENTRY ReuseQueryCommentStyleInfo(HREUSECOMMENTSTYLE hStyle,
+                                           PREUSECOMMENTSTYLEINFO pInfo);
+APIRET APIENTRY ReuseQueryCommentBody(HREUSECOMMENTSTYLE hStyle,
+                                      PSZ pszLine, PULONG pulOffset);
+APIRET APIENTRY ReuseQueryCommentBlock(HREUSECOMMENTSTYLE hStyle,
+                                       PCSZ pszText, BOOL fForceMulti,
+                                       PSZ pszBuf, ULONG ulSize,
+                                       PULONG pulUsed);
+APIRET APIENTRY ReuseQueryShebang(HREUSECOMMENTSTYLE hStyle,
+                                  PCSZ pszFirstLine,
+                                  PBOOL pfKeepFirstLine);
+```
+
+**`ReuseQueryCommentBody`:** в `pszLine` — in place — при совпадении `multi_start`/`multi_middle` обрезает trailing `multi_end` (см. §1.5 п.12).
+
+**`ReuseQueryCommentBlock`:** `fUseMulti = (fForceMulti || pStyle->pszSingleLine == NULL)`. Опирается только на `pszSingleLine` (литерал). `pszSingleLineRegexp` — для чтения, не для записи.
+
+**`ReuseQueryShebang`:** case-insensitive prefix match по `shebangs`. Если совпало — `*pfKeepFirstLine = TRUE`.
+
+### 2.6 `comments.toml` — фактическое содержимое
+
+**Стили (10):**
+
+| name | single | single_line_regexp | case_insensitive | multi_start | multi_middle | multi_end | shebangs |
+|---|---|---|---|---|---|---|---|
+| `c` | `//` | — | — | `/*` | `*` | `*/` | `#!`, `<?php` |
+| `cppsingle` | `//` | — | — | — | — | — | `#!` |
+| `batch` | `@REM` | `^@?rem\b` | true | — | — | — | `@echo off`, `echo off` |
+| `hash` | `#` | — | — | — | — | — | `#!` |
+| `julia` | `#` | — | — | `#=` | — | `=#` | `#!` |
+| `tex` | `%` | — | — | — | — | — | `% !TEX`, `%!TEX`, `#!` |
+| `bibtex` | — | — | — | `@Comment{` | — | `}` | `% !BIB`, `%!BIB` |
+| `haskell` | `--` | — | — | — | — | — | `cabal-version:` |
+| `html` | — | — | — | `<!--` | — | `-->` | `<?xml` |
+| `uncommentable` | — | — | — | — | — | — | — |
+
+**`[[map]]` (34):**
+- `*.c/h/cpp/cc/cxx/hpp/rc` → `c`
+- `*.cmd/bat/btm` → `batch`
+- `Makefile/makefile` → `hash`
+- `*.sh/py/pl/rb/toml/yml/yaml` → `hash`
+- `*.jl` → `julia`
+- `*.tex` → `tex`
+- `*.bib` → `bibtex`
+- `*.hs` → `haskell`
+- `*.html/htm/xml/md` → `html`
+- `*.png/jpg/gif/ico/exe/dll/obj/lib/res` → `uncommentable`
+
+**Синтаксис `single_line_regexp`** (минимальный, реализован в `reuse_comments.c`):
+
+| Элемент | Значение |
+|---|---|
+| `^` | Анкор в начале (no-op: match всегда с начала) |
+| `.` | Любой символ, кроме `\0` |
+| `[...]`, `[^...]`, `[!...]` | Класс символов, с диапазонами `a-z` |
+| `*`, `+`, `?` | 0+, 1+, 0-1 предыдущего атома |
+| `\b` | Граница слова (zero-width) |
+| `\X` | Литерал X (в т.ч. `\\`, `\.`, `\*`) |
+| Остальное | Литерал |
+
+Не поддерживается: `$`, `{n,m}`, `|`, `()`, backreferences, lookaround.
+
+**Семантика `shebangs`:** если первая строка файла совпадает с одной из записей — оставить её на строке 1, теги вставить после. Не совпало → теги на строку 1. `@echo off` и `echo off` — в `shebangs` у `batch`; `#!` — у `hash`, `c`, `julia`, `tex`; `<?xml` — у `html`; и т.д.
+
+**Замечания к данным (не блокируют):**
+1. `cppsingle` объявлен, но не используется ни в одном `[[map]]` — dead entry.
+2. `shebangs = ["<?php"]` у стиля `c` — без `*.php` в `[[map]]`.
+3. `*.txt`, `*.ini`, `*.cfg`, `*.conf`, `*.mk`, `*.asm`, `*.inc` — нет `[[map]]` → `REUSE_ERROR_NO_COMMENT_STYLE` в `reuse-lint`/`reuse-annotate`/`spdx-sbom` (осознанный sidecar-only, если пользователь не добавит `[[map]]`).
+4. `apszBinaryExt` в старом `reuse-annotate` содержал ~20 расширений (`.bmp`, `.jpeg`, `.sys`, `.zip`, `.pdf`, …) — в `[[map]]` только 9. После P8 эти расширения без `[[map]]` → `no [[map]] entry` в `reuse-annotate`.
+
+### 2.7 `reuse.h` — file tags
+
+**`SPDXSNIPPET*` (перенесены в P5):**
+```c
+typedef struct _SPDXSNIPPET {
+    ULONG ulLineStart;
+    ULONG ulLineEnd;
+    PSZ   pszLicense;
+    PSZ   pszCopyright;
+} SPDXSNIPPET, *PSPDXSNIPPET;
+
+typedef struct _SPDXSNIPPETLIST {
+    PSPDXSNIPPET pItems;
+    ULONG        ulCount;
+    ULONG        ulCapacity;
+} SPDXSNIPPETLIST, *PSPDXSNIPPETLIST;
+```
+
+**`ReuseSnippetListInit/Free` (перенесены в P5):**
+```c
+APIRET APIENTRY ReuseSnippetListInit(PSPDXSNIPPETLIST pList);
+APIRET APIENTRY ReuseSnippetListFree(PSPDXSNIPPETLIST pList);
+```
+
+**`HREUSETAGSREPORT`, `REUSE_TAGS_*`:** без изменений (см. §2.6.1–2.6.2 предыдущей версии).
+
+**`ReuseQueryFileTags`:** при `hStyle == NULLHANDLE` — offset 0 (sidecar-режим, raw tag-value); при `hStyle != NULLHANDLE` — через `ReuseQueryCommentBody`.
+
+**`ReuseQueryFileHasTag`:** то же (`hStyle == NULLHANDLE` — sidecar).
+
+**`ReuseQueryFileSnippets`:** `hStyle` обязателен (не `NULLHANDLE`). Внутри — `ReuseQueryCommentBody`; при `nDepth > 1`/`nDepth < 0`/незакрытом сниппете — `SPDX_TAG_ERROR_SYNTAX`, `pOut` освобождается.
+
+### 2.8 `reuse.h` — проект и per-file
+
+**`ReuseOpenTree`:** `pszCommentsConfig` обязателен. При `NULL` → `REUSE_ERROR_NO_COMMENT_STYLE`. Дерево не открывается.
+
+**`ReuseOpenFile`:** 4 аргумента `(hTree, pszPath, &hFile, pErr)`. `pErr` заполняется при ошибке (`code`, `severity`, `achFile`, `achDetail`). `REUSE_ERROR_NO_COMMENT_STYLE` — если в `comments.toml` нет `[[map]]` для файла.
+
+**`ReuseCloseFile`, `ReuseQueryFileLicense/Copyright/Contributors/PackageName/PackageSupplier/PackageDownloadLocation/PackageComment`, `ReuseQueryFilePrecedence`, `ReuseQueryFileSource`** — size-query convention.
+
+`ReuseQueryFileSource` — `REUSE_LICENSE_SRC_NONE/TAG/SIDECAR/REUSE`.
+
+**11 функций `HREUSETREEFILE`:** `ReuseOpenFile`, `ReuseCloseFile`, 7 × `ReuseQueryFile*` для полей, `ReuseQueryFilePrecedence`, `ReuseQueryFileSource`.
+
+### 2.9 `reuseerr.h`
+
+| Значение | Имя |
+|---|---|
+| `0xFF01` | `REUSE_ERROR_SYNTAX` |
+| `0xFF02` | `REUSE_ERROR_VERSION_MISSING` |
+| `0xFF03` | `REUSE_ERROR_VERSION_NOT_INT` |
+| `0xFF04` | `REUSE_ERROR_VERSION_UNSUP` |
+| `0xFF05` | `REUSE_ERROR_ANNOT_NO_PATH` |
+| `0xFF06` | `REUSE_ERROR_ANNOT_BAD_PATH` |
+| `0xFF07` | `REUSE_ERROR_ANNOT_BAD_FIELD` |
+| **`0xFF08`** | **`REUSE_ERROR_NO_COMMENT_STYLE`** |
+| `0xFF10` | `REUSE_TAGS_DEPRECATED` |
+| `0xFF11` | `REUSE_TAGS_NON_ANNEX_FORM` |
+| `0xFF12` | `REUSE_TAGS_LONG_LINE` |
+| `0xFF20–0xFF2E` | `REUSE_LICENSES_*` |
+
+`REUSE_SEV_ERROR=1`, `REUSE_SEV_WARNING=2`, `REUSE_SEV_INFO=3`.
+
+`REUSEERR { ulCode, ulSeverity, ulLine, achFile[512], achDetail[256] }` — без изменений.
+
+### 2.10 `reuse_internal.h`
+
+`_REUSECFG` — без изменений.
+
+`_REUSETREE` — без изменений.
+
+`_REUSETREEFILE`:
+```c
+struct _REUSETREEFILE {
+    PSZ         pszLicense;
+    PSZ         pszCopyright;
+    PSZ         pszContributors;
+    PSZ         pszPackageName;
+    PSZ         pszPackageSupplier;
+    PSZ         pszPackageDownloadLocation;
+    PSZ         pszPackageComment;
+    ULONG       ulPrecedence;
+    int         nSource;   /* REUSE_LICENSE_SRC_* */
+};
+```
+
+### 2.11 `reuse_lic.h` — тонкая обёртка
+
+`ReuseResolveLicense(hTree, pszFullpath, pszDefaultLicense, pszDefaultCopyright, pOut)`. Docstring: «Thin wrapper over ReuseOpenFile. Sidecar and in-file tags are read by the resolver; this module copies the resolved fields, applies `--default-*` CLI fallbacks, canonicalizes the license expression, and forwards `REUSE_ERROR_NO_COMMENT_STYLE` as-is.»
+
+`REUSELICENSEINFO`, `REUSELICENSESOURCE` — без изменений.
+
+### 2.12 `reuse_toml.h`, `dep5.h`, `reuse_discover.h`, `reuse_licenses.h`
+
+Без изменений с §2.12, §2.13, §2.14, §2.15 предыдущей версии.
+
+### 2.13 Приложения — CLI
+
+**`reuse-lint`:**
+```
+Usage: reuse-lint [options] [<directory>]
+  --spdx-db=<path>           SPDX database root (required)
+  --comments-config=<path>   comments.toml (required)
+  --cache=<path>             SPDX database cache file
+  --default-license=<id>     Fallback license identifier
+  --default-copyright=<text> Fallback copyright text
+  --no-gitignore             Do not apply .gitignore rules
+  --help, -h                 Show this help
+```
+
+Поведение:
+- без `--comments-config` → `ReuseOpenTree` → `REUSE_ERROR_NO_COMMENT_STYLE` → `ERROR: --comments-config=<path> is required`, exit 1;
+- per-file `REUSE_ERROR_NO_COMMENT_STYLE` от `ReuseResolveLicense` → `ERROR: <path>: no [[map]] entry in comments.toml matches this file`, exit 1;
+- `ReuseQueryTreeTagsReport` → отчёт `REUSE_TAGS_*` в секции `=== Tags ===`;
+- `ReuseLicensesValidate` → отчёт `REUSE_LICENSES_*` в секции `=== LICENSES/ ===`;
+- `ProcessSnippets` — через `ReuseQueryFileSnippets`.
+
+**`reuse-annotate`:**
+```
+Usage: reuse-annotate [options] [<directory>]
+  --write                    Apply changes (default is dry-run)
+  --dry-run                  Show what would be done (default)
+  --force                    Overwrite existing tags / sidecar / license texts
+  --license=<id>             Override license for all files
+  --copyright=<text>         Override copyright for all files
+  --spdx-db=<path>           SPDX database root (required)
+  --comments-config=<path>   comments.toml (required)
+  --cache=<path>             SPDX database cache file
+  --comment-style=<ext>=<style>
+                             Legacy option; parsed and validated,
+                             not yet applied (TODO)
+  --no-gitignore             Do not apply .gitignore rules
+  --help, -h                 Show this help
+```
+
+Поведение:
+- без `--comments-config` → `ERROR: --comments-config=<path> is required`, exit 1;
+- write-путь полностью через `reuse_comments.c`:
+  - `ReuseQueryTreeCommentStyle` (стиль для файла),
+  - `ReuseQueryCommentStyleInfo` (`fSidecar` — куда писать; `pszName` — для `--dry-run`),
+  - `ReuseQueryCommentBlock` (in-file block),
+  - `build_spdx_body` (tag-value body без маркеров; для sidecar — итоговый блок),
+  - `ReuseQueryShebang` (позиция: после первой строки или в начало),
+  - `ReuseQueryFileHasTag` (проверка «есть ли уже теги»).
+- `--comment-style` при наличии `g_ulStyleOverrideCount > 0` → печатает `WARNING: --comment-style is not yet supported; use [[map]] in comments.toml instead.`; значения не применяются.
+- `achSidecar` — `"%s.license"` (snprintf, суффикс к имени); `achTempName` — `"%s.tmp"` (snprintf, суффикс).
+- `achMfPath` — `PathMakeJoin(pszDir, "makefile", …)`.
+
+**`spdx-sbom`:**
+```
+Usage: spdx-sbom [options] [<directory>]
+  --name=<name>              Package name (required)
+  --file=<binary file>       Binary artifact to describe (required)
+  --spdx-db=<path>           SPDX database root (required)
+  --comments-config=<path>   comments.toml (required)
+  --version=<ver>            Package version
+  --supplier=<name>          Package supplier
+  --creator=<name>           SBOM creator
+  --purpose=<purpose>        Package purpose
+  --output=<file>            Write SBOM to file (default: stdout)
+  --format=<fmt>             spdx-json (default) | spdx-tag
+  --default-license=<id>     Fallback license identifier
+  --default-copyright=<text> Fallback copyright text
+  --source-sbom=<file>       Source SBOM for binary mode
+  --objects=<list>           Object files
+  --res=<list>               Resource files
+  --extracted-license=<id>:<path>  LicenseRef-* text
+  --cache=<path>             SPDX database cache file
+  --no-gitignore             Do not apply .gitignore rules
+  --help, -h                 Show this help
+```
+
+Поведение:
+- без `--comments-config` → `ERROR: --comments-config=<path> is required`, exit 1;
+- `resolve_all_files`: `REUSE_ERROR_NO_COMMENT_STYLE` от `ReuseResolveLicense` → `ERROR: <path>: no [[map]] entry…`, `return REUSE_ERROR_NO_COMMENT_STYLE` → `main` goto cleanup (fatal);
+- `SbomCollectFiles(hResolved, doc.hFiles, doc.hSnippets, hTree, hTagsReport)`: при `hSnippets != NULLHANDLE` и отсутствии `[[map]]` → `REUSE_ERROR_NO_COMMENT_STYLE` → fatal;
+- `collect_file_snippets` — через `ReuseQueryFileSnippets`.
+
+### 2.14 Обработка `REUSE_ERROR_NO_COMMENT_STYLE` — два источника
+
+| Источник | Когда | Сообщение | Действие |
+|---|---|---|---|
+| `ReuseOpenTree` | `pszCommentsConfig == NULL` | `--comments-config=<path> is required` | fatal, exit 1 |
+| `ReuseOpenFile` / `ReuseResolveLicense` | нет `[[map]]` для файла | `<path>: no [[map]] entry in comments.toml matches this file` | `reuse-lint`: ERROR + continue (per-file); `reuse-annotate`: ERROR + continue; `spdx-sbom`: fatal (SBOM невалиден) |
+
+---
+
+## Часть III. План и статусы
+
+| # | Фаза | Статус |
+|---|---|---|
+| P0 | Rename `ReuseTree*` → `Reuse*` | ✅ |
+| P1 | `REUSE_ERROR_NO_COMMENT_STYLE`; file-API rename; `nSource`; sidecar-режим; `resolve_file` на `ReuseQueryFileTags` | ✅ |
+| P2 | `--comments-config` в `spdx-sbom` | ✅ |
+| P3a | `ReuseOpenTree` fatal при `NULL`; три приложения различают код | ✅ |
+| P3b | `reuse-lint.c::ProcessSnippets` на `ReuseQueryFileSnippets` | ✅ |
+| P3c | `spdx_sbom_scan.c` + `spdx-sbom.c` на `ReuseQueryFileSnippets`; `SbomCollectFiles` с `hTree`/`hReport` | ✅ |
+| P3d | `reuse-annotate.c` на `ReuseQueryFileHasTag` | ✅ |
+| P4 | `reuse_lic.c` — тонкая обёртка | ✅ |
+| P5 | cleanup `spdx_tag.{c,h}`; `SPDXSNIPPET*` → `reuse.h`; `ReuseSnippetListInit/Free` в `reuse_tags.c`/`reuse.h` | ✅ |
+| P6 | Обновление спецификации (этот документ) | ✅ |
+| P7 | Финальный прогон | ⏳ |
+| P8 | `reuse-annotate` write-путь на `reuse_comments.c`; `FirstLineIsEchoOff` → `shebangs`; `--comment-style` — warning + игнор | ✅ |
+| P8.0 | `comments.toml`: `batch` с `single` + `single_line_regexp` + `shebangs`; `reuse_comments.c`: `single`/`single_line_regexp` могут сосуществовать | ✅ |
+| CM1 | `comments.toml`: `single_line_regexp`/`case_insensitive`; `[[map]] *.rc = c`, `*.btm = batch` | ✅ |
+| CM2 | `ReuseQueryCommentBody(PSZ, …)` — trim trailing `multi_end` | ✅ |
+| W131 | `reuse_glob.h` в `reuse.c`; `ReuseQueryCommentStyle`/`ByName` в `reuse.h` | ✅ |
+| W138 | trailing newline в `reuse.h` | ✅ |
+| D1 | восстановлены docstring'и `resolve_file`, `ReuseOpenTree`, `ReuseOpenFile` | ✅ |
+| **TBD-1** | `--comment-style` — реализовать как fallback-`[[map]]` (вариант A) или другую форму; требует API в `reuse_comments.{c,h}` (расширение `ReuseOpenComments` или `ReuseAddCommentStyleFallback`) | ⏳ |
+| **TBD-2** | после TBD-1 — удалить `COMMENTSTYLE`, `STYLEOVERRIDE`, `g_paStyleOverrides`, `g_ulStyleOverrideCount`, `ParseStyleName`, `AddStyleOverride` из `reuse-annotate.c` | ⏳ |
+
+---
+
+## Часть IV. Открытые вопросы (вне плана)
+
+| # | Вопрос |
+|---|---|
+| Q7 | `--comment-style` — реализовать как fallback-`[[map]]` (вариант A) или удалить. Текущее состояние: парсится, не применяется, печатает warning. См. TBD-1/TBD-2 |
+| Q-comments | `cppsingle` объявлен, но не используется; `shebangs = ["<?php"]` у `c` без `*.php` |
+| Q-winver | `a` — без расширения, нет `[[map]]`; `README.md` — LGPL-2.1 в тексте vs CC0-1.0 в теге |
+| Q-risk | `reuse_lic.c::copy_field` использует `strlcpy` (не Watcom C89) |
+| Q-dup | дублирование: `path_char_eq`/`path_prefix_eq`/`rel_to_dir` ×2; `copy_field` ×5; `read_file_to_heap` ×3; `normalize_to_heap` ×2; `LicensesReasonText` ×2; `PrintLicensesReport` ×2; `REUSEERR`-контейнеры ×3; `GitFindRepoRoot` size-query ×4; `SpdxOpenDatabase` проверки ×3; `ReuseOpenTree`+`walk_opts` ×3; `GitCollectGitignores` ×3; `argc/argv` parsing ×3; `--default-license` vs `--license`; `MAX_LINE` 16384 vs 4096 |
+| Q-MATCH | `_MATCH` в `reuse.c` и `REUSELICENSEINFO` в `reuse_lic.h` — 7 полей семантически совпадают; `REUSELICENSEINFO` добавляет 7 truncation-флагов + `fHasPackageInfo` + `source` + `f*FromDefault`; `ulPrecedence` теряется |
+
+---
+
+## Часть V. Финальный прогон (P7)
+
+После P6:
+
+1. `_wcc.cmd` — все `.exe` собираются (включая `reuse-lint.exe`, `reuse-annotate.exe`, `spdx-sbom.exe`).
+2. `reuse-lint --spdx-db=… --comments-config=<path> <winver>` → `0 Errors, 0 Warnings` (при исправленных данных `winver`).
+3. `reuse-lint` без `--comments-config` → `ERROR: --comments-config=<path> is required`, exit 1.
+4. `reuse-lint --comments-config=<path>` на файле без `[[map]]` → `no [[map]] entry in comments.toml matches this file`, exit 1.
+5. `reuse-annotate --dry-run --comments-config=<path> <winver>` — корректные префиксы и позиции (по `comments.toml`; для `_wcc.cmd` — `@REM`; `@echo off` сохраняется).
+6. `reuse-annotate --dry-run --comments-config=<path> --comment-style=.foo=hash <winver>` — `WARNING: --comment-style is not yet supported; use [[map]] in comments.toml instead`, поведение не меняется.
+7. `reuse-annotate --write` на копии `<winver>` → `reuse-lint` зелёный.
+8. `spdx-sbom --comments-config=<path> --name=winver --file=… --spdx-db=… --format=spdx-tag` → валидный SPDX 2.3.
+9. `spdx-sbom` без `--comments-config` → `ERROR: --comments-config=<path> is required`, exit 1.
+10. `grep -rn "SpdxQueryFile\|SpdxSnippetList\|snippetlist_add\|skip_comment_prefix" tools/` → пусто.
+11. `grep -rn "COMMENTSTYLE\|DetectStyle\|BuildInsertion\|STYLEOVERRIDE\|FirstLineIsShebang\|FirstLineIsEchoOff" tools/reuse-annotate/` → только `COMMENTSTYLE`/`STYLEOVERRIDE`/`g_paStyleOverrides`/`ParseStyleName`/`AddStyleOverride` (TBD-2). `DetectStyle`/`BuildInsertion`/`FirstLineIsShebang`/`FirstLineIsEchoOff` — пусто.
+12. `grep -n "comment-style" tools/reuse-annotate/reuse-annotate.c` → парсинг и warning (TBD-1).
+13. `grep -rn "SPDXSNIPPET" tools/` → `reuse.h`, `reuse_tags.c`, `spdx_sbom_scan.c`, `reuse-lint.c`.
+
+---
+
+**Конец документа.**
