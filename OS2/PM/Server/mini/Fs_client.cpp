@@ -34,7 +34,13 @@ BOOL Fs_ClientConnection::Init(void *pRecvobj, ULONG idClient)
 
 void Fs_ClientConnection::Shutdown()
 {
+    int ctx;
+
     if (m_state == StateFree) return;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_VERBOSE,
+                         "[CLIENT %lu] Shutdown(recvobj=%p, prev state=%d)",
+                         (unsigned long)m_idClient, m_pRecvobj, (int)m_state);
 
     F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_INFO,
                "[CLIENT %lu] shutdown (recvobj=%p, prev state=%d)",
@@ -45,6 +51,8 @@ void Fs_ClientConnection::Shutdown()
     m_pRecvobj         = NULL;
     m_timeLastActivity = 0;
     m_timeDetached     = 0;
+
+    F_DbgCtxExitf(ctx, "-> StateFree");
 }
 
 void Fs_ClientConnection::Touch()
@@ -69,7 +77,13 @@ BOOL Fs_ClientConnection::IsExpiredGrace(time_t now, ULONG ulTimeout) const
 
 void Fs_ClientConnection::ToDetached(time_t now)
 {
+    int ctx;
+
     if (m_state != StateActive) return;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_VERBOSE,
+                         "[CLIENT %lu] ToDetached(recvobj=%p)",
+                         (unsigned long)m_idClient, m_pRecvobj);
 
     F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_INFO,
                "[CLIENT %lu] ACTIVE -> DETACHED (recvobj=%p)",
@@ -78,12 +92,20 @@ void Fs_ClientConnection::ToDetached(time_t now)
     m_state        = StateDetached;
     m_pRecvobj     = NULL;
     m_timeDetached = now;
+
+    F_DbgCtxExitf(ctx, "-> StateDetached");
 }
 
 void Fs_ClientConnection::ToActive(void *pRecvobj, time_t now)
 {
+    int ctx;
+
     if (m_state != StateDetached) return;
     if (pRecvobj == NULL)         return;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_VERBOSE,
+                         "[CLIENT %lu] ToActive(recvobj=%p)",
+                         (unsigned long)m_idClient, pRecvobj);
 
     F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_INFO,
                "[CLIENT %lu] DETACHED -> ACTIVE (recvobj=%p)",
@@ -93,6 +115,8 @@ void Fs_ClientConnection::ToActive(void *pRecvobj, time_t now)
     m_pRecvobj         = pRecvobj;
     m_timeLastActivity = now;
     m_timeDetached     = 0;
+
+    F_DbgCtxExitf(ctx, "-> StateActive");
 }
 
 /* ======================================================================== */
@@ -188,9 +212,13 @@ Fs_ClientConnection *Fs_ClientList::GetOrCreate(void *pRecvobj,
     Fs_ClientConnection *pConn = NULL;
     ULONG               idNew  = 0;
     int                 i;
+    int                 ctx;
 
     if (pNewIdClient) *pNewIdClient = 0;
     if (pRecvobj == NULL) return NULL;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_VERBOSE,
+                         "[CLIENTLIST] GetOrCreate(recvobj=%p)", pRecvobj);
 
     Lock();
 
@@ -224,7 +252,10 @@ Fs_ClientConnection *Fs_ClientList::GetOrCreate(void *pRecvobj,
         F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_ERROR,
                    "[CLIENTLIST] ERROR: table full (%d slots)",
                    F_MAX_CLIENTS);
+        F_DbgCtxExitf(ctx, "NULL (table full)");
+        return NULL;
     }
+    F_DbgCtxExitf(ctx, "idClient=%lu", (unsigned long)idNew);
     return pConn;
 }
 

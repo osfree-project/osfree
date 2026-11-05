@@ -17,6 +17,20 @@
 extern ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
                          PULONG pcbPayload);
 
+/*!
+ * @def SERVER_RETURN
+ * @brief Close the caller's debug context and return from the function.
+ *
+ * @param [in] ctx  Context level returned by F_DbgCtxEnterf.
+ * @param [in] fmt  printf-style format for the exit reason.
+ * @param [in] ...  Format arguments.
+ */
+#define SERVER_RETURN(ctx, fmt, ...) \
+    do { \
+        F_DbgCtxExitf(ctx, fmt, ##__VA_ARGS__); \
+        return; \
+    } while (0)
+
 /* ======================================================================== */
 /*  Construction                                                            */
 /* ======================================================================== */
@@ -146,6 +160,11 @@ void Fs_Server::SendClientConfig(void *pRecvobj, Fs_ClientConnection *pConn)
 
 void Fs_Server::HandleClientConnect(void *pRecvobj)
 {
+    int ctx;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                         "[SERVER] HandleClientConnect(recvobj=%p)", pRecvobj);
+
     /* Strict CONNECT: a recvobj may carry at most one session. If it
        already has an Active session, reject. A client that lost its
        transport must use RECONNECT (after the session transitions to
@@ -158,7 +177,8 @@ void Fs_Server::HandleClientConnect(void *pRecvobj)
                    "idClient=%lu, rejecting",
                    pRecvobj, (unsigned long)pExisting->GetIdClient());
         SendClientConfig(pRecvobj, NULL);   /* idClient=0 */
-        return;
+        SERVER_RETURN(ctx, "rejected (already has session idClient=%lu)",
+                      (unsigned long)pExisting->GetIdClient());
     }
 
     ULONG idNew = 0;
@@ -167,7 +187,7 @@ void Fs_Server::HandleClientConnect(void *pRecvobj)
         F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_ERROR,
                    "[SERVER] CONNECT: table full, rejecting %p", pRecvobj);
         SendClientConfig(pRecvobj, NULL);
-        return;
+        SERVER_RETURN(ctx, "rejected (table full)");
     }
     F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
                "[SERVER] CONNECT: new session idClient=%lu recvobj=%p",
@@ -175,11 +195,17 @@ void Fs_Server::HandleClientConnect(void *pRecvobj)
     m_fEverHadClient = TRUE;
     pConn->Touch();
     SendClientConfig(pRecvobj, pConn);
+    SERVER_RETURN(ctx, "new idClient=%lu", (unsigned long)idNew);
 }
 
 void Fs_Server::HandleClientReconnect(void *pRecvobj, ULONG idClient)
 {
+    int ctx;
     Fs_ClientConnection *pConn;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                         "[SERVER] HandleClientReconnect(idClient=%lu, recvobj=%p)",
+                         (unsigned long)idClient, pRecvobj);
 
     F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
                "[SERVER] RECONNECT: idClient=%lu recvobj=%p",
@@ -187,7 +213,7 @@ void Fs_Server::HandleClientReconnect(void *pRecvobj, ULONG idClient)
 
     if (idClient == 0) {
         SendClientConfig(pRecvobj, NULL);
-        return;
+        SERVER_RETURN(ctx, "rejected (idClient=0)");
     }
 
     pConn = m_clients.FindByIdClient(idClient);
@@ -196,7 +222,7 @@ void Fs_Server::HandleClientReconnect(void *pRecvobj, ULONG idClient)
                    "[SERVER] RECONNECT: idClient=%lu not found, rejecting",
                    (unsigned long)idClient);
         SendClientConfig(pRecvobj, NULL);
-        return;
+        SERVER_RETURN(ctx, "rejected (not found)");
     }
 
     if (pConn->IsActive()) {
@@ -207,40 +233,63 @@ void Fs_Server::HandleClientReconnect(void *pRecvobj, ULONG idClient)
                    "[SERVER] RECONNECT: idClient=%lu still ACTIVE, rejecting",
                    (unsigned long)idClient);
         SendClientConfig(pRecvobj, NULL);
-        return;
+        SERVER_RETURN(ctx, "rejected (still ACTIVE)");
     }
 
     pConn->ToActive(pRecvobj, time(NULL));
     m_fEverHadClient = TRUE;
     SendClientConfig(pRecvobj, pConn);
+    SERVER_RETURN(ctx, "resumed idClient=%lu", (unsigned long)idClient);
 }
 
 void Fs_Server::HandleClientPing(Fs_ClientConnection *pConn)
 {
+    int ctx;
+
     if (!pConn) return;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                         "[SERVER] HandleClientPing(idClient=%lu)",
+                         (unsigned long)pConn->GetIdClient());
     pConn->Touch();   /* already done in HandleCommand, but safe */
+    SERVER_RETURN(ctx, "done");
 }
 
 void Fs_Server::HandleClientExit(Fs_ClientConnection *pConn)
 {
+    int ctx;
+
     if (!pConn) return;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                         "[SERVER] HandleClientExit(idClient=%lu)",
+                         (unsigned long)pConn->GetIdClient());
     F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
                "[SERVER] EXIT: idClient=%lu",
                (unsigned long)pConn->GetIdClient());
     pConn->Shutdown();
+    SERVER_RETURN(ctx, "done");
 }
 
 void Fs_Server::HandleDisconnect(void *pRecvobj)
 {
-    Fs_ClientConnection *pConn = m_clients.FindByRecvobj(pRecvobj);
+    int ctx;
+    Fs_ClientConnection *pConn;
+
+    pConn = m_clients.FindByRecvobj(pRecvobj);
 
     if (!pConn) return;
     if (!pConn->IsActive()) return;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                         "[SERVER] HandleDisconnect(recvobj=%p, idClient=%lu)",
+                         pRecvobj, (unsigned long)pConn->GetIdClient());
 
     F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
                "[SERVER] DISCONNECT: idClient=%lu recvobj=%p -> DETACHED",
                (unsigned long)pConn->GetIdClient(), pRecvobj);
     pConn->ToDetached(time(NULL));
+    SERVER_RETURN(ctx, "-> DETACHED");
 }
 
 /* ======================================================================== */
@@ -254,8 +303,15 @@ void Fs_Server::HandleGpiCall(void *pRecvobj, ULONG fnCode, HPS hps)
     PVOID pv        = NULL;
     PBYTE pArgs     = NULL;
     int   rc, len;
+    int   ctx;
 
-    if (!m_pfnRecv) return;
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                         "[SERVER] HandleGpiCall(fnCode=0x%lx, hps=%p)",
+                         (unsigned long)fnCode, (void*)hps);
+
+    if (!m_pfnRecv) {
+        SERVER_RETURN(ctx, "no wire");
+    }
 
     rc = m_pfnRecv(pRecvobj, &cbArgs, &len, sizeof(cbArgs));
     if (rc == 0 && len == (int)sizeof(cbArgs)) {
@@ -263,7 +319,8 @@ void Fs_Server::HandleGpiCall(void *pRecvobj, ULONG fnCode, HPS hps)
             if (DosAllocMem(&pv, cbArgs,
                             PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
                 SendHeader(pRecvobj, 1, GPI_ERROR, 0, 0);
-                return;
+                SERVER_RETURN(ctx, "no memory (cbArgs=%lu)",
+                              (unsigned long)cbArgs);
             }
             pArgs = (PBYTE)pv;
             rc = m_pfnRecv(pRecvobj, pArgs, &len, cbArgs);
@@ -275,8 +332,10 @@ void Fs_Server::HandleGpiCall(void *pRecvobj, ULONG fnCode, HPS hps)
             m_pfnSend(pRecvobj, pArgs, (int)cbPayload);
 
         if (pv) DosFreeMem(pv);
+        SERVER_RETURN(ctx, "result=0x%lx", (unsigned long)ulResult);
     } else {
         SendHeader(pRecvobj, 1, GPI_ERROR, 0, 0);
+        SERVER_RETURN(ctx, "recv header failed (rc=%d, len=%d)", rc, len);
     }
 }
 
@@ -285,6 +344,11 @@ void Fs_Server::HandleCoreCommand(Fs_ClientConnection *pConn, int ncmd, int data
     void *pRecvobj = pConn->GetRecvobj();
     char buf[256];
     int  rc, len;
+    int  ctx;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                         "[SERVER] HandleCoreCommand(ncmd=0x%x, data=0x%x, idClient=%lu)",
+                         ncmd, data, (unsigned long)pConn->GetIdClient());
 
     switch (ncmd) {
 
@@ -294,7 +358,8 @@ void Fs_Server::HandleCoreCommand(Fs_ClientConnection *pConn, int ncmd, int data
             inf[0] = 1;
             inf[1] = (int)pConn->GetIdClient();
             if (m_pfnSend) m_pfnSend(pRecvobj, inf, sizeof(inf));
-            break;
+            SERVER_RETURN(ctx, "GET_IHAB -> {1,%lu}",
+                          (unsigned long)pConn->GetIdClient());
         }
 
         case F_CMD_GET_HPS: {
@@ -303,7 +368,7 @@ void Fs_Server::HandleCoreCommand(Fs_ClientConnection *pConn, int ncmd, int data
                        "[SERVER] GET_HPS(hwnd=0x%x) -> hps=%p (stub)",
                        data, (void*)hps);
             if (m_pfnSend) m_pfnSend(pRecvobj, &hps, sizeof(HPS));
-            break;
+            SERVER_RETURN(ctx, "GET_HPS -> hps=%p (stub)", (void*)hps);
         }
 
         case F_CMD_RELEASE_HPS: {
@@ -311,7 +376,7 @@ void Fs_Server::HandleCoreCommand(Fs_ClientConnection *pConn, int ncmd, int data
             F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
                        "[SERVER] RELEASE_HPS(hps=0x%x) -> 0", data);
             if (m_pfnSend) m_pfnSend(pRecvobj, &rc1, sizeof(int));
-            break;
+            SERVER_RETURN(ctx, "RELEASE_HPS -> 0");
         }
 
         case F_CMD_DB_PRINT: {
@@ -321,7 +386,7 @@ void Fs_Server::HandleCoreCommand(Fs_ClientConnection *pConn, int ncmd, int data
                            "DEBUG[id=%lu]: %s",
                            (unsigned long)pConn->GetIdClient(), buf);
             }
-            break;
+            SERVER_RETURN(ctx, "DB_PRINT");
         }
 
         case F_CMD_FATAL_COMMON: {
@@ -331,13 +396,13 @@ void Fs_Server::HandleCoreCommand(Fs_ClientConnection *pConn, int ncmd, int data
                            "FATAL[id=%lu]: %s",
                            (unsigned long)pConn->GetIdClient(), buf);
             }
-            break;
+            SERVER_RETURN(ctx, "FATAL_COMMON");
         }
 
         default: {
             unsigned long reply = (unsigned long)ncmd;
             if (m_pfnSend) m_pfnSend(pRecvobj, &reply, sizeof(reply));
-            break;
+            SERVER_RETURN(ctx, "unknown cmd 0x%x -> echoed", ncmd);
         }
     }
 }
@@ -348,7 +413,14 @@ void Fs_Server::HandleCoreCommand(Fs_ClientConnection *pConn, int ncmd, int data
 
 void Fs_Server::HandleCommand(void *pRecvobj, int ncmd, int data, int threadNum)
 {
+    int                  ctx;
+    Fs_ClientConnection *pConn;
+
     (void)threadNum;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                         "[SERVER] HandleCommand(ncmd=0x%x, data=0x%x, recvobj=%p)",
+                         ncmd, data, pRecvobj);
 
     F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
                "[SERVER] IN  -> recvobj=%p, ncmd=0x%x, data=0x%x",
@@ -358,13 +430,13 @@ void Fs_Server::HandleCommand(void *pRecvobj, int ncmd, int data, int threadNum)
     switch (ncmd) {
     case F_CMD_CLIENT_CONNECT:
         HandleClientConnect(pRecvobj);
-        return;
+        SERVER_RETURN(ctx, "CONNECT done");
     case F_CMD_CLIENT_RECONNECT:
         HandleClientReconnect(pRecvobj, (ULONG)data);
-        return;
+        SERVER_RETURN(ctx, "RECONNECT done");
     }
 
-    Fs_ClientConnection *pConn = m_clients.FindByRecvobj(pRecvobj);
+    pConn = m_clients.FindByRecvobj(pRecvobj);
 
     /* Every remaining command requires an existing session. */
     if (!pConn) {
@@ -373,21 +445,24 @@ void Fs_Server::HandleCommand(void *pRecvobj, int ncmd, int data, int threadNum)
                    "[SERVER] ERROR: no session for recvobj=%p, cmd 0x%x, "
                    "returning error", pRecvobj, ncmd);
         if (m_pfnSend) m_pfnSend(pRecvobj, &err, sizeof(err));
-        return;
+        SERVER_RETURN(ctx, "no session");
     }
     pConn->Touch();
 
     if (ncmd == F_CMD_CLIENT_EXIT) {
         HandleClientExit(pConn);
-        return;
+        SERVER_RETURN(ctx, "EXIT done");
     }
     if (ncmd == F_CMD_CLIENT_PING) {
         HandleClientPing(pConn);
-        return;
+        SERVER_RETURN(ctx, "PING done");
     }
     if (F_CMD_GET_CLASS((ULONG)ncmd) == F_CMD_CLASS_GPI) {
         HandleGpiCall(pRecvobj, F_CMD_GET_OPCODE((ULONG)ncmd), (HPS)data);
-        return;
+        SERVER_RETURN(ctx, "GPI call done");
     }
     HandleCoreCommand(pConn, ncmd, data);
+    SERVER_RETURN(ctx, "CORE command done");
 }
+
+#undef SERVER_RETURN
