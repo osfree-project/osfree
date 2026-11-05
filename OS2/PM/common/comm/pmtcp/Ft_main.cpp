@@ -470,8 +470,10 @@ extern "C" APIRET EXPENTRY _F_RecvCmdFromClient(void *recvobj, int *ncmd, int *d
     @param [in]  recvobj  Connection object.
     @param [out] sqmsg    Destination buffer.
     @param [out] l        Receives the number of bytes read.
-    @param [in]  size     Size of the destination buffer.
-    @return 0 on success, -1 on failure. */
+    @param [in]  size     Number of bytes to read.
+    @return 0 on success, -1 on failure or short read.
+    @retval 0  Exactly size bytes were read.
+    @retval -1 Failure or short read. */
 extern "C" APIRET EXPENTRY _F_RecvDataFromClient(void *recvobj, void *sqmsg, int *l, int size)
 {
     int ctx;
@@ -491,6 +493,13 @@ extern "C" APIRET EXPENTRY _F_RecvDataFromClient(void *recvobj, void *sqmsg, int
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
                    "PMTCP: _F_RecvDataFromClient ERROR: Recv failed");
         F_DbgCtxExitf(ctx, "Recv failed");
+        return -1;
+    }
+    if (*l != size) {
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: _F_RecvDataFromClient ERROR: short read l=%d, "
+                   "expected %d", *l, size);
+        F_DbgCtxExitf(ctx, "short read l=%d, expected %d", *l, size);
         return -1;
     }
     F_DbgCtxExitf(ctx, "l=%d", *l);

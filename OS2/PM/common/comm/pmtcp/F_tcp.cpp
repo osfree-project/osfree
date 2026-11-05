@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <errno.h>
 #include "F_tcp.hpp"
 
 /*! @brief Construct a client-mode TCPipe with default host and port.
@@ -168,6 +169,8 @@ int TCPipe::Connect(void)
 
 /*! @brief Send data over the connection.
 
+    Loops until all bytes are sent. Retries on EINTR / WSAEINTR.
+
     @param [in] pvData  Pointer to the payload.
     @param [in] cbData  Payload size in bytes.
     @return 0 on success, -1 on failure.
@@ -175,48 +178,77 @@ int TCPipe::Connect(void)
     @retval -1  Send failed or the connection is closed. */
 int TCPipe::Send(const void *pvData, int cbData)
 {
-    int iSent;
+    const char *pc = (const char *)pvData;
+    int total = 0;
 
     if (!connected) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
                    "PMTCP: TCPipe::Send ERROR: not connected");
         return -1;
     }
-    iSent = send(sock, (const char *)pvData, cbData, 0);
-    if (iSent == PMC_SOCK_ERROR) {
-        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: TCPipe::Send ERROR: send() failed. WSAError=%d",
-                   PMC_LAST_SOCK_ERR());
-        return -1;
+    while (total < cbData) {
+        int iSent = send(sock, pc + total, cbData - total, 0);
+        if (iSent == PMC_SOCK_ERROR) {
+            int err = PMC_LAST_SOCK_ERR();
+#if defined(__WIN32__) || defined(__NT__) || defined(_WIN32)
+            if (err == WSAEINTR) continue;
+#else
+            if (err == EINTR) continue;
+#endif
+            F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                       "PMTCP: TCPipe::Send ERROR: send() failed. WSAError=%d",
+                       err);
+            return -1;
+        }
+        total += iSent;
     }
-    return (iSent == cbData) ? 0 : -1;
+    return 0;
 }
 
 /*! @brief Receive data from the connection.
 
+    Loops until exactly cbBuffer bytes are read, or the peer closes
+    (recv returns 0) / errors out. Retries on EINTR / WSAEINTR.
+
     @param [out] pvData       Destination buffer.
     @param [out] pcbReceived  Receives the number of bytes read.
-    @param [in]  cbBuffer     Size of the destination buffer.
+                              On error, contains the partial count.
+    @param [in]  cbBuffer     Number of bytes to read.
     @return 0 on success, -1 on failure.
-    @retval 0   At least one byte was read.
-    @retval -1  Receive failed or the connection is closed. */
+    @retval 0   Exactly cbBuffer bytes were read.
+    @retval -1  Receive failed, peer closed, or partial read. */
 int TCPipe::Recv(void *pvData, int *pcbReceived, int cbBuffer)
 {
-    int iRead;
+    char *pc = (char *)pvData;
+    int total = 0;
 
     if (!connected) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
                    "PMTCP: TCPipe::Recv ERROR: not connected");
         return -1;
     }
-    iRead = recv(sock, (char *)pvData, cbBuffer, 0);
-    if (iRead < 0) {
-        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: TCPipe::Recv ERROR: recv() failed. WSAError=%d",
-                   PMC_LAST_SOCK_ERR());
-        return -1;
+    while (total < cbBuffer) {
+        int n = recv(sock, pc + total, cbBuffer - total, 0);
+        if (n == 0) {                    /* orderly shutdown */
+            *pcbReceived = total;
+            return -1;
+        }
+        if (n < 0) {
+            int err = PMC_LAST_SOCK_ERR();
+#if defined(__WIN32__) || defined(__NT__) || defined(_WIN32)
+            if (err == WSAEINTR) continue;
+#else
+            if (err == EINTR) continue;
+#endif
+            *pcbReceived = total;
+            F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                       "PMTCP: TCPipe::Recv ERROR: recv() failed. WSAError=%d",
+                       err);
+            return -1;
+        }
+        total += n;
     }
-    *pcbReceived = iRead;
+    *pcbReceived = total;
     return 0;
 }
 
@@ -238,7 +270,8 @@ int TCPipe::Close(void)
 
 /*! @brief Perform the FreePM handshake over the connection.
 
-    Server side: read HAND_SHAKE_INP, reply HAND_SHAKE_OUT.
+    Server side: read exactly strlen(HAND_SHAKE_INP)+1 bytes,
+    reply with HAND_SHAKE_OUT.
     Client side: send HAND_SHAKE_INP, expect HAND_SHAKE_OUT.
 
     @return 0 on success, HAND_SHAKE_ERROR on protocol mismatch or
@@ -249,21 +282,24 @@ int TCPipe::HandShake(void)
 {
     char buf[32];
     int  cb;
+    int  inpLen = (int)strlen(HAND_SHAKE_INP) + 1;   /* incl. NUL */
+    int  outLen = (int)strlen(HAND_SHAKE_OUT) + 1;   /* incl. NUL */
 
     if (mode == TCP_SERVER_MODE)
     {
-        if (Recv(buf, &cb, sizeof(buf)) != 0) {
+        if (Recv(buf, &cb, inpLen) != 0) {
             F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
                        "PMTCP: TCPipe::HandShake ERROR: Recv failed (server)");
             return HAND_SHAKE_ERROR;
         }
-        if (strcmp(buf, HAND_SHAKE_INP) != 0) {
+        if (cb != inpLen || memcmp(buf, HAND_SHAKE_INP, inpLen) != 0) {
+            buf[cb < inpLen ? cb : inpLen - 1] = 0;   /* safe %s for log */
             F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
                        "PMTCP: TCPipe::HandShake ERROR: Invalid magic (server). "
                        "Expected '%s', got '%s'", HAND_SHAKE_INP, buf);
             return HAND_SHAKE_ERROR;
         }
-        if (Send(HAND_SHAKE_OUT, (int)strlen(HAND_SHAKE_OUT) + 1) != 0) {
+        if (Send(HAND_SHAKE_OUT, outLen) != 0) {
             F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
                        "PMTCP: TCPipe::HandShake ERROR: Send failed (server)");
             return HAND_SHAKE_ERROR;
@@ -271,17 +307,18 @@ int TCPipe::HandShake(void)
         return 0;
     }
 
-    if (Send(HAND_SHAKE_INP, (int)strlen(HAND_SHAKE_INP) + 1) != 0) {
+    if (Send(HAND_SHAKE_INP, inpLen) != 0) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
                    "PMTCP: TCPipe::HandShake ERROR: Send failed (client)");
         return HAND_SHAKE_ERROR;
     }
-    if (Recv(buf, &cb, sizeof(buf)) != 0) {
+    if (Recv(buf, &cb, outLen) != 0) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
                    "PMTCP: TCPipe::HandShake ERROR: Recv failed (client)");
         return HAND_SHAKE_ERROR;
     }
-    if (strcmp(buf, HAND_SHAKE_OUT) != 0) {
+    if (cb != outLen || memcmp(buf, HAND_SHAKE_OUT, outLen) != 0) {
+        buf[cb < outLen ? cb : outLen - 1] = 0;   /* safe %s for log */
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
                    "PMTCP: TCPipe::HandShake ERROR: Invalid magic (client). "
                    "Expected '%s', got '%s'", HAND_SHAKE_OUT, buf);

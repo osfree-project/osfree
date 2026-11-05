@@ -1143,6 +1143,7 @@ EXTERN ULONG APIENTRY GpiQueryDCData(void);
     #define MAKEWORD(a, b) ((USHORT)(((BYTE)(a)) | ((BYTE)(b)) << 8))
   #endif
 
+  #define WSAEINTR          10004
   #define WSAECONNREFUSED   10061
   #define WSAECONNABORTED   10053
   #define WSAECONNRESET     10054
