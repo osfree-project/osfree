@@ -1,7 +1,7 @@
 /*
- $Id: F_config.hpp,v 1.5 2003/06/18 22:51:49 evgen2 Exp $
+ $Id: F_config.hp,v 1.5 2003/06/18 22:51:49 evgen2 Exp $
 */
-/* F_config.hpp
+/* F_config.h
  *
  */
 

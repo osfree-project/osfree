@@ -1,4 +1,4 @@
-/*! @file F_debug.hpp
+/*! @file F_debug.h
     @brief Debug and fatal-error infrastructure, shared by all
         components (client, server, transports).
 
