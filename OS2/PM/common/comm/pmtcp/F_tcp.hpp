@@ -13,6 +13,7 @@
 
 #define INCL_DOSERRORS      
 #include "F_platform.h"
+#include "F_debug.h"
 
 #if defined(__OS2__) || defined(__OS2V2__)
 

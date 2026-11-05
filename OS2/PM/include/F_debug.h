@@ -23,7 +23,9 @@
 /*! @brief Kind of a wire-forwarded debug message. */
 typedef enum {
     F_DBG_KIND_PRINT,   /*!< Regular diagnostic line. */
-    F_DBG_KIND_FATAL    /*!< Fatal error message.     */
+    F_DBG_KIND_FATAL,   /*!< Fatal error message.     */
+    F_DBG_KIND_CTX_OPEN,/*!< Internal: context enter. */
+    F_DBG_KIND_CTX_CLOSE/*!< Internal: context exit.  */
 } F_DbgKind;
 
 /*! @brief Calling convention of the wire-forward callback.
@@ -44,20 +46,26 @@ typedef enum {
 #define F_DBG_WIRE_CALLBACK __stdcall
 #endif
 
-/*! @brief Wire-forward callback. Invoked from F_DbgPrint / F_DbgFatal
-    when set. Must not re-enter the debug subsystem. */
-typedef void (F_DBG_WIRE_CALLBACK *F_DbgWireSink)(F_DbgKind kind, const char *msg);
+/*! @brief Wire-forward callback. Invoked from F_DbgPrint / F_DbgFatal /
+    F_DbgCtxEnterf / F_DbgCtxExitf when set. Must not re-enter the
+    debug subsystem.
 
-/*! @brief Runtime configuration. Filled by the caller (from fpm.ini,
-    CLI, defaults, …) and passed to F_DbgInit. */
+    @param [in] kind     Message kind.
+    @param [in] section  Debug section (F_DBG_SEC_*).
+    @param [in] level    Message level (0..10).
+    @param [in] msg      Message text (no counter, no timestamp, no \n). */
+typedef void (F_DBG_WIRE_CALLBACK *F_DbgWireSink)(
+    F_DbgKind kind, int section, int level, const char *msg);
+
 struct F_DbgConfig {
     const char *logfile;      /*!< Log file path, or NULL for stderr-only.   */
     int         rotateNumber; /*!< Rotation depth; 0 disables rotation.      */
+    int         rotateSize;   /*!< Rotate when file reaches N bytes; 0 disables. */
     int         buffered;     /*!< 1: do not fflush after each message.      */
     int         ansiColor;    /*!< 1: emit ANSI color escapes.               */
     int         beepOnFatal;  /*!< 1: beep before abort on fatal.            */
     int         useSyslog;    /*!< 1: mirror to syslog (Unix only, no-op elsewhere). */
-    int         stderrLevel;  /*!< Max level routed to stderr (0..10).       */
+    int         thresholdLevel;/*!< Max level routed to any channel (0..10). */
 };
 
 #ifdef __cplusplus
@@ -73,6 +81,14 @@ void APIENTRY F_DbgInit(const F_DbgConfig *cfg, const char *levels);
 /*! @brief Re-parse the level string at runtime. */
 void APIENTRY F_DbgSetLevels(const char *levels);
 
+/*! @brief Re-apply configuration at runtime (e.g. after reading ini).
+    Reopens the log file if @c logfile changed. Does not reset levels;
+    use F_DbgSetLevels for that. Thread-safe. */
+void APIENTRY F_DbgSetConfig(const F_DbgConfig *cfg);
+
+/*! @brief Flush any buffered log output. Thread-safe. */
+void APIENTRY F_DbgFlush(void);
+
 /*! @brief Rotate the log file (if rotation is enabled). */
 void APIENTRY F_DbgRotate(void);
 
@@ -87,9 +103,9 @@ void APIENTRY F_DbgSetWireSink(F_DbgWireSink sink);
     @param [in] ...      Format arguments. */
 void APIENTRY F_DbgPrint(int section, int level, const char *fmt, ...);
 
-/*! @brief Emit an unconditional local-only trace (no section filter,
-    no wire). For transport debugging. Thread-safe. */
-void APIENTRY F_DbgTrace(const char *fmt, ...);
+/*! @brief Alias for F_DbgPrint. The name documents intent
+    (transport-level tracing). Same signature. */
+#define F_DbgTrace F_DbgPrint
 
 /*! @brief Log and abort with a raw string. Guarded. */
 void APIENTRY F_DbgFatal(const char *msg);
@@ -107,6 +123,17 @@ int  APIENTRY F_DbgCtxEnter(const char *descr);
 
 /*! @brief Leave a debug context (pop to the given level). */
 void APIENTRY F_DbgCtxExit(int ctx);
+
+/*! @brief Enter a debug context with formatted description and
+    explicit section/level. If level does not pass the section filter,
+    no context is pushed and -1 is returned.
+    @return Context level (0..F_DBG_CTX_MAX-1), or -1 if filtered. */
+int  APIENTRY F_DbgCtxEnterf(int section, int level,
+                             const char *fmt, ...);
+
+/*! @brief Leave a debug context with formatted result.
+    @param [in] ctx  Level returned by F_DbgCtxEnterf, or -1 (no-op). */
+void APIENTRY F_DbgCtxExitf(int ctx, const char *fmt, ...);
 
 /*! @brief Set the process-wide shutdown flag. Suppresses abort()
     inside F_DbgAssert while the flag is non-zero.

@@ -41,6 +41,10 @@ EXPORTS  = _InitServerConnection.1,      &
            _F_RecvDataFromClient.10,     &
            _F_SendDataToClient.11
 
+IMPORTS = F_DbgPrint       PMDEBUG.5, &
+          F_DbgCtxEnterf   PMDEBUG.15, &
+          F_DbgCtxExitf    PMDEBUG.16
+
 !include $(%ROOT)tools/mk/build.mk
 
 .cpp: $(SRCDIR)

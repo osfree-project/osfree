@@ -12,25 +12,6 @@
 #include <stdarg.h>
 #include "F_tcp.hpp"
 
-/* --- ÍÀ×ÀËÎ ÏÐÀÂÎÊ: Ëîêàëüíàÿ ôóíêöèÿ îòëàäêè --- */
-/*! @brief Print a debug message to stderr and OutputDebugString.
-    @param [in] fmt  printf-style format string.
-    @param [in] ...  Arguments for the format string. */
-static void PMTCP_Dbg(const char *fmt, ...)
-{
-    char buf[512];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(buf, sizeof(buf), fmt, args);
-    va_end(args);
-#if defined(__WIN32__) || defined(_WIN32)
-    OutputDebugStringA(buf);
-#endif
-    printf("%s", buf);
-    fflush(stdout);
-}
-/* --- ÊÎÍÅÖ ÏÐÀÂÎÊ --- */
-
 /*! @brief Construct a client-mode TCPipe with default host and port.
 
     @return Nothing. */
@@ -84,7 +65,9 @@ int TCPipe::Create(void)
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == PMC_INVALID_SOCK) {
-        PMTCP_Dbg("PMTCP: TCPipe::Create ERROR: socket() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: TCPipe::Create ERROR: socket() failed. WSAError=%d",
+                   PMC_LAST_SOCK_ERR());
         return -1;
     }
 
@@ -97,11 +80,15 @@ int TCPipe::Create(void)
     sa.sin_addr.s_addr = INADDR_ANY;
 
     if (bind(sock, (struct sockaddr *)&sa, sizeof(sa)) == PMC_SOCK_ERROR) {
-        PMTCP_Dbg("PMTCP: TCPipe::Create ERROR: bind() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: TCPipe::Create ERROR: bind() failed. WSAError=%d",
+                   PMC_LAST_SOCK_ERR());
         return -1;
     }
     if (listen(sock, FREEPM_TCP_BACKLOG) == PMC_SOCK_ERROR) {
-        PMTCP_Dbg("PMTCP: TCPipe::Create ERROR: listen() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: TCPipe::Create ERROR: listen() failed. WSAError=%d",
+                   PMC_LAST_SOCK_ERR());
         return -1;
     }
     return 0;
@@ -125,7 +112,9 @@ int TCPipe::Accept(TCPipe *pClient)
 
     pClient->sock = accept(sock, (struct sockaddr *)&sa, &iLen);
     if (pClient->sock == PMC_INVALID_SOCK) {
-        PMTCP_Dbg("PMTCP: TCPipe::Accept ERROR: accept() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: TCPipe::Accept ERROR: accept() failed. WSAError=%d",
+                   PMC_LAST_SOCK_ERR());
         return -1;
     }
 
@@ -151,7 +140,9 @@ int TCPipe::Connect(void)
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == PMC_INVALID_SOCK) {
-        PMTCP_Dbg("PMTCP: TCPipe::Connect ERROR: socket() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: TCPipe::Connect ERROR: socket() failed. WSAError=%d",
+                   PMC_LAST_SOCK_ERR());
         return -1;
     }
 
@@ -166,7 +157,9 @@ int TCPipe::Connect(void)
         sa.sin_addr.s_addr = inet_addr(host);
 
     if (connect(sock, (struct sockaddr *)&sa, sizeof(sa)) == PMC_SOCK_ERROR) {
-        PMTCP_Dbg("PMTCP: TCPipe::Connect ERROR: connect() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: TCPipe::Connect ERROR: connect() failed. WSAError=%d",
+                   PMC_LAST_SOCK_ERR());
         return -1;
     }
     connected = 1;
@@ -185,12 +178,15 @@ int TCPipe::Send(const void *pvData, int cbData)
     int iSent;
 
     if (!connected) {
-        PMTCP_Dbg("PMTCP: TCPipe::Send ERROR: not connected\n");
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: TCPipe::Send ERROR: not connected");
         return -1;
     }
     iSent = send(sock, (const char *)pvData, cbData, 0);
     if (iSent == PMC_SOCK_ERROR) {
-        PMTCP_Dbg("PMTCP: TCPipe::Send ERROR: send() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: TCPipe::Send ERROR: send() failed. WSAError=%d",
+                   PMC_LAST_SOCK_ERR());
         return -1;
     }
     return (iSent == cbData) ? 0 : -1;
@@ -209,12 +205,15 @@ int TCPipe::Recv(void *pvData, int *pcbReceived, int cbBuffer)
     int iRead;
 
     if (!connected) {
-        PMTCP_Dbg("PMTCP: TCPipe::Recv ERROR: not connected\n");
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: TCPipe::Recv ERROR: not connected");
         return -1;
     }
     iRead = recv(sock, (char *)pvData, cbBuffer, 0);
     if (iRead < 0) {
-        PMTCP_Dbg("PMTCP: TCPipe::Recv ERROR: recv() failed. WSAError=%d\n", PMC_LAST_SOCK_ERR());
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: TCPipe::Recv ERROR: recv() failed. WSAError=%d",
+                   PMC_LAST_SOCK_ERR());
         return -1;
     }
     *pcbReceived = iRead;
@@ -254,30 +253,38 @@ int TCPipe::HandShake(void)
     if (mode == TCP_SERVER_MODE)
     {
         if (Recv(buf, &cb, sizeof(buf)) != 0) {
-            PMTCP_Dbg("PMTCP: TCPipe::HandShake ERROR: Recv failed (server)\n");
+            F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                       "PMTCP: TCPipe::HandShake ERROR: Recv failed (server)");
             return HAND_SHAKE_ERROR;
         }
         if (strcmp(buf, HAND_SHAKE_INP) != 0) {
-            PMTCP_Dbg("PMTCP: TCPipe::HandShake ERROR: Invalid magic (server). Expected '%s', got '%s'\n", HAND_SHAKE_INP, buf);
+            F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                       "PMTCP: TCPipe::HandShake ERROR: Invalid magic (server). "
+                       "Expected '%s', got '%s'", HAND_SHAKE_INP, buf);
             return HAND_SHAKE_ERROR;
         }
         if (Send(HAND_SHAKE_OUT, (int)strlen(HAND_SHAKE_OUT) + 1) != 0) {
-            PMTCP_Dbg("PMTCP: TCPipe::HandShake ERROR: Send failed (server)\n");
+            F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                       "PMTCP: TCPipe::HandShake ERROR: Send failed (server)");
             return HAND_SHAKE_ERROR;
         }
         return 0;
     }
 
     if (Send(HAND_SHAKE_INP, (int)strlen(HAND_SHAKE_INP) + 1) != 0) {
-        PMTCP_Dbg("PMTCP: TCPipe::HandShake ERROR: Send failed (client)\n");
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: TCPipe::HandShake ERROR: Send failed (client)");
         return HAND_SHAKE_ERROR;
     }
     if (Recv(buf, &cb, sizeof(buf)) != 0) {
-        PMTCP_Dbg("PMTCP: TCPipe::HandShake ERROR: Recv failed (client)\n");
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: TCPipe::HandShake ERROR: Recv failed (client)");
         return HAND_SHAKE_ERROR;
     }
     if (strcmp(buf, HAND_SHAKE_OUT) != 0) {
-        PMTCP_Dbg("PMTCP: TCPipe::HandShake ERROR: Invalid magic (client). Expected '%s', got '%s'\n", HAND_SHAKE_OUT, buf);
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "PMTCP: TCPipe::HandShake ERROR: Invalid magic (client). "
+                   "Expected '%s', got '%s'", HAND_SHAKE_OUT, buf);
         return HAND_SHAKE_ERROR;
     }
     return 0;

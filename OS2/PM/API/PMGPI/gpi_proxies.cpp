@@ -6,32 +6,33 @@
 #include "F_platform.h"
 #include "F_cmd.h"
 #include "gpi_entry.h"
-
-/*!
- * @brief Unified logging function.
- *
- * Defined in unimpl.cpp; formats the message to stderr and flushes.
- *
- * @param [in] fmt  printf-style format string.
- * @param [in] ...  Arguments for the format string.
- */
-extern void log(const char *fmt, ...);
+#include "F_debug.h"
 
 /*!
  * @def GPICallEnter
- * @brief Log the entry of a GPI proxy with its arguments.
- * @param [in] fmt  printf-style format string for the arguments.
+ * @brief Open a debug context for a GPI proxy.
+ *
+ * Declares a function-local @c _fpm_ctx and enters a debug context at
+ * F_DBG_LVL_VERBOSE with the proxy name and its formatted arguments.
+ * The context is closed on every return path by GPICallResult.
+ *
+ * @param [in] fmt  printf-style format for the arguments.
  * @param [in] ...  Arguments for the format string.
  */
-#define GPICallEnter(fmt, ...)  log("[PMGPI] IN : %s(" fmt ")\n", __FUNCTION__, ##__VA_ARGS__)
+#define GPICallEnter(fmt, ...) \
+    int _fpm_ctx = F_DbgCtxEnterf(F_DBG_SEC_GPI_PROXIES, F_DBG_LVL_VERBOSE, \
+                                  "PMGPI IN : %s(" fmt ")", \
+                                  __FUNCTION__, ##__VA_ARGS__)
 
 /*!
  * @def GPICallResult
- * @brief Log the exit of a GPI proxy with its result.
- * @param [in] fmt  printf-style format string for the result.
+ * @brief Close the debug context opened by GPICallEnter.
+ *
+ * @param [in] fmt  printf-style format for the result.
  * @param [in] ...  Arguments for the format string.
  */
-#define GPICallResult(fmt, ...) log("[PMGPI] OUT: %s -> " fmt "\n", __FUNCTION__, ##__VA_ARGS__)
+#define GPICallResult(fmt, ...) \
+    F_DbgCtxExitf(_fpm_ctx, fmt, ##__VA_ARGS__)
 
 /*!
  * @def GPI_RESULT_RAW

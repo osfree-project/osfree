@@ -40,6 +40,53 @@
 #define F_DBG_COLOR_NORMAL    "\033[0;37;40m"
 #define F_DBG_COLOR_DISABLE   "\033[2;37;40m"
 
+/*+------------------------------------+*/
+/*| Debug levels and sections          |*/
+/*+------------------------------------+*/
+
+/*! @brief Debug levels (0 = critical .. 10 = verbose). */
+#define F_DBG_LVL_FATAL     0
+#define F_DBG_LVL_ERROR     1
+#define F_DBG_LVL_WARNING   2
+#define F_DBG_LVL_INFO      3
+#define F_DBG_LVL_VERBOSE   5
+
+/*! @brief Maximum context nesting depth. */
+#define F_DBG_CTX_MAX       32
+
+/*! @brief Maximum context description length (bytes, incl. NUL). */
+#define F_DBG_CTX_MAX_LEN   256
+
+/*! @brief Debug section identifiers. More are added as components
+    migrate to the unified debug system. */
+#define F_DBG_SEC_DEBUG         0
+/*! @brief Debug section: GPI dispatcher (gpi_entry.cpp). */
+#define F_DBG_SEC_GPI_DISPATCH  20
+/*! @brief Debug section: GPI proxy functions (gpi_manual.cpp, gpi_proxies.cpp). */
+#define F_DBG_SEC_GPI_PROXIES   21
+/*! @brief Debug section: GPI unimplemented stubs (unimpl.cpp). */
+#define F_DBG_SEC_GPI_UNIMPL    24
+/*! @brief Debug section: PMCLIENT.DLL (init, connect, reconnect, keepalive). */
+#define F_DBG_SEC_PMCLIENT      30
+/*! @brief Debug section: PMTCP transport. */
+#define F_DBG_SEC_PMTCP     40
+/*! @brief Debug section: PMTCP socket I/O. */
+#define F_DBG_SEC_WIRE      41
+
+/*! @brief Default debug subsystem configuration, used by
+    F_DBG_DEFAULT_CFG in F_debug.cpp. Applied in DllMain(ATTACH) so
+    that every module loaded afterwards already has a working
+    F_DbgPrint / F_DbgCtxEnterf; overridable at runtime through
+    F_DbgSetConfig and F_DbgSetLevels. */
+#define F_DBG_DEFAULT_LOGFILE        "freepm.log"
+#define F_DBG_DEFAULT_ROTATENUMBER   10
+#define F_DBG_DEFAULT_ROTATESIZE     0
+#define F_DBG_DEFAULT_BUFFERED       0
+#define F_DBG_DEFAULT_ANSICOLOR      1
+#define F_DBG_DEFAULT_BEEPONFATAL    0
+#define F_DBG_DEFAULT_USESYSLOG      1
+#define F_DBG_DEFAULT_THRESHOLDLEVEL 10
+#define F_DBG_DEFAULT_LEVELS         "ALL,10"
 
 #endif
 /* FREEPMCONFIG */

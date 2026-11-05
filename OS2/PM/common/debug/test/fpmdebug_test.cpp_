@@ -1,0 +1,568 @@
+/*! @file fpmdebug_test.cpp
+    @brief Self-contained test for fpmdebug.dll. */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <process.h>
+
+#include "F_platform.h"
+#include "F_debug.h"
+
+/*! @brief Number of passed checks. */
+static int g_pass = 0;
+/*! @brief Number of failed checks. */
+static int g_fail = 0;
+
+/*!
+ * @brief Report a single check result.
+ * @param [in] ok    Non-zero if the check passed.
+ * @param [in] what  Short description printed with PASS/FAIL.
+ */
+static void Check(int ok, const char *what)
+{
+    printf("FDBG_TEST: [%s] %s\n", ok ? "PASS" : "FAIL", what);
+    if (ok) g_pass++; else g_fail++;
+}
+
+/*!
+ * @brief Read a whole file into a buffer.
+ * @param [in]  path    File path.
+ * @param [out] buf     Destination buffer.
+ * @param [in]  maxlen  Size of @p buf in bytes.
+ * @return Number of bytes read.
+ * @retval 0  File not found or empty.
+ */
+static int ReadFile(const char *path, char *buf, int maxlen)
+{
+    FILE *f = fopen(path, "r");
+    int   n;
+    if (!f) { buf[0] = 0; return 0; }
+    n = (int)fread(buf, 1, maxlen - 1, f);
+    fclose(f);
+    buf[n] = 0;
+    return n;
+}
+
+/*!
+ * @brief Check whether a file exists.
+ * @param [in] path  File path.
+ * @return Non-zero if the file exists, 0 otherwise.
+ * @retval 0  File not present or not readable.
+ * @retval 1  File exists.
+ */
+static int FileExists(const char *path)
+{
+    FILE *f = fopen(path, "r");
+    if (!f) return 0;
+    fclose(f);
+    return 1;
+}
+
+/* Wire sink capture. */
+/*! @brief Last message captured for F_DBG_KIND_PRINT. */
+static char g_wirePrint[1024];
+/*! @brief Last message captured for F_DBG_KIND_FATAL. */
+static char g_wireFatal[1024];
+/*! @brief Number of F_DBG_KIND_PRINT wire calls. */
+static int  g_wirePrintCount = 0;
+/*! @brief Number of F_DBG_KIND_FATAL wire calls. */
+static int  g_wireFatalCount = 0;
+
+/* Captured section/level of the last wire call. */
+/*! @brief Section from the last wire call. */
+static int  g_wireSection = -1;
+/*! @brief Level from the last wire call. */
+static int  g_wireLevel   = -1;
+
+/* F_DBG_WIRE_CALLBACK matches the typedef in F_debug.h on both
+   platforms (APIENTRY on OS/2, __stdcall on Win32). */
+/*!
+ * @brief Capture wire-forwarded messages for later checks.
+ * @param [in] kind     Message kind.
+ * @param [in] section  Debug section.
+ * @param [in] level    Message level.
+ * @param [in] msg      Message text.
+ */
+static void F_DBG_WIRE_CALLBACK WireSink(F_DbgKind kind, int section,
+                                         int level, const char *msg)
+{
+    g_wireSection = section;
+    g_wireLevel   = level;
+    if (kind == F_DBG_KIND_PRINT) {
+        g_wirePrintCount++;
+        strncpy(g_wirePrint, msg, sizeof(g_wirePrint) - 1);
+        g_wirePrint[sizeof(g_wirePrint) - 1] = 0;
+    } else if (kind == F_DBG_KIND_FATAL) {
+        g_wireFatalCount++;
+        strncpy(g_wireFatal, msg, sizeof(g_wireFatal) - 1);
+        g_wireFatal[sizeof(g_wireFatal) - 1] = 0;
+    }
+}
+
+/* Child modes. */
+/*!
+ * @brief Child mode: trigger F_DbgFatal and abort.
+ * @return Never returns normally.
+ * @retval 0  F_DbgFatal unexpectedly returned (bug).
+ */
+static int ChildFatal(void)
+{
+    F_DbgConfig cfg;
+    memset(&cfg, 0, sizeof(cfg));
+    cfg.logfile = "fpmdebug_child.log";
+    cfg.thresholdLevel = 0;
+    F_DbgInit(&cfg, "ALL,10");
+    F_DbgSetWireSink(WireSink);
+    F_DbgFatal("child fatal message");
+    return 0;   /* not reached */
+}
+
+/*!
+ * @brief Child mode: trigger F_DbgFatalf and abort.
+ * @return Never returns normally.
+ * @retval 0  F_DbgFatalf unexpectedly returned (bug).
+ */
+static int ChildFatalf(void)
+{
+    F_DbgConfig cfg;
+    memset(&cfg, 0, sizeof(cfg));
+    cfg.logfile = "fpmdebug_child.log";
+    cfg.thresholdLevel = 0;
+    F_DbgInit(&cfg, "ALL,10");
+    F_DbgFatalf("child: answer=%d", 42);
+    return 0;
+}
+
+/*!
+ * @brief Child mode: trigger F_DbgAssert and abort.
+ * @return Never returns normally.
+ * @retval 0  F_DbgAssert unexpectedly returned (bug).
+ */
+static int ChildAssert(void)
+{
+    F_DbgConfig cfg;
+    memset(&cfg, 0, sizeof(cfg));
+    cfg.logfile = "fpmdebug_child.log";
+    cfg.thresholdLevel = 0;
+    F_DbgInit(&cfg, "ALL,10");
+    F_DbgAssert("expr", "file.c", 42);
+    return 0;
+}
+
+/*!
+ * @brief Child mode: F_DbgFatal with an active ctx, must emit the
+ *        context prelude before the FATAL line.
+ * @return Never returns normally.
+ * @retval 0  F_DbgFatal unexpectedly returned (bug).
+ */
+static int ChildFatalCtx(void)
+{
+    F_DbgConfig cfg;
+    memset(&cfg, 0, sizeof(cfg));
+    cfg.logfile = "fpmdebug_child.log";
+    cfg.thresholdLevel = 5;
+    F_DbgInit(&cfg, "ALL,10");
+    F_DbgCtxEnterf(0, 0, "T21-ctx");
+    F_DbgFatal("ctx fatal");
+    return 0;
+}
+
+/* Parent spawns child via DosExecPgm and checks exit + log. */
+/*!
+ * @brief Spawn a child and verify abnormal termination.
+ * @param [in] exe   Path to the executable.
+ * @param [in] flag  Command-line flag passed to the child.
+ */
+static void RunChild(const char *exe, const char *flag)
+{
+    char    args[260];
+    char    fail[CCHMAXPATH];
+    RESULTCODES rcode;
+    APIRET  rc;
+
+    rc = DosExecPgm(fail, sizeof(fail), EXEC_SYNC, flag, NULL, &rcode, exe);
+    Check(rc == 0, "child exec");
+    Check(rcode.codeTerminate != 0, "child terminated abnormally");
+}
+
+/*!
+ * @brief Run all in-process tests (T1-T19, T23).
+ */
+static void RunInProcessTests(void)
+{
+    const char *logPath = "fpmdebug_test.log";
+    F_DbgConfig cfg;
+    char        buf[8192];
+
+    /* --- T1/T2: init --- */
+    remove(logPath);
+    memset(&cfg, 0, sizeof(cfg));
+    cfg.logfile        = logPath;
+    cfg.thresholdLevel = 5;
+    F_DbgInit(&cfg, NULL);                     /* levels unconfigured */
+    Check(FileExists(logPath), "T1 log file created");
+    F_DbgPrint(0, 0, "T2 should not appear");
+    ReadFile(logPath, buf, sizeof(buf));
+    Check(strstr(buf, "T2") == NULL, "T2 unconfigured sections are silent");
+
+    /* --- T4 ---
+       Runs before T3, while no section is configured yet:
+       "unconfigured" means level -1, and F_DbgSetLevels cannot
+       restore it (ParseLevelToken clamps -1 to 0). */
+    F_DbgSetLevels("1,5 2,3");
+    F_DbgPrint(1, 4, "T4-1-4");
+    F_DbgPrint(1, 6, "T4-1-6");
+    F_DbgPrint(2, 3, "T4-2-3");
+    F_DbgPrint(2, 4, "T4-2-4");
+    F_DbgPrint(3, 0, "T4-3-0");
+    ReadFile(logPath, buf, sizeof(buf));
+    Check(strstr(buf, "T4-1-4") != NULL, "T4 section 1 level 4 emitted");
+    Check(strstr(buf, "T4-1-6") == NULL, "T4 section 1 level 6 dropped");
+    Check(strstr(buf, "T4-2-3") != NULL, "T4 section 2 level 3 emitted");
+    Check(strstr(buf, "T4-2-4") == NULL, "T4 section 2 level 4 dropped");
+    Check(strstr(buf, "T4-3-0") == NULL, "T4 section 3 unconfigured dropped");
+
+    /* --- T3 --- */
+    F_DbgSetLevels("ALL,7");
+    F_DbgPrint(5, 5, "T3-a");
+    F_DbgPrint(5, 8, "T3-b");
+    ReadFile(logPath, buf, sizeof(buf));
+    Check(strstr(buf, "T3-a") != NULL, "T3 level 5 <= 7 emitted");
+    Check(strstr(buf, "T3-b") == NULL, "T3 level 8 > 7 dropped");
+
+    /* --- T5: clamping ---
+       Raise the process-wide threshold to 10 so that a message at
+       level 10 is not dropped by the threshold before reaching the
+       section filter. T5 tests F_DbgLevels clamping only. */
+    {
+        F_DbgConfig t5;
+        memcpy(&t5, &cfg, sizeof(t5));
+        t5.thresholdLevel = 10;
+        F_DbgSetConfig(&t5);
+    }
+    F_DbgSetLevels("0,15");
+    F_DbgPrint(0, 10, "T5-10");
+    F_DbgPrint(0, 11, "T5-11");
+    ReadFile(logPath, buf, sizeof(buf));
+    Check(strstr(buf, "T5-10") != NULL, "T5 level clamped to 10, msg(10) emitted");
+    Check(strstr(buf, "T5-11") == NULL, "T5 msg(11) dropped");
+    F_DbgSetConfig(&cfg);
+    F_DbgSetLevels("ALL,7");
+
+    /* --- T6: format --- */
+    F_DbgPrint(0, 0, "T6-format");
+    ReadFile(logPath, buf, sizeof(buf));
+    {
+        const char *p = strstr(buf, "T6-format");
+        int ok = 0;
+        if (p) {
+            /* Simple check: the message is preceded by
+               " N YYYY/MM/DD HH:MM:SS|". */
+            const char *bar = p;
+            while (bar > buf && *bar != '|') bar--;
+            if (bar > buf) {
+                /* Look for a slash and colons. */
+                if (strchr(bar - 20, '/')) ok = 1;
+            }
+        }
+        Check(ok, "T6 format contains N YYYY/MM/DD HH:MM:SS|");
+    }
+
+    /* --- T7: wire sink for print --- */
+    g_wirePrintCount = 0;
+    g_wireSection    = -1;
+    g_wireLevel      = -1;
+    F_DbgSetWireSink(WireSink);
+    F_DbgPrint(0, 0, "T7-wire");
+    Check(g_wirePrintCount == 1, "T7 wire sink called for F_DbgPrint");
+    Check(strstr(g_wirePrint, "T7-wire") != NULL, "T7 wire sink got message");
+    Check(g_wireSection == 0, "T7 wire sink got section");
+    Check(g_wireLevel == 0, "T7 wire sink got level");
+
+    /* --- T9: F_DbgTrace is a macro alias for F_DbgPrint --- */
+    F_DbgSetLevels("ALL,0");
+    F_DbgTrace(0, 0, "T9-trace-pass");
+    F_DbgTrace(0, 1, "T9-trace-fail");
+    ReadFile(logPath, buf, sizeof(buf));
+    Check(strstr(buf, "T9-trace-pass") != NULL, "T9 F_DbgTrace (alias) passes filter");
+    Check(strstr(buf, "T9-trace-fail") == NULL, "T9 F_DbgTrace (alias) is filtered");
+
+    /* --- T10: context --- */
+    F_DbgSetLevels("ALL,7");
+    {
+        int c1 = F_DbgCtxEnter("T10-ctx1");
+        int c2 = F_DbgCtxEnter("T10-ctx2");
+        F_DbgPrint(0, 0, "T10-msg");
+        F_DbgCtxExit(c1);
+        (void)c2;
+    }
+    ReadFile(logPath, buf, sizeof(buf));
+    Check(strstr(buf, "ctx: enter level 0: 'T10-ctx1'") != NULL, "T10 ctx enter 0 logged");
+    Check(strstr(buf, "ctx: enter level 1: 'T10-ctx2'") != NULL, "T10 ctx enter 1 logged");
+
+    /* --- T11: shutdown suppresses assert abort --- */
+    F_DbgSetShuttingDown(1);
+    F_DbgAssert("T11", "f.c", 1);   /* must return */
+    ReadFile(logPath, buf, sizeof(buf));
+    Check(strstr(buf, "assertion failed") == NULL, "T11 assert suppressed during shutdown");
+    F_DbgSetShuttingDown(0);
+
+    /* --- T13: rotation --- */
+    {
+        const char *rotPath = "fpmdebug_rot.log";
+        F_DbgConfig rc2;
+        remove(rotPath);
+        remove("fpmdebug_rot.log.0");
+        memset(&rc2, 0, sizeof(rc2));
+        rc2.logfile      = rotPath;
+        rc2.rotateNumber = 1;
+        /* F_DbgInit is idempotent — skip, use the current log.
+           Rotation needs a separate test in a subprocess. */
+    }
+
+    /* --- T15: runtime set levels --- */
+    F_DbgSetLevels("1,3");
+    F_DbgPrint(1, 5, "T15-dropped");
+    F_DbgSetLevels("1,7");
+    F_DbgPrint(1, 5, "T15-emitted");
+    ReadFile(logPath, buf, sizeof(buf));
+    Check(strstr(buf, "T15-dropped") == NULL, "T15 dynamic drop");
+    Check(strstr(buf, "T15-emitted") != NULL, "T15 dynamic emit");
+
+    /* --- T16: thresholdLevel drops the message before any channel ---
+       levels: section 0 = 10. threshold = 5 (from cfg).
+       level 3 passes, level 6 is dropped by the threshold even though
+       the section filter would have allowed it. */
+    F_DbgSetLevels("0,10");
+    F_DbgPrint(0, 3, "T16-pass");
+    F_DbgPrint(0, 6, "T16-drop");
+    ReadFile(logPath, buf, sizeof(buf));
+    Check(strstr(buf, "T16-pass") != NULL, "T16 below threshold emitted");
+    Check(strstr(buf, "T16-drop") == NULL, "T16 above threshold dropped");
+
+    /* --- T17: F_DbgSetConfig switches the log file ---
+       Old log keeps what it had; new writes go to the new file. */
+    {
+        const char *newPath = "fpmdebug_test2.log";
+        F_DbgConfig tmp;
+
+        remove(newPath);
+        memcpy(&tmp, &cfg, sizeof(tmp));
+        tmp.logfile = newPath;
+        F_DbgSetConfig(&tmp);
+        F_DbgPrint(0, 0, "T17-newfile");
+        ReadFile(newPath, buf, sizeof(buf));
+        Check(strstr(buf, "T17-newfile") != NULL, "T17 new log file written");
+        ReadFile(logPath, buf, sizeof(buf));
+        Check(strstr(buf, "T17-newfile") == NULL, "T17 old log not written");
+
+        F_DbgSetConfig(&cfg);
+    }
+
+    /* --- T18: F_DbgFlush with buffered = 1 ---
+       Before flush, the message may still be in the stdio buffer;
+       after F_DbgFlush the file must contain it. */
+    {
+        F_DbgConfig tmp;
+        memcpy(&tmp, &cfg, sizeof(tmp));
+        tmp.buffered = 1;
+        F_DbgSetConfig(&tmp);
+        F_DbgPrint(0, 0, "T18-buffered");
+        F_DbgFlush();
+        ReadFile(logPath, buf, sizeof(buf));
+        Check(strstr(buf, "T18-buffered") != NULL, "T18 buffered message flushed");
+        F_DbgSetConfig(&cfg);
+    }
+
+    /* --- T19: F_DbgCtxEnterf / F_DbgCtxExitf with a result --- */
+    F_DbgSetLevels("ALL,7");
+    {
+        int c = F_DbgCtxEnterf(0, 0, "T19-ctx %d", 1);
+        Check(c == 0, "T19 F_DbgCtxEnterf returned level 0");
+        F_DbgCtxExitf(c, "ok");
+    }
+    ReadFile(logPath, buf, sizeof(buf));
+    Check(strstr(buf, "ctx: enter level 0: 'T19-ctx 1'") != NULL,
+          "T19 ctx enterf logged");
+    Check(strstr(buf, "ctx: exit level 0: 'T19-ctx 1 -> ok'") != NULL,
+          "T19 ctx exitf with result logged");
+
+    /* --- T23: F_DbgCtxEnterf filtered by threshold ---
+       level 7 with threshold 5 must return -1 and produce no log
+       output; F_DbgCtxExitf(-1, ...) must be a no-op. */
+    {
+        int c;
+        F_DbgSetLevels("ALL,10");
+        c = F_DbgCtxEnterf(0, 7, "T23-ctx");
+        Check(c == -1, "T23 ctx enterf filtered by threshold");
+        F_DbgCtxExitf(c, "should-not-appear");
+        ReadFile(logPath, buf, sizeof(buf));
+        Check(strstr(buf, "T23-ctx") == NULL,
+              "T23 filtered ctx description absent");
+        F_DbgSetLevels("ALL,7");
+    }
+}
+
+/* T14: multithreaded log.
+   F_DbgInit is idempotent — a second call will not open a new log,
+   so write to the same fpmdebug_test.log as the other tests, and
+   wait for the threads to finish via DosWaitThread. Counting is by
+   occurrences of the substring "T14 tid=", independent of line
+   breaks. */
+/*!
+ * @brief Thread body for T14: emit 500 messages.
+ * @param [in] param  Thread index cast to void*.
+ */
+static void ThreadBody(void *param)
+{
+    int i;
+    int tid = (int)(long)param;
+    for (i = 0; i < 500; i++) {
+        F_DbgPrint(0, 0, "T14 tid=%d i=%d", tid, i);
+    }
+}
+
+/*!
+ * @brief Run the multithreaded T14 test.
+ */
+static void RunThreadTest(void)
+{
+    const char *logPath = "fpmdebug_test.log";
+    static char buf[512 * 1024];
+    int         tids[4];
+    int         i, n, count = 0;
+    const char *p;
+    FILE       *f;
+
+    for (i = 0; i < 4; i++) {
+#if defined(__OS2__) || defined(__OS2V2__)
+        tids[i] = _beginthread(ThreadBody, NULL, 65536, (void *)(long)i);
+#else
+        tids[i] = (int)_beginthread(ThreadBody, 65536, (void *)(long)i);
+#endif
+    }
+
+    for (i = 0; i < 4; i++)
+        DosWaitThread((PTID)&tids[i], DCWW_WAIT);
+
+    f = fopen(logPath, "r");
+    if (!f) { Check(0, "T14 log missing"); return; }
+    n = (int)fread(buf, 1, sizeof(buf) - 1, f);
+    fclose(f);
+    buf[n] = 0;
+
+    p = buf;
+    while ((p = strstr(p, "T14 tid=")) != NULL) { count++; p++; }
+
+    Check(count == 2000, "T14 2000 thread messages present, none interleaved");
+}
+
+/*!
+ * @brief T22: rotation by size. Switches the log to a scratch file,
+ *        sets a small rotateSize, writes one long message, and
+ *        checks that the previous file was renamed to ".0".
+ */
+static void RunRotationTest(void)
+{
+    const char *rotPath = "fpmdebug_rot.log";
+    F_DbgConfig cfg;
+    F_DbgConfig tmp;
+    char        pad[400];
+    char        buf[8192];
+
+    memset(&cfg, 0, sizeof(cfg));
+    cfg.logfile        = "fpmdebug_test.log";
+    cfg.thresholdLevel = 5;
+
+    memset(pad, 'x', sizeof(pad) - 1);
+    pad[sizeof(pad) - 1] = 0;
+
+    remove(rotPath);
+    remove("fpmdebug_rot.log.0");
+    remove("fpmdebug_rot.log.1");
+    remove("fpmdebug_rot.log.2");
+
+    memcpy(&tmp, &cfg, sizeof(tmp));
+    tmp.logfile      = rotPath;
+    tmp.rotateNumber = 2;
+    tmp.rotateSize   = 200;
+    F_DbgSetConfig(&tmp);
+    F_DbgSetLevels("ALL,10");
+
+    F_DbgPrint(0, 0, "T22-rot %s", pad);
+
+    Check(FileExists("fpmdebug_rot.log.0"), "T22 rotation produced .0 file");
+    ReadFile("fpmdebug_rot.log.0", buf, sizeof(buf));
+    Check(strstr(buf, "T22-rot") != NULL, "T22 rotated file contains message");
+}
+
+/*!
+ * @brief Test entry point.
+ * @param [in] argc  Argument count.
+ * @param [in] argv  Argument vector.
+ * @return Process exit status.
+ * @retval 0  All checks passed.
+ * @retval 1  One or more checks failed.
+ * @retval 2  Unknown command-line argument.
+ */
+int main(int argc, char *argv[])
+{
+if (argc >= 2) {
+    if (strcmp(argv[1], "--fatal")    == 0) return ChildFatal();
+    if (strcmp(argv[1], "--fatalf")   == 0) return ChildFatalf();
+    if (strcmp(argv[1], "--assert")   == 0) return ChildAssert();
+    if (strcmp(argv[1], "--fatalctx") == 0) return ChildFatalCtx();
+
+    fprintf(stderr, "FDBG_TEST: unknown argument '%s'\n", argv[1]);
+    return 2;
+}
+
+    printf("FDBG_TEST: starting\n");
+
+    RunInProcessTests();
+
+    remove("fpmdebug_child.log");
+    RunChild(argv[0], "--fatal");
+    {
+        char buf[4096];
+        ReadFile("fpmdebug_child.log", buf, sizeof(buf));
+        Check(strstr(buf, "FATAL: child fatal message") != NULL,
+              "T8 FATAL message in child log");
+    }
+
+    remove("fpmdebug_child.log");
+    RunChild(argv[0], "--fatalf");
+    {
+        char buf[4096];
+        ReadFile("fpmdebug_child.log", buf, sizeof(buf));
+        Check(strstr(buf, "FATAL: child: answer=42") != NULL,
+              "T8b FATAL printf-formatted message");
+    }
+
+    remove("fpmdebug_child.log");
+    RunChild(argv[0], "--assert");
+    {
+        char buf[4096];
+        ReadFile("fpmdebug_child.log", buf, sizeof(buf));
+        Check(strstr(buf, "assertion failed: file.c:42: \"expr\"") != NULL,
+              "T12 assertion-failure logged in child");
+    }
+
+    remove("fpmdebug_child.log");
+    RunChild(argv[0], "--fatalctx");
+    {
+        char buf[4096];
+        ReadFile("fpmdebug_child.log", buf, sizeof(buf));
+        Check(strstr(buf, "ctx: enter level 0: 'T21-ctx'") != NULL,
+              "T21 ctx prelude before FATAL");
+        Check(strstr(buf, "FATAL: ctx fatal") != NULL,
+              "T21 FATAL with ctx logged");
+    }
+
+    RunThreadTest();
+    RunRotationTest();
+
+    printf("FDBG_TEST: %d PASS, %d FAIL\n", g_pass, g_fail);
+    return (g_fail == 0) ? 0 : 1;
+}

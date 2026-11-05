@@ -124,30 +124,48 @@ void log(const char *fmt, ...)
   _db_print(buf);
 }
 
+/*!
+   @file
+
+   @brief Diagnostic helper for unimplemented GPI stubs.
+
+   Provides a best-effort implementation of {@c unimplemented()} that
+   logs the offending function name via the unified debug system and
+   returns GPI_ERROR (-1) so that callers can distinguish "not
+   implemented" from a successful (0) result.
+
+   @note Returning GPI_ERROR is the correct convention for LONG- and
+         HBITMAP-returning stubs. BOOL-returning stubs will see the
+         value as TRUE (non-zero); a full fix requires separate
+         unimplemented_bool() / unimplemented_long() helpers. This is
+         a known limitation of the single-function design.
+*/
+
+#define INCL_DOSMODULEMGR
+#include <F_platform.h>
+#include "F_debug.h"
+
+#ifndef GPI_ERROR
+#define GPI_ERROR (-1)
+#endif
 
 /*!
    @brief Report that a GPI entry point has no implementation yet.
 
-   Logs a human-readable message identifying the function, then returns
-   GPI_ERROR (-1), the OS/2 convention for a failing GPI call. This
-   lets callers detect the missing implementation instead of treating
-   the return value 0 as a valid result.
+   Logs a WARNING-level message identifying the function, then
+   returns GPI_ERROR (-1), the OS/2 convention for a failing GPI
+   call. This lets callers detect the missing implementation
+   instead of treating the return value 0 as a valid result.
 
    @param [in] func  Name of the calling function (usually
                      {@c __FUNCTION__}); not copied, must remain valid
                      for the duration of the call.
 
    @return GPI_ERROR (-1) always.
-
-   @note For BOOL-returning stubs this yields TRUE (non-zero). A full
-         fix would require separate helpers per return type.
 */
 APIRET unimplemented(char *func)
 {
-  /* Explicit debug output added for stderr visibility */
-  fprintf(stderr, "[unimpl] unimplemented(%s)\n", func);
-  fflush(stderr);
-
-  log("%s is not yet implemented!\n", func);
-  return (APIRET)GPI_ERROR;
+    F_DbgPrint(F_DBG_SEC_GPI_UNIMPL, F_DBG_LVL_WARNING,
+               "PMGPI %s is not yet implemented!", func);
+    return (APIRET)GPI_ERROR;
 }
