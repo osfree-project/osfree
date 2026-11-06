@@ -84,7 +84,7 @@ extern "C" APIRET EXPENTRY _F_SendGenCmdDataToServer(void *recvobj, int cmd,
     rc = _F_SendCmdToServer(recvobj, cmd, par);
     if (rc) return (APIRET)-1;
 
-    rc = _F_SendDataToServer(recvobj, data, datalen * sizeof(int));
+    rc = _F_SendDataToServer(recvobj, data, datalen);
     if (rc) return (APIRET)-1;
 
     rc = _F_RecvDataFromServer(recvobj, &retcode, &l, sizeof(retcode));

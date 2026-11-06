@@ -3,6 +3,8 @@
 //#include <habmgr.hpp>
 #include <F_hab.hpp>
 
+/////!!!!!! BUG!!!! size of data to send in bytes, not int !! Not fixed !!!! F_SendGenCmdDataToServer !!!!!!!!
+
 //#define debug(...)
 
 #include "F_def.hpp"

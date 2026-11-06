@@ -210,7 +210,7 @@ extern "C" APIRET APIENTRY  _F_SendGenCmdToServer(void *recvobj, int cmd, int pa
 }
 
 
-/* Послать команду cmd c параметром par, данные data длиной datalen*sizeof(int) на сервер, получить ответ и вернуть его */
+/* Послать команду cmd c параметром par, данные data длиной datalen байт на сервер, получить ответ и вернуть его */
 /* застрелиться при ошибках */
 extern "C" APIRET APIENTRY  _F_SendGenCmdDataToServer(void *recvobj, int cmd, int par, void *data, int datalen)
 {   int rc,len,retcode;
@@ -219,7 +219,7 @@ M:  rc = _F_SendCmdToServer(recvobj, cmd, par);
     {  debug(1, 0)("WARNING:"__FUNCTION__":SendCmdToServer Error: %s\n",GetOS2ErrorMessage(rc));
        _fatal_common("SendCmdToServer Error\n");
     }
-    rc =  _F_SendDataToServer(recvobj, data, datalen * sizeof(int));
+    rc =  _F_SendDataToServer(recvobj, data, datalen);
     if(rc)
     {  if(rc == ERROR_BROKEN_PIPE)
        {   debug(1, 1)("WARNING:"__FUNCTION__":SendDataToServer return Broken Pipe, try to reconnect...\n");

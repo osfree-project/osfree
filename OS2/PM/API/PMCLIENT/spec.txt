@@ -1248,8 +1248,6 @@ LONG APIENTRY GpiCharStringAt(HPS hps, PPOINTL pptl, LONG cch, PCH pch);
 
 1. **`F_SendGenCmdToServer` / `F_SendGenCmdDataToServer` — делают ли round-trip?** В `Win32GetPS` результат `F_SendGenCmdToServer` кастуется к `HPS` и возвращается без `F_RecvDataFromServer`. В `F_GpiSetColor` — аналогично. Если эти функции делают send + recv + возвращают результат, то для getters (где нужен payload) их недостаточно. Если только send — то код в `Win32GetPS`/`F_GpiSetColor` неполный.
 
-2. **`datalen` в `F_SendGenCmdDataToServer` — байты или int'ы?** В `F_GpiSetColor`: `_F_SendGenCmdDataToServer(F_CMD_GPI_SET_COLOR, hps, (void *)&lColor, 1)` — для `LONG` передан `1`. Если байты, то это ошибка (должно быть 4). Если int'ы — 1 = 4 байта. Нужна спецификация.
-
 3. **`_F_SendGenCmdDataToServer` (с подчёркиванием)** — это отдельная функция, макрос или локальная обёртка? В `F_GpiSetColor`/`F_GpiLine` используется именно она, с сигнатурой `(cmd, par, data, datalen)` — без `obj`. Нужно определение.
 
 4. **Формат сообщения** — PMCLIENT.DLL сам обрамляет (заголовок, длина, выравнивание)? Или клиент должен слать заголовок явно? Из `Fs_main.cpp::handler` видно, что сервер получает `ncmd`, `data`, потом payload — значит, обрамление есть, и оно внутри PMCLIENT. Но точный формат нужен, чтобы понять, можно ли передать blob произвольного размера.

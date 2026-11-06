@@ -44,7 +44,7 @@ BOOL  F_GpiSetColor(HPS hps, LONG lColor)
     debug(10, 0) (__FUNCTION__ " WARNING: is not yet implemented in server mode\n");
 
 #else  /* FREPM_SERVER */
-    rc = _F_SendGenCmdDataToServer(F_CMD_GPI_SET_COLOR, hps, (void *)&lColor, 1);
+    rc = _F_SendGenCmdDataToServer(F_CMD_GPI_SET_COLOR, hps, (void *)&lColor, 4);
     debug(10, 0) (__FUNCTION__ "hps=%x, color=%x,rc=%x\n",hps,lColor,rc);
 #endif
 

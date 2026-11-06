@@ -1,7 +1,13 @@
 /*! @file Ft_main.cpp
     @brief TCP backend for FreePM: exported entry points.
 
-    Same ordinals and same signatures as PMPIPE (Fc_main.cpp).
+    Per-connection model: Fc_TrnConnect / Fc_TrnDisconnect(obj) are
+    paired on a per-TCP basis. No global connection state.
+
+    Naming: Fc_Trn* = client transport, Fs_Trn* = server transport.
+    Post* = async write (no wait), Send* = write + wait reply,
+    Get* = blocking read.
+
     Cross-platform: WSA init/cleanup and error codes are hidden
     behind PMC_* macros in F_tcp.hpp.
 */
@@ -37,13 +43,17 @@ extern "C" void PMC_WsaCleanup(void)
    convention keyword there; on OS/2 APIENTRY (_System) is a real type
    modifier and works as-is. */
 #if defined(__OS2__) || defined(__OS2V2__)
+  /*! @def PMC_CB
+      @brief Calling convention keyword for PMC callbacks (OS/2). */
   #define PMC_CB APIENTRY
 #else
+  /*! @def PMC_CB
+      @brief Calling convention keyword for PMC callbacks (Win32). */
   #define PMC_CB __stdcall
 #endif
 
 /*! @brief Handler callback type, same as in PMPIPE. */
-typedef void (PMC_CB *PMC_HANDLER)(void *obj, int ncmd, int data, int threadNum);
+typedef void (PMC_CB *PMC_HANDLER)(void *obj, int cmd, int par, int threadNum);
 
 /*! @brief Transport-level disconnect callback. Called by PMTCP's
     per-connection thread when the socket is gone (recv failed or
@@ -51,228 +61,203 @@ typedef void (PMC_CB *PMC_HANDLER)(void *obj, int ncmd, int data, int threadNum)
 typedef void (PMC_CB *PMC_DISCONNECT_CB)(void *obj);
 
 /* Forward declarations, same for all platforms. */
-/*! @brief Server-side receive of a message buffer.
-    @param [in]  recvobj  Connection object.
-    @param [out] sqmsg    Destination buffer.
-    @param [out] l        Receives the number of bytes read.
-    @param [in]  size     Size of the destination buffer.
-    @return 0 on success, -1 on failure. */
-extern "C" APIRET EXPENTRY _F_RecvDataFromClient(void *recvobj, void *sqmsg, int *l, int size);
 
-/*! @brief Server-side receive of a (cmd, data) pair.
-    @param [in]  recvobj  Connection object.
-    @param [out] ncmd     Receives the command code.
-    @param [out] data     Receives the 32-bit argument.
-    @return 0 on success, -1 on failure. */
-extern "C" APIRET EXPENTRY _F_RecvCmdFromClient(void *recvobj, int *ncmd, int *data);
+/*! @brief Server-side blocking read of raw data.
+    @param [in]  obj   Connection object.
+    @param [out] buf   Destination buffer.
+    @param [out] len   Receives the number of bytes read.
+    @param [in]  size  Number of bytes to read (== buffer size).
+    @return 0 on success, -1 on failure.
+    @retval 0  Success.
+    @retval -1 Failure or short read. */
+extern "C" APIRET EXPENTRY Fs_TrnGetData(void *obj, void *buf, int *len, int size);
 
-/*! @brief Client-side receive of raw data.
-    @param [in]  recvobj  Connection object.
-    @param [out] data     Destination buffer.
-    @param [out] len      Receives the number of bytes read.
-    @param [in]  maxlen   Size of the destination buffer.
-    @return 0 on success, -1 on failure. */
-extern "C" APIRET EXPENTRY _F_RecvDataFromServer(void *recvobj, void *data, int *len, int maxlen);
+/*! @brief Server-side blocking read of a (command, par) pair.
+    @param [in]  obj  Connection object.
+    @param [out] cmd  Receives the command code.
+    @param [out] par  Receives the 32-bit argument.
+    @return 0 on success, -1 on failure.
+    @retval 0  Success.
+    @retval -1 Failure or short read. */
+extern "C" APIRET EXPENTRY Fs_TrnGetCommand(void *obj, int *cmd, int *par);
 
-/*! @brief Client-side send of raw data.
-    @param [in] recvobj  Connection object.
-    @param [in] data     Payload.
-    @param [in] len      Payload size in bytes.
-    @return 0 on success, ERROR_BROKEN_PIPE on failure. */
-extern "C" APIRET EXPENTRY _F_SendDataToServer(void *recvobj, void *data, int len);
+/*! @brief Client-side blocking read of raw data.
+    @param [in]  obj   Connection object.
+    @param [out] buf   Destination buffer.
+    @param [out] len   Receives the number of bytes read.
+    @param [in]  size  Number of bytes to read (== buffer size).
+    @return 0 on success, -1 on failure.
+    @retval 0   Exactly size bytes were read.
+    @retval -1  Receive failed, peer closed, or partial read. */
+extern "C" APIRET EXPENTRY Fc_TrnGetData(void *obj, void *buf, int *len, int size);
 
-/*! @brief Client-side send of a command with a payload.
-    @param [in] recvobj  Connection object.
-    @param [in] cmd      Command code.
-    @param [in] par      32-bit parameter.
-    @param [in] data     Payload.
-    @param [in] datalen  Payload size in dwords.
-    @return Server reply code, or the transport error code. */
-extern "C" APIRET EXPENTRY _F_SendGenCmdDataToServer(void *recvobj, int cmd, int par, void *data, int datalen);
+/*! @brief Client-side async write of raw data (no wait for reply).
+    @param [in] obj  Connection object.
+    @param [in] buf  Payload.
+    @param [in] len  Payload size in bytes.
+    @return 0 on success, non-zero on transport error.
+    @retval 0              Success.
+    @retval PMC_ERR_BROKEN Send failed or connection is closed. */
+extern "C" APIRET EXPENTRY Fc_TrnPostData(void *obj, void *buf, int len);
 
-/*! @brief Client-side send of a generic command.
-    @param [in] recvobj  Connection object.
-    @param [in] cmd      Command code.
-    @param [in] par      32-bit parameter.
-    @return Server reply code, or the transport error code. */
-extern "C" APIRET EXPENTRY _F_SendGenCmdToServer(void *recvobj, int cmd, int par);
+/*! @brief Client-side send of a command with a payload; wait for reply.
+    @param [in] obj  Connection object.
+    @param [in] cmd  Command code.
+    @param [in] par  32-bit parameter.
+    @param [in] buf  Payload.
+    @param [in] len  Payload size in bytes.
+    @return Server reply code, or (APIRET)-1 on transport error. */
+extern "C" APIRET EXPENTRY Fc_TrnSendCommandData(void *obj, int cmd, int par,
+                                                 void *buf, int len);
 
-/*! @brief Client-side send of a command.
-    @param [in] recvobj  Connection object.
-    @param [in] ncmd     Command code.
-    @param [in] data     32-bit argument.
-    @return 0 on success, ERROR_BROKEN_PIPE on failure. */
-extern "C" APIRET EXPENTRY _F_SendCmdToServer(void *recvobj, int ncmd, int data);
+/*! @brief Client-side send of a command; wait for reply.
+    @param [in] obj  Connection object.
+    @param [in] cmd  Command code.
+    @param [in] par  32-bit parameter.
+    @return Server reply code, or (APIRET)-1 on transport error. */
+extern "C" APIRET EXPENTRY Fc_TrnSendCommand(void *obj, int cmd, int par);
 
-/*! @brief Server-side send of raw data.
-    @param [in] recvobj  Connection object.
-    @param [in] data     Payload.
-    @param [in] len      Payload size in bytes.
-    @return 0 on success, ERROR_BROKEN_PIPE on failure. */
-extern "C" APIRET EXPENTRY _F_SendDataToClient(void *recvobj, void *data, int len);
+/*! @brief Client-side async write of a command (no wait for reply).
+    @param [in] obj  Connection object.
+    @param [in] cmd  Command code.
+    @param [in] par  32-bit argument.
+    @return 0 on success, non-zero on transport error.
+    @retval 0              Success.
+    @retval PMC_ERR_BROKEN Send failed or connection is closed. */
+extern "C" APIRET EXPENTRY Fc_TrnPostCommand(void *obj, int cmd, int par);
 
-/*! @brief Client connection object, exported for the debug module. */
-class TCPipe *pF_pipe = NULL;
-/*! @brief Host of the server we are connected to. */
+/*! @brief Server-side async write of raw data (no wait for reply).
+    @param [in] obj  Connection object.
+    @param [in] buf  Payload.
+    @param [in] len  Payload size in bytes.
+    @return 0 on success, non-zero on transport error.
+    @retval 0              Success.
+    @retval PMC_ERR_BROKEN Send failed or connection is closed. */
+extern "C" APIRET EXPENTRY Fs_TrnPostData(void *obj, void *buf, int len);
+
+/*! @brief Default server host (overridable by Fc_TrnConnect). */
 static char    PipeHost[256] = FREEPM_TCP_DEFAULT_HOST;
-/*! @brief Port of the server we are connected to. */
+/*! @brief Server TCP port. */
 static int     PipePort     = FREEPM_TCP_DEFAULT_PORT;
 
-/*! @brief Function-pointer type for the shutdown callback passed by
-    PMCLIENT through _InitServerConnection. */
-typedef void (PMC_CB *PMC_SHUTDOWN_CB)(void);
-
-/*! @brief Callback registered by PMCLIENT; invoked from
-    DllMain(DETACH) before PMTCP's CRT is torn down, while both DLLs
-    are fully alive. */
-static PMC_SHUTDOWN_CB g_shutdownCb = NULL;
-
 /*! @brief Open a client TCP connection and perform the handshake.
-    @param [in]  ExternMachine  Server host name, or NULL for the default.
-    @param [out] obj            Receives the connection object.
-    @param [in]  cb             Shutdown callback invoked from
-                                DllMain(DETACH) before this DLL's CRT is
-                                torn down. May be NULL.
-    @return 0 on success, ERROR_OPEN_FAILED on connect failure, HAND_SHAKE_ERROR on mismatch.
+
+    *obj is always written: 0 on any error, non-zero on success.
+
+    @param [in]  host  Server host name, or NULL for the default.
+    @param [out] obj   Receives the connection object; set to 0 on
+                       any error.
+    @return 0 on success, non-zero on failure.
     @retval 0                  Connected.
     @retval PMC_ERR_OPEN       Connect failed.
     @retval HAND_SHAKE_ERROR   Handshake mismatch. */
-extern "C" APIRET EXPENTRY _InitServerConnection(char *ExternMachine, ULONG *obj,
-                                                 void *cb)
+extern "C" APIRET EXPENTRY Fc_TrnConnect(char *host, ULONG *obj)
 {
-    int ctx;
+    TCPipe *pNew;
+    int     ctx;
+
+    if (obj) *obj = 0;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_PMTCP, F_DBG_LVL_VERBOSE,
-                         "PMTCP: _InitServerConnection(ExternMachine=%s, cb=%p)",
-                         ExternMachine ? ExternMachine : "NULL", cb);
-
-    if (cb) g_shutdownCb = (PMC_SHUTDOWN_CB)cb;
+                         "PMTCP: Fc_TrnConnect(host=%s)",
+                         host ? host : "NULL");
 
     if (PMC_WSA_STARTUP() != 0) {
         F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
-                   "PMTCP: _InitServerConnection ERROR: WSAStartup failed");
+                   "PMTCP: Fc_TrnConnect ERROR: WSAStartup failed");
         F_DbgCtxExitf(ctx, "WSAStartup failed");
         return PMC_ERR_OPEN;
     }
 
-#if defined(__WIN32__) || defined(_WIN32)
-    /* ws2_32 is loaded by WSAStartup inside this DLL, so on ExitProcess
-       its DllMain(DETACH) runs before ours (LIFO) and resets Winsock
-       state, making send() in our shutdown callback fail with 10093.
-       Pin it via GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_PIN,
-       0x00000001) so its DllMain(DETACH) is not called on process exit.
-       The function and the flag constant are missing from Watcom's
-       windows.h, so resolve by name at runtime. */
-    {
-        typedef BOOL (__stdcall *PFN_GME)(DWORD, const char *, HMODULE *);
-        HMODULE hKernel = GetModuleHandleA("kernel32.dll");
-        if (hKernel != NULL) {
-            PFN_GME pfnGME = (PFN_GME)GetProcAddress(hKernel,
-                                                     "GetModuleHandleExA");
-            if (pfnGME != NULL) {
-                HMODULE hPin = NULL;
-                pfnGME(0x00000001UL, "ws2_32.dll", &hPin);
-            }
-        }
-    }
-#endif
-
-    if (ExternMachine != NULL)
-    {
-        strncpy(PipeHost, ExternMachine, sizeof(PipeHost) - 1);
+    if (host != NULL) {
+        strncpy(PipeHost, host, sizeof(PipeHost) - 1);
         PipeHost[sizeof(PipeHost) - 1] = 0;
     }
 
-    /* A previous TCPipe may still be around from an earlier session
-       (reconnect retry). Drop it before creating the new one. */
-    if (pF_pipe != NULL) {
-        delete pF_pipe;
-        pF_pipe = NULL;
-    }
-
-    pF_pipe = new TCPipe(PipeHost, PipePort, TCP_CLIENT_MODE);
-    if (pF_pipe == NULL) {
+    pNew = new TCPipe(PipeHost, PipePort, TCP_CLIENT_MODE);
+    if (pNew == NULL) {
         F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
-                   "PMTCP: _InitServerConnection ERROR: new TCPipe failed");
+                   "PMTCP: Fc_TrnConnect ERROR: new TCPipe failed");
         PMC_WSA_CLEANUP();
         F_DbgCtxExitf(ctx, "new TCPipe failed");
         return PMC_ERR_OPEN;
     }
 
-    if (pF_pipe->Connect() != 0)
-    {
+    if (pNew->Connect() != 0) {
         F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
-                   "PMTCP: _InitServerConnection ERROR: Connect failed");
-        delete pF_pipe;
-        pF_pipe = NULL;
+                   "PMTCP: Fc_TrnConnect ERROR: Connect failed");
+        delete pNew;                 /* ~TCPipe -> Close() -> closesocket */
         PMC_WSA_CLEANUP();
         F_DbgCtxExitf(ctx, "Connect failed");
         return PMC_ERR_OPEN;
     }
 
-    if (pF_pipe->HandShake() == HAND_SHAKE_ERROR)
-    {
+    if (pNew->HandShake() == HAND_SHAKE_ERROR) {
         F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
-                   "PMTCP: _InitServerConnection ERROR: HandShake failed");
-        pF_pipe->Close();
-        delete pF_pipe;
-        pF_pipe = NULL;
+                   "PMTCP: Fc_TrnConnect ERROR: HandShake failed");
+        pNew->Close();
+        delete pNew;
         PMC_WSA_CLEANUP();
         F_DbgCtxExitf(ctx, "HandShake failed");
         return HAND_SHAKE_ERROR;
     }
 
-    *obj = (ULONG)pF_pipe;
-    F_DbgCtxExitf(ctx, "Success (obj=%p)", pF_pipe);
+    *obj = (ULONG)pNew;
+    F_DbgCtxExitf(ctx, "Success (obj=%p)", pNew);
     return 0;
 }
 
-/*! @brief Close the current client connection.
+/*! @brief Close one specific client connection.
+
+    NULL is a no-op (safe for callers that hold an already-reset handle).
+
+    @param [in] obj  Connection handle from Fc_TrnConnect.
     @return 0.
-    @retval 0 Always. */
-extern "C" APIRET EXPENTRY _CloseServerConnection(void)
+    @retval 0  Always. */
+extern "C" APIRET EXPENTRY Fc_TrnDisconnect(void *obj)
 {
     int ctx;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_PMTCP, F_DBG_LVL_VERBOSE,
-                         "PMTCP: _CloseServerConnection");
-
-    if (pF_pipe != NULL)
-    {
-        delete pF_pipe;
-        pF_pipe = NULL;
+                         "PMTCP: Fc_TrnDisconnect(obj=%p)", obj);
+    if (obj == NULL) {
+        F_DbgCtxExitf(ctx, "NULL obj (no-op)");
+        return 0;
     }
+    delete (TCPipe *)obj;            /* ~TCPipe -> Close() -> closesocket */
     PMC_WSA_CLEANUP();
     F_DbgCtxExitf(ctx, "Success");
     return 0;
 }
 
-/*! @brief Send a command with a 32-bit argument to the server.
-    @param [in] recvobj  Connection object.
-    @param [in] ncmd     Command code.
-    @param [in] data     32-bit argument.
-    @return 0 on success, ERROR_BROKEN_PIPE on failure. */
-extern "C" APIRET EXPENTRY _F_SendCmdToServer(void *recvobj, int ncmd, int data)
+/*! @brief Client-side async write of a command (no wait for reply).
+    @param [in] obj  Connection object.
+    @param [in] cmd  Command code.
+    @param [in] par  32-bit argument.
+    @return 0 on success, non-zero on transport error.
+    @retval 0              Success.
+    @retval PMC_ERR_BROKEN Send failed or connection is closed. */
+extern "C" APIRET EXPENTRY Fc_TrnPostCommand(void *obj, int cmd, int par)
 {
     int  ctx;
     char buf[8];
     int  rc;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_WIRE, F_DBG_LVL_VERBOSE,
-                         "PMTCP: _F_SendCmdToServer(recvobj=%p, ncmd=0x%x, data=0x%x)",
-                         recvobj, ncmd, data);
-    if (!recvobj) {
+                         "PMTCP: Fc_TrnPostCommand(obj=%p, cmd=0x%x, par=0x%x)",
+                         obj, cmd, par);
+    if (!obj) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: _F_SendCmdToServer ERROR: recvobj is NULL!");
-        F_DbgCtxExitf(ctx, "recvobj is NULL");
+                   "PMTCP: Fc_TrnPostCommand ERROR: obj is NULL!");
+        F_DbgCtxExitf(ctx, "obj is NULL");
         return PMC_ERR_BROKEN;
     }
-    memcpy(buf,     &ncmd, 4);
-    memcpy(buf + 4, &data, 4);
-    rc = ((TCPipe *)recvobj)->Send(buf, 8);
+    memcpy(buf,     &cmd, 4);
+    memcpy(buf + 4, &par, 4);
+    rc = ((TCPipe *)obj)->Send(buf, 8);
     if (rc != 0) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: _F_SendCmdToServer ERROR: Send failed");
+                   "PMTCP: Fc_TrnPostCommand ERROR: Send failed");
         F_DbgCtxExitf(ctx, "Send failed");
         return PMC_ERR_BROKEN;
     }
@@ -280,29 +265,31 @@ extern "C" APIRET EXPENTRY _F_SendCmdToServer(void *recvobj, int ncmd, int data)
     return 0;
 }
 
-/*! @brief Send raw data to the server.
-    @param [in] recvobj  Connection object.
-    @param [in] data     Payload.
-    @param [in] len      Payload size in bytes.
-    @return 0 on success, ERROR_BROKEN_PIPE on failure. */
-extern "C" APIRET EXPENTRY _F_SendDataToServer(void *recvobj, void *data, int len)
+/*! @brief Client-side async write of raw data (no wait for reply).
+    @param [in] obj  Connection object.
+    @param [in] buf  Payload.
+    @param [in] len  Payload size in bytes.
+    @return 0 on success, non-zero on transport error.
+    @retval 0              Success.
+    @retval PMC_ERR_BROKEN Send failed or connection is closed. */
+extern "C" APIRET EXPENTRY Fc_TrnPostData(void *obj, void *buf, int len)
 {
     int ctx;
     int rc;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_WIRE, F_DBG_LVL_VERBOSE,
-                         "PMTCP: _F_SendDataToServer(recvobj=%p, data=%p, len=%d)",
-                         recvobj, data, len);
-    if (!recvobj) {
+                         "PMTCP: Fc_TrnPostData(obj=%p, buf=%p, len=%d)",
+                         obj, buf, len);
+    if (!obj) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: _F_SendDataToServer ERROR: recvobj is NULL!");
-        F_DbgCtxExitf(ctx, "recvobj is NULL");
+                   "PMTCP: Fc_TrnPostData ERROR: obj is NULL!");
+        F_DbgCtxExitf(ctx, "obj is NULL");
         return PMC_ERR_BROKEN;
     }
-    rc = ((TCPipe *)recvobj)->Send(data, len);
+    rc = ((TCPipe *)obj)->Send(buf, len);
     if (rc != 0) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: _F_SendDataToServer ERROR: Send failed");
+                   "PMTCP: Fc_TrnPostData ERROR: Send failed");
         F_DbgCtxExitf(ctx, "Send failed");
         return PMC_ERR_BROKEN;
     }
@@ -310,30 +297,31 @@ extern "C" APIRET EXPENTRY _F_SendDataToServer(void *recvobj, void *data, int le
     return 0;
 }
 
-/*! @brief Receive raw data from the server.
-    @param [in]  recvobj  Connection object.
-    @param [out] data     Destination buffer.
-    @param [out] len      Receives the number of bytes read.
-    @param [in]  maxlen   Size of the destination buffer.
-    @return 0 on success, -1 on failure. */
-extern "C" APIRET EXPENTRY _F_RecvDataFromServer(void *recvobj, void *data, int *len, int maxlen)
+/*! @brief Client-side blocking read of raw data.
+    @param [in]  obj   Connection object.
+    @param [out] buf   Destination buffer.
+    @param [out] len   Receives the number of bytes read.
+    @param [in]  size  Number of bytes to read (== buffer size).
+    @return 0 on success, -1 on failure.
+    @retval 0   Exactly size bytes were read.
+    @retval -1  Receive failed, peer closed, or partial read. */
+extern "C" APIRET EXPENTRY Fc_TrnGetData(void *obj, void *buf, int *len, int size)
 {
     int ctx;
     int rc;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_WIRE, F_DBG_LVL_VERBOSE,
-                         "PMTCP: _F_RecvDataFromServer(recvobj=%p, maxlen=%d)",
-                         recvobj, maxlen);
-    if (!recvobj) {
+                         "PMTCP: Fc_TrnGetData(obj=%p, size=%d)", obj, size);
+    if (!obj) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: _F_RecvDataFromServer ERROR: recvobj is NULL!");
-        F_DbgCtxExitf(ctx, "recvobj is NULL");
+                   "PMTCP: Fc_TrnGetData ERROR: obj is NULL!");
+        F_DbgCtxExitf(ctx, "obj is NULL");
         return -1;
     }
-    rc = ((TCPipe *)recvobj)->Recv(data, len, maxlen);
+    rc = ((TCPipe *)obj)->Recv(buf, len, size);
     if (rc != 0) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: _F_RecvDataFromServer ERROR: Recv failed");
+                   "PMTCP: Fc_TrnGetData ERROR: Recv failed");
         F_DbgCtxExitf(ctx, "Recv failed");
         return -1;
     }
@@ -341,37 +329,38 @@ extern "C" APIRET EXPENTRY _F_RecvDataFromServer(void *recvobj, void *data, int 
     return 0;
 }
 
-/*! @brief Send a generic command and wait for the server reply.
+/*! @brief Client-side send of a command; wait for reply.
 
     On transport error (send or recv failed) returns (APIRET)-1 so
     callers can distinguish it from a legitimate server reply.
-    @param [in] recvobj  Connection object.
-    @param [in] cmd      Command code.
-    @param [in] par      32-bit parameter.
+
+    @param [in] obj  Connection object.
+    @param [in] cmd  Command code.
+    @param [in] par  32-bit parameter.
     @return Server reply code, or (APIRET)-1 on transport error. */
-extern "C" APIRET EXPENTRY _F_SendGenCmdToServer(void *recvobj, int cmd, int par)
+extern "C" APIRET EXPENTRY Fc_TrnSendCommand(void *obj, int cmd, int par)
 {
     int ctx, rc, retcode, l;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_PMTCP, F_DBG_LVL_VERBOSE,
-                         "PMTCP: _F_SendGenCmdToServer(recvobj=%p, cmd=0x%x, par=0x%x)",
-                         recvobj, cmd, par);
-    if (!recvobj) {
+                         "PMTCP: Fc_TrnSendCommand(obj=%p, cmd=0x%x, par=0x%x)",
+                         obj, cmd, par);
+    if (!obj) {
         F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
-                   "PMTCP: _F_SendGenCmdToServer ERROR: recvobj is NULL!");
-        F_DbgCtxExitf(ctx, "recvobj is NULL");
+                   "PMTCP: Fc_TrnSendCommand ERROR: obj is NULL!");
+        F_DbgCtxExitf(ctx, "obj is NULL");
         return (APIRET)-1;
     }
 
-    rc = _F_SendCmdToServer(recvobj, cmd, par);
+    rc = Fc_TrnPostCommand(obj, cmd, par);
     if (rc) {
-        F_DbgCtxExitf(ctx, "SendCmd failed");
+        F_DbgCtxExitf(ctx, "PostCommand failed");
         return (APIRET)-1;
     }
 
-    rc = _F_RecvDataFromServer(recvobj, &retcode, &l, sizeof(retcode));
+    rc = Fc_TrnGetData(obj, &retcode, &l, sizeof(retcode));
     if (rc) {
-        F_DbgCtxExitf(ctx, "RecvData failed");
+        F_DbgCtxExitf(ctx, "GetData failed");
         return (APIRET)-1;
     }
 
@@ -379,46 +368,47 @@ extern "C" APIRET EXPENTRY _F_SendGenCmdToServer(void *recvobj, int cmd, int par
     return (APIRET)retcode;
 }
 
-/*! @brief Send a command with a payload and wait for the server reply.
+/*! @brief Client-side send of a command with a payload; wait for reply.
 
     On transport error (send or recv failed) returns (APIRET)-1 so
     callers can distinguish it from a legitimate server reply.
-    @param [in] recvobj  Connection object.
-    @param [in] cmd      Command code.
-    @param [in] par      32-bit parameter.
-    @param [in] data     Payload.
-    @param [in] datalen  Payload size in dwords.
+
+    @param [in] obj  Connection object.
+    @param [in] cmd  Command code.
+    @param [in] par  32-bit parameter.
+    @param [in] buf  Payload.
+    @param [in] len  Payload size in bytes.
     @return Server reply code, or (APIRET)-1 on transport error. */
-extern "C" APIRET EXPENTRY _F_SendGenCmdDataToServer(void *recvobj, int cmd, int par,
-                                                     void *data, int datalen)
+extern "C" APIRET EXPENTRY Fc_TrnSendCommandData(void *obj, int cmd, int par,
+                                                 void *buf, int len)
 {
     int ctx, rc, retcode, l;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_PMTCP, F_DBG_LVL_VERBOSE,
-                         "PMTCP: _F_SendGenCmdDataToServer(recvobj=%p, cmd=0x%x, par=0x%x)",
-                         recvobj, cmd, par);
-    if (!recvobj) {
+                         "PMTCP: Fc_TrnSendCommandData(obj=%p, cmd=0x%x, par=0x%x, len=%d)",
+                         obj, cmd, par, len);
+    if (!obj) {
         F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
-                   "PMTCP: _F_SendGenCmdDataToServer ERROR: recvobj is NULL!");
-        F_DbgCtxExitf(ctx, "recvobj is NULL");
+                   "PMTCP: Fc_TrnSendCommandData ERROR: obj is NULL!");
+        F_DbgCtxExitf(ctx, "obj is NULL");
         return (APIRET)-1;
     }
 
-    rc = _F_SendCmdToServer(recvobj, cmd, par);
+    rc = Fc_TrnPostCommand(obj, cmd, par);
     if (rc) {
-        F_DbgCtxExitf(ctx, "SendCmd failed");
+        F_DbgCtxExitf(ctx, "PostCommand failed");
         return (APIRET)-1;
     }
 
-    rc = _F_SendDataToServer(recvobj, data, datalen * sizeof(int));
+    rc = Fc_TrnPostData(obj, buf, len);
     if (rc) {
-        F_DbgCtxExitf(ctx, "SendData failed");
+        F_DbgCtxExitf(ctx, "PostData failed");
         return (APIRET)-1;
     }
 
-    rc = _F_RecvDataFromServer(recvobj, &retcode, &l, sizeof(retcode));
+    rc = Fc_TrnGetData(obj, &retcode, &l, sizeof(retcode));
     if (rc) {
-        F_DbgCtxExitf(ctx, "RecvData failed");
+        F_DbgCtxExitf(ctx, "GetData failed");
         return (APIRET)-1;
     }
 
@@ -426,14 +416,14 @@ extern "C" APIRET EXPENTRY _F_SendGenCmdDataToServer(void *recvobj, int cmd, int
     return (APIRET)retcode;
 }
 
-/*! @brief Server-side: receive a (command, data) pair.
-    @param [in]  recvobj  Connection object.
-    @param [out] ncmd     Receives the command code.
-    @param [out] data     Receives the 32-bit argument.
-    @return 0 on success, -1 on failure or short read.
+/*! @brief Server-side blocking read of a (command, par) pair.
+    @param [in]  obj  Connection object.
+    @param [out] cmd  Receives the command code.
+    @param [out] par  Receives the 32-bit argument.
+    @return 0 on success, -1 on failure.
     @retval 0  Success.
     @retval -1 Failure or short read. */
-extern "C" APIRET EXPENTRY _F_RecvCmdFromClient(void *recvobj, int *ncmd, int *data)
+extern "C" APIRET EXPENTRY Fs_TrnGetCommand(void *obj, int *cmd, int *par)
 {
     int  ctx;
     char buf[8];
@@ -441,98 +431,99 @@ extern "C" APIRET EXPENTRY _F_RecvCmdFromClient(void *recvobj, int *ncmd, int *d
     int  rc;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_WIRE, F_DBG_LVL_VERBOSE,
-                         "PMTCP: _F_RecvCmdFromClient(recvobj=%p)", recvobj);
-    if (!recvobj) {
+                         "PMTCP: Fs_TrnGetCommand(obj=%p)", obj);
+    if (!obj) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: _F_RecvCmdFromClient ERROR: recvobj is NULL!");
-        F_DbgCtxExitf(ctx, "recvobj is NULL");
+                   "PMTCP: Fs_TrnGetCommand ERROR: obj is NULL!");
+        F_DbgCtxExitf(ctx, "obj is NULL");
         return -1;
     }
-    rc = ((TCPipe *)recvobj)->Recv(buf, &len, 8);
+    rc = ((TCPipe *)obj)->Recv(buf, &len, 8);
     if (rc != 0 || len != 8) {
         int err = 0;
 #if defined(__WIN32__) || defined(__NT__) || defined(_WIN32)
         err = WSAGetLastError();
 #endif
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: _F_RecvCmdFromClient ERROR: Recv failed or short read. "
+                   "PMTCP: Fs_TrnGetCommand ERROR: Recv failed or short read. "
                    "rc=%d, len=%d, WSAError=%d", rc, len, err);
         F_DbgCtxExitf(ctx, "Recv failed rc=%d, len=%d", rc, len);
         return -1;
     }
-    memcpy(ncmd, buf,     4);
-    memcpy(data, buf + 4, 4);
-    F_DbgCtxExitf(ctx, "ncmd=0x%x, data=0x%x", *ncmd, *data);
+    memcpy(cmd, buf,     4);
+    memcpy(par, buf + 4, 4);
+    F_DbgCtxExitf(ctx, "cmd=0x%x, par=0x%x", *cmd, *par);
     return 0;
 }
 
-/*! @brief Server-side: receive a message buffer.
-    @param [in]  recvobj  Connection object.
-    @param [out] sqmsg    Destination buffer.
-    @param [out] l        Receives the number of bytes read.
-    @param [in]  size     Number of bytes to read.
-    @return 0 on success, -1 on failure or short read.
-    @retval 0  Exactly size bytes were read.
+/*! @brief Server-side blocking read of raw data.
+    @param [in]  obj   Connection object.
+    @param [out] buf   Destination buffer.
+    @param [out] len   Receives the number of bytes read.
+    @param [in]  size  Number of bytes to read (== buffer size).
+    @return 0 on success, -1 on failure.
+    @retval 0  Success.
     @retval -1 Failure or short read. */
-extern "C" APIRET EXPENTRY _F_RecvDataFromClient(void *recvobj, void *sqmsg, int *l, int size)
+extern "C" APIRET EXPENTRY Fs_TrnGetData(void *obj, void *buf, int *len, int size)
 {
     int ctx;
     int rc;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_WIRE, F_DBG_LVL_VERBOSE,
-                         "PMTCP: _F_RecvDataFromClient(recvobj=%p, size=%d)",
-                         recvobj, size);
-    if (!recvobj) {
+                         "PMTCP: Fs_TrnGetData(obj=%p, size=%d)", obj, size);
+    if (!obj) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: _F_RecvDataFromClient ERROR: recvobj is NULL!");
-        F_DbgCtxExitf(ctx, "recvobj is NULL");
+                   "PMTCP: Fs_TrnGetData ERROR: obj is NULL!");
+        F_DbgCtxExitf(ctx, "obj is NULL");
         return -1;
     }
-    rc = ((TCPipe *)recvobj)->Recv(sqmsg, l, size);
+    rc = ((TCPipe *)obj)->Recv(buf, len, size);
     if (rc != 0) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: _F_RecvDataFromClient ERROR: Recv failed");
+                   "PMTCP: Fs_TrnGetData ERROR: Recv failed");
         F_DbgCtxExitf(ctx, "Recv failed");
         return -1;
     }
-    if (*l != size) {
+    if (*len != size) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: _F_RecvDataFromClient ERROR: short read l=%d, "
-                   "expected %d", *l, size);
-        F_DbgCtxExitf(ctx, "short read l=%d, expected %d", *l, size);
+                   "PMTCP: Fs_TrnGetData ERROR: short read len=%d, "
+                   "expected %d", *len, size);
+        F_DbgCtxExitf(ctx, "short read len=%d, expected %d", *len, size);
         return -1;
     }
-    F_DbgCtxExitf(ctx, "l=%d", *l);
+    F_DbgCtxExitf(ctx, "len=%d", *len);
     return 0;
 }
 
-/*! @brief Server-side: send raw data to a client.
-    @param [in] recvobj  Connection object.
-    @param [in] data     Payload.
-    @param [in] len      Payload size in bytes.
-    @return 0 on success, ERROR_BROKEN_PIPE on failure. */
-extern "C" APIRET EXPENTRY _F_SendDataToClient(void *recvobj, void *data, int len)
+/*! @brief Server-side async write of raw data (no wait for reply).
+    @param [in] obj  Connection object.
+    @param [in] buf  Payload.
+    @param [in] len  Payload size in bytes.
+    @return 0 on success, non-zero on transport error.
+    @retval 0              Success.
+    @retval PMC_ERR_BROKEN Send failed or connection is closed. */
+extern "C" APIRET EXPENTRY Fs_TrnPostData(void *obj, void *buf, int len)
 {
     int ctx;
     int rc;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_WIRE, F_DBG_LVL_VERBOSE,
-                         "PMTCP: _F_SendDataToClient(recvobj=%p, data=%p, len=%d)",
-                         recvobj, data, len);
-    if (!recvobj) {
+                         "PMTCP: Fs_TrnPostData(obj=%p, buf=%p, len=%d)",
+                         obj, buf, len);
+    if (!obj) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: _F_SendDataToClient ERROR: recvobj is NULL!");
-        F_DbgCtxExitf(ctx, "recvobj is NULL");
-        return PMC_ERR_BROKEN; 
+                   "PMTCP: Fs_TrnPostData ERROR: obj is NULL!");
+        F_DbgCtxExitf(ctx, "obj is NULL");
+        return PMC_ERR_BROKEN;
     }
-    rc = ((TCPipe *)recvobj)->Send(data, len);
+    rc = ((TCPipe *)obj)->Send(buf, len);
     if (rc != 0) {
         int err = 0;
 #if defined(__WIN32__) || defined(__NT__) || defined(_WIN32)
         err = WSAGetLastError();
 #endif
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: _F_SendDataToClient ERROR: Send failed. "
+                   "PMTCP: Fs_TrnPostData ERROR: Send failed. "
                    "rc=%d, WSAError=%d", rc, err);
         F_DbgCtxExitf(ctx, "Send failed rc=%d", rc);
         return PMC_ERR_BROKEN;
@@ -541,12 +532,7 @@ extern "C" APIRET EXPENTRY _F_SendDataToClient(void *recvobj, void *data, int le
     return 0;
 }
 
-/*! @brief Start server-side dispatcher threads.
-    @param [in] handl  Command handler callback.
-    @return 0 on success, PMC_ERR_OPEN on setup failure.
-    @retval 0            Loop exited (normally unreachable).
-    @retval PMC_ERR_OPEN Setup failed. */
-
+/*! @brief Per-connection context passed to ClientThreadProc. */
 struct TCP_ClientArg {
     TCPipe           *pClient;
     PMC_HANDLER       h;
@@ -554,23 +540,30 @@ struct TCP_ClientArg {
     int               threadNum;
 };
 
+/*! @brief Server-side per-connection thread.
+
+    Reads commands from one client connection until the socket closes
+    or a zero command is received, dispatches each through the handler,
+    then notifies the disconnect callback and cleans up.
+
+    @param [in] param  Pointer to TCP_ClientArg (connection context). */
 static void ClientThreadProc(void *param)
 {
     TCP_ClientArg    *pArg    = (TCP_ClientArg *)param;
     TCPipe           *pClient = pArg->pClient;
     PMC_HANDLER       h       = pArg->h;
     PMC_DISCONNECT_CB disc    = pArg->disc;
-    int               ncmd, data;
+    int               cmd, par;
 
-    while (_F_RecvCmdFromClient(pClient, &ncmd, &data) == 0)
+    while (Fs_TrnGetCommand(pClient, &cmd, &par) == 0)
     {
-        if (ncmd == 0) break;
-        if (h) h(pClient, ncmd, data, pArg->threadNum);
+        if (cmd == 0) break;
+        if (h) h(pClient, cmd, par, pArg->threadNum);
     }
 
     /* Transport-level notification: socket is gone. Fs_Server
        transitions the session to DETACHED so a legitimate RECONNECT
-       can resume it without waiting for ulInactive. The recvobj
+       can resume it without waiting for ulInactive. The obj
        (pClient) is still valid here; it is deleted below. */
     if (disc) disc(pClient);
 
@@ -579,9 +572,20 @@ static void ClientThreadProc(void *param)
     delete pArg;
 }
 
-extern "C" APIRET EXPENTRY _startServerThreads(void *handl, void *disc_cb)
+/*! @brief Run the server-side listener: accept-loop + per-conn threads.
+
+    Creates a listening socket, accepts one client at a time, performs
+    the handshake, and spawns one ClientThreadProc per connection.
+    Does not return until the process exits.
+
+    @param [in] handler  Command handler callback.
+    @param [in] disc_cb  Disconnect callback.
+    @return 0 on success, non-zero on setup failure.
+    @retval 0            Loop exited (normally unreachable).
+    @retval PMC_ERR_OPEN Setup failed. */
+extern "C" APIRET EXPENTRY Fs_TrnRunListener(void *handler, void *disc_cb)
 {
-    PMC_HANDLER       h    = (PMC_HANDLER)handl;
+    PMC_HANDLER       h    = (PMC_HANDLER)handler;
     PMC_DISCONNECT_CB disc = (PMC_DISCONNECT_CB)disc_cb;
     TCPipe           *pServer = new TCPipe();
     int               wsaRc;
@@ -593,7 +597,7 @@ extern "C" APIRET EXPENTRY _startServerThreads(void *handl, void *disc_cb)
     if (wsaRc != 0)
     {
         F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
-                   "PMTCP: _startServerThreads: WSAStartup failed (rc=%d)", wsaRc);
+                   "PMTCP: Fs_TrnRunListener: WSAStartup failed (rc=%d)", wsaRc);
         delete pServer;
         return PMC_ERR_OPEN;
     }
@@ -604,7 +608,7 @@ extern "C" APIRET EXPENTRY _startServerThreads(void *handl, void *disc_cb)
     if (pServer->Create() != 0)
     {
         F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
-                   "PMTCP: _startServerThreads: Create() failed (port %d)",
+                   "PMTCP: Fs_TrnRunListener: Create() failed (port %d)",
                    pServer->port);
         delete pServer;
         PMC_WSA_CLEANUP();
@@ -612,7 +616,7 @@ extern "C" APIRET EXPENTRY _startServerThreads(void *handl, void *disc_cb)
     }
 
     F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_VERBOSE,
-               "PMTCP: _startServerThreads: listening on port %d (multi-thread)",
+               "PMTCP: Fs_TrnRunListener: listening on port %d (multi-thread)",
                pServer->port);
 
     for (;;)
@@ -632,7 +636,7 @@ extern "C" APIRET EXPENTRY _startServerThreads(void *handl, void *disc_cb)
         if (pClient->HandShake() == HAND_SHAKE_ERROR)
         {
             F_DbgPrint(F_DBG_SEC_PMTCP, F_DBG_LVL_ERROR,
-                       "PMTCP: _startServerThreads: handshake failed, dropping");
+                       "PMTCP: Fs_TrnRunListener: handshake failed, dropping");
             pClient->Close();
             delete pClient;
             continue;
@@ -656,60 +660,7 @@ extern "C" APIRET EXPENTRY _startServerThreads(void *handl, void *disc_cb)
     /* Win32: 3 arguments — (start, stack_size, arglist) */
     _beginthread(ClientThreadProc, FREEPM_TCP_THREAD_STACK, pArg);
 #endif
-
     }
 
     return 0; /* unreachable */
 }
-
-
-/* ======================================================================== */
-/*  Platform entry points                                                   */
-/* ======================================================================== */
-
-#if defined(__OS2__) || defined(__OS2V2__)
-
-unsigned long _System _DLL_InitTerm(unsigned long hModule, unsigned long flag)
-{
-    (void)hModule;
-    if (flag == 0) return 1;
-
-    if (g_shutdownCb) {
-        g_shutdownCb();
-        g_shutdownCb = NULL;
-    }
-    if (pF_pipe != NULL) {
-        delete pF_pipe;
-        pF_pipe = NULL;
-    }
-    PMC_WSA_CLEANUP();
-    return 1;
-}
-
-#else /* Win32 */
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
-{
-    (void)hinstDLL; (void)lpReserved;
-    if (fdwReason == DLL_PROCESS_DETACH) {
-        /* ws2_32.dll is loaded by WSAStartup inside this DLL, so on
-           ExitProcess it is detached first (LIFO) and its DllMain
-           resets Winsock state. Re-init WSA here so send(EXIT) inside
-           the shutdown callback goes through live code. */
-        WSADATA wsa;
-        int     wsaOk = (WSAStartup(MAKEWORD(1, 1), &wsa) == 0);
-
-        if (g_shutdownCb) {
-            g_shutdownCb();
-            g_shutdownCb = NULL;
-        }
-        if (pF_pipe != NULL) {
-            delete pF_pipe;
-            pF_pipe = NULL;
-        }
-        if (wsaOk) WSACleanup();
-    }
-    return TRUE;
-}
-
-#endif

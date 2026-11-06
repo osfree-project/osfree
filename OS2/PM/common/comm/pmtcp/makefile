@@ -29,17 +29,17 @@ NOLIBS       = 1
 DLLOPT       = initinstance terminstance
 OPTIONS     += caseexact
 
-EXPORTS  = _InitServerConnection.1,      &
-           _CloseServerConnection.2,     &
-           _startServerThreads.3,        &
-           _F_SendCmdToServer.4,         &
-           _F_SendDataToServer.5,        &
-           _F_RecvDataFromServer.6,      &
-           _F_SendGenCmdToServer.7,      &
-           _F_SendGenCmdDataToServer.8,  &
-           _F_RecvCmdFromClient.9,       &
-           _F_RecvDataFromClient.10,     &
-           _F_SendDataToClient.11
+EXPORTS = Fc_TrnConnect.1,              &
+          Fc_TrnDisconnect.2,           &
+          Fc_TrnPostCommand.3,          &
+          Fc_TrnPostData.4,             &
+          Fc_TrnSendCommand.5,          &
+          Fc_TrnSendCommandData.6,      &
+          Fc_TrnGetData.7,              &
+          Fs_TrnRunListener.8,          &
+          Fs_TrnPostData.9,             &
+          Fs_TrnGetCommand.10,          &
+          Fs_TrnGetData.11
 
 IMPORTS = F_DbgPrint       PMDEBUG.5, &
           F_DbgCtxEnterf   PMDEBUG.15, &
