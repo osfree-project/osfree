@@ -3,6 +3,7 @@
 #define FREEPM_CMD
 
 #include "gpi_wire.h"   /* NGpi* function codes for GPI class */
+#include "gpi_wire.h"   /* NGpi* function codes for GPI class */
 
 /* ------------------------------------------------------------------------
  * Wire command layout:
@@ -27,19 +28,22 @@
 #define F_CMD_GET_CLASS(cmd)  ((ULONG)(((cmd) & F_CMD_CLASS_MASK) >> 16))
 #define F_CMD_GET_OPCODE(cmd) ((ULONG)((cmd) & F_CMD_OPCODE_MASK))
 
-#define F_CMD_CORE(op)        F_CMD_MAKE(F_CMD_CLASS_CORE,   (op))
-#define F_CMD_GPI(fn)         F_CMD_MAKE(F_CMD_CLASS_GPI,    (fn))
-#define F_CMD_ORDER(oc)       F_CMD_MAKE(F_CMD_CLASS_GORDER, (oc))
-
 /* Classes */
 #define F_CMD_CLASS_CORE   0x0000  /* Session / window / HPS / debug */
 #define F_CMD_CLASS_GPI    0x0001  /* Direct GPI calls (opcode = NGpi*) */
 #define F_CMD_CLASS_GORDER 0x0002  /* GOCA orders   (opcode = OCODE_*) */
+#define F_CMD_CLASS_WIN    0x0003  /* Win* calls    (opcode = NWin*) */
 #define F_CMD_CLASS_GL     0x0010
 #define F_CMD_CLASS_WGL    0x0011
 #define F_CMD_CLASS_GLUT   0x0012
 #define F_CMD_CLASS_GLU    0x0013
 #define F_CMD_CLASS_GLPM   0x0018
+
+#define F_CMD_CORE(op)        F_CMD_MAKE(F_CMD_CLASS_CORE,   (op))
+#define F_CMD_GPI(fn)         F_CMD_MAKE(F_CMD_CLASS_GPI,    (fn))
+#define F_CMD_ORDER(oc)       F_CMD_MAKE(F_CMD_CLASS_GORDER, (oc))
+#define F_CMD_WIN(fn)         F_CMD_MAKE(F_CMD_CLASS_WIN,    (fn))
+
 
 /* ---- CORE class ------------------------------------------------------- */
 
@@ -76,7 +80,6 @@ typedef struct _F_CLIENT_RECONNECT {
 #define F_CMD_CLIENT_PING         F_CMD_CORE(0x0006)
 
 
-#define F_CMD_GET_IHAB            F_CMD_CORE(0x0001)
 #define F_CMD_WINPOSTMSG          F_CMD_CORE(0x0002)
 #define F_CMD_WINSENDMSG          F_CMD_CORE(0x0003)
 

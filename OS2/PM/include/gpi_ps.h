@@ -63,9 +63,12 @@ typedef struct _GPI_PS {
     BOOL     inUse;      /*!< Slot occupied.                              */
     HPS      hps;        /*!< Handle used as map key.                     */
     ULONG    flOptions;  /*!< Last flOptions from GpiCreatePS/GpiSetPS.   */
+    SIZEL    szlPS;       /* NEW: for GpiQueryPS, both sides */
     GOCA_CTX goca;       /*!< GOCA context (coord size, endian, caches).  */
 
 #ifdef GPI_SERVER
+    ULONG    m_hHab;       /*!< Back-ref to Fs_Hab */
+
     /* ---- GOCA stream -------------------------------------------------- */
     PBYTE    pbGoca;       /*!< Accumulated GOCA stream.                  */
     ULONG    cbGoca;       /*!< Bytes used.                               */
@@ -74,6 +77,7 @@ typedef struct _GPI_PS {
     /* ---- Segment-edit state ------------------------------------------ */
     LONG     lOpenSeg;     /*!< id of open segment, 0 if none.            */
     ULONG    uOpenSegStart;/*!< Offset of its GBSEG in pbGoca.            */
+    ULONG    uOpenSegEnd;  /* NEW: bug #1 fix */
 
     /* ---- GPI state --------------------------------------------------- */
     ULONG    ulDrawingMode;     /*!< DM_DRAW / DM_RETAIN / DM_DRAWANDRETAIN */
@@ -154,12 +158,14 @@ static inline PGPI_PS GpiPsCreate(HPS hps, ULONG flOptions)
             ps->flOptions = flOptions;
 
 #ifdef GPI_SERVER
+            ps->m_hHab = 0;
             GocaInit(&ps->goca, (HDC)hps, NULL, 0);
             ps->pbGoca          = NULL;
             ps->cbGoca          = 0;
             ps->cbGocaAlloc     = 0;
             ps->lOpenSeg        = 0;
             ps->uOpenSegStart   = 0;
+            ps->uOpenSegEnd     = 0;
             ps->ulDrawingMode   = DM_DRAW;
             ps->ulEditMode      = SEGEM_INSERT;
             ps->ulInitialSegAttrs =
@@ -310,6 +316,30 @@ static inline BOOL GpiPsGocaDelete(PGPI_PS ps, ULONG start, ULONG end)
         memmove(ps->pbGoca + start, ps->pbGoca + end, tail);
     ps->cbGoca -= (end - start);
     return TRUE;
+}
+
+/*!
+ * @brief Force-destroy every PS whose m_hHab == hHab.
+ *
+ * Called from Fs_HabList::Destroy / DestroyAll (robustness against
+ * clients that crash without calling GpiDestroyPS).
+ *
+ * @param [in] hHab  Owning HAB id.
+ * @return Number of PS destroyed.
+ */
+static inline int GpiPsDestroyByHab(ULONG hHab)
+{
+    int i, n = 0;
+
+    if (hHab == 0) return 0;
+
+    for (i = 0; i < GPI_MAX_PS; i++) {
+        if (g_psTable[i].inUse && g_psTable[i].m_hHab == hHab) {
+            GpiPsDestroy(g_psTable[i].hps);
+            n++;
+        }
+    }
+    return n;
 }
 
 #endif /* GPI_SERVER */

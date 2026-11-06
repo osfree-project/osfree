@@ -119,7 +119,11 @@ public:
      * *pNewIdClient is set to 0 (caller can distinguish: 0 means
      * "already had a session").
      *
-     * @return Slot pointer, or NULL if the table is full.
+     * Creation honours the runtime limit set by SetMax(); a reconnect
+     * of an existing recvobj is never blocked by the limit.
+     *
+     * @return Slot pointer, or NULL if the table is full or the
+     *         runtime limit is reached.
      */
     Fs_ClientConnection *GetOrCreate(void *pRecvobj, ULONG *pNewIdClient);
 
@@ -142,9 +146,22 @@ public:
     /*! @brief Table capacity (F_MAX_CLIENTS). */
     int Capacity() const { return F_MAX_CLIENTS; }
 
+    /*!
+     * @brief Set the runtime client limit (clamped to [0, F_MAX_CLIENTS]).
+     *
+     * Called from Fs_Server::SetConfig. Not applied retroactively:
+     * existing sessions stay; new GetOrCreate() calls honour the new
+     * limit.
+     */
+    void  SetMax(ULONG ulMaxClients);
+
+    /*! @brief Current runtime limit. */
+    ULONG GetMax() const { return m_ulMaxClients; }
+
 private:
     Fs_ClientConnection m_aClients[F_MAX_CLIENTS];
     ULONG               m_ulNextId;
+    ULONG               m_ulMaxClients;
     HMTX                m_hmtx;
 };
 

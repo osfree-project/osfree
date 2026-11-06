@@ -12,6 +12,7 @@
 
 #include "Fs_server.hpp"
 #include "F_debug.h"
+#include "dispatch_win.hpp"   /* DispatchWinHab, остальные домены */
 
 /* DispatchGpi is declared in dispatch.cpp. */
 extern ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
@@ -56,6 +57,8 @@ void Fs_Server::SetWire(Fs_PfnRecv pfnRecv, Fs_PfnSend pfnSend)
 void Fs_Server::SetConfig(const Fs_ServerConfig &cfg)
 {
     m_cfg = cfg;
+    m_clients.SetMax(cfg.ulMaxClients);
+    m_habs.SetMax(cfg.ulMaxHabs);
 }
 
 /* ======================================================================== */
@@ -296,8 +299,11 @@ void Fs_Server::HandleDisconnect(void *pRecvobj)
 /*  GPI dispatch                                                            */
 /* ======================================================================== */
 
-void Fs_Server::HandleGpiCall(void *pRecvobj, ULONG fnCode, HPS hps)
+void Fs_Server::HandleGpiCall(Fs_ClientConnection *pConn,
+                              ULONG fnCode, ULONG data)
 {
+    void *pRecvobj = pConn->GetRecvobj();
+    HPS   hps      = (HPS)data;
     ULONG cbArgs    = 0;
     ULONG cbPayload = 0;
     PVOID pv        = NULL;
@@ -339,7 +345,69 @@ void Fs_Server::HandleGpiCall(void *pRecvobj, ULONG fnCode, HPS hps)
     }
 }
 
-void Fs_Server::HandleCoreCommand(Fs_ClientConnection *pConn, int ncmd, int data)
+void Fs_Server::HandleWinCall(Fs_ClientConnection *pConn,
+                              ULONG fnCode, ULONG data)
+{
+    void *pRecvobj = pConn->GetRecvobj();
+    ULONG cbArgs    = 0;
+    ULONG cbPayload = 0;
+    PVOID pv        = NULL;
+    PBYTE pArgs     = NULL;
+    ULONG ulResult  = 0;
+    int   rc, len;
+    int   ctx;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                         "[SERVER] HandleWinCall(fnCode=0x%lx, data=0x%lx, idClient=%lu)",
+                         (unsigned long)fnCode, (unsigned long)data,
+                         (unsigned long)pConn->GetIdClient());
+
+    if (!m_pfnRecv) {
+        SERVER_RETURN(ctx, "no wire");
+    }
+
+    rc = m_pfnRecv(pRecvobj, &cbArgs, &len, sizeof(cbArgs));
+    if (rc != 0 || len != (int)sizeof(cbArgs)) {
+        SendHeader(pRecvobj, 1, GPI_ERROR, 0, 0);
+        SERVER_RETURN(ctx, "recv header failed (rc=%d, len=%d)", rc, len);
+    }
+    if (cbArgs > 0) {
+        if (DosAllocMem(&pv, cbArgs,
+                        PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
+            SendHeader(pRecvobj, 1, GPI_ERROR, 0, 0);
+            SERVER_RETURN(ctx, "no memory (cbArgs=%lu)",
+                          (unsigned long)cbArgs);
+        }
+        pArgs = (PBYTE)pv;
+        rc = m_pfnRecv(pRecvobj, pArgs, &len, cbArgs);
+        if (rc != 0 || len != (int)cbArgs) {
+            DosFreeMem(pv);
+            SendHeader(pRecvobj, 1, GPI_ERROR, 0, 0);
+            SERVER_RETURN(ctx, "recv payload failed (rc=%d, len=%d)", rc, len);
+        }
+    }
+
+    /* Phase 2: only HAB (0x0001Ц0x000F). ќстальные домены Ч stub = 0. */
+    if (fnCode >= 0x0001 && fnCode <= 0x000F) {
+        ulResult = DispatchWinHab(&m_habs, pConn->GetIdClient(),
+                                  fnCode, data, pArgs, cbArgs, &cbPayload);
+    } else {
+        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_WARNING,
+                   "[SERVER] HandleWinCall: fnCode=0x%lx not implemented",
+                   (unsigned long)fnCode);
+        ulResult = 0;
+    }
+
+    SendHeader(pRecvobj, 0, ulResult, cbPayload, 0);
+    if (cbPayload > 0 && pArgs != NULL && cbPayload <= cbArgs && m_pfnSend)
+        m_pfnSend(pRecvobj, pArgs, (int)cbPayload);
+
+    if (pv) DosFreeMem(pv);
+    SERVER_RETURN(ctx, "result=0x%lx", (unsigned long)ulResult);
+}
+
+void Fs_Server::HandleCoreCommand(Fs_ClientConnection *pConn,
+                                  ULONG ncmd, ULONG data)
 {
     void *pRecvobj = pConn->GetRecvobj();
     char buf[256];
@@ -347,20 +415,11 @@ void Fs_Server::HandleCoreCommand(Fs_ClientConnection *pConn, int ncmd, int data
     int  ctx;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
-                         "[SERVER] HandleCoreCommand(ncmd=0x%x, data=0x%x, idClient=%lu)",
-                         ncmd, data, (unsigned long)pConn->GetIdClient());
+                         "[SERVER] HandleCoreCommand(ncmd=0x%lx, data=0x%lx, idClient=%lu)",
+                         (unsigned long)ncmd, (unsigned long)data,
+                         (unsigned long)pConn->GetIdClient());
 
     switch (ncmd) {
-
-        case F_CMD_GET_IHAB: {
-            /* Stub for HAB step; returns {1, idClient} for compatibility. */
-            int inf[2];
-            inf[0] = 1;
-            inf[1] = (int)pConn->GetIdClient();
-            if (m_pfnSend) m_pfnSend(pRecvobj, inf, sizeof(inf));
-            SERVER_RETURN(ctx, "GET_IHAB -> {1,%lu}",
-                          (unsigned long)pConn->GetIdClient());
-        }
 
         case F_CMD_GET_HPS: {
             HPS hps = (HPS)1;
@@ -458,10 +517,14 @@ void Fs_Server::HandleCommand(void *pRecvobj, int ncmd, int data, int threadNum)
         SERVER_RETURN(ctx, "PING done");
     }
     if (F_CMD_GET_CLASS((ULONG)ncmd) == F_CMD_CLASS_GPI) {
-        HandleGpiCall(pRecvobj, F_CMD_GET_OPCODE((ULONG)ncmd), (HPS)data);
+        HandleGpiCall(pConn, F_CMD_GET_OPCODE((ULONG)ncmd), (ULONG)data);
         SERVER_RETURN(ctx, "GPI call done");
     }
-    HandleCoreCommand(pConn, ncmd, data);
+    if (F_CMD_GET_CLASS((ULONG)ncmd) == F_CMD_CLASS_WIN) {
+        HandleWinCall(pConn, F_CMD_GET_OPCODE((ULONG)ncmd), (ULONG)data);
+        SERVER_RETURN(ctx, "WIN call done");
+    }
+    HandleCoreCommand(pConn, (ULONG)ncmd, (ULONG)data);
     SERVER_RETURN(ctx, "CORE command done");
 }
 

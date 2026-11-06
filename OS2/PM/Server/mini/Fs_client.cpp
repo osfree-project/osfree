@@ -124,7 +124,8 @@ void Fs_ClientConnection::ToActive(void *pRecvobj, time_t now)
 /* ======================================================================== */
 
 Fs_ClientList::Fs_ClientList()
-    : m_ulNextId(1)
+    : m_ulNextId(1),
+      m_ulMaxClients(F_MAX_CLIENTS)
 {
     m_hmtx = NULL;
     if (DosCreateMutexSem(NULL, &m_hmtx, 0, FALSE) != 0) {
@@ -150,6 +151,19 @@ void Fs_ClientList::Lock()
 void Fs_ClientList::Unlock()
 {
     if (m_hmtx) DosReleaseMutexSem(m_hmtx);
+}
+
+void Fs_ClientList::SetMax(ULONG ulMaxClients)
+{
+    if (ulMaxClients > (ULONG)F_MAX_CLIENTS)
+        ulMaxClients = (ULONG)F_MAX_CLIENTS;
+
+    Lock();
+    m_ulMaxClients = ulMaxClients;
+    Unlock();
+
+    F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_VERBOSE,
+               "[CLIENTLIST] SetMax(%lu)", (unsigned long)ulMaxClients);
 }
 
 Fs_ClientConnection *Fs_ClientList::FindByRecvobj(void *pRecvobj)
@@ -222,7 +236,9 @@ Fs_ClientConnection *Fs_ClientList::GetOrCreate(void *pRecvobj,
 
     Lock();
 
-    /* 1. Existing ACTIVE slot for this recvobj? */
+    /* 1. Existing ACTIVE slot for this recvobj? Not subject to the
+       runtime limit: a reconnect of an already-known connection must
+       always succeed. */
     for (i = 0; i < F_MAX_CLIENTS; i++) {
         if (m_aClients[i].IsActive() &&
             m_aClients[i].GetRecvobj() == pRecvobj) {
@@ -231,8 +247,24 @@ Fs_ClientConnection *Fs_ClientList::GetOrCreate(void *pRecvobj,
         }
     }
 
-    /* 2. Otherwise grab the first FREE slot. */
+    /* 2. Otherwise grab the first FREE slot, subject to the runtime
+       limit (ACTIVE + DETACHED count). */
     if (pConn == NULL) {
+        int nActive = 0;
+        for (i = 0; i < F_MAX_CLIENTS; i++) {
+            if (m_aClients[i].IsActive() || m_aClients[i].IsDetached())
+                nActive++;
+        }
+        if (nActive >= (int)m_ulMaxClients) {
+            Unlock();
+            F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_ERROR,
+                       "[CLIENTLIST] limit reached (%d/%lu)",
+                       nActive, (unsigned long)m_ulMaxClients);
+            F_DbgCtxExitf(ctx, "NULL (limit reached %d/%lu)",
+                          nActive, (unsigned long)m_ulMaxClients);
+            return NULL;
+        }
+
         for (i = 0; i < F_MAX_CLIENTS; i++) {
             if (m_aClients[i].IsFree()) {
                 idNew = m_ulNextId++;

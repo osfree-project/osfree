@@ -1282,6 +1282,8 @@ BOOL APIENTRY GpiQueryArcParams(HPS, PARCPARAMS);
     #define CLR_WHITE          0L
   #endif
 
+  #define PMERR_INVALID_HAB                   0x104A
+
 #ifdef __cplusplus
   }
 #endif

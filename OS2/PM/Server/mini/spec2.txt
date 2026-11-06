@@ -1,0 +1,452 @@
+﻿# Спецификация архитектуры мини-сервера FreePM
+
+## 1. Роль сервера в системе
+
+**FreePM — распределённая реализация Presentation Manager.** Приложение, слинкованное с PMMERGE/PMGPI, работает через локальные клиентские DLL; фактическое состояние PM и рендеринг выполняются в отдельном процессе `PMSERVER.EXE`.
+
+| Сторона | Компонент | Роль |
+|---|---|---|
+| Клиент | Приложение | вызывает `Gpi*`/`Win*` |
+| Клиент | PMMERGE.DLL | прокси `Win*`, `WndProc`-прокси, `WinInitialize` |
+| Клиент | PMGPI.DLL | прокси `Gpi*` |
+| Клиент | PMCLIENT.DLL | keepalive, reconnect, wire-транспорт |
+| Транспорт | PMTCP.DLL | TCP `startServerThreads`/`Recv`/`Send` |
+| **Сервер** | **PMSERVER.EXE** | **авторитетное состояние PM: сессии, HAB, PS, WND/MQ/DC (Phase 4+), GOCA-поток, рендеринг** |
+
+**Ключевой архитектурный принцип:** сервер — **единственный авторитетный владелец** состояния PM. Клиент хранит только opaque-хэндлы (`HAB`, `HPS`, `HWND`), выданные сервером, и передаёт их как аргументы. Никакого клиентского PS, WND, MQ в мини-сервере нет.
+
+**Сервер — не библиотека и не встраиваемый модуль.** Это отдельный процесс с собственным жизненным циклом (см. §5.1), запускаемый клиентом по требованию.
+
+---
+
+## 2. Компоненты сервера
+
+### 2.1. Слои
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│ Слой 1: Транспорт (внешний)                                        │
+│   PMTCP.dll — startServerThreads(handler, disc_cb), Recv, Send     │
+│   per-connection thread → handler(recvobj, cmd, data, threadNum)    │
+├────────────────────────────────────────────────────────────────────┤
+│ Слой 2: Сессии и маршрутизация (Fs_Server)                          │
+│   HandleCommand: классификация ncmd, поиск/создание сессии,        │
+│   диспетчеризация по классу, отправка ответа                       │
+├────────────────────────────────────────────────────────────────────┤
+│ Слой 3: Реестры состояния                                          │
+│   Fs_ClientList  (сессии,  F_MAX_CLIENTS)                          │
+│   Fs_HabList     (HAB,      F_MAX_HABS)                            │
+│   g_psTable[]    (PS,       GPI_MAX_PS)                            │
+│   [Phase 4] Fs_WndList, [Phase K] Fs_DcList, [Phase 4] Fs_Queue    │
+├────────────────────────────────────────────────────────────────────┤
+│ Слой 4: Диспетчеризация API                                        │
+│   DispatchGpi        (NGpi*)  → GOCA emit / GpiPs* / SrvDeliver    │
+│   DispatchWin<Dom>   (NWin*)  → Fs_Hab*/Fs_Wnd* (Phase 2/4)        │
+│   HandleCoreCommand  (CORE)   → DB_PRINT, FATAL, GET_HPS (stub)    │
+├────────────────────────────────────────────────────────────────────┤
+│ Слой 5: GOCA                                                       │
+│   goca_emit_*  : order → bytes                                     │
+│   goca_parser  : bytes → Gre*                                      │
+│   goca_common  : GOCA_CTX, format, GocaPut*/Get*, GocaOrderLength  │
+├────────────────────────────────────────────────────────────────────┤
+│ Слой 6: GRE (внешний, сейчас — заглушки)                           │
+│   Gre32EntryN → реальный GRE / эмуляция                            │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+### 2.2. Ответственности
+
+| Компонент | Отвечает за | **Не** отвечает за |
+|---|---|---|
+| **Fs_Server** | маршрутизация `ncmd`, wire-I/O, отправку ответа, `MonitorLoop` | содержимое сессий/HAB/PS, GOCA |
+| **Fs_ClientList** | реестр сессий, таймауты, переходы состояний | HAB, PS, WND |
+| **Fs_HabList** | реестр HAB, монотонные `iHab`, каскадное уничтожение | PS, WND (только `GpiPsDestroyByHab`) |
+| **DispatchGpi** | трансляция NGpi* → GOCA emit/parse, `GpiPs*`, `SrvDeliver` | wire, сессии, HAB |
+| **DispatchWin\<Domain\>** | трансляция NWin* → операции над Fs_Hab/Fs_Wnd (Phase 2/4) | wire, GOCA |
+| **GPI_PS + GpiPs\*** | состояние одного PS: GOCA-поток, сегменты, элементы, пути | рендеринг |
+| **GocaEmit\*** | кодирование GOCA-ордеров | состояние PS |
+| **GocaParseStream** | декодирование GOCA-ордеров и вызов `Gre*` | состояние PS (обновляет persistent registers) |
+| **gre.cpp** | `Gre32EntryN` для линковки | реальный рендеринг (stub) |
+
+### 2.3. Границы
+
+**Client / Server:** wire-протокол (см. §3). Клиент не знает про `Fs_Hab`, `GPI_PS`, `GOCA_CTX`, `Gre*`. Сервер не знает про `PMMERGE`, `PmcSendCommand`.
+
+**Server / GRE:** контракт `Gre*` (см. §7). Сервер не знает про устройство вывода; GRE не знает про GOCA-поток, сегменты, элементы.
+
+**GPI / WIN:** оба класса принимают wire-команды в `Fs_Server`, но диспетчеризуются в разные функции. Между собой не пересекаются, кроме `GPI_PS::m_hHab` (back-ref).
+
+---
+
+## 3. Wire-протокол
+
+### 3.1. Формат команды
+
+Один вызов — фиксированный заголовок + опциональный payload:
+
+```
+PmcPostCommand(cmd, data):
+    cmd  : ULONG — F_CMD_MAKE(class, opcode)
+    data : ULONG — «primary argument» (класс-специфично)
+PmcSendData(&cbArgs, 4):
+    cbArgs : ULONG — размер payload
+PmcSendData(args, cbArgs):
+    args : bytes
+```
+
+**Контракт `data`** (primary argument):
+
+| Класс | `data` |
+|---|---|
+| CORE (lifecycle) | — (0) |
+| CORE (RECONNECT) | `idClient` |
+| CORE (DB_PRINT/FATAL) | — |
+| GPI | `hps` (opaque) |
+| WIN (HAB) | `flOptions` (NWinInitialize), `iHab` (NWinTerminate/GetLastError) |
+| WIN (Phase 4) | `HWND`/`HMQ`/`HPS` — в зависимости от функции |
+| GORDER | `hps` (не реализовано) |
+
+### 3.2. Классы команд
+
+| Класс | Значение | Opcode | Диспетчер | Реализация |
+|---|---|---|---|---|
+| CORE | `0x0000` | исторический (0x0000–0x00FF) | `HandleCommand` / `HandleCoreCommand` | частично |
+| GPI | `0x0001` | `NGpi*` (gpi_wire.h, 0x01–0x0123) | `HandleGpiCall` → `DispatchGpi` | ~50 NGpi* + ~150 stub |
+| GORDER | `0x0002` | `OCODE_*` (pmord.h) | — | не реализовано |
+| WIN | `0x0003` | `NWin*` (win_wire.h, 0x01–0x01A6), `NDax*` (0x01B0–0x01B8) | `HandleWinCall` → `DispatchWin<Domain>` | 5 NWin*, 19 пустых доменов |
+| GL* | `0x0010+` | — | — | не реализовано |
+
+### 3.3. Формат ответа
+
+```
+FPM_RESP_HEADER:
+    ulStatus    : ULONG — 0 = ok, !=0 = транспорт/ошибка
+    ulResult    : ULONG — LONG/BOOL/HANDLE
+    cbPayload   : ULONG — размер payload
+    ulLastError : ULONG — PMERR_* (сейчас всегда 0 — A6)
+Если cbPayload > 0:
+    payload : bytes (мутированный pArgs для Query-функций)
+```
+
+**Контракт:** `pArgs` — один буфер, логически разделённый с клиентом. Сервер может мутировать его in-place и вернуть через `cbPayload`. `cbPayload <= cbArgs`.
+
+### 3.4. Два стиля диспетчеризации
+
+**GPI:** per-function команды. `F_CMD_GPI(NGpiSetColor)` — opcode = NGpiSetColor. `hps` в `data`, аргументы в payload. Никакого общего `F_CMD_GPI_DISPATCH` — класс-маска делает работу.
+
+**WIN:** тот же паттерн. `F_CMD_WIN(NWinInitialize)` и т.д. HAB-lifecycle (5 функций) — в классе WIN, **не** в CORE. Это выбор архитектуры: HAB — часть Win* API, а не session management (который в CORE — `CLIENT_CONNECT/EXIT/PING`).
+
+### 3.5. CORE-команды (session management и диагностика)
+
+| Команда | cmd | data | Формат ответа |
+|---|---|---|---|
+| CLIENT_CONNECT | `F_CMD_CORE(0x0004)` | — | `FPM_RESP_HEADER` + `F_CLIENTCONFIG` |
+| CLIENT_RECONNECT | `F_CMD_CORE(0x0005)` | `idClient` | `FPM_RESP_HEADER` + `F_CLIENTCONFIG` |
+| CLIENT_PING | `F_CMD_CORE(0x0006)` | — | нет (`Touch` + тишина) |
+| CLIENT_EXIT | `F_CMD_CORE(0x0000)` | — | нет (`Shutdown`) |
+| GET_HPS | `F_CMD_CORE(0x0040)` | `hwnd` | `HPS` (stub = 1) |
+| RELEASE_HPS | `F_CMD_CORE(0x0041)` | `hps` | `int` (0) |
+| DB_PRINT | `F_CMD_CORE(0x0064)` | — | payload: строка; ответа нет |
+| FATAL_COMMON | `F_CMD_CORE(0x0065)` | — | payload: строка; ответа нет |
+
+**Удалённые:** `F_CMD_GET_IHAB` — заменён на `F_CMD_WIN(NWinInitialize)`.
+
+---
+
+## 4. Модель состояния
+
+### 4.1. Реестры и владение
+
+```
+Fs_Server
+├── m_clients  : Fs_ClientList
+│                └── Fs_ClientConnection[N]
+│                    ├── m_state       Free | Active | Detached
+│                    ├── m_idClient    монотонный
+│                    ├── m_pRecvobj
+│                    └── таймстемпы
+│
+├── m_habs     : Fs_HabList
+│                └── Fs_Hab[N]
+│                    ├── m_iHab        монотонный, уникальный, не переиспользуется
+│                    ├── m_idClient    ← семантический владелец
+│                    └── m_lastError
+│
+└── g_psTable  : GPI_PS[N]  (глобал в dispatch.cpp)
+                 ├── m_hHab          ← back-ref, не владение
+                 ├── goca            persistent registers
+                 └── pbGoca/cbGoca   GOCA-поток
+```
+
+### 4.2. Три уровня владения
+
+| Уровень | Кто | Что |
+|---|---|---|
+| Физическая память | сервер (массивы в `Fs_*List`/`g_psTable`) | содержимое слотов |
+| Семантическое владение | сессия (`idClient`) → HAB (`iHab`) | право ссылаться + обязанность освободить |
+| Транспорт | соединение (`recvobj`) | сокет; может смениться при reconnect |
+
+**Главный инвариант:** `Fs_ClientConnection` **не владеет** ни `Fs_Hab`, ни `GPI_PS`, ни `Fs_WND`. Связь — только через back-refs (`idClient`, `iHab`, `m_hHab`). Это позволяет сессии пережить reconnect без трогания ресурсов.
+
+### 4.3. Back-refs
+
+- `GPI_PS::m_hHab` — ссылка на `Fs_Hab`. Нужна для `GpiPsDestroyByHab` (каскадная очистка при `Destroy`/`DestroyAll`) и (P2) для `pHab->SetLastError`.
+- Phase 4: `Fs_WND::m_hHab` — то же для окон.
+- Phase K: `Fs_DC::m_hHab` — то же для DC.
+
+Back-ref — не ownership. PS/WND/DC живут в своих реестрах; `Fs_Hab` их не удаляет самостоятельно, но `Fs_HabList::Destroy` вызывает каскадные функции (`GpiPsDestroyByHab`, Phase 4 — WND/Queue/Class) для аварийной очистки.
+
+### 4.4. Идентификаторы
+
+| Идентификатор | Где | Тип | Монотонный | Уникальность |
+|---|---|---|---|---|
+| `idClient` | `Fs_ClientConnection::m_idClient` | ULONG | да (`m_ulNextId++`) | в пределах процесса, никогда не переиспользуется |
+| `iHab` | `Fs_Hab::m_iHab` | ULONG | да (`m_ulNextHab++`) | то же |
+| `hps` | `GPI_PS::hps` | HPS = указатель на слот | — (адрес) | пока слот занят |
+| `recvobj` | `Fs_ClientConnection::m_pRecvobj` | void* | — | транспортный |
+| `threadNum` | аргумент `handler` | int | — | номер серверного потока PMTCP |
+
+**`threadNum` — не HAB и не идентификатор клиента.** Это номер серверного потока PMTCP, обслуживающего соединение. Клиентский поток сервер не видит.
+
+---
+
+## 5. Жизненные циклы
+
+### 5.1. Сервер (процесс `PMSERVER.EXE`)
+
+**On-demand запуск:**
+
+```
+Клиент (PMMERGE) стартует
+  → PMC_ServerInit: DosLoadModule(PMTCP), resolve ordinals 1,2,4-8
+  → LocalServerRunning(): DosOpenMutexSem(FREEPM_MUTEX_NAME)
+       — есть → сервер уже работает
+       — нет  → ExecuteFreePMServer() (DosExecPgm "PMSERVER.EXE")
+                DosSleep(1000)
+  → pfnInitServerConnection()
+  → PMC_ClientConnect(): F_CMD_CLIENT_CONNECT → F_CLIENTCONFIG
+```
+
+**Presence-маркер:** mutex `FREEPM_MUTEX_NAME`. Создаётся в `pmserver.cpp::main` (`DosCreateMutexSem`), освобождается в `atexit(CleanupServer)`. **Presence = «mutex существует», не «mutex свободен».**
+
+**Завершение:** `MonitorLoop` (в отдельном потоке) → после `m_fEverHadClient && nActive == 0` → `exit(0)` → `atexit` → `DosCloseMutexSem` → следующий клиент запустит `PMSERVER.EXE` заново.
+
+**Сигналы:** `SIGINT`/`SIGTERM` → `CleanupServer` + `exit(1)`. `SIGSEGV`/`SIGFPE`/`SIGABRT` не обрабатываются.
+
+**Идентичность:** сервер — **отдельный процесс**, не встраиваемый модуль. `exit(0)` из monitor thread — часть архитектуры on-demand lifecycle, не дефект.
+
+### 5.2. Сессия (`Fs_ClientConnection`)
+
+```
+                 CONNECT
+StateFree ─────────────────► StateActive
+                                │
+                                │ DISCONNECT (pm_disconnect)
+                                ▼
+                            StateDetached ── RECONNECT ──► StateActive
+                                │
+                                │ grace expiry
+                                ▼
+                            StateFree ── ExitOrGrace() ──► (unused)
+
+Также: StateActive ── EXIT ──► StateFree
+       StateActive ── grace expiry ──► StateFree
+```
+
+| Событие | Действие |
+|---|---|
+| CONNECT | `FindByRecvobj` (reject при существующем ACTIVE) → `GetOrCreate` → `SendClientConfig` |
+| DISCONNECT (от PMTCP `disc_cb`) | `ToDetached(now)` |
+| RECONNECT | `FindByIdClient`; reject если ACTIVE или не найден; `ToActive(recvobj, now)` |
+| PING | `Touch` |
+| EXIT | `Shutdown()` (сейчас); **должно быть** `DestroyAll(idClient)` + `Shutdown` (2d) |
+| grace expiry (`Expire`) | `Shutdown()` (сейчас); **должно быть** `DestroyAll(idClient)` + `Shutdown` (2c/2d) |
+
+### 5.3. HAB (`Fs_Hab`)
+
+```
+Create(idClient) → Free→Used (iHab = m_ulNextHab++)
+  ├── NWinTerminate(iHab) → Destroy(iHab)
+  │     ├── GpiPsDestroyByHab(iHab)
+  │     ├── [Phase 4] destroy Queue, ClassList
+  │     └── Shutdown()
+  │
+  ├── CLIENT_EXIT → DestroyAll(idClient)   [pending 2d]
+  └── grace expiry → DestroyAll(idClient)  [pending 2d]
+```
+
+**Инварианты:**
+- `iHab` монотонный, **не переиспользуется**.
+- `FindByIHab(0)` = NULL, `Create(0, _)` = NULL.
+- `DestroyAll(idClient)` очищает все HAB-ы сессии; если `idClient == 0` — no-op.
+
+### 5.4. PS (`GPI_PS`)
+
+```
+NGpiCreatePS(hab, hdc, szl, flOptions)
+  → GpiPsCreate(NULL, flOptions)
+  → m_hHab = hab (не валидируется — T8)
+  → szlPS = szl
+  → goca.hdc = NULL (N4: был бы (HDC)hps)
+
+NGpiAssociate(hdc)  [Phase K]
+  → goca.hdc = hdc
+
+NGpiDestroyPS
+  → GpiPsDestroy (DosFreeMem(pbGoca), memset)
+
+GpiPsDestroyByHab(hHab)  — при Destroy HAB
+  → для всех GPI_PS с m_hHab == hHab → GpiPsDestroy
+```
+
+### 5.5. Рендеринг (GPI: DM_DRAW / DM_RETAIN / DM_DRAWANDRETAIN)
+
+**DM_DRAW (нет открытого сегмента):**
+`Gpi*` → `GocaEmit*` → `SrvDeliver` → `SrvParseOrder` → `GocaParseStream` → `Gre*`.
+
+**DM_RETAIN (сегмент открыт):**
+`Gpi*` → `GocaEmit*` → `SrvDeliver` → `GpiPsGocaAppend` (в `pbGoca`). **GRE не вызывается. Persistent registers `goca.lb/cb/mb/ab` не обновляются.**
+
+**DM_DRAWANDRETAIN:** и append, и parse. Регистры обновляются через parse.
+
+**Unchained open segment** (нет `ATTR_CHAINED` в `ulInitialSegAttrs`) — force DM_RETAIN, даже если клиент выставил DM_DRAW/DM_DRAWANDRETAIN.
+
+**Сегменты:** `NGpiOpenSegment` → GBSEG в `pbGoca` → `uOpenSegStart`; `NGpiCloseSegment` → `lOpenSeg = 0`.
+
+**Элементы:** `NGpiBeginElement` → GBEL; примитивы внутри — append; `NGpiEndElement` → GEEL → re-pack в `SrvGocaInsertElement` (элемент = единый блок для `lCurrentElement`).
+
+**Пути:** `lOpenPath`, `bPathDefined` — конечный автомат (см. Часть XII предыдущей спецификации).
+
+### 5.6. Keepalive / reconnect / shutdown (клиентская сторона)
+
+**Keepalive:** поток `KeepaliveProc`, `pingSec = max(ulInactive/2, 5)`, `F_CMD_CLIENT_PING(idClient)`. При ошибке — `OnTransportError()`.
+
+**Reconnect:** поток `ReconnectThreadProc`, окно `ulGrace`, интервал `max(ulGrace/3, 1)`, `_InitServerConnection` + `F_CMD_CLIENT_RECONNECT(idClient)`. Если `cfg.idClient == idClient` — resume; иначе — `pfnCloseServerConnection`, retry. После `deadline` — session lost.
+
+**Shutdown:** `PMC_ShutdownCallback` вызывается из PMTCP `DllMain(DETACH)`. `atexit` **не** используется (LIFO DETACH: PMTCP раньше PMCLIENT, `pfnSendCmdToServer` указал бы на освобождённый код).
+
+---
+
+## 6. Потоки
+
+| Поток | Кто создаёт | Что делает |
+|---|---|---|
+| `main` | ОС | `pStartSrv` (PMTCP accept loop) |
+| `MonitorThreadProc` | `_beginthread` (StartMonitor) | `MonitorLoop`: `DosSleep(ulMonitorTick)`, `Expire`, `exit(0)` при `nActive == 0` |
+| `ClientThreadProc` (PMTCP) | PMTCP `_startServerThreads` | per-connection: `_F_RecvCmdFromClient` → `handler` (= `pm_handler`) |
+| `KeepaliveProc` (клиент) | PMCLIENT | PING |
+| `ReconnectThreadProc` (клиент) | PMCLIENT при transport error | reconnect |
+
+**Модель сериализации:** каждая команда от одного соединения обрабатывается в **одном** PMTCP-потоке (`ClientThreadProc`), синхронно. Пока `handler` не вернул управление, следующая команда из этого соединения не обрабатывается. Поэтому `PMERR_PS_BUSY` (PS locked by another thread) в текущей модели **невозможен**: два клиентских потока не могут одновременно дёрнуть один `hps` через один recvobj. Если появится pipelining / thread-pool на одно соединение — понадобится `m_bBusy` на `GPI_PS`.
+
+**Реентерабельность:** `GocaParseStream` вызывает `Gre*`, которые (stub) не реентерабельны. При реальном GRE — нужна проверка `hdc`/PS.
+
+---
+
+## 7. Контракты между слоями
+
+### 7.1. PMTCP → Fs_Server
+
+**Контракт:** `handler(recvobj, ncmd, data, threadNum)` вызывается для каждой wire-команды. `recvobj` — opaque. `ncmd` — `F_CMD_MAKE(class, opcode)`. `data` — primary argument.
+
+**`disc_cb(recvobj)`** вызывается PMTCP-потоком при разрыве до `Close()/delete(pClient)`. `Fs_Server::HandleDisconnect` — `ToDetached`.
+
+**Wire-контракт:**
+- `m_pfnRecv(pRecvobj, &cbArgs, &len, 4)` → `cbArgs`
+- `m_pfnRecv(pRecvobj, pArgs, &len, cbArgs)` → payload
+- `m_pfnSend(pRecvobj, &resp, 16)` → `FPM_RESP_HEADER`
+- `m_pfnSend(pRecvobj, pArgs, cbPayload)` → payload
+
+### 7.2. Fs_Server → DispatchGpi
+
+```c
+ULONG DispatchGpi(HPS hps, ULONG fnCode, PBYTE pArgs, ULONG cbArgs,
+                  PULONG pcbPayload);
+```
+
+**Контракт:**
+- `hps` — opaque; не валидируется внутри (каждый case делает `GpiPsFind/Get`).
+- `pArgs` — payload; при `cbArgs == 0` может быть NULL.
+- `pcbPayload` — out: размер мутированного payload (0 = нет payload в ответе).
+- Возврат — `GPI_ERROR` (0), `GPI_OK` (1) или `(ULONG)pointer` для `CreatePS`.
+
+**DispatchGpi не знает про HAB.** `pHab->SetLastError` — задача `HandleGpiCall` (P2).
+
+### 7.3. Fs_Server → DispatchWin\<Domain\>
+
+```c
+ULONG DispatchWinHab(Fs_HabList *pHabs, ULONG idClient,
+                     ULONG fnCode, ULONG data,
+                     PBYTE pArgs, ULONG cbArgs, PULONG pcbPayload);
+ULONG DispatchWinWnd(Fs_WndList *pWnds, ULONG fnCode, ULONG data, ...);
+/* ... */
+```
+
+**Контракт:** домены **независимы**; каждый получает только те реестры, которые нужны. Это **правильно** — `DispatchWinHab` не тянет `Fs_WndList`, `DispatchWinWnd` не тянет `Fs_HabList`. Общий `Fs_WinContext` избыточен (убрано).
+
+### 7.4. GPI / GOCA / GRE
+
+**GPI → GOCA (emit):** `GocaEmit*(&ps->goca, buf, cb, args)`. Возвращает `len >= 0` или `GPI_ALTERROR`. **Не обновляет** `ps->goca.lb/cb/mb/ab`.
+
+**GPI → GOCA (parse):** `SrvParseOrder(ps, p, cb)` → `ps->goca.pbStream = p; cbStream = cb; GocaParseStream(&ps->goca)`. `GocaParseStream` **обновляет** persistent registers и `lError`.
+
+**GOCA → GRE:** `Gre*` через `<pmddim.h>` (макросы → `Gre32EntryN`). Парсер передаёт `c->hdc`. При `hdc == NULL` — GRE вернёт ошибку; парсер не проверяет.
+
+**Контракт постоянный:** GOCA — единственное место, где обновляются registers. GPI-слой читает их через `GocaEmit*` (для нового ордера) или через `GpiQuery*` (Step M).
+
+---
+
+## 8. Инварианты
+
+**I1.** Каждый `recvobj` имеет не более одной ACTIVE-сессии.
+**I2.** `idClient` монотонный, уникальный в процессе, никогда не переиспользуется.
+**I3.** `iHab` монотонный, уникальный в процессе, никогда не переиспользуется.
+**I4.** `Fs_ClientConnection` не владеет HAB/PS/WND/DC.
+**I5.** `Fs_Hab` не владеет PS/WND/DC; только back-ref через `m_hHab`.
+**I6.** `GPI_PS::m_hHab` ссылается на валидный HAB (или 0 при `NGpiCreatePS(NULL, ...)` — T8 валидация pending).
+**I7.** Reconnect в пределах `ulGrace` не трогает HAB/PS/WND.
+**I8.** `m_iHab`/`idClient` монотонные → orphaned HAB/PS (без `DestroyAll`) не переиспользуются.
+**I9.** `F_CMD_CLASS_WIN` не маршрутизируется в текущем коде — команды WIN попадают в CORE default (echo). До 2d — неработоспособно.
+**I10.** `F_CMD_CLASS_GPI` диспетчеризуется per-function через `DispatchGpi`; `F_CMD_GPI_DISPATCH` отсутствует и не нужен.
+**I11.** `GOCA_CTX` — единственное место persistent registers; `GocaEmit*` не обновляет; `GocaParseStream` обновляет.
+**I12.** `ulStopDraw == SDW_ON` подавляет drawing (не реализовано — баг #4).
+**I13.** `DCTL_DYNAMIC == DCTL_OFF` подавляет dynamic drawing (не реализовано — баг #5).
+
+---
+
+## 9. Открытые архитектурные вопросы
+
+| # | Вопрос | Статус |
+|---|---|---|
+| Q1 | Маршрутизация `F_CMD_CLASS_WIN` в `HandleCommand` | pending 2d |
+| Q2 | `DestroyAll(idClient)` при EXIT/grace | pending 2c/2d |
+| Q3 | `pHab->SetLastError` из `GPI_ERROR` (P2) | pending |
+| Q4 | `INCL_WIN`/`pmerr.h` для `PMERR_INVALID_HAB` (E029) | блокер |
+| Q5 | `win_wire.h` E121/1254/1257 — точная причина | блокер, нужен текст строк |
+| Q6 | `SetConfig` не вызывается — runtime-тюнинг не подключён | известное ограничение |
+| Q7 | Micro-запреты (`ulPSType`, `GPIT_MICRO/NORMAL`) | Step K |
+| Q8 | `F_CMD_GET_HPS` stub `(HPS)1` | Phase 4 (заменить на `NWinGetPS`) |
+| Q9 | Reaper для orphaned HAB/PS при отсутствии `DestroyAll` | временно: монотонные id, лимиты `F_MAX_HABS=128`/`GPI_MAX_PS=64` |
+| Q10 | `DaxOpenClipbrd(HWND)` vs `WinOpenClipbrd(HAB)` — реальная сигнатура | Q9 из старой спеки |
+| Q11 | `LookupAtom` — реальная сигнатура, нужен ли на wire | Q10 |
+
+---
+
+## 10. Границы применимости
+
+**Мини-сервер реализует серверную часть распределённой PM-архитектуры FreePM.** Подсистемы: GPI (GOCA), WIN (HAB сейчас, WND/MQ/DC — Phase 4/K).
+
+**Не реализовано и не планируется в текущем дизайне:**
+- Клиентский PS (модель «толстый клиент» — отложена в spec.txt, после P8).
+- GORDER-класс (P8).
+- Реальный GRE (P5–P7).
+- Встраивание сервера в чужой процесс (`exit(0)` — часть on-demand lifecycle).
+
+**Зависимости от окружения:**
+- PMTCP — транспорт (внешний DLL).
+- `<os2.h>` (OS/2) / Win32-эмуляция через `F_platform.h`.
+- Реальный GRE (или заглушки `gre.cpp`).
+
+---
+
+Это архитектурная спецификация. Фактическое состояние реализации (что сделано, что нет, какие баги) — отдельный документ, к этой спецификации не относится.

@@ -19,6 +19,7 @@
 #include "F_platform.h"
 #include "Fs_config.hpp"
 #include "Fs_client.hpp"
+#include "Fs_hab.hpp"
 #include "F_cmd.h"
 
 /* Wire function types.
@@ -81,8 +82,9 @@ private:
     void HandleClientPing(Fs_ClientConnection *pConn);
 
     /* Dispatch */
-    void HandleGpiCall(void *pRecvobj, ULONG fnCode, HPS hps);
-    void HandleCoreCommand(Fs_ClientConnection *pConn, int ncmd, int data);
+    void HandleGpiCall(Fs_ClientConnection *pConn, ULONG fnCode, ULONG data);
+    void HandleWinCall(Fs_ClientConnection *pConn, ULONG fnCode, ULONG data);
+    void HandleCoreCommand(Fs_ClientConnection *pConn, ULONG ncmd, ULONG data);
 
     /* Response helpers */
     void SendClientConfig(void *pRecvobj, Fs_ClientConnection *pConn);
@@ -93,6 +95,7 @@ private:
     static void MonitorThreadFn(void *param);
 
     Fs_ClientList    m_clients;
+    Fs_HabList       m_habs;
     Fs_ServerConfig  m_cfg;
     Fs_PfnRecv       m_pfnRecv;
     Fs_PfnSend       m_pfnSend;

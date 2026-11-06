@@ -861,6 +861,9 @@ ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
             DISPATCH_RETURN(GPI_ERROR);
         }
 
+        ps->m_hHab = (ULONG)a->hab;
+        ps->szlPS  = a->psizlSize;
+
         F_DbgCtxExitf(ctx, "size={%ld,%ld}, flOptions=0x%lx -> %p",
                       (long)a->psizlSize.cx, (long)a->psizlSize.cy,
                       (unsigned long)a->flOptions, (void*)ps);
