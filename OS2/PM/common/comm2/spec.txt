@@ -1,0 +1,562 @@
+```markdown
+# ТЗ: транспортный слой (`F_Link`) / PMCLIENT per-thread модель и архитектура
+
+Версия: согласована по итогам обсуждения переименования, per-thread перехода, контрактов и стратегии тестирования. Транспортный слой собран (`pmtcp`, `pmpipe`, `pmque`, `pmshm`). PMCLIENT — следующий шаг.
+
+---
+
+## Часть I. Архитектурные принципы
+
+### I.1. Слои и граница клиент/сервер
+
+```
+Application (клиент)               Application (сервер: реализация PM)
+   │                                   │
+   ▼                                   ▼
+── L6 Wire ─────────────────────────────────────────────
+PMGPI/PMMERGE (marshaling)      Fs_Server::HandleGpiCall/WinCall
+   │                            + SendHeader (decode/encode)
+   ▼                               ▲
+── L5 Session ───────────────────────────────────────────
+PMCLIENT                         Fs_Server (routing)
+  aConns[tid], keepalive,          Fs_Process / Fs_Thread / Fs_Hab
+  reconnect                        MonitorLoop (grace expiry)
+   │                               ▲
+   ▼                               │
+── L4 Transport ─────────────────────────────────────────
+Fc_Trn* (shared + backend)      Fs_Trn* (shared + backend)
+   │                               ▲
+   └──── F_Link ─┬─ TcpLink         │
+                 ├─ PipeLink        │
+                 ├─ QueueLink       │
+                 └─ ShmLink ────────┘
+                 (one backend per DLL)
+```
+
+**Граница клиент/сервер** проходит по L4/L3 (транспорт). L4–L6 **симметричны** по структуре (тонкие на обеих сторонах). L7 **асимметричен**: клиент — внешнее приложение (не наш код), сервер — реализация PM (dispatch, GOCA, GRE, HAB state).
+
+**L4 — абстрактный транспорт.** Публичный API (`Fc_Trn*`/`Fs_Trn*`) одинаков для всех транспортов. Конкретный транспорт (`TcpLink`, `PipeLink`, `QueueLink`, `ShmLink`) спрятан за абстракцией `F_Link` и выбирается загрузкой соответствующего backend-DLL. См. Часть III.
+
+**GOCA не является сетевым слоем.** В текущей модели (NGpi) GOCA живёт только на сервере, внутри `pbGoca` (PS state). На wire не уходит. В модели A (фаза 6.5) GOCA уйдёт на wire как `F_CMD_PUT_ORDERS`, но NGpi останется для DRAW-режима — L6 станет диспетчером по формату (GOCA / NGpi / WIN / CORE).
+
+OSI-терминология в рабочих документах **не используется** — она неточно описывает client-server (не peer-to-peer) и путает «Presentation» (PMGUI) с OSI-L6.
+
+### I.2. Per-thread модель
+
+| Сущность | Где | Ключ | Владелец |
+|---|---|---|---|
+| **Транспортное соединение** | обе стороны | `obj` (opaque) | backend DLL (`F_Link` instance) |
+| **Клиентский поток** | клиент | `tid` (thread id) | PMCLIENT (`aConns[tid]`) |
+| **Серверный поток** | сервер | `pClient` (opaque, = `obj`) | backend `Fs_ClientThreadProc` |
+| **Сессия сервера** | сервер | `idClient` (монотонный) | `Fs_Process` |
+| **HAB** | сервер | `iHab` (монотонный) | `Fs_Hab` |
+| **Клиентский TID в сессии** | сервер | `(idClient, tid)` | `Fs_Thread` |
+
+**Один клиентский поток ↔ одно транспортное соединение ↔ один серверный `Fs_ClientThreadProc` ↔ один `Fs_Thread`.** Не более.
+
+`idClient` — process-wide (сессия процесса). `(idClient, tid)` — ключ HAB. `iHab` — монотонный, уникальный на сервере.
+
+### I.3. Что убрано
+
+| Убрано | Почему |
+|---|---|
+| `F_CMD_CLIENT_CONNECT` / `F_CMD_CLIENT_EXIT` | Первое, что делает поток — `WinInitialize`; сессия умирает, когда умирает последний HAB |
+| `CONNECT` handshake в PMCLIENT | Заменён на первый `NWinInitialize` (bootstrap) |
+| `EXIT` в DETACH | PMCLIENT закрывает транспорт через `Fc_TrnDisconnect`, сервер сам решает, когда убить сессию |
+| `DllMain` / `_DLL_InitTerm` в backend | WSA в DETACH уже может быть выгружен; клиент делает явный disconnect |
+| `pF_pipe` / `g_shutdownCb` в backend | PMCLIENT — единственный держатель `obj` |
+| `Fs_Session` / `Fs_SessionList` | Сессия — агрегат (`idClient`), а не сущность |
+
+---
+
+## Часть II. Соглашение об именах
+
+### II.1. Схема префиксов
+
+| Префикс | Значение |
+|---|---|
+| **`Fc_`** | Клиент (client) — код, исполняемый в клиентском процессе |
+| **`Fs_`** | Сервер (server) — код, исполняемый в серверном процессе |
+| **`F_`** | Общий (common) — код на обеих сторонах (debug, config, wire headers) |
+
+Префикс — **горизонтальное** деление (где живёт код). Не путать со слоями (L4/L5/L6) — `Fc_` есть на L4 (`Fc_Trn*`) и L5 (`Fc_Ses*`).
+
+### II.2. Квалификатор слоя
+
+| Квалификатор | Слой | Пример |
+|---|---|---|
+| **`Trn`** | Transport (L4) | `Fc_TrnConnect`, `Fs_TrnRunListener` |
+| **`Ses`** | Session (L5) | `Fc_SesBeginThread`, `Fc_SesPostCommand` |
+| (нет) | Common / cross-cutting | `F_DbgPrint`, `F_DbgCtxEnterf` |
+
+Серверная сессия (`Fs_Process`, `Fs_Thread`, `Fs_Hab`, `Fs_Server`) — **C++ классы**, не функции. Префикс `Fs_Ses` к ним не применяется (методы класса имеют собственные имена). Асимметрия клиент/сервер — намеренная: клиентская сессия — DLL-экспорты (`Fc_Ses*`), серверная — классы внутри EXE.
+
+### II.3. Глаголы (PM queue convention)
+
+| Глагол | Семантика | PM-прецедент |
+|---|---|---|
+| **`Post`** | Асинхронная запись, без ожидания ответа | `WinPostMsg` |
+| **`Send`** | Запись + ожидание ответа (sync) | `WinSendMsg` |
+| **`Get`** | Блокирующее чтение | `WinGetMsg` |
+| **`Connect` / `Disconnect`** | Управление соединением | `DosConnectNPipe` / `DosDisConnectNPipe` |
+| **`Run`** | Запуск цикла (accept-loop, не возвращает) | `WinStartTimer` (семантически близко) |
+
+**Консистентность обязательна.** `Post` = async, `Send` = sync, `Get` = read — на обоих слоях (Trn и Ses). Нарушение — баг именования.
+
+### II.4. Квалификаторы Verb+Noun
+
+Каждое имя = `Fc_`/`Fs_` + [`Trn_`/`Ses_`] + Verb + Noun. Пример:
+- `Fc_TrnPostCommand` — client, transport, async write, command
+- `Fs_TrnGetData` — server, transport, blocking read, data
+- `Fc_SesPostData` — client, session, async write, data
+
+Без Noun — только `Connect`/`Disconnect` (транспортный словарь) и `RunListener` (без Noun в имени, но с Noun `Listener`).
+
+---
+
+## Часть III. L4 Transport — `F_Link` + backends
+
+### III.1. Схема реализации
+
+L4 — это **один публичный API** (`Fc_Trn*` / `Fs_Trn*`, 11 функций) плюс **N backend-реализаций** (по одной на транспорт). API одинаков для всех, различается только реализация `F_Link`.
+
+```
+┌────────────────────────────────────────────────────────────┐
+│                  Публичный API (11 exports)                │
+│   Fc_Trn* (клиент)              Fs_Trn* (сервер)           │
+│   ─────────────────             ─────────────────          │
+│   shared/                       shared/                    │
+│     Fc_trn.cpp   (7)              Fs_trn.cpp   (2)         │
+│   backend DLL                   backend DLL                │
+│     Fc_TrnConnect (1)             Fs_TrnRunListener (1)    │
+└─────────────────────────┬──────────────────────────────────┘
+                          │ ((F_Link *)obj)->Send/Recv/...
+                          ▼
+┌────────────────────────────────────────────────────────────┐
+│                F_Link abstract interface                   │
+│  Open / Accept / Handshake / Send / Recv / Close           │
+└─────────────────────────┬──────────────────────────────────┘
+                          │
+        ┌─────────┬───────┼─────────┬─────────┐
+        ▼         ▼       ▼         ▼         ▼
+    TcpLink   PipeLink  QueueLink  ShmLink  (future)
+    (pmtcp)   (pmpipe)  (pmque)    (pmshm)
+```
+
+**Три уровня:**
+1. **`F_Link`** — абстрактный C++ интерфейс, `F_link.hpp`. Один экземпляр = одно соединение.
+2. **Wire-ops** — `shared/*.cpp`, 9 из 11 экспортов. Работают через `F_Link*`, не знают о конкретном транспорте.
+3. **Backend** — `pmtcp/`, `pmpipe/`, `pmque/`, `pmshm/`. Каждый содержит конкретный `F_Link`-класс + 2 backend-специфичных экспорта.
+
+### III.2. Публичный API (`Fc_Trn*` / `Fs_Trn*`)
+
+#### Клиентский (`Fc_Trn*`)
+
+| Функция | Где | Семантика |
+|---|---|---|
+| `Fc_TrnConnect(char *host, ULONG *obj)` | backend | Создать соединение + handshake. `*obj = 0` при ошибке. |
+| `Fc_TrnDisconnect(void *obj)` | shared | Закрыть соединение. `NULL` → no-op. |
+| `Fc_TrnPostCommand(void *obj, int cmd, int par)` | shared | Асинхронная запись 8B (cmd+par). Не ждёт. |
+| `Fc_TrnPostData(void *obj, void *buf, int len)` | shared | Асинхронная запись N байт. Не ждёт. |
+| `Fc_TrnGetData(void *obj, void *buf, int *len, int size)` | shared | Блокирующее чтение ровно `size` байт. |
+| `Fc_TrnSendCommand(void *obj, int cmd, int par)` | shared | `PostCommand` + `GetData(4)`. Возврат — `retcode` или `(APIRET)-1`. |
+| `Fc_TrnSendCommandData(void *obj, int cmd, int par, void *buf, int len)` | shared | `PostCommand` + `PostData` + `GetData(4)`. |
+
+#### Серверный (`Fs_Trn*`)
+
+| Функция | Где | Семантика |
+|---|---|---|
+| `Fs_TrnRunListener(void *handler, void *disc_cb)` | backend | Создать listener, accept-loop, per-conn thread. **Не возвращает** (кроме setup-ошибки). |
+| `Fs_TrnGetCommand(void *obj, int *cmd, int *par)` | shared | Блокирующее чтение 8B. |
+| `Fs_TrnGetData(void *obj, void *buf, int *len, int size)` | shared | Блокирующее чтение ровно `size` байт. |
+| `Fs_TrnPostData(void *obj, void *buf, int len)` | shared | Асинхронная запись N байт. |
+
+**Раскладка 11 exports:** 9 в `shared/` (не зависят от транспорта), 2 в backend (`Fc_TrnConnect` создаёт конкретный `F_Link`; `Fs_TrnRunListener` создаёт listener конкретного типа).
+
+### III.3. Контракты
+
+**`obj`** — opaque handle, возвращённый `Fc_TrnConnect` (клиент) или переданный в `handler` (сервер). Один `obj` = одно соединение.
+
+**`NULL obj`** — все функции возвращают `PMC_ERR_BROKEN` / `(APIRET)-1` / `-1`, кроме `Fc_TrnDisconnect(NULL)` → `0` (no-op).
+
+**`*obj` при ошибке `Fc_TrnConnect`** — всегда `0`. Вызывающий может проверить `obj != 0` вместо `rc == 0` (страховка, документирована).
+
+**`datalen` / `len`** — **в байтах**, везде, без исключений. `Fc_TrnSendCommandData(..., 4)` — 4 байта. `Fc_TrnSendCommandData(..., sizeof(LONG))` — тоже 4 байта.
+
+**WSA refcount (только `TcpLink`):** Управляется в `TcpLink` ctor/dtor (`TcpWsaRef`/`TcpWsaUnref` под mutex, `WSAStartup` на 0→1, `WSACleanup` на 1→0). Остальные backends WSA не используют. Баланс 0/0 при корректном парном использовании.
+
+**Double-close:** `Fc_TrnDisconnect(obj)` дважды с одним `obj` — use-after-free. Клиентская ошибка, документировать.
+
+**Адрес (`Fc_TrnConnect`) — backend-specific.** `TcpLink` — `"host"` или `"host:port"`. `PipeLink` — `"\\PIPE\\FREEPM"` (или `NULL` для default). `QueueLink` — `"\\QUEUES\\FREEPM"`. `ShmLink` — не используется (имя региона фиксировано). PMCLIENT передаёт строку из конфига, backend парсит.
+
+### III.4. `F_Link` abstract interface
+
+`F_link.hpp` — единственный интерфейс, через который `shared/*.cpp` общается с транспортом.
+
+| Метод | Семантика |
+|---|---|
+| `Open()` | client: connect; server: create listener. Возврат 0 / -1. |
+| `Accept(F_Link**)` | server: accept, allocate new `F_Link`, вернуть через `*ppNew`. |
+| `Handshake()` | FreePM handshake. Таймаут — per-backend. Возврат 0 / `HAND_SHAKE_ERROR`. |
+| `Send(const void*, int)` | Ровно `cbData` байт. Цикл на partial, EINTR-retry (где применимо). Возврат 0 / -1. |
+| `Recv(void*, int*, int)` | Ровно `cbBuffer` байт. Цикл на partial, EINTR-retry. Peer-close → `*pcb` = прочитано, -1. |
+| `Close()` | idempotent. Возврат 0. |
+
+**`F_Link` не экспортируется.** Методы вызываются только из `shared/Fc_trn.cpp`, `shared/Fs_trn.cpp` и из `Fc_TrnConnect`/`Fs_TrnRunListener` бэкенда.
+
+### III.5. Backend реализации
+
+| Backend | Класс | Файлы | Особенности |
+|---|---|---|---|
+| `pmtcp` | `TcpLink` | `pmtcp/F_tcp.hpp`, `F_tcp.cpp` | BSD sockets. Non-blocking connect + select с таймаутом. Handshake с per-chunk таймаутом. WSA refcount в ctor/dtor. |
+| `pmpipe` | `PipeLink` | `pmpipe/F_pipe.hpp`, `F_pipe.cpp` | OS/2 named pipes (native) + Win32 эмуляция через `CreateNamedPipeA`. Byte mode (без `NP_WMESG`/`NP_RMESG`) — `Recv` работает как stream. |
+| `pmque` | `QueueLink` | `pmque/F_queue.hpp`, `F_queue.cpp` | OS/2 queues (native) + Win32 эмуляция через shared memory + semaphores. Двухфазный handshake (`HELLO`/`WELCOME`) для установления per-client очередей. |
+| `pmshm` | `ShmLink` | `pmshm/F_shm.hpp`, `F_shm.cpp` | OS/2 shared memory (native) + Win32 эмуляция через `CreateFileMappingA`. Массив слотов, каждый с двумя ring-буферами. Клиент занимает слот в `Open`, сервер `Accept` его забирает. |
+
+**Каждый backend обязан:**
+- Реализовать `class XxxLink : public F_Link` со всеми шестью виртуальными методами.
+- Экспортировать `Fc_TrnConnect(char *address, ULONG *obj)` — создаёт `new XxxLink(mode=CLIENT)`, вызывает `Open` + `Handshake`, упаковывает в `*obj`.
+- Экспортировать `Fs_TrnRunListener(void *handler, void *disc_cb)` — создаёт `new XxxLink(mode=SERVER)`, вызывает `Open`, передаёт в `Fs_RunServer`.
+
+**Что backend не содержит:** `Fc_TrnDisconnect`, `Fc_TrnPostCommand`, `Fc_TrnPostData`, `Fc_TrnGetData`, `Fc_TrnSendCommand`, `Fc_TrnSendCommandData`, `Fs_TrnGetCommand`, `Fs_TrnGetData`, `Fs_TrnPostData`. Эти 9 — из `shared/`.
+
+**Платформенные различия** (OS/2 vs Win32) полностью поглощены `F_platform.h`. Backend-код использует **только OS/2 API** (`DosCreateNPipe`, `DosWriteQueue`, `DosAllocSharedMem`, `socket`/`connect`/`send`/`recv` для TCP, `WSAStartup` для TCP). На Win32 эти API эмулируются через Win32 API в `F_platform.h`. Названия объектов (`\\PIPE\\...`, `\\QUEUES\\...`, `\\SHAREMEM\\...`) строятся в backend с учётом платформы (Win32 использует `Local\\...`).
+
+### III.6. Сборка
+
+**Одна DLL на backend.** `pmtcp.dll`, `pmpipe.dll`, `pmque.dll`, `pmshm.dll`. Каждая DLL собирается из:
+
+```
+shared/F_wire.cpp
+shared/Fc_trn.cpp
+shared/Fs_trn.cpp
+<backend>/F_<name>.cpp
+```
+
++ заголовки (`include/F_platform.h`, `include/F_link.hpp`, `include/F_wire.hpp`, `include/F_debug.h`).
+
+**Все DLL экспортируют одинаковые 11 функций по одинаковым ordinal'ам (1–11).** Список `.lnk` / `.def` identical:
+
+```
+Fc_TrnConnect.1, Fc_TrnDisconnect.2, Fc_TrnPostCommand.3,
+Fc_TrnPostData.4, Fc_TrnSendCommand.5, Fc_TrnSendCommandData.6,
+Fc_TrnGetData.7, Fs_TrnRunListener.8, Fs_TrnPostData.9,
+Fs_TrnGetCommand.10, Fs_TrnGetData.11
+```
+
+**Клиент выбирает backend** загрузкой соответствующей DLL (`Fc_SesInit` в PMCLIENT делает `DosLoadModule` по конфигу). Дальше работает через `Fc_Trn*` — API не зависит от транспорта.
+
+**Сервер выбирает backend** статически — `Fs_TrnRunListener` линкуется с конкретной DLL (`pmserver.exe` по конфигу или отдельной сборкой).
+
+---
+
+## Часть IV. PMCLIENT — сессия (`Fc_Ses*`) — план
+
+Не реализовано. Следующий этап. Имена согласованы.
+
+### IV.1. API (планируемый)
+
+| Функция | Семантика |
+|---|---|
+| `Fc_SesInit()` | `DosCreateMutexSem`, `DosLoadModule(backend)`, resolve ordinals, `FPM_config.Read`. Без CONNECT. |
+| `Fc_SesTerm()` | Обход `aConns[]`, `Fc_TrnDisconnect(obj)` для каждого. |
+| `Fc_SesBeginThread()` | `QueryThreadOrdinal` → `tid`. `Fc_TrnConnect` → `obj`. Заполнить `aConns[tid]`. |
+| `Fc_SesEndThread()` | `tid` → `obj` из `aConns`. `Fc_TrnDisconnect(obj)`. Очистить слот. |
+| `Fc_SesPostCommand(cmd, par)` | Резолв `obj` по `tid` → `Fc_TrnPostCommand`. |
+| `Fc_SesPostData(buf, len)` | Резолв `obj` по `tid` → `Fc_TrnPostData`. |
+| `Fc_SesGetData(buf, len)` | Резолв `obj` по `tid` → `Fc_TrnGetData`. |
+| `Fc_SesSendCommand(cmd, par)` | Резолв `obj` по `tid` → `Fc_TrnSendCommand`. |
+| `Fc_SesSendCommandData(cmd, par, buf, len)` | Резолв `obj` по `tid` → `Fc_TrnSendCommandData`. |
+
+### IV.2. Критичное переименование
+
+**`PmcSendData` → `Fc_SesPostData`.** В существующем `init.cpp` `PmcSendData` документирован как «async write, no wait», но назван `Send`. Это **единственное** расхождение с PM-схемой в `Pmc*`. Ломает паттерн «`Send` = sync». Затрагивает `gpi_entry.cpp`, `gpi_proxies.cpp`, `gpi_manual.cpp`, `windowmgr.cpp` (все вызовы).
+
+Без этого переименования `Fc_SesSendCommand` (sync) и `Fc_SesPostData` (async) окажутся в одной группе с противоположной семантикой.
+
+### IV.3. Хранение состояния
+
+| Глобал | Назначение |
+|---|---|
+| `g_idClient` (под мьютексом) | process-wide, `idClient` от `F_CMD_WIN(NWinInitialize)` |
+| `g_clientConfig` (под мьютексом) | `F_CLIENTCONFIG` от первого `NWinInitialize` |
+| `aConns[N]` (под мьютексом) | `{ ULONG tid; ULONG obj; int state; time_t lastActivity; }` |
+| `g_hmtxConns` | защита `aConns`, `g_idClient`, `g_clientConfig` |
+| `g_hmodBackend` | handle backend DLL, загруженного `Fc_SesInit` |
+
+`g_fConnected` / `g_fReconnecting` — **per-slot** (в `aConns[i].state`), не глобально.
+
+### IV.4. Keepalive / reconnect
+
+**Keepalive** — один фоновый thread, обходит `aConns[]`, `Fc_SesPostCommand(F_CMD_CLIENT_PING, ...)` для живых с интервалом `ulInactive / 2`.
+
+**Reconnect** — per-slot: при ошибке `Fc_TrnPostCommand`/`GetData` пометить слот broken, запустить reconnect thread для этого слота. `Fc_TrnConnect` → `Fc_SesSendCommand(F_CMD_CLIENT_RECONNECT, idClient)` → при успехе обновить `obj` в слоте.
+
+---
+
+## Часть V. Серверная сессия — классы
+
+### V.1. `Fs_Process` (per `idClient`)
+
+Владеет `Fs_Thread[]` и `Fs_Hab[]`.
+
+| Метод | Семантика |
+|---|---|
+| `Init(idClient)` | Инициализация процесса. |
+| `Shutdown()` | Уничтожение всех Thread и Hab. |
+| `FindByTid(tid)` | Thread с `m_iHab != 0` и `m_tid == tid`. |
+| `FindByConn(obj)` | Thread с `m_pConn == obj`. |
+| `FindByIHab(iHab)` | Thread, у которого `m_iHab == iHab`. |
+| `FindHabByIHab(iHab)` | Hab по `iHab`. |
+| `AddThread(tid, iHab, obj)` | |
+| `RemoveThread(tid, iHab)` | |
+| `AddHab(iHab, tid)` / `RemoveHab(iHab)` | |
+| `CountThreads()` / `CountHabs()` | |
+
+**Инварианты:** `(tid)` уникален среди Thread с `m_iHab != 0`; `(iHab)` уникален среди Hab процесса.
+
+### V.2. `Fs_Thread` (per-connection slot)
+
+| Поле | Назначение |
+|---|---|
+| `m_state` | FREE / ACTIVE / DETACHED |
+| `m_tid` | 0 до `NWinInitialize`, после — TID |
+| `m_iHab` | 0 до `NWinInitialize` и после `NWinTerminate`; иначе — back-ref |
+| `m_pConn` | opaque `obj` (совпадает с `recvobj` от backend) |
+| `m_timeLastActivity`, `m_timeDetached` | таймстемпы |
+
+`m_idClient` в `Fs_Thread` **нет** — искать через `Fs_ProcessList::FindByConn(obj)` → `Fs_Process::GetIdClient()`.
+
+### V.3. `Fs_Hab` (anchor block)
+
+| Поле | Назначение |
+|---|---|
+| `m_bUsed` | |
+| `m_iHab` | монотонный, уникальный |
+| `m_tid` | back-ref на Thread |
+| `m_lastError` | application-specific error (per-thread) |
+| Phase 4: `m_pQueue`, `m_pWndList`, `m_pClassList` | зарезервировано |
+
+`Fs_Hab` — **L7 state**, не L5. Хранит application-specific данные (error info, будущие окна, очереди). Сессия (`Fs_Thread`) хранит session state (`obj`, state, timeouts).
+
+### V.4. `Fs_ProcessList` (реестр)
+
+| Метод | Семантика |
+|---|---|
+| `Create(&idClient)` | Новый процесс, монотонный `idClient`. |
+| `FindByIdClient(idClient)` | |
+| `Destroy(idClient)` | `Process::Shutdown` + освободить слот. |
+| `FindByConn(obj)` | Thread по `obj`. |
+| `FindByTid(idClient, tid)` | Thread по `(idClient, tid)`. |
+| `FindByIHab(iHab)` | Thread по `iHab`. |
+| `FindHabByIHab(iHab)` | Hab по `iHab`. |
+| `NewProcessThreadHab(tid, obj, &idClient, &iHab)` | Bootstrap: атомарно Process + Thread + Hab. |
+| `NewThreadHab(idClient, tid, obj, &iHab)` | Второй+ поток: атомарно Thread + Hab. |
+| `DestroyThread(idClient, tid, iHab)` | `RemoveThread` + `RemoveHab`. `GpiPsDestroyByHab` вне lock. |
+| `DestroyAll(idClient)` | |
+| `Expire(now, ulInactive, ulGrace, out[], &n, max)` | Sweep таймаутов. |
+| `CountByClient(idClient)` / `CountActive()` | |
+
+`m_ulNextId`, `m_ulNextHab` — монотонные, под `m_hmtx`.
+
+### V.5. `Fs_Server`
+
+| Метод | Семантика |
+|---|---|
+| `HandleCommand(obj, cmd, par, threadNum)` | **Bootstrap `NWinInitialize` — здесь**, не в `HandleWinCall`. `RECONNECT` — тоже bootstrap. Остальное — через `FindByConn(obj)`. |
+| `HandleWinInitialize(obj, tid)` | Новый метод. Bootstrap Process+Thread+Hab или Thread+Hab. Payload — `{ clientid }`. Возврат — `iHab` + опционально `F_CLIENTCONFIG` (при `clientid == 0`). |
+| `HandleGpiCall(pThread, fnCode, data)` | GPI dispatch. |
+| `HandleWinCall(pThread, fnCode, data)` | WIN dispatch (без `NWinInitialize`). |
+| `HandleCoreCommand(pThread, ncmd, data)` | PING, RECONNECT, DB_PRINT, FATAL, GET_HPS. |
+| `HandleDisconnect(obj)` | `FindByConn(obj)` → `ToDetached(now)`. Grace истечёт в `MonitorLoop`. |
+| `MonitorLoop()` | `ProcessList::Expire`; `DestroyThread` вне lock; `m_fEverHadClient && CountActive() == 0` → exit(0). |
+
+**Атомарность bootstrap:** `NewProcessThreadHab` и `NewThreadHab` под одним `m_hmtx`. Порядок захвата: `Fs_ProcessList` (единственный мьютекс, без вложенности).
+
+---
+
+## Часть VI. Wire protocol
+
+### VI.1. Framing
+
+```
+PmcPostCommand(cmd, par):   cmd (4B) + par (4B)         = 8B header
+PmcSendData(buf, len):      buf (len B)                  = N data
+Reply (header + payload):   FPM_RESP_HEADER (16B) + payload
+```
+
+**Header всегда 8 байт**: `cmd` (ULONG) + `par` (ULONG). `cmd` = `F_CMD_MAKE(class, opcode)` (class в старших 16, opcode в младших).
+
+**`data` / `par`** — 32-битный «primary argument»: `hps` для GPI, `iHab` для `NWinTerminate`/`GetLastError`, `idClient` для `RECONNECT`, `tid` для `NWinInitialize`.
+
+### VI.2. Handshake
+
+Фиксированные 9 байт в обе стороны:
+- Client → Server: `"pIpEtEsT\0"`
+- Server → Client: `"PiPeTeSt\0"`
+
+**Чтение — ровно 9 байт.** `Recv(buf, &n, 9)`, не `Recv(buf, &n, 32)`. Ошибка «over-read» (читать 32 — съест первый cmd) — баг fix #5, устранён.
+
+### VI.3. Команды (после удаления CONNECT/EXIT)
+
+| Class | Opcode | Семантика | Bootstrap? |
+|---|---|---|---|
+| CORE | `F_CMD_CLIENT_RECONNECT` | Резюм сессии после разрыва | да |
+| CORE | `F_CMD_CLIENT_PING` | Touch | нет |
+| CORE | `F_CMD_DB_PRINT` / `F_CMD_FATAL_COMMON` | Debug | нет |
+| WIN | `NWinInitialize` | Bootstrap Process+Thread+Hab | **да** |
+| WIN | `NWinTerminate` | Destroy Thread+Hab | нет |
+| WIN | `NWinGetLastError` | Query lastError | нет |
+| GPI | `NGpi*` | GPI dispatch | нет |
+| GORDER | `OCODE_*` | GOCA passthrough (модель A, отложено) | нет |
+
+`F_CMD_CLIENT_CONNECT`, `F_CMD_CLIENT_EXIT` — **удалены**.
+
+### VI.4. `NWinInitialize` payload
+
+```
+data    = tid
+payload = { ULONG clientid }   ; 0 для первого потока процесса
+reply   = iHab (ulResult)
+        + F_CLIENTCONFIG (только если clientid == 0)
+```
+
+### VI.5. `NWinTerminate` payload
+
+```
+data    = iHab
+payload = { ULONG tid }
+reply   = ulResult = 1/0
+```
+
+### VI.6. `RECONNECT` payload
+
+```
+data    = idClient
+payload = { ULONG tid }
+reply   = F_CLIENTCONFIG (или error)
+```
+
+### VI.7. `datalen` / `len`
+
+**Байты, везде.** `Fc_TrnSendCommandData(obj, cmd, par, buf, len)` — `len` в байтах. `Fc_TrnPostData(obj, buf, len)` — `len` в байтах. Никаких `* sizeof(int)`.
+
+---
+
+## Часть VII. Стратегия тестирования
+
+### VII.1. Принцип: тестируем транспорт, а не сессию
+
+**Транспортные тесты** (`test_<backend>.exe`):
+- Собираются с конкретным backend `.cpp` + `shared/*.cpp` + headers (`F_link.hpp`, `F_wire.hpp`).
+- **Не** линкуются с `init.cpp` (PMCLIENT), `pmserver.cpp`/`dispatch.cpp`/`Fs_server.cpp`.
+- Тестируют `F_Link`-класс, `Fc_Trn*`, `Fs_Trn*` изолированно.
+
+**Что НЕ тестируется транспортными тестами:**
+- `PmcSendCommand`, `F_CMD_CLIENT_CONNECT`, `F_CMD_GPI(NGpiPolyLine)`, session state, dispatch, GOCA.
+- Это всё — сессия + сервер. Отдельные тесты.
+
+**Существующий `pmtest.cpp`** — integration test (транспорт + сессия + dispatch). Не заменяет транспортные тесты; дополняет.
+
+### VII.2. Что покрывают транспортные тесты
+
+| Группа | Покрытие |
+|---|---|
+| **A. `F_Link` unit** | ctor, Send/Recv на unconnected, Close idempotent, wrong mode |
+| **B. Round-trip** | 16B, 64K, bidirectional, split-recv, partial-then-close |
+| **C. Handshake** | ok, wrong magic, **over-read protection** (exact 9B consume) |
+| **D. `Fc_Trn*`** | PostCommand/PostData/GetData/Disconnect, NULL obj, SendCommand compound |
+| **E. `Fs_Trn*`** | GetCommand/GetData/PostData (via raw peer), NULL obj |
+| **F. Неполные кадры** | 4/8 header + close, 50/100 data + close, peer close |
+| **G. Multi-conn** | 5 одновременных |
+
+Для TCP дополнительно:
+- `test_pmtcp.exe` использует `TcpLink::Open`/`Accept`/`Handshake` на альтернативном порту (9877) как peer.
+- Peer-close тест на отдельном порту (9878) через raw socket.
+- `Fc_TrnConnect`/`Fs_TrnRunListener` хардкодят 9876 → коллизия с PMSERVER. Workaround: собирать пару через `TcpLink` напрямую.
+
+Для pipe/queue/shm — аналогично, через конкретный `F_Link`-класс.
+
+### VII.3. Что нельзя тестировать без изменения API
+
+| Функция | Почему |
+|---|---|
+| `Fc_TrnConnect` | Хардкодит адрес (TCP 9876, pipe `\PIPE\FREEPM`, queue `\QUEUES\FREEPM`, shm — имя региона). Нужен setter или параметр. **Изменение API — отложено.** |
+| `Fs_TrnRunListener` | Блокирует навсегда + bind фиксированного адреса |
+
+Workaround в тестах: собирать пару через `XxxLink::Open`/`Accept`/`Handshake` напрямую, затем использовать `Fc_Trn*`/`Fs_Trn*` над этой парой. `obj` = `XxxLink*`, кастуется в `void*`. Это валидно: `Fc_Trn*`/`Fs_Trn*` принимают любой `obj`, который ведёт себя как `F_Link`.
+
+---
+
+## Часть VIII. Открытые вопросы и P0-фиксы
+
+### VIII.1. P0-фиксы в транспортном API (✅ включены)
+
+| # | Проблема | Фикс |
+|---|---|---|
+| **1** | `Fc_TrnConnect`: `if (obj) *obj = 0` в начале, но `*obj = (ULONG)pNew` в конце **без** проверки `obj`. Crash при `obj == NULL`. | `if (!obj) return PMC_ERR_OPEN;` в начале, дальше без проверки. **✅ во всех backends (`pmtcp`, `pmpipe`, `pmque`, `pmshm`).** |
+| **2** | `static char PipeHost[256]` — race в per-thread модели. Два потока одновременно пишут → третий читает частичное состояние. | Убрать глобал. Передавать `host` напрямую в backend ctor. **✅ глобал отсутствует.** |
+
+### VIII.2. Замечания без фикса (документированы)
+
+| # | Замечание | Решение |
+|---|---|---|
+| 1 | `Fc_TrnSendCommand` / `SendCommandData` возвращают `(APIRET)retcode`. Если сервер вернул `-1` (`GPI_ERROR`) — неотличимо от transport error (`(APIRET)-1`). | Унаследовано. Не регрессия. Задокументировать. |
+| 2 | `Fc_TrnPostData(NULL, buf, 0)` — не проверяется `data == NULL && len > 0`. | Caller-баг. Задокументировать в doc-комментарии. |
+| 3 | `Fs_TrnGetCommand` экспортируется (ordinal 10), но используется только внутри `Fs_ClientThreadProc`. | Оставить. Возможно, понадобится в Phase 4. |
+| 4 | `Fs_TrnRunListener` не освобождает listener (accept-loop не возвращает). | By design. ОС подчистит при exit. |
+| 5 | `ShmLink`: клиент, упавший после `state=1` и до `Accept`, теряет слот навсегда (нет lease/timeout). | Документировано в шапке `F_shm.hpp`. Phase 4: добавить timestamp lease. |
+| 6 | `QueueLink` на Win32: FIFO только, LIFO/priority игнорируются. | Документировано. FreePM их не использует. |
+
+### VIII.3. PMCLIENT — открытые вопросы (для следующего этапа)
+
+| # | Вопрос | Решение |
+|---|---|---|
+| 1 | `ResolveProc(1)` — сигнатура изменилась: было `(PCSZ, PULONG, void*)`, стало `(char*, ULONG*)`. | PMCLIENT обновляется синхронно с транспортным API. |
+| 2 | `ResolveProc(2)` — сигнатура изменилась: было `(void)`, стало `(void*)`. | То же. |
+| 3 | `PMC_ShutdownCallback` — удалить. DETACH PMCLIENT проверяет `DosQueryModuleHandle(backend)` и вызывает `pfnTrnDisconnect(obj)` для каждого `aConns[i]`. | Согласовано. |
+| 4 | `PmcSendData` → `Fc_SesPostData`. Ломает вызовы в `gpi_entry.cpp`, `gpi_proxies.cpp`, `gpi_manual.cpp`, `windowmgr.cpp`. | Согласовано. Правится в одной итерации с PMCLIENT. |
+| 5 | `QueryThreadOrdinal` — `ULONG` (без out-параметра). Прототип в `F_utils.hpp` или `F_platform.h`. | TBD. |
+| 6 | Выбор backend (TCP / pipe / queue / shm) — из конфига (`FPM_config.Read`) или env. | Согласовано: конфиг. Backend DLL загружается `Fc_SesInit`. |
+
+### VIII.4. `pmpipe` / `pmque` / `pmshm` backends — статус
+
+Собраны как `F_Link` backends (`PipeLink`, `QueueLink`, `ShmLink`). Windows-сборка через `F_platform.h` эмуляцию. `Fc_Trn*`/`Fs_Trn*` — единый API, `.lnk` identical (ordinals 1–11).
+
+---
+
+## Часть IX. Порядок работ
+
+| # | Файл / Компонент | Статус | Зависимости |
+|---|---|---|---|
+| 1 | `include/F_link.hpp` — abstract transport interface | ✅ | — |
+| 2 | `include/F_wire.hpp` + `shared/F_wire.cpp` — F_ common (pack/unpack) | ✅ | 1 |
+| 3 | `shared/Fc_trn.cpp` — Fc_ wire ops (7 exports) | ✅ | 2 |
+| 4 | `shared/Fs_trn.cpp` — Fs_ wire ops + `Fs_RunServer` + `Fs_ClientThreadProc` (2 exports) | ✅ | 2 |
+| 5 | `pmtcp/F_tcp.*` — `TcpLink` + `Fc_TrnConnect` + `Fs_TrnRunListener` | ✅ (собран OS/2 + Win32) | 3, 4 |
+| 6 | `pmpipe/F_pipe.*` — `PipeLink` + 2 backend export | ✅ (собран OS/2 + Win32) | 3, 4 |
+| 7 | `pmque/F_queue.*` — `QueueLink` + 2 backend export | ✅ (собран OS/2 + Win32) | 3, 4 |
+| 8 | `pmshm/F_shm.*` — `ShmLink` + 2 backend export | ✅ (собран OS/2 + Win32) | 3, 4 |
+| 9 | `test_pmtcp.cpp` (транспортные тесты для TCP) | **план**, покрытие готово | 5 |
+| 10 | `init.cpp` (PMCLIENT) — per-thread rewrite + backend load | **следующий** | 5–8 |
+| 11 | `Fc_Ses*` экспорты, `Pmc*` → `Fc_Ses*` | после 10 | 10 |
+| 12 | `win_manual.cpp` (`WinInitialize`/`WinTerminate`) | после 10 | 10 |
+| 13 | Сервер: `Fs_Process`/`Fs_Thread`/`Fs_Hab` | после 12 | — |
+| 14 | `dispatch_win_hab.cpp`, `Fs_server.cpp` | после 13 | 13 |
+| 15 | `F_cmd.h` / `win_wire.h` — wire-формат под per-thread | после 14 | 13, 14 |
+| 16 | PMCLIENT тесты (сессия) | после 11 | 10, 11 |
+
+---
+
+## Часть X. Резюме
+
+**Архитектура:** client-server, не peer-to-peer. L4–L6 симметричны и тонки на обеих сторонах. L7 асимметричен: клиент = external, сервер = PM-реализация. GOCA — L7-внутренний формат сервера, не сетевой слой. OSI-модель не используется в рабочих документах.
+
+**Именование:** `Fc_`/`Fs_`/`F_` + `Trn`/`Ses` + `Post`/`Send`/`Get`. Обязательное переименование `PmcSendData → Fc_SesPostData`.
+
+**L4 Transport:** `F_Link` abstract interface + 4 backend-реализации (`TcpLink`, `PipeLink`, `QueueLink`, `ShmLink`). Одна DLL на backend, 11 exports identical (ordinals 1–11). 9 из 11 — `shared/`, 2 — backend-специфичны (`Fc_TrnConnect`, `Fs_TrnRunListener`). `datalen` — байты. P0-фиксы включены во все backends.
+
+**PMCLIENT:** следующий этап. `Pmc* → Fc_Ses*`, `PmcSendData → Fc_SesPostData`, `Fc_SesBeginThread`/`EndThread`, `Fc_Trn*` wrappers, backend load по конфигу, P0-фиксы.
+
+**Тесты:** транспортные (`test_<backend>.exe`) — отдельно от интеграционных (`pmtest.exe`). Транспортные не линкуются с PMCLIENT/PMSERVER. Покрытие: `F_Link` unit, round-trip, handshake over-read, неполные кадры, multi-conn.
+```

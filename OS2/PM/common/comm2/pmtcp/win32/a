@@ -1,0 +1,10 @@
+Win64 build host
+root=D:\yuri\osfree\
+CD       OS2\PM\common\comm2\pmtcp\win32\ 
+CXX      F_tcp.obj 
+D:\yuri\osfree\OS2\PM\common\comm2\pmtcp\win32\..\F_tcp.cpp:697: warning: function '__declspec': missing @param __pragma
+D:\yuri\osfree\OS2\PM\common\comm2\pmtcp\win32\..\F_tcp.cpp:758: warning: function '__declspec': missing @param __pragma
+LINK     pmtcp.dll 
+Warning! W1008: cannot open all_shared.lib : No such file or directory
+Warning! W1008: cannot open cmd_shared.lib : No such file or directory
+INST     pmtcp.dll 
