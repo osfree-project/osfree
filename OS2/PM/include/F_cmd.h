@@ -49,7 +49,6 @@
 
 /* ---- CORE class: client lifecycle ------------------------------------- */
 
-#define F_CMD_CLIENT_EXIT         F_CMD_CORE(0x0000)
 #define F_CMD_CLIENT_CONNECT      F_CMD_CORE(0x0004)
 
 /* ======================================================================== */
@@ -78,6 +77,7 @@ typedef struct _F_CLIENT_RECONNECT {
 
 #define F_CMD_CLIENT_RECONNECT    F_CMD_CORE(0x0005)
 #define F_CMD_CLIENT_PING         F_CMD_CORE(0x0006)
+#define F_CMD_CLIENT_EXIT         F_CMD_CORE(0x0007)
 
 
 #define F_CMD_WINPOSTMSG          F_CMD_CORE(0x0002)

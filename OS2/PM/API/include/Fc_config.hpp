@@ -1,22 +1,19 @@
 /* FreePM Client config */
 
+#include "F_config.h"
+
 #define _MAX_FNAME 256
 
-class F_ClientConfig
-{
-   public:
-   char ExternMachineName[_MAX_FNAME];
-   char BackendName[_MAX_FNAME];
-   char debugOptions[256];
+class F_ClientConfig : public F_Config {
+public:
+    char ExternMachineName[_MAX_FNAME];
+    char BackendName[_MAX_FNAME];
 
-   F_ClientConfig()
-   { ExternMachineName[0] = 0;
-     BackendName[0] = 0;
-     strcpy(debugOptions,"ALL,7");
-   }
-   int Read(char *fname);
-   int Write(char *fname);
-   int AnalizeRecodrRead(char *name, char *par);
-   int ReadStr(FILE *fp, char *str, char *nameClass, char *name, char *par );
+    F_ClientConfig()
+    {
+        ExternMachineName[0] = 0;
+        BackendName[0] = 0;
+    }
 
+    int AnalizeRecodrRead(char *name, char *par);
 };

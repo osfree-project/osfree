@@ -1,7 +1,6 @@
-```markdown
 # ТЗ: FreePM транспортный слой (`F_Link`, 3 backend) + PMCLIENT per-thread
 
-Версия: актуальна на текущее состояние кода. Транспортный слой собран (pmtcp, pmpipe, pmshm) на OS/2 и Win32. PMCLIENT — следующий этап.
+Версия: актуальна на текущее состояние кода. Транспортный слой (pmtcp, pmpipe, pmshm) собран на OS/2 и Win32, тесты проходят. PMCLIENT реализован под per-thread модель.
 
 ---
 
@@ -19,8 +18,9 @@ PMGPI/PMMERGE (marshaling)      Fs_Server::HandleGpiCall/WinCall
    ▼                               ▲
 ── L5 Session ───────────────────────────────────────────
 PMCLIENT                         Fs_Server (routing)
-  aConns[tid], keepalive,          Fs_Process / Fs_Thread / Fs_Hab
-  reconnect                        MonitorLoop (grace expiry)
+  Fc_Ses* (per-thread),          Fs_Process / Fs_Thread / Fs_Hab
+  aConns[tid], keepalive,          MonitorLoop (grace expiry)
+  reconnect
    │                               ▲
    ▼                               │
 ── L4 Transport ─────────────────────────────────────────
@@ -36,34 +36,43 @@ Fc_Trn* (shared + backend)      Fs_Trn* (shared + backend)
 
 **L4** — абстрактный транспорт. Публичный API (`Fc_Trn*`/`Fs_Trn*`, 11 функций) одинаков для всех транспортов. Конкретный транспорт (`TcpLink`, `PipeLink`, `ShmLink`) спрятан за `F_Link`, выбирается загрузкой соответствующего backend-DLL.
 
-**GOCA** — L7-внутренний формат сервера, не сетевой слой. На wire не уходит (в текущей модели NGpi). OSI-терминология в рабочих документах не используется.
+**GOCA** — L7-внутренний формат сервера, не сетевой слой. На wire не уходит.
 
 ### I.2. Per-thread модель
 
 | Сущность | Где | Ключ | Владелец |
 |---|---|---|---|
-| **Транспортное соединение** | обе стороны | `obj` (opaque) | backend DLL (`F_Link` instance) |
-| **Клиентский поток** | клиент | `tid` (thread id) | PMCLIENT (`aConns[tid]`) |
-| **Серверный поток** | сервер | `pClient` (opaque, = `obj`) | backend `Fs_ClientThreadProc` |
-| **Сессия сервера** | сервер | `idClient` (монотонный) | `Fs_Process` |
-| **HAB** | сервер | `iHab` (монотонный) | `Fs_Hab` |
-| **Клиентский TID в сессии** | сервер | `(idClient, tid)` | `Fs_Thread` |
+| Транспортное соединение | backend DLL | `obj` (opaque) | backend (`F_Link` instance) |
+| Клиентский поток | PMCLIENT | `tid` (OS/2 thread id) | `aConns[tid]` в PMCLIENT |
+| Серверный поток | сервер | `pClient` (= `obj`) | backend `Fs_ClientThreadProc` |
+| Сессия сервера | сервер | `idClient` (монотонный) | `Fs_Process` |
+| HAB | сервер | `iHab` (монотонный) | `Fs_Hab` |
+| Клиентский TID в сессии | сервер | `(idClient, tid)` | `Fs_Thread` |
 
 **Один клиентский поток ↔ одно транспортное соединение ↔ один серверный `Fs_ClientThreadProc` ↔ один `Fs_Thread`.**
 
-`idClient` — process-wide. `(idClient, tid)` — ключ HAB. `iHab` — монотонный, уникальный на сервере.
+**`obj` не выходит за пределы PMCLIENT.** PMMERGE (WinInitialize/WinTerminate) не знает про `obj`; `obj` живёт в `aConns[tid].obj` внутри PMCLIENT.
+
+**HAB-таблица в PMMERGE не ведётся.** `WinInitialize` возвращает HAB приложению; приложение само его носит и передаёт в последующие `Win*`-вызовы.
+
+**`F_CLIENTCONFIG` (включая `idClient`) — process-wide**, хранится в PMCLIENT под `g_hmtxState`, заполняется один раз из первого успешного `F_CMD_CLIENT_CONNECT` reply. Последующие connect'ы (новые потоки) проверяют, что сервер вернул тот же `idClient`; остальные поля игнорируются.
+
+**Два `Fc_SesConnect` для одного `tid` невозможны.** Второй вызов (равно как и вызов при слоте `SLOT_BROKEN`) возвращает `(APIRET)-1` без обращения к транспорту. Восстановление после обрыва — исключительно per-slot reconnect thread, запущенный `OnTransportError`.
 
 ### I.3. Что убрано
 
 | Убрано | Почему |
 |---|---|
-| `F_CMD_CLIENT_CONNECT` / `F_CMD_CLIENT_EXIT` | Первое, что делает поток — `WinInitialize`; сессия умирает с последним HAB |
-| `CONNECT` handshake в PMCLIENT | Заменён на первый `NWinInitialize` (bootstrap) |
-| `EXIT` в DETACH | PMCLIENT закрывает транспорт через `Fc_TrnDisconnect` |
-| `DllMain` / `_DLL_InitTerm` в backend | WSA в DETACH уже может быть выгружен; клиент делает явный disconnect |
+| `DllMain` / `_DLL_InitTerm` в PMCLIENT | Backend грузится лениво на первом `Fc_SesConnect` |
+| `DllMain` / `_DLL_InitTerm` в backend | WSA в DETACH уже может быть выгружен |
 | `pF_pipe` / `g_shutdownCb` в backend | PMCLIENT — единственный держатель `obj` |
 | `Fs_Session` / `Fs_SessionList` | Сессия — агрегат (`idClient`), а не сущность |
-| `pmque` / `QueueLink` | Заменён на `pmshm`/`ShmLink` — OS/2-идиома queue + shared memory |
+| `pmque` / `QueueLink` | Заменён на `pmshm`/`ShmLink` |
+| `PMC_ShutdownCallback` | Backend его больше не вызывает; `F_CMD_CLIENT_EXIT` шлёт `Fc_SesDisconnect` |
+| `Pmc*` API | Переименовано в `Fc_Ses*` (все 5) |
+| `Fc_SesBeginThread` / `Fc_SesEndThread` | Заменены на `Fc_SesConnect` / `Fc_SesDisconnect` |
+| HAB-таблица в PMMERGE | Не ведётся |
+| `Fc_SesInit` / `Fc_SesTerm` | Отсутствуют; backend грузится лениво |
 
 ---
 
@@ -73,37 +82,34 @@ Fc_Trn* (shared + backend)      Fs_Trn* (shared + backend)
 
 | Префикс | Значение |
 |---|---|
-| **`Fc_`** | Клиент (client) — код, исполняемый в клиентском процессе |
-| **`Fs_`** | Сервер (server) — код, исполняемый в серверном процессе |
-| **`F_`** | Общий (common) — код на обеих сторонах (debug, config, wire headers) |
+| **`Fc_`** | Клиент |
+| **`Fs_`** | Сервер |
+| **`F_`** | Общий код на обеих сторонах |
 
 ### II.2. Квалификатор слоя
 
 | Квалификатор | Слой | Пример |
 |---|---|---|
 | **`Trn`** | Transport (L4) | `Fc_TrnConnect`, `Fs_TrnRunListener` |
-| **`Ses`** | Session (L5) | `Fc_SesBeginThread`, `Fc_SesPostCommand` |
-| (нет) | Common / cross-cutting | `F_DbgPrint`, `F_DbgCtxEnterf` |
+| **`Ses`** | Session (L5) | `Fc_SesConnect`, `Fc_SesPostCommand` |
+| **`Dbg`** | Debug (cross-cutting) | `F_DbgPrint`, `F_DbgCtxEnterf`, `F_DbgSetLevels` |
+| **`Wire`** | Wire helpers (cross-cutting) | `F_WirePackHeader`, `F_WireUnpackHeader` |
 
-Серверная сессия (`Fs_Process`, `Fs_Thread`, `Fs_Hab`, `Fs_Server`) — C++ классы, не функции. Клиентская сессия — DLL-экспорты (`Fc_Ses*`).
-
-### II.3. Глаголы (PM queue convention)
+### II.3. Глаголы
 
 | Глагол | Семантика |
 |---|---|
-| **`Post`** | Асинхронная запись, без ожидания ответа |
-| **`Send`** | Запись + ожидание ответа (sync) |
+| **`Post`** | Async write, без ожидания ответа |
+| **`Send`** | Write + ожидание ответа (sync) |
 | **`Get`** | Блокирующее чтение |
 | **`Connect` / `Disconnect`** | Управление соединением |
 | **`Run`** | Запуск цикла (accept-loop, не возвращает) |
-
-Консистентность обязательна на обоих слоях (Trn и Ses).
 
 ---
 
 ## Часть III. L4 Transport — `F_Link` + 3 backend
 
-### III.1. Схема реализации
+### III.1. Схема
 
 ```
 ┌────────────────────────────────────────────────────────────┐
@@ -175,93 +181,129 @@ Fc_Trn* (shared + backend)      Fs_Trn* (shared + backend)
 | `Open()` | client: connect; server: create listener. Возврат 0 / -1. |
 | `Accept(F_Link**)` | server: accept, allocate new `F_Link`, вернуть через `*ppNew`. |
 | `Handshake()` | FreePM handshake. Таймаут — per-backend. Возврат 0 / `HAND_SHAKE_ERROR`. |
-| `Send(const void*, int)` | Ровно `cbData` байт. Цикл на partial, EINTR-retry (где применимо). |
+| `Send(const void*, int)` | Ровно `cbData` байт. Цикл на partial, EINTR-retry. |
 | `Recv(void*, int*, int)` | Ровно `cbBuffer` байт. Peer-close → `*pcb` = прочитано, -1. |
 | `Close()` | idempotent. |
 
-**Handshake исполняется в `Fs_ClientThreadProc`**, не в accept-loop. Медленный клиент не блокирует приём остальных.
+**Handshake исполняется в `Fs_ClientThreadProc`**, не в accept-loop.
 
 ### III.5. Backend реализации
 
 | Backend | Класс | Особенности |
 |---|---|---|
-| `pmtcp` | `TcpLink` | BSD sockets. Non-blocking connect + select с таймаутом. Handshake per-chunk timeout (`PMC_HANDSHAKE_TIMEOUT_MS = 3000`). WSA refcount в ctor/dtor. `SO_KEEPALIVE` включён, но без настройки (OS default ~2h); PMCLIENT PING — основной механизм liveness. `SD_SEND` определён как 1 для OS/2. |
-| `pmpipe` | `PipeLink` | OS/2 named pipes + Win32 эмуляция через `CreateNamedPipeA`. Byte mode. Client retries `DosOpen` on `ERROR_PIPE_BUSY` via `DosWaitNPipe`, ограничено `FREEPM_PIPE_TIMEOUT`. Listener recovery: новый instance создаётся **до** hand-off, при permanent fail — disconnect клиента, listener сохранён. Cap: `FREEPM_PIPE_MAX_INST - 1` одновременных клиентов. |
-| `pmshm` | `ShmLink` | OS/2 queues (уведомления) + shared memory (данные). Canonical OS/2-идиома: queue element = `{slot, length}` (8 байт), данные — в shared memory. Handshake — `QmsHello {u8 version; u32 pid; u32 tid}` (9 байт) через `\QUEUES\FREEPM`, эхо через C_. Имена вычисляются из `(pid, tid)`. Data region: `QMS_SLOT_SIZE = 1 MB` на сообщение, `QMS_SLOTS = 1`. `PAG_READ \| PAG_WRITE` без `PAG_COMMIT`. Recv peer-death — idle timeout 60s; Accept handshake — 30s. |
+| `pmtcp` | `TcpLink` | BSD sockets. Non-blocking connect + select с таймаутом. Handshake per-chunk timeout (`PMC_HANDSHAKE_TIMEOUT_MS = 3000`). WSA refcount в ctor/dtor. `SO_KEEPALIVE` включён, но без настройки. PMCLIENT PING — основной механизм liveness. `SD_SEND = 1` для OS/2. |
+| `pmpipe` | `PipeLink` | OS/2 named pipes + Win32 эмуляция через `CreateNamedPipeA`. Byte mode. Client retries `DosOpen` on `ERROR_PIPE_BUSY` via `DosWaitNPipe`. Listener recovery: новый instance создаётся до hand-off. Cap: `FREEPM_PIPE_MAX_INST - 1` клиентов. Внутренние чанки `FREEPM_PIPE_OUTB_SIZE`/`INPB_SIZE = 0x8000` (32 KB) — прозрачны для API. |
+| `pmshm` | `ShmLink` | OS/2 queues (уведомления) + shared memory (данные). Queue element = `{slot, length}` (8 байт). Handshake — `QmsHello {u8 version; u32 pid; u32 tid}` (9 байт) через `\QUEUES\FREEPM`. **Send/Recv разбивают и собирают сообщения произвольной длины на чанки `QMS_SLOT_SIZE = 1 MB`**; размер сообщения `QMS_SLOT_SIZE` не ограничен (recvBuf для reassembly). `QMS_SLOTS = 1` — один чанк in flight на направление. Recv peer-death — idle timeout 60s; Accept handshake — 30s. |
 
-**Платформенные различия** полностью поглощены `F_platform.h`. Backend-код использует только OS/2 API. Namespace-имена (`\PIPE\`, `\QUEUES\`, `\SHAREMEM\`) строятся в backend с учётом платформы.
+Платформенные различия поглощены `F_platform.h`. Backend-код использует только OS/2 API.
 
 ### III.6. Queue emulation (Win32)
 
-`F_platform.h` эмулирует `Dos*Queue` через shared memory + named objects (Win32). **Слот очереди = 16 байт** (`WQ_MAX_ELEMENT`), `WQ_MAX_ELEMENTS = 8`. Этого достаточно для control-сообщений:
-- `QmsElem` (slot, length) — 8 байт
-- `QmsHello` (version, pid, tid) — 9 байт
+`F_platform.h` эмулирует `Dos*Queue` через shared memory + named objects (Win32). Слот очереди = 16 байт (`WQ_MAX_ELEMENT`), `WQ_MAX_ELEMENTS = 8`. **Эмуляция — memory-only.**
 
-Данные **не проходят через очередь** в pmshm — они идут через shared memory. Поэтому 16-байтный лимит — не ограничение на user payload.
+**Очередь используется только в `pmshm`** — для control-сообщений (`QmsElem` 8B, `QmsHello` 9B). Данные в `pmshm` идут только через shared memory (см. §III.5). В `pmpipe` и `pmtcp` очередь не используется; данные — в pipe / TCP соответственно.
 
-**Через очередь проходят только control-сообщения.** Для произвольных данных — shared memory (pmshm) или pipe/TCP (pmpipe/pmtcp).
+### III.7. Сборка backend
 
-### III.7. Сборка
-
-Одна DLL на backend: `pmtcp.dll`, `pmpipe.dll`, `pmshm.dll`.
+**Backend EXPORTS — 11 функций, identical ordinals 1–11:**
 
 ```
-shared/F_wire.cpp
-shared/Fc_trn.cpp
-shared/Fs_trn.cpp
-<backend>/F_<name>.cpp
+1  Fc_TrnConnect
+2  Fc_TrnDisconnect
+3  Fc_TrnPostCommand
+4  Fc_TrnPostData
+5  Fc_TrnSendCommand
+6  Fc_TrnSendCommandData
+7  Fc_TrnGetData
+8  Fs_TrnRunListener
+9  Fs_TrnPostData
+10 Fs_TrnGetCommand
+11 Fs_TrnGetData
 ```
 
-11 exports, identical ordinals (1–11):
-
-```
-Fc_TrnConnect.1, Fc_TrnDisconnect.2, Fc_TrnPostCommand.3,
-Fc_TrnPostData.4, Fc_TrnSendCommand.5, Fc_TrnSendCommandData.6,
-Fc_TrnGetData.7, Fs_TrnRunListener.8, Fs_TrnPostData.9,
-Fs_TrnGetCommand.10, Fs_TrnGetData.11
-```
-
-Клиент выбирает backend через `Fc_SesInit` (config `fpm.ini`). Сервер — статически в `Fs_TrnRunListener`.
+**Клиент резолвит 1–7.** 8–11 — серверные. В `init.cpp::LoadBackend` — 7 `ResolveProc` в порядке 1–7.
 
 ---
 
-## Часть IV. PMCLIENT — сессия (`Fc_Ses*`) — план
-
-Не реализовано. Следующий этап.
+## Часть IV. PMCLIENT — сессия (`Fc_Ses*`)
 
 ### IV.1. API
 
 | Функция | Семантика |
 |---|---|
-| `Fc_SesInit()` | Mutex, `DosLoadModule(backend)`, resolve ordinals, `FPM_config.Read`. |
-| `Fc_SesTerm()` | Обход `aConns[]`, `Fc_TrnDisconnect(obj)`. |
-| `Fc_SesBeginThread()` | `QueryThreadOrdinal` → `tid`. `Fc_TrnConnect` → `obj`. Заполнить `aConns[tid]`. |
-| `Fc_SesEndThread()` | `tid` → `obj` из `aConns`. `Fc_TrnDisconnect(obj)`. Очистить слот. |
-| `Fc_SesPostCommand(cmd, par)` | → `Fc_TrnPostCommand`. |
-| `Fc_SesPostData(buf, len)` | → `Fc_TrnPostData`. |
-| `Fc_SesGetData(buf, len)` | → `Fc_TrnGetData`. |
-| `Fc_SesSendCommand(cmd, par)` | → `Fc_TrnSendCommand`. |
-| `Fc_SesSendCommandData(cmd, par, buf, len)` | → `Fc_TrnSendCommandData`. |
+| `Fc_SesConnect(char *address)` | Установить per-thread сессию: lazy backend load, `pfnFc_TrnConnect`, `pfnFc_TrnPostCommand(F_CMD_CLIENT_CONNECT, 0)`, `pfnFc_TrnGetData(F_CLIENTCONFIG)`, запись `aConns[tid]`. **Не более одного раза за жизнь потока.** При существующем слоте → `(APIRET)-1`. |
+| `Fc_SesDisconnect(void)` | Best-effort `pfnFc_TrnPostCommand(F_CMD_CLIENT_EXIT)` → `pfnFc_TrnDisconnect(obj)` → очистка слота. Симметрично `Fc_SesConnect`. |
+| `Fc_SesPostCommand(cmd, par)` | → `pfnFc_TrnPostCommand(aConns[tid].obj, ...)`. |
+| `Fc_SesPostData(buf, len)` | → `pfnFc_TrnPostData(...)`. |
+| `Fc_SesGetData(buf, len, max)` | → `pfnFc_TrnGetData(...)`. |
+| `Fc_SesSendCommand(cmd, par)` | → `pfnFc_TrnSendCommand(...)`. |
+| `Fc_SesSendCommandData(cmd, par, buf, len)` | → `pfnFc_TrnSendCommandData(...)`. |
 
-### IV.2. Критичное переименование
+Все 5 data-path функций возвращают `(APIRET)-1`, если `aConns[tid]` не в `SLOT_ACTIVE`.
 
-**`PmcSendData` → `Fc_SesPostData`.** Затрагивает `gpi_entry.cpp`, `gpi_proxies.cpp`, `gpi_manual.cpp`, `windowmgr.cpp`.
+### IV.2. `.def` PMCLIENT — 7 экспортов, ординалы 1–7
+
+```
+EXPORTS      = &
+    Fc_SesPostCommand          .1, &
+    Fc_SesPostData             .2, &
+    Fc_SesGetData              .3, &
+    Fc_SesSendCommand          .4, &
+    Fc_SesSendCommandData      .5, &
+    Fc_SesConnect              .6, &
+    Fc_SesDisconnect           .7
+```
+
+Ординалы `.1`–`.5` сохранены за теми же по смыслу функциями (`Pmc*` → `Fc_Ses*`, 1-к-1). `.6`/`.7` — новые lifecycle-функции.
 
 ### IV.3. Хранение состояния
 
+Всё — в PMCLIENT:
+
 | Глобал | Назначение |
 |---|---|
-| `g_idClient` (под мьютексом) | process-wide, `idClient` от `F_CMD_WIN(NWinInitialize)` |
-| `g_clientConfig` (под мьютексом) | `F_CLIENTCONFIG` от первого `NWinInitialize` |
-| `aConns[N]` (под мьютексом) | `{ ULONG tid; ULONG obj; int state; time_t lastActivity; }` |
-| `g_hmtxConns` | защита `aConns`, `g_idClient`, `g_clientConfig` |
-| `g_hmodBackend` | handle backend DLL |
+| `g_hmtxState` | защита `aConns`, `g_idClient`, `g_clientConfig`, `g_fInitialized`, backend-указателей |
+| `aConns[FREEPM_MAX_THREADS]` | `{ tid, obj, state, reconnecting, lastActivity }` |
+| `g_idClient` (под мьютексом) | process-wide, из первого CONNECT reply |
+| `g_clientConfig` (под мьютексом) | `F_CLIENTCONFIG`, из первого CONNECT reply |
+| `hmodBE` | handle backend DLL |
+| `g_fInitialized` (под мьютексом) | init-complete флаг |
+| `g_fKeepaliveRun`, `g_fTerminated` | volatile флаги потоков |
 
-### IV.4. Keepalive / reconnect
+**В PMMERGE нет:** ни `obj`, ни HAB-таблицы, ни `idClient`, ни `F_CLIENTCONFIG`.
 
-**Keepalive** — фоновый thread, `Fc_SesPostCommand(F_CMD_CLIENT_PING, ...)` для живых слотов, интервал `ulInactive / 2`.
+### IV.4. Состояния слота
 
-**Reconnect** — per-slot: на transport error пометить слот broken, reconnect thread для этого слота. `Fc_TrnConnect` → `Fc_SesSendCommand(F_CMD_CLIENT_RECONNECT, idClient)`.
+`SLOT_FREE` (0) — слот не используется. `SLOT_ACTIVE` (1) — есть транспорт и `CONNECT`. `SLOT_BROKEN` (2) — транспорт потерян, reconnect в работе.
+
+Переходы:
+- `Fc_SesConnect` (успех) → `SLOT_ACTIVE`, `reconnecting = 0`.
+- `Fc_SesDisconnect` → `SLOT_FREE`, `reconnecting = 0`.
+- `OnTransportError(tid)` при `SLOT_ACTIVE && !reconnecting && !g_fTerminated` → `SLOT_BROKEN`, `reconnecting = 1`, `StartReconnect(tid)`.
+- `ReconnectThreadProc(tid)` при успехе → `SLOT_ACTIVE`, `reconnecting = 0`. По истечении grace → `reconnecting = 0`, слот остаётся `SLOT_BROKEN`.
+
+### IV.5. Keepalive / reconnect
+
+**Keepalive** — один фоновый thread в PMCLIENT, запускается при первом успешном `Fc_SesConnect` (если `g_clientConfig.flConfig & F_CFG_PING_REQUIRED`). Интервал: `ulInactive / 2`, floor 5 с. Обходит `aConns[]`, для каждого `SLOT_ACTIVE` шлёт `pfnFc_TrnPostCommand(obj, F_CMD_CLIENT_PING, g_idClient)`. При ошибке → `OnTransportError(tid)`.
+
+**Reconnect** — per-slot фоновый thread (`ReconnectThreadProc(tid)`). Интервал: `ulGrace / 3`, floor 1 с. Пробует `pfnFc_TrnConnect` + `F_CMD_CLIENT_RECONNECT(g_idClient)` + `pfnFc_TrnGetData(F_CLIENTCONFIG)`. При успехе — обновляет слот. По истечении `ulGrace` — слот остаётся `SLOT_BROKEN`.
+
+**`Fc_SesConnect` не участвует в восстановлении.** При `SLOT_BROKEN` — `(APIRET)-1`.
+
+### IV.6. Мьютекс и инициализация
+
+`g_hmtxState` — безымянный `DosCreateMutexSem(NULL, &h, 0, FALSE)`, создаётся в `EnsureStateMutex` при первом `Fc_SesConnect`.
+
+Race-safe без `DosEnterCritSec` (нет на Win32) и без `ERROR_ALREADY_EXISTS` (не определён на OS/2-таргете): оба потока могут создать по мьютексу; победитель записывается в `g_hmtxState`, проигравший handle закрывается. Никаких проверок кодов ошибок — только `0 / не-0`.
+
+### IV.7. ABI-специфика
+
+| Аспект | OS/2 | Win32 |
+|---|---|---|
+| `PMC_CB` (calling convention для `pfnFc_Trn*`) | `APIENTRY` | `__stdcall` (не `APIENTRY` — `__declspec(__pragma(...))` не работает в pointer declarators) |
+| `_beginthread` | 4 аргумента | 3 аргумента |
+| thread-процедура | `void fn(void *)` | `unsigned long __stdcall fn(void *)` |
+| `DosEnterCritSec` / `DosExitCritSec` | есть | нет → `EnsureStateMutex` через create-with-race |
 
 ---
 
@@ -314,8 +356,8 @@ Fs_TrnGetCommand.10, Fs_TrnGetData.11
 
 | Метод | Семантика |
 |---|---|
-| `HandleCommand(obj, cmd, par, threadNum)` | Bootstrap `NWinInitialize` здесь. `RECONNECT` — тоже. Остальное — через `FindByConn(obj)`. |
-| `HandleWinInitialize(obj, tid)` | Bootstrap Process+Thread+Hab или Thread+Hab. Payload — `{ clientid }`. Возврат — `iHab` + опционально `F_CLIENTCONFIG`. |
+| `HandleCommand(obj, cmd, par, threadNum)` | CORE-класс: `F_CMD_CLIENT_CONNECT`, `RECONNECT`, `PING`, `EXIT`, `DB_PRINT`, `FATAL`, `GET_HPS`. |
+| `HandleWinInitialize(obj, tid)` | WIN-класс `NWinInitialize`. Не bootstrap транспорта (он уже поднят `Fc_SesConnect`). Создать/привязать Process+Thread+Hab. Payload — `{ clientid }`. Возврат — `iHab` + опционально `F_CLIENTCONFIG`. |
 | `HandleGpiCall(pThread, fnCode, data)` | GPI dispatch. |
 | `HandleWinCall(pThread, fnCode, data)` | WIN dispatch (без `NWinInitialize`). |
 | `HandleCoreCommand(pThread, ncmd, data)` | PING, RECONNECT, DB_PRINT, FATAL, GET_HPS. |
@@ -329,9 +371,9 @@ Fs_TrnGetCommand.10, Fs_TrnGetData.11
 ### VI.1. Framing
 
 ```
-PmcPostCommand(cmd, par):   cmd (4B) + par (4B)         = 8B header
-PmcSendData(buf, len):      buf (len B)                  = N data
-Reply (header + payload):   FPM_RESP_HEADER (16B) + payload
+Fc_SesPostCommand(cmd, par):   cmd (4B) + par (4B)         = 8B header
+Fc_SesPostData(buf, len):      buf (len B)                  = N data
+Reply (header + payload):      FPM_RESP_HEADER (16B) + payload
 ```
 
 Header всегда 8 байт: `cmd` (ULONG) + `par` (ULONG). `cmd` = `F_CMD_MAKE(class, opcode)`.
@@ -342,26 +384,34 @@ Header всегда 8 байт: `cmd` (ULONG) + `par` (ULONG). `cmd` = `F_CMD_MA
 - Client → Server: `"pIpEtEsT\0"`
 - Server → Client: `"PiPeTeSt\0"`
 
-`pmshm` использует расширенный handshake: `QmsHello {u8 version; u32 pid; u32 tid}` (9 байт) через `\QUEUES\FREEPM`, эхо — те же 9 байт через C_. `Handshake()` после этого no-op.
-
-**Чтение — ровно 9 байт.** Over-read — баг.
+`pmshm` использует расширенный handshake: `QmsHello {u8 version; u32 pid; u32 tid}` (9 байт) через `\QUEUES\FREEPM`, эхо — те же 9 байт через C_. **Чтение — ровно 9 байт.**
 
 ### VI.3. Команды
 
 | Class | Opcode | Семантика | Bootstrap? |
 |---|---|---|---|
-| CORE | `F_CMD_CLIENT_RECONNECT` | Резюм сессии | да |
+| CORE | `F_CMD_CLIENT_CONNECT` | Открыть per-thread сессию; reply = `F_CLIENTCONFIG` (16B) | **да** |
+| CORE | `F_CMD_CLIENT_RECONNECT` | Резюм сессии; payload = `{tid}`; reply = `F_CLIENTCONFIG` (16B) | да |
 | CORE | `F_CMD_CLIENT_PING` | Touch | нет |
+| CORE | `F_CMD_CLIENT_EXIT` | Закрыть per-thread сессию (fire-and-forget) | нет |
 | CORE | `F_CMD_DB_PRINT` / `F_CMD_FATAL_COMMON` | Debug | нет |
-| WIN | `NWinInitialize` | Bootstrap Process+Thread+Hab | **да** |
+| WIN | `NWinInitialize` | Process+Thread+Hab (не bootstrap транспорта) | нет |
 | WIN | `NWinTerminate` | Destroy Thread+Hab | нет |
 | WIN | `NWinGetLastError` | Query lastError | нет |
 | GPI | `NGpi*` | GPI dispatch | нет |
 | GORDER | `OCODE_*` | GOCA passthrough (отложено) | нет |
 
-**`cmd == 0` = close.** `Fs_ClientThreadProc` при `cmd == 0` завершает recv-loop, вызывает `disc`, закрывает. Клиенты **не должны** использовать `cmd == 0` как бизнес-команду. Legacy поведение Gen 1, сохранено для совместимости.
+**`cmd == 0` = close.** `Fs_ClientThreadProc` при `cmd == 0` завершает recv-loop. Клиенты не должны использовать `cmd == 0` как бизнес-команду.
 
-### VI.4. `NWinInitialize` payload
+### VI.4. `F_CMD_CLIENT_CONNECT` payload
+
+```
+data    = 0
+payload = нет
+reply   = F_CLIENTCONFIG (16 байт: idClient, ulInactive, ulGrace, flConfig)
+```
+
+### VI.5. `NWinInitialize` payload
 
 ```
 data    = tid
@@ -370,7 +420,9 @@ reply   = iHab (ulResult)
         + F_CLIENTCONFIG (только если clientid == 0)
 ```
 
-### VI.5. `NWinTerminate` payload
+`NWinInitialize` обрабатывается PMMERGE (WIN-класс). PMCLIENT только доставляет команду через `Fc_SesSendCommandData` и возвращает reply.
+
+### VI.6. `NWinTerminate` payload
 
 ```
 data    = iHab
@@ -378,7 +430,7 @@ payload = { ULONG tid }
 reply   = ulResult = 1/0
 ```
 
-### VI.6. `RECONNECT` payload
+### VI.7. `RECONNECT` payload
 
 ```
 data    = idClient
@@ -386,7 +438,7 @@ payload = { ULONG tid }
 reply   = F_CLIENTCONFIG (или error)
 ```
 
-### VI.7. `datalen` / `len`
+### VI.8. `datalen` / `len`
 
 Байты, везде.
 
@@ -396,13 +448,11 @@ reply   = F_CLIENTCONFIG (или error)
 
 ### VII.1. Принцип
 
-**Транспортные тесты** (`test_<backend>.exe`):
-- Собираются с конкретным backend `.cpp` + `shared/*.cpp` + headers.
-- Не линкуются с `init.cpp` (PMCLIENT), `pmserver.cpp`/`dispatch.cpp`/`Fs_server.cpp`.
-- Тестируют `Fc_Trn*`, `Fs_Trn*` изолированно.
-- `F_Link`-классы (TcpLink, PipeLink, ShmLink) — internal, не экспортируются. Тесты используют только публичный API + raw sockets для edge cases.
+- **Транспортные тесты** (`test_<backend>.exe`) — изолированно от PMCLIENT. Готовы, проходят.
+- **PMCLIENT-тесты** (`test_pmclient.exe`) — per-thread сессия.
+- **Интеграционные тесты** (`pmtest.exe`) — с реальным PMSERVER.
 
-### VII.2. Покрытие
+### VII.2. Покрытие транспортных тестов (готово)
 
 | Группа | pmtcp | pmpipe | pmshm |
 |---|---|---|---|
@@ -410,13 +460,27 @@ reply   = F_CLIENTCONFIG (или error)
 | B. Lifecycle (connect/disconnect) | ✅ | ✅ | ✅ |
 | C. NULL obj / NULL buf | ✅ | ✅ | ✅ |
 | D. Round-trip (PostCommand, PostData, SendCommand, SendCommandData, GetData) | ✅ | ✅ | ✅ |
-| E. Partial frames / peer-close | ✅ (raw socket, cmd=0) | ✅ | ✅ (idle timeout) |
+| E. Partial frames / peer-close | ✅ | ✅ | ✅ |
 | F. Multi-conn (5 sequential) | ✅ | ✅ | ✅ |
-| G. Oversize payload | — | — | ✅ (>1 MB) |
 
-### VII.3. Ограничения тестов
+**Сноска про pmshm:** `Send`/`Recv` в pmshm режут/собирают сообщения по `QMS_SLOT_SIZE = 1 MB`; reassembly-буфер (`recvBuf`) покрыт `test_multichunk_payload` (4 MB) и `test_large_payload` (64 KB) в `test_pmshm.cpp`. У pmtcp/pmpipe аналога нет — partial send/recv идёт тем же циклом `while (total < cbData)`, что и 16-байтный round-trip; отдельного код-пути, требующего отдельного теста, нет.
 
-`Fc_TrnConnect` хардкодит backend-адрес. `Fs_TrnRunListener` блокирует навсегда. Тесты запускаются в изоляции (PMSERVER не должен работать). Тест и listener в одном процессе.
+### VII.3. Покрытие PMCLIENT-тестов (следующий этап)
+
+| Группа | Что проверяет |
+|---|---|
+| A. `Fc_SesConnect` базовый | connect → CONNECT → `F_CLIENTCONFIG` → slot ACTIVE → `Fc_SesDisconnect` |
+| B. Повторный `Fc_SesConnect` | второй вызов с того же tid → `(APIRET)-1`, слот не тронут |
+| C. Data path без connect | `Fc_SesPostCommand` без `Fc_SesConnect` → `(APIRET)-1` |
+| D. Data path из N потоков | 3–5 потоков, изоляция слотов |
+| E. `F_CLIENTCONFIG` process-wide | первый заполняет; второй сверяет `idClient`; mismatch → `-1` |
+| F. Keepalive | `F_CFG_PING_REQUIRED` → keepalive-поток; сбой PING → `SLOT_BROKEN` |
+| G. Reconnect | убить транспорт → reconnect-поток → `SLOT_ACTIVE` |
+| H. `Fc_SesDisconnect` шлёт EXIT | `F_CMD_CLIENT_EXIT` уходит до закрытия транспорта |
+
+### VII.4. Ограничения тестов
+
+`Fc_SesConnect(NULL, ...)` запускает PMSERVER.EXE при отсутствии локального. В тестах использовать явный `address` (`"127.0.0.1:9876"`), чтобы PMCLIENT не пытался стартовать PMSERVER. Тест и test-backend-сервер в одном процессе.
 
 ---
 
@@ -436,37 +500,46 @@ reply   = F_CLIENTCONFIG (или error)
 | 8 | `pmpipe`: client без retry на `ERROR_PIPE_BUSY` | `DosWaitNPipe` loop |
 | 9 | handshake в accept-loop (slowloris) | перенос в `Fs_ClientThreadProc` |
 
-### VIII.2. Известные ограничения (документированы)
+### VIII.2. Известные ограничения
 
 | # | Ограничение | Где | Обход |
 |---|---|---|---|
-| 1 | `Fc_TrnSendCommand` возвращает `retcode`. `-1` неотличимо от transport error | `shared/Fc_trn.cpp` | Сервер не должен возвращать `-1` как business reply |
-| 2 | `pmshm`: `QMS_SLOT_SIZE = 1 MB` — сообщение > 1 MB fail | `pmshm/F_shm.hpp` | Для больших данных (bitmap 1024×768×32 = 3 MB) — pipe/TCP |
-| 3 | `pmshm`: `QMS_SLOTS = 1` — pipeline не работает | `pmshm/F_shm.hpp` | Request/response — достаточно |
-| 4 | `pmpipe`: cap `FREEPM_PIPE_MAX_INST - 1` одновременных клиентов | `pmpipe/F_pipe.hpp` | Связано с OS/2 instance count API |
-| 5 | `F_platform.h` queue emulation: `WQ_MAX_ELEMENT = 16` — только control | `F_platform.h` | Queue несёт только 8–9 байт control; данные — shared memory / pipe / TCP |
-| 6 | `Fc_TrnPostCommand` (cmd=0) = wire-close | `shared/Fs_trn.cpp` | Задокументировано, не используется для бизнеса |
-| 7 | `SO_KEEPALIVE` OS default ~2h, не настроен | `pmtcp/F_tcp.cpp` | PMCLIENT PING — основной механизм; `inetcfg KEEPALIVE=5` / `SIO_KEEPALIVE_VALS` для OS-level |
+| 1 | `Fc_TrnSendCommand` возвращает `retcode`; `-1` неотличимо от transport error | `shared/Fc_trn.cpp` | Сервер не должен возвращать `-1` как business reply |
+| 2 | `pmshm`: `QMS_SLOTS = 1` — один чанк in flight на направление, pipeline не работает | `pmshm/F_shm.hpp` | Request/response — достаточно |
+| 3 | `pmpipe`: cap `FREEPM_PIPE_MAX_INST - 1` клиентов | `pmpipe/F_pipe.hpp` | OS/2 instance count API |
+| 4 | `F_platform.h` queue emulation: `WQ_MAX_ELEMENT = 16` — только control | `F_platform.h` | Данные — shared memory / pipe / TCP |
+| 5 | `Fc_TrnPostCommand` (cmd=0) = wire-close | `shared/Fs_trn.cpp` | Не используется для бизнеса |
+| 6 | `SO_KEEPALIVE` OS default ~2h, не настроен | `pmtcp/F_tcp.cpp` | PMCLIENT PING — основной механизм |
+| 7 | `PMC_CB` на Win32 — `__stdcall`, не `APIENTRY` | `init.cpp` | `#if` в `PMC_CB` |
+| 8 | `_beginthread` — 3 аргумента Win32, 4 OS/2 | `init.cpp` | `#if` в `StartReconnect`/`StartKeepalive` |
+| 9 | `DosEnterCritSec`/`DosExitCritSec` нет в Win32-ветке | `init.cpp` | `EnsureStateMutex` через create-with-race |
+| 10 | `ERROR_ALREADY_EXISTS` не определён на OS/2-таргете | `init.cpp` | Не читать коды ошибок; `0 / не-0` |
+| 11 | `Fc_SesDisconnect` шлёт `F_CMD_CLIENT_EXIT` best-effort | `init.cpp` | Ошибка EXIT игнорируется, `pfnFc_TrnDisconnect` всё равно выполнится |
 
-### VIII.3. Открытые вопросы
-
-| # | Вопрос | Решение |
-|---|---|---|
-| 1 | Graceful shutdown `Fs_RunServer` (exit-флаг) | Отложено. Требует закрытия listener-handle из другого потока |
-| 2 | `pmshm` `QMS_SLOT_SIZE` — увеличить до 4/8/16 MB? | Открыто. Текущее 1 MB не покрывает 1024×768×32 (3 MB) |
-| 3 | `pmshm` peer-death: `OpenProcess(peerPid)` на Win32 — не переносим на OS/2 | Используется idle timeout, переносим |
-| 4 | `pmtcp`: connect timeout к закрытому порту на OS/2 (5s вместо ECONNREFUSED) | Поведение стека OS/2, документировано |
-
-### VIII.4. PMCLIENT — открытые вопросы
+### VIII.3. Открытые вопросы (транспорт)
 
 | # | Вопрос | Решение |
 |---|---|---|
-| 1 | `ResolveProc(1)` сигнатура: `(char*, ULONG*)` | PMCLIENT обновляется синхронно |
-| 2 | `ResolveProc(2)` сигнатура: `(void*)` | То же |
-| 3 | `PMC_ShutdownCallback` — удалить | Согласовано |
-| 4 | `PmcSendData` → `Fc_SesPostData` | Согласовано |
-| 5 | `QueryThreadOrdinal` — `ULONG` | TBD |
-| 6 | Выбор backend — из конфига (`FPM_config.Read`) | Согласовано |
+| 1 | Graceful shutdown `Fs_RunServer` | Отложено. Требует закрытия listener-handle из другого потока |
+| 2 | `pmshm` `QMS_SLOT_SIZE` — увеличить до 4/8/16 MB? | Открыто как оптимизация: уменьшает число queue round-trips. Не блокер — 1 MB работает через chunking, размер сообщения не ограничен |
+| 3 | `pmshm` peer-death: `OpenProcess(peerPid)` на Win32 | Используется idle timeout, переносимо |
+| 4 | `pmtcp`: connect timeout к закрытому порту на OS/2 | Поведение стека OS/2, документировано |
+
+### VIII.4. PMCLIENT — закрытые вопросы
+
+| # | Вопрос | Решение |
+|---|---|---|
+| 1 | `ResolveProc(1)` сигнатура | ord 1 = `Fc_TrnConnect` (`char*, PULONG`) |
+| 2 | `ResolveProc(2)` сигнатура | ord 2 = `Fc_TrnDisconnect` (`void*`) |
+| 3 | `PMC_ShutdownCallback` | Удалён; EXIT шлёт `Fc_SesDisconnect` |
+| 4 | `Pmc*` → `Fc_Ses*` | Все 5 переименованы; `Fc_SesConnect`/`Fc_SesDisconnect` — новые |
+| 5 | `QueryThreadOrdinal` | `DosGetInfoBlocks` → `tib2_ultid` |
+| 6 | Выбор backend | `fpm.ini` (`backend=`), env `PM_COMM_BACKEND`, default `PMPIPE` |
+| 7 | HAB-таблица в PMMERGE | Не ведётся; HAB возвращается приложению, приложение его хранит |
+| 8 | DllMain / `Fc_SesInit` | Отсутствуют; backend грузится лениво на первом `Fc_SesConnect` |
+| 9 | Два `Fc_SesConnect` для одного tid | Невозможно; второй вызов → `(APIRET)-1` |
+| 10 | `F_CLIENTCONFIG` — per-process или per-thread | Per-process; заполняется один раз первым успешным connect'ом; последующие сверяют `idClient` |
+| 11 | Восстановление после обрыва | Только per-slot reconnect-thread, не `Fc_SesConnect` |
 
 ---
 
@@ -474,43 +547,38 @@ reply   = F_CLIENTCONFIG (или error)
 
 | # | Файл / Компонент | Статус | Зависимости |
 |---|---|---|---|
-| 1 | `include/F_link.hpp` | ✅ | — |
-| 2 | `include/F_wire.hpp` + `shared/F_wire.cpp` | ✅ | 1 |
-| 3 | `shared/Fc_trn.cpp` (7 exports) | ✅ | 2 |
-| 4 | `shared/Fs_trn.cpp` (2 exports) + `Fs_RunServer` | ✅ | 2 |
-| 5 | `pmtcp/F_tcp.*` | ✅ (OS/2 + Win32) | 3, 4 |
-| 6 | `pmpipe/F_pipe.*` | ✅ (OS/2 + Win32) | 3, 4 |
-| 7 | `pmshm/F_shm.*` | ✅ (OS/2 + Win32) | 3, 4 |
-| 8 | `pmtcp/test/test_pmtcp.cpp` | ✅ | 5 |
-| 9 | `pmpipe/test/test_pmpipe.cpp` | ✅ | 6 |
-| 10 | `pmshm/test/test_pmshm.cpp` | ✅ | 7 |
-| 11 | `init.cpp` (PMCLIENT) — per-thread + backend load | **следующий** | 5–7 |
-| 12 | `Fc_Ses*` экспорты, `Pmc*` → `Fc_Ses*` | после 11 | 11 |
-| 13 | `win_manual.cpp` (`WinInitialize`/`WinTerminate`) | после 11 | 11 |
-| 14 | Сервер: `Fs_Process`/`Fs_Thread`/`Fs_Hab` | после 13 | — |
+| 1–10 | Транспорт (`F_Link`, `F_wire`, `Fc_trn`, `Fs_trn`, 3 backend, 3 теста) | ✅ | — |
+| 11 | `init.cpp` (PMCLIENT) — per-thread + lazy backend load | **в работе** | 5–7 |
+| 12 | `pmclient.h` + `pmclient.def` — 7 экспортов `Fc_Ses*` | **в работе** (API + `.def` готовы; реализация в `init.cpp`) | 11 |
+| 12a | Переименование `Pmc*` → `Fc_Ses*` в `gpi_entry.cpp`, `gpi_proxies.cpp`, `gpi_manual.cpp`, `windowmgr.cpp`, `habmgr.cpp` | **следующий** | 12 |
+| 13 | `win_manual.cpp` (`WinInitialize`/`WinTerminate` proxy в PMMERGE): `WinInitialize` → `Fc_SesConnect(NULL)` + `Fc_SesSendCommandData(NWinInitialize)` → HAB; `WinTerminate` → `Fc_SesSendCommandData(NWinTerminate)` + `Fc_SesDisconnect()` | после 12a | 12 |
+| 14 | Сервер: `Fs_Process` / `Fs_Thread` / `Fs_Hab` | после 13 | — |
 | 15 | `dispatch_win_hab.cpp`, `Fs_server.cpp` | после 14 | 14 |
 | 16 | `F_cmd.h` / `win_wire.h` — wire-формат под per-thread | после 15 | 14, 15 |
-| 17 | PMCLIENT тесты (сессия) | после 12 | 11, 12 |
+| 17 | PMCLIENT тесты (сессия) | после 12a | 11, 12 |
 
 ---
 
 ## Часть X. Резюме
 
-**Архитектура:** client-server. L4–L6 симметричны. L7 асимметричен (клиент — external, сервер — PM-реализация). GOCA — L7-внутренний формат сервера.
+**Архитектура:** client-server. L4–L6 симметричны. L7 асимметричен. GOCA — L7-внутренний формат сервера.
 
-**Именование:** `Fc_`/`Fs_`/`F_` + `Trn`/`Ses` + `Post`/`Send`/`Get`. Обязательное переименование `PmcSendData → Fc_SesPostData`.
+**Именование:** `Fc_` / `Fs_` / `F_` + квалификатор (`Trn` / `Ses` / `Dbg` / `Wire`) + глагол (`Post` / `Send` / `Get` / `Connect` / `Disconnect` / `Run`).
 
-**L4 Transport:** `F_Link` abstract + 3 backend (`TcpLink`, `PipeLink`, `ShmLink`). Одна DLL на backend, 11 exports identical (ordinals 1–11). 9 из 11 — `shared/`, 2 — backend-специфичны. `datalen` — байты.
+**L4 Transport:** `F_Link` abstract + 3 backend (`TcpLink`, `PipeLink`, `ShmLink`). Одна DLL на backend, 11 экспортов, ординалы 1–11. Клиент резолвит 1–7.
 
-**`pmshm`:** OS/2-идиома queue + shared memory. Queue несёт только 8-байтные уведомления `{slot, length}`, данные — в shared memory. Handshake — 9-байтный `{version, pid, tid}` через `\QUEUES\FREEPM`. Имена (C_, S_, C2S, S2C) вычисляются из `(pid, tid)` — на wire не передаются.
+**PMCLIENT:** per-thread модель. 7 экспортов, ординалы 1–7 (`.1`–`.5` — data path, `.6`–`.7` — lifecycle). Всё состояние — `aConns[tid]`, `g_idClient`, `g_clientConfig`, `hmodBE` — внутри PMCLIENT. Backend грузится лениво на первом `Fc_SesConnect`. Нет `DllMain`, нет `Fc_SesInit`, нет `atexit`.
 
-**`pmpipe`:** byte-mode pipe, retry на `ERROR_PIPE_BUSY`, listener recovery.
+**Контракты `Fc_SesConnect` / `Fc_SesDisconnect`:**
+- `Fc_SesConnect` — один раз за жизнь потока; при существующем слоте → `-1`; первый успешный в процессе заполняет `g_clientConfig`/`g_idClient`; последующие сверяют `idClient`.
+- `Fc_SesDisconnect` — best-effort `F_CMD_CLIENT_EXIT` → `pfnFc_TrnDisconnect` → очистка слота. Симметрично.
 
-**`pmtcp`:** BSD sockets, non-blocking connect + select, handshake с per-chunk timeout, WSA refcount в ctor/dtor.
+**PMMERGE:** `WinInitialize` → `Fc_SesConnect(NULL)` + `Fc_SesSendCommandData(NWinInitialize)` → HAB. `WinTerminate` → `Fc_SesSendCommandData(NWinTerminate)` + `Fc_SesDisconnect()`. HAB-таблица не ведётся.
 
-**Ограничение:** `pmshm` QMS_SLOT_SIZE = 1 MB на сообщение. Для больших GPI-bitmap — pipe/TCP. `F_platform.h` queue emulation — 16-байтный слот, только для control.
+**`pmshm`:** `QMS_SLOT_SIZE = 1 MB` — размер чанка; `Send`/`Recv` chunk/reassemble произвольной длины, размер сообщения не ограничен. `QMS_SLOTS = 1` — один чанк in flight на направление. Очередь несёт только control-сообщения; данные — только в shared memory.
 
-**PMCLIENT:** следующий этап. `Pmc* → Fc_Ses*`, `Fc_SesBeginThread`/`EndThread`, backend load по конфигу.
+**`pmpipe`:** byte-mode, chunking `0x8000` внутренний (прозрачно для API).
 
-**Тесты:** транспортные (`test_pmtcp.exe`, `test_pmpipe.exe`, `test_pmshm.exe`) — отдельно от интеграционных (`pmtest.exe`).
-```
+**`pmtcp`:** BSD sockets, chunking `PMC_MAX_SOCK_CHUNK` внутренний (прозрачно для API).
+
+**Тесты:** транспортные — проходят; PMCLIENT per-thread — следующий этап.

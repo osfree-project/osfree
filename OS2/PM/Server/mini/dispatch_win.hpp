@@ -27,7 +27,7 @@
 
 #define INCL_PM
 #include "F_platform.h"
-#include "Fs_hab.hpp"
+#include "Fs_process.hpp"
 #include "win_wire.h"
 
 #ifdef __cplusplus
@@ -35,7 +35,24 @@ extern "C" {
 #endif
 
 /* ---- 0x0001-0x000F: HAB lifecycle (Phase 2) ---------------------------- */
-ULONG DispatchWinHab(Fs_HabList *pHabs, ULONG idClient,
+
+/*!
+ * @brief HAB lifecycle dispatcher (NWinInitialize/NWinTerminate/NWinGetLastError).
+ *
+ * Locates the Fs_Process by pRecvobj, then the Fs_ClientConnection inside it.
+ * NWinInitialize attaches a new Fs_Hab to the thread slot; NWinTerminate
+ * detaches it; NWinGetLastError reads pHab->GetLastError().
+ *
+ * @param [in]  pProcs     Process registry.
+ * @param [in]  pRecvobj   Transport connection handle (identifies the thread).
+ * @param [in]  fnCode     NWin* opcode (0x0001..0x000F).
+ * @param [in]  data       Primary argument (see NWin* semantics).
+ * @param [in]  pArgs      Payload buffer (may be NULL when cbArgs == 0).
+ * @param [in]  cbArgs     Size of pArgs.
+ * @param [out] pcbPayload Receives reply payload size (0 = no payload).
+ * @return Dispatch result (ulResult of the response).
+ */
+ULONG DispatchWinHab(Fs_ProcessList *pProcs, void *pRecvobj,
                      ULONG fnCode, ULONG data,
                      PBYTE pArgs, ULONG cbArgs, PULONG pcbPayload);
 

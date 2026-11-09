@@ -118,10 +118,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    rc = DosQueryProcAddr(hmod, 3, 0, &pfn);
+    /* было: rc = DosQueryProcAddr(hmod, 3, 0, &pfn); */
+    rc = DosQueryProcAddr(hmod, 8, 0, &pfn);   /* Fs_TrnRunListener */
     if (rc) {
         F_DbgPrint(F_DBG_SEC_PMSERVER, F_DBG_LVL_ERROR,
-                   "PMSERVER: missing ordinal 3");
+                   "PMSERVER: missing ordinal 8");
         return 1;
     }
     pStartSrv = (PMC_START_SRV)pfn;
@@ -130,18 +131,20 @@ int main(int argc, char *argv[])
         PMC_RECV_DATA pfnRecv = NULL;
         PMC_SEND_DATA pfnSend = NULL;
 
-        rc = DosQueryProcAddr(hmod, 10, 0, &pfn);
+        /* было: rc = DosQueryProcAddr(hmod, 10, 0, &pfn); */
+        rc = DosQueryProcAddr(hmod, 11, 0, &pfn);   /* Fs_TrnGetData */
         if (rc) {
             F_DbgPrint(F_DBG_SEC_PMSERVER, F_DBG_LVL_ERROR,
-                       "PMSERVER: missing ordinal 10");
+                       "PMSERVER: missing ordinal 11");
             return 1;
         }
         pfnRecv = (PMC_RECV_DATA)pfn;
 
-        rc = DosQueryProcAddr(hmod, 11, 0, &pfn);
+        /* было: rc = DosQueryProcAddr(hmod, 11, 0, &pfn); */
+        rc = DosQueryProcAddr(hmod, 9, 0, &pfn);    /* Fs_TrnPostData */
         if (rc) {
             F_DbgPrint(F_DBG_SEC_PMSERVER, F_DBG_LVL_ERROR,
-                       "PMSERVER: missing ordinal 11");
+                       "PMSERVER: missing ordinal 9");
             return 1;
         }
         pfnSend = (PMC_SEND_DATA)pfn;

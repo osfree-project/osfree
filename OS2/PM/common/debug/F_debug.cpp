@@ -61,6 +61,12 @@ static FILE            *s_log       = NULL;
     rotation. Used to trigger size-based rotation. */
 static ULONG            s_logBytes  = 0;
 
+/*! @brief Non-zero once DbgOpenLog has been attempted for the current
+    s_cfg.logfile. Reset by F_DbgInit and F_DbgSetConfig. Deferred
+    open: F_DbgInit never touches the filesystem; the file is opened
+    on the first write attempt (EmitFile). */
+static int              s_logOpenAttempted = 0;
+
 /*! @brief Registered wire-forward sink, or NULL when none is set. */
 static F_DbgWireSink    s_wireSink  = NULL;
 
@@ -72,6 +78,12 @@ static HMTX             s_mutex     = NULL;
 
 /*! @brief Set once by F_DbgInit; subsequent calls are no-ops. */
 static int              s_inited    = 0;
+
+/*! @brief Open the configured log file lazily on the first write.
+
+    Forward declaration: EmitFile calls this, and the body lives in the
+    Init section of the file. */
+static void DbgOpenLog(void);
 
 /*! @brief Thread-local handle for the per-thread context stack.
 
@@ -289,14 +301,18 @@ static DBG_CTX_STACK *CtxGetOrCreate(void)
 /* ======================================================================== */
 
 /*! @brief Rotate the log file. Renames N-1 -> N, …, 0 -> 1, then the
-    active file -> 0, and reopens the log file. No-op when rotation is
-    not configured. Caller must hold the debug mutex. */
+    active file -> 0, and reopens the log file.
+
+    No-op when no log file has been opened yet (nothing to rotate),
+    or when rotation is not configured. Caller must hold the debug
+    mutex. */
 static void DbgRotateLocked(void)
 {
     int   i;
     char  from[260];
     char  to[260];
 
+    if (!s_log) return;
     if (!s_cfg.logfile || s_cfg.rotateNumber <= 0) return;
 
     for (i = s_cfg.rotateNumber; i > 1; ) {
@@ -313,15 +329,33 @@ static void DbgRotateLocked(void)
 }
 
 /*! @brief Write a pre-formatted line to the configured log file.
-    No-op when no log file is configured. Tracks the number of bytes
-    written and triggers rotation by size when s_cfg.rotateSize is
-    reached.
+
+    Opens the log file lazily on the first call. This keeps
+    F_DbgInit / F_DbgSetConfig completely filesystem-free: no log
+    file is created merely because the DLL was loaded or the caller
+    re-applied a config. The first actual write opens (or re-opens)
+    the file described by the current s_cfg.logfile.
+
+    No-op when no log file is configured, or when the open attempt
+    has already failed (retried only after F_DbgSetConfig / F_DbgInit
+    resets s_logOpenAttempted). Tracks the number of bytes written
+    and triggers rotation by size when s_cfg.rotateSize is reached.
+    Caller must hold the debug mutex.
+
     @param [in] text  Pre-formatted line, including trailing newline. */
 static void EmitFile(const char *text)
 {
     size_t n;
 
-    if (!s_log || !text) return;
+    if (!text) return;
+
+    if (!s_logOpenAttempted) {
+        DbgOpenLog();
+        s_logOpenAttempted = 1;
+    }
+
+    if (!s_log) return;
+
     n = strlen(text);
     if (n == 0) return;
     fwrite(text, 1, n, s_log);
@@ -403,11 +437,17 @@ static void DbgOpenLog(void)
 
 /*! @brief Initialise the debug subsystem. Idempotent.
 
-    Creates the process-wide mutex, initialises the per-thread handle
-    used for the context stack (DosAllocThreadLocalMemory on OS/2,
-    TlsAlloc on Win32), copies the configuration, resets all section
-    levels to -1 (unconfigured), parses @p levels, and opens the log
-    file.
+    Creates the process-wide mutex and the per-thread handle used for
+    the context stack (DosAllocThreadLocalMemory on OS/2, TlsAlloc on
+    Win32), copies the configuration, resets all section levels to -1
+    (unconfigured), and parses @p levels.
+
+    Does NOT open any log file. The file is opened lazily on the
+    first write attempt (see EmitFile). This means F_DbgInit can be
+    called from DllMain(ATTACH) and again from the application's
+    main() — no log file is created merely because the DLL was
+    loaded, and any file previously opened by an earlier call is
+    closed so the next write uses the new configuration.
 
     @param [in] cfg     Configuration, or NULL for defaults.
     @param [in] levels  Level string, or NULL to leave levels unconfigured. */
@@ -415,19 +455,18 @@ void F_DbgInit(const F_DbgConfig *cfg, const char *levels)
 {
     int i;
 
-
-    if (!s_inited) 
+    if (!s_inited)
     {
-    if (DosCreateMutexSem(NULL, &s_mutex, 0, FALSE) != 0)
-        s_mutex = NULL;
+        if (DosCreateMutexSem(NULL, &s_mutex, 0, FALSE) != 0)
+            s_mutex = NULL;
 
 #if defined(__OS2__) || defined(__OS2V2__)
-    if (DosAllocThreadLocalMemory(1, &s_ctxTls) != 0)
-        s_ctxTls = NULL;
+        if (DosAllocThreadLocalMemory(1, &s_ctxTls) != 0)
+            s_ctxTls = NULL;
 #else
-    s_ctxTls = TlsAlloc();
-    /* s_ctxTls == TLS_OUT_OF_INDEXES signals failure; CtxTlsGet /
-       CtxTlsSet check for it and act as no-ops. */
+        s_ctxTls = TlsAlloc();
+        /* s_ctxTls == TLS_OUT_OF_INDEXES signals failure; CtxTlsGet /
+           CtxTlsSet check for it and act as no-ops. */
 #endif
     }
 
@@ -448,14 +487,22 @@ void F_DbgInit(const F_DbgConfig *cfg, const char *levels)
 
     if (levels) F_DbgSetLevels(levels);
 
-    DbgOpenLog();
+    /* Deferred open. If a previous F_DbgInit (or F_DbgSetConfig) had
+       already opened a log file, close it now — the next write will
+       reopen with the current s_cfg. */
+    if (s_log) { fclose(s_log); s_log = NULL; }
+    s_logBytes         = 0;
+    s_logOpenAttempted = 0;
 
     s_inited = 1;
 }
 
 /*! @brief Re-apply configuration at runtime (e.g. after reading ini).
-    Reopens the log file if @c logfile changed. Does not reset levels;
+
+    Closes the current log file (if any) and defers opening the new
+    one until the next write (see EmitFile). Does not reset levels;
     use F_DbgSetLevels for that. Thread-safe.
+
     @param [in] cfg  New configuration. NULL is ignored. */
 void APIENTRY F_DbgSetConfig(const F_DbgConfig *cfg)
 {
@@ -463,8 +510,9 @@ void APIENTRY F_DbgSetConfig(const F_DbgConfig *cfg)
 
     LockDbg();
     s_cfg = *cfg;
-    if (s_log) { fclose(s_log); s_log = NULL; s_logBytes = 0; }
-    DbgOpenLog();
+    if (s_log) { fclose(s_log); s_log = NULL; }
+    s_logBytes         = 0;
+    s_logOpenAttempted = 0;
     UnlockDbg();
 }
 

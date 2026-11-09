@@ -12,6 +12,7 @@
 /* Limits (compile-time) */
 #define F_MAX_CLIENTS           64   /*!< Maximum simultaneous connections. */
 #define F_MAX_HABS              128  /*!< Maximum simultaneous HABs (per-thread anchors). */
+#define F_MAX_THREADS           16   /*!< Maximum simultaneous threads per client process. */
 #define F_MONITOR_TICK_MS       1000 /*!< Monitor thread wake-up, ms. */
 #define F_DEFAULT_INACTIVE      60   /*!< Default inactivity timeout, sec. */
 #define F_DEFAULT_GRACE         30   /*!< Default grace timeout (DETACHED->FREE), sec. */

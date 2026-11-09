@@ -1,4 +1,5 @@
-﻿# Уточнённая спецификация и план (версия 2)
+﻿```markdown
+# Уточнённая спецификация и план (версия 3)
 
 ---
 
@@ -15,9 +16,11 @@ PMTCP.DLL ────┤
 PMGPI ────────┘
 ```
 
-`F_DbgInit` вызывается **из DllMain(ATTACH) самой PMDEBUG.DLL** с дефолтной конфигурацией (из кода). К моменту, когда PMDEBUG вернула управление загрузчику, mutex создан, файл открыт (если путь задан по умолчанию), stderr готов. Модули, загружающиеся **после** PMDEBUG (а все остальные загружаются после, так как PMDEBUG — их зависимость), сразу имеют работающий `F_DbgPrint`.
+`F_DbgInit` вызывается **из DllMain(ATTACH) самой PMDEBUG.DLL** с дефолтной конфигурацией (из кода). К моменту, когда PMDEBUG вернула управление загрузчику, mutex создан, TLS-слот для контекстного стека выделен, `s_cfg` содержит дефолты, `F_DbgLevels[]` распарсены из `F_DBG_DEFAULT_LEVELS`. Модули, загружающиеся **после** PMDEBUG (а все остальные загружаются после, так как PMDEBUG — их зависимость), сразу имеют работающий `F_DbgPrint`.
 
-Позже загружающий процесс читает свой `fpmsrv.ini` / `fpm.ini` и **переопределяет** конфигурацию через `F_DbgSetConfig`. Wire sink поднимается процессом, когда транспорт готов.
+**Файл лога DllMain не открывает.** `F_DbgInit` не касается файловой системы. Лог открывается **лениво, при первой записи** (см. §11.4). Следствие: загрузка `pmserver.exe` или любого клиентского процесса не создаёт `freepm.log` — файл появляется только если процесс реально что-то пишет в лог, и с тем именем, которое к моменту первой записи стоит в `s_cfg.logfile`.
+
+Загружающий процесс может переопределить конфигурацию через `F_DbgInit` (второй раз, из `main()`) или `F_DbgSetConfig` (из любого места после чтения `.ini`). После переопределения следующий write открывает файл по новому пути; ранее открытый файл закрывается.
 
 ## 2. Модель сообщения
 
@@ -46,10 +49,26 @@ struct F_DbgConfig {
     int         thresholdLevel;   /* единый порог для всех каналов */
 };
 
+/* Инициализация. Создаёт mutex и TLS-слот (один раз за процесс),
+   копирует cfg, сбрасывает уровни, парсит levels.
+   НЕ открывает лог-файл. Повторный вызов безопасен: переопределяет
+   s_cfg, закрывает ранее открытый файл (если был), сбрасывает
+   "лог-уже-открывали" — следующая запись откроет по новому пути. */
 void APIENTRY F_DbgInit(const F_DbgConfig *cfg, const char *levels);
-void APIENTRY F_DbgSetConfig(const F_DbgConfig *cfg);   /* [новое] переопределение из ini */
+
+/* Переопределение конфигурации на лету (после ini).
+   Закрывает ранее открытый файл, НЕ открывает новый.
+   Следующая запись откроет по s_cfg.logfile. Wire sink не трогает. */
+void APIENTRY F_DbgSetConfig(const F_DbgConfig *cfg);
+
 void APIENTRY F_DbgSetLevels(const char *levels);
+
+/* Принудительная ротация. No-op, если файл ещё не открывался
+   (нечего ротировать) или rotateNumber <= 0. */
 void APIENTRY F_DbgRotate(void);
+
+/* Сброс буферов. No-op, если файл не открыт (нечего сбрасывать);
+   stderr всё равно flushes. */
 void APIENTRY F_DbgFlush(void);
 
 void APIENTRY F_DbgPrint(int section, int level, const char *fmt, ...);
@@ -103,6 +122,13 @@ void APIENTRY F_DbgSetWireSink(F_DbgWireSink sink);
 
 `F_DbgKind` расширяется: `F_DBG_KIND_CTX_OPEN`, `F_DBG_KIND_CTX_CLOSE`. Wire sink вызывается для ctx-строк тоже — клиентский wire sink их отправляет как `F_CMD_CTX_OPEN/CLOSE`.
 
+## 7. TLS (per-thread)
+
+- **OS/2:** `DosAllocThreadLocalMemory(1, &s_ctxTls)`; `s_ctxTls[0]` — процесс-инвариантный указатель, ядро резолвит в per-thread память.
+- **Win32:** `TlsAlloc()` в `s_ctxTls`; доступ через `TlsGetValue` / `TlsSetValue`.
+- Стек `DBG_CTX_STACK` выделяется лениво, при первом `F_DbgCtxEnterf` в потоке (`CtxGetOrCreate`).
+- Освобождается только при завершении процесса; утечка ограничена числом потоков × ~8 KiB.
+
 ## 8. Секции (в `F_config.h`)
 
 Порядок сверху вниз — от ядра к транспорту; PMTCP ниже PMCLIENT и шумнее.
@@ -149,7 +175,7 @@ PMTCP на 40–41 — намеренно отдельно и «выше» кл�
 
 ## 10. Thread-safety
 
-Один mutex в `F_debug.cpp` (per-process, так как PMDEBUG.DLL загружена один раз в процесс). Под mutex — `s_counter`, `s_log`, `s_cfg`, `s_inited`, `F_DbgLevels[]` (запись), `s_wireSink`, `s_fatalInProgress`. TLS-стек ctx — без mutex; печать под mutex.
+Один mutex в `F_debug.cpp` (per-process, так как PMDEBUG.DLL загружена один раз в процесс). Под mutex — `s_counter`, `s_log`, `s_logBytes`, `s_logOpenAttempted`, `s_cfg`, `s_inited`, `F_DbgLevels[]` (запись), `s_wireSink`, `s_fatalInProgress`. TLS-стек ctx — без mutex; печать под mutex.
 
 ## 11. Конфигурация
 
@@ -161,19 +187,31 @@ static const F_DbgConfig F_DBG_DEFAULT_CFG = {
 };
 ```
 
-`F_DbgInit(&F_DBG_DEFAULT_CFG, NULL)` в DllMain(ATTACH) PMDEBUG.DLL.
+`F_DbgInit(&F_DBG_DEFAULT_CFG, F_DBG_DEFAULT_LEVELS)` в `DllMain(ATTACH)` PMDEBUG.DLL. **Файл `freepm.log` при этом не создаётся** — `F_DbgInit` только запоминает конфиг (см. §11.4).
 
 ### 11.2. Переопределение
 
 Загружающий процесс после чтения своего `.ini`:
+
 ```c
-F_DbgConfig cfg = F_DBG_DEFAULT_CFG;  /* копия дефолтов */
+/* Вариант A — через F_DbgInit (типичный путь для pmserver.exe):
+   переопределить и файл, и уровни одновременно. */
+F_DbgInit(&serverCfg, fpmdebug_debugOptions);
+
+/* Вариант B — через F_DbgSetConfig (без сброса уровней): */
+F_DbgConfig cfg = F_DBG_DEFAULT_CFG;   /* копия дефолтов */
 /* заполняем из ini... */
 F_DbgSetConfig(&cfg);
 F_DbgSetLevels(fpmdebug_debugOptions);
 ```
 
-`F_DbgSetConfig` переоткрывает файл (если путь изменился), обновляет `thresholdLevel`, `ansiColor` и т.д. Wire sink не трогает.
+В обоих случаях:
+
+- `F_DbgInit` и `F_DbgSetConfig` **не открывают** лог-файл.
+- Если предыдущая инициализация (из `DllMain`) уже успела открыть файл через первый write — он закрывается.
+- Следующий write открывает файл по новому `s_cfg.logfile`.
+
+**Следствие для `pmserver.exe`:** `DllMain` PMDEBUG помнит `freepm.log` как имя, но файла нет. `main()` вызывает `F_DbgInit(&F_DBG_SERVER_CFG, ...)` — конфиг меняется на `pmserver.log`. Первая запись `F_DbgPrint("PMSERVER: starting")` создаёт `pmserver.log`. `freepm.log` **не создаётся никогда** этим процессом.
 
 ### 11.3. `fpmsrv.ini` / `fpm.ini`
 
@@ -191,13 +229,35 @@ fpmdebug.debugOptions=ALL,7 5,3 7,5 8,0 40,3
 
 Ключи, отсутствующие в ini, берутся из дефолтов. `debugOptions` уже читается `Fc_config.cpp` (клиент) и `Fs_config.cpp` (сервер).
 
+### 11.4. Lazy open (deferred open)
+
+**`F_DbgInit` не открывает лог-файл. `F_DbgSetConfig` не открывает. Открытие происходит при первой записи.**
+
+Механизм:
+
+- Флаг `s_logOpenAttempted` (static, per-process). Сбрасывается в `0` в `F_DbgInit` и `F_DbgSetConfig`.
+- `EmitFile` (внутренний путь записи в файл) проверяет флаг:
+  - если `0` → вызывает `DbgOpenLog()` (открывает `s_cfg.logfile` в режиме `"a+"`, читает `ftell` для `s_logBytes`), ставит флаг в `1`;
+  - если `s_log == NULL` после попытки — все дальнейшие write в файл no-op до следующего `F_DbgInit`/`F_DbgSetConfig` (retry — только через эти два вызова).
+- `DbgOpenLog` перед открытием закрывает ранее открытый `s_log` (если был), сбрасывает `s_logBytes = 0`.
+
+**Гарантии:**
+
+- `DllMain(ATTACH)` PMDEBUG никогда не создаёт файлов в файловой системе.
+- Загрузка `pmserver.exe` без единой `F_DbgPrint` не создаёт `freepm.log`.
+- Загрузка клиентского процесса без единой `F_DbgPrint` не создаёт `freepm.log`.
+- Если `fpm.ini` указывает `logfile=clients.log`, файл `clients.log` — единственный, что появится; `freepm.log` не создаётся.
+- Пока процесс не писал в лог, `F_DbgRotate` и `F_DbgFlush` — no-op относительно файла (stderr всё равно flushes для `F_DbgFlush`).
+
+**Проверка отсутствия двойного handle при реинициализации:** если `DllMain` открыл `freepm.log` через первый write (т.е. кто-то успел написать до `main`), а затем `main()` вызвал `F_DbgInit(&serverCfg, ...)`, `DbgOpenLog` при следующем write закроет `freepm.log` и откроет `pmserver.log`. Двух одновременно открытых handle на разные файлы не бывает.
+
 ---
 
 # Часть II. План миграции
 
 ### 3.2. pmserver — приём без логирования
 
-В `Fs_Server::HandleCommand` (или в `pm_handler` — в зависимости от того, что собирается; **[запрос файла]**):
+В `Fs_Server::HandleCommand`:
 
 ```c
 case F_CMD_DB_PRINT: {
@@ -222,6 +282,7 @@ case F_CMD_CTX_CLOSE:    /* ACK */ ...
 ### 4.4. pmserver — логирование клиентских сообщений
 
 Заменить ACK-only на запись:
+
 ```c
 F_DbgPrintKind(hdr.section, hdr.level, (F_DbgKind)hdr.kind,
                "[client %u] %s", id, text);
@@ -230,5 +291,17 @@ F_DbgPrintKind(hdr.section, hdr.level, (F_DbgKind)hdr.kind,
 Для `F_CMD_CTX_OPEN` / `CLOSE` — `F_DbgCtxEnterf` / `F_DbgCtxExit(-1)` в потоке клиента.
 
 `Fs_Server::HandleDisconnect` — `F_DbgCtxExit(-1)`.
+```
 
+---
 
+## Что изменилось относительно версии 2
+
+| Раздел | Изменение |
+|---|---|
+| §1 Архитектура | Убран «файл открыт (если путь задан по умолчанию)». Добавлен абзац про deferred open. |
+| §3 API | Комментарии к `F_DbgInit`/`F_DbgSetConfig`/`F_DbgRotate`/`F_DbgFlush` уточняют: файл не открывается, ротация/флаш — no-op до первой записи. |
+| §10 Thread-safety | В список под mutex добавлен `s_logBytes`, `s_logOpenAttempted`. |
+| §11.1 Дефолты | Уточнено: `freepm.log` при `DllMain` не создаётся. |
+| §11.2 Переопределение | Два варианта (Init / SetConfig), оба не открывают файл, закрывают ранее открытый. Показан конкретный сценарий `pmserver.exe`: `freepm.log` не появляется. |
+| §11.4 Lazy open | Новый подраздел — полное описание механизма `s_logOpenAttempted` + `EmitFile` → `DbgOpenLog`, гарантии и проверка отсутствия двойного handle. |

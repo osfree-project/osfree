@@ -14,6 +14,8 @@ Fs_ClientConnection::Fs_ClientConnection()
     : m_state(StateFree),
       m_idClient(0),
       m_pRecvobj(NULL),
+      m_tid(0),
+      m_iHab(0),
       m_timeLastActivity(0),
       m_timeDetached(0)
 {
@@ -27,6 +29,8 @@ BOOL Fs_ClientConnection::Init(void *pRecvobj, ULONG idClient)
     m_state            = StateActive;
     m_idClient         = idClient;
     m_pRecvobj         = pRecvobj;
+    m_tid              = 0;
+    m_iHab             = 0;
     m_timeLastActivity = time(NULL);
     m_timeDetached     = 0;
     return TRUE;
@@ -49,6 +53,8 @@ void Fs_ClientConnection::Shutdown()
     m_state            = StateFree;
     m_idClient         = 0;
     m_pRecvobj         = NULL;
+    m_tid              = 0;
+    m_iHab             = 0;
     m_timeLastActivity = 0;
     m_timeDetached     = 0;
 
@@ -119,220 +125,16 @@ void Fs_ClientConnection::ToActive(void *pRecvobj, time_t now)
     F_DbgCtxExitf(ctx, "-> StateActive");
 }
 
-/* ======================================================================== */
-/*  Fs_ClientList                                                           */
-/* ======================================================================== */
-
-Fs_ClientList::Fs_ClientList()
-    : m_ulNextId(1),
-      m_ulMaxClients(F_MAX_CLIENTS)
+void Fs_ClientConnection::AttachHab(ULONG tid, ULONG iHab)
 {
-    m_hmtx = NULL;
-    if (DosCreateMutexSem(NULL, &m_hmtx, 0, FALSE) != 0) {
-        F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_ERROR,
-                   "[CLIENTLIST] ERROR: DosCreateMutexSem failed");
-        m_hmtx = NULL;
-    }
+    if (m_state != StateActive) return;
+    m_tid  = tid;
+    m_iHab = iHab;
 }
 
-Fs_ClientList::~Fs_ClientList()
+void Fs_ClientConnection::DetachHab()
 {
-    if (m_hmtx) {
-        DosCloseMutexSem(m_hmtx);
-        m_hmtx = NULL;
-    }
+    m_tid  = 0;
+    m_iHab = 0;
 }
 
-void Fs_ClientList::Lock()
-{
-    if (m_hmtx) DosRequestMutexSem(m_hmtx, SEM_INDEFINITE_WAIT);
-}
-
-void Fs_ClientList::Unlock()
-{
-    if (m_hmtx) DosReleaseMutexSem(m_hmtx);
-}
-
-void Fs_ClientList::SetMax(ULONG ulMaxClients)
-{
-    if (ulMaxClients > (ULONG)F_MAX_CLIENTS)
-        ulMaxClients = (ULONG)F_MAX_CLIENTS;
-
-    Lock();
-    m_ulMaxClients = ulMaxClients;
-    Unlock();
-
-    F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_VERBOSE,
-               "[CLIENTLIST] SetMax(%lu)", (unsigned long)ulMaxClients);
-}
-
-Fs_ClientConnection *Fs_ClientList::FindByRecvobj(void *pRecvobj)
-{
-    int i;
-    Fs_ClientConnection *pFound = NULL;
-
-    if (pRecvobj == NULL) return NULL;
-
-    Lock();
-    for (i = 0; i < F_MAX_CLIENTS; i++) {
-        if (m_aClients[i].IsActive() &&
-            m_aClients[i].GetRecvobj() == pRecvobj) {
-            pFound = &m_aClients[i];
-            break;
-        }
-    }
-    Unlock();
-    return pFound;
-}
-
-Fs_ClientConnection *Fs_ClientList::FindByIdClient(ULONG idClient)
-{
-    int i;
-    Fs_ClientConnection *pFound = NULL;
-
-    if (idClient == 0) return NULL;
-
-    Lock();
-    for (i = 0; i < F_MAX_CLIENTS; i++) {
-        if ((m_aClients[i].IsActive() || m_aClients[i].IsDetached()) &&
-            m_aClients[i].GetIdClient() == idClient) {
-            pFound = &m_aClients[i];
-            break;
-        }
-    }
-    Unlock();
-    return pFound;
-}
-
-Fs_ClientConnection *Fs_ClientList::FindFree()
-{
-    int i;
-    Fs_ClientConnection *pFound = NULL;
-
-    Lock();
-    for (i = 0; i < F_MAX_CLIENTS; i++) {
-        if (m_aClients[i].IsFree()) {
-            pFound = &m_aClients[i];
-            break;
-        }
-    }
-    Unlock();
-    return pFound;
-}
-
-Fs_ClientConnection *Fs_ClientList::GetOrCreate(void *pRecvobj,
-                                                ULONG *pNewIdClient)
-{
-    Fs_ClientConnection *pConn = NULL;
-    ULONG               idNew  = 0;
-    int                 i;
-    int                 ctx;
-
-    if (pNewIdClient) *pNewIdClient = 0;
-    if (pRecvobj == NULL) return NULL;
-
-    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_VERBOSE,
-                         "[CLIENTLIST] GetOrCreate(recvobj=%p)", pRecvobj);
-
-    Lock();
-
-    /* 1. Existing ACTIVE slot for this recvobj? Not subject to the
-       runtime limit: a reconnect of an already-known connection must
-       always succeed. */
-    for (i = 0; i < F_MAX_CLIENTS; i++) {
-        if (m_aClients[i].IsActive() &&
-            m_aClients[i].GetRecvobj() == pRecvobj) {
-            pConn = &m_aClients[i];
-            break;
-        }
-    }
-
-    /* 2. Otherwise grab the first FREE slot, subject to the runtime
-       limit (ACTIVE + DETACHED count). */
-    if (pConn == NULL) {
-        int nActive = 0;
-        for (i = 0; i < F_MAX_CLIENTS; i++) {
-            if (m_aClients[i].IsActive() || m_aClients[i].IsDetached())
-                nActive++;
-        }
-        if (nActive >= (int)m_ulMaxClients) {
-            Unlock();
-            F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_ERROR,
-                       "[CLIENTLIST] limit reached (%d/%lu)",
-                       nActive, (unsigned long)m_ulMaxClients);
-            F_DbgCtxExitf(ctx, "NULL (limit reached %d/%lu)",
-                          nActive, (unsigned long)m_ulMaxClients);
-            return NULL;
-        }
-
-        for (i = 0; i < F_MAX_CLIENTS; i++) {
-            if (m_aClients[i].IsFree()) {
-                idNew = m_ulNextId++;
-                if (idNew == 0) idNew = m_ulNextId++;  /* skip 0 */
-                if (m_aClients[i].Init(pRecvobj, idNew)) {
-                    pConn = &m_aClients[i];
-                    if (pNewIdClient) *pNewIdClient = idNew;
-                }
-                break;
-            }
-        }
-    }
-
-    Unlock();
-
-    if (pConn == NULL) {
-        F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_ERROR,
-                   "[CLIENTLIST] ERROR: table full (%d slots)",
-                   F_MAX_CLIENTS);
-        F_DbgCtxExitf(ctx, "NULL (table full)");
-        return NULL;
-    }
-    F_DbgCtxExitf(ctx, "idClient=%lu", (unsigned long)idNew);
-    return pConn;
-}
-
-int Fs_ClientList::Expire(time_t now, ULONG ulInactive, ULONG ulGrace)
-{
-    int i;
-    int nChanged = 0;
-
-    Lock();
-    for (i = 0; i < F_MAX_CLIENTS; i++) {
-        Fs_ClientConnection *p = &m_aClients[i];
-
-        if (p->IsActive() && p->IsExpiredInactive(now, ulInactive)) {
-            p->ToDetached(now);
-            nChanged++;
-            continue;
-        }
-        if (p->IsDetached() && p->IsExpiredGrace(now, ulGrace)) {
-            F_DbgPrint(F_DBG_SEC_FS_CLIENT, F_DBG_LVL_WARNING,
-                       "[CLIENT %lu] grace timeout expired",
-                       (unsigned long)p->GetIdClient());
-            p->Shutdown();
-            nChanged++;
-        }
-    }
-    Unlock();
-    return nChanged;
-}
-
-int Fs_ClientList::CountActive() const
-{
-    int i, n = 0;
-    for (i = 0; i < F_MAX_CLIENTS; i++) {
-        if (m_aClients[i].IsActive() || m_aClients[i].IsDetached())
-            n++;
-    }
-    return n;
-}
-
-int Fs_ClientList::CountFree() const
-{
-    int i, n = 0;
-    for (i = 0; i < F_MAX_CLIENTS; i++) {
-        if (m_aClients[i].IsFree())
-            n++;
-    }
-    return n;
-}

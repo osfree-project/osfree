@@ -350,7 +350,11 @@ static int LoadBackend(void)
     else if (FPM_config.BackendName[0])
         strncpy(szBackend, FPM_config.BackendName, sizeof(szBackend) - 1);
     else
-        strcpy(szBackend, "PMPIPE");
+#if defined(__OS2__) || defined(__OS2V2__)
+    strcpy(szBackend, "PMPIPE");
+#else
+    strcpy(szBackend, "PMTCP");
+#endif
     szBackend[sizeof(szBackend) - 1] = 0;
     F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
                "PMC: Backend selected = %s", szBackend);
@@ -431,14 +435,10 @@ static int PMC_ServerInit(void)
                    "PMC: Local server not running, attempting to start...");
         startRc = ExecuteFreePMServer();
         if (startRc == 0) {
-            UnlockState();
+            /* Hold the state mutex across the settle delay: otherwise
+               other threads racing into PMC_ServerInit also see
+               LocalServerRunning()==0 and launch extra PMSERVER copies. */
             DosSleep(1000);
-            LockState();
-            if (g_fInitialized) {
-                UnlockState();
-                F_DbgCtxExitf(ctx, "another thread finished init");
-                return 1;
-            }
         } else {
             F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
                        "PMC: Failed to start PMSERVER.EXE.");
@@ -465,54 +465,96 @@ static int PMC_ServerInit(void)
     Reply is 16 bytes { idClient, ulInactive, ulGrace, flConfig }.
     Rejects the connection if idClient == 0.
 
+    F_CLIENTCONFIG is process-wide: it is filled once, from the first
+    successful CONNECT in this process. Subsequent CONNECTs read their
+    reply into a local struct and verify only that idClient matches
+    g_idClient; other fields (ulInactive, ulGrace, flConfig) are
+    ignored, since the process-wide config is already fixed.
+
     @param [in] obj  This thread's transport handle.
     @return 0 on success, -1 on failure.
-    @retval 0   CONNECT accepted, g_clientConfig filled.
-    @retval -1  Transport error, short reply, or rejected by server. */
+    @retval 0   CONNECT accepted; on first call, g_clientConfig and
+                g_idClient filled.
+    @retval -1  Transport error, short reply, rejected by server, or
+                idClient mismatch with the existing g_idClient. */
 static int PMC_ClientConnect(ULONG obj)
 {
-    APIRET rc;
-    ULONG  len = 0;
-    int    ctx;
+    APIRET         rc;
+    ULONG          len = 0;
+    F_CLIENTCONFIG cfg;
+    ULONG          send_idc;
+    int            ctx;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
                          "PMC: ClientConnect(obj=0x%lx)", (unsigned long)obj);
 
-    F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
-               "PMC: sending F_CMD_CLIENT_CONNECT");
+    /* Serialize CONNECT end-to-end. The state mutex is held across
+       the post + read because both send_idc and g_idClient must stay
+       consistent: two threads racing here would otherwise both send
+       idClient=0 and the server would create two processes. */
+    LockState();
 
-    rc = pfnFc_TrnPostCommand((void *)obj, F_CMD_CLIENT_CONNECT, 0);
+    send_idc = g_idClient;
+
+    F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE,
+               "PMC: sending F_CMD_CLIENT_CONNECT (idClient=%lu)",
+               (unsigned long)send_idc);
+
+    rc = pfnFc_TrnPostCommand((void *)obj, F_CMD_CLIENT_CONNECT, (int)send_idc);
     if (rc != 0) {
+        UnlockState();
         F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
                    "PMC: F_CMD_CLIENT_CONNECT send failed rc=%u", rc);
         F_DbgCtxExitf(ctx, "send failed rc=%u", rc);
         return -1;
     }
 
-    memset(&g_clientConfig, 0, sizeof(g_clientConfig));
-    rc = pfnFc_TrnGetData((void *)obj, &g_clientConfig, &len,
-                          sizeof(g_clientConfig));
-    if (rc != 0 || len != (ULONG)sizeof(g_clientConfig)) {
+    memset(&cfg, 0, sizeof(cfg));
+    rc = pfnFc_TrnGetData((void *)obj, &cfg, &len, sizeof(cfg));
+    if (rc != 0 || len != (ULONG)sizeof(cfg)) {
+        UnlockState();
         F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
                    "PMC: CONNECT reply read failed rc=%u, len=%u",
                    rc, (unsigned)len);
-        F_DbgCtxExitf(ctx, "reply read failed rc=%u, len=%u", rc, (unsigned)len);
+        F_DbgCtxExitf(ctx, "reply read failed rc=%u, len=%u",
+                      rc, (unsigned)len);
         return -1;
     }
 
-    if (g_clientConfig.idClient == 0) {
+    if (cfg.idClient == 0) {
+        UnlockState();
         F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
                    "PMC: CONNECT rejected by server (idClient=0)");
         F_DbgCtxExitf(ctx, "rejected (idClient=0)");
         return -1;
     }
 
-    F_DbgCtxExitf(ctx,
-                  "ok idClient=%lu, ulInactive=%lu, ulGrace=%lu, flConfig=0x%lx",
-                  (unsigned long)g_clientConfig.idClient,
-                  (unsigned long)g_clientConfig.ulInactive,
-                  (unsigned long)g_clientConfig.ulGrace,
-                  (unsigned long)g_clientConfig.flConfig);
+    if (g_idClient == 0) {
+        g_clientConfig = cfg;
+        g_idClient     = cfg.idClient;
+        UnlockState();
+        F_DbgCtxExitf(ctx,
+                      "ok first, idClient=%lu, ulInactive=%lu, "
+                      "ulGrace=%lu, flConfig=0x%lx",
+                      (unsigned long)g_clientConfig.idClient,
+                      (unsigned long)g_clientConfig.ulInactive,
+                      (unsigned long)g_clientConfig.ulGrace,
+                      (unsigned long)g_clientConfig.flConfig);
+        return 0;
+    }
+
+    if (cfg.idClient != g_idClient) {
+        ULONG expected = g_idClient;
+        UnlockState();
+        F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
+                   "PMC: CONNECT reply idClient=%lu mismatch g_idClient=%lu",
+                   (unsigned long)cfg.idClient, (unsigned long)expected);
+        F_DbgCtxExitf(ctx, "idClient mismatch");
+        return -1;
+    }
+
+    UnlockState();
+    F_DbgCtxExitf(ctx, "ok idClient=%lu", (unsigned long)cfg.idClient);
     return 0;
 }
 
@@ -556,6 +598,11 @@ static void OnTransportError(ULONG tid)
     RECONNECT until ulGrace seconds have elapsed or the process is
     terminating.
 
+    Wire: cmd=RECONNECT, data=idClient, payload={ ULONG tid }.
+    The tid identifies the client thread whose slot went BROKEN; it is
+    also the key under which NWinInitialize registered a HAB on the
+    server side. RECONNECT does not touch the HAB.
+
     On success the slot's obj, state and lastActivity are refreshed;
     on give-up, the reconnecting flag is cleared and the slot remains
     BROKEN (the next keepalive tick may try again).
@@ -595,6 +642,10 @@ static void ReconnectThreadProc(void *param)
         if (rc == 0 && newobj != 0) {
             rc = pfnFc_TrnPostCommand((void *)newobj,
                                       F_CMD_CLIENT_RECONNECT, g_idClient);
+            if (rc == 0) {
+                rc = pfnFc_TrnPostData((void *)newobj, &tid,
+                                       (ULONG)sizeof(tid));
+            }
             if (rc == 0) {
                 memset(&cfg, 0, sizeof(cfg));
                 len = 0;
@@ -751,15 +802,19 @@ static void StopKeepalive(void)
     - CONNECT + read F_CLIENTCONFIG via PMC_ClientConnect.
     - aConns[tid] = { obj, ACTIVE }.
 
-    Idempotent: second call on the same tid returns 0 immediately if
-    the slot is already ACTIVE.
+    A thread may call Fc_SesConnect at most once per its lifetime.
+    If aConns[tid] already exists (in any state — SLOT_ACTIVE or
+    SLOT_BROKEN), the call returns (APIRET)-1 without touching the
+    transport. Recovery from a broken slot is the sole responsibility
+    of the per-slot reconnect thread started by OnTransportError.
 
     @param [in] address  Backend-specific address, or NULL for default.
                          TcpLink: "host" or "host:port"; PipeLink /
                          ShmLink: NULL selects the default name.
     @return 0 on success, -1 on failure.
     @retval 0   Transport open, CONNECT accepted, slot registered.
-    @retval -1  Init, connect, handshake, or slot allocation failed. */
+    @retval -1  Slot already in use for this tid, or init / connect /
+                handshake / slot allocation failed. */
 extern "C" APIRET EXPENTRY Fc_SesConnect(char *address)
 {
     ULONG     tid;
@@ -781,10 +836,14 @@ extern "C" APIRET EXPENTRY Fc_SesConnect(char *address)
 
     LockState();
     p = SlotFind(tid);
-    if (p != NULL && p->state == SLOT_ACTIVE) {
+    if (p != NULL) {
+        int state = p->state;
         UnlockState();
-        F_DbgCtxExitf(ctx, "already connected (idempotent)");
-        return 0;
+        F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
+                   "PMC: Fc_SesConnect(tid=%lu) slot already in use "
+                   "(state=%d)", (unsigned long)tid, state);
+        F_DbgCtxExitf(ctx, "slot already in use (state=%d)", state);
+        return (APIRET)-1;
     }
     UnlockState();
 
@@ -806,7 +865,17 @@ extern "C" APIRET EXPENTRY Fc_SesConnect(char *address)
 
     LockState();
     p = SlotFind(tid);
-    if (p == NULL) p = SlotAlloc(tid);
+    if (p != NULL) {
+        UnlockState();
+        F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
+                   "PMC: Fc_SesConnect(tid=%lu) slot appeared during "
+                   "connect; dropping new transport",
+                   (unsigned long)tid);
+        pfnFc_TrnDisconnect((void *)obj);
+        F_DbgCtxExitf(ctx, "slot appeared during connect");
+        return (APIRET)-1;
+    }
+    p = SlotAlloc(tid);
     if (p == NULL) {
         UnlockState();
         F_DbgPrint(F_DBG_SEC_PMCLIENT, F_DBG_LVL_ERROR,
@@ -819,7 +888,6 @@ extern "C" APIRET EXPENTRY Fc_SesConnect(char *address)
     p->state        = SLOT_ACTIVE;
     p->reconnecting = 0;
     p->lastActivity = time(NULL);
-    if (g_idClient == 0) g_idClient = g_clientConfig.idClient;
     if (g_clientConfig.flConfig & F_CFG_PING_REQUIRED)
         StartKeepalive();
     UnlockState();
@@ -837,6 +905,24 @@ extern "C" APIRET EXPENTRY Fc_SesConnect(char *address)
     (WinTerminate in PMMERGE) sends it explicitly via Fc_SesPostCommand
     before calling Fc_SesDisconnect, keeping session-level tear-down
     (EXIT) separate from transport-level tear-down (close).
+
+    No-op if the thread has no active transport.
+
+    @return 0 always.
+    @retval 0  Slot cleared (or was already free). */
+/*! @brief Close this thread's session.
+
+    Sends F_CMD_CLIENT_EXIT (best-effort, fire-and-forget) so the
+    server tears down this thread's HAB and slot immediately, then
+    calls backend Fc_TrnDisconnect(obj). No reply is read — EXIT is
+    fire-and-forget by protocol; the transport close is what actually
+    unblocks Fs_ClientThreadProc on the server side.
+
+    Sending EXIT here (instead of relying on the transport-close
+    detection) matters because the fallback path is DETACHED +
+    ulGrace wait: a HAB that should be freed right now would instead
+    linger for ulGrace seconds (30 s by default) waiting for a
+    RECONNECT that never comes.
 
     No-op if the thread has no active transport.
 
@@ -873,6 +959,11 @@ extern "C" APIRET EXPENTRY Fc_SesDisconnect(void)
         F_DbgCtxExitf(ctx, "no active slot");
         return 0;
     }
+
+    /* Best-effort EXIT. Server finds the thread by recvobj, so
+       g_idClient is informational; send 0 if not set (should not
+       happen on the was_active path, but be defensive). */
+    pfnFc_TrnPostCommand((void *)obj, F_CMD_CLIENT_EXIT, (int)g_idClient);
 
     pfnFc_TrnDisconnect((void *)obj);
     F_DbgCtxExitf(ctx, "ok obj=0x%lx", (unsigned long)obj);
