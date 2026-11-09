@@ -23,11 +23,13 @@ DLLOPT       = initinstance terminstance
 OPTIONS     += caseexact
 
 EXPORTS      = &
-    PmcPostCommand             .1, &
-    PmcSendData                .2, &
-    PmcGetData                 .3, &
-    PmcSendCommand             .4, &
-    PmcSendCommandData         .5
+    Fc_SesPostCommand          .1, &
+    Fc_SesPostData             .2, &
+    Fc_SesGetData              .3, &
+    Fc_SesSendCommand          .4, &
+    Fc_SesSendCommandData      .5, &
+    Fc_SesConnect              .6, &
+    Fc_SesDisconnect           .7
 
 IMPORTS      =  &
 #                F_DbgInit        PMDEBUG.1, &
