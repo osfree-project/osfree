@@ -1,10 +1,8 @@
 /*! @file F_tcp.cpp
     @brief TCP transport for FreePM: TcpLink + 2 backend exports.
 
-    Implements F_Link over BSD sockets. Everything below goes through
-    OS/2 socket API; Win32 uses the same source via F_platform.h
-    emulation (Winsock). Exports Fc_TrnConnect and Fs_TrnRunListener;
-    the other 9 exports (Fc_ and Fs_) live in shared/.
+    Implements F_Link over BSD sockets. OS/2 socket API on both platforms
+    (Win32 via F_platform.h emulation). WSA refcount in TcpLink ctor/dtor.
 */
 #include <string.h>
 #include <ctype.h>
@@ -21,19 +19,25 @@
 
 /*! @brief Global WSA mutex protecting g_wsaRefCount. */
 static HMTX g_wsaMtx = NULLHANDLE;
-/*! @brief Number of live TcpLink objects (WSAStartup/WSACleanup pairing). */
+/*! @brief Number of live TcpLink objects. */
 static int  g_wsaRefCount = 0;
+/*! @brief One-shot guard for g_wsaMtx creation. */
+static volatile LONG g_wsaMtxInit = 0;
 
-/*! @brief Increment WSA refcount; WSAStartup on 0->1 transition.
+/*! @brief Ensure g_wsaMtx exists, exactly once (atomic winner). */
+static void TcpWsaLockInit(void)
+{
+    if (InterlockedCompareExchange(&g_wsaMtxInit, 1, 0) == 0) {
+        DosCreateMutexSem(NULL, &g_wsaMtx, 0, FALSE);
+    } else {
+        while (g_wsaMtx == NULLHANDLE) DosSleep(0);
+    }
+}
 
-    Called from every TcpLink constructor. Mutex-protected so multiple
-    threads creating/destroying connections do not race on the WinSock
-    internal counter. OS/2 does not need WSAStartup at all. */
+/*! @brief Increment WSA refcount; WSAStartup on 0->1. */
 static void TcpWsaRef(void)
 {
-    if (g_wsaMtx == NULLHANDLE) {
-        DosCreateMutexSem(NULL, &g_wsaMtx, 0, FALSE);
-    }
+    TcpWsaLockInit();
     DosRequestMutexSem(g_wsaMtx, SEM_INDEFINITE_WAIT);
     if (g_wsaRefCount++ == 0) {
         WSADATA wsa;
@@ -42,9 +46,7 @@ static void TcpWsaRef(void)
     DosReleaseMutexSem(g_wsaMtx);
 }
 
-/*! @brief Decrement WSA refcount; WSACleanup on 1->0 transition.
-
-    Called from every TcpLink destructor. Mutex-protected. */
+/*! @brief Decrement WSA refcount; WSACleanup on 1->0. */
 static void TcpWsaUnref(void)
 {
     if (g_wsaMtx == NULLHANDLE) return;
@@ -73,6 +75,10 @@ static void TcpWsaUnref(void) {}
 /*! @def PMC_HANDSHAKE_TIMEOUT_MS
     @brief Per-select() timeout during handshake, milliseconds. */
 #define PMC_HANDSHAKE_TIMEOUT_MS  3000
+
+/*! @def PMC_MAX_SOCK_CHUNK
+    @brief Max bytes per single send()/recv() (bounded by INT_MAX). */
+#define PMC_MAX_SOCK_CHUNK        0x40000000UL
 
 /*! @brief Put a socket into non-blocking mode.
     @param [in] s  Socket.
@@ -203,21 +209,25 @@ static int WaitConnect(PMC_SOCK s, int timeout_ms, int *err_out)
     @return 0 on success, -1 on timeout or error.
     @retval 0   Exactly len bytes received.
     @retval -1  Timeout or transport error. */
-static int RecvWithTimeout(PMC_SOCK s, void *buf, int *pcb, int len,
+static int RecvWithTimeout(PMC_SOCK s, void *buf, ULONG *pcb, ULONG len,
                            int timeout_ms)
 {
     char *p = (char *)buf;
-    int n, total = 0;
+    ULONG total = 0;
 
     if (pcb) *pcb = 0;
-    if (len <= 0) return 0;
+    if (len == 0) return 0;
 
     while (total < len) {
+        ULONG rem = len - total;
+        int   chunk = (rem > PMC_MAX_SOCK_CHUNK) ? (int)PMC_MAX_SOCK_CHUNK : (int)rem;
+        int   n;
+
         n = SelectOne(s, 0, timeout_ms);
         if (n <= 0) return -1;
-        n = recv(s, p + total, len - total, 0);
+        n = recv(s, p + total, chunk, 0);
         if (n <= 0) return -1;
-        total += n;
+        total += (ULONG)n;
     }
     if (pcb) *pcb = total;
     return 0;
@@ -231,19 +241,23 @@ static int RecvWithTimeout(PMC_SOCK s, void *buf, int *pcb, int len,
     @return 0 on success, -1 on timeout or error.
     @retval 0   Exactly len bytes sent.
     @retval -1  Timeout or transport error. */
-static int SendWithTimeout(PMC_SOCK s, const void *buf, int len, int timeout_ms)
+static int SendWithTimeout(PMC_SOCK s, const void *buf, ULONG len, int timeout_ms)
 {
     const char *p = (const char *)buf;
-    int n, total = 0;
+    ULONG total = 0;
 
-    if (len <= 0) return 0;
+    if (len == 0) return 0;
 
     while (total < len) {
+        ULONG rem = len - total;
+        int   chunk = (rem > PMC_MAX_SOCK_CHUNK) ? (int)PMC_MAX_SOCK_CHUNK : (int)rem;
+        int   n;
+
         n = SelectOne(s, 1, timeout_ms);
         if (n <= 0) return -1;
-        n = send(s, p + total, len - total, 0);
+        n = send(s, p + total, chunk, 0);
         if (n <= 0) return -1;
-        total += n;
+        total += (ULONG)n;
     }
     return 0;
 }
@@ -295,7 +309,7 @@ int TcpLink::Open(void)
     int optval;
     PMC_SOCK s;
 
-    if (sock != PMC_INVALID_SOCK) return -1;   /* already open */
+    if (sock != PMC_INVALID_SOCK) return -1;
 
     if (mode == TCP_SERVER_MODE) {
         sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -465,13 +479,13 @@ int TcpLink::Accept(F_Link **ppNew)
     @retval HAND_SHAKE_ERROR  Magic mismatch or transport failure. */
 int TcpLink::Handshake(void)
 {
-    char buf[32];
-    int  cb;
-    int  inpLen = (int)strlen(HAND_SHAKE_INP) + 1;
-    int  outLen = (int)strlen(HAND_SHAKE_OUT) + 1;
-    int  rc;
+    char  buf[32];
+    ULONG cb;
+    ULONG inpLen = (ULONG)strlen(HAND_SHAKE_INP) + 1;
+    ULONG outLen = (ULONG)strlen(HAND_SHAKE_OUT) + 1;
+    int   rc;
 
-    if (inpLen > (int)sizeof(buf) || outLen > (int)sizeof(buf)) {
+    if (inpLen > (ULONG)sizeof(buf) || outLen > (ULONG)sizeof(buf)) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
                    "PMTCP: TcpLink::Handshake ERROR: buffer too small");
         return HAND_SHAKE_ERROR;
@@ -526,23 +540,28 @@ int TcpLink::Handshake(void)
 
 /*! @brief Send exactly cbData bytes. Loops on partial send, EINTR-retry.
     @param [in] pvData  Source buffer.
-    @param [in] cbData  Bytes to send (<= 0 is a no-op).
+    @param [in] cbData  Bytes to send (0 is a no-op).
     @return 0 on success, -1 on error.
-    @retval 0   All bytes sent (or cbData <= 0).
+    @retval 0   All bytes sent (or cbData == 0).
     @retval -1  Not connected or send() failed. */
-int TcpLink::Send(const void *pvData, int cbData)
+int TcpLink::Send(const void *pvData, ULONG cbData)
 {
     const char *pc = (const char *)pvData;
-    int total = 0;
+    ULONG total = 0;
 
-    if (cbData <= 0) return 0;
+    if (cbData == 0) return 0;
     if (!connected) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
                    "PMTCP: TcpLink::Send ERROR: not connected");
         return -1;
     }
+    if (!pvData) return -1;
+
     while (total < cbData) {
-        int iSent = send(sock, pc + total, cbData - total, 0);
+        ULONG rem = cbData - total;
+        int   chunk = (rem > PMC_MAX_SOCK_CHUNK) ? (int)PMC_MAX_SOCK_CHUNK : (int)rem;
+        int   iSent = send(sock, pc + total, chunk, 0);
+
         if (iSent == PMC_SOCK_ERROR) {
             int err = PMC_LAST_SOCK_ERR();
             if (IsInterrupted(err)) continue;
@@ -556,7 +575,7 @@ int TcpLink::Send(const void *pvData, int cbData)
                        "PMTCP: TcpLink::Send ERROR: send() returned 0");
             return -1;
         }
-        total += iSent;
+        total += (ULONG)iSent;
     }
     return 0;
 }
@@ -569,20 +588,25 @@ int TcpLink::Send(const void *pvData, int cbData)
     @return 0 on success, -1 on peer-close or error.
     @retval 0   Exactly cbBuffer bytes received.
     @retval -1  Not connected, peer close, or recv() error. */
-int TcpLink::Recv(void *pvData, int *pcbReceived, int cbBuffer)
+int TcpLink::Recv(void *pvData, ULONG *pcbReceived, ULONG cbBuffer)
 {
     char *pc = (char *)pvData;
-    int total = 0;
+    ULONG total = 0;
 
     if (pcbReceived) *pcbReceived = 0;
-    if (cbBuffer <= 0) return 0;
+    if (cbBuffer == 0) return 0;
     if (!connected) {
         F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
                    "PMTCP: TcpLink::Recv ERROR: not connected");
         return -1;
     }
+    if (!pvData) return -1;
+
     while (total < cbBuffer) {
-        int n = recv(sock, pc + total, cbBuffer - total, 0);
+        ULONG rem = cbBuffer - total;
+        int   chunk = (rem > PMC_MAX_SOCK_CHUNK) ? (int)PMC_MAX_SOCK_CHUNK : (int)rem;
+        int   n = recv(sock, pc + total, chunk, 0);
+
         if (n == 0) {
             if (pcbReceived) *pcbReceived = total;
             return -1;
@@ -596,7 +620,7 @@ int TcpLink::Recv(void *pvData, int *pcbReceived, int cbBuffer)
                        err);
             return -1;
         }
-        total += n;
+        total += (ULONG)n;
     }
     if (pcbReceived) *pcbReceived = total;
     return 0;
@@ -699,7 +723,6 @@ extern "C" APIRET EXPENTRY Fc_TrnConnect(char *address, ULONG *obj)
     char     host[256];
     int      port = FREEPM_TCP_DEFAULT_PORT;
     TcpLink *pNew;
-    int      ctx;
 
     if (!obj) return PMC_ERR_OPEN;
     *obj = 0;
@@ -711,50 +734,32 @@ extern "C" APIRET EXPENTRY Fc_TrnConnect(char *address, ULONG *obj)
         return PMC_ERR_OPEN;
     }
 
-    ctx = F_DbgCtxEnterf(F_DBG_SEC_WIRE, F_DBG_LVL_VERBOSE,
-                         "PMTCP: Fc_TrnConnect(host=%s, port=%d)", host, port);
-
     pNew = new TcpLink(host, port, TCP_CLIENT_MODE);
-    if (pNew == NULL) {
-        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: Fc_TrnConnect ERROR: new TcpLink failed");
-        F_DbgCtxExitf(ctx, "new TcpLink failed");
-        return PMC_ERR_OPEN;
-    }
+    if (pNew == NULL) return PMC_ERR_OPEN;
 
     if (pNew->Open() != 0) {
-        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: Fc_TrnConnect ERROR: Open failed");
         delete pNew;
-        F_DbgCtxExitf(ctx, "Open failed");
         return PMC_ERR_OPEN;
     }
 
     if (pNew->Handshake() == HAND_SHAKE_ERROR) {
-        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
-                   "PMTCP: Fc_TrnConnect ERROR: Handshake failed");
         delete pNew;
-        F_DbgCtxExitf(ctx, "Handshake failed");
         return HAND_SHAKE_ERROR;
     }
 
     *obj = (ULONG)pNew;
-    F_DbgCtxExitf(ctx, "Success (obj=%p)", pNew);
     return 0;
 }
 
 /*! @brief Server-side listener loop: bind, listen, accept, spawn thread.
 
-    Does not return on success. For each accepted connection performs
-    the handshake (bounded by PMC_HANDSHAKE_TIMEOUT_MS) and spawns one
-    thread running Fs_ClientThreadProc.
+    Does not return on success.
 
     @param [in] handler  Command handler callback (PMC_HANDLER).
     @param [in] disc_cb  Disconnect callback (PMC_DISCONNECT_CB), may be NULL.
     @return PMC_ERR_OPEN on setup failure; does not return otherwise.
     @retval PMC_ERR_OPEN  new/listen/Open failed.
-    @retval 0             Unreachable under normal operation (Fs_RunServer
-                          loops forever). */
+    @retval 0             Unreachable under normal operation. */
 extern "C" APIRET EXPENTRY Fs_TrnRunListener(void *handler, void *disc_cb)
 {
     PMC_HANDLER       h    = (PMC_HANDLER)handler;
@@ -772,10 +777,6 @@ extern "C" APIRET EXPENTRY Fs_TrnRunListener(void *handler, void *disc_cb)
         delete pServer;
         return PMC_ERR_OPEN;
     }
-
-    F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_VERBOSE,
-               "PMTCP: Fs_TrnRunListener: listening on port %d",
-               FREEPM_TCP_DEFAULT_PORT);
 
     Fs_RunServer(pServer, h, disc);
 

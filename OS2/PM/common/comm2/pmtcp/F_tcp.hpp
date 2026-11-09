@@ -2,9 +2,7 @@
     @brief TCP transport for FreePM: TcpLink class.
 
     Pulls in the platform abstraction (which on OS/2 includes <os2.h>)
-    and, on OS/2 only, the BSD-style socket headers. All TCP code uses
-    plain OS/2 + BSD socket API; Win32 sees those through F_platform.h
-    emulation.
+    and, on OS/2 only, the BSD-style socket headers.
 */
 #ifndef F_TCP_HPP
 #define F_TCP_HPP
@@ -13,8 +11,7 @@
 #include "F_platform.h"
 
 #if defined(__OS2__) || defined(__OS2V2__)
-  /* BSD_SELECT makes <sys/select.h> pull in the full struct timeval
-     definition (otherwise tcpustd.h only forward-declares it). */
+  /* BSD_SELECT makes <sys/select.h> pull in the full struct timeval. */
   #define BSD_SELECT
   #include <types.h>
   #include <sys/socket.h>
@@ -100,8 +97,8 @@ public:
     virtual int Open(void);
     virtual int Accept(F_Link **ppNew);
     virtual int Handshake(void);
-    virtual int Send(const void *pvData, int cbData);
-    virtual int Recv(void *pvData, int *pcbReceived, int cbBuffer);
+    virtual int Send(const void *pvData, ULONG cbData);
+    virtual int Recv(void *pvData, ULONG *pcbReceived, ULONG cbBuffer);
     virtual int Close(void);
 };
 

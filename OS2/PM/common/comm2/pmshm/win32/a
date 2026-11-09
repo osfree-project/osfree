@@ -1,0 +1,17 @@
+Win64 build host
+root=C:\devl\osfree\
+CD       OS2\PM\common\comm2\pmshm\win32\ 
+CXX      Fc_trn.obj 
+C:\devl\osfree\OS2\PM\common\comm2\pmshm\win32\..\..\shared\Fc_trn.cpp:13: warning: function '__declspec': missing @param __pragma
+C:\devl\osfree\OS2\PM\common\comm2\pmshm\win32\..\..\shared\Fc_trn.cpp:27: warning: function '__declspec': missing @param __pragma
+C:\devl\osfree\OS2\PM\common\comm2\pmshm\win32\..\..\shared\Fc_trn.cpp:43: warning: function '__declspec': missing @param __pragma
+C:\devl\osfree\OS2\PM\common\comm2\pmshm\win32\..\..\shared\Fc_trn.cpp:58: warning: function '__declspec': missing @param __pragma
+C:\devl\osfree\OS2\PM\common\comm2\pmshm\win32\..\..\shared\Fc_trn.cpp:78: warning: function '__declspec': missing @param __pragma
+C:\devl\osfree\OS2\PM\common\comm2\pmshm\win32\..\..\shared\Fc_trn.cpp:108: warning: function '__declspec': missing @param __pragma
+C:\devl\osfree\OS2\PM\common\comm2\pmshm\win32\..\..\..\..\include\F_platform.h(484): Error! E029: col(9) symbol 'F_ShmRegTake' has not been declared
+C:\devl\osfree\OS2\PM\common\comm2\pmshm\win32\..\..\..\..\include\F_platform.h(484): Note! N393: col(9) included from C:\devl\osfree\OS2\PM\common\comm2\pmshm\win32\..\..\include\F_wire.hpp(8)
+C:\devl\osfree\OS2\PM\common\comm2\pmshm\win32\..\..\..\..\include\F_platform.h(484): Note! N393: col(9) included from C:\devl\osfree\OS2\PM\common\comm2\pmshm\win32\..\..\shared\Fc_trn.cpp(6)
+Error(E42): Last command making (C:\devl\osfree\build\OS2\PM\common\comm2\pmshm\win32\Fc_trn.obj) returned a bad status
+Should this file be deleted [Yes/No] ? Error(E02): Make execution terminated
+Error(E42): Last command making (targets) returned a bad status
+Error(E02): Make execution terminated

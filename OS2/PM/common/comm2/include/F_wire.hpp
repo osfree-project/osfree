@@ -8,10 +8,6 @@
 #include "F_platform.h"
 #include "F_link.hpp"
 
-/*! @brief Client -> server handshake magic (9 bytes, incl. NUL). */
-#define HAND_SHAKE_INP         "pIpEtEsT"
-/*! @brief Server -> client handshake magic (9 bytes, incl. NUL). */
-#define HAND_SHAKE_OUT         "PiPeTeSt"
 /*! @brief Handshake mismatch / transport error code. */
 #define HAND_SHAKE_ERROR       101
 
@@ -50,16 +46,16 @@ extern "C" {
 /* ---- 9 shared exports (implemented in shared/) ---- */
 APIRET EXPENTRY Fc_TrnDisconnect(void *obj);
 APIRET EXPENTRY Fc_TrnPostCommand(void *obj, int cmd, int par);
-APIRET EXPENTRY Fc_TrnPostData(void *obj, void *buf, int len);
+APIRET EXPENTRY Fc_TrnPostData(void *obj, void *buf, ULONG len);
 APIRET EXPENTRY Fc_TrnSendCommand(void *obj, int cmd, int par);
 APIRET EXPENTRY Fc_TrnSendCommandData(void *obj, int cmd, int par,
-                                      void *buf, int len);
-APIRET EXPENTRY Fc_TrnGetData(void *obj, void *buf, int *len, int size);
-APIRET EXPENTRY Fs_TrnPostData(void *obj, void *buf, int len);
+                                      void *buf, ULONG len);
+APIRET EXPENTRY Fc_TrnGetData(void *obj, void *buf, ULONG *len, ULONG size);
+APIRET EXPENTRY Fs_TrnPostData(void *obj, void *buf, ULONG len);
 APIRET EXPENTRY Fs_TrnGetCommand(void *obj, int *cmd, int *par);
-APIRET EXPENTRY Fs_TrnGetData(void *obj, void *buf, int *len, int size);
+APIRET EXPENTRY Fs_TrnGetData(void *obj, void *buf, ULONG *len, ULONG size);
 
-/* ---- 2 backend exports (implemented in pmtcp/ or fpmpipe/) ---- */
+/* ---- 2 backend exports (implemented in pmtcp/ or pmpipe/ or pmshm/) ---- */
 APIRET EXPENTRY Fc_TrnConnect(char *address, ULONG *obj);
 APIRET EXPENTRY Fs_TrnRunListener(void *handler, void *disc_cb);
 

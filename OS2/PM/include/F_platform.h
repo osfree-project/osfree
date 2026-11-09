@@ -152,6 +152,8 @@
     #define MEM_RELEASE    0x8000
     #define PAGE_READWRITE 0x04
     #define SYNCHRONIZE    0x00100000L
+    #define MUTEX_MODIFY_STATE      0x0001L
+    #define SEMAPHORE_MODIFY_STATE  0x0002L
 
   /* ---------- OS/2 GPI constants (Win32 fallback) ---------- */
 
@@ -274,15 +276,25 @@
   __declspec(dllimport) HANDLE __stdcall OpenSemaphoreA(DWORD dwDesiredAccess, BOOL bInheritHandle, const char *lpName);
   __declspec(dllimport) BOOL   __stdcall ReleaseSemaphore(HANDLE hSemaphore, LONG lReleaseCount, LONG *lpPreviousCount);
   __declspec(dllimport) DWORD  __stdcall GetCurrentProcessId(void);
+  __declspec(dllimport) DWORD  __stdcall GetCurrentThreadId(void);
+  __declspec(dllimport) LONG  __stdcall InterlockedCompareExchange(
+                                 LONG volatile *dest, LONG exch, LONG cmp);
 
-  #ifndef FILE_MAP_ALL_ACCESS
-    #define FILE_MAP_ALL_ACCESS 0xF001F
-  #endif
+  #define FILE_MAP_ALL_ACCESS 0xF001F
 
   /* ---------- Error codes used by the client/server ---------- */
   #define ERROR_OPEN_FAILED   110L
   #define ERROR_BROKEN_PIPE   109L
   #define ERROR_ALREADY_EXISTS 183L
+
+  #define ERROR_QUE_PROC_NOT_OWNED      330L
+  #define ERROR_QUE_DUPLICATE       332L
+  #define ERROR_QUE_ELEMENT_NOT_EXIST   333L
+  #define ERROR_QUE_NO_MEMORY       334L
+  #define ERROR_QUE_INVALID_HANDLE  337L
+  #define ERROR_QUE_EMPTY           342L
+  #define ERROR_QUE_NAME_NOT_EXIST      343L
+
   #define DC_SEM_SHARED        0x00000001UL   /* ignored on Win32 */
 
   /* ---------- DosExecPgm constants & RESULTCODES ---------- */
@@ -377,6 +389,7 @@
     #define WAIT_OBJECT_0        0x00000000UL
     #define WAIT_ABANDONED       0x00000080UL
 
+
   static inline APIRET DosBeep(ULONG freq, ULONG duration)
   {
       Beep(freq, duration);
@@ -458,56 +471,178 @@ static inline APIRET DosExecPgm(char *pszFailName, LONG cbFailName,
     return 0;
 }
 
+/* ======================================================================
+   Shared-memory registry (Win32 only)
+   ======================================================================
+   On Windows the file-mapping NAME is removed from the object namespace
+   as soon as the last HANDLE to the object is closed Ч even if mapped
+   views still exist. The object lives until the last view is unmapped,
+   but its name is gone, so peer processes calling OpenFileMappingA get
+   ERROR_FILE_NOT_FOUND (rc=2).
+
+   The OS/2-compatible DosAllocSharedMem / DosGetNamedSharedMem wrappers
+   below MUST keep the file-mapping handle open for the entire lifetime
+   of the mapped view. We track {view -> handle} in a small registry so
+   that DosFreeMem can close the handle when the view is unmapped.
+   ====================================================================== */
+
+#define F_SHMREG_MAX 64
+static PVOID  g_shmRegView[F_SHMREG_MAX];
+static HANDLE g_shmRegMap [F_SHMREG_MAX];
+static int    g_shmRegCount   = 0;
+static HANDLE g_shmRegMtx     = NULL;
+static LONG   g_shmRegMtxInit = 0;
+
+static void F_ShmRegLock(void)
+{
+    if (InterlockedCompareExchange(&g_shmRegMtxInit, 1, 0) == 0) {
+        g_shmRegMtx = CreateMutexA(NULL, FALSE, NULL);
+        g_shmRegMtxInit = 2;
+    } else {
+        while (g_shmRegMtxInit != 2) Sleep(0);
+    }
+    if (g_shmRegMtx) WaitForSingleObject(g_shmRegMtx, INFINITE);
+}
+
+static void F_ShmRegUnlock(void)
+{
+    if (g_shmRegMtx) ReleaseMutex(g_shmRegMtx);
+}
+
+/*! @brief Register a {view,handle} pair. Returns 0 on success, -1 on
+    overflow (registry full). */
+static int F_ShmRegAdd(PVOID view, HANDLE hMap)
+{
+    int rc = -1;
+    F_ShmRegLock();
+    if (g_shmRegCount < F_SHMREG_MAX) {
+        g_shmRegView[g_shmRegCount] = view;
+        g_shmRegMap [g_shmRegCount] = hMap;
+        g_shmRegCount++;
+        rc = 0;
+    }
+    F_ShmRegUnlock();
+    return rc;
+}
+
+/*! @brief Remove the {view,handle} pair; return handle (caller closes),
+    or NULL if not found (view belongs to VirtualAlloc, not a mapping). */
+static HANDLE F_ShmRegTake(PVOID view)
+{
+    int    i;
+    HANDLE h = NULL;
+    F_ShmRegLock();
+    for (i = 0; i < g_shmRegCount; i++) {
+        if (g_shmRegView[i] == view) {
+            h = g_shmRegMap[i];
+            g_shmRegView[i] = g_shmRegView[g_shmRegCount - 1];
+            g_shmRegMap [i] = g_shmRegMap [g_shmRegCount - 1];
+            g_shmRegCount--;
+            break;
+        }
+    }
+    F_ShmRegUnlock();
+    return h;
+}
+
   static inline APIRET DosAllocMem(PVOID *ppv, ULONG cb, ULONG flags) {
       (void)flags;
       *ppv = VirtualAlloc(NULL, cb, MEM_COMMIT, PAGE_READWRITE);
       return (*ppv != NULL) ? 0 : 1;
   }
-  static inline APIRET DosFreeMem(PVOID pv) {
-      if (!pv) return 1;
-      if (UnmapViewOfFile(pv)) return 0;              /* shared-memory view */
-      if (VirtualFree(pv, 0, MEM_RELEASE)) return 0;  /* DosAllocMem region */
-      return 1;
-  }
-  static inline APIRET DosAllocSharedMem(PVOID *ppv, const char *pszName,
-                                         ULONG cb, ULONG flAttr)
-  {
-      HANDLE hMap;
-      PVOID  pView;
-      DWORD  err;
 
-      (void)flAttr;
-      hMap = CreateFileMappingA((HANDLE)(long)-1, NULL, PAGE_READWRITE,
-                                0, (DWORD)cb, pszName);
-      err = GetLastError();
-      if (!hMap) return (APIRET)err;
-      if (pszName && err == ERROR_ALREADY_EXISTS) {
-          CloseHandle(hMap);
-          *ppv = NULL;
-          return ERROR_ALREADY_EXISTS;
-      }
-      pView = MapViewOfFile(hMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
-      CloseHandle(hMap);   /* view keeps the mapping alive */
-      if (!pView) return (APIRET)GetLastError();
-      *ppv = pView;
-      return 0;
-  }
+static inline APIRET DosFreeMem(PVOID pv)
+{
+    HANDLE h;
+    if (!pv) return 1;
+    h = F_ShmRegTake(pv);
+    if (h) {
+        /* pv is a named file-mapping view: unmap + release our handle,
+           which destroys the name once both are gone. */
+        UnmapViewOfFile(pv);
+        CloseHandle(h);
+        return 0;
+    }
+    /* pv was allocated by DosAllocMem -> VirtualAlloc. */
+    if (UnmapViewOfFile(pv)) return 0;
+    if (VirtualFree(pv, 0, MEM_RELEASE)) return 0;
+    return 1;
+}
 
-  static inline APIRET DosGetNamedSharedMem(PVOID *ppv, const char *pszName,
-                                            ULONG flAttr)
-  {
-      HANDLE hMap;
-      PVOID  pView;
+  /*! @brief Translate OS/2 "\SHAREMEM\name" to Win32 "Local\name"
+      by replacing backslashes with underscores. */
+static inline void dos_shm_name(const char *pszOS2, char *out, int cbMax)
+{
+    const char *p = pszOS2 ? pszOS2 : "";
+    char *o = out;
+    int i;
+    if (strncmp(p, "\\SHAREMEM\\", 10) == 0) p += 10;
+    else if (strncmp(p, "\\sharemem\\", 10) == 0) p += 10;
+    else if (*p == '\\') p++;
+    memcpy(o, "Local\\", 6);
+    o += 6;
+    for (i = 0; p[i] && (int)(o - out) < cbMax - 1; i++) {
+        *o++ = (p[i] == '\\') ? '_' : p[i];
+    }
+    *o = 0;
+}
 
-      (void)flAttr;
-      hMap = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, pszName);
-      if (!hMap) return (APIRET)GetLastError();
-      pView = MapViewOfFile(hMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
-      CloseHandle(hMap);
-      if (!pView) return (APIRET)GetLastError();
-      *ppv = pView;
-      return 0;
-  }
+static inline APIRET DosAllocSharedMem(PVOID *ppv, const char *pszName,
+                                       ULONG cb, ULONG flAttr)
+{
+    HANDLE hMap;
+    PVOID  pView;
+    DWORD  err;
+    char   localName[300];
+
+    (void)flAttr;
+    if (pszName) dos_shm_name(pszName, localName, sizeof(localName));
+    hMap = CreateFileMappingA((HANDLE)(long)-1, NULL, PAGE_READWRITE,
+                              0, (DWORD)cb,
+                              pszName ? localName : NULL);
+    err = GetLastError();
+    if (!hMap) return (APIRET)err;
+    if (pszName && err == ERROR_ALREADY_EXISTS) {
+        CloseHandle(hMap);
+        *ppv = NULL;
+        return ERROR_ALREADY_EXISTS;
+    }
+    pView = MapViewOfFile(hMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+    if (!pView) {
+        CloseHandle(hMap);
+        return (APIRET)GetLastError();
+    }
+    if (F_ShmRegAdd(pView, hMap) != 0) {
+        /* Registry full Ч fall back to old (buggy) behaviour: name will
+           vanish. Should not happen with F_SHMREG_MAX = 64. */
+        CloseHandle(hMap);
+    }
+    *ppv = pView;
+    return 0;
+}
+
+static inline APIRET DosGetNamedSharedMem(PVOID *ppv, const char *pszName,
+                                          ULONG flAttr)
+{
+    HANDLE hMap;
+    PVOID  pView;
+    char   localName[300];
+
+    (void)flAttr;
+    dos_shm_name(pszName, localName, sizeof(localName));
+    hMap = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, localName);
+    if (!hMap) return (APIRET)GetLastError();
+    pView = MapViewOfFile(hMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+    if (!pView) {
+        CloseHandle(hMap);
+        return (APIRET)GetLastError();
+    }
+    if (F_ShmRegAdd(pView, hMap) != 0) {
+        CloseHandle(hMap);
+    }
+    *ppv = pView;
+    return 0;
+}
 
   static inline APIRET DosQueryModuleHandle(const char *pszName, HMODULE *phmod) {
       *phmod = GetModuleHandleA(pszName);
@@ -595,14 +730,57 @@ static inline APIRET DosExecPgm(char *pszFailName, LONG cbFailName,
   }
 
   /* ---------- Thread-local storage (Win32) ---------- */
-  #ifndef TLS_OUT_OF_INDEXES
-    #define TLS_OUT_OF_INDEXES  ((DWORD)0xFFFFFFFF)
-  #endif
+   #define TLS_OUT_OF_INDEXES  ((DWORD)0xFFFFFFFF)
   __declspec(dllimport) DWORD __stdcall TlsAlloc(void);
   __declspec(dllimport) PVOID __stdcall TlsGetValue(DWORD dwTlsIndex);
   __declspec(dllimport) BOOL  __stdcall TlsSetValue(DWORD dwTlsIndex, PVOID lpTlsValue);
   __declspec(dllimport) BOOL  __stdcall TlsFree(DWORD dwTlsIndex);
 	
+  /* ---------- TIB/TIB2/PIB + DosGetInfoBlocks (Win32, TLS-backed) ---------- */
+
+  typedef struct _TIB2 { ULONG tib2_ultid; } TIB2, *PTIB2;
+  typedef struct _TIB  { PTIB2 tib_ptib2; }  TIB,  *PTIB;
+  typedef struct _PIB  { ULONG pib_ulpid; }  PIB,  *PPIB;
+
+  static inline APIRET DosGetInfoBlocks(PTIB *pptib, PPIB *pppib)
+  {
+      static DWORD s_tls = TLS_OUT_OF_INDEXES;
+      TIB *pTib;
+      TIB2 *pTib2;
+      PIB *pPib;
+      DWORD idx;
+
+      if (s_tls == TLS_OUT_OF_INDEXES) {
+          DWORD ni = TlsAlloc();
+          if (ni == TLS_OUT_OF_INDEXES) return 1;
+          s_tls = ni;
+      }
+      idx = s_tls;
+
+      pTib = (TIB *)TlsGetValue(idx);
+      if (!pTib) {
+          BYTE *b = (BYTE *)VirtualAlloc(NULL,
+                          sizeof(TIB) + sizeof(TIB2) + sizeof(PIB),
+                          MEM_COMMIT, PAGE_READWRITE);
+          if (!b) return 1;
+          pTib  = (TIB *)b;
+          pTib2 = (TIB2 *)(b + sizeof(TIB));
+          pPib  = (PIB  *)(b + sizeof(TIB) + sizeof(TIB2));
+          pTib->tib_ptib2 = pTib2;
+          TlsSetValue(idx, pTib);
+      } else {
+          pTib2 = pTib->tib_ptib2;
+          pPib  = (PIB *)((BYTE *)pTib + sizeof(TIB) + sizeof(TIB2));
+      }
+
+      pTib2->tib2_ultid = (ULONG)GetCurrentThreadId();
+      pPib->pib_ulpid   = (ULONG)GetCurrentProcessId();
+
+      if (pptib) *pptib = pTib;
+      if (pppib) *pppib = pPib;
+      return 0;
+  }
+
   /* ---------- —труктуры ---------- */
   typedef struct _POINTL { LONG x; LONG y; } POINTL, *PPOINTL;
   typedef struct _POINTS { SHORT x; SHORT y; } POINTS, *PPOINTS;
@@ -1370,19 +1548,22 @@ static inline APIRET DosOpen(const char *pszName, HPIPE *phpipe,
                              ULONG flOpenFlag, ULONG flOpenMode, ULONG ulTimeout)
 {
     (void)cbFile; (void)ulAttribute; (void)flOpenFlag; (void)flOpenMode;
+    (void)ulTimeout;
     *phpipe = (HPIPE)CreateFileA(pszName, GENERIC_READ | GENERIC_WRITE,
                                  0, NULL, OPEN_EXISTING, 0, NULL);
-    if (*phpipe == INVALID_HANDLE_VALUE) {
-        /* Retry once after WaitNamedPipe if the listener is saturated. */
-        if (GetLastError() == ERROR_PIPE_BUSY) {
-            WaitNamedPipeA(pszName, ulTimeout);
-            *phpipe = (HPIPE)CreateFileA(pszName, GENERIC_READ | GENERIC_WRITE,
-                                         0, NULL, OPEN_EXISTING, 0, NULL);
-        }
-        if (*phpipe == INVALID_HANDLE_VALUE) return 1;
+    if (*phpipe == (HPIPE)INVALID_HANDLE_VALUE) {
+        DWORD err = GetLastError();
+        if (err == ERROR_PIPE_BUSY) return ERROR_PIPE_BUSY;
+        return (APIRET)err;
     }
     if (pulAction) *pulAction = 0;
     return 0;
+}
+
+static inline APIRET DosWaitNPipe(const char *pszName, ULONG ulTimeout)
+{
+    if (WaitNamedPipeA(pszName, (DWORD)ulTimeout)) return 0;
+    return (APIRET)GetLastError();
 }
 
 static inline APIRET DosRead(HPIPE hpipe, void *pv, ULONG cb, ULONG *pcbRead)
@@ -1434,9 +1615,16 @@ typedef struct _REQUESTDATA {
     PID   pid;
 } REQUESTDATA, *PREQUESTDATA;
 
+#ifndef HEV
+  typedef void *HEV;
+#endif
+
+typedef void *HEV;
+
 #define WQ_MAGIC         0x57513031UL   /* 'WQ01' */
-#define WQ_MAX_ELEMENTS  64
-#define WQ_MAX_ELEMENT   4096
+#define WQ_MAX_ELEMENTS  8              /* 1-2 in flight; spare capacity */
+#define WQ_MAX_ELEMENT   16             /* 8B notification + 9B handshake */
+
 #define WQ_MAP_SIZE      (sizeof(WQHeader) + \
                           WQ_MAX_ELEMENTS * sizeof(WQSlot) + \
                           WQ_MAX_ELEMENTS * WQ_MAX_ELEMENT)
@@ -1448,11 +1636,13 @@ typedef struct _WQHeader {
     ULONG elementSize;
     ULONG writeIdx;
     ULONG count;
+    PID   ownerPid;
 } WQHeader;
 
 typedef struct _WQSlot {
     ULONG ulRequest;
     ULONG cbData;
+    PID   pid;
 } WQSlot;
 
 typedef struct _WQQueue {
@@ -1466,15 +1656,6 @@ typedef struct _WQQueue {
     int       isOwner;
 } WQQueue;
 
-static inline void wq_copy(char *dst, const char *src)
-{
-    while ((*dst++ = *src++)) {}
-}
-static inline void wq_append(char *dst, const char *src)
-{
-    while (*dst) dst++;
-    while ((*dst++ = *src++)) {}
-}
 static inline void wq_build_names(const char *pszName,
                                   char *mapName, char *mtxName,
                                   char *semFullName, char *semFreeName,
@@ -1490,13 +1671,13 @@ static inline void wq_build_names(const char *pszName,
 
     for (k = 0; k < 4; k++) {
         char *o = outs[k];
-        wq_copy(o, "Local\\"); while (*o) o++;
+        memcpy(o, "Local\\", 6);
+        o += 6;
         for (i = 0; p[i] && (int)(o - outs[k]) < cbMax - 12; i++) {
             *o++ = (p[i] == '\\') ? '_' : p[i];
         }
+        for (i = 0; suf[k][i]; i++) *o++ = suf[k][i];
         *o = 0;
-        wq_append(outs[k], suf[k]);
-        outs[k][cbMax - 1] = 0;
     }
 }
 
@@ -1514,13 +1695,17 @@ static inline APIRET DosCreateQueue(HQUEUE *phq, ULONG priority,
     hMap = CreateFileMappingA((HANDLE)(long)-1, NULL, PAGE_READWRITE, 0,
                               (DWORD)WQ_MAP_SIZE, mapName);
     if (!hMap) return (APIRET)GetLastError();
+    if (GetLastError() == ERROR_ALREADY_EXISTS) {
+        CloseHandle(hMap);
+        return ERROR_QUE_DUPLICATE;
+    }
 
     pView = MapViewOfFile(hMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
     if (!pView) { CloseHandle(hMap); return (APIRET)GetLastError(); }
 
     q = (WQQueue *)VirtualAlloc(NULL, sizeof(WQQueue), MEM_COMMIT,
                                 PAGE_READWRITE);
-    if (!q) { UnmapViewOfFile(pView); CloseHandle(hMap); return 1; }
+    if (!q) { UnmapViewOfFile(pView); CloseHandle(hMap); return ERROR_QUE_NO_MEMORY; }
 
     q->pHeader = (WQHeader *)pView;
     q->pSlots  = (BYTE *)pView + sizeof(WQHeader);
@@ -1534,6 +1719,7 @@ static inline APIRET DosCreateQueue(HQUEUE *phq, ULONG priority,
     q->pHeader->elementSize = WQ_MAX_ELEMENT;
     q->pHeader->writeIdx    = 0;
     q->pHeader->count       = 0;
+    q->pHeader->ownerPid    = (PID)GetCurrentProcessId();
 
     q->hMtx     = CreateMutexA(NULL, FALSE, mtxName);
     q->hSemFull = CreateSemaphoreA(NULL, 0, WQ_MAX_ELEMENTS, semFullName);
@@ -1552,7 +1738,7 @@ fail:
     UnmapViewOfFile(pView);
     CloseHandle(hMap);
     VirtualFree(q, 0, MEM_RELEASE);
-    return 1;
+    return ERROR_QUE_NO_MEMORY;
 }
 
 static inline APIRET DosOpenQueue(PULONG ppid, HQUEUE *phq,
@@ -1562,22 +1748,22 @@ static inline APIRET DosOpenQueue(PULONG ppid, HQUEUE *phq,
     WQQueue *q;
     HANDLE hMap;
     void *pView;
+    DWORD mtxAccess, semAccess;
 
     if (ppid) *ppid = 0;
 
     wq_build_names(pszName, mapName, mtxName, semFullName, semFreeName,
                    sizeof(mapName));
 
-    hMap = CreateFileMappingA((HANDLE)(long)-1, NULL, PAGE_READWRITE, 0,
-                              (DWORD)WQ_MAP_SIZE, mapName);
-    if (!hMap) return (APIRET)GetLastError();
+    hMap = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, mapName);
+    if (!hMap) return ERROR_QUE_NAME_NOT_EXIST;
 
     pView = MapViewOfFile(hMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
     if (!pView) { CloseHandle(hMap); return (APIRET)GetLastError(); }
 
     q = (WQQueue *)VirtualAlloc(NULL, sizeof(WQQueue), MEM_COMMIT,
                                 PAGE_READWRITE);
-    if (!q) { UnmapViewOfFile(pView); CloseHandle(hMap); return 1; }
+    if (!q) { UnmapViewOfFile(pView); CloseHandle(hMap); return ERROR_QUE_NO_MEMORY; }
 
     q->pHeader = (WQHeader *)pView;
     q->pSlots  = (BYTE *)pView + sizeof(WQHeader);
@@ -1587,11 +1773,18 @@ static inline APIRET DosOpenQueue(PULONG ppid, HQUEUE *phq,
 
     if (q->pHeader->magic != WQ_MAGIC) goto fail;
 
-    q->hMtx     = OpenMutexA(SYNCHRONIZE, FALSE, mtxName);
-    q->hSemFull = OpenSemaphoreA(SYNCHRONIZE, FALSE, semFullName);
-    q->hSemFree = OpenSemaphoreA(SYNCHRONIZE, FALSE, semFreeName);
+    /* Caller will WaitForSingleObject, ReleaseMutex / ReleaseSemaphore on
+       these handles. Need MODIFY_STATE in addition to SYNCHRONIZE. */
+    mtxAccess = SYNCHRONIZE | MUTEX_MODIFY_STATE;
+    semAccess = SYNCHRONIZE | SEMAPHORE_MODIFY_STATE;
+
+    q->hMtx     = OpenMutexA(mtxAccess, FALSE, mtxName);
+    q->hSemFull = OpenSemaphoreA(semAccess, FALSE, semFullName);
+    q->hSemFree = OpenSemaphoreA(semAccess, FALSE, semFreeName);
 
     if (!q->hMtx || !q->hSemFull || !q->hSemFree) goto fail;
+
+    if (ppid) *ppid = (ULONG)q->pHeader->ownerPid;
 
     *phq = (HQUEUE)q;
     return 0;
@@ -1603,7 +1796,7 @@ fail:
     UnmapViewOfFile(pView);
     CloseHandle(hMap);
     VirtualFree(q, 0, MEM_RELEASE);
-    return 1;
+    return ERROR_QUE_INVALID_HANDLE;
 }
 
 static inline APIRET DosWriteQueue(HQUEUE hq, ULONG ulRequest, ULONG cbData,
@@ -1614,34 +1807,40 @@ static inline APIRET DosWriteQueue(HQUEUE hq, ULONG ulRequest, ULONG cbData,
     WQSlot *slot;
 
     (void)priority;
-    if (!q) return 1;
-    if (cbData > WQ_MAX_ELEMENT) return 1;
+    if (!q) return ERROR_QUE_INVALID_HANDLE;
+    if (cbData > WQ_MAX_ELEMENT) return ERROR_QUE_NO_MEMORY;
 
-    if (WaitForSingleObject(q->hSemFree, INFINITE) != WAIT_OBJECT_0) return 1;
+    if (WaitForSingleObject(q->hSemFree, INFINITE) != WAIT_OBJECT_0)
+        return ERROR_QUE_INVALID_HANDLE;
     if (WaitForSingleObject(q->hMtx, INFINITE) != WAIT_OBJECT_0) {
         ReleaseSemaphore(q->hSemFree, 1, NULL);
-        return 1;
+        return ERROR_QUE_INVALID_HANDLE;
     }
 
     idx  = q->pHeader->writeIdx;
     slot = (WQSlot *)(q->pSlots + idx * sizeof(WQSlot));
     slot->ulRequest = ulRequest;
     slot->cbData    = cbData;
+    slot->pid       = (PID)GetCurrentProcessId();
     if (cbData && pBuf)
         memcpy(q->pData + (size_t)idx * WQ_MAX_ELEMENT, pBuf, cbData);
 
     q->pHeader->writeIdx = (idx + 1) % WQ_MAX_ELEMENTS;
     q->pHeader->count++;
 
-    ReleaseMutex(q->hMtx);
-    ReleaseSemaphore(q->hSemFull, 1, NULL);
+    if (!ReleaseMutex(q->hMtx)) {
+        return (APIRET)GetLastError();
+    }
+    if (!ReleaseSemaphore(q->hSemFull, 1, NULL)) {
+        return (APIRET)GetLastError();
+    }
     return 0;
 }
 
 static inline APIRET DosReadQueue(HQUEUE hq, PREQUESTDATA pReqData,
                                   PULONG pcbData, PVOID *ppElemHandle,
-                                  ULONG lWait, ULONG flNoWait,
-                                  PBYTE pPriority, ULONG ulPriority)
+                                  ULONG element, ULONG wait,
+                                  PBYTE pPriority, HEV hsem)
 {
     WQQueue *q = (WQQueue *)hq;
     ULONG idx, cbMax, cbActual;
@@ -1649,17 +1848,20 @@ static inline APIRET DosReadQueue(HQUEUE hq, PREQUESTDATA pReqData,
     WQSlot *slot;
     PVOID pElem;
 
-    (void)ulPriority;
-    if (!q || !pcbData || !ppElemHandle) return 1;
+    (void)element;
+    (void)hsem;
+    if (!q || !pcbData || !ppElemHandle) return ERROR_QUE_INVALID_HANDLE;
 
     cbMax  = *pcbData;
-    waitMs = (flNoWait == DCWW_NOWAIT) ? 0
-           : ((lWait == SEM_INDEFINITE_WAIT) ? INFINITE : (DWORD)lWait);
+    waitMs = (wait == DCWW_NOWAIT) ? 0 : INFINITE;
 
-    if (WaitForSingleObject(q->hSemFull, waitMs) != WAIT_OBJECT_0) return 1;
+    if (WaitForSingleObject(q->hSemFull, waitMs) != WAIT_OBJECT_0) {
+        if (wait == DCWW_NOWAIT) return ERROR_QUE_EMPTY;
+        return ERROR_QUE_INVALID_HANDLE;
+    }
     if (WaitForSingleObject(q->hMtx, INFINITE) != WAIT_OBJECT_0) {
         ReleaseSemaphore(q->hSemFull, 1, NULL);
-        return 1;
+        return ERROR_QUE_INVALID_HANDLE;
     }
 
     idx      = (q->pHeader->writeIdx - q->pHeader->count + WQ_MAX_ELEMENTS)
@@ -1673,14 +1875,14 @@ static inline APIRET DosReadQueue(HQUEUE hq, PREQUESTDATA pReqData,
     if (!pElem) {
         ReleaseMutex(q->hMtx);
         ReleaseSemaphore(q->hSemFull, 1, NULL);
-        return 1;
+        return ERROR_QUE_NO_MEMORY;
     }
     if (cbActual)
         memcpy(pElem, q->pData + (size_t)idx * WQ_MAX_ELEMENT, cbActual);
 
     if (pReqData) {
         pReqData->ulData = slot->ulRequest;
-        pReqData->pid    = 0;
+        pReqData->pid    = slot->pid;
     }
     *pcbData      = cbActual;
     *ppElemHandle = pElem;
@@ -1688,8 +1890,12 @@ static inline APIRET DosReadQueue(HQUEUE hq, PREQUESTDATA pReqData,
 
     q->pHeader->count--;
 
-    ReleaseMutex(q->hMtx);
-    ReleaseSemaphore(q->hSemFree, 1, NULL);
+    if (!ReleaseMutex(q->hMtx)) {
+        return (APIRET)GetLastError();
+    }
+    if (!ReleaseSemaphore(q->hSemFree, 1, NULL)) {
+        return (APIRET)GetLastError();
+    }
     return 0;
 }
 

@@ -23,7 +23,9 @@ ADD_COPT += -bt=nt
 ADD_LINKOPT = lib wsock32.lib
 !endif
 
-ADD_COPT     += -i=$(SRCDIR) -i=$(SRCDIR)..$(SEP)include -i=$(SRCDIR)..$(SEP)..$(SEP)..$(SEP)include -of+ -bd -3s
+ADD_COPT     += -i=$(SRCDIR) &
+                -i=$(SRCDIR)..$(SEP)include &
+                -i=$(SRCDIR)..$(SEP)..$(SEP)..$(SEP)include -of+ -bd -3s
 
 ADD_LINKOPT += segment   type DATA nonshared
 NOLIBS       = 1

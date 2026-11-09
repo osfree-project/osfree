@@ -7,7 +7,7 @@
 # (c) osFree project
 #
 
-PROJECT      = pmque
+PROJECT      = pmshm
 DESCRIPTION  = FreePM Shared Memory communication backend
 TARGET_CLASS = LIBRARY
 SOURCES = Fc_trn Fs_trn F_wire F_shm

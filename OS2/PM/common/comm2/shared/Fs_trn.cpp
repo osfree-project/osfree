@@ -16,8 +16,8 @@
     @retval -1  obj is NULL or Recv() failed. */
 extern "C" APIRET EXPENTRY Fs_TrnGetCommand(void *obj, int *cmd, int *par)
 {
-    char buf[8];
-    int  len = 0;
+    char  buf[8];
+    ULONG len = 0;
 
     if (!obj) return (APIRET)-1;
     if (((F_Link *)obj)->Recv(buf, &len, 8) != 0) return (APIRET)-1;
@@ -27,15 +27,17 @@ extern "C" APIRET EXPENTRY Fs_TrnGetCommand(void *obj, int *cmd, int *par)
 
 /*! @brief Blocking read of exactly size bytes.
     @param [in]  obj   Connection.
-    @param [out] buf   Destination.
+    @param [out] buf   Destination. Must not be NULL when size > 0.
     @param [out] len   Receives bytes read.
     @param [in]  size  Bytes to read.
     @return 0 on success, -1 on error.
     @retval 0   Exactly size bytes received.
-    @retval -1  obj is NULL, Recv() failed, or short read. */
-extern "C" APIRET EXPENTRY Fs_TrnGetData(void *obj, void *buf, int *len, int size)
+    @retval -1  obj is NULL, buf is NULL with size > 0, Recv() failed,
+                or short read. */
+extern "C" APIRET EXPENTRY Fs_TrnGetData(void *obj, void *buf, ULONG *len, ULONG size)
 {
     if (!obj) return (APIRET)-1;
+    if (!buf && size > 0) return (APIRET)-1;
     if (((F_Link *)obj)->Recv(buf, len, size) != 0) return (APIRET)-1;
     if (len && *len != size) return (APIRET)-1;
     return 0;
@@ -43,14 +45,16 @@ extern "C" APIRET EXPENTRY Fs_TrnGetData(void *obj, void *buf, int *len, int siz
 
 /*! @brief Async write of raw data.
     @param [in] obj  Connection.
-    @param [in] buf  Payload.
+    @param [in] buf  Payload. Must not be NULL when len > 0.
     @param [in] len  Payload size in bytes.
     @return 0 on success, PMC_ERR_BROKEN on transport error.
     @retval 0              Success.
-    @retval PMC_ERR_BROKEN obj is NULL or Send() failed. */
-extern "C" APIRET EXPENTRY Fs_TrnPostData(void *obj, void *buf, int len)
+    @retval PMC_ERR_BROKEN obj is NULL, buf is NULL with len > 0, or
+                           Send() failed. */
+extern "C" APIRET EXPENTRY Fs_TrnPostData(void *obj, void *buf, ULONG len)
 {
     if (!obj) return PMC_ERR_BROKEN;
+    if (!buf && len > 0) return PMC_ERR_BROKEN;
     return (((F_Link *)obj)->Send(buf, len) == 0) ? 0 : PMC_ERR_BROKEN;
 }
 
@@ -68,8 +72,10 @@ struct Fs_ClientArg {
 
 /*! @brief Per-connection dispatcher thread.
 
-    Reads 8-byte headers in a loop, dispatches each non-zero command
-    through the handler, then calls the disconnect callback and cleans up.
+    Performs the FreePM handshake, then reads 8-byte headers in a loop,
+    dispatches each non-zero command through the handler, then calls the
+    disconnect callback and cleans up. Handshake in the thread, not in
+    the accept loop, so a slow client cannot block other accepts.
 
     @param [in] param  Pointer to Fs_ClientArg. */
 static void Fs_ClientThreadProc(void *param)
@@ -79,6 +85,14 @@ static void Fs_ClientThreadProc(void *param)
     PMC_HANDLER       h       = pArg->h;
     PMC_DISCONNECT_CB disc    = pArg->disc;
     int               cmd, par;
+
+    if (pClient->Handshake() != 0) {
+        F_DbgPrint(F_DBG_SEC_WIRE, F_DBG_LVL_ERROR,
+                   "WIRE: handshake failed, dropping client %p", pClient);
+        delete pClient;
+        delete pArg;
+        return;
+    }
 
     while (Fs_TrnGetCommand(pClient, &cmd, &par) == 0) {
         if (cmd == 0) break;
@@ -93,11 +107,11 @@ static void Fs_ClientThreadProc(void *param)
 
 /*! @brief Server accept loop.
 
-    Blocks forever. For each accepted connection: handshake (bounded by
-    the transport), then spawn a dispatcher thread. On _beginthread
-    failure drops the connection and continues.
+    Blocks forever. Spawns a per-connection thread that performs the
+    handshake and the recv loop. On _beginthread failure drops the
+    connection and continues.
 
-    @param [in] listener  Listening F_Link (e.g. TcpLink in server mode).
+    @param [in] listener  Listening F_Link.
     @param [in] h         Command handler (may be NULL).
     @param [in] disc      Disconnect callback (may be NULL). */
 void Fs_RunServer(F_Link *listener, PMC_HANDLER h, PMC_DISCONNECT_CB disc)
@@ -115,12 +129,6 @@ void Fs_RunServer(F_Link *listener, PMC_HANDLER h, PMC_DISCONNECT_CB disc)
         }
         if (!pClient) { DosSleep(10); continue; }
 
-        if (pClient->Handshake() != 0) {
-            pClient->Close();
-            delete pClient;
-            continue;
-        }
-
         pArg = new Fs_ClientArg;
         if (!pArg) {
             pClient->Close();
@@ -130,7 +138,7 @@ void Fs_RunServer(F_Link *listener, PMC_HANDLER h, PMC_DISCONNECT_CB disc)
         pArg->pClient   = pClient;
         pArg->h         = h;
         pArg->disc      = disc;
-        pArg->threadNum = threadCounter++;
+        pArg->threadNum = threadCounter;
 
 #if defined(__OS2__) || defined(__OS2V2__)
         thrc = _beginthread(Fs_ClientThreadProc, NULL, FREEPM_THREAD_STACK, pArg);
@@ -141,6 +149,8 @@ void Fs_RunServer(F_Link *listener, PMC_HANDLER h, PMC_DISCONNECT_CB disc)
             pClient->Close();
             delete pClient;
             delete pArg;
+        } else {
+            threadCounter++;
         }
     }
 }

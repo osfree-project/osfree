@@ -1,84 +1,78 @@
 /*! @file F_shm.hpp
     @brief Shared-memory transport for FreePM: ShmLink class.
 
-    One named region holds a fixed array of slots; each slot has two
-    byte-ring buffers (client->server, server->client) and a state word.
-    Clients claim a free slot at Open, exchange handshake over the rings,
-    then run full duplex. Only per-thread model (one slot per connection);
-    a client that dies after claiming a slot leaks it (known limit).
-
-    Pure OS/2 API on both platforms; Win32 differences are absorbed by
-    F_platform.h emulation (DosAllocSharedMem, DosGetNamedSharedMem,
-    DosFreeMem, DosCreateMutexSem, DosOpenMutexSem).
+    Data path is shared memory; notification path is OS/2 queues.
+    One region per direction with QMS_SLOTS slots of QMS_SLOT_SIZE bytes.
+    Send/Recv split/assemble arbitrary length into QMS_SLOT_SIZE chunks;
+    from F_Link's perspective they are stream operations of any length.
 */
 #ifndef F_SHM_HPP
 #define F_SHM_HPP
 
-#if defined(__OS2__) || defined(__OS2V2__)
-  #define INCL_DOSERRORS
-  #define INCL_DOSMEMMGR
-  #define INCL_DOSSEMAPHORES
-#endif
+#define INCL_DOSERRORS
+#define INCL_DOSQUEUES
+#define INCL_DOSPROCESS
+#define INCL_DOSMEMMGR
 #include "F_platform.h"
 
 #include "F_link.hpp"
 #include "F_wire.hpp"
 
-/*! @def FREEPM_SHM_NAME
-    @brief OS/2 shared-memory name (Win32 translated to Local\\...). */
-#define FREEPM_SHM_NAME       "\\SHAREMEM\\FREEPM_SHM"
-/*! @def FREEPM_SHM_MAX_SLOTS
-    @brief Maximum concurrent connections. */
-#define FREEPM_SHM_MAX_SLOTS  32
-/*! @def FREEPM_SHM_RING_SIZE
-    @brief Bytes per direction per slot (ring capacity). */
-#define FREEPM_SHM_RING_SIZE  0x2000
-/*! @def FREEPM_SHM_MAGIC
-    @brief Header magic ("SHM1"). */
-#define FREEPM_SHM_MAGIC      0x53484D31UL
+/*! @def FREEPM_SHM_QUEUE_NAME
+    @brief Server listener queue (Accept entry point). */
+#define FREEPM_SHM_QUEUE_NAME  "\\QUEUES\\FREEPM"
 
 /*! @def SHM_SERVER_MODE
-    @brief ShmLink acts as a listener. */
+    @brief ShmLink acts as listener. */
 #define SHM_SERVER_MODE  1
 /*! @def SHM_CLIENT_MODE
-    @brief ShmLink acts as a client. */
+    @brief ShmLink acts as client. */
 #define SHM_CLIENT_MODE  2
 
-/*! @brief Per-direction ring indices (shared). */
-typedef struct _ShmRing {
-    ULONG writeIdx;   /*!< Bytes written (mod ringSize). */
-    ULONG readIdx;    /*!< Bytes read (mod ringSize). */
-} ShmRing;
+/*! @def QMS_MAGIC
+    @brief Data region magic ("QMS1"). */
+#define QMS_MAGIC        0x514D5331UL
+/*! @def QMS_SLOTS
+    @brief Slots per direction. 1 = one chunk in flight per direction. */
+#define QMS_SLOTS        1
+/*! @def QMS_SLOT_SIZE
+    @brief Internal chunk size, bytes. Not a message-size limit. */
+#define QMS_SLOT_SIZE    (1024 * 1024)
 
-/*! @brief Per-connection slot (shared). */
-typedef struct _ShmSlot {
-    ULONG   state;    /*!< 0=free, 1=claimed, 2=active. */
-    ULONG   pad;      /*!< Alignment. */
-    ShmRing c2s;      /*!< client -> server indices. */
-    ShmRing s2c;      /*!< server -> client indices. */
-} ShmSlot;
+/*! @brief One data slot. */
+typedef struct _QmsSlot {
+    ULONG length;
+    BYTE  data[QMS_SLOT_SIZE];
+} QmsSlot;
 
-/*! @brief Shared header (first object in the region). */
-typedef struct _ShmHeader {
-    ULONG   magic;    /*!< FREEPM_SHM_MAGIC. */
-    ULONG   version;  /*!< 1. */
-    ULONG   nSlots;   /*!< FREEPM_SHM_MAX_SLOTS. */
-    ULONG   ringSize; /*!< FREEPM_SHM_RING_SIZE. */
-    ShmSlot slots[FREEPM_SHM_MAX_SLOTS];
-} ShmHeader;
+/*! @brief Data region header (first object in shared memory). */
+typedef struct _QmsHeader {
+    ULONG    magic;
+    ULONG    nSlots;
+    ULONG    slotSize;
+    ULONG    writeIdx;
+    ULONG    readIdx;
+    ULONG    pad[3];
+    QmsSlot  slots[QMS_SLOTS];
+} QmsHeader;
 
 /*! @brief Shared-memory transport: F_Link implementation. */
 class ShmLink : public F_Link {
 public:
-    ShmHeader *pHeader;     /*!< Mapped header. */
-    BYTE      *pC2S;        /*!< Base of client->server rings. */
-    BYTE      *pS2C;        /*!< Base of server->client rings. */
-    int        slot;        /*!< Slot index, -1 if not bound. */
-    int        mode;        /*!< SHM_CLIENT_MODE or SHM_SERVER_MODE. */
-    int        connected;   /*!< Non-zero if ready for data. */
-    int        isCreator;   /*!< Non-zero if this side created the region. */
-    HMTX       hMtxGlobal;  /*!< Protects slots[].state. */
-    HMTX       hMtxData;    /*!< Protects slots[slot] ring operations. */
+    HQUEUE     hqRecv;
+    HQUEUE     hqSend;
+    QmsHeader *pWriteRegion;
+    QmsHeader *pReadRegion;
+    int        mode;
+    int        connected;
+    ULONG      peerPid;
+    char       name[256];
+
+    /* Stream reassembly buffer for Recv. */
+    BYTE  *recvBuf;
+    ULONG  recvBufCap;
+    ULONG  recvBufLen;
+    ULONG  recvBufPos;
 
     ShmLink();
     ShmLink(const char *pszName, int iMode);
@@ -87,8 +81,8 @@ public:
     virtual int Open(void);
     virtual int Accept(F_Link **ppNew);
     virtual int Handshake(void);
-    virtual int Send(const void *pvData, int cbData);
-    virtual int Recv(void *pvData, int *pcbReceived, int cbBuffer);
+    virtual int Send(const void *pvData, ULONG cbData);
+    virtual int Recv(void *pvData, ULONG *pcbReceived, ULONG cbBuffer);
     virtual int Close(void);
 };
 

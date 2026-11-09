@@ -1,47 +1,44 @@
 /*! @file F_pipe.hpp
-    @brief Named-pipe transport for FreePM: PipeLink class.
-
-    Works on OS/2 (native Dos*NPipe API) and Win32 (via F_platform.h
-    emulation). INCL_DOSERRORS and INCL_DOSNMPIPES are defined before
-    including F_platform.h so that ERROR_OPEN_FAILED, ERROR_BROKEN_PIPE
-    and the NP_* constants are visible on OS/2.
+    @brief OS/2 named-pipe transport for FreePM: PipeLink class.
 */
 #ifndef F_PIPE_HPP
 #define F_PIPE_HPP
 
-#define INCL_DOSERRORS
-#define INCL_DOSNMPIPES
+#if defined(__OS2__) || defined(__OS2V2__)
+  #define INCL_DOSERRORS
+  #define INCL_DOSNMPIPES
+#endif
 #include "F_platform.h"
 
 #include "F_link.hpp"
 #include "F_wire.hpp"
 
 /*! @def FREEPM_PIPE_NAME
-    @brief Default pipe name (platform-specific namespace). */
+    @brief Pipe name, platform-specific namespace. */
 #if defined(__OS2__) || defined(__OS2V2__)
-  #define FREEPM_PIPE_NAME          "\\PIPE\\FREEPM"
+  #define FREEPM_PIPE_NAME        "\\PIPE\\FREEPM"
 #else
-  #define FREEPM_PIPE_NAME          "\\\\.\\pipe\\FREEPM"
+  #define FREEPM_PIPE_NAME        "\\\\.\\pipe\\FREEPM"
 #endif
 
 /*! @def FREEPM_PIPE_MAX_INST
-    @brief Max listener instances (low byte of pipe mode). */
-#define FREEPM_PIPE_MAX_INST      32
+    @brief Max simultaneous instances (1 listener + N-1 clients). */
+#define FREEPM_PIPE_MAX_INST      64
 /*! @def FREEPM_PIPE_OUTB_SIZE
     @brief Outbound buffer size, bytes. */
-#define FREEPM_PIPE_OUTB_SIZE     0x1000
+#define FREEPM_PIPE_OUTB_SIZE     0x8000
 /*! @def FREEPM_PIPE_INPB_SIZE
     @brief Inbound buffer size, bytes. */
-#define FREEPM_PIPE_INPB_SIZE     0x1000
+#define FREEPM_PIPE_INPB_SIZE     0x8000
 /*! @def FREEPM_PIPE_TIMEOUT
     @brief Default pipe I/O timeout, milliseconds. */
 #define FREEPM_PIPE_TIMEOUT       20000L
 
 /*! @def PIPE_SERVER_MODE
-    @brief PipeLink acts as a listener. */
+    @brief PipeLink acts as listener. */
 #define PIPE_SERVER_MODE          1
 /*! @def PIPE_CLIENT_MODE
-    @brief PipeLink acts as a client. */
+    @brief PipeLink acts as client. */
 #define PIPE_CLIENT_MODE          2
 
 /*! @brief Named-pipe transport: F_Link implementation. */
@@ -59,8 +56,8 @@ public:
     virtual int Open(void);
     virtual int Accept(F_Link **ppNew);
     virtual int Handshake(void);
-    virtual int Send(const void *pvData, int cbData);
-    virtual int Recv(void *pvData, int *pcbReceived, int cbBuffer);
+    virtual int Send(const void *pvData, ULONG cbData);
+    virtual int Recv(void *pvData, ULONG *pcbReceived, ULONG cbBuffer);
     virtual int Close(void);
 };
 

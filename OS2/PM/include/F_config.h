@@ -24,6 +24,18 @@
 #define FREEPM_MUTEX_NAME            "Global\\_FREE_PM"
 #endif
 
+/*! @brief Client -> server handshake magic (9 bytes, incl. NUL). */
+#define HAND_SHAKE_INP         "pIpEtEsT"
+/*! @brief Server -> client handshake magic (9 bytes, incl. NUL). */
+#define HAND_SHAKE_OUT         "PiPeTeSt"
+
+/*! @def FREEPM_TCP_DEFAULT_HOST
+    @brief Default peer host (loopback). */
+#define FREEPM_TCP_DEFAULT_HOST  "127.0.0.1"
+/*! @def FREEPM_TCP_DEFAULT_PORT
+    @brief Default TCP port (must match PMCLIENT expectations). */
+#define FREEPM_TCP_DEFAULT_PORT  9876
+
 
 /*+------------------------------------+*/
 /*| defines for FreePM Debug subsystem |*/
