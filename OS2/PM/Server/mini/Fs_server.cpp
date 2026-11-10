@@ -12,16 +12,16 @@
 
 #include "Fs_server.hpp"
 #include "F_debug.h"
-#include "dispatch_win.hpp"
-
-extern ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
-                         PULONG pcbPayload);
 
 #define SERVER_RETURN(ctx, fmt, ...) \
     do { \
         F_DbgCtxExitf(ctx, fmt, ##__VA_ARGS__); \
         return; \
     } while (0)
+
+/* ======================================================================== */
+/*  Construction                                                            */
+/* ======================================================================== */
 
 Fs_Server::Fs_Server()
     : m_pfnRecv(NULL),
@@ -47,6 +47,10 @@ void Fs_Server::SetConfig(const F_ServerConfig &cfg)
     m_habs.SetMax(cfg.ulMaxHabs);
 }
 
+/* ======================================================================== */
+/*  Monitor thread                                                          */
+/* ======================================================================== */
+
 #if defined(__OS2__) || defined(__OS2V2__)
 static void MonitorThreadProc(void *param)
 {
@@ -65,6 +69,7 @@ void Fs_Server::StartMonitor()
     F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
                "[SERVER] starting monitor thread (tick=%lu ms)",
                (unsigned long)m_cfg.ulMonitorTick);
+
 #if defined(__OS2__) || defined(__OS2V2__)
     _beginthread(MonitorThreadProc, NULL, 65536, this);
 #else
@@ -82,6 +87,7 @@ void Fs_Server::MonitorLoop()
         m_procs.Expire(now, m_cfg.ulInactive, m_cfg.ulGrace);
 
         int nActive = m_procs.CountActive();
+
         if (m_fEverHadClient && nActive == 0) {
             F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
                        "[SERVER] all sessions gone, shutting down");
@@ -91,32 +97,64 @@ void Fs_Server::MonitorLoop()
     }
 }
 
+/* ======================================================================== */
+/*  Response helpers                                                        */
+/* ======================================================================== */
+
 void Fs_Server::SendHeader(void *pRecvobj, ULONG ulStatus, ULONG ulResult,
                            ULONG cbPayload, ULONG ulLastError)
 {
-    struct { ULONG ulStatus; ULONG ulResult; ULONG cbPayload; ULONG ulLastError; } resp;
+    struct {
+        ULONG ulStatus;
+        ULONG ulResult;
+        ULONG cbPayload;
+        ULONG ulLastError;
+    } resp;
+
     resp.ulStatus    = ulStatus;
     resp.ulResult    = ulResult;
     resp.cbPayload   = cbPayload;
     resp.ulLastError = ulLastError;
+
     if (m_pfnSend) m_pfnSend(pRecvobj, &resp, sizeof(resp));
 }
 
 void Fs_Server::SendClientConfig(void *pRecvobj, Fs_Thread *pThread)
 {
     F_CLIENTCONFIG cfg;
+
     cfg.idClient   = (pThread && pThread->GetProcess())
                      ? pThread->GetProcess()->GetIdClient() : 0;
     cfg.ulInactive = m_cfg.ulInactive;
     cfg.ulGrace    = m_cfg.ulGrace;
     cfg.flConfig   = (m_cfg.fAcceptLogs ? F_CFG_WANT_LOGS : 0)
                    | F_CFG_PING_REQUIRED;
+
     if (m_pfnSend) m_pfnSend(pRecvobj, &cfg, sizeof(cfg));
+
     F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
                "[SERVER] sent F_CLIENTCONFIG to %p (idClient=%lu)",
                pRecvobj, (unsigned long)cfg.idClient);
 }
 
+/* ======================================================================== */
+/*  Client lifecycle                                                        */
+/* ======================================================================== */
+
+/*!
+ * @brief Handle F_CMD_CLIENT_CONNECT.
+ *
+ * par == 0        -> allocate a fresh Fs_Process (idClient) and its
+ *                    first Fs_Thread + Fs_Connection pair.
+ * par != 0        -> locate the existing Fs_Process by idClient and
+ *                    allocate an additional Fs_Thread + Fs_Connection.
+ *
+ * A recvobj may only carry one thread slot per process; duplicates on
+ * the same recvobj are rejected.
+ *
+ * @param [in] pRecvobj  Transport connection handle.
+ * @param [in] idClient  Client-supplied idClient (0 = new process).
+ */
 void Fs_Server::HandleClientConnect(void *pRecvobj, ULONG idClient)
 {
     int ctx;
@@ -129,7 +167,6 @@ void Fs_Server::HandleClientConnect(void *pRecvobj, ULONG idClient)
                          "[SERVER] HandleClientConnect(recvobj=%p, idClient=%lu)",
                          pRecvobj, (unsigned long)idClient);
 
-    /* A recvobj may carry only one thread slot per process. */
     pExisting = m_conns.FindByRecvobj(pRecvobj);
     if (pExisting != NULL) {
         F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_WARNING,
@@ -180,7 +217,6 @@ void Fs_Server::HandleClientConnect(void *pRecvobj, ULONG idClient)
                (unsigned long)idNew, pRecvobj);
     m_fEverHadClient = TRUE;
 
-    /* Thread was allocated inside Create; find it via its connection. */
     {
         Fs_Connection *pConn = m_conns.FindByRecvobj(pRecvobj);
         pThread = pConn ? pConn->GetThread() : NULL;
@@ -190,6 +226,20 @@ void Fs_Server::HandleClientConnect(void *pRecvobj, ULONG idClient)
     SERVER_RETURN(ctx, "new idClient=%lu", (unsigned long)idNew);
 }
 
+/*!
+ * @brief Handle F_CMD_CLIENT_RECONNECT.
+ *
+ * Wire: cmd=RECONNECT, data=idClient, payload={ ULONG tid }.
+ *
+ * The client reconnects from a fresh recvobj after the previous one
+ * has been closed or dropped. The server must have already received
+ * the disconnect callback for the old recvobj (Fs_Connection is in
+ * StateDetached) before RECONNECT arrives. The resumed thread keeps
+ * its HAB (Fs_Hab) alive across the transition.
+ *
+ * @param [in] pRecvobj  New transport handle.
+ * @param [in] idClient  Client-supplied idClient.
+ */
 void Fs_Server::HandleClientReconnect(void *pRecvobj, ULONG idClient)
 {
     int ctx;
@@ -208,6 +258,7 @@ void Fs_Server::HandleClientReconnect(void *pRecvobj, ULONG idClient)
         SendClientConfig(pRecvobj, NULL);
         SERVER_RETURN(ctx, "rejected (idClient=0)");
     }
+
     if (!m_pfnRecv) {
         SendClientConfig(pRecvobj, NULL);
         SERVER_RETURN(ctx, "rejected (no wire)");
@@ -215,12 +266,19 @@ void Fs_Server::HandleClientReconnect(void *pRecvobj, ULONG idClient)
 
     rc = m_pfnRecv(pRecvobj, &tid, &len, sizeof(tid));
     if (rc != 0 || len != (int)sizeof(tid) || tid == 0) {
+        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_ERROR,
+                   "[SERVER] RECONNECT: bad tid payload "
+                   "(rc=%d, len=%d, tid=%lu)",
+                   rc, len, (unsigned long)tid);
         SendClientConfig(pRecvobj, NULL);
         SERVER_RETURN(ctx, "rejected (bad tid payload)");
     }
 
     pProc = m_procs.FindByIdClient(idClient);
     if (!pProc) {
+        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_WARNING,
+                   "[SERVER] RECONNECT: idClient=%lu not found",
+                   (unsigned long)idClient);
         SendClientConfig(pRecvobj, NULL);
         SERVER_RETURN(ctx, "rejected (idClient=%lu not found)",
                       (unsigned long)idClient);
@@ -228,6 +286,9 @@ void Fs_Server::HandleClientReconnect(void *pRecvobj, ULONG idClient)
 
     pThread = pProc->FindThreadByTid(tid);
     if (!pThread) {
+        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_WARNING,
+                   "[SERVER] RECONNECT: tid=%lu not in idClient=%lu",
+                   (unsigned long)tid, (unsigned long)idClient);
         SendClientConfig(pRecvobj, NULL);
         SERVER_RETURN(ctx, "rejected (tid=%lu not found)",
                       (unsigned long)tid);
@@ -235,6 +296,10 @@ void Fs_Server::HandleClientReconnect(void *pRecvobj, ULONG idClient)
 
     pConn = pThread->GetConn();
     if (!pConn || !pConn->IsDetached()) {
+        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_WARNING,
+                   "[SERVER] RECONNECT: tid=%lu not DETACHED "
+                   "(idClient=%lu)", (unsigned long)tid,
+                   (unsigned long)idClient);
         SendClientConfig(pRecvobj, NULL);
         SERVER_RETURN(ctx, "rejected (tid=%lu not DETACHED)",
                       (unsigned long)tid);
@@ -251,6 +316,15 @@ void Fs_Server::HandleClientReconnect(void *pRecvobj, ULONG idClient)
                   (unsigned long)idClient, (unsigned long)tid);
 }
 
+/*!
+ * @brief Handle F_CMD_CLIENT_EXIT.
+ *
+ * Per-thread shutdown: destroy this thread's HAB (cascading through
+ * GpiPsDestroyByHab), free the thread slot and its connection, and
+ * destroy the whole process only if this was its last thread.
+ *
+ * @param [in] pThread  Thread slot identified by recvobj.
+ */
 void Fs_Server::HandleClientExit(Fs_Thread *pThread)
 {
     int ctx;
@@ -267,20 +341,18 @@ void Fs_Server::HandleClientExit(Fs_Thread *pThread)
     ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
                          "[SERVER] HandleClientExit(idClient=%lu, iHab=%lu)",
                          (unsigned long)idClient, (unsigned long)iHab);
+
     F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
                "[SERVER] EXIT: idClient=%lu, thread iHab=%lu",
                (unsigned long)idClient, (unsigned long)iHab);
 
-    /* Destroy this thread's HAB (cascades to GpiPsDestroyByHab). */
     if (pProc && iHab != 0) {
         m_habs.Destroy(idClient, pThread->GetTid(), iHab);
         pThread->ClearHab();
     }
 
-    /* Free this thread's slot + connection. */
     if (pProc) pProc->FreeThread(pThread);
 
-    /* Last thread gone: tear down the process and any orphan HABs. */
     if (pProc && pProc->CountActiveThreads() == 0) {
         F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
                    "[SERVER] EXIT: last thread of idClient=%lu gone, "
@@ -291,9 +363,20 @@ void Fs_Server::HandleClientExit(Fs_Thread *pThread)
     SERVER_RETURN(ctx, "done");
 }
 
+/*!
+ * @brief Handle F_CMD_CLIENT_PING.
+ *
+ * Fire-and-forget touch. The thread is identified by recvobj (which
+ * is the transport-level authority), not by the client-supplied
+ * idClient. A mismatch is logged but the thread is still touched.
+ *
+ * @param [in] pThread   Thread slot identified by recvobj.
+ * @param [in] idClient  Client-supplied idClient (informational).
+ */
 void Fs_Server::HandleClientPing(Fs_Thread *pThread, ULONG idClient)
 {
     int ctx;
+
     if (!pThread) return;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
@@ -307,32 +390,59 @@ void Fs_Server::HandleClientPing(Fs_Thread *pThread, ULONG idClient)
     if (pThread->GetProcess() &&
         idClient != pThread->GetProcess()->GetIdClient()) {
         F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_WARNING,
-                   "[SERVER] PING: idClient=%lu mismatch thread idClient=%lu",
-                   (unsigned long)idClient,
-                   (unsigned long)pThread->GetProcess()->GetIdClient());
+                   "[SERVER] PING: idClient=%lu mismatch thread idClient=%lu "
+                   "on recvobj=%p", (unsigned long)idClient,
+                   (unsigned long)pThread->GetProcess()->GetIdClient(),
+                   pThread->GetConn() ? pThread->GetConn()->GetRecvobj() : NULL);
     }
 
     if (pThread->GetConn()) pThread->GetConn()->Touch();
     SERVER_RETURN(ctx, "done");
 }
 
+/*!
+ * @brief Handle a transport disconnect (PMTCP disc_cb).
+ *
+ * Marks the thread's connection as DETACHED so a subsequent
+ * F_CMD_CLIENT_RECONNECT can resume it. Does not touch the HAB
+ * (Fs_Hab survives across reconnect until ulGrace expires or EXIT).
+ *
+ * @param [in] pRecvobj  Transport handle of the dropped connection.
+ */
 void Fs_Server::HandleDisconnect(void *pRecvobj)
 {
     int ctx;
     Fs_Connection *pConn;
 
     pConn = m_conns.FindByRecvobj(pRecvobj);
+
     if (!pConn) return;
     if (!pConn->IsActive()) return;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
                          "[SERVER] HandleDisconnect(recvobj=%p)", pRecvobj);
+
     F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
                "[SERVER] DISCONNECT: recvobj=%p -> DETACHED", pRecvobj);
     pConn->Detach(time(NULL));
     SERVER_RETURN(ctx, "-> DETACHED");
 }
 
+/* ======================================================================== */
+/*  GPI dispatch                                                            */
+/* ======================================================================== */
+
+/*!
+ * @brief Handle a GPI command: read cbArgs + payload, dispatch, reply.
+ *
+ * Reads the 4-byte cbArgs header, then cbArgs bytes of payload.
+ * Calls DispatchGpi with the decoded HPS (data) and the marshaled
+ * arguments. Sends FPM_RESP_HEADER + optional payload.
+ *
+ * @param [in] pThread  Thread slot identified by recvobj.
+ * @param [in] fnCode   NGpi* opcode (F_CMD_GET_OPCODE of the wire cmd).
+ * @param [in] data     Primary handle (HPS).
+ */
 void Fs_Server::HandleGpiCall(Fs_Thread *pThread,
                               ULONG fnCode, ULONG data)
 {
@@ -348,7 +458,10 @@ void Fs_Server::HandleGpiCall(Fs_Thread *pThread,
     ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
                          "[SERVER] HandleGpiCall(fnCode=0x%lx, hps=%p)",
                          (unsigned long)fnCode, (void*)hps);
-    if (!m_pfnRecv) { SERVER_RETURN(ctx, "no wire"); }
+
+    if (!m_pfnRecv) {
+        SERVER_RETURN(ctx, "no wire");
+    }
 
     rc = m_pfnRecv(pRecvobj, &cbArgs, &len, sizeof(cbArgs));
     if (rc == 0 && len == (int)sizeof(cbArgs)) {
@@ -356,13 +469,15 @@ void Fs_Server::HandleGpiCall(Fs_Thread *pThread,
             if (DosAllocMem(&pv, cbArgs,
                             PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
                 SendHeader(pRecvobj, 1, GPI_ERROR, 0, 0);
-                SERVER_RETURN(ctx, "no memory (cbArgs=%lu)", (unsigned long)cbArgs);
+                SERVER_RETURN(ctx, "no memory (cbArgs=%lu)",
+                              (unsigned long)cbArgs);
             }
             pArgs = (PBYTE)pv;
             rc = m_pfnRecv(pRecvobj, pArgs, &len, cbArgs);
         }
 
-        ULONG ulResult = DispatchGpi(hps, fnCode, pArgs, cbArgs, &cbPayload);
+        ULONG ulResult = DispatchGpi(pRecvobj, fnCode, data,
+                                      pArgs, cbArgs, &cbPayload);
         SendHeader(pRecvobj, 0, ulResult, cbPayload, 0);
         if (cbPayload > 0 && pArgs != NULL && cbPayload <= cbArgs && m_pfnSend)
             m_pfnSend(pRecvobj, pArgs, (int)cbPayload);
@@ -375,6 +490,22 @@ void Fs_Server::HandleGpiCall(Fs_Thread *pThread,
     }
 }
 
+/*!
+ * @brief Handle a Win* command.
+ *
+ * HAB lifecycle (fnCode 0x0001..0x000F) is sync: no cbArgs is read
+ * and the reply is a bare 4-byte ulResult (matching Fc_TrnSendCommand
+ * in Fc_trn.cpp). All other WIN domains use the async path: cbArgs +
+ * payload on the wire, FPM_RESP_HEADER + optional payload on reply.
+ *
+ * Routing by fnCode range selects one of the DispatchWin* methods.
+ * Each dispatcher is private and shares the uniform signature
+ * (pRecvobj, fnCode, data, pArgs, cbArgs, pcbPayload).
+ *
+ * @param [in] pThread  Thread slot identified by recvobj.
+ * @param [in] fnCode   NWin* opcode (0x0001..0x01BF).
+ * @param [in] data     Primary handle (HAB/HWND/HMQ/HPS/…).
+ */
 void Fs_Server::HandleWinCall(Fs_Thread *pThread,
                               ULONG fnCode, ULONG data)
 {
@@ -394,13 +525,17 @@ void Fs_Server::HandleWinCall(Fs_Thread *pThread,
                          (unsigned long)(pThread->GetProcess()
                                          ? pThread->GetProcess()->GetIdClient()
                                          : 0));
-    if (!m_pfnRecv) { SERVER_RETURN(ctx, "no wire"); }
+
+    if (!m_pfnRecv) {
+        SERVER_RETURN(ctx, "no wire");
+    }
 
     /* HAB lifecycle (0x0001-0x000F): sync, no cbArgs, 4-byte reply. */
     if (fnCode >= NWinInitialize && fnCode <= 0x000F) {
         ulResult = DispatchWinHab(pRecvobj, fnCode, data,
                                    NULL, 0, &cbPayload);
-        if (m_pfnSend) m_pfnSend(pRecvobj, &ulResult, sizeof(ulResult));
+        if (m_pfnSend)
+            m_pfnSend(pRecvobj, &ulResult, sizeof(ulResult));
         SERVER_RETURN(ctx, "result=0x%lx (sync HAB)", (unsigned long)ulResult);
     }
 
@@ -413,7 +548,8 @@ void Fs_Server::HandleWinCall(Fs_Thread *pThread,
         if (DosAllocMem(&pv, cbArgs,
                         PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
             SendHeader(pRecvobj, 1, GPI_ERROR, 0, 0);
-            SERVER_RETURN(ctx, "no memory (cbArgs=%lu)", (unsigned long)cbArgs);
+            SERVER_RETURN(ctx, "no memory (cbArgs=%lu)",
+                          (unsigned long)cbArgs);
         }
         pArgs = (PBYTE)pv;
         rc = m_pfnRecv(pRecvobj, pArgs, &len, cbArgs);
@@ -424,8 +560,54 @@ void Fs_Server::HandleWinCall(Fs_Thread *pThread,
         }
     }
 
-    ulResult = DispatchWinHab(pRecvobj, fnCode, data,
-                               pArgs, cbArgs, &cbPayload);
+    if (fnCode >= 0x0001 && fnCode <= 0x000F)
+        ulResult = DispatchWinHab  (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x0010 && fnCode <= 0x001F)
+        ulResult = DispatchWinMq   (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x0020 && fnCode <= 0x005F)
+        ulResult = DispatchWinWnd  (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x0060 && fnCode <= 0x007F)
+        ulResult = DispatchWinPs   (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x0080 && fnCode <= 0x009F)
+        ulResult = DispatchWinCls  (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x00A0 && fnCode <= 0x00BF)
+        ulResult = DispatchWinDlg  (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x00C0 && fnCode <= 0x00DF)
+        ulResult = DispatchWinPtr  (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x00E0 && fnCode <= 0x00E7)
+        ulResult = DispatchWinClip (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x00E8 && fnCode <= 0x00EF)
+        ulResult = DispatchWinAtom (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x00F0 && fnCode <= 0x00FF)
+        ulResult = DispatchWinStr  (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x0100 && fnCode <= 0x010F)
+        ulResult = DispatchWinErr  (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x0110 && fnCode <= 0x011F)
+        ulResult = DispatchWinSys  (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x0120 && fnCode <= 0x013F)
+        ulResult = DispatchWinRect (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x0140 && fnCode <= 0x014F)
+        ulResult = DispatchWinInp  (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x0150 && fnCode <= 0x015F)
+        ulResult = DispatchWinDraw (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x0160 && fnCode <= 0x016F)
+        ulResult = DispatchWinFrame(pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x0170 && fnCode <= 0x017F)
+        ulResult = DispatchWinSync (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x0180 && fnCode <= 0x018F)
+        ulResult = DispatchWinMisc (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x0190 && fnCode <= 0x019F)
+        ulResult = DispatchWin32   (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x01A0 && fnCode <= 0x01AF)
+        ulResult = DispatchWinMisc (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else if (fnCode >= 0x01B0 && fnCode <= 0x01BF)
+        ulResult = DispatchWinDax  (pRecvobj, fnCode, data, pArgs, cbArgs, &cbPayload);
+    else {
+        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_WARNING,
+                   "[SERVER] HandleWinCall: fnCode=0x%lx out of range",
+                   (unsigned long)fnCode);
+        ulResult = 0;
+    }
 
     SendHeader(pRecvobj, 0, ulResult, cbPayload, 0);
     if (cbPayload > 0 && pArgs != NULL && cbPayload <= cbArgs && m_pfnSend)
@@ -435,6 +617,17 @@ void Fs_Server::HandleWinCall(Fs_Thread *pThread,
     SERVER_RETURN(ctx, "result=0x%lx", (unsigned long)ulResult);
 }
 
+/*!
+ * @brief Handle a CORE-class command (session mgmt, debug, HPS stubs).
+ *
+ * Covers F_CMD_GET_HPS, F_CMD_RELEASE_HPS, F_CMD_DB_PRINT and
+ * F_CMD_FATAL_COMMON. Any other CORE command is echoed back so the
+ * client's Fc_SesSendCommand returns without blocking.
+ *
+ * @param [in] pThread  Thread slot identified by recvobj.
+ * @param [in] ncmd     Wire command code (F_CMD_CORE(opcode)).
+ * @param [in] data     Primary handle or 32-bit argument.
+ */
 void Fs_Server::HandleCoreCommand(Fs_Thread *pThread, ULONG ncmd, ULONG data)
 {
     void *pRecvobj = pThread->GetConn()->GetRecvobj();
@@ -443,42 +636,79 @@ void Fs_Server::HandleCoreCommand(Fs_Thread *pThread, ULONG ncmd, ULONG data)
     int  ctx;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
-                         "[SERVER] HandleCoreCommand(ncmd=0x%lx, data=0x%lx)",
-                         (unsigned long)ncmd, (unsigned long)data);
+                         "[SERVER] HandleCoreCommand(ncmd=0x%lx, data=0x%lx, "
+                         "idClient=%lu)",
+                         (unsigned long)ncmd, (unsigned long)data,
+                         (unsigned long)(pThread->GetProcess()
+                                         ? pThread->GetProcess()->GetIdClient()
+                                         : 0));
 
     switch (ncmd) {
-    case F_CMD_GET_HPS: {
-        HPS hps = (HPS)1;
-        if (m_pfnSend) m_pfnSend(pRecvobj, &hps, sizeof(HPS));
-        SERVER_RETURN(ctx, "GET_HPS -> hps=%p (stub)", (void*)hps);
-    }
-    case F_CMD_RELEASE_HPS: {
-        int rc1 = 0;
-        if (m_pfnSend) m_pfnSend(pRecvobj, &rc1, sizeof(int));
-        SERVER_RETURN(ctx, "RELEASE_HPS -> 0");
-    }
-    case F_CMD_DB_PRINT: {
-        if (m_pfnRecv && m_cfg.fAcceptLogs) {
-            m_pfnRecv(pRecvobj, buf, &len, sizeof(buf));
-            F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO, "DEBUG: %s", buf);
+
+        case F_CMD_GET_HPS: {
+            HPS hps = (HPS)1;
+            F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                       "[SERVER] GET_HPS(hwnd=0x%x) -> hps=%p (stub)",
+                       data, (void*)hps);
+            if (m_pfnSend) m_pfnSend(pRecvobj, &hps, sizeof(HPS));
+            SERVER_RETURN(ctx, "GET_HPS -> hps=%p (stub)", (void*)hps);
         }
-        SERVER_RETURN(ctx, "DB_PRINT");
-    }
-    case F_CMD_FATAL_COMMON: {
-        if (m_pfnRecv) {
-            m_pfnRecv(pRecvobj, buf, &len, sizeof(buf));
-            F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_FATAL, "FATAL: %s", buf);
+
+        case F_CMD_RELEASE_HPS: {
+            int rc1 = 0;
+            F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                       "[SERVER] RELEASE_HPS(hps=0x%x) -> 0", data);
+            if (m_pfnSend) m_pfnSend(pRecvobj, &rc1, sizeof(int));
+            SERVER_RETURN(ctx, "RELEASE_HPS -> 0");
         }
-        SERVER_RETURN(ctx, "FATAL_COMMON");
-    }
-    default: {
-        unsigned long reply = (unsigned long)ncmd;
-        if (m_pfnSend) m_pfnSend(pRecvobj, &reply, sizeof(reply));
-        SERVER_RETURN(ctx, "unknown cmd 0x%x -> echoed", ncmd);
-    }
+
+        case F_CMD_DB_PRINT: {
+            if (m_pfnRecv && m_cfg.fAcceptLogs) {
+                m_pfnRecv(pRecvobj, buf, &len, sizeof(buf));
+                F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
+                           "DEBUG[id=%lu]: %s",
+                           (unsigned long)pThread->GetProcess()->GetIdClient(),
+                           buf);
+            }
+            SERVER_RETURN(ctx, "DB_PRINT");
+        }
+
+        case F_CMD_FATAL_COMMON: {
+            if (m_pfnRecv) {
+                m_pfnRecv(pRecvobj, buf, &len, sizeof(buf));
+                F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_FATAL,
+                           "FATAL[id=%lu]: %s",
+                           (unsigned long)pThread->GetProcess()->GetIdClient(),
+                           buf);
+            }
+            SERVER_RETURN(ctx, "FATAL_COMMON");
+        }
+
+        default: {
+            unsigned long reply = (unsigned long)ncmd;
+            if (m_pfnSend) m_pfnSend(pRecvobj, &reply, sizeof(reply));
+            SERVER_RETURN(ctx, "unknown cmd 0x%x -> echoed", ncmd);
+        }
     }
 }
 
+/* ======================================================================== */
+/*  Main command entry                                                      */
+/* ======================================================================== */
+
+/*!
+ * @brief Main command entry (called from PMTCP handler).
+ *
+ * Routes CONNECT/RECONNECT directly (they do not require an existing
+ * session). All other commands first locate the calling thread's
+ * Fs_Thread via m_conns.FindByRecvobj; if not found, replies with
+ * (ULONG)-1. Dispatches by CORE / GPI / WIN class.
+ *
+ * @param [in] pRecvobj   Transport connection handle.
+ * @param [in] ncmd       Full wire command code (class + opcode).
+ * @param [in] data       Primary handle (HAB/HWND/HPS/idClient/…).
+ * @param [in] threadNum  PMTCP thread index (unused).
+ */
 void Fs_Server::HandleCommand(void *pRecvobj, int ncmd, int data, int threadNum)
 {
     int                  ctx;
@@ -491,6 +721,10 @@ void Fs_Server::HandleCommand(void *pRecvobj, int ncmd, int data, int threadNum)
                          "[SERVER] HandleCommand(ncmd=0x%x, data=0x%x, "
                          "recvobj=%p)", ncmd, data, pRecvobj);
 
+    F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+               "[SERVER] IN  -> recvobj=%p, ncmd=0x%x, data=0x%x",
+               pRecvobj, ncmd, data);
+
     switch (ncmd) {
     case F_CMD_CLIENT_CONNECT:
         HandleClientConnect(pRecvobj, (ULONG)data);
@@ -500,8 +734,9 @@ void Fs_Server::HandleCommand(void *pRecvobj, int ncmd, int data, int threadNum)
         SERVER_RETURN(ctx, "RECONNECT done");
     }
 
-    pConn = m_conns.FindByRecvobj(pRecvobj);
+    pConn   = m_conns.FindByRecvobj(pRecvobj);
     pThread = pConn ? pConn->GetThread() : NULL;
+
     if (!pThread) {
         ULONG err = (ULONG)-1;
         F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_ERROR,

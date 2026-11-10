@@ -20,28 +20,40 @@
  * Sync path (fnCode 0x0001-0x000F): no cbArgs read, reply is a bare
  * 4-byte ulResult, matching Fc_TrnSendCommand's contract (Fc_trn.cpp).
  */
-#include "dispatch_win.hpp"
 #include "Fs_server.hpp"
 #include "F_debug.h"
 
-/* ---- 0x0001-0x000F: HAB lifecycle (Phase 2) ---------------------------- */
-
 /*!
- * @brief HAB lifecycle dispatcher (NWinInitialize/NWinTerminate/NWinGetLastError).
+ * @brief Dispatch NWin* HAB lifecycle commands.
  *
- * Locates the Fs_Process by pRecvobj, then the Fs_ClientConnection inside it.
- * NWinInitialize attaches a new Fs_Hab to the thread slot; NWinTerminate
- * detaches it; NWinGetLastError reads pHab->GetLastError().
+ * Handles three sync commands with no payload:
+ *   NWinInitialize    data = tid  -> return iHab (0 = rejected)
+ *   NWinTerminate     data = hab  -> return BOOL (1 = destroyed)
+ *   NWinGetLastError  data = hab  -> return PMERR_* (0 = no error)
  *
- * @param [in]  pRecvobj   Transport connection handle (identifies the thread).
- * @param [in]  fnCode     NWin* opcode (0x0001..0x000F).
- * @param [in]  data       Primary argument (see NWin* semantics).
- * @param [in]  pArgs      Payload buffer (may be NULL when cbArgs == 0).
- * @param [in]  cbArgs     Size of pArgs.
- * @param [out] pcbPayload Receives reply payload size (0 = no payload).
- * @return Dispatch result (ulResult of the response).
+ * In non-strict mode the client-supplied `data` for Terminate /
+ * GetLastError is ignored; the thread's own HAB is used. In strict
+ * mode a mismatch rejects the command.
+ *
+ * @param [in]  pRecvobj   Transport connection handle (Fs_Connection key).
+ * @param [in]  fnCode     NWin* opcode (NWinInitialize / NWinTerminate /
+ *                         NWinGetLastError).
+ * @param [in]  data       Primary argument: tid for Initialize, hab for
+ *                         Terminate / GetLastError (informational in
+ *                         non-strict mode).
+ * @param [in]  pArgs      Unused (sync path has no payload).
+ * @param [in]  cbArgs     Unused (sync path has no payload).
+ * @param [out] pcbPayload Receives reply payload size (always 0).
+ * @return NWinInitialize:   iHab (0 on failure).
+ *         NWinTerminate:    1 on success, 0 on failure.
+ *         NWinGetLastError: PMERR_* (0 if no error).
+ * @retval 0  Failure: no process/thread, tid=0, or Create failed for
+ *            NWinInitialize; no HAB, strict mismatch, or Destroy failed
+ *            for NWinTerminate; no process/thread or no HAB for
+ *            NWinGetLastError (the latter returns PMERR_INVALID_HAB
+ *            instead of 0).
+ * @retval 1  NWinTerminate succeeded.
  */
-
 ULONG Fs_Server::DispatchWinHab(void *pRecvobj, ULONG fnCode, ULONG data,
                                  PBYTE pArgs, ULONG cbArgs,
                                  PULONG pcbPayload)

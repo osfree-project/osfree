@@ -10,6 +10,7 @@
 #include "goca_emit.h"       /* GocaEmit* order emitters */
 #include "F_cmd.h"
 #include "F_debug.h"
+#include "Fs_server.hpp"
 
 /*!
  * @brief Server-side storage for the shared PS table.
@@ -817,16 +818,24 @@ static BOOL SrvGocaInsertElement(PGPI_PS ps, ULONG segStart, ULONG segEnd,
 /*!
  * @brief Server dispatch for GPI calls.
  *
- * @param [in] hps      Presentation space handle.
- * @param [in] ulFnCode Function code (NGpi*).
- * @param [in] pArgs    Marshaled arguments.
- * @param [in] cbArgs   Size of pArgs in bytes.
- * @return GPI result.
+ * @param [in]  pRecvobj   Transport connection handle (unused: GPI is
+ *                         PS-scoped via the HPS in ulHandle).
+ * @param [in]  ulFnCode   Function code (NGpi*).
+ * @param [in]  ulHandle   Primary handle (HPS).
+ * @param [in]  pArgs      Marshaled arguments.
+ * @param [in]  cbArgs     Size of pArgs in bytes.
+ * @param [out] pcbPayload Receives reply payload size (0 = no payload).
+ * @return GPI result (LONG/BOOL/HANDLE cast to ULONG, or GPI_ERROR).
+ * @retval 0  GPI_ERROR (failure); some cases return a valid handle
+ *            value which is not necessarily non-zero.
  */
-ULONG DispatchGpi(HPS hps, ULONG ulFnCode, PBYTE pArgs, ULONG cbArgs,
-                  PULONG pcbPayload)
+ULONG Fs_Server::DispatchGpi(void *pRecvobj, ULONG ulFnCode, ULONG ulHandle,
+                              PBYTE pArgs, ULONG cbArgs, PULONG pcbPayload)
 {
+    HPS hps = (HPS)ulHandle;
     int dispatchCtx;
+
+    (void)pRecvobj;
 
     if (pcbPayload) *pcbPayload = 0;   /* default: no payload */
 
