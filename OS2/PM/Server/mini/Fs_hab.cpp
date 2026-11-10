@@ -14,6 +14,9 @@
 /*  Fs_Hab                                                                  */
 /* ======================================================================== */
 
+/*!
+ * @brief Default constructor. Slot starts unused, all fields zeroed.
+ */
 Fs_Hab::Fs_Hab()
     : m_bUsed(FALSE),
       m_iHab(0),
@@ -23,6 +26,21 @@ Fs_Hab::Fs_Hab()
 {
 }
 
+/*!
+ * @brief Install a new HAB into a FREE slot.
+ *
+ * Requires all three identifiers to be non-zero: idClient (owning
+ * session), tid (client thread id, unique within the process), and
+ * iHab (server-assigned handle, monotonic).
+ *
+ * @param [in] idClient  Owning session.
+ * @param [in] tid       Client thread id.
+ * @param [in] iHab      Server-assigned HAB id.
+ * @return TRUE on success, FALSE if the slot is already used or any
+ *         argument is zero.
+ * @retval TRUE   Slot populated.
+ * @retval FALSE  Slot already used or argument invalid.
+ */
 BOOL Fs_Hab::Init(ULONG idClient, ULONG tid, ULONG iHab)
 {
     if (m_bUsed) return FALSE;
@@ -36,6 +54,9 @@ BOOL Fs_Hab::Init(ULONG idClient, ULONG tid, ULONG iHab)
     return TRUE;
 }
 
+/*!
+ * @brief Release the slot (state -> FREE, all fields cleared).
+ */
 void Fs_Hab::Shutdown()
 {
     m_bUsed     = FALSE;
@@ -49,6 +70,14 @@ void Fs_Hab::Shutdown()
 /*  Fs_HabList                                                              */
 /* ======================================================================== */
 
+/*!
+ * @brief Create the HAB registry and its OS/2 mutex.
+ *
+ * The monotonic HAB counter starts at 1 (0 = invalid HAB). On mutex
+ * creation failure m_hmtx is left NULL and Lock/Unlock become no-ops,
+ * so callers continue to work (without inter-thread protection in
+ * that degenerate case).
+ */
 Fs_HabList::Fs_HabList()
     : m_ulNextHab(1),          /* skip 0: 0 = invalid HAB */
       m_ulMaxHabs(F_MAX_HABS)
@@ -61,6 +90,9 @@ Fs_HabList::Fs_HabList()
     }
 }
 
+/*!
+ * @brief Close the registry mutex.
+ */
 Fs_HabList::~Fs_HabList()
 {
     if (m_hmtx) {
@@ -69,16 +101,30 @@ Fs_HabList::~Fs_HabList()
     }
 }
 
+/*!
+ * @brief Acquire the registry mutex (no-op if it was not created).
+ */
 void Fs_HabList::Lock()
 {
     if (m_hmtx) DosRequestMutexSem(m_hmtx, SEM_INDEFINITE_WAIT);
 }
 
+/*!
+ * @brief Release the registry mutex (no-op if it was not created).
+ */
 void Fs_HabList::Unlock()
 {
     if (m_hmtx) DosReleaseMutexSem(m_hmtx);
 }
 
+/*!
+ * @brief Set the runtime HAB limit (clamped to F_MAX_HABS).
+ *
+ * Not applied retroactively: existing HABs stay; new Create() calls
+ * honour the new limit.
+ *
+ * @param [in] ulMaxHabs  New limit, 0..F_MAX_HABS.
+ */
 void Fs_HabList::SetMax(ULONG ulMaxHabs)
 {
     if (ulMaxHabs > (ULONG)F_MAX_HABS)
@@ -92,6 +138,20 @@ void Fs_HabList::SetMax(ULONG ulMaxHabs)
                "[HABLIST] SetMax(%lu)", (unsigned long)ulMaxHabs);
 }
 
+/*!
+ * @brief Allocate a new HAB for the given session and thread.
+ *
+ * Both idClient and tid must be non-zero. If the runtime limit
+ * (m_ulMaxHabs) has been reached, returns NULL without consuming an
+ * iHab from the monotonic counter.
+ *
+ * @param [in]  idClient  Owning session.
+ * @param [in]  tid       Client thread id.
+ * @param [out] pNewIHab  Receives the freshly assigned HAB id.
+ * @return Slot pointer, or NULL on failure.
+ * @retval !NULL  HAB allocated and registered.
+ * @retval NULL   Table full, runtime limit reached, or invalid args.
+ */
 Fs_Hab *Fs_HabList::Create(ULONG idClient, ULONG tid, ULONG *pNewIHab)
 {
     Fs_Hab *pFound = NULL;
@@ -142,6 +202,13 @@ Fs_Hab *Fs_HabList::Create(ULONG idClient, ULONG tid, ULONG *pNewIHab)
     return pFound;
 }
 
+/*!
+ * @brief Find a HAB by its server-assigned id.
+ * @param [in] iHab  HAB id.
+ * @return Slot pointer, or NULL if not found or iHab is 0.
+ * @retval !NULL  Matching slot.
+ * @retval NULL   No such HAB.
+ */
 Fs_Hab *Fs_HabList::FindByIHab(ULONG iHab)
 {
     Fs_Hab *pFound = NULL;
@@ -160,6 +227,19 @@ Fs_Hab *Fs_HabList::FindByIHab(ULONG iHab)
     return pFound;
 }
 
+/*!
+ * @brief Find a HAB by (session, thread) identity.
+ *
+ * Used by NWinInitialize (to detect a thread that already called
+ * WinInitialize) and by NWinTerminate (to locate the caller's HAB
+ * from the client-supplied TID).
+ *
+ * @param [in] idClient  Owning session.
+ * @param [in] tid       Client thread id.
+ * @return Slot pointer, or NULL if not found.
+ * @retval !NULL  Matching slot.
+ * @retval NULL   No such (idClient, tid) pair.
+ */
 Fs_Hab *Fs_HabList::FindByTid(ULONG idClient, ULONG tid)
 {
     Fs_Hab *pFound = NULL;
@@ -180,6 +260,24 @@ Fs_Hab *Fs_HabList::FindByTid(ULONG idClient, ULONG tid)
     return pFound;
 }
 
+/*!
+ * @brief Destroy one HAB, verifying idClient, tid and iHab.
+ *
+ * Mirrors OS/2's rule that the anchor block is identified by the
+ * identity of the calling thread: idClient (process), tid (thread
+ * within process) and iHab must all agree. If any part does not
+ * match, the slot is left untouched and the call fails.
+ *
+ * The check-and-Shutdown is performed under one lock acquisition;
+ * GpiPsDestroyByHab runs outside the lock because it may be slow.
+ *
+ * @param [in] idClient  Owning session.
+ * @param [in] tid       Client thread id.
+ * @param [in] iHab      HAB id supplied by the client.
+ * @return TRUE if a matching HAB was found and destroyed.
+ * @retval TRUE   Slot matched and freed.
+ * @retval FALSE  No matching slot.
+ */
 BOOL Fs_HabList::Destroy(ULONG idClient, ULONG tid, ULONG iHab)
 {
     Fs_Hab *pHab = NULL;
@@ -214,6 +312,16 @@ BOOL Fs_HabList::Destroy(ULONG idClient, ULONG tid, ULONG iHab)
     return TRUE;
 }
 
+/*!
+ * @brief Destroy all HABs belonging to a session.
+ *
+ * Used on CLIENT_EXIT and on grace expiry (reconnect window closed).
+ * Cascades through GpiPsDestroyByHab for each HAB.
+ *
+ * @param [in] idClient  Owning session (0 = no-op).
+ * @return Number of HABs destroyed.
+ * @retval >=0  Count of freed slots.
+ */
 int Fs_HabList::DestroyAll(ULONG idClient)
 {
     int n = 0;
@@ -243,6 +351,12 @@ int Fs_HabList::DestroyAll(ULONG idClient)
     return n;
 }
 
+/*!
+ * @brief Count HABs owned by a given session.
+ * @param [in] idClient  Owning session.
+ * @return Number of matching HABs (0 for idClient==0).
+ * @retval >=0  Count.
+ */
 int Fs_HabList::CountByClient(ULONG idClient)
 {
     int n = 0;
@@ -259,6 +373,11 @@ int Fs_HabList::CountByClient(ULONG idClient)
     return n;
 }
 
+/*!
+ * @brief Count all active HABs in the registry.
+ * @return Number of used slots.
+ * @retval >=0  Count.
+ */
 int Fs_HabList::CountActive()
 {
     int n = 0;

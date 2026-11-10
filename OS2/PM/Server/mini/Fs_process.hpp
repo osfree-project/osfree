@@ -46,7 +46,6 @@ public:
     Fs_Process *FindByIdClient(ULONG idClient);
 
     void  Destroy(ULONG idClient);
-    int   Expire(time_t now, ULONG ulInactive, ULONG ulGrace);
     int   CountActive() const;
 
 private:

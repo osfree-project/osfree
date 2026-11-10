@@ -13,6 +13,13 @@
 #include "Fs_server.hpp"
 #include "F_debug.h"
 
+/*!
+ * @def SERVER_RETURN
+ * @brief Close the debug context and return from the current function.
+ * @param [in] ctx  Context level from F_DbgCtxEnterf.
+ * @param [in] fmt  printf-style format for the exit message.
+ * @param [in] ...  Arguments for the format string.
+ */
 #define SERVER_RETURN(ctx, fmt, ...) \
     do { \
         F_DbgCtxExitf(ctx, fmt, ##__VA_ARGS__); \
@@ -23,6 +30,9 @@
 /*  Construction                                                            */
 /* ======================================================================== */
 
+/*!
+ * @brief Default constructor. Wire callbacks are installed by SetWire.
+ */
 Fs_Server::Fs_Server()
     : m_pfnRecv(NULL),
       m_pfnSend(NULL),
@@ -31,16 +41,28 @@ Fs_Server::Fs_Server()
 {
 }
 
+/*!
+ * @brief Destructor. Registries clean themselves up.
+ */
 Fs_Server::~Fs_Server()
 {
 }
 
+/*!
+ * @brief Install the transport recv/send callbacks.
+ * @param [in] pfnRecv  Read callback (PMTCP backend).
+ * @param [in] pfnSend  Write callback (PMTCP backend).
+ */
 void Fs_Server::SetWire(Fs_PfnRecv pfnRecv, Fs_PfnSend pfnSend)
 {
     m_pfnRecv = pfnRecv;
     m_pfnSend = pfnSend;
 }
 
+/*!
+ * @brief Apply the runtime configuration and propagate to subobjects.
+ * @param [in] cfg  Configuration read from fpmsrv.ini.
+ */
 void Fs_Server::SetConfig(const F_ServerConfig &cfg)
 {
     m_cfg = cfg;
@@ -52,11 +74,21 @@ void Fs_Server::SetConfig(const F_ServerConfig &cfg)
 /* ======================================================================== */
 
 #if defined(__OS2__) || defined(__OS2V2__)
+/*!
+ * @brief OS/2 thread entry for the monitor loop.
+ * @param [in] param  Fs_Server* (this).
+ */
 static void MonitorThreadProc(void *param)
 {
     ((Fs_Server *)param)->MonitorLoop();
 }
 #else
+/*!
+ * @brief Win32 thread entry for the monitor loop.
+ * @param [in] param  Fs_Server* (this).
+ * @return Always 0.
+ * @retval 0 Thread finished.
+ */
 static unsigned long __stdcall MonitorThreadProc(void *param)
 {
     ((Fs_Server *)param)->MonitorLoop();
@@ -64,6 +96,9 @@ static unsigned long __stdcall MonitorThreadProc(void *param)
 }
 #endif
 
+/*!
+ * @brief Start the monitor thread (once per process).
+ */
 void Fs_Server::StartMonitor()
 {
     F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
@@ -77,14 +112,20 @@ void Fs_Server::StartMonitor()
 #endif
 }
 
+/*!
+ * @brief Monitor thread main loop.
+ *
+ * Wakes every m_cfg.ulMonitorTick ms, expires idle / detached
+ * sessions via ExpireSessions(), and shuts the server down when
+ * the last process has gone.
+ */
 void Fs_Server::MonitorLoop()
 {
     while (!m_fShutdown) {
         DosSleep(m_cfg.ulMonitorTick);
         if (m_fShutdown) break;
 
-        time_t now = time(NULL);
-        m_procs.Expire(now, m_cfg.ulInactive, m_cfg.ulGrace);
+        ExpireSessions(time(NULL));
 
         int nActive = m_procs.CountActive();
 
@@ -98,9 +139,107 @@ void Fs_Server::MonitorLoop()
 }
 
 /* ======================================================================== */
+/*  Session timeout                                                         */
+/* ======================================================================== */
+
+/*!
+ * @brief Expire idle / detached sessions.
+ *
+ * Two timeouts are applied (spec2 §5.2):
+ *
+ *   ACTIVE -- inactive timeout -- DETACHED
+ *   DETACHED -- grace timeout -- FREE (via TeardownThread)
+ *
+ * ACTIVE -> DETACHED mirrors a transport disconnect: the slot keeps
+ * its HAB and thread alive so a later F_CMD_CLIENT_RECONNECT can
+ * resume. DETACHED -> FREE does the full teardown: HAB destroyed
+ * (cascading through GpiPsDestroyByHab), thread slot and connection
+ * freed, and if this was the last thread of the process, Fs_Process
+ * destroyed together with any orphan HABs.
+ *
+ * ulInactive == 0 disables the inactive timeout; ulGrace == 0
+ * disables the grace timeout (detached sessions never expire).
+ *
+ * @param [in] now  Current time (from time(NULL)).
+ */
+void Fs_Server::ExpireSessions(time_t now)
+{
+    int i;
+
+    for (i = 0; i < F_MAX_CLIENTS; i++) {
+        Fs_Connection *pConn = m_conns.GetByIndex(i);
+
+        if (!pConn || pConn->IsFree()) continue;
+
+        if (pConn->IsActive() &&
+            pConn->IsExpiredInactive(now, m_cfg.ulInactive)) {
+            F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
+                       "[SERVER] EXPIRE: recvobj=%p ACTIVE -> DETACHED "
+                       "(inactive)", pConn->GetRecvobj());
+            pConn->Detach(now);
+            continue;
+        }
+
+        if (pConn->IsDetached() &&
+            pConn->IsExpiredGrace(now, m_cfg.ulGrace)) {
+            F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_INFO,
+                       "[SERVER] EXPIRE: connection DETACHED -> FREE "
+                       "(grace elapsed)");
+            TeardownThread(pConn->GetThread(), "EXPIRE");
+        }
+    }
+}
+
+/*!
+ * @brief Tear down one thread: destroy its HAB, free slot + connection.
+ *
+ * Idempotent with respect to the process: if this was the last
+ * active thread of the process, Fs_Process and any remaining HABs
+ * are destroyed too. Called from HandleClientExit (EXIT command) and
+ * from ExpireSessions (grace expiry).
+ *
+ * @param [in] pThread  Thread slot to tear down.
+ * @param [in] reason   Short tag for log messages ("EXIT" / "EXPIRE").
+ */
+void Fs_Server::TeardownThread(Fs_Thread *pThread, const char *reason)
+{
+    Fs_Process *pProc;
+    ULONG       idClient;
+    ULONG       iHab;
+
+    if (!pThread) return;
+
+    pProc    = pThread->GetProcess();
+    idClient = pProc ? pProc->GetIdClient() : 0;
+    iHab     = pThread->GetIHab();
+
+    if (pProc && iHab != 0) {
+        m_habs.Destroy(idClient, pThread->GetTid(), iHab);
+        pThread->ClearHab();
+    }
+    if (pProc) pProc->FreeThread(pThread);
+
+    if (pProc && pProc->CountActiveThreads() == 0) {
+        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                   "[SERVER] %s: last thread of idClient=%lu gone, "
+                   "destroying process", reason, (unsigned long)idClient);
+        m_procs.Destroy(idClient);
+        m_habs.DestroyAll(idClient);
+    }
+}
+
+/* ======================================================================== */
 /*  Response helpers                                                        */
 /* ======================================================================== */
 
+/*!
+ * @brief Send the 16-byte FPM_RESP_HEADER.
+ * @param [in] pRecvobj   Transport handle.
+ * @param [in] ulStatus   0 = ok, non-zero = transport error.
+ * @param [in] ulResult   Function result value.
+ * @param [in] cbPayload  Size of the payload that follows (0 = none).
+ * @param [in] ulLastError Per-connection PMERR_* (currently always 0).
+ */
 void Fs_Server::SendHeader(void *pRecvobj, ULONG ulStatus, ULONG ulResult,
                            ULONG cbPayload, ULONG ulLastError)
 {
@@ -119,6 +258,11 @@ void Fs_Server::SendHeader(void *pRecvobj, ULONG ulStatus, ULONG ulResult,
     if (m_pfnSend) m_pfnSend(pRecvobj, &resp, sizeof(resp));
 }
 
+/*!
+ * @brief Send F_CLIENTCONFIG in reply to CONNECT / RECONNECT.
+ * @param [in] pRecvobj  Transport handle.
+ * @param [in] pThread   Thread slot (idClient source), or NULL on reject.
+ */
 void Fs_Server::SendClientConfig(void *pRecvobj, Fs_Thread *pThread)
 {
     F_CLIENTCONFIG cfg;
@@ -330,12 +474,11 @@ void Fs_Server::HandleClientExit(Fs_Thread *pThread)
     int ctx;
     ULONG idClient;
     ULONG iHab;
-    Fs_Process *pProc;
 
     if (!pThread) return;
 
-    pProc    = pThread->GetProcess();
-    idClient = pProc ? pProc->GetIdClient() : 0;
+    idClient = pThread->GetProcess()
+               ? pThread->GetProcess()->GetIdClient() : 0;
     iHab     = pThread->GetIHab();
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
@@ -346,20 +489,7 @@ void Fs_Server::HandleClientExit(Fs_Thread *pThread)
                "[SERVER] EXIT: idClient=%lu, thread iHab=%lu",
                (unsigned long)idClient, (unsigned long)iHab);
 
-    if (pProc && iHab != 0) {
-        m_habs.Destroy(idClient, pThread->GetTid(), iHab);
-        pThread->ClearHab();
-    }
-
-    if (pProc) pProc->FreeThread(pThread);
-
-    if (pProc && pProc->CountActiveThreads() == 0) {
-        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
-                   "[SERVER] EXIT: last thread of idClient=%lu gone, "
-                   "destroying process", (unsigned long)idClient);
-        m_procs.Destroy(idClient);
-        m_habs.DestroyAll(idClient);
-    }
+    TeardownThread(pThread, "EXIT");
     SERVER_RETURN(ctx, "done");
 }
 

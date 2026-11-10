@@ -181,12 +181,6 @@ void Fs_ProcessList::Destroy(ULONG idClient)
                "[PROCLIST] Destroy idClient=%lu", (unsigned long)idClient);
 }
 
-int Fs_ProcessList::Expire(time_t now, ULONG ulInactive, ULONG ulGrace)
-{
-    (void)now; (void)ulInactive; (void)ulGrace;
-    return 0;
-}
-
 int Fs_ProcessList::CountActive() const
 {
     int i, n = 0;

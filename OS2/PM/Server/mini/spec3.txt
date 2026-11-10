@@ -1,0 +1,2686 @@
+﻿# FreePM: сводная архитектурная спецификация
+
+**Дата редакции:** 2026-11-10. Источник — слияние прежних `spec.txt` (GPI-ревизия) и `spec2.txt` (мини-сервер). Приведено в соответствие с текущим кодом: классы `Fs_Process`/`Fs_Thread`/`Fs_Connection`, `Fs_ProcessList`/`Fs_ThreadList`/`Fs_ConnectionList`/`Fs_HabList`, методы `Fs_Server::DispatchGpi` и `Fs_Server::DispatchWin*`, `ExpireSessions`/`TeardownThread`, конфиг `F_Config` → `F_ClientConfig`/`F_ServerConfig`.
+
+**Методология:** всё, что ниже, либо проверено по коду в репозитории, либо по `pmord.h`/`F_platform.h`/`pmddim.h`, либо помечено как требующее сверки. Полных текстов Петцольда и `pmgpi.h` при подготовке не было.
+
+---
+
+# Часть I. Методология и источники
+
+## I.1. Что проверено построчно
+
+| Файл | Что проверял |
+|---|---|
+| `dispatch.cpp` | Все `case NGpi*`, все `Srv*` helpers, `SrvDeliver`, `DISPATCH_STUB` |
+| `goca_parser.cpp` | `GocaParseStream`, все `Do*`, `GocaInit`, `GocaSetAttr` |
+| `goca_common.h` | `GOCA_CTX`, `GocaPutCoord`, `GocaPutU16/U32`, `GocaGetU16/U32`, `GocaOrderLength`, `GocaSetFormatFromOptions` |
+| `goca_emit*.h` | Все эмиттеры, контракты, overflow |
+| `gpi_ps.h` | `GPI_PS`, `GpiPsFind/Create/Get/SetOptions/Destroy`, `GpiPsGocaAppend/FindSeg/Delete`, `GpiPsDestroyByHab` |
+| `gpi_wire.h` | Все `NGpi*`, все `Gpi*_Args` |
+| `gpi_proxies.cpp`, `gpi_manual.cpp` | Все прокси (клиент) |
+| `gre.cpp` | `Gre32Entry2..10` — заглушки |
+| `init.cpp` | PMCLIENT: 7 экспортов `Fc_Ses*`, keepalive, reconnect, backend load |
+| `Fs_server.cpp` / `.hpp` | `Fs_Server`: `m_procs`, `m_conns`, `m_habs`, `HandleCommand`, `HandleGpiCall`, `HandleWinCall`, `HandleClientConnect/Reconnect/Exit/Ping`, `HandleDisconnect`, `ExpireSessions`, `TeardownThread`, `DispatchGpi`, `DispatchWin*` |
+| `Fs_process.cpp` / `.hpp` | `Fs_Process`, `Fs_ProcessList` |
+| `Fs_thread.hpp` | `Fs_Thread`, `Fs_ThreadList` |
+| `Fs_connection.hpp` | `Fs_Connection`, `Fs_ConnectionList` |
+| `Fs_hab.cpp` / `.hpp` | `Fs_Hab`, `Fs_HabList` |
+| `Fs_config.cpp` / `.hpp` | `F_ServerConfig::AnalizeRecodrRead`, ключи |
+| `F_config.h` | `F_Config` (inline `Read`/`ReadStr`/`Write`/`AnalizeRecodrRead`), `debugOptions` |
+| `Fc_config.cpp` / `.hpp` | `F_ClientConfig::AnalizeRecodrRead` |
+| `dispatch_win_hab.cpp` | `Fs_Server::DispatchWinHab` (sync HAB) |
+| `dispatch_win_stubs.cpp` | `WIN_DOMAIN_STUB` для 19 доменов |
+| `pmserver.cpp` | `main`, `pm_handler`, `pm_disconnect`, `CleanupServer` |
+| `F_cmd.h` | Классы, `F_CMD_MAKE/GET_CLASS/GET_OPCODE`, `F_CLIENTCONFIG` |
+| `F_platform.h` | `GPI_ERROR/GPI_OK/GPI_ALTERROR`, `DM_*`, `DCTL_*`, `SEGEM_*`, `ATTR_*`, bundles, маски |
+| `pmord.h` | `OCODE_*`, `GCBOX_*`, `GBSEG_*`, `ORDERL_GBSEG`, `ORDER_GBEL`, `GBEL_DL` |
+| `pmddim.h` / `pmddi.h` | `Gre32EntryN`, `Gre*` macros |
+
+## I.2. Что не проверено (требует сверки)
+
+| Что | Почему | Как проверить |
+|---|---|---|
+| `GPIT_MICRO`/`GPIT_NORMAL`/`GPIT_DEFAULT` | Нет `pmgpi.h` | Toolkit OS/2 или Петцольд |
+| `GPIA_ASSOC`, `PS_TYPE_MASK` | То же | То же |
+| Полный список Micro-запретов | То же | То же |
+| `OCODE_GOPTH` = `0xD9` или `0xD4` | Комментарий в `pmord.h` | Дамп GOCA на real OS/2 |
+| `WinBeginPaint` cached Micro-PS | Петцольд | Текст книги |
+| `GpiSavePS`/`RestorePS` в Micro | Петцольд | Текст книги |
+
+## I.3. Правила доказательности
+
+- **Баг** — только если противоречит спецификации. Цитата обязательна.
+- **Не-баг** — если спецификация говорит «так и должно быть» или «не определено». Документируется в `docs/`.
+- **Баг без теста** — не закрыт.
+- **Архитектурная проблема** — не баг; документируется с рекомендацией.
+
+---
+
+# Часть II. Роль сервера и пять уровней
+
+## II.1. Роль сервера в системе
+
+**FreePM — распределённая реализация Presentation Manager.** Приложение, слинкованное с PMMERGE/PMGPI, работает через локальные клиентские DLL; фактическое состояние PM и рендеринг выполняются в отдельном процессе `PMSERVER.EXE`.
+
+| Сторона | Компонент | Роль |
+|---|---|---|
+| Клиент | Приложение | вызывает `Gpi*`/`Win*` |
+| Клиент | PMMERGE.DLL | прокси `Win*`, `WndProc`-прокси, `WinInitialize` |
+| Клиент | PMGPI.DLL | прокси `Gpi*` |
+| Клиент | PMCLIENT.DLL | keepalive, reconnect, wire-транспорт (7 экспортов `Fc_Ses*`) |
+| Транспорт | PMTCP.DLL (или PMPIPE/PMEHSHM) | backend: `Fc_Trn*` (ord 1–7), `Fs_Trn*` (ord 8–11) |
+| **Сервер** | **PMSERVER.EXE** | **авторитетное состояние PM: процессы, потоки, соединения, HAB, PS, WND/MQ/DC (Phase 4+), GOCA-поток, рендеринг** |
+
+**Ключевой архитектурный принцип:** сервер — **единственный авторитетный владелец** состояния PM. Клиент хранит только opaque-хэндлы (`HAB`, `HPS`, `HWND`), выданные сервером, и передаёт их как аргументы. Никакого клиентского PS, WND, MQ в мини-сервере нет.
+
+**Сервер — не библиотека и не встраиваемый модуль.** Это отдельный процесс с собственным жизненным циклом (§XIII.1), запускаемый клиентом по требованию.
+
+## II.2. Пять уровней и их границы
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│ Application                                                    │
+│   GpiSetColor(hps, CLR_RED)                                    │
+└───────────────────────────┬────────────────────────────────────┘
+                            │ Gpi* API (клиент)
+┌───────────────────────────▼────────────────────────────────────┐
+│ GPI (клиент) — прокси + транспорт                              │
+│   gpi_proxies.cpp / gpi_manual.cpp: маршалинг                  │
+│   gpi_entry.cpp: GpiDispatch, wire                             │
+│   gpi_ps.h (GPI_CLIENT): клиентский кэш                        │
+└───────────────────────────┬────────────────────────────────────┘
+                            │ wire: cmd + hps + cbArgs + args
+                            │       ← header + payload
+┌───────────────────────────▼────────────────────────────────────┐
+│ PMCLIENT.DLL — 7 экспортов Fc_Ses* (per-thread)                │
+│   Fc_SesConnect / Fc_SesDisconnect                             │
+│   Fc_SesPostCommand / Fc_SesPostData / Fc_SesGetData           │
+│   Fc_SesSendCommand / Fc_SesSendCommandData                    │
+│   aConns[tid], g_idClient/g_clientConfig, keepalive, reconnect │
+└───────────────────────────┬────────────────────────────────────┘
+                            │ backend Fc_Trn* (ord 1–7)
+┌───────────────────────────▼────────────────────────────────────┐
+│ Backend (pmtcp / pmpipe / pmshm) — framing, transport          │
+└───────────────────────────┬────────────────────────────────────┘
+                            │ TCP/pipe/shm
+┌───────────────────────────▼────────────────────────────────────┐
+│ PMSERVER (Fs_Server)                                           │
+│   HandleCommand: классификация ncmd, поиск/создание сессии,    │
+│   диспетчеризация по классу, отправка ответа                   │
+│   DispatchGpi / DispatchWin<Domain> — методы Fs_Server         │
+└───────────────────────────┬────────────────────────────────────┘
+                            │ GOCA-ордера (байты)
+┌───────────────────────────▼────────────────────────────────────┐
+│ GOCA — субстанция PS                                           │
+│   goca_common.h: GOCA_CTX, format helpers                      │
+│   goca_emit*.h: emit (order → bytes)                           │
+│   goca_parser.cpp: parse (bytes → Gre*)                        │
+└───────────────────────────┬────────────────────────────────────┘
+                            │ Gre*(hdc, ...)
+┌───────────────────────────▼────────────────────────────────────┐
+│ GRE — рендерер (заглушки)                                      │
+│   gre.cpp: Gre32Entry2..10                                     │
+└───────────────────────────┬────────────────────────────────────┘
+                            │ device commands
+┌───────────────────────────▼────────────────────────────────────┐
+│ Media = Device (screen / printer / plotter / metafile)         │
+└────────────────────────────────────────────────────────────────┘
+```
+
+## II.3. Слои сервера
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│ Слой 1: Транспорт (внешний)                                        │
+│   PMTCP.dll — startServerThreads(handler, disc_cb), Recv, Send     │
+│   per-connection thread → handler(recvobj, cmd, data, threadNum)    │
+├────────────────────────────────────────────────────────────────────┤
+│ Слой 2: Сессии и маршрутизация (Fs_Server)                          │
+│   HandleCommand: классификация ncmd, поиск/создание сессии,        │
+│   диспетчеризация по классу, отправка ответа                       │
+├────────────────────────────────────────────────────────────────────┤
+│ Слой 3: Реестры состояния                                          │
+│   Fs_ProcessList    (процессы,  F_MAX_CLIENTS, key=idClient)       │
+│   Fs_ConnectionList (соединения, F_MAX_CLIENTS, key=recvobj)       │
+│   Fs_HabList        (HAB,       F_MAX_HABS,    key=iHab)           │
+│   g_psTable[]       (PS,        GPI_MAX_PS)                        │
+│   [Phase 4] Fs_WndList, [Phase K] Fs_DcList, [Phase 4] Fs_Queue    │
+├────────────────────────────────────────────────────────────────────┤
+│ Слой 4: Диспетчеризация API                                        │
+│   Fs_Server::DispatchGpi        (NGpi*) → GOCA emit / GpiPs*       │
+│   Fs_Server::DispatchWin<Dom>   (NWin*) → Fs_Hab*/Fs_Wnd*          │
+│   HandleCoreCommand             (CORE)  → DB_PRINT, FATAL, GET_HPS │
+├────────────────────────────────────────────────────────────────────┤
+│ Слой 5: GOCA                                                       │
+│   goca_emit_*  : order → bytes                                     │
+│   goca_parser  : bytes → Gre*                                      │
+│   goca_common  : GOCA_CTX, format, GocaPut*/Get*, GocaOrderLength  │
+├────────────────────────────────────────────────────────────────────┤
+│ Слой 6: GRE (внешний, сейчас — заглушки)                           │
+│   Gre32EntryN → реальный GRE / эмуляция                            │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+## II.4. Ответственности компонентов
+
+| Компонент | Отвечает за | **Не** отвечает за |
+|---|---|---|
+| **Fs_Server** | маршрутизация `ncmd`, wire-I/O, отправка ответа, `MonitorLoop`, `ExpireSessions`, все `Dispatch*` | содержимое процессов/HAB/PS (только через реестры) |
+| **Fs_ProcessList** | реестр процессов, монотонный `idClient` | потоки, соединения, HABs |
+| **Fs_Process** | один клиентский процесс (idClient); таблица потоков `Fs_ThreadList` | соединения, HABs |
+| **Fs_ThreadList** | таблица потоков внутри `Fs_Process`; ключ — `tid` | соединения, HABs |
+| **Fs_Thread** | один клиентский поток: `tid`, `m_pHab`, `m_pProcess`, `m_pConn` | физическое владение HAB/connection |
+| **Fs_ConnectionList** | реестр соединений, ключ — `recvobj` | потоки, HABs |
+| **Fs_Connection** | один транспорт: `m_pRecvobj`, `m_state` (Active/Detached), timestamps, `m_pThread` | потоки (только back-ref) |
+| **Fs_HabList** | реестр HAB, монотонный `iHab`, каскадное уничтожение (`GpiPsDestroyByHab`) | PS/WND/DC (только через `GpiPsDestroyByHab`) |
+| **Fs_Hab** | один anchor block: `iHab`, `idClient`, `tid`, `lastError` | PS/WND/DC |
+| **DispatchGpi** (метод) | трансляция NGpi* → GOCA emit/parse, `GpiPs*`, `SrvDeliver` | wire, сессии, HAB |
+| **DispatchWin\<Domain\>** (методы) | трансляция NWin* → операции над Fs_Hab/Fs_Wnd (Phase 2/4) | wire, GOCA |
+| **GPI_PS + GpiPs\*** | состояние одного PS: GOCA-поток, сегменты, элементы, пути | рендеринг |
+| **GocaEmit\*** | кодирование GOCA-ордеров | состояние PS |
+| **GocaParseStream** | декодирование GOCA-ордеров и вызов `Gre*` | состояние PS (обновляет persistent registers) |
+| **gre.cpp** | `Gre32EntryN` для линковки | реальный рендеринг (stub) |
+
+## II.5. Границы
+
+**Клиент / сервер:** wire-протокол (§IV). Клиент не знает про `Fs_Hab`, `GPI_PS`, `GOCA_CTX`, `Gre*`. Сервер не знает про `PMMERGE`, `PmcSendCommand`.
+
+**Сервер / GRE:** контракт `Gre*` (§II.9). Сервер не знает про устройство вывода; GRE не знает про GOCA-поток, сегменты, элементы.
+
+**GPI / WIN:** оба класса принимают wire-команды в `Fs_Server`, но диспетчеризуются в разные методы. Между собой не пересекаются, кроме `GPI_PS::m_hHab` (back-ref).
+
+**PS / HDC / HWND / Media:** PS создаётся из **HDC**, а не из HWND. HDC — источник, HWND — один из способов его получения. Без HWND (включая `HWND_DESKTOP`) пиксели на экран не выводятся: memory DC (`DevOpenDC(OD_MEMORY)`) даёт только offscreen-рисование.
+
+| Фаза | `goca.hdc` | HWND нужен? | Что рисуется |
+|---|---|---|---|
+| P0 (текущая) | `NULL` | Нет | Ничего (все `Gre*` — заглушки). GOCA-поток, сегменты, bookkeeping работают |
+| Step K (P1) | HDC от клиента (после `NGpiAssociate`) | Нет | Ничего на сервере (клиентский HDC) |
+| Phase 4 (P4) | memory DC (`DevOpenDC(OD_MEMORY)`) | Нет | Offscreen в `pVBuffmem`; визуально — ничего |
+| Phase 6 (P4.5) | screen DC (`WinOpenWindowDC(HWND_DESKTOP)` / `WinGetScreenPS(HWND_DESKTOP)`) | **Да** | **Реальный экран** |
+
+`HWND_DESKTOP` — предопределённое символическое имя (`0x00000001` в `PMWIN.H`) для **реального** окна рабочего стола, которое PM создаёт при старте (IBM PM Ref Vol.1: «PM creates at start-up a window known as the desktop window»). Не «псевдо-HWND».
+
+## II.6. Что такое PS — полное определение
+
+**PS — один объект.** Формула:
+
+## II.7. Клиент-серверное распределение
+
+| Компонент | Сервер (`GPI_SERVER`) | Клиент (`GPI_CLIENT`) |
+|---|---|---|
+| `inUse`, `hps` | ✅ | ✅ (opaque) |
+| `flOptions` | ✅ | ✅ (для `coordSize/Endian`) |
+| `szlPS` | должен быть (баг #7) | ❌ |
+| `goca.hdc` | ✅ (линк к Media) | ❌ (NULL) |
+| `goca.coordSize/Endian` | ✅ | ✅ (из `flOptions`) |
+| `goca.lb/cb/mb/ab`, `ptlCurPos` | ✅ | ❌ |
+| `goca` transient (parser) | ✅ (только во время parse) | ❌ |
+| `pbGoca`, `cbGoca`, `cbGocaAlloc` | ✅ | ❌ |
+| `lOpenSeg`, `uOpenSegStart` | ✅ | ❌ |
+| `uOpenSegEnd` | **отсутствует** (баг #1) | ❌ |
+| `ulDrawingMode`, `ulEditMode`, `ulInitialSegAttrs` | ✅ | ❌ |
+| `ulDrawControl`, `ulStopDraw` | ✅ | ❌ |
+| `ulPSType` | **отсутствует** | ❌ |
+| `lCurrentElement`, `bInElement`, `uOpenElementStart` | ✅ | ❌ |
+| `lOpenPath`, `bPathDefined` | ✅ | ❌ |
+| `lSaveLevel`, `aSave[]` | **отсутствует** (Step K) | ❌ |
+| `m_hHab` | ✅ (back-ref на `Fs_Hab`) | ❌ |
+
+**Модель:** сервер — единственный авторитетный владелец PS. Клиент хранит только `flOptions`/`coordSize/Endian` для emit (когда Step N) и `hps` как opaque.
+
+**Альтернатива (обсуждалась, отложена):** клиент владеет `pbGoca` в DM_RETAIN + bookkeeping + регистры; сервер — stateless GOCA-renderer. Требует полного клиентского PS. **Не реализуется в текущем плане** (приоритет — завершить NGpi; альтернатива — после P8).
+
+## II.8. Потоки данных по режимам
+
+### DM_DRAW / Micro-PS
+
+```
+GpiLine(hps, pt)
+  [клиент] gpi_proxies.cpp: args = { ptl = *pt }
+           GpiDispatch(hps, NGpiLine, &args, 8, &result)
+             PmcPostCommand(F_CMD_GPI(NGpiLine), hps)   // 8 B
+             PmcSendData(&cbArgs=8, 4)                  // 4 B
+             PmcSendData(&args, 8)                      // 8 B
+  [сервер] HandleCommand → F_CMD_GET_CLASS == F_CMD_CLASS_GPI
+             HandleGpiCall(pThread, NGpiLine, (ULONG)hps)
+               m_pfnRecv(&cbArgs, 4)
+               m_pfnRecv(pArgs, 8)
+               DispatchGpi(pRecvobj, NGpiLine, hps, pArgs, 8, &cbPayload)
+                 case NGpiLine:
+                   memcpy(&ptl, pArgs, sizeof(POINTL))
+                   ps = GpiPsGet(hps)
+                   len = GocaEmitLine(&ps->goca, buf, sizeof(buf), ptl)
+                     buf[0] = OCODE_GCLINE (0x81)
+                     buf[1] = 2 * coordSize
+                     GocaPutCoord(c, buf+2, ptl.x)
+                     GocaPutCoord(c, buf+2+coordSize, ptl.y)
+                     return 2 + 2*coordSize
+                   SrvDeliver(ps, buf, len):
+                     if (ps->lOpenSeg == 0):
+                       SrvParseOrder(ps, buf, len):
+                         ps->goca.pbStream = buf; ps->goca.cbStream = len
+                         GocaParseStream(&ps->goca):
+                           uPos = 0
+                           while (uPos < cbStream):
+                             cbOrder = GocaOrderLength(c, p, cbAvail)
+                             oc = p[0]
+                             switch (oc):
+                               case OCODE_GCLINE: DoLine(c, p, cbOrder, TRUE)
+                                 RefreshCurPos(c)                 // ← лишний Gre* (баг Extra)
+                                 nPts = len / pointSize
+                                 nTotal = nPts + 1
+                                 alloc POINTL[nTotal]
+                                 pptl[0] = c->ptlCurPos
+                                 read coords into pptl[1..]
+                                 GrePolyLine(c->hdc, pptl, nTotal)
+                                 c->ptlCurPos = pptl[nTotal-1]
+                                 free
+                             uPos += cbOrder
+               SendHeader(pRecvobj, 0, ulResult, cbPayload, 0)   // 16 B
+  [клиент] читает header, возвращает result
+```
+
+**Ключевое:** для `GCLINE` — **лишний `GreGetCurrentPosition`** в `DoLine` (`RefreshCurPos`). Позиция уже в `c->ptlCurPos`. Это **баг Extra** (§XI.11).
+
+### DM_RETAIN
+
+```
+GpiLine(hps, pt)
+  ...
+  SrvDeliver(ps, buf, len):
+    if (ps->lOpenSeg == 0): нет (сегмент открыт)
+    am = ps->ulDrawingMode                     // DM_RETAIN
+    if (!(ps->ulInitialSegAttrs & SEGATTR_BIT(ATTR_CHAINED)))
+        am = DM_RETAIN
+    if (PS_IS_RECORDING(am)):                  // да
+      GpiPsGocaAppend(ps, buf, len):
+        if (ps->cbGoca + len > ps->cbGocaAlloc):
+          grow (×2, минимум 256)
+        memcpy(ps->pbGoca + ps->cbGoca, buf, len)
+        ps->cbGoca += len
+      if (!ps->bInElement && ps->ulEditMode == SEGEM_INSERT && p[0] != GBEL/GEEL)
+        ps->lCurrentElement++
+    if (PS_IS_DRAWING(am)):                    // DM_RETAIN — нет
+      SrvParseOrder(...)
+```
+
+**Ключевое:** GRE не вызывается. `goca.lb/cb/mb/ab` **не обновляются** (это корректно per N1 — атрибутные Query в DM_RETAIN недействительны).
+
+### DM_DRAWANDRETAIN
+
+```
+SrvDeliver:
+  am = DM_DRAWANDRETAIN
+  if (PS_IS_RECORDING(am)): GpiPsGocaAppend(...)   // да
+  if (PS_IS_DRAWING(am)):   SrvParseOrder(...)     // да
+```
+
+И append, и parse. `goca.lb/cb/mb/ab` обновляются (через parse).
+
+### DrawSegment
+
+```
+NGpiDrawSegment(hps, 1):
+  GpiPsGocaFindSeg(ps, 1, &start, &end):
+    off = 0
+    while (off < cbGoca):
+      cb = GocaOrderLength(...)
+      if (p[0] == OCODE_GBSEG && cb >= 6):
+        name = GocaGetU32(c, p + 2)
+        if (name == lSegId):
+          start = off
+          end = cbGoca
+          off += cb
+          while (off < cbGoca):
+            cq = GocaOrderLength(...)
+            if (q[0] == OCODE_GBSEG): end = off; break
+            off += cq
+          return TRUE
+      off += cb
+  ps->goca.pbStream = ps->pbGoca + start
+  ps->goca.cbStream = end - start
+  GocaParseStream(&ps->goca)
+```
+
+**Ключевое:** `GocaParseStream` получает **весь** диапазон, включая `GBSEG`. Парсер видит `OCODE_GBSEG` → `case OCODE_GBSEG: break;` (no-op). Дальше парсит тело.
+
+### DrawChain / DrawFrom / DrawDynamics / RemoveDynamics
+
+```
+SrvForEachSegment(ps, pfn, pUser):
+  off = 0
+  while (off < cbGoca):
+    cb = GocaOrderLength(...)
+    if (p[0] == OCODE_GBSEG && cb >= 14):
+      name = GocaGetU32(c, p + 2)
+      f1 = p[6]; f2 = p[7]
+      start = off; end = cbGoca
+      scan = off + cb
+      while (scan < cbGoca):
+        cq = GocaOrderLength(...)
+        if (q[0] == OCODE_GBSEG): end = scan; break
+        scan += cq
+      if (!pfn(ps, name, start, end, f1, f2, pUser)): return TRUE
+      off = end
+    else: off += cb
+```
+
+`SrvCbDrawChain`: фильтр (не invisible, не dynamic, не unchained) → `SrvReplaySegment(ps, start, end)`:
+```
+ps->goca.pbStream = ps->pbGoca + start
+ps->goca.cbStream = end - start
+GocaParseStream(&ps->goca)
+```
+
+## II.9. Контракты между слоями
+
+### GPI ↔ GOCA
+
+| Направление | Что | Контракт |
+|---|---|---|
+| GPI → GOCA (emit) | `GocaEmit*(&ps->goca, buf, cb, ...)` | Возвращает `len >= 0` или `GPI_ALTERROR`. `buf == NULL` → возвращает `need`. **Не обновляет** `ps->goca.lb/cb/...`. |
+| GPI → GOCA (parse) | `SrvParseOrder(ps, p, cb)` → `ps->goca.pbStream = p; ps->goca.cbStream = cb; GocaParseStream(&ps->goca)` | `GocaParseStream` **обновляет** `ps->goca.lb/cb/mb/ab`, `ptlCurPos`, `lError`. Возвращает `GOCA_OK` или `GOCA_ERR_*`. |
+| GPI ← GOCA | `GocaOrderLength(&ps->goca, p, cb)` | Возвращает длину ордера (1/2/2+LEN/4+U16). 0 = truncation. |
+| GPI ← GOCA | `GocaGetU32(&ps->goca, p + 2)` | Читает `GBSEG.Name` с учётом endian. |
+| GPI → GOCA (format) | `GocaSetFormatFromOptions(&ps->goca, flOptions)` | Устанавливает `coordSize`/`coordEndian` из `PS_FORMAT_MASK`. |
+
+**Правило:** `GocaEmit*` — только кодирование; `GocaParseStream` — единственное место, где registers обновляются. В DM_RETAIN registers **не** обновляются (per N1). GPI не парсит GOCA вручную, кроме `GocaOrderLength`/`GocaGetU32` для чтения метаданных (`GBSEG.Name`).
+
+**N4 в контексте HWND:** `(HDC)hps` — бессмысленный HDC (указатель на PS выдан за HDC). Правильная последовательность по фазам:
+- **P0** — `GpiPsCreate(hps, NULL, flOptions)` → `goca.hdc = NULL`. Все `Gre*` — заглушки; работают GOCA-поток, сегменты, bookkeeping.
+- **Step K** — `NGpiAssociate(hdc)` → `goca.hdc = hdc` (клиентский; на серверном экране ничего не видно).
+- **Phase 4** — сервер создаёт **memory DC** (`DevOpenDC(OD_MEMORY)`) → offscreen-рендеринг в `pVBuffmem`; визуально ничего.
+- **Phase 6** — сервер получает **screen DC** (`WinOpenWindowDC(HWND_DESKTOP)`) → визуальный рендеринг.
+
+### GOCA ↔ GRE
+
+| GOCA | GRE | Контракт |
+|---|---|---|
+| `DoLine` | `GrePolyLine(c->hdc, pptl, n)` | `c->hdc` — заимствованный HDC. Если `NULL` — GRE вернёт ошибку; парсер не проверяет. |
+| `DoGSCP` | `GreSetCurrentPosition(c->hdc, &pt)` | Обновляет `c->ptlCurPos`. |
+| `GocaSetAttr` | `GreSetAttributes(c->hdc, lPrim, 0, flAttrs, &bundle)` | `bundle` — указатель на `c->lb/cb/mb/ab`. |
+| `GocaInit` | `GreGetAttributes(c->hdc, lPrim, mask, &bundle)` | Заполняет `c->lb/cb/mb/ab` из устройства. |
+| `GocaInit` | `GreGetCurrentPosition(c->hdc, &c->ptlCurPos)` | Начальная позиция. |
+
+**Правило:** GOCA не знает, что `c->hdc` — линк к Media. Он просто передаёт его в GRE. GPI устанавливает `c->hdc` через `NGpiAssociate` (Step K). Сейчас — `GocaInit((HDC)hps, ...)` в `GpiPsCreate` — **N4** (§XI.9).
+
+### Клиент ↔ Сервер
+
+| Направление | Что | Контракт |
+|---|---|---|
+| Клиент → Сервер | `Fc_SesPostCommand(cmd, data)` | `cmd = F_CMD_MAKE(class, opcode)`. `data` — primary argument. |
+| Клиент → Сервер | `Fc_SesPostData(&cbArgs, 4)` | Длина args. |
+| Клиент → Сервер | `Fc_SesPostData(args, cbArgs)` | Args. |
+| Сервер → Клиент | `m_pfnSend(&resp, 16)` | `FPM_RESP_HEADER`. |
+| Сервер → Клиент | `m_pfnSend(pArgs, cbPayload)` | In-place payload. |
+| Сервер → Клиент (HAB sync) | `m_pfnSend(&ulResult, 4)` | Только `ulResult`, 4 байта. |
+| Клиент ← Сервер | `Fc_SesGetData(&resp, &len, 16)` | Header. |
+| Клиент ← Сервер | `Fc_SesGetData(pArgs, &len, cbPayload)` | Payload. |
+| Клиент ← Сервер (sync) | `Fc_SesSendCommand(cmd, data)` | Внутри: `PostCommand` + `GetData(4)`. |
+
+**Правило:** `pArgs` на клиенте и сервере — **один и тот же буфер** (логически). Сервер мутирует in-place, возвращает через `cbPayload`. `ulLastError` — **не используется** (всегда 0). `ulStatus` — 0 = ok, не-0 = транспорт/ошибка.
+
+---
+
+# Часть III. Структуры данных
+
+## III.1. `GPI_PS` — полный разбор
+
+```c
+typedef struct _GPI_PS {
+    BOOL     inUse;
+    HPS      hps;
+    ULONG    flOptions;
+    SIZEL    szlPS;            // ← отсутствует (баг #7)
+    GOCA_CTX goca;
+
+#ifdef GPI_SERVER
+    ULONG    m_hHab;           // back-ref на Fs_Hab (не инициализируется — N7)
+    PBYTE    pbGoca;
+    ULONG    cbGoca;
+    ULONG    cbGocaAlloc;
+    LONG     lOpenSeg;
+    ULONG    uOpenSegStart;
+    // ULONG uOpenSegEnd;      // ← отсутствует (баг #1)
+    ULONG    ulDrawingMode;
+    ULONG    ulEditMode;
+    ULONG    ulInitialSegAttrs;
+    ULONG    ulDrawControl;
+    ULONG    ulStopDraw;
+    // ULONG ulPSType;         // ← отсутствует (A4)
+    LONG     lCurrentElement;
+    BOOL     bInElement;
+    ULONG    uOpenElementStart;
+    LONG     lOpenPath;
+    BOOL     bPathDefined;
+    // LONG  lSaveLevel;       // ← отсутствует (A10)
+    // GPI_PS_SAVE aSave[];    // ← отсутствует (A10)
+#endif
+} GPI_PS, *PGPI_PS;
+```
+
+| Поле | Тип | Кто пишет | Кто читает | Жизненный цикл |
+|---|---|---|---|---|
+| `inUse` | `BOOL` | `GpiPsCreate` (TRUE), `GpiPsDestroy` (FALSE) | `GpiPsFind` | Слот занят/свободен |
+| `hps` | `HPS` | `GpiPsCreate` | `GpiPsFind` (клиент), opaque (сервер) | Живёт до Destroy |
+| `flOptions` | `ULONG` | `CreatePS`, `SetPS`, `GpiPsSetOptions` | `GocaSetFormatFromOptions`, `GPI_PS` | Живёт до Destroy |
+| `szlPS` | `SIZEL` | **отсутствует** | **отсутствует** | Должен быть: `CreatePS`, `SetPS`, `QueryPS` |
+| `goca` | `GOCA_CTX` | `GocaInit`, `GocaParseStream`, `GocaSetFormatFromOptions` | `GocaEmit*`, `GocaOrderLength`, `GocaGetU32`, `Do*` | Живёт до Destroy |
+| `m_hHab` | `ULONG` | **не пишется** (N7 — дыра) | `GpiPsDestroyByHab` | Должен быть: `NGpiCreatePS` |
+| `pbGoca` | `PBYTE` | `GpiPsGocaAppend`, `GpiPsGocaDelete`, `SrvGocaInsertBytes`, `NGpiResetPS` (free) | `GpiPsGocaFindSeg`, `SrvForEachSegment`, `NGpiGetData`, `GocaParseStream` | Растёт до `ResetPS`/`DestroyPS` |
+| `cbGoca` | `ULONG` | То же | То же | То же |
+| `cbGocaAlloc` | `ULONG` | `GpiPsGocaAppend`, `SrvGocaInsertBytes` | `GpiPsGocaAppend`, `SrvGocaInsertBytes` | То же |
+| `lOpenSeg` | `LONG` | `NGpiOpenSegment`, `NGpiCloseSegment` | `SrvDeliver`, `NGpiDrawSegment`, `NGpiDeleteSegment` | От Open до Close |
+| `uOpenSegStart` | `ULONG` | `NGpiOpenSegment` | `NGpiCloseSegment`, `SrvMoveRange` | То же |
+| `uOpenSegEnd` | `ULONG` | **отсутствует** | **отсутствует** | Должен быть: `NGpiOpenSegment`, `SrvDeliver`, `NGpiCloseSegment` |
+| `ulDrawingMode` | `ULONG` | `NGpiSetDrawingMode` | `SrvDeliver`, `NGpiBeginElement`, `NGpiLabel`, `NGpiElement`, `NGpiSetEditMode` | Живёт до ResetPS |
+| `ulEditMode` | `ULONG` | `NGpiSetEditMode` | `SrvDeliver`, `SrvGocaInsertElement` | То же |
+| `ulInitialSegAttrs` | `ULONG` | `NGpiSetInitialSegmentAttrs` | `SrvBuildGbsegFlags`, `SrvDeliver` | То же |
+| `ulDrawControl` | `ULONG` | `NGpiSetDrawControl` | **не читается** (баг #5) | То же |
+| `ulStopDraw` | `ULONG` | `NGpiSetStopDraw` | **не читается** (баг #4) | То же |
+| `ulPSType` | `ULONG` | **отсутствует** | **отсутствует** | Должен быть: `CreatePS`, `SetPS` |
+| `lCurrentElement` | `LONG` | `NGpiOpenSegment`, `SrvDeliver` (INSERT), `NGpiEndElement`, `NGpiLabel`, `NGpiElement`, `NGpiDeleteElement`, `NGpiDeleteElementRange`, `NGpiDeleteElementsBetweenLabels`, `NGpiSetElementPointer`, `NGpiOffsetElementPointer`, `NGpiSetElementPointerAtLabel` | `SrvGocaInsertElement`, `NGpiEndElement`, `NGpiQueryElement`, `NGpiQueryElementType`, `NGpiDeleteElement*` | От Open до Close |
+| `bInElement` | `BOOL` | `NGpiBeginElement` (TRUE), `NGpiEndElement` (FALSE), `NGpiCloseSegment` (FALSE) | `NGpiSetEditMode`, `SrvDeliver`, `NGpiBeginElement`, `NGpiEndElement`, `NGpiElement`, `NGpiQueryElement*`, `NGpiDeleteElement*`, `NGpiSet/QueryElementPointer` | То же |
+| `uOpenElementStart` | `ULONG` | `NGpiBeginElement` | `NGpiEndElement`, `NGpiCloseSegment` | То же |
+| `lOpenPath` | `LONG` | `NGpiBeginPath`, `NGpiEndPath`, `NGpiCloseSegment` | `NGpiBeginPath`, `NGpiEndPath`, `NGpiCloseFigure`, `NGpiFillPath`, `NGpiOutlinePath`, `NGpiModifyPath`, `NGpiSetClipPath`, `NGpiStrokePath` | От BeginPath до EndPath |
+| `bPathDefined` | `BOOL` | `NGpiEndPath` (TRUE), `NGpiOpenSegment` (FALSE), `NGpiCloseSegment` (FALSE), `NGpiFillPath` (FALSE), `NGpiOutlinePath` (FALSE), `NGpiSetClipPath` (FALSE), `NGpiStrokePath` (FALSE) | `NGpiFillPath`, `NGpiOutlinePath`, `NGpiModifyPath`, `NGpiSetClipPath`, `NGpiStrokePath` | От EndPath до Fill/Outline/SetClip/Stroke |
+
+## III.2. `GOCA_CTX` — полный разбор
+
+```c
+typedef struct _GOCA_CTX {
+    HDC      hdc;             // persistent (link к Media)
+    PBYTE    pbStream;        // transient (текущий parse)
+    ULONG    cbStream;        // transient
+    ULONG    uPos;            // transient
+    BOOL     bInArea;         // transient (GBAR..GEAR)
+    UCHAR    uAreaFlags;      // transient
+    POINTL   ptlCurPos;       // persistent (register)
+    LINEBUNDLE   lb;          // persistent (register)
+    CHARBUNDLE   cb;          // persistent (register)
+    MARKERBUNDLE mb;          // persistent (register)
+    AREABUNDLE   ab;          // persistent (register)
+    GOCA_COORD_SIZE   coordSize;    // persistent (config)
+    GOCA_COORD_ENDIAN coordEndian;  // persistent (config)
+    PFN_GOCA_HANDLER pfnHandler;    // transient (config)
+    void    *pUserData;             // transient (config)
+    BOOL     bDebug;                // transient (config)
+    LONG     lError;                // transient (result)
+    ULONG    uErrOffset;            // transient
+    UCHAR    uErrOrder;             // transient
+} GOCA_CTX;
+```
+
+| Поле | Persistent? | Кто пишет | Кто читает | Примечание |
+|---|---|---|---|---|
+| `hdc` | ✅ | `GocaInit` | `Do*` → `Gre*` | **заимствованный** HDC; N4 — сейчас `(HDC)hps` |
+| `pbStream` | ❌ | `GocaParseStream` (начало) | `GocaParseStream` | Живёт один вызов |
+| `cbStream` | ❌ | То же | То же | То же |
+| `uPos` | ❌ | `GocaParseStream` | То же | То же |
+| `bInArea` | ❌ | `GocaParseStream` (`GBAR`/`GEAR`) | `GocaParseStream` | **N5** — не сбрасывается в начале |
+| `uAreaFlags` | ❌ | `GocaParseStream` (`GBAR`) | `GocaParseStream` | То же |
+| `ptlCurPos` | ✅ | `GocaInit`, `DoGSCP`, `DoLine` (GCLINE), `DoMark` (GCMRK), `DoBox`, `DoCharString`, `DoRelativeLine`, `DoBezier`, `DoFillet` | `DoLine` (GCLINE), `DoMark` (GCMRK), `DoBox` (GCBOX), `DoCharString` (GCCHST), `DoRelativeLine`, `DoBezier`, `DoFillet`, `DoVLongCharString` | Кэш текущей позиции |
+| `lb` | ✅ | `GocaInit`, `GocaParseStream` (`GSCOL`/`GSECOL`/`GSLT`/`GSLW`/`GSFLW`/`GSLE`/`GSLJ`/`GSMX`/`GSBMX`), `GocaSetAttr` | `GocaSetAttr`, `NGpiQuery*` (Step M) | Кэш line bundle |
+| `cb` | ✅ | То же | То же | Кэш char bundle |
+| `mb` | ✅ | То же | То же | Кэш marker bundle |
+| `ab` | ✅ | То же | То же | Кэш area bundle |
+| `coordSize` | ✅ | `GocaSetFormatFromOptions` | `GocaEmit*`, `GocaPutCoord`, `GocaOrderLength` | Из `flOptions` |
+| `coordEndian` | ✅ | То же | `GocaPutU16/U32`, `GocaGetU16/U32` | Из `GocaHostEndian` |
+| `pfnHandler` | ❌ | `GocaInit` (NULL) | `GocaParseStream` | Не используется |
+| `pUserData` | ❌ | `GocaInit` (NULL) | То же | То же |
+| `bDebug` | ❌ | `GocaInit` (TRUE) | `GocaTrace` | Трассировка |
+| `lError` | ❌ | `GocaParseStream` | Вызывающий | Результат parse |
+| `uErrOffset` | ❌ | То же | То же | То же |
+| `uErrOrder` | ❌ | То же | То же | То же |
+
+**Ключевое:** `GOCA_CTX` — гибрид. Persistent часть — часть PS. Transient — контекст одного `GocaParseStream`. Это **A1** (§XII).
+
+## III.3. Wire-структуры (`gpi_wire.h`)
+
+Все `Gpi*_Args` — общие для клиента и сервера.
+
+```c
+typedef struct _GpiCreatePS_Args {
+    HAB   hab;        // 4
+    HDC   hdc;        // 4
+    SIZEL psizlSize;  // 8
+    ULONG flOptions;  // 4
+} GpiCreatePS_Args;   // 20 B
+
+typedef struct _GpiBox_Args {
+    LONG   lControl;  // 4
+    POINTL ptl;       // 8
+    LONG   lHRound;   // 4
+    LONG   lVRound;   // 4
+} GpiBox_Args;        // 20 B
+
+typedef struct _GpiGetData_Args {
+    LONG lSegid;      // 4
+    LONG lOffset;     // 4
+    LONG lFormat;     // 4
+    LONG lLength;     // 4
+    BYTE abData[1];   // variable
+} GpiGetData_Args;    // 16 + lLength
+
+typedef struct _GpiSetAttrs_Args {
+    LONG  lPrimType;  // 4
+    ULONG flAttrMask; // 4
+    ULONG flDefMask;  // 4
+    BYTE  abBundle[1];// variable
+} GpiSetAttrs_Args;   // 12 + sizeof(bundle)
+```
+
+**Размеры bundles (из `F_platform.h`):**
+
+| Bundle | Размер |
+|---|---|
+| `LINEBUNDLE` | 4+4+2+2+4+4+2+2+2+2 = **28 B** (с padding — 28) |
+| `CHARBUNDLE` | 4+4+2+2+2+2+8+8+8+2+2+4+4 = **52 B** |
+| `MARKERBUNDLE` | 4+4+2+2+2+2+8 = **24 B** |
+| `AREABUNDLE` | 4+4+2+2+2+2+8 = **24 B** |
+
+## III.4. Response header
+
+```c
+struct FPM_RESP_HEADER {
+    ULONG ulStatus;    // 0 = ok, не-0 = транспорт/ошибка
+    ULONG ulResult;    // LONG/BOOL/HANDLE от функции
+    ULONG cbPayload;   // размер payload
+    ULONG ulLastError; // не используется (всегда 0)
+};  // 16 B
+```
+
+## III.5. `F_CLIENTCONFIG` (wire-структура CONNECT/RECONNECT)
+
+```c
+typedef struct _F_CLIENTCONFIG {
+    ULONG idClient;    // stable across reconnect
+    ULONG ulInactive;  // inactivity timeout, sec
+    ULONG ulGrace;     // grace timeout (DETACHED->FREE), sec
+    ULONG flConfig;    // F_CFG_* flags
+} F_CLIENTCONFIG;
+#define F_CFG_WANT_LOGS        0x00000001UL
+#define F_CFG_PING_REQUIRED    0x00000002UL
+```
+
+---
+
+# Часть IV. Wire-протокол
+
+## IV.1. Формат команды
+
+```c
+#define F_CMD_CLASS_MASK      0xFFFF0000UL
+#define F_CMD_OPCODE_MASK     0x0000FFFFUL
+#define F_CMD_MAKE(cls, op)   (((ULONG)(cls) << 16) | ((ULONG)(op) & 0xFFFFUL))
+#define F_CMD_GET_CLASS(cmd)  ((ULONG)(((cmd) & F_CMD_CLASS_MASK) >> 16))
+#define F_CMD_GET_OPCODE(cmd) ((ULONG)((cmd) & F_CMD_OPCODE_MASK))
+
+#define F_CMD_CLASS_CORE   0x0000
+#define F_CMD_CLASS_GPI    0x0001
+#define F_CMD_CLASS_GORDER 0x0002
+#define F_CMD_CLASS_WIN    0x0003
+#define F_CMD_CLASS_GL     0x0010
+/* … */
+```
+
+## IV.2. Классы и диспетчеризация
+
+| Класс | Значение | Opcode | Диспетчер | Реализация |
+|---|---|---|---|---|
+| CORE | `0x0000` | исторический (0x0000–0x00FF) | `HandleCoreCommand` | частично |
+| GPI | `0x0001` | `NGpi*` (gpi_wire.h, 0x01–0x0123) | `HandleGpiCall` → `Fs_Server::DispatchGpi` | ~50 NGpi* + ~150 stub |
+| GORDER | `0x0002` | `OCODE_*` (pmord.h) | — | не реализовано (P8) |
+| WIN | `0x0003` | `NWin*` (win_wire.h, 0x0001–0x01A6), `NDax*` (0x01B0–0x01B8) | `HandleWinCall` → `Fs_Server::DispatchWin<Domain>` | 3 NWin* (HAB) + 19 stub |
+| GL* | `0x0010+` | — | — | не реализовано |
+
+**Контракт `data` (primary argument):**
+
+| Класс | `data` |
+|---|---|
+| CORE (CONNECT) | — (0) |
+| CORE (RECONNECT) | `idClient` |
+| CORE (PING/EXIT) | 0 |
+| GPI | `hps` (opaque) |
+| WIN HAB — NWinInitialize | `tid` |
+| WIN HAB — NWinTerminate/GetLastError | `iHab` (в strict-режиме проверяется; в обычном — игнорируется, используется HAB потока) |
+| WIN (Phase 4) | `HWND`/`HMQ`/`HPS` — в зависимости от функции |
+| GORDER | `hps` (не реализовано) |
+
+## IV.3. Поток сообщения (async — GPI, не-HAB WIN, CORE)
+
+```
+Клиент:
+  1. Fc_SesPostCommand(cmd, data)     // cmd + data → backend
+  2. Fc_SesPostData(&cbArgs, 4)        // length prefix
+  3. Fc_SesPostData(args, cbArgs)      // payload
+  4. Fc_SesGetData(&resp, &len, 16)    // read header
+  5. if (resp.cbPayload > 0)
+       Fc_SesGetData(pArgs, &len, resp.cbPayload)  // read payload
+
+Сервер:
+  1. pm_handler(recvobj, ncmd, data, thread) → Fs_Server::HandleCommand
+     - поиск pConn/pThread через m_conns.FindByRecvobj
+     - классификация ncmd по F_CMD_GET_CLASS
+  2. HandleGpiCall / HandleWinCall / HandleCoreCommand
+     - m_pfnRecv(&cbArgs, 4)
+     - m_pfnRecv(pArgs, cbArgs)
+     - Dispatch…(…)
+     - SendHeader (16 B)
+     - if (cbPayload > 0) m_pfnSend(pArgs, cbPayload)
+```
+
+## IV.4. Поток сообщения (sync — HAB WIN, 0x0001–0x000F)
+
+```
+Клиент:
+  1. Fc_SesSendCommand(cmd, data)
+       → Fc_TrnPostCommand(cmd, data)          // 8 B
+       → Fc_TrnGetData(&retcode, &l, 4)        // 4 B
+
+Сервер:
+  1. pm_handler → HandleCommand → HandleWinCall
+     - fnCode в диапазоне 0x0001..0x000F
+     - m_pfnRecv НЕ вызывается (cbArgs нет)
+     - DispatchWinHab(pRecvobj, fnCode, data, NULL, 0, &cbPayload)
+     - m_pfnSend(&ulResult, 4)                 // 4 B, без FPM_RESP_HEADER
+```
+
+**Контракт:** `(APIRET)-1` от `Fc_SesSendCommand` — транспортная ошибка. Иначе — `ulResult` (iHab для Initialize, BOOL для Terminate, `PMERR_*` для GetLastError). Функции `Fc_TrnSendCommand` (ord 5) и `Fc_TrnGetData` (ord 7) документируют `-1` как «сервер не может вернуть `0xFFFFFFFF` как бизнес-значение».
+
+## IV.5. GPI class — точный байтовый layout
+
+Для `GpiLine(LONG coords)`:
+
+```
+Fc_SesPostCommand:
+  offset 0: cmd = F_CMD_GPI(NGpiLine) = (0x0001 << 16) | 0x6F = 0x0001006F
+  offset 4: hps
+Fc_SesPostData:
+  offset 0: cbArgs = 8 (ULONG LE)
+  offset 4: ptlEndPoint.x (LONG LE)
+  offset 8: ptlEndPoint.y (LONG LE)
+Total per message: 8 + 4 + 8 = 20 B
+Response: 16 + cbPayload
+```
+
+Для `GpiSetAttrs(PRIM_LINE, LBB_COLOR|LBB_TYPE, 0, &lb)`:
+
+```
+cmd = F_CMD_GPI(NGpiSetAttrs) = 0x0001007A
+hps
+cbArgs = 12 + 28 = 40
+lPrimType = 1 (PRIM_LINE)
+flAttrMask = 0x0041 (LBB_COLOR | LBB_TYPE)
+flDefMask = 0
+abBundle = LINEBUNDLE (28 B)
+Total: 8 + 4 + 40 = 52 B
+```
+
+## IV.6. GORDER class — определён, но не используется
+
+```c
+#define F_CMD_ORDER(oc) F_CMD_MAKE(F_CMD_CLASS_GORDER, (oc))
+```
+
+**В `HandleCommand` нет ветки для `F_CMD_CLASS_GORDER`.** Не реализовано (P8).
+
+## IV.7. Payload-семантика
+
+- `cbArgs` — **входной** размер (клиент → сервер).
+- `cbPayload` — **выходной** размер (сервер → клиент).
+- `pArgs` — **один буфер** на клиенте и сервере (логически). Сервер мутирует in-place, возвращает через `cbPayload`.
+- `cbPayload <= cbArgs` (сервер не может вернуть больше, чем получил).
+
+## IV.8. Обработка ошибок
+
+- `resp.ulStatus`: 0 = ok; не-0 = транспорт/ошибка.
+- `resp.ulResult`: результат функции (`LONG`/`BOOL`/`HANDLE`).
+- `resp.ulLastError`: **не используется** (всегда 0). `PMERR_*` не передаются (A6).
+- `GPI_ERROR = 0`, `GPI_OK = 1`, `GPI_ALTERROR = -1`.
+
+## IV.9. CORE-команды (session management и диагностика)
+
+| Команда | cmd | `data` | Ответ |
+|---|---|---|---|
+| CLIENT_CONNECT | `F_CMD_CORE(0x0004)` | — (0) | `F_CLIENTCONFIG` (16 B), без `FPM_RESP_HEADER` |
+| CLIENT_RECONNECT | `F_CMD_CORE(0x0005)` | `idClient` | payload `{ULONG tid}` (4 B); ответ `F_CLIENTCONFIG` (16 B) |
+| CLIENT_PING | `F_CMD_CORE(0x0006)` | — (0) | нет (`Touch` + тишина) |
+| CLIENT_EXIT | `F_CMD_CORE(0x0007)` | — (0) | нет (`TeardownThread`) |
+| GET_HPS | `F_CMD_CORE(0x0040)` | `hwnd` | `HPS` (stub = 1) |
+| RELEASE_HPS | `F_CMD_CORE(0x0041)` | `hps` | `int` (0) |
+| DB_PRINT | `F_CMD_CORE(0x0064)` | — | payload: строка; ответа нет |
+| FATAL_COMMON | `F_CMD_CORE(0x0065)` | — | payload: строка; ответа нет |
+
+**Удалённые:** `F_CMD_GET_IHAB` — заменён на `F_CMD_WIN(NWinInitialize)`.
+
+---
+
+# Часть V. Клиент
+
+## V.1. `PMCLIENT.DLL` — 7 экспортов `Fc_Ses*` (ord 1–7)
+
+| Ord | Имя | Семантика |
+|---|---|---|
+| 1 | `Fc_SesPostCommand(ulCommand, ulData)` | Async post (8 B header) |
+| 2 | `Fc_SesPostData(pvData, cbData)` | Async raw payload |
+| 3 | `Fc_SesGetData(pvBuffer, pcbReceived, cbBuffer)` | Blocking read |
+| 4 | `Fc_SesSendCommand(ulCommand, ulParameter)` | Sync `PostCommand` + `GetData(4)` |
+| 5 | `Fc_SesSendCommandData(ulCommand, ulParameter, pvData, cbData)` | Sync `PostCommand` + `PostData` + `GetData(4)` |
+| 6 | `Fc_SesConnect(char *address)` | Per-thread open + CONNECT handshake |
+| 7 | `Fc_SesDisconnect(void)` | Best-effort EXIT + close transport |
+
+**Модель:** `aConns[tid]` — per-thread слоты, `g_idClient`/`g_clientConfig` — process-wide. Framing и переподключение — внутри PMCLIENT. PMGPI/PMMERGE не знают про `obj`, backend, `Fc_Trn*`.
+
+**Backend (L4):** `pmtcp` / `pmpipe` / `pmshm` — по одному на DLL. Ординалы 1–7 (`Fc_Trn*`), 8–11 (`Fs_Trn*`). Выбор: `PM_COMM_BACKEND` env → `fpm.ini (backend=)` → default `PMPIPE` (OS/2) / `PMTCP` (Win32).
+
+## V.2. `GpiDispatch`
+
+```c
+ULONG GpiDispatch(HPS hps, ULONG ulFnCode,
+                  const void *pArgs, ULONG cbArgs,
+                  ULONG *pulResult)
+{
+    struct FPM_RESP_HEADER resp;
+    LONG   len;
+    APIRET rc;
+    ULONG  cmd;
+
+    if ((ulFnCode & 0xFFFF0000UL) != 0) return 1;
+    cmd = F_CMD_GPI(ulFnCode);
+
+    rc = Fc_SesPostCommand(cmd, (ULONG)hps);
+    if (rc) return rc;
+
+    rc = Fc_SesPostData(&cbArgs, sizeof(cbArgs));
+    if (rc) return rc;
+
+    if (cbArgs > 0 && pArgs != NULL) {
+        rc = Fc_SesPostData((PVOID)pArgs, cbArgs);
+        if (rc) return rc;
+    }
+
+    len = 0;
+    rc = Fc_SesGetData(&resp, &len, sizeof(resp));
+    if (rc || len != (LONG)sizeof(resp)) return (rc != 0) ? rc : 1;
+
+    if (resp.cbPayload > 0 && pArgs != NULL && cbArgs >= resp.cbPayload) {
+        len = 0;
+        rc = Fc_SesGetData((PVOID)pArgs, &len, resp.cbPayload);
+        if (rc) return rc;
+    }
+
+    *pulResult = resp.ulResult;
+    return (resp.ulStatus != 0) ? resp.ulStatus : 0;
+}
+```
+
+**Контракт:** `pArgs` должен быть мутабельным, если `cbPayload > 0`. `GpiDispatch` не знает, что в `pArgs` — просто копирует обратно.
+
+## V.3. Прокси — разделение
+
+**`gpi_manual.cpp`** — сложные (с variable-length args): `CreatePS`, `QueryPS`, `ErrorSegmentData`, `CorrelateChain/From/Segment`, `QuerySegmentNames`, `GetData`, `PutData`, `BeginElement`, `Element`, `QueryElement`, `QueryElementType`, `QuerySegmentTransformMatrix`, `SetSegmentTransformMatrix`, `Convert`, `ConvertWithMatrix`, `QueryModelTransformMatrix`, `SetModelTransformMatrix`, `CallSegmentMatrix`, `QueryDefaultViewMatrix`, `SetDefaultViewMatrix`, `QueryPageViewport`, `QueryViewingTransformMatrix`, `SetViewingTransformMatrix`, `Translate`, `Scale`, `Rotate`, `QueryGraphicsField`, `QueryViewingLimits`, `CreateLogColorTable`, `QueryColorData`, `QueryLogColorTable`, `QueryRealColors`, `CreatePalette`, `DeletePalette`, `AnimatePalette`, `SetPaletteEntries`, `QueryPaletteInfo`, `ResizePalette`, `QueryNearestPaletteIndex`, `PolyLine`, `PolyLineDisjoint`, `CharString`, `CharStringAt`, `SetAttrs`, `QueryAttrs`, `QueryCurrentPosition`, `QueryArcParams`, `Oval`, `PolyFillet`, `PolySpline`, `PolyFilletSharp`, `QueryPatternRefPoint`, `QueryCharStringPos`, `QueryCharStringPosAt`, `QueryTabbedTextExtent`, `QueryTextBox`, `QueryDefCharBox`, `QueryCharBox`, `QueryCharAngle`, `QueryCharShear`, `QueryTextAlignment`, `CharStringPos`, `TabbedCharStringAt`, `CharStringPosAt`, `QueryCharExtra`, `QueryCharBreakExtra`, `PolyMarker`, `QueryMarkerBox`, `Image`, `Comment`, `QueryRasterizerCaps`, `CreateLogFont`, `LoadFonts`, `UnloadFonts`, `QueryFonts`, `QueryFontMetrics`, `QueryKerningPairs`, `QueryWidthTable`, `QuerySetIds`, `QueryFaceString`, `QueryLogicalFont`, `QueryFontAction`, `LoadPublicFonts`, `UnloadPublicFonts`, `QueryFullFontFileDescs`, `QueryFontFileDescriptions`, `BitBlt`, `DeleteBitmap`, `WCBitBlt`, `CreateBitmap`, `SetBitmapBits`, `SetBitmapDimension`, `QueryBitmapBits`, `QueryBitmapDimension`, `QueryBitmapParameters`, `QueryBitmapInfoHeader`, `QueryDeviceBitmapFormats`, `QueryPel`, `DrawBits`, `CreateRegion`, `QueryRegionBox`, `QueryRegionRects`, `SetRegion`, `SetClipRegion`, `QueryClipBox`, `CopyMetaFile`, `DeleteMetaFile`, `LoadMetaFile`, `PlayMetaFile`, `QueryMetaFileBits`, `QueryMetaFileLength`, `SaveMetaFile`, `SetMetaFileBits`, `QueryDefArcParams`, `QueryDefAttrs`, `QueryDefTag`, `QueryDefViewingLimits`, `SetDefAttrs`, `Polygons`, `CreatePolygonRegion`, `StrokeInkPath`.
+
+**`gpi_proxies.cpp`** — простые (fixed-size args): `DestroyPS`, `Associate`, `RestorePS`, `SavePS`, `Erase`, `QueryDevice`, `ResetPS`, `SetPS`, `QueryDrawControl`, `SetDrawControl`, `QueryDrawingMode`, `SetDrawingMode`, `QueryStopDraw`, `SetStopDraw`, `SetTag`, `SetPickApertureSize`, `SetPickAperturePosition`, `ResetBoundaryData`, `OpenSegment`, `CloseSegment`, `DeleteSegment`, `QueryInitialSegmentAttrs`, `SetInitialSegmentAttrs`, `QuerySegmentAttrs`, `SetSegmentAttrs`, `QuerySegmentPriority`, `SetSegmentPriority`, `DeleteSegments`, `DrawChain`, `DrawFrom`, `DrawSegment`, `DrawDynamics`, `RemoveDynamics`, `EndElement`, `Label`, `DeleteElement`, `DeleteElementRange`, `DeleteElementsBetweenLabels`, `QueryEditMode`, `SetEditMode`, `QueryElementPointer`, `SetElementPointer`, `OffsetElementPointer`, `SetElementPointerAtLabel`, `SetPageViewport`, `SetGraphicsField`, `SetViewingLimits`, `BeginPath`, `EndPath`, `CloseFigure`, `ModifyPath`, `FillPath`, `SetClipPath`, `OutlinePath`, `PathToRegion`, `StrokePath`, `QueryNearestColor`, `QueryColorIndex`, `QueryRGBColor`, `SelectPalette`, `QueryPalette`, `SetColor`, `QueryColor`, `Box`, `Move`, `Line`, `SetPattern`, `QueryPattern`, `BeginArea`, `EndArea`, `SetAttrMode`, `QueryAttrMode`, `SetBackColor`, `QueryBackColor`, `SetMix`, `QueryMix`, `SetBackMix`, `QueryBackMix`, `SetLineType`, `QueryLineType`, `SetLineWidth`, `QueryLineWidth`, `SetLineWidthGeom`, `QueryLineWidthGeom`, `SetLineEnd`, `QueryLineEnd`, `SetLineJoin`, `QueryLineJoin`, `SetCurrentPosition`, `SetArcParams`, `PointArc`, `FullArc`, `PartialArc`, `SetPatternSet`, `QueryPatternSet`, `SetPatternRefPoint`, `SetCharSet`, `QueryCharSet`, `SetCharBox`, `SetCharAngle`, `SetCharShear`, `SetCharDirection`, `QueryCharDirection`, `SetCharMode`, `QueryCharMode`, `SetTextAlignment`, `SetCharExtra`, `SetCharBreakExtra`, `Marker`, `SetMarker`, `SetMarkerBox`, `SetMarkerSet`, `QueryMarker`, `QueryMarkerSet`, `Pop`, `PtVisible`, `RectVisible`, `DeleteSetId`, `QueryNumberSetIds`, `SetCp`, `QueryCp`, `SetFontMappingFlags`, `QueryFontMappingFlags`, `LoadBitmap`, `SetBitmap`, `SetBitmapId`, `QueryBitmapHandle`, `SetPel`, `FloodFill`, `CombineRegion`, `DestroyRegion`, `EqualRegion`, `OffsetRegion`, `PaintRegion`, `FrameRegion`, `PtInRegion`, `RectInRegion`, `QueryClipRegion`, `ExcludeClipRectangle`, `IntersectClipRectangle`, `OffsetClipRegion`, `CreateRoundRectRegion`, `CreateEllipticRegion`, `ResumePlay`, `SuspendPlay`, `SetDefArcParams`, `SetDefTag`, `SetDefViewingLimits`, `BeginInkPath`, `EndInkPath`.
+
+**Проблема:** разделение «автоген / ручное» неочевидно. Часть тривиальных прокси в `manual`, часть сложных в `proxies`. Нужен маркер или перестройка.
+
+## V.4. Клиентский `GPI_PS`
+
+```c
+GPI_PS g_psTable[GPI_MAX_PS];   // в gpi_entry.cpp
+
+static inline PGPI_PS GpiPsFind(HPS hps)
+{
+    int i;
+    PGPI_PS ps;
+
+    if (hps == NULL) return NULL;
+
+    // pointer case: hps может быть указателем в g_psTable (сервер)
+    ps = (PGPI_PS)hps;
+    if (ps >= g_psTable && ps < g_psTable + GPI_MAX_PS && ps->inUse)
+        return ps;
+
+    // handle case: поиск по .hps
+    for (i = 0; i < GPI_MAX_PS; i++) {
+        if (g_psTable[i].inUse && g_psTable[i].hps != NULL &&
+            g_psTable[i].hps == hps)
+            return &g_psTable[i];
+    }
+    return NULL;
+}
+```
+
+**Ключевое:** клиентский `GpiPsFind` имеет **pointer-ветку** (для серверных адресов), которая теоретически может сработать, если серверный адрес попадёт в клиентский диапазон. Маловероятно, но защита — комментарий, а не проверка.
+
+---
+
+# Часть VI. Сервер
+
+## VI.1. Классы сервера
+
+```
+Fs_Server
+├── m_procs  : Fs_ProcessList    (idClient → Fs_Process)
+│                └── m_aProcs[i] : Fs_Process
+│                     └── m_threads : Fs_ThreadList
+│                          └── m_aThreads[j] : Fs_Thread
+│                               ├── m_tid
+│                               ├── m_pHab     : Fs_Hab*
+│                               ├── m_pProcess : Fs_Process*
+│                               └── m_pConn    : Fs_Connection*
+├── m_conns  : Fs_ConnectionList (recvobj  → Fs_Connection)
+│                └── m_aConns[i] : Fs_Connection
+│                     ├── m_pRecvobj
+│                     ├── m_state (Free/Active/Detached)
+│                     ├── m_timeLastActivity
+│                     ├── m_timeDetached
+│                     └── m_pThread : Fs_Thread*
+└── m_habs   : Fs_HabList        (iHab     → Fs_Hab)
+                 └── m_aHabs[i] : Fs_Hab
+                      ├── m_iHab
+                      ├── m_idClient
+                      ├── m_tid
+                      └── m_lastError
+```
+
+**Три уровня владения** (пересмотрено под новую модель):
+
+| Уровень | Кто | Что |
+|---|---|---|
+| Физическая память | `Fs_*List` (массивы слотов) | содержимое `Fs_Process`/`Fs_Thread`/`Fs_Connection`/`Fs_Hab` |
+| Семантическое владение | `Fs_Process` → потоки; `Fs_Hab` → `idClient` | право ссылаться + обязанность освободить |
+| Транспорт | `Fs_Connection` | `recvobj`; может смениться при reconnect |
+
+**Back-refs:**
+
+- `Fs_Connection::m_pThread` — recvobj → поток.
+- `Fs_Thread::m_pProcess` — поток → процесс (idClient).
+- `Fs_Thread::m_pConn` — поток → транспорт.
+- `Fs_Thread::m_pHab` — поток → HAB (нужно в `NWinGetLastError` и `NWinTerminate`).
+- `GPI_PS::m_hHab` — PS → HAB (`GpiPsDestroyByHab`, **не инициализируется** — N7).
+
+## VI.2. `HandleCommand`
+
+```c
+void Fs_Server::HandleCommand(void *pRecvobj, int ncmd, int data, int threadNum)
+{
+    int                  ctx;
+    Fs_Connection       *pConn;
+    Fs_Thread           *pThread;
+
+    (void)threadNum;
+
+    ctx = F_DbgCtxEnterf(…);
+    F_DbgPrint(…);                                    // IN log
+
+    switch (ncmd) {
+    case F_CMD_CLIENT_CONNECT:
+        HandleClientConnect(pRecvobj, (ULONG)data);   // не требует pConn/pThread
+        SERVER_RETURN(ctx, "CONNECT done");
+    case F_CMD_CLIENT_RECONNECT:
+        HandleClientReconnect(pRecvobj, (ULONG)data); // не требует pConn/pThread
+        SERVER_RETURN(ctx, "RECONNECT done");
+    }
+
+    pConn   = m_conns.FindByRecvobj(pRecvobj);
+    pThread = pConn ? pConn->GetThread() : NULL;
+
+    if (!pThread) {
+        ULONG err = (ULONG)-1;
+        if (m_pfnSend) m_pfnSend(pRecvobj, &err, sizeof(err));
+        SERVER_RETURN(ctx, "no session");
+    }
+    pConn->Touch();
+
+    if (ncmd == F_CMD_CLIENT_EXIT)         { HandleClientExit(pThread); … }
+    if (ncmd == F_CMD_CLIENT_PING)         { HandleClientPing(pThread, (ULONG)data); … }
+    if (class == F_CMD_CLASS_GPI)          { HandleGpiCall(pThread, opcode, data); … }
+    if (class == F_CMD_CLASS_WIN)          { HandleWinCall(pThread, opcode, data); … }
+    HandleCoreCommand(pThread, ncmd, data);
+}
+```
+
+**Ключевое:** lookup `recvobj → pConn` — один, в `HandleCommand`. Дальше `pThread` берётся через бэклинк.
+
+## VI.3. `HandleGpiCall`
+
+```c
+void Fs_Server::HandleGpiCall(Fs_Thread *pThread, ULONG fnCode, ULONG data)
+{
+    void *pRecvobj = pThread->GetConn()->GetRecvobj();
+    HPS   hps      = (HPS)data;
+    …
+    rc = m_pfnRecv(pRecvobj, &cbArgs, &len, sizeof(cbArgs));   // 4 B
+    if (rc == 0 && len == (int)sizeof(cbArgs)) {
+        if (cbArgs > 0) {
+            DosAllocMem(&pv, cbArgs, …);
+            pArgs = (PBYTE)pv;
+            rc = m_pfnRecv(pRecvobj, pArgs, &len, cbArgs);      // payload
+        }
+
+        ULONG ulResult = DispatchGpi(pRecvobj, fnCode, data,
+                                      pArgs, cbArgs, &cbPayload);
+        SendHeader(pRecvobj, 0, ulResult, cbPayload, 0);        // 16 B
+        if (cbPayload > 0 && pArgs && cbPayload <= cbArgs && m_pfnSend)
+            m_pfnSend(pRecvobj, pArgs, (int)cbPayload);
+        …
+    }
+}
+```
+
+**Ключевое:** `pArgs` аллоцируется, читается, `DispatchGpi` мутирует in-place, возвращается через `cbPayload`. **Правильно** для Query.
+
+## VI.4. `HandleWinCall`
+
+```c
+void Fs_Server::HandleWinCall(Fs_Thread *pThread, ULONG fnCode, ULONG data)
+{
+    void *pRecvobj = pThread->GetConn()->GetRecvobj();
+    ULONG ulResult = 0;
+    …
+
+    /* HAB sync path: 0x0001–0x000F */
+    if (fnCode >= NWinInitialize && fnCode <= 0x000F) {
+        ulResult = DispatchWinHab(pRecvobj, fnCode, data,
+                                   NULL, 0, &cbPayload);
+        if (m_pfnSend) m_pfnSend(pRecvobj, &ulResult, sizeof(ulResult));  // 4 B
+        SERVER_RETURN(ctx, "result=0x%lx (sync HAB)", …);
+    }
+
+    /* Async path (не-HAB WIN) */
+    rc = m_pfnRecv(pRecvobj, &cbArgs, &len, sizeof(cbArgs));
+    … read payload (cbArgs) …
+
+    /* Routing by fnCode range */
+    if      (fnCode >= 0x0001 && fnCode <= 0x000F) ulResult = DispatchWinHab  (…);
+    else if (fnCode >= 0x0010 && fnCode <= 0x001F) ulResult = DispatchWinMq   (…);
+    else if (fnCode >= 0x0020 && fnCode <= 0x005F) ulResult = DispatchWinWnd  (…);
+    else if (fnCode >= 0x0060 && fnCode <= 0x007F) ulResult = DispatchWinPs   (…);
+    else if (fnCode >= 0x0080 && fnCode <= 0x009F) ulResult = DispatchWinCls  (…);
+    else if (fnCode >= 0x00A0 && fnCode <= 0x00BF) ulResult = DispatchWinDlg  (…);
+    else if (fnCode >= 0x00C0 && fnCode <= 0x00DF) ulResult = DispatchWinPtr  (…);
+    else if (fnCode >= 0x00E0 && fnCode <= 0x00E7) ulResult = DispatchWinClip (…);
+    else if (fnCode >= 0x00E8 && fnCode <= 0x00EF) ulResult = DispatchWinAtom (…);
+    else if (fnCode >= 0x00F0 && fnCode <= 0x00FF) ulResult = DispatchWinStr  (…);
+    else if (fnCode >= 0x0100 && fnCode <= 0x010F) ulResult = DispatchWinErr  (…);
+    else if (fnCode >= 0x0110 && fnCode <= 0x011F) ulResult = DispatchWinSys  (…);
+    else if (fnCode >= 0x0120 && fnCode <= 0x013F) ulResult = DispatchWinRect (…);
+    else if (fnCode >= 0x0140 && fnCode <= 0x014F) ulResult = DispatchWinInp  (…);
+    else if (fnCode >= 0x0150 && fnCode <= 0x015F) ulResult = DispatchWinDraw (…);
+    else if (fnCode >= 0x0160 && fnCode <= 0x016F) ulResult = DispatchWinFrame(…);
+    else if (fnCode >= 0x0170 && fnCode <= 0x017F) ulResult = DispatchWinSync (…);
+    else if (fnCode >= 0x0180 && fnCode <= 0x018F) ulResult = DispatchWinMisc (…);
+    else if (fnCode >= 0x0190 && fnCode <= 0x019F) ulResult = DispatchWin32   (…);
+    else if (fnCode >= 0x01A0 && fnCode <= 0x01AF) ulResult = DispatchWinMisc (…);
+    else if (fnCode >= 0x01B0 && fnCode <= 0x01BF) ulResult = DispatchWinDax  (…);
+    else { ulResult = 0; }
+
+    SendHeader(pRecvobj, 0, ulResult, cbPayload, 0);
+    if (cbPayload > 0 && pArgs && cbPayload <= cbArgs && m_pfnSend)
+        m_pfnSend(pRecvobj, pArgs, (int)cbPayload);
+}
+```
+
+## VI.5. `DispatchWinHab` — sync-путь
+
+```c
+ULONG Fs_Server::DispatchWinHab(void *pRecvobj, ULONG fnCode, ULONG data,
+                                 PBYTE pArgs, ULONG cbArgs, PULONG pcbPayload)
+{
+    Fs_Connection *pConn   = m_conns.FindByRecvobj(pRecvobj);
+    Fs_Thread     *pThread = pConn ? pConn->GetThread() : NULL;
+    Fs_Process    *pProc   = pThread ? pThread->GetProcess() : NULL;
+
+    (void)pArgs; (void)cbArgs;
+    if (pcbPayload) *pcbPayload = 0;
+
+    switch (fnCode) {
+    case NWinInitialize:
+        /* data = tid */
+        if (!pProc || !pThread) return 0;
+        if (data == 0) return 0;
+        if (pThread->GetHab() != NULL) return 0;   // already has HAB
+        if (!m_habs.Create(pProc->GetIdClient(), data, &iHab)) return 0;
+        pThread->SetHab(m_habs.FindByIHab(iHab));
+        return iHab;
+
+    case NWinTerminate:
+        /* data = hab, используется только в strict-режиме */
+        if (!pProc || !pThread || !pThread->GetHab()) return 0;
+        iHab = pThread->GetIHab();
+        if (m_cfg.fStrictHab && data != iHab) return 0;
+        if (!m_habs.Destroy(pProc->GetIdClient(), pThread->GetTid(), iHab)) return 0;
+        pThread->ClearHab();
+        return 1;
+
+    case NWinGetLastError:
+        /* data = hab, используется только в strict-режиме */
+        if (!pThread || !pThread->GetHab()) return PMERR_INVALID_HAB;
+        iHab = pThread->GetIHab();
+        if (m_cfg.fStrictHab && data != iHab) return PMERR_INVALID_HAB;
+        return pThread->GetHab()->GetLastError();
+
+    default:
+        return 0;
+    }
+}
+```
+
+**Ключевое:** в не-strict режиме `data` не используется для поиска; HAB берётся у потока. `PMERR_INVALID_HAB = 0x104A` (из `F_platform.h`).
+
+## VI.6. `DispatchGpi`
+
+```c
+ULONG Fs_Server::DispatchGpi(void *pRecvobj, ULONG ulFnCode, ULONG ulHandle,
+                              PBYTE pArgs, ULONG cbArgs, PULONG pcbPayload)
+{
+    HPS hps = (HPS)ulHandle;
+    (void)pRecvobj;   // GPI state — глобальный g_psTable
+
+    if (pcbPayload) *pcbPayload = 0;
+
+    switch (ulFnCode) {
+    case NGpiCreatePS:        /* GpiPsCreate(NULL, flOptions), ps->m_hHab = ??? */ break;
+    case NGpiSetPS:           /* GpiPsSetOptions */ break;
+    case NGpiDestroyPS:       /* GpiPsDestroy */ break;
+    case NGpiSetDrawingMode:  /* ps->ulDrawingMode */ break;
+    case NGpiQueryDrawingMode: break;
+    case NGpiSetDrawControl:  /* ps->ulDrawControl */ break;
+    case NGpiQueryDrawControl: break;
+    case NGpiSetStopDraw:     /* ps->ulStopDraw */ break;
+    case NGpiQueryStopDraw:   break;
+    case NGpiSetEditMode:     /* ps->ulEditMode */ break;
+    case NGpiQueryEditMode:   break;
+    case NGpiSetInitialSegmentAttrs: /* ps->ulInitialSegAttrs */ break;
+    case NGpiQueryInitialSegmentAttrs: break;
+    case NGpiSetColor:        /* GocaEmitSetColor → SrvDeliver */ break;
+    case NGpiMove:            /* GocaEmitMove → SrvDeliver */ break;
+    case NGpiSetCurrentPosition: break;
+    case NGpiLine:            /* GocaEmitLine → SrvDeliver */ break;
+    case NGpiBox:             /* GocaEmitBox → SrvDeliver */ break;
+    case NGpiPolyLine:        /* GocaEmitPolyLine (heap) → SrvDeliver */ break;
+    case NGpiCharString:      /* GocaEmitCharString → SrvDeliver */ break;
+    case NGpiCharStringAt:    break;
+    case NGpiMarker:          break;
+    case NGpiPolyMarker:      break;
+    case NGpiSetArcParams:    break;
+    case NGpiSetAttrs:        /* SrvEmitSetAttrs */ break;
+    case NGpiOpenSegment:     break;
+    case NGpiCloseSegment:    break;
+    case NGpiDrawSegment:     break;
+    case NGpiDrawChain:       break;
+    case NGpiDrawFrom:        break;
+    case NGpiDrawDynamics:    break;
+    case NGpiRemoveDynamics:  break;
+    case NGpiDeleteSegment:   break;
+    case NGpiDeleteSegments:  break;
+    case NGpiSetSegmentAttrs: break;
+    case NGpiQuerySegmentAttrs: break;
+    case NGpiQuerySegmentNames: break;
+    case NGpiGetData:         break;
+    case NGpiPutData:         break;
+    case NGpiQuerySegmentPriority: break;
+    case NGpiSetSegmentPriority: break;
+    case NGpiBeginElement:    break;
+    case NGpiEndElement:      break;
+    case NGpiLabel:           break;
+    case NGpiElement:         break;
+    case NGpiQueryElementType: break;
+    case NGpiQueryElement:    break;
+    case NGpiDeleteElement:   break;
+    case NGpiDeleteElementRange: break;
+    case NGpiDeleteElementsBetweenLabels: break;
+    case NGpiQueryElementPointer: break;
+    case NGpiSetElementPointer: break;
+    case NGpiOffsetElementPointer: break;
+    case NGpiSetElementPointerAtLabel: break;
+    case NGpiBeginPath:       break;
+    case NGpiEndPath:         break;
+    case NGpiCloseFigure:     break;
+    case NGpiFillPath:        break;
+    case NGpiOutlinePath:     break;
+    case NGpiModifyPath:      break;
+    case NGpiSetClipPath:     break;
+    case NGpiStrokePath:      break;
+    DISPATCH_STUB(…):         /* ~150 NGpi* → GPI_ERROR */
+    default:                  return GPI_ERROR;
+    }
+}
+```
+
+**Ключевое:** `pRecvobj` пока не используется. PS находится по `hps` (opaque, указатель на слот в `g_psTable`). `NGpiCreatePS` **не устанавливает** `ps->m_hHab` — это N7 (см. §XI.12).
+
+## VI.7. `SrvDeliver` — полное дерево решений
+
+```c
+static BOOL SrvDeliver(PGPI_PS ps, const BYTE *p, ULONG cb)
+{
+    ULONG am;
+
+    if (!ps || !p || cb == 0) return FALSE;
+
+    // 1. Нет открытого сегмента → сразу parse (DM_DRAW / Micro)
+    if (ps->lOpenSeg == 0) {
+        SrvParseOrder(ps, p, cb);
+        return TRUE;
+    }
+
+    // 2. Есть открытый сегмент → решаем: retain / draw / both
+    am = ps->ulDrawingMode;
+
+    // 3. Unchained сегмент форсит DM_RETAIN
+    if (!(ps->ulInitialSegAttrs & SEGATTR_BIT(ATTR_CHAINED)))
+        am = DM_RETAIN;
+
+    // 4. Retain
+    if (PS_IS_RECORDING(am)) {
+        if (!GpiPsGocaAppend(ps, p, cb)) return FALSE;
+        if (!ps->bInElement && ps->ulEditMode == SEGEM_INSERT &&
+            p[0] != OCODE_GBEL && p[0] != OCODE_GEEL)
+            ps->lCurrentElement++;
+    }
+
+    // 5. Draw
+    if (PS_IS_DRAWING(am)) {
+        SrvParseOrder(ps, p, cb);
+    }
+
+    return TRUE;
+}
+```
+
+**Проблема (баг #1):** `GpiPsGocaAppend` добавляет в конец `pbGoca`, а не в `uOpenSegEnd`. При редактировании не-последнего сегмента — ордер попадает в чужой сегмент.
+
+**Проблема:** `DCTL_DYNAMIC` не проверяется (баг #5), `ulStopDraw` не проверяется (баг #4).
+
+## VI.8. `SrvEmitSetAttrs` — composite emitter
+
+```c
+static void SrvEmitSetAttrs(PGPI_PS ps, LONG lPrimType, ULONG flAttrMask, PBUNDLE pb)
+{
+    BYTE buf[32];
+    ULONG pos;
+    LONG len;
+
+    if (lPrimType == PRIM_LINE) {
+        PLINEBUNDLE lb = (PLINEBUNDLE)pb;
+        if (flAttrMask & LBB_COLOR) {
+            len = GocaEmitSetColor(&ps->goca, buf, sizeof(buf), lb->lColor);
+            if (len >= 0) SrvDeliver(ps, buf, (ULONG)len);
+        }
+        if (flAttrMask & LBB_MIX_MODE) {
+            buf[0] = OCODE_GSMX; buf[1] = 1; buf[2] = (BYTE)lb->usMixMode;
+            SrvDeliver(ps, buf, 3);
+        }
+        if (flAttrMask & LBB_TYPE) { … }
+        …
+    } else if (lPrimType == PRIM_CHAR) { … }
+    …
+}
+```
+
+**Проблема:** дублирование логики emit. Каждый атрибут — отдельный `SrvDeliver`. Для composite (`SetAttrs` с 6 атрибутами) — 6 round-trip'ов на сервере (но 0 wire, потому что `SrvDeliver` локальный).
+
+## VI.9. Segment helpers
+
+| Helper | Что делает | Где используется |
+|---|---|---|
+| `SrvForEachSegment(ps, pfn, pUser)` | Обход `pbGoca`, поиск `GBSEG`, вычисление `[start, end)`, вызов `pfn(ps, id, start, end, f1, f2, pUser)` | `DrawChain`, `DrawFrom`, `DrawDynamics`, `RemoveDynamics` |
+| `SrvReplaySegment(ps, start, end)` | `ps->goca.pbStream = pbGoca+start; GocaParseStream(&ps->goca)` | Callbacks для `Draw*` |
+| `SrvSaveMix(ps, &fg, &bg)` | `*fg = ps->goca.lb.usMixMode; *bg = ps->goca.lb.usBackMixMode` | `DrawDynamics`, `RemoveDynamics` |
+| `SrvEnterDynamicsMix(ps)` | `GocaEmitSetMix(FM_XOR)` + `GocaEmitSetBackMix(BM_LEAVEALONE)` → `SrvParseOrder` | То же |
+| `SrvLeaveDynamicsMix(ps, fg, bg)` | `GocaEmitSetMix(fg)` + `GocaEmitSetBackMix(bg)` → `SrvParseOrder` | То же |
+| `SrvSegInChain(f1, f2)` | `!(f1 & GBSEG_DYNAMIC) && !(f2 & GBSEG_CHAIN)` | `QuerySegmentPriority`, `SetSegmentPriority` |
+| `SrvSegInfo(ps, id, &start, &end, &f1, &f2)` | `GpiPsGocaFindSeg` + read flags | То же |
+| `SrvFindFirstChainSeg(ps, &start)` | Scan `pbGoca`, первый chained | То же |
+| `SrvFindLastChainSeg(ps, &start)` | Scan `pbGoca`, последний chained | То же |
+| `SrvMoveRange(ps, start, end, insertPos)` | Cut `[start, end)`, re-insert at `insertPos`, fix `uOpenSegStart` | `SetSegmentPriority` |
+
+## VI.10. Element helpers
+
+| Helper | Что делает | Где используется |
+|---|---|---|
+| `SrvSegBodyStart(ps, segStart, segEnd)` | `segStart + GocaOrderLength(GBSEG)` | `SrvFindElement`, `SrvCountElements`, `SrvGocaInsertElement` |
+| `SrvFindElement(ps, segStart, segEnd, lIndex, &s, &e, &bs, &be, &hasGbel)` | Locate element by 1-based index | `SrvGocaInsertElement`, `NGpiEndElement`, `NGpiQueryElement`, `NGpiQueryElementType`, `NGpiDeleteElement*`, `NGpiDeleteElementsBetweenLabels`, `NGpiSetElementPointerAtLabel` |
+| `SrvCountElements(ps, segStart, segEnd)` | Count elements | `NGpiPutData`, `NGpiSetElementPointer`, `NGpiOffsetElementPointer` |
+| `SrvGocaInsertBytes(ps, at, p, cb)` | Insert bytes at offset (grow buffer) | `SrvGocaInsertElement` |
+| `SrvGocaInsertElement(ps, segStart, segEnd, p, cb)` | Insert element at position (INSERT or REPLACE) | `NGpiEndElement`, `NGpiLabel`, `NGpiElement` |
+
+## VI.11. `SrvBuildGbsegFlags`
+
+```c
+static void SrvBuildGbsegFlags(ULONG ulAttrs, UCHAR *pFlag1, UCHAR *pFlag2)
+{
+    UCHAR f1 = 0, f2 = 0;
+
+    if (!(ulAttrs & SEGATTR_BIT(ATTR_VISIBLE)))         f1 |= GBSEG_INVISIBLE;
+    if (!(ulAttrs & SEGATTR_BIT(ATTR_PROP_VISIBLE)))    f1 |= GBSEG_PROPINV;
+    if ( (ulAttrs & SEGATTR_BIT(ATTR_DETECTABLE)))      f1 |= GBSEG_PICK;
+    if ( (ulAttrs & SEGATTR_BIT(ATTR_PROP_DETECTABLE))) f1 |= GBSEG_PROPICK;
+    if ( (ulAttrs & SEGATTR_BIT(ATTR_DYNAMIC)))         f1 |= GBSEG_DYNAMIC;
+    if ( (ulAttrs & SEGATTR_BIT(ATTR_FASTCHAIN)))       f1 |= GBSEG_FASTCH;
+    if (!(ulAttrs & SEGATTR_BIT(ATTR_CHAINED)))         f2 |= GBSEG_CHAIN;
+
+    *pFlag1 = f1;
+    *pFlag2 = f2;
+}
+```
+
+---
+
+# Часть VII. GOCA-слой
+
+## VII.1. `GocaInit`
+
+```c
+void GocaInit(GOCA_CTX *c, HDC hdc, PBYTE pb, ULONG cb)
+{
+    memset(c, 0, sizeof(*c));
+    c->hdc      = hdc;
+    c->pbStream = pb;
+    c->cbStream = cb;
+    c->bDebug   = TRUE;
+    GocaSetFormat(c, GOCA_COORD_LONG, GOCA_ENDIAN_LE);
+
+    if (hdc) {
+        GreGetAttributes(hdc, PRIM_LINE,
+            LBB_COLOR|LBB_BACK_COLOR|LBB_MIX_MODE|LBB_BACK_MIX_MODE|
+            LBB_WIDTH|LBB_GEOM_WIDTH|LBB_TYPE|LBB_END|LBB_JOIN,
+            (PBUNDLE)&c->lb);
+        GreGetAttributes(hdc, PRIM_CHAR, …, (PBUNDLE)&c->cb);
+        GreGetAttributes(hdc, PRIM_MARKER, …, (PBUNDLE)&c->mb);
+        GreGetAttributes(hdc, PRIM_AREA, …, (PBUNDLE)&c->ab);
+        RefreshCurPos(c);   // GreGetCurrentPosition
+    }
+}
+```
+
+**Ключевое:** если `hdc == NULL` (сервер без Associate), bundles остаются нулевыми, `ptlCurPos = {0,0}`. При `GpiSetColor` в DM_DRAW — `GocaSetAttr` передаёт `c->lb` в `GreSetAttributes(NULL, ...)` — GRE вернёт ошибку (stub — OK; real GRE — ошибка или краш).
+
+## VII.2. `GocaParseStream` — главный цикл
+
+```c
+LONG GocaParseStream(GOCA_CTX *c)
+{
+    c->uPos   = 0;
+    c->lError = GOCA_OK;
+
+    while (c->uPos < c->cbStream) {
+        const BYTE *p       = c->pbStream + c->uPos;
+        ULONG       cbAvail = c->cbStream - c->uPos;
+        ULONG       cbOrder = GocaOrderLength(c, p, cbAvail);
+        UCHAR       oc;
+        LONG        rc;
+        BOOL        bHandled = FALSE;
+
+        if (cbOrder == 0 || cbOrder > cbAvail) {
+            c->lError = GOCA_ERR_TRUNC;
+            c->uErrOffset = c->uPos;
+            c->uErrOrder = p[0];
+            return c->lError;
+        }
+        oc = p[0];
+        rc = GOCA_OK;
+
+        if (c->pfnHandler)
+            bHandled = c->pfnHandler(c, oc, p, cbOrder);
+
+        if (!bHandled) {
+            switch (oc) {
+            case OCODE_GNOP1: case OCODE_GESD: case OCODE_GEPROL:
+            case OCODE_GCOMT: case OCODE_GSGCH: case OCODE_GSMP:
+                break;
+            case OCODE_GSCOL: … break;
+            …
+            case OCODE_GBSEG: break;   // no-op
+            case OCODE_VLONG: switch (p[1]) { … } break;
+            default: break;
+            }
+        }
+
+        if (rc != GOCA_OK) { c->lError = rc; … return rc; }
+        c->uPos += cbOrder;
+    }
+    return GOCA_OK;
+}
+```
+
+**Ключевое:** `bInArea`/`uAreaFlags` **не сбрасываются** в начале (N5). Если предыдущий parse оставил `bInArea=TRUE` (без `GEAR`), следующий унаследует. В нормальном GOCA-потоке `GBAR..GEAR` парны, но защита от malformed stream нужна.
+
+## VII.3. `GocaOrderLength`
+
+```c
+static inline ULONG GocaOrderLength(GOCA_CTX *c, const BYTE *p, ULONG cbAvail)
+{
+    UCHAR oc;
+    if (cbAvail < 1) return 0;
+    oc = p[0];
+    if (BYTE_ORDER(oc))  return 1;
+    if (oc == OCODE_VLONG) {
+        if (cbAvail < 4) return 0;
+        return 4u + GocaGetU16(c, p + 2);
+    }
+    if (SHORT_ORDER(oc)) return 2;
+    if (cbAvail < 2) return 0;
+    return 2u + (ULONG)p[1];
+}
+```
+
+**Ключевое:** для `OCODE_GBSEG = 0x70` — `SHORT_ORDER(0x70)` = false, `LONG_ORDER(0x70)` = true. Длина = `2 + p[1] = 2 + 0x0C = 14`. **Корректно.**
+
+## VII.4. Do*-handlers — сводка
+
+| Handler | Ордер | Что делает | Баг |
+|---|---|---|---|
+| `DoGSCP` | `GSCP` | `GreSetCurrentPosition`, `c->ptlCurPos = pt` | — |
+| `DoLine(c, p, cb, bCur)` | `GCLINE` (bCur=TRUE), `GLINE` (bCur=FALSE) | alloc `POINTL[]`, `GrePolyLine`, `c->ptlCurPos = last` | **Extra**: `RefreshCurPos` для GCLINE |
+| `DoMark(c, p, cb, bCur)` | `GCMRK`, `GMRK` | alloc `POINTL[]`, `GrePolyMarker`, `c->ptlCurPos = last` | — |
+| `DoRelativeLine(c, p, cb, bCur)` | `GCRLINE`, `GRLINE` | compute absolute from offsets, `GrePolyLine` | — |
+| `DoCharString(c, p, cb, bCur)` | `GCCHST`, `GCHST` | `GreSetCurrentPosition`, `GreCharString`, `c->ptlCurPos = ptStart` | — |
+| `DoBox(c, p, cb, bCur)` | `GCBOX`, `GBOX` | `GreBoxBoth/Boundary/Interior`, `c->ptlCurPos = (x2,y2)` | **#3**: flags inverted |
+| `DoPartialArc` | `GCPARC`, `GPARC` | `GrePartialArc` | — |
+| `DoFullArc` | `GCFARC`, `GFARC` | `GreFullArcBoth` | — |
+| `DoBezier` | `GCBEZ`, `GBEZ` | `GrePolySpline` | — |
+| `DoFillet` | `GCFLT`, `GFLT` | `GrePolyFillet` | — |
+| `DoSetArcParams` | `GSAP` | `GreSetArcParameters` | — |
+| `DoSetCharCell` | `GSCC` | `c->cb.sizfxCell = MAKEFIXED(...)`, `GocaSetAttr(PRIM_CHAR, CBB_BOX)` | — |
+| `DoSetMarkerCell` | `GSMC` | `c->mb.sizfxCell = MAKEFIXED(...)`, `GocaSetAttr(PRIM_MARKER, MBB_BOX)` | — |
+| `DoSetPatternRefPoint` | `GSPRP` | `c->ab.ptlRefPoint = pt`, `GocaSetAttr(PRIM_AREA, ABB_REF_POINT)` | — |
+| `DoVLongCharString` | `GCCHSTE`, `GCHSTE` | `GreCharStringPos` | — |
+
+## VII.5. `GocaSetAttr`
+
+```c
+static BOOL GocaSetAttr(HDC hdc, LONG lPrimType, ULONG flAttrs, PVOID pBundle)
+{
+    return GreSetAttributes(hdc, (ULONG)lPrimType, 0UL, flAttrs, (PBUNDLE)pBundle);
+}
+```
+
+**Ключевое:** `hdc` — заимствованный. `pBundle` — указатель на `c->lb/cb/mb/ab`. `GreSetAttributes` обновляет device state.
+
+---
+
+# Часть VIII. GOCA-эмиттеры
+
+## VIII.1. Контракт
+
+```c
+LONG GocaEmitXxx(GOCA_CTX *c, PBYTE buf, ULONG cb, ...);
+// return: >= 0 — записано байт; -1 (GPI_ALTERROR) — ошибка.
+// buf == NULL → вернуть need (только для variable-length).
+```
+
+## VIII.2. Все эмиттеры
+
+| Файл | Emitter | Ордер | Проверка overflow |
+|---|---|---|---|
+| `goca_emit_attr.h` | `GocaEmitSetColor` | `GSCOL`/`GSECOL` | ✅ (`lColor > 0xFFFF` → error) |
+| | `GocaEmitSetBackColor` | `GSBCOL` | — |
+| | `GocaEmitSetMix` | `GSMX` | — |
+| | `GocaEmitSetBackMix` | `GSBMX` | — |
+| `goca_emit_line.h` | `GocaEmitSetLineType` | `GSLT` | — |
+| | `GocaEmitSetLineWidth` | `GSLW`/`GSFLW` | — |
+| | `GocaEmitSetLineWidthGeom` | `GSLW` | — |
+| | `GocaEmitSetLineEnd` | `GSLE` | — |
+| | `GocaEmitSetLineJoin` | `GSLJ` | — |
+| `goca_emit_char.h` | `GocaEmitSetCharSet` | `GSCS` | — |
+| | `GocaEmitSetCharDirection` | `GSCD` | — |
+| | `GocaEmitSetCharPrecision` | `GSCR` | — |
+| | `GocaEmitSetCharCell` | `GSCC` | — |
+| | `GocaEmitSetCharAngle` | `GSCA` | — |
+| | `GocaEmitSetCharShear` | `GSCH` | — |
+| `goca_emit_marker.h` | `GocaEmitSetMarkerSet` | `GSMS` | — |
+| | `GocaEmitSetMarkerSymbol` | `GSMT` | — |
+| | `GocaEmitSetMarkerCell` | `GSMC` | — |
+| `goca_emit_area.h` | `GocaEmitSetPatternSet` | `GSPS` | — |
+| | `GocaEmitSetPatternSymbol` | `GSPT` | — |
+| | `GocaEmitSetPatternRefPoint` | `GSPRP` | — |
+| | `GocaEmitBeginArea` | `GBAR` | — |
+| | `GocaEmitEndArea` | `GEAR` | — |
+| `goca_emit_prim.h` | `GocaEmitMove` | `GSCP` | — |
+| | `GocaEmitLine` | `GCLINE` | — |
+| | `GocaEmitPolyLine` | `GCLINE` | **❌ (баг #8)** |
+| | `GocaEmitBox` | `GCBOX` | — |
+| | `GocaEmitMarker` | `GCMRK` | — |
+| | `GocaEmitPolyMarker` | `GCMRK` | **❌ (баг #8)** |
+| `goca_emit_arc.h` | `GocaEmitSetArcParams` | `GSAP` | — |
+| | `GocaEmitFullArc` | `GCFARC` | — |
+| | `GocaEmitPartialArc` | `GCPARC` | — |
+| | `GocaEmitPolySpline` | `GCBEZ` | **❌ (баг #8)** |
+| | `GocaEmitPolyFillet` | `GCFLT` | **❌ (баг #8)** |
+| `goca_emit_text.h` | `GocaEmitCharString` | `GCCHST` | ✅ (`lCount > 255` → error) |
+| | `GocaEmitCharStringAt` | `GCHST` | ✅ (`need - 2 > 255` → error) |
+| `goca_emit_ctrl.h` | `GocaEmitComment` | `GCOMT` | ✅ (`lLength > 255` → error) |
+| | `GocaEmitSetPickId` | `GSPIK` | — |
+| `goca_emit_elem.h` | `GocaEmitBeginElement` | `GBEL` | ✅ (`cch > GBEL_DL` → truncate) |
+| | `GocaEmitEndElement` | `GEEL` | — |
+| | `GocaEmitLabel` | `GLABL` | — |
+| `goca_emit_path.h` | `GocaEmitBeginPath` | `GBPTH` | — |
+| | `GocaEmitEndPath` | `GEPTH` | — |
+| | `GocaEmitCloseFigure` | `GCFIG` | — |
+| | `GocaEmitFillPath` | `GFPTH` | — |
+| | `GocaEmitOutlinePath` | `GOPTH` | — |
+| | `GocaEmitModifyPath` | `GMPTH` | — |
+| | `GocaEmitSetClipPath` | `GSCPTH` | — |
+
+## VIII.3. Баг #8 — overflow в poly-*
+
+```c
+static inline LONG GocaEmitPolyLine(GOCA_CTX *c, PBYTE buf, ULONG cb,
+                                     LONG lCount, PPOINTL aptl)
+{
+    …
+    need = 2 + (ULONG)lCount * 2 * pointSize;
+    if (!buf) return (LONG)need;
+    if (cb < need) return (LONG)GPI_ALTERROR;
+    buf[0] = OCODE_GCLINE;
+    buf[1] = (BYTE)(lCount * 2 * pointSize);   // ← overflow, если > 255
+    for (i = 0; i < lCount; i++) { … }
+}
+```
+
+**Проблема:** `buf[1]` — байт. Для LONG (`pointSize=4`): `lCount > 31` → обрезка. Для SHORT (`pointSize=2`): `lCount > 63` → обрезка. `GocaOrderLength` вернёт неверную длину, парсер прочитает середину координат как новый ордер — **порча GOCA-потока**.
+
+**Фикс:** проверять `lCount * 2 * pointSize <= 255`; при превышении — разбивать на несколько ордеров в вызывающей функции (`NGpiPolyLine` — цикл).
+
+---
+
+# Часть IX. GRE
+
+## IX.1. Текущее состояние
+
+`gre.cpp` — заглушки `Gre32Entry2..10`, каждая логирует `[GRE] FnCode` и возвращает `GPI_ERROR`. **Ни один `Gre*` не работает.**
+
+## IX.2. `Gre32EntryN` dispatch
+
+```c
+// pmddim.h
+#define GrePolyLine(a,b,c) (INT) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),(ULONG)(LONG)(c),0L,NGrePolyLine)
+
+// gre.cpp
+ULONG APIENTRY Gre32Entry5(ULONG a, ULONG b, ULONG c, ULONG d, ULONG fnCode)
+{
+    log("[GRE] IN : Gre32Entry5(FnCode=0x%x, …)\n", …);
+    return (ULONG)GPI_ERROR;
+}
+```
+
+**Ключевое:** `fnCode` — последний аргумент. `NGrePolyLine = 0x00004019L`. Реальный GRE диспатчит по `fnCode`.
+
+## IX.3. Все `Gre*`, используемые парсером (18 функций)
+
+| `Gre*` | EntryN | `NGre*` code | Где вызывается |
+|---|---|---|---|
+| `GreGetCurrentPosition` | 4 | `0x00004017` | `RefreshCurPos`, `GocaInit` |
+| `GreSetCurrentPosition` | 4 | `0x00004018` | `DoGSCP`, `DoCharString`, `DoBox` |
+| `GreGetAttributes` | 6 | `0x00004217` | `GocaInit` |
+| `GreSetAttributes` | 7 | `0x00004218` | `GocaSetAttr` |
+| `GrePolyLine` | 5 | `0x00004019` | `DoLine`, `DoRelativeLine` |
+| `GrePolyMarker` | 5 | `0x0000403A` | `DoMark` |
+| `GrePolySpline` | 5 | `0x0000400C` | `DoBezier` |
+| `GrePolyFillet` | 5 | `0x0000400A` | `DoFillet` |
+| `GreCharString` | 5 | `0x00005035` | `DoCharString` |
+| `GreCharStringPos` | 10 | `0x00007036` | `DoVLongCharString` |
+| `GreBoxBoth` | 4 | `0x00004009` | `DoBox` |
+| `GreBoxBoundary` | 4 | `0x00004008` | `DoBox` |
+| `GreBoxInterior` | 4 | `0x00004007` | `DoBox` |
+| `GreFullArcBoth` | 4 | `0x00004006` | `DoFullArc` |
+| `GrePartialArc` | 7 | `0x00004003` | `DoPartialArc` |
+| `GreBeginArea` | 4 | `0x00004046` | `GBAR` |
+| `GreEndArea` | 4 | `0x00004047` | `GEAR` |
+| `GreSetArcParameters` | 4 | `0x00004001` | `DoSetArcParams` |
+
+## IX.4. Tier 2 — Step K
+
+| `Gre*` | EntryN | `NGre*` |
+|---|---|---|
+| `GreErasePS` | 3 | `0x000040A7` |
+
+## IX.5. Tier 3 — Step J (transforms)
+
+| `Gre*` | EntryN |
+|---|---|
+| `GreGetModelXform` | 4 |
+| `GreSetModelXform` | 5 |
+| `GreGetGlobalViewingXform` | 4 |
+| `GreSetGlobalViewingXform` | 5 |
+| `GreGetWindowViewportXform` | 4 |
+| `GreSetWindowViewportXform` | 5 |
+| `GreConvert` | 7 |
+| `GreConvertWithMatrix` | 6 |
+| `GreGetGraphicsField` | 4 |
+| `GreSetGraphicsField` | 4 |
+| `GreGetViewingLimits` | 4 |
+| `GreSetViewingLimits` | 4 |
+| `GreGetPageViewport` | 4 |
+| `GreSetPageViewport` | 5 |
+
+## IX.6. Tier 4 — Step O (paths)
+
+| `Gre*` | EntryN |
+|---|---|
+| `GreBeginPath` | 4 |
+| `GreEndPath` | 4 |
+| `GreCloseFigure` | 3 |
+| `GreFillPath` | 5 |
+| `GreOutlinePath` | 5 |
+| `GreModifyPath` | 5 |
+| `GreSelectClipPath` | 5 |
+| `GrePathToRegion` | 5 |
+
+## IX.7. Tier 5 — Step L (bitmaps/regions/fonts)
+
+~100+ функций из `pmddim.h`. Подгруппы: bitmaps (~15), regions (~20), fonts (~15), palettes (~10). Metafiles — управляются GPI, не GRE.
+
+## IX.8. `GreGetAttributes` / `GreSetAttributes` — bundle flow
+
+```c
+// GocaInit: заполнить bundles из device
+GreGetAttributes(hdc, PRIM_LINE, LBB_COLOR|LBB_TYPE|…, (PBUNDLE)&c->lb);
+
+// GocaSetAttr: применить bundle к device
+GreSetAttributes(hdc, PRIM_LINE, 0, LBB_COLOR, (PBUNDLE)&c->lb);
+```
+
+**Ключевое:** `flAttrs` — маска полей, которые нужно применить. Остальные поля `bundle` игнорируются. Это позволяет GOCA обновлять только изменённые атрибуты.
+
+---
+
+# Часть X. Состояние реализации
+
+## X.1. Что работает (со stub GRE)
+
+- Transport + payload (T1–T6)
+- PS lifecycle: Create/Set/Destroy (T7–T10) — с багом #7
+- Drawing state (T21–T33)
+- Primitives (T34–T56) — с багами #3, #8
+- SetAttrs (T53–T56)
+- Segments: open/close/draw (T57–T63) — с багами #1, #2
+- Segments: delete/query/attrs (T64–T69)
+- Segments: get/put data (T70–T77) — с багом #1
+- Segments: chain/from/dynamics (T78–T90) — с багами #4, #5
+- Segments: priority (T91–T99)
+- Element editing (T102–T126) — с багом #2
+- Paths (T127–T139) — рендеринг путей не работает (Step O)
+- Queries (state) (T21–T33)
+- HAB lifecycle: `NWinInitialize` / `NWinTerminate` / `NWinGetLastError` (sync 8→4)
+- Session lifecycle: CONNECT / RECONNECT / PING / EXIT / DISCONNECT / grace expiry
+
+## X.2. Что не работает (stub)
+
+- Lifecycle: Associate/QueryDevice/Erase/ResetPS/QueryPS/SavePS/RestorePS (Step K)
+- Queries (attributes): Color, LineType, LineWidth, … (Step M)
+- Transforms (Step J)
+- Bitmaps/Regions/Fonts/Metafiles/Palettes (Step L, нужен O)
+- Correlation (нужен O)
+- Real GRE (Step O)
+- `NWinQueryAnchorBlock` (0x0004), `NWinQueryVersion` (0x0005)
+- Phase 4: WND/MQ/DC, стандартные контролы, subclass
+- `F_CMD_CLASS_GORDER`
+
+## X.3. Code paths для репрезентативных функций
+
+**`NGpiSetColor(CLR_RED)` в DM_DRAW:** (см. §II.8, DM_DRAW)
+
+**`NGpiLine(pt)` в DM_RETAIN (сегмент 1 открыт, последний):** (см. §II.8, DM_RETAIN)
+
+**`NGpiDrawSegment(1)`:** (см. §II.8, DrawSegment)
+
+## X.4. Конфигурация — классы
+
+Три класса, выстроенные по цепочке наследования:
+
+```
+F_Config  (header-only, F_config.h)
+  ├── debugOptions[256]
+  ├── int Read(char *fname)                            (inline)
+  ├── int ReadStr(FILE *, char *, …)                    (inline)
+  ├── virtual int Write(char *fname)                    (inline stub)
+  └── virtual int AnalizeRecodrRead(char *, char *)     (inline: debugOptions, иначе return 1)
+
+  ├── F_ClientConfig  (Fc_config.hpp + Fc_config.cpp)
+  │     ├── char ExternMachineName[_MAX_FNAME]
+  │     ├── char BackendName[_MAX_FNAME]
+  │     ├── F_ClientConfig()                            (inline: En[0]=0, Backend[0]=0)
+  │     └── int AnalizeRecodrRead(…)                    (override: remote, backend → F_Config)
+  │
+  └── F_ServerConfig  (Fs_config.hpp + Fs_config.cpp)
+        ├── char deviceName[80]
+        ├── int  DesktopNx, DesktopNy, BytesPerPel, DesktopBackColor
+        ├── char DesktopBackgroundPicture[CCHMAXPATH]
+        ├── ULONG ulMaxClients, ulMaxHabs, ulInactive, ulGrace, ulMonitorTick
+        ├── BOOL  fAcceptLogs
+        ├── BOOL  fStrictHab
+        ├── F_ServerConfig()                            (inline: из F_DEFAULT_* / F_MAX_*)
+        └── int AnalizeRecodrRead(…)                    (override: все поля + F_Config)
+```
+
+**Ключи в `fpm.ini` (клиент):** `debugOptions`, `remote`, `backend`.
+**Ключи в `fpmsrv.ini` (сервер):** `debugOptions`, `device`, `DesktopNx`, `DesktopNy`, `BytesPerPel`, `DesktopBackColor`, `DesktopBackgroundPicture`, `MaxClients`, `MaxHabs`, `Inactive`, `Grace`, `MonitorTick`, `AcceptLogs`, `StrictHab`.
+
+**Константы:**
+
+| Константа | Значение |
+|---|---|
+| `F_DBG_DEFAULT_LEVELS` | `"ALL,7"` |
+| `F_MAX_CLIENTS` | 64 |
+| `F_MAX_HABS` | 128 |
+| `F_MAX_THREADS` | 16 |
+| `F_MONITOR_TICK_MS` | 1000 |
+| `F_DEFAULT_INACTIVE` | 60 |
+| `F_DEFAULT_GRACE` | 30 |
+| `F_DEFAULT_DEVICE` | `"PM"` |
+| `F_DEFAULT_DESKTOP_NX` | 640 |
+| `F_DEFAULT_DESKTOP_NY` | 480 |
+| `F_DEFAULT_BYTES_PER_PEL` | 3 |
+| `F_DEFAULT_DESKTOP_BGCOLOR` | `0x606060` |
+
+**Глобалы:** `F_ClientConfig FPM_config;` — `init.cpp`; `F_ServerConfig FPMs_config;` — `Fs_main.cpp`.
+
+## X.5. Что изменилось при ревизии 2026-11-10
+
+- Классы: `Fs_ClientConnection` разрезан на `Fs_Thread` + `Fs_Connection`. `Fs_Process` владеет `Fs_ThreadList`. `Fs_Server` владеет `Fs_ProcessList` / `Fs_ConnectionList` / `Fs_HabList`.
+- `DispatchGpi` и все `DispatchWin*` — методы `Fs_Server` с единой сигнатурой `(pRecvobj, fnCode, data, pArgs, cbArgs, pcbPayload)`.
+- `dispatch_win.hpp` удалён.
+- `HandleWinCall` маршрутизирует все WIN по диапазонам fnCode (не только HAB).
+- HAB sync path (0x0001–0x000F): 8 байт → 4 байта, без `cbArgs`, без `FPM_RESP_HEADER`.
+- `ExpireSessions` (метод) в `MonitorLoop`; `TeardownThread` (метод) — общий для EXIT и grace.
+- Конфиг: `F_Config` (base) → `F_ClientConfig` / `F_ServerConfig`; `Fs_ServerConfig` (spec2) удалён.
+- `Fs_HabList::DestroyAll` вызывается из `TeardownThread` при EXIT/grace.
+- `NWinTerminate`/`NWinGetLastError`: HAB берётся у потока (`pThread->GetHab()`), `data` игнорируется в не-strict режиме.
+- `fStrictHab` в `F_ServerConfig` — strict-проверка `data == pThread->GetIHab()`.
+
+---
+
+# Часть XI. Баги — root cause analysis
+
+## XI.1. Баг #1 — `SrvDeliver` не вставляет в активный сегмент
+
+**Код (dispatch.cpp):**
+```c
+if (PS_IS_RECORDING(am)) {
+    if (!GpiPsGocaAppend(ps, p, cb)) return FALSE;
+    …
+}
+```
+
+`GpiPsGocaAppend` (gpi_ps.h):
+```c
+memcpy(ps->pbGoca + ps->cbGoca, p, cb);
+ps->cbGoca += cb;
+```
+
+**Root cause:** `GpiPsGocaAppend` всегда добавляет в конец `pbGoca`. Если открыт существующий сегмент (не последний), ордер попадает **после** всех сегментов, а не в активный.
+
+**Спецификация:** OS/2 PM Ref, `GpiOpenSegment`: «To edit the contents of a segment, … Insert the new primitives by calling any of the Gpi primitive functions.»
+
+**Сценарий:**
+```
+pbGoca = [GBSEG_1 | body_1 | GBSEG_2 | body_2 | GBSEG_3 | body_3]
+GpiOpenSegment(2) → uOpenSegStart = offset(GBSEG_2), lOpenSeg = 2
+GpiLine(pt) → SrvDeliver → GpiPsGocaAppend → append в конец:
+  pbGoca = [... | body_3 | GCLINE]
+GpiCloseSegment
+GpiDrawSegment(2) → replay [offset(GBSEG_2), offset(GBSEG_3)) → GCLINE НЕ входит
+GpiDrawSegment(3) → replay [offset(GBSEG_3), cbGoca) → GCLINE входит (ошибка)
+```
+
+**Фикс:** `ULONG uOpenSegEnd` в `GPI_PS`. В `NGpiOpenSegment` (для существующего сегмента) вычислить один раз. В `SrvDeliver`:
+```c
+if (PS_IS_RECORDING(am)) {
+    if (ps->uOpenSegEnd > 0) {
+        if (!SrvGocaInsertBytes(ps, ps->uOpenSegEnd, p, cb)) return FALSE;
+        ps->uOpenSegEnd += cb;
+    } else {
+        if (!GpiPsGocaAppend(ps, p, cb)) return FALSE;
+    }
+    …
+}
+```
+
+**Тест:** T151.
+
+## XI.2. Баг #2 — `SEGL` не обновляется
+
+**Код (NGpiOpenSegment):**
+```c
+GocaPutU16(&ps->goca, gbseg + 8, 0);   /* SEGL */
+```
+
+**Код (NGpiCloseSegment):** нет обновления `SEGL`.
+
+**Root cause:** `SEGL` инициализируется нулём и никогда не обновляется. Текущий `GetData`/`GpiPsGocaFindSeg` не использует `SEGL` (вычисляют через `GocaOrderLength`), поэтому баг скрыт.
+
+**Спецификация:** `pmord.h`, `ORDERL_GBSEG.usSegDataLen` — длина тела сегмента.
+
+**Фикс:** в `NGpiCloseSegment` (и `NGpiEndElement` при закрытии последнего элемента):
+```c
+if (ps->uOpenSegStart > 0 && ps->uOpenSegEnd > ps->uOpenSegStart + 14) {
+    USHORT segl = (USHORT)(ps->uOpenSegEnd - ps->uOpenSegStart - 14);
+    GocaPutU16(&ps->goca, ps->pbGoca + ps->uOpenSegStart + 8, segl);
+}
+```
+
+**Тест:** T152.
+
+## XI.3. Баг #3 — GCBOX флаги инвертированы
+
+**Код (goca_emit_prim.h):**
+```c
+if (lControl & 2) flags |= 0x40;   /* DRO_OUTLINE -> boundary */
+if (lControl & 1) flags |= 0x20;   /* DRO_FILL    -> fill     */
+```
+
+**Код (goca_parser.cpp, DoBox):**
+```c
+bBoundary = (fbFlags & 0x40) != 0;
+bFill     = (fbFlags & 0x20) != 0;
+```
+
+**Root cause:** `pmord.h` определяет `GCBOX_FILL=0x40`, `GCBOX_BOUNDARY=0x20`. Эмиттер и парсер **согласованы друг с другом**, но **оба инвертированы** относительно `pmord.h`. Со stub GRE — не проявляется. С real GRE — ордер интерпретируется неверно.
+
+**Спецификация:** `pmord.h`.
+
+**Фикс:** поменять местами в `goca_emit_prim.h` и `goca_parser.cpp`.
+
+**Тест:** T153.
+
+## XI.4. Баг #4 — `ulStopDraw` не проверяется
+
+**Код (NGpiDrawChain, NGpiDrawFrom, NGpiDrawSegment, NGpiDrawDynamics, NGpiRemoveDynamics):** нет проверки `ps->ulStopDraw`.
+
+**Спецификация:** OS/2 PM Ref, `GpiSetStopDraw`: «SDW_ON: Drawing is suppressed. … PMERR_STOP_DRAW is returned.»
+
+**Фикс:** в начале каждой:
+```c
+if (ps->ulStopDraw == SDW_ON) return (ULONG)GPI_ERROR;
+```
+
+**Тест:** T100, T154.
+
+## XI.5. Баг #5 — `DCTL_DYNAMIC` не проверяется
+
+**Код (NGpiDrawDynamics, NGpiRemoveDynamics):** нет проверки `ps->ulDrawControl & DCTL_BIT(DCTL_DYNAMIC)`.
+
+**Спецификация:** OS/2 PM Ref, `DCTL_DYNAMIC`: «When set to DCTL_OFF, dynamic drawing is suppressed.»
+
+**Фикс:**
+```c
+if (!(ps->ulDrawControl & DCTL_BIT(DCTL_DYNAMIC))) return 1;
+```
+
+**Тест:** T101, T155.
+
+## XI.6. Баг #6 — `GpiPsGet` авто-создаёт PS
+
+**Код (gpi_ps.h):**
+```c
+static inline PGPI_PS GpiPsGet(HPS hps)
+{
+    PGPI_PS ps = GpiPsFind(hps);
+    if (ps) return ps;
+    return GpiPsCreate(hps, 0);   // ← авто-create
+}
+```
+
+**Root cause:** `GpiPsGet` создаёт PS для неизвестного `hps` (например, `hps=1` из `F_CMD_GET_HPS`, или после `DestroyPS`). `GpiPsCreate((HDC)hps, ...)` → `GocaInit((HDC)hps, ...)` → `c->hdc = (HDC)hps` — фиктивный HDC. Все `Gre*` получат его.
+
+**Спецификация:** OS/2 PM Ref: после `GpiDestroyPS` hps недействителен; `PMERR_INV_HPS`.
+
+**Фикс:**
+```c
+static inline PGPI_PS GpiPsGet(HPS hps)
+{
+    return GpiPsFind(hps);   // без auto-create
+}
+```
+
+Все case-ы должны проверять `if (!ps) return GPI_ERROR;` (большинство уже проверяют).
+
+**Тест:** T14, T156.
+
+## XI.7. Баг #7 — `szlPS` не сохраняется
+
+**Код:** в `GPI_PS` нет поля `szlPS`. `NGpiCreatePS` не сохраняет `a->psizlSize`. `NGpiQueryPS` — stub.
+
+**Спецификация:** `GpiCreatePS(psizlSize)`, `GpiQueryPS(&szl)`.
+
+**Фикс:** `SIZEL szlPS` в `GPI_PS`; `NGpiCreatePS` и `NGpiSetPS` пишут; `NGpiQueryPS` читает (Step K).
+
+**Тест:** T9, T157.
+
+## XI.8. Баг #8 — overflow в poly-*
+
+**Код (goca_emit_prim.h, goca_emit_arc.h):**
+```c
+buf[1] = (BYTE)(lCount * 2 * pointSize);   // без проверки
+```
+
+**Root cause:** для LONG (`pointSize=4`): `lCount > 31` → `buf[1]` обрезается. `GocaOrderLength` вернёт неверную длину, парсер прочитает середину координат как новый ордер — порча GOCA.
+
+**Спецификация:** `pmord.h`: `GCLINE_LMP=31`, `GCLINE_SMP=63`; `GCMRK_LMP=31`, `GCMRK_SMP=63`; `GCBEZ_LMB=10`, `GCBEZ_SMB=21`; `GCFLT_LMP=31`, `GCFLT_SMP=63`.
+
+**Фикс:** проверять `lCount * 2 * pointSize <= 255`; при превышении — разбивать на несколько ордеров в `NGpiPolyLine`/`PolyMarker`/`PolySpline`/`PolyFillet`.
+
+**Тест:** T158.
+
+## XI.9. N4 — `GocaInit((HDC)hps, ...)`
+
+**Код (gpi_ps.h, GpiPsCreate):**
+```c
+GocaInit(&ps->goca, (HDC)hps, NULL, 0);
+```
+
+**Root cause:** HPS используется как HDC. Для серверного `NGpiCreatePS(NULL, ...)` — `hdc = NULL` (безопасно). Для авто-create (`GpiPsGet(1)`) — `hdc = (HDC)1` (фиктивный). Для клиентского `GpiPsCreate((HPS)result, ...)` — `hdc = (HDC)result` (серверный адрес, бессмысленно).
+
+**Спецификация:** архитектура — HDC — линк к Media, не HPS.
+
+**Уточнение после фактчекинга (2026-11-10):** «без HWND на экран не нарисовать» — верно. Но **N4 HWND не требует**:
+- **Memory DC** (`DevOpenDC(hab, OD_MEMORY, "*", …)`) даёт HDC без окна. Offscreen-рисование (в `pVBuffmem`) работает без HWND.
+- **Screen DC** требует HWND — единственный документированный путь без своего окна: `HWND_DESKTOP` (реальное окно рабочего стола) + `WinOpenWindowDC(HWND_DESKTOP)` или `WinGetScreenPS(HWND_DESKTOP)`.
+- `HWND_DESKTOP` — не «псевдо-HWND», а символическое имя (`0x00000001` в `PMWIN.H`) для реального окна рабочего стола, создаваемого PM при старте (IBM PM Ref Vol.1).
+
+**Фикс:** `GpiPsCreate(hps, hdc, flOptions)`; `GocaInit(&ps->goca, hdc, NULL, 0)`. Путь `hdc` по фазам:
+
+| Фаза | `goca.hdc` | Откуда | Что работает |
+|---|---|---|---|
+| P0 | `NULL` | — | GOCA-поток, сегменты, bookkeeping; `Gre*` — заглушки |
+| Step K | HDC от клиента | `NGpiAssociate(hdc)` | То же |
+| Phase 4 | memory DC | `DevOpenDC(OD_MEMORY)` | Offscreen в `pVBuffmem`; визуально ничего |
+| Phase 6 | screen DC | `WinOpenWindowDC(HWND_DESKTOP)` / `WinGetScreenPS(HWND_DESKTOP)` | **Реальный экран** |
+
+Сервер: `GpiPsCreate(NULL, a->hdc, flOptions)`. Клиент: `GpiPsCreate((HPS)result, NULL, flOptions)`. `NGpiAssociate` устанавливает `goca.hdc` (Step K).
+
+**Тест:** T159, T160 (без HWND), T206–T208 (с HWND — после Phase 6).
+
+## XI.10. N5 — `bInArea`/`uAreaFlags` не сбрасываются
+
+**Код (GocaParseStream):** нет сброса в начале.
+
+**Root cause:** если предыдущий parse оставил `bInArea=TRUE` (malformed stream без `GEAR`), следующий унаследует. В нормальном GOCA-потоке `GBAR..GEAR` парны, но защита нужна.
+
+**Фикс:**
+```c
+LONG GocaParseStream(GOCA_CTX *c)
+{
+    c->uPos = 0;
+    c->lError = GOCA_OK;
+    c->bInArea = FALSE;
+    c->uAreaFlags = 0;
+    …
+}
+```
+
+**Тест:** T161.
+
+## XI.11. Extra — `RefreshCurPos` в `DoLine` для `GCLINE`
+
+**Код (goca_parser.cpp, DoLine):**
+```c
+if (bCur) {
+    …
+    RefreshCurPos(c);   // ← GreGetCurrentPosition
+    pptl[0] = c->ptlCurPos;
+    …
+}
+```
+
+**Root cause:** для `GCLINE` позиция уже в `c->ptlCurPos` (обновлена предыдущим `GSCP`/`GCLINE`). `RefreshCurPos` — лишний `GreGetCurrentPosition` на каждую линию.
+
+**Спецификация:** GOCA `GCLINE` использует current position, которая уже известна.
+
+**Фикс:** удалить `RefreshCurPos` из `DoLine` для `bCur == TRUE`. Оставить только в `GocaInit` (начальная инициализация).
+
+**Тест:** T162.
+
+## XI.12. N7 — `GPI_PS::m_hHab` не инициализируется
+
+**Код (`Fs_Server::DispatchGpi`, `case NGpiCreatePS`):**
+```c
+ps = GpiPsCreate(NULL, a->flOptions);
+// ps->m_hHab остаётся 0 (из memset в GpiPsCreate)
+```
+
+**Root cause:** `GPI_PS::m_hHab` объявлен в структуре, но никогда не записывается. `GpiPsDestroyByHab(iHab)` (вызывается из `Fs_HabList::Destroy`/`DestroyAll`) обегает `g_psTable` в поисках `m_hHab == hHab` — находит только 0, PS не уничтожается. При `NWinTerminate` или grace-teardown все PS, созданные в этом HAB'е, **утекают** (живут до завершения процесса сервера).
+
+**Спецификация:** spec2 §4.3, «`GPI_PS::m_hHab` — ссылка на `Fs_Hab`. Нужна для `GpiPsDestroyByHab` (каскадная очистка)».
+
+**Фикс:** `NGpiCreatePS` должен получить текущий HAB из `pRecvobj` и сохранить его номер:
+```c
+Fs_Connection *pConn   = m_conns.FindByRecvobj(pRecvobj);
+Fs_Thread     *pThread = pConn ? pConn->GetThread() : NULL;
+Fs_Hab        *pHab    = pThread ? pThread->GetHab() : NULL;
+…
+ps = GpiPsCreate(NULL, a->flOptions);
+if (ps) ps->m_hHab = pHab ? pHab->GetIHab() : 0;
+```
+
+При `NGpiDestroyPS` — `ps->m_hHab = 0` (через `memset` в `GpiPsDestroy`).
+
+**Тест:** новый — `WinInitialize` → `GpiCreatePS` → `WinTerminate` → проверка, что `GpiPsFind(hps)` возвращает NULL.
+
+---
+
+# Часть XII. Архитектурные проблемы
+
+| # | Проблема | Проявление | Рекомендация |
+|---|---|---|---|
+| **A1** | `GOCA_CTX` смешивает persistent и transient | N5, путаница владения | Документировать; при появлении 2-го потребителя (GORDER/метафайлы) — разделить на `GOCA_STATE` + `GOCA_PARSE` |
+| **A2** | Нет явного контракта GPI↔GOCA | Emit не обновляет registers; parse обновляет | Зафиксировать в docs: emit — кодирование; parse — единственное место, где registers обновляются; в DM_RETAIN registers не обновляются (N1) |
+| **A3** | HDC-владение размыто | N4, `NGpiAssociate` stub | N4-фикс; `NGpiAssociate` в Step K; `Gre*` только при `hdc != NULL` |
+| **A4** | Нет Micro/Normal PS | `ulPSType` отсутствует | Добавить `ulPSType`; проверки в сегментных/element/path функциях (после сверки списка) |
+| **A5** | Нет cached Micro-PS | `F_CMD_GET_HPS` возвращает `hps=1` | Step O: создавать Micro-PS с реальным HDC |
+| **A6** | Wire не различает типы ошибок | Все ошибки — `GPI_ERROR` | `ulLastError = PMERR_*`; `ulStatus` — только транспорт |
+| **A7** | `GpiPsGet` авто-create | Баг #6 | Убрать; `GPI_ERROR` при неизвестном hps |
+| **A8** | `GOCA_CTX.hdc` — заимствованный, нет проверки ассоциации | `Gre*` с `hdc = NULL` | Проверка `hdc != NULL` перед `Gre*`; `NGpiAssociate` в Step K |
+| **A9** | Нет `uOpenSegEnd` | Баг #1 | Добавить в PS |
+| **A10** | `Save/RestorePS` не реализованы | Step K | Server-side стек `GPI_PS_SAVE[]` |
+| **A11** | `SrvEmitSetAttrs` дублирует emit | Composite `SetAttrs` | Вынести в `goca_emit.h` как composite-emitter |
+| **A12** | `GpiPsGocaFindSeg` O(n) | Каждый `DrawSegment`/`GetData` | Индекс сегментов `{id, start, end}` в PS |
+| **A13** | `SrvGocaInsertBytes` O(n) | `SrvDeliver` в edit-режиме | memmove; для больших потоков — rope |
+| **A14** | `SrvGocaInsertElement` O(n²) | Вставка нескольких элементов | Батчинг insert |
+| **A15** | Нет версионирования протокола | При добавлении NGpi* | Версия в handshake |
+| **A16** | `GpiPsFind` pointer-ветка на клиенте | Может сработать случайно | Убрать pointer-ветку на клиенте; только `.hps` |
+| **A17** | Клиентский `GPI_PS` не синхронизирован с сервером | `GpiCreatePS` при полной таблице | При ошибке — `NGpiDestroyPS` на сервер |
+| **A18** | Нет reaper'а для брошенных PS | Клиент упал без `DestroyPS` | Timeout или детект disconnect → освобождение |
+| **A19** | `OCODE_GOPTH = 0xD9` (спорно) | N6 | Сверить на real OS/2 |
+| **A20** | `GpiCharString > 255` — `GPI_ERROR` | T50 | Клиент должен разбивать на несколько ордеров (не реализовано) |
+| **A21** | `HAND_SHAKE_INP`/`HAND_SHAKE_OUT` в `F_config.h` | Локальный enum в PMTCP, сервер не знает | Задокументировать как контракт backend'а |
+
+---
+
+# Часть XIII. Жизненные циклы
+
+## XIII.1. Сервер (`PMSERVER.EXE`)
+
+**On-demand запуск:**
+
+```
+Клиент (PMMERGE) стартует
+  → PMC_ServerInit: DosLoadModule(PMTCP), resolve ordinals 1,2,4-8
+  → LocalServerRunning(): DosOpenMutexSem(FREEPM_MUTEX_NAME)
+       — есть → сервер уже работает
+       — нет  → ExecuteFreePMServer() (DosExecPgm "PMSERVER.EXE")
+                DosSleep(1000)
+  → pfnInitServerConnection()
+  → PMC_ClientConnect(): F_CMD_CLIENT_CONNECT → F_CLIENTCONFIG
+```
+
+**Presence-маркер:** mutex `FREEPM_MUTEX_NAME`. Создаётся в `pmserver.cpp::main` (`DosCreateMutexSem`), освобождается в `atexit(CleanupServer)`. **Presence = «mutex существует», не «mutex свободен».**
+
+**Завершение:** `MonitorLoop` (в отдельном потоке) → после `m_fEverHadClient && nActive == 0` → `exit(0)` → `atexit` → `DosCloseMutexSem` → следующий клиент запустит `PMSERVER.EXE` заново.
+
+**Сигналы:** `SIGINT`/`SIGTERM` → `CleanupServer` + `exit(1)`. `SIGSEGV`/`SIGFPE`/`SIGABRT` не обрабатываются.
+
+**Идентичность:** сервер — **отдельный процесс**, не встраиваемый модуль. `exit(0)` из monitor thread — часть архитектуры on-demand lifecycle, не дефект.
+
+## XIII.2. Поток клиента (`Fs_Thread` + `Fs_Connection`)
+
+```
+CONNECT (recvobj, idClient=0)  → m_procs.Create(&m_conns, recvobj) → новый Fs_Process + Fs_Thread + Fs_Connection
+                                → m_conns.FindByRecvobj → pConn->GetThread() → SendClientConfig
+
+CONNECT (recvobj, idClient≠0)  → m_procs.FindByIdClient → pProc->AllocThread(&m_conns, recvobj)
+                                → SendClientConfig
+
+DISCONNECT (от PMTCP disc_cb)  → m_conns.FindByRecvobj → pConn->Detach(now)
+                                  (pThread не уничтожается, HAB сохраняется)
+
+RECONNECT(idClient, tid)       → m_procs.FindByIdClient → pProc->FindThreadByTid(tid)
+                                → pThread->GetConn() должен быть Detached
+                                → pConn->Attach(recvobj)
+
+PING                           → pConn->Touch()
+
+EXIT                           → TeardownThread(pThread, "EXIT")
+                                  → m_habs.Destroy → pThread->ClearHab
+                                  → pProc->FreeThread(pThread)
+                                  → если последний поток: m_procs.Destroy + m_habs.DestroyAll
+
+EXPIRED (inactive timeout)     → pConn->IsExpiredInactive(now, ulInactive)
+                                → pConn->Detach(now)
+
+EXPIRED (grace timeout)        → pConn->IsExpiredGrace(now, ulGrace)
+                                → TeardownThread(pThread, "EXPIRE")
+```
+
+**Модель:** `Fs_Connection` — состояние транспорта. `Fs_Thread` — состояние клиентского потока, переживает reconnect. `Fs_Process` — клиентский процесс; уничтожается при уходе последнего потока.
+
+## XIII.3. HAB (`Fs_Hab`)
+
+```
+Create(idClient, tid) → Free→Used (iHab = m_ulNextHab++)
+  ├── NWinTerminate(iHab) → Destroy(idClient, tid, iHab)
+  │     ├── GpiPsDestroyByHab(iHab)   (PS с m_hHab == iHab — N7 не работает)
+  │     ├── [Phase 4] destroy Queue, ClassList
+  │     └── Shutdown()
+  │
+  ├── CLIENT_EXIT → DestroyAll(idClient)
+  └── grace expiry → DestroyAll(idClient)
+```
+
+**Инварианты:**
+- `iHab` монотонный, **не переиспользуется**.
+- `FindByIHab(0)` = NULL, `Create(0, _, _)` = NULL.
+- `DestroyAll(idClient)` очищает все HAB-ы сессии; если `idClient == 0` — no-op.
+- Strict-режим (`m_cfg.fStrictHab == TRUE`): `NWinTerminate`/`NWinGetLastError` дополнительно проверяют `data == pThread->GetIHab()`.
+
+## XIII.4. PS (`GPI_PS`)
+
+```
+NGpiCreatePS(hab, hdc, szl, flOptions)
+  → GpiPsCreate(NULL, flOptions)
+  → m_hHab = ???  (N7 — не устанавливается, PS не привязан к HAB)
+  → szlPS = szl   (баг #7 — поле отсутствует)
+  → goca.hdc = NULL (N4 — должен быть a->hdc)
+
+NGpiAssociate(hdc)  [Phase K]
+  → goca.hdc = hdc
+
+NGpiDestroyPS
+  → GpiPsDestroy (DosFreeMem(pbGoca), memset)
+
+GpiPsDestroyByHab(hHab)  — при Destroy HAB
+  → для всех GPI_PS с m_hHab == hHab → GpiPsDestroy
+  (N7: не находит ни одного PS — утечка)
+```
+
+## XIII.5. Рендеринг (GPI: DM_DRAW / DM_RETAIN / DM_DRAWANDRETAIN)
+
+**DM_DRAW (нет открытого сегмента):**
+`Gpi*` → `GocaEmit*` → `SrvDeliver` → `SrvParseOrder` → `GocaParseStream` → `Gre*`.
+
+**DM_RETAIN (сегмент открыт):**
+`Gpi*` → `GocaEmit*` → `SrvDeliver` → `GpiPsGocaAppend` (в `pbGoca`). **GRE не вызывается. Persistent registers `goca.lb/cb/mb/ab` не обновляются.**
+
+**DM_DRAWANDRETAIN:** и append, и parse. Регистры обновляются через parse.
+
+**Unchained open segment** (нет `ATTR_CHAINED` в `ulInitialSegAttrs`) — force DM_RETAIN, даже если клиент выставил DM_DRAW/DM_DRAWANDRETAIN.
+
+**Сегменты:** `NGpiOpenSegment` → GBSEG в `pbGoca` → `uOpenSegStart`; `NGpiCloseSegment` → `lOpenSeg = 0`.
+
+**Элементы:** `NGpiBeginElement` → GBEL; примитивы внутри — append; `NGpiEndElement` → GEEL → re-pack в `SrvGocaInsertElement`.
+
+**Пути:** `lOpenPath`, `bPathDefined` — конечный автомат.
+
+## XIII.6. Keepalive / reconnect / shutdown (клиентская сторона)
+
+**Keepalive:** поток `KeepaliveProc`, `pingSec = max(ulInactive/2, 5)`, `F_CMD_CLIENT_PING(idClient)`. При ошибке — `OnTransportError()`.
+
+**Reconnect:** поток `ReconnectThreadProc`, окно `ulGrace`, интервал `max(ulGrace/3, 1)`, `_InitServerConnection` + `F_CMD_CLIENT_RECONNECT(idClient)` + payload `{tid}`. Если `cfg.idClient == idClient` — resume; иначе — `pfnCloseServerConnection`, retry. После `deadline` — session lost.
+
+**Shutdown:** `PMC_ShutdownCallback` вызывается из PMTCP `DllMain(DETACH)`. `atexit` **не** используется (LIFO DETACH: PMTCP раньше PMCLIENT).
+
+---
+
+# Часть XIV. План
+
+## P0 — баги (блокирующий)
+
+| Задача | Файл | Тест | Зависимость |
+|---|---|---|---|
+| #1 `uOpenSegEnd` + `SrvDeliver` | `gpi_ps.h`, `dispatch.cpp` | T151 | — |
+| #2 `SEGL` в `CloseSegment`/`EndElement` | `dispatch.cpp` | T152 | #1 |
+| #3 `GCBOX` флаги | `goca_emit_prim.h`, `goca_parser.cpp` | T153 | — |
+| #4 `ulStopDraw` в draw-функциях | `dispatch.cpp` | T100, T154 | — |
+| #5 `DCTL_DYNAMIC` в `DrawDynamics`/`RemoveDynamics` | `dispatch.cpp` | T101, T155 | — |
+| #6 `GpiPsGet` = `GpiPsFind` | `gpi_ps.h` | T14, T156 | — |
+| #7 `szlPS` в `GPI_PS` | `gpi_ps.h`, `dispatch.cpp` | T9, T157 | — |
+| #8 overflow в poly-* | `goca_emit_prim.h`, `goca_emit_arc.h`, `dispatch.cpp` | T158 | — |
+| N4 `GpiPsCreate(hps, hdc, flOptions)` | `gpi_ps.h` | T159, T160 | — |
+| N5 сброс `bInArea` | `goca_parser.cpp` | T161 | — |
+| Extra удалить `RefreshCurPos` для `GCLINE` | `goca_parser.cpp` | T162 | — |
+| **N7 `GPI_PS::m_hHab` = HAB потока** | `dispatch.cpp` | T205 (new) | — |
+| `ulPSType` в `GPI_PS` + Micro-запреты | `gpi_ps.h`, `dispatch.cpp` | T180–T189 | Сверка констант |
+| Документировать N1–N6, A21 | `docs/` | — | — |
+
+**Acceptance:** T151–T162, T205, T180–T189 (частично) проходят.
+
+## P1 — Step K (Lifecycle, NGpi)
+
+| Задача | Функция |
+|---|---|
+| `Associate` | `ps->goca.hdc = hdc` (через `GocaInit` или прямо) |
+| `QueryDevice` | return `ps->goca.hdc` |
+| `Erase` | `GreErasePS(ps->goca.hdc)` |
+| `ResetPS` | сброс state, free `pbGoca`, preserve `hdc` |
+| `QueryPS` | return `szlPS` (payload) |
+| `SavePS` | server-side стек `GPI_PS_SAVE[]` |
+| `RestorePS` | восстановление из стека |
+
+**Acceptance:** T11–T20 проходят.
+
+## P2 — Step M (Queries, NGpi)
+
+State queries (уже ✅) + attribute queries: `QueryColor`, `QueryLineType/Width/End/Join`, `QueryCurrentPosition`, `QueryMix`, `QueryBackColor/Mix`, `QueryCharSet/Direction/Mode`, `QueryMarker/Set`, `QueryPattern/Set/RefPoint`, `QueryArcParams`, `QueryTag`, `QueryPickAperture*`, `QueryBoundaryData`.
+
+**Acceptance:** T140–T150, T21, T25, T29, T30 проходят.
+
+## P3 — Step J (Transforms, state-only)
+
+`Set/QueryModelTransformMatrix`, `Translate`, `Scale`, `Rotate`, `Set/QueryViewingTransformMatrix`, `Set/QueryPageViewport`, `Set/QueryGraphicsField`, `Set/QueryViewingLimits`, `Convert`, `ConvertWithMatrix`. Хранение матриц в `GPI_PS`, `Gre*` для применения (Tier 3).
+
+**Acceptance:** T190+ (transforms) проходят.
+
+## P4 — Phase 4 (WND/MQ/DC)
+
+`Fs_WndList`, `Fs_Queue`, `Fs_DcList`, `DispatchWinWnd`, `DispatchWinMq`, `DispatchWinPs`, `DispatchWinCls`. Стандартные контролы (D3, Phase 5). `WinBeginPaint` → cached Micro-PS (Step O).
+
+**Появление HWND:** сервер начинает хранить HWND-ы клиентских окон (приходящие через wire). Появляется возможность создавать **memory DC** (`DevOpenDC(OD_MEMORY)`) для offscreen-рисования в `pVBuffmem`. Реального экрана ещё нет, визуальный рендеринг недоступен.
+
+**Acceptance:** T190–T200 (Phase 4 tests).
+
+## P4.5 — Phase 6: драйвер экрана + `HWND_DESKTOP`
+
+Драйвер (`pal_driver_sdl` на MVP, `pal_driver_pm` на OS/2) связывает `pVBuffmem` с реальным окном. Документированные пути без своего окна приложения:
+
+- `WinOpenWindowDC(HWND_DESKTOP)` → `GpiCreatePS(hab, hdc, …)` — Normal PS на экране.
+- `WinGetScreenPS(HWND_DESKTOP)` — Micro-PS на экране.
+
+`HWND_DESKTOP` — предопределённое имя (`0x00000001` в `PMWIN.H`) **реального** окна рабочего стола (IBM PM Ref Vol.1: «PM creates at start-up a window known as the desktop window»).
+
+**Acceptance:** T206–T208 (HWND_DESKTOP tests) проходят. Визуальный рендеринг возможен начиная с этой фазы.
+
+## P5 — Step O (Real GRE, Tier 1+2)
+
+Заменить `gre.cpp` на реальный GRE-диспетчер (OS/2 GRE или GDI-эмуляция на Win32). 20 функций (Tier 1+2). Реальный рендеринг.
+
+**Зависимость:** требует P4.5 (реальный screen DC). До P4.5 — все `Gre*` возвращают `GPI_ERROR`.
+
+**Acceptance:** T34–T56 (визуально), T78–T101 (сегменты) проходят с real GRE.
+
+## P6 — Step O продолжение (Tier 3+4: paths, transforms)
+
+Path-ордера в парсер, `Gre*` для paths.
+
+**Acceptance:** T127–T139 с реальным рендерингом путей.
+
+## P7 — Step L (Bitmaps/Regions/Fonts, Tier 5)
+
+~100+ функций. После P5–P6.
+
+## P8 — GORDER и ускорения
+
+- `F_CMD_CLASS_GORDER` в `HandleCommand` и `HandleWinCall`.
+- 2-byte packing (`oc` в `cmd[0..7]`, `data` в `cmd[8..15]`).
+- Long self-delimiting (`cmd + LEN + data`).
+- Batch (отдельный opcode).
+- PS binding (`F_CMD_BIND_PS`).
+- Async fire-and-forget.
+- Chain 3 для Micro/DM_DRAW (внутренняя оптимизация сервера).
+- Возможно: клиентский PS для local ownership.
+
+**Acceptance:** T200+ (GORDER wire, batching, packing) проходят.
+
+## P9 — Опционально
+
+- `PMERR_*` в `ulLastError`.
+- Cached Micro-PS (`F_CMD_GET_HPS` с реальным HDC).
+- `OCODE_GOPTH` сверка (N6, A19).
+- Разделение `GOCA_CTX` на `GOCA_STATE` + `GOCA_PARSE` (A1).
+- Индекс сегментов (A12).
+- Reaper для брошенных PS (A18).
+
+---
+
+# Часть XV. Тесты — полный перечень
+
+## XV.1. Инфраструктура
+
+- `testgpi.cpp` — `CHECK(expr, msg)` + счётчик fail.
+- Лог GOCA-ордеров (`[GOCA]`) — проверять последовательность.
+- Лог GRE (`[GRE]`) — проверять вызовы (для stub).
+- Прямой доступ к `pbGoca` — через `NGpiGetData` или debug-функцию.
+- Скрипт прогона: `run_tests.sh` → `testgpi.exe` → grep по логам.
+- HAB-тесты (уже есть): `test_pmhab`, `test_pmhab_mt`, `test_pmhab_ping`, `test_pmhab_reconnect`.
+
+## XV.2. Transport (T1–T6)
+
+| # | Setup | Action | Expected |
+|---|---|---|---|
+| T1 | CreatePS | `GpiSetColor(RED)` | `[PMGPI] IN/OUT`, `[PMSERVER] IN/OUT`, `[GOCA] GSCOL` |
+| T2 | CreatePS, OpenSegment, Line, Close | `GpiGetData(1, 0, 100, buf)` | `resp.cbPayload = cbArgs`, `buf` содержит GCLINE |
+| T3 | 3 сегмента | `GpiQuerySegmentNames(0, 10, 10, names)` | `*plCount = 3`, `names = [1,2,3]` |
+| T4 | CreatePS | `GpiPolyLine(10000, pts)` | heap alloc, wire OK |
+| T5 | CreatePS, SetColor, disconnect | mid-call disconnect | сервер не падает, лог `client disconnected` |
+| T6 | CreatePS | `GpiDispatch(hps, 0xFFFF, NULL, 0, &r)` | `GPI_ERROR`, лог `Unknown FnCode` |
+
+## XV.3. PS lifecycle (T7–T20)
+
+| # | Setup | Action | Expected |
+|---|---|---|---|
+| T7 | — | `GpiCreatePS({640,480})` | `hps != 0` |
+| T8 | 64 PS | 65-й `GpiCreatePS` | `GPI_ERROR` |
+| T9 | CreatePS({640,480}) | `GpiQueryPS(&szl)` | `{640,480}` (после Step K + #7) |
+| T10 | CreatePS | `GpiSetPS({800,600})` + `QueryPS` | `{800,600}` |
+| T11 | CreatePS | `GpiQueryDevice` | `hdc` (после Step K) |
+| T12 | CreatePS | `GpiAssociate(hdc)` + `QueryDevice` | `hdc` сохранён |
+| T13 | CreatePS | `GpiDestroyPS(hps)` | `1`, слот освобождён |
+| T14 | CreatePS, DestroyPS | `GpiSetColor(hps, RED)` | `GPI_ERROR` (после #6) |
+| T15 | CreatePS, DestroyPS | `GpiCreatePS(...)` | новый слот |
+| T16 | CreatePS | `GpiErase` | `GreErasePS` вызван (после Step K) |
+| T17 | CreatePS, SetColor, OpenSegment, Line | `GpiResetPS(flOptions)` | `pbGoca` пуст, state defaults |
+| T18 | CreatePS | `GpiSavePS` ×8, 9-й | `GPI_ERROR` (стек полон) |
+| T19 | CreatePS, SetColor, SavePS | `GpiRestorePS(1)` | `goca.lb.lColor` восстановлен |
+| T20 | CreatePS | `GpiRestorePS(0)` / `GpiRestorePS(9)` | `GPI_ERROR` |
+
+## XV.4. Drawing state (T21–T33)
+
+| # | Action | Expected |
+|---|---|---|
+| T21 | `SetDrawingMode(DM_DRAW)` + Query | `DM_DRAW` |
+| T22 | `SetDrawingMode(DM_RETAIN)` + Query | `DM_RETAIN` |
+| T23 | `SetDrawingMode(DM_DRAWANDRETAIN)` + Query | `DM_DRAWANDRETAIN` |
+| T24 | `SetDrawingMode(999)` | `GPI_ERROR` |
+| T25 | `SetDrawControl(DCTL_ERASE, DCTL_OFF)` + Query | `DCTL_OFF` |
+| T26 | `SetDrawControl(DCTL_DISPLAY, DCTL_ON)` + Query | `DCTL_ON` |
+| T27 | `SetDrawControl(0, DCTL_ON)` | `GPI_ERROR` |
+| T28 | `SetDrawControl(DCTL_ERASE, 2)` | `GPI_ERROR` |
+| T29 | `SetStopDraw(SDW_ON)` + Query | `SDW_ON` |
+| T30 | `SetEditMode(SEGEM_REPLACE)` + Query | `SEGEM_REPLACE` |
+| T31 | `SetInitialSegmentAttrs(ATTR_VISIBLE, OFF)` + Query | `ATTR_OFF` |
+| T32 | `SetInitialSegmentAttrs(ATTR_DYNAMIC, ON)` + Query | `ATTR_ON` |
+| T33 | `SetInitialSegmentAttrs(999, ON)` | `GPI_ERROR` |
+
+## XV.5. Примитивы (T34–T56)
+
+| # | Action | Expected |
+|---|---|---|
+| T34 | `SetColor(CLR_RED)` | `[GOCA] GSCOL` |
+| T35 | `SetColor(0x1234)` | `[GOCA] GSECOL` |
+| T36 | `SetColor(-1)` | `GPI_ERROR` |
+| T37 | `SetColor(0x10000)` | `GPI_ERROR` |
+| T38 | `Move({100,100})` | `[GOCA] GSCP` |
+| T39 | `Line({200,200})` | `[GOCA] GCLINE` |
+| T40 | `Box(DRO_FILL, 0,0)` | `[GOCA] GCBOX` с `GCBOX_FILL` (после #3) |
+| T41 | `Box(DRO_OUTLINE, 0,0)` | `GCBOX_BOUNDARY` |
+| T42 | `Box(DRO_FILL\|DRO_OUTLINE, 10,10)` | оба + axes |
+| T43 | `PolyLine(3, pts)` | `[GOCA] GCLINE` ×1 |
+| T44 | `PolyLine(0, NULL)` | `GPI_ERROR` |
+| T45 | `PolyLine(10000, pts)` | heap, успешно |
+| T46 | `Marker({100,100})` | `[GOCA] GCMRK` |
+| T47 | `PolyMarker(3, pts)` | `[GOCA] GCMRK` multi |
+| T48 | `CharString("Hello")` | `[GOCA] GCCHST` |
+| T49 | `CharString("")` | `GPI_ERROR` |
+| T50 | `CharString(>255)` | `GPI_ERROR` (нужен split — A20) |
+| T51 | `CharStringAt({0,0}, "Hi")` | `[GOCA] GCHST` |
+| T52 | `SetArcParams({1,1,0,0})` | `[GOCA] GSAP` |
+| T53 | `SetAttrs(LINE, COLOR\|WIDTH)` | `GSCOL` + `GSLW` |
+| T54 | `SetAttrs(CHAR, COLOR\|SET)` | `GSCOL` + `GSCS` |
+| T55 | `SetAttrs(MARKER, COLOR)` | `GSCOL` |
+| T56 | `SetAttrs(AREA, REF_POINT)` | `[GOCA] GSPRP` |
+
+## XV.6. Сегменты (T57–T101)
+
+Ключевые: T57 OpenSegment+Move+Line+Close, T62 DrawSegment, T70 GetData, T73 PutData, T78 DrawChain, T84 DrawFrom, T86 DrawDynamics, T91 SetSegmentPriority, T100 DrawChain при SDW_ON, T101 DrawDynamics при DCTL_DYNAMIC=OFF.
+
+## XV.7. Element editing (T102–T126)
+
+Ключевые: T102 BeginElement+Move+EndElement, T107 Element, T109 Label, T111 SetElementPointer, T116 QueryElement, T118 QueryElementType, T120 DeleteElement, T121 DeleteElementRange, T123 DeleteElementsBetweenLabels, T125 SetElementPointerAtLabel.
+
+## XV.8. Paths (T127–T139)
+
+Ключевые: T127 BeginPath+EndPath, T131 CloseFigure, T133 FillPath, T135 OutlinePath, T136 ModifyPath, T137 SetClipPath, T139 StrokePath.
+
+## XV.9. Queries (T140–T150)
+
+| # | Action | Expected |
+|---|---|---|
+| T140 | DM_DRAW, `SetColor(RED)`, `QueryColor` | `RED` |
+| T141 | DM_RETAIN, `QueryColor` | `GPI_ERROR` (per N1) |
+| T142 | `SetLineType(DOT)`, `QueryLineType` | `DOT` |
+| T143 | `SetLineWidth(fx)`, `QueryLineWidth` | `fx` |
+| T144 | `Move(pt)`, `QueryCurrentPosition` | `pt` |
+| T145 | `SetMix(FM_XOR)`, `QueryMix` | `FM_XOR` |
+| T146 | `SetBackColor(RED)`, `QueryBackColor` | `RED` |
+| T147 | `SetCharSet(1)`, `QueryCharSet` | `1` |
+| T148 | `SetMarker(2)`, `QueryMarker` | `2` |
+| T149 | `SetPattern(3)`, `QueryPattern` | `3` |
+| T150 | `SetArcParams({1,1,0,0})`, `QueryArcParams` | `{1,1,0,0}` |
+
+## XV.10. Regression (T151–T162)
+
+| # | Setup | Action | Expected |
+|---|---|---|---|
+| T151 | CreatePS, OpenSegment(1), Line, Close, OpenSegment(2), Line, Close, OpenSegment(3), Line, Close, OpenSegment(2), Line, Close | `DrawSegment(2)` | линия в seg2, не seg3 |
+| T152 | CreatePS, OpenSegment(1), Move/Line, Close | read `pbGoca[uOpenSegStart+8..9]` | = длина тела |
+| T153 | CreatePS, DM_DRAW, `Box(DRO_FILL)` | read `pbGoca[off+2]` | `& 0x40` |
+| T154 | CreatePS, DM_RETAIN, OpenSegment, Line, Close, `SetStopDraw(SDW_ON)` | `DrawSegment(1)` | `GPI_ERROR`, нет `[GOCA]` |
+| T155 | CreatePS, DM_RETAIN, OpenSegment, Line, Close, `SetDrawControl(DCTL_DYNAMIC, OFF)` | `DrawDynamics` | нет `[GOCA]` для dynamic |
+| T156 | CreatePS, DestroyPS | `SetColor(hps, RED)` | `GPI_ERROR` |
+| T157 | CreatePS({640,480}) | `QueryPS(&szl)` | `{640,480}` |
+| T158 | CreatePS, DM_RETAIN, OpenSegment, `PolyLine(100, pts)`, Close | read `pbGoca` | 4 `GCLINE` (31+31+31+7) |
+| T159 | CreatePS | read `ps->goca.hdc` | `NULL` |
+| T160 | CreatePS, Associate(hdc) | read `ps->goca.hdc` | `hdc` |
+| T161 | CreatePS, malformed stream (GBAR без GEAR), replay | второй replay | `bInArea=FALSE` в начале |
+| T162 | CreatePS, DM_DRAW, `Move`, `Line` | count `GreGetCurrentPosition` | 1 (только в Move), не 2 |
+| **T205** | WinInitialize → CreatePS → WinTerminate → Find(hps) | — | `GpiPsFind(hps)` = NULL (N7) |
+
+## XV.11. Edge cases (T163–T173)
+
+| # | Action | Expected |
+|---|---|---|
+| T163 | `SetColor(NULL, RED)` | `GPI_ERROR` |
+| T164 | Неизвестный `ulFnCode` | `GPI_ERROR` |
+| T165 | `cbArgs < sizeof(*a)` | `GPI_ERROR` |
+| T166 | 65-й `CreatePS` | `GPI_ERROR` |
+| T167 | `OpenSegment(-1)` | `GPI_ERROR` |
+| T168 | `OpenSegment(0)` | `GPI_ERROR` |
+| T169 | `BeginElement(0xFFFFFFFF)` | OK |
+| T170 | `BeginElement` desc > 251 | обрезан до 251 |
+| T171 | `CharString` ровно 255 | OK |
+| T172 | `CharString` 256 | `GPI_ERROR` |
+| T173 | `PolyLine` ровно 31 точка LONG | один ордер |
+
+## XV.12. Stress (T174–T177)
+
+| # | Setup | Expected |
+|---|---|---|
+| T174 | 1000 сегментов по 20 B | буфер растёт, память OK |
+| T175 | 100 × `PolyLine(10000)` | mem не утекает |
+| T176 | 1000 × Open/CloseSegment | mem не утекает |
+| T177 | Replay 1 MB GOCA | `GocaParseStream` завершается |
+
+## XV.13. Multi-PS (T178–T179)
+
+| # | Action | Expected |
+|---|---|---|
+| T178 | 2 PS, `SetColor` в обоих | состояние независимо |
+| T179 | `DestroyPS(hps1)` не влияет на hps2 | не влияет |
+
+## XV.14. Micro/Normal (T180–T189, после сверки)
+
+| # | Action | Expected |
+|---|---|---|
+| T180 | CreatePS без GPIT_NORMAL + OpenSegment | `GPI_ERROR` |
+| T181 | CreatePS с GPIT_NORMAL + OpenSegment | `1` |
+| T182 | Micro + SetDrawingMode(DM_RETAIN) | `GPI_ERROR` |
+| T183 | Micro + GetData/PutData | `GPI_ERROR` |
+| T184 | Micro + BeginElement | `GPI_ERROR` |
+| T185 | Micro + SetModelTransformMatrix | `GPI_ERROR` (сверить) |
+| T186 | Micro + SavePS/RestorePS в DM_DRAW | OK (сверить) |
+| T187 | Micro + SetColor/Move/Line | `1` |
+| T188 | Micro без GPIA_ASSOC | `GPI_ERROR` (сверить) |
+| T189 | WinBeginPaint → cached Micro-PS | Step O |
+
+## XV.15. GORDER (T200+, после P8)
+
+| # | Action | Expected |
+|---|---|---|
+| T200 | `F_CMD_ORDER(GSCOL)` с data в `cmd[8..15]` | `[GOCA] GSCOL`, wire 8 B |
+| T201 | `F_CMD_ORDER(GSCP)` с LEN+data | `[GOCA] GSCP`, wire 8+1+8 |
+| T202 | Batch 1000 × `GSCOL` | 1 round-trip, `[GOCA] GSCOL` ×1000 |
+| T203 | PS binding + GORDER | wire 4 B для 2-byte |
+| T204 | Self-delimiting GORDER | wire 4 B для 2-byte |
+
+## XV.16. HAB и сессии (реализованы, зелёные)
+
+| # | Action | Expected |
+|---|---|---|
+| H1 | `WinInitialize` | HAB != NULLHANDLE |
+| H2 | Повторный `WinInitialize` на том же потоке | `NULLHANDLE` |
+| H3 | `WinGetLastError(HAB)` сразу после H1 | `0` |
+| H4 | `WinTerminate(HAB)` | `TRUE` |
+| H5 | `WinGetLastError(HAB)` после `WinTerminate` | `PMERR_INVALID_HAB` |
+| H6 | `WinTerminate(0)` при активном HAB | `TRUE` (не-strict) |
+| H7 | `WinTerminate(0xDEADBEEF)` при активном HAB | `TRUE` (не-strict) |
+| H8 | Повторный `WinTerminate(HAB)` | `FALSE` |
+| MT | `test_pmhab_mt`: 3 потока, каждый с полным циклом | все PASS, разные iHab |
+| PING | `test_pmhab_ping`: 3 PING + GetLastError | PASS, stream в sync |
+| RECONNECT | `test_pmhab_reconnect`: CONNECT → Init → close → RECONNECT → GetLastError → Terminate | PASS; негативные кейсы (wrong tid, idClient=0, ACTIVE) отклоняются |
+
+## XV.17. HWND / HWND_DESKTOP (после P4.5)
+
+| # | Setup | Action | Expected |
+|---|---|---|---|
+| T206 | Phase 4, `WinCreateWindow` | клиент получает HWND | HWND != NULL, сервер знает его |
+| T207 | Phase 4.5, `WinOpenWindowDC(HWND_DESKTOP)` → `GpiCreatePS` → `GpiLine` | — | линия видна на экране |
+| T208 | Phase 4.5, `WinGetScreenPS(HWND_DESKTOP)` → `GpiLine` | — | линия видна на экране |
+| T209 | Phase 4.5, `WinOpenWindowDC(HWND_DESKTOP)` из двух потоков | одновременно рисуют | без крашей (при необходимости — `WinLockWindowUpdate`) |
+
+---
+
+# Часть XVI. Открытые вопросы
+
+| # | Вопрос | Как проверить |
+|---|---|---|
+| Q1 | `GPIT_MICRO`/`GPIT_NORMAL`/`GPIT_DEFAULT` — точные значения | Toolkit OS/2 или Петцольд |
+| Q2 | `GPIA_ASSOC` — точное значение; поведение при Micro без `GPIA_ASSOC` | То же |
+| Q3 | `PS_TYPE_MASK` — маска | То же |
+| Q4 | Полный список Micro-запретов | То же |
+| Q5 | `OCODE_GOPTH = 0xD9` или `0xD4` | Дамп GOCA на real OS/2 |
+| Q6 | `WinBeginPaint` cached Micro-PS — всегда Micro? | Петцольд |
+| Q7 | `GpiSavePS`/`RestorePS` в Micro-PS — разрешены? | Петцольд |
+| Q8 | `GpiCharString > 255` — клиент разбивает или `GPI_ERROR`? | PM Ref |
+| Q9 | Reaper для orphaned HAB/PS при отсутствии `DestroyAll` | временно: монотонные id, лимиты `F_MAX_HABS=128`/`GPI_MAX_PS=64` |
+| Q10 | `DaxOpenClipbrd(HWND)` vs `WinOpenClipbrd(HAB)` — реальная сигнатура | Отдельная сверка |
+| Q11 | `LookupAtom` — реальная сигнатура, нужен ли на wire | Отдельная сверка |
+| Q12 | Порядок `Fc_TrnSendCommand`: `GetData(4)` строго 4 байта? | Подтверждено в `Fc_trn.cpp` — да. При добавлении новых sync-команд (не HAB) — пересмотреть |
+| Q13 | `HWND_DESKTOP` в `WinGetScreenPS`/`WinOpenWindowDC` — реальный HWND или алиас? | IBM PM Ref Vol.1: `HWND_DESKTOP = 0x00000001` в `PMWIN.H`; `WinQueryDesktopWindow` возвращает реальный хэндл (в Warp — `0x80000001`). Для передачи в API — оба эквивалентны. **Проверено** (2026-11-10). |
+| Q14 | Memory DC (`DevOpenDC(OD_MEMORY)`) без HWND — работает? | Петцольд / OS/2 toolkit; проверить `DevOpenDC` с `OD_MEMORY` и без parent HWND. **Не проверено.** |
+| Q15 | В Phase 6: `WinGetScreenPS(HWND_DESKTOP)` (Micro-PS) vs `WinOpenWindowDC(HWND_DESKTOP)` + `GpiCreatePS` (Normal PS) — что выбрать? | Для MVP: Normal PS через `WinOpenWindowDC` + `GpiCreatePS` (нужны сегменты/атрибуты). **Решение отложено до P4.5.** |
+
+---
+
+# Часть XVII. Инварианты
+
+**I1.** Каждый `recvobj` имеет не более одной ACTIVE `Fs_Connection`.
+**I2.** `idClient` монотонный, уникальный в процессе, никогда не переиспользуется.
+**I3.** `iHab` монотонный, уникальный в процессе, никогда не переиспользуется.
+**I4.** `Fs_Thread` не владеет HAB/PS/WND/DC; только back-ref через `m_pHab`.
+**I5.** `Fs_Hab` не владеет PS/WND/DC; только back-ref через `GPI_PS::m_hHab` (N7 — не инициализируется).
+**I6.** `GPI_PS::m_hHab` ссылается на валидный HAB (или 0 при `NGpiCreatePS(NULL, ...)` — N7 валидация pending).
+**I7.** Reconnect в пределах `ulGrace` не трогает HAB/PS/WND.
+**I8.** `m_iHab`/`idClient` монотонные → orphaned HAB/PS (без `DestroyAll`) не переиспользуются.
+**I9.** `F_CMD_CLASS_WIN` маршрутизируется через `HandleWinCall` → `DispatchWin*`. HAB (0x0001–0x000F) — sync 8→4, остальные — async 16.
+**I10.** `F_CMD_CLASS_GPI` диспетчеризуется per-function через `DispatchGpi`; `F_CMD_GPI_DISPATCH` отсутствует и не нужен.
+**I11.** `GOCA_CTX` — единственное место persistent registers; `GocaEmit*` не обновляет; `GocaParseStream` обновляет.
+**I12.** `ulStopDraw == SDW_ON` подавляет drawing (не реализовано — баг #4).
+**I13.** `DCTL_DYNAMIC == DCTL_OFF` подавляет dynamic drawing (не реализовано — баг #5).
+**I14.** `NWinTerminate`/`NWinGetLastError` в не-strict режиме игнорируют `data`; HAB берётся у `pThread->GetHab()`.
+
+---
+
+# Часть XVIII. Приложения
+
+## A. Wire byte layouts
+
+**GPI class (async):**
+```
+Fc_SesPostCommand(cmd, hps):   8 B
+Fc_SesPostData(&cbArgs, 4):    4 B
+Fc_SesPostData(args, cbArgs):  cbArgs B
+Total: 12 + cbArgs
+Response: 16 (FPM_RESP_HEADER) + cbPayload
+```
+
+**WIN HAB class (sync, 0x0001–0x000F):**
+```
+Fc_SesSendCommand(cmd, data):  8 B (cmd + data)
+Response:                      4 B (ulResult)
+```
+
+**WIN (async, остальные):**
+```
+Fc_SesPostCommand(cmd, data):  8 B
+Fc_SesPostData(&cbArgs, 4):    4 B
+Fc_SesPostData(args, cbArgs):  cbArgs B
+Total: 12 + cbArgs
+Response: 16 + cbPayload
+```
+
+**CORE CONNECT / RECONNECT:**
+```
+Fc_SesPostCommand(cmd, data):  8 B
+(CONNECT: без payload, RECONNECT: + {ULONG tid} = 4 B)
+Response: 16 B F_CLIENTCONFIG (не FPM_RESP_HEADER)
+```
+
+**GORDER class (не реализован, P8):**
+```
+1-byte:  cmd(4) + hps(4) = 8 B
+2-byte:  cmd(4) + hps(4) = 8 B (data packed in cmd[8..15])
+long:    cmd(4) + hps(4) + LEN(1) + data(LEN)
+vlong:   cmd(4) + hps(4) + qual(1) + LEN16(2) + data(LEN16)
+batch:   cmd(4) + hps(4) + cbBatch(4) + GOCA-stream
+```
+
+## B. Gre* mapping (18 + Tier 2)
+
+| `Gre*` | EntryN | `NGre*` code | Tier |
+|---|---|---|---|
+| `GreGetCurrentPosition` | 4 | `0x00004017` | 1 |
+| `GreSetCurrentPosition` | 4 | `0x00004018` | 1 |
+| `GreGetAttributes` | 6 | `0x00004217` | 1 |
+| `GreSetAttributes` | 7 | `0x00004218` | 1 |
+| `GrePolyLine` | 5 | `0x00004019` | 1 |
+| `GrePolyMarker` | 5 | `0x0000403A` | 1 |
+| `GrePolySpline` | 5 | `0x0000400C` | 1 |
+| `GrePolyFillet` | 5 | `0x0000400A` | 1 |
+| `GreCharString` | 5 | `0x00005035` | 1 |
+| `GreCharStringPos` | 10 | `0x00007036` | 1 |
+| `GreBoxBoth` | 4 | `0x00004009` | 1 |
+| `GreBoxBoundary` | 4 | `0x00004008` | 1 |
+| `GreBoxInterior` | 4 | `0x00004007` | 1 |
+| `GreFullArcBoth` | 4 | `0x00004006` | 1 |
+| `GrePartialArc` | 7 | `0x00004003` | 1 |
+| `GreBeginArea` | 4 | `0x00004046` | 1 |
+| `GreEndArea` | 4 | `0x00004047` | 1 |
+| `GreSetArcParameters` | 4 | `0x00004001` | 1 |
+| `GreErasePS` | 3 | `0x000040A7` | 2 |
+| `GreGetModelXform` | 4 | `0x00004085` | 3 |
+| `GreSetModelXform` | 5 | `0x00004086` | 3 |
+| `GreConvert` | 7 | `0x00004096` | 3 |
+| `GreConvertWithMatrix` | 6 | `0x0000409B` | 3 |
+| `GreGetGraphicsField` | 4 | `0x00004091` | 3 |
+| `GreSetGraphicsField` | 4 | `0x00004092` | 3 |
+| `GreGetViewingLimits` | 4 | `0x00004093` | 3 |
+| `GreSetViewingLimits` | 4 | `0x00004094` | 3 |
+| `GreGetPageViewport` | 4 | `0x0000408D` | 3 |
+| `GreSetPageViewport` | 5 | `0x0000408E` | 3 |
+| `GreBeginPath` | 4 | `0x00004048` | 4 |
+| `GreEndPath` | 4 | `0x00004049` | 4 |
+| `GreCloseFigure` | 3 | `0x0000404A` | 4 |
+| `GreFillPath` | 5 | `0x0000404B` | 4 |
+| `GreOutlinePath` | 5 | `0x0000404C` | 4 |
+| `GreModifyPath` | 5 | `0x0000404D` | 4 |
+| `GreSelectClipPath` | 5 | `0x0000404F` | 4 |
+| `GrePathToRegion` | 5 | `0x00004057` | 4 |
+
+## C. GOCA order codes (используемые в коде)
+
+| Код | Ордер | Emit | Parse |
+|---|---|---|---|
+| `0x00` | `GNOP1` | — | no-op |
+| `0x01` | `GCOMT` | `GocaEmitComment` | no-op |
+| `0x04` | `GSGCH` | — | no-op |
+| `0x08` | `GSPS` | `GocaEmitSetPatternSet` | ✅ |
+| `0x0A` | `GSCOL` | `GocaEmitSetColor` (0..255) | ✅ |
+| `0x0C` | `GSMX` | `GocaEmitSetMix` | ✅ |
+| `0x0D` | `GSBMX` | `GocaEmitSetBackMix` | ✅ |
+| `0x11` | `GSFLW` | `GocaEmitSetLineWidth` | ✅ |
+| `0x18` | `GSLT` | `GocaEmitSetLineType` | ✅ |
+| `0x19` | `GSLW` | `GocaEmitSetLineWidth`/`Geom` | ✅ |
+| `0x1A` | `GSLE` | `GocaEmitSetLineEnd` | ✅ |
+| `0x1B` | `GSLJ` | `GocaEmitSetLineJoin` | ✅ |
+| `0x21` | `GSCP` | `GocaEmitMove` | `DoGSCP` |
+| `0x22` | `GSAP` | `GocaEmitSetArcParams` | `DoSetArcParams` |
+| `0x25` | `GSBCOL` | `GocaEmitSetBackColor` | — |
+| `0x26` | `GSECOL` | `GocaEmitSetColor` (256..65535) | ✅ |
+| `0x28` | `GSPT` | `GocaEmitSetPatternSymbol` | ✅ |
+| `0x29` | `GSMT` | `GocaEmitSetMarkerSymbol` | ✅ |
+| `0x33` | `GSCC` | `GocaEmitSetCharCell` | `DoSetCharCell` |
+| `0x34` | `GSCA` | `GocaEmitSetCharAngle` | — |
+| `0x35` | `GSCH` | `GocaEmitSetCharShear` | — |
+| `0x37` | `GSMC` | `GocaEmitSetMarkerCell` | `DoSetMarkerCell` |
+| `0x38` | `GSCS` | `GocaEmitSetCharSet` | ✅ |
+| `0x39` | `GSCR` | `GocaEmitSetCharPrecision` | ✅ |
+| `0x3A` | `GSCD` | `GocaEmitSetCharDirection` | ✅ |
+| `0x3C` | `GSMS` | `GocaEmitSetMarkerSet` | ✅ |
+| `0x43` | `GSPIK` | `GocaEmitSetPickId` | — |
+| `0x49` | `GEEL` | `GocaEmitEndElement` | no-op |
+| `0x60` | `GEAR` | `GocaEmitEndArea` | ✅ |
+| `0x68` | `GBAR` | `GocaEmitBeginArea` | ✅ |
+| `0x70` | `GBSEG` | hand-crafted | no-op |
+| `0x7D` | `GCFIG` | `GocaEmitCloseFigure` | — (Step O) |
+| `0x7F` | `GEPTH` | `GocaEmitEndPath` | — (Step O) |
+| `0x80` | `GCBOX` | `GocaEmitBox` | `DoBox` |
+| `0x81` | `GCLINE` | `GocaEmitLine`/`PolyLine` | `DoLine` |
+| `0x82` | `GCMRK` | `GocaEmitMarker`/`PolyMarker` | `DoMark` |
+| `0x83` | `GCCHST` | `GocaEmitCharString` | `DoCharString` |
+| `0x85` | `GCFLT` | `GocaEmitPolyFillet` | `DoFillet` |
+| `0x87` | `GCFARC` | `GocaEmitFullArc` | `DoFullArc` |
+| `0xA0` | `GSPRP` | `GocaEmitSetPatternRefPoint` | `DoSetPatternRefPoint` |
+| `0xA1` | `GCRLINE` | — | `DoRelativeLine` |
+| `0xA3` | `GCPARC` | `GocaEmitPartialArc` | `DoPartialArc` |
+| `0xA5` | `GCBEZ` | `GocaEmitPolySpline` | `DoBezier` |
+| `0xB4` | `GSCPTH` | `GocaEmitSetClipPath` | — (Step O) |
+| `0xC0` | `GBOX` | — | `DoBox` |
+| `0xC1` | `GLINE` | — | `DoLine` |
+| `0xC2` | `GMRK` | — | `DoMark` |
+| `0xC3` | `GCHST` | `GocaEmitCharStringAt` | `DoCharString` |
+| `0xC5` | `GFLT` | — | `DoFillet` |
+| `0xC7` | `GFARC` | — | `DoFullArc` |
+| `0xD0` | `GBPTH` | `GocaEmitBeginPath` | — (Step O) |
+| `0xD2` | `GBEL` | `GocaEmitBeginElement` | no-op |
+| `0xD3` | `GLABL` | `GocaEmitLabel` | no-op |
+| `0xD7` | `GFPTH` | `GocaEmitFillPath` | — (Step O) |
+| `0xD8` | `GMPTH` | `GocaEmitModifyPath` | — (Step O) |
+| `0xD9` | `GOPTH` | `GocaEmitOutlinePath` | — (Step O) |
+| `0xE1` | `GRLINE` | — | `DoRelativeLine` |
+| `0xE3` | `GPARC` | — | `DoPartialArc` |
+| `0xE5` | `GBEZ` | — | `DoBezier` |
+| `0xFE` | `VLONG` | — | `DoVLongCharString` |
+| `0xFF` | `GESD` | — | no-op |
+
+## D. `GPI_PS` field table
+
+(См. §III.1.)
+
+## E. `GOCA_CTX` field table
+
+(См. §III.2.)
+
+## F. Wire class ranges для WIN
+
+| Диапазон | Домен | Метод |
+|---|---|---|
+| 0x0001–0x000F | HAB lifecycle | `DispatchWinHab` (sync) |
+| 0x0010–0x001F | Message queue | `DispatchWinMq` (stub) |
+| 0x0020–0x005F | Window lifecycle + queries | `DispatchWinWnd` (stub) |
+| 0x0060–0x007F | Paint / PS / DC | `DispatchWinPs` (stub) |
+| 0x0080–0x009F | Class / Subclass / Thunk | `DispatchWinCls` (stub) |
+| 0x00A0–0x00BF | Dialogs | `DispatchWinDlg` (stub) |
+| 0x00C0–0x00DF | Menus / Timers / Pointer / Cursor | `DispatchWinPtr` (stub) |
+| 0x00E0–0x00E7 | Clipboard | `DispatchWinClip` (stub) |
+| 0x00E8–0x00EF | Atoms | `DispatchWinAtom` (stub) |
+| 0x00F0–0x00FF | Strings / CP / Accel / Hooks / Resource | `DispatchWinStr` (stub) |
+| 0x0100–0x010F | Errors / Version | `DispatchWinErr` (stub) |
+| 0x0110–0x011F | Sys / Desktop | `DispatchWinSys` (stub) |
+| 0x0120–0x013F | Rect helpers | `DispatchWinRect` (stub) |
+| 0x0140–0x014F | Input / Keyboard | `DispatchWinInp` (stub) |
+| 0x0150–0x015F | Draw helpers | `DispatchWinDraw` (stub) |
+| 0x0160–0x016F | Frame / calc | `DispatchWinFrame` (stub) |
+| 0x0170–0x017F | Sync primitives | `DispatchWinSync` (stub) |
+| 0x0180–0x018F | Seamless / Msp / Pen | `DispatchWinMisc` (stub) |
+| 0x0190–0x019F | Win32-specific | `DispatchWin32` (stub) |
+| 0x01A0–0x01AF | Misc (heap, vkey, waitmsg) | `DispatchWinMisc` (stub) |
+| 0x01B0–0x01BF | Dax* | `DispatchWinDax` (stub) |
+
+---
+
+# Резюме
+
+- **Архитектура:** GPI формирует GOCA-субстанцию PS; GRE рендерит через HDC на Media. PS = поток + регистры + bookkeeping + HDC. Сервер — единственный авторитетный владелец состояния; клиент хранит только opaque-хэндлы.
+- **Сервер (as-built):** `Fs_Server` с тремя плоскими реестрами — `Fs_ProcessList` (процессы), `Fs_ConnectionList` (соединения), `Fs_HabList` (HAB). `Fs_Process` владеет `Fs_ThreadList`; каждый `Fs_Thread` содержит back-refs на процесс, соединение и HAB.
+- **HAB:** 3 метода `Fs_Server::DispatchWinHab` (Initialize/Terminate/GetLastError); sync 8→4 без `cbArgs`. `fStrictHab` в конфиге включает строгую проверку.
+- **GPI:** `Fs_Server::DispatchGpi` — метод; per-function команды; 60+ NGpi* реализовано, ~150 stub. `pRecvobj` пока не используется.
+- **Конфигурация:** `F_Config` (base) → `F_ClientConfig` / `F_ServerConfig`; `debugOptions` — общее поле; `fStrictHab` — серверное.
+- **HWND:** не требуется для PS/GOCA/GPI-ядра (P0–P3). Реальный экран — только через `HWND_DESKTOP` начиная с Phase 6 (P4.5). Memory DC — offscreen без HWND в Phase 4. `HWND_DESKTOP` — символическое имя реального окна рабочего стола, не «псевдо-HWND».
+- **Состояние:** ядро NGpi работает (stub GRE), HAB lifecycle — рабочий. Открыты 8 багов P0 + N4, N5, Extra, N7 + 21 архитектурная проблема.
+- **План:** P0 (баги, включая N7) → P1–P3 (Step K/M/J) → P4 (Phase 4, memory DC) → **P4.5** (Phase 6, `HWND_DESKTOP` + screen DC) → P5 (real GRE) → P6–P7 → P8 (GORDER).
+- **Тесты:** 179 GPI + 10 Micro/Normal + 5 GORDER + 8 HAB + 2 N7 + 4 HWND = **~208 тестов**.

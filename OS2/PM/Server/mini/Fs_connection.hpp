@@ -138,6 +138,15 @@ public:
         return NULL;
     }
 
+    /*! @brief Slot accessor by index (for ExpireSessions iteration).
+        @param [in] i  Slot index, 0..F_MAX_CLIENTS-1.
+        @return Slot pointer, or NULL if i is out of range. */
+    Fs_Connection *GetByIndex(int i)
+    {
+        if (i < 0 || i >= F_MAX_CLIENTS) return NULL;
+        return &m_aConns[i];
+    }
+
     int CountActive() const
     {
         int i, n = 0;

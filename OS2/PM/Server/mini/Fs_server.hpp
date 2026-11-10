@@ -56,6 +56,10 @@ private:
     void HandleClientExit(Fs_Thread *pThread);
     void HandleClientPing(Fs_Thread *pThread, ULONG idClient);
 
+    /* ---- Session timeout ---- */
+    void ExpireSessions(time_t now);
+    void TeardownThread(Fs_Thread *pThread, const char *reason);
+
     /* ---- Top-level dispatch by class ---- */
     void HandleGpiCall(Fs_Thread *pThread, ULONG fnCode, ULONG data);
     void HandleWinCall(Fs_Thread *pThread, ULONG fnCode, ULONG data);
