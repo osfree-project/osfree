@@ -301,6 +301,7 @@
 #define NGpiSaveMetaFile2                0x00000121L
 #define NGpiAllocateDCData               0x00000122L
 #define NGpiQueryDCData                  0x00000123L
+#define NDevOpenDC                       0x00000124L
 
 #ifdef __cplusplus
 extern "C" {
@@ -1261,6 +1262,20 @@ typedef struct _GpiStrokeInkPath_Args {
     ULONG  flOptions;    /*!< Stroke options.                  */
     POINTL aptl[1];      /*!< Point array (variable).          */
 } GpiStrokeInkPath_Args, *PGpiStrokeInkPath_Args;
+
+/*!
+ * @struct _GpiDevOpenDC_Args
+ * @brief Wire arguments for NDevOpenDC.
+ *
+ * The fixed part is followed by variable-length NUL-terminated strings:
+ * pszToken, then lCount strings from the pdop array.
+ */
+typedef struct _GpiDevOpenDC_Args {
+    HAB   hab;        /*!< Anchor block. */
+    LONG  lType;      /*!< OD_DIRECT, OD_MEMORY, etc. */
+    LONG  lCount;     /*!< Number of strings in pdop. */
+    HDC   hdcComp;    /*!< Compatibility DC. */
+} GpiDevOpenDC_Args, *PGpiDevOpenDC_Args;
 
 #ifdef __cplusplus
 }

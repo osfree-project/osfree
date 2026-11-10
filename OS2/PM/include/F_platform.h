@@ -230,6 +230,15 @@
   #define SDW_OFF              0L
   #define SDW_ON               1L
 
+/* ---------- DevOpenDC output device types (Win32 fallback) ---------- */
+
+  #define OD_QUEUED            0L
+  #define OD_DIRECT            1L
+  #define OD_INFO              2L
+  #define OD_MEMORY            3L
+  #define OD_METAFILE          4L
+  #define OD_METAFILE_NOQUERY  5L
+
   /* ---------- Segment priority (Win32 fallback) ---------- */
   #define LOWER_PRI            (-1L)
   #define HIGHER_PRI              1L

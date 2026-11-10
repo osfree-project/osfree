@@ -864,7 +864,7 @@ ULONG Fs_Server::DispatchGpi(void *pRecvobj, ULONG ulFnCode, ULONG ulHandle,
             DISPATCH_RETURN(GPI_ERROR);
         }
 
-        ps = GpiPsCreate(NULL, a->flOptions);
+        ps = GpiPsCreate(NULL, (HDC)a->hdc, a->flOptions);
         if (!ps) {
             F_DbgCtxExitf(ctx, "GPI_ERROR (PS table full)");
             DISPATCH_RETURN(GPI_ERROR);
@@ -3775,6 +3775,45 @@ ULONG Fs_Server::DispatchGpi(void *pRecvobj, ULONG ulFnCode, ULONG ulHandle,
         ps->bPathDefined = FALSE;
         F_DbgCtxExitf(ctx, "1 (path=%ld)", (long)lPath);
         DISPATCH_RETURN(1);
+    }
+
+    case NDevOpenDC: {
+        PGpiDevOpenDC_Args a = (PGpiDevOpenDC_Args)pArgs;
+        PSZ  pdop[16];
+        PSZ  pszToken = NULL;
+        char *p;
+        int   i;
+        HDC   hdc;
+        int   ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NDevOpenDC(hps=%p, cbArgs=%u)",
+                             (void*)hps, (unsigned)cbArgs);
+
+        if (!a || cbArgs < sizeof(*a)) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (bad args)");
+            DISPATCH_RETURN(GPI_ERROR);
+        }
+
+        p = (char *)pArgs + sizeof(*a);
+
+        if (*p) { pszToken = p; p += strlen(p) + 1; }
+        else    { p++; }
+
+        for (i = 0; i < a->lCount && i < 15; i++) {
+            if (*p) { pdop[i] = p; p += strlen(p) + 1; }
+            else    { pdop[i] = NULL; p++; }
+        }
+        pdop[i] = NULL;
+
+        hdc = GreOpenDC(0, a->lType, pszToken, a->lCount, (PDEVOPENDATA)pdop);
+        if (hdc == (HDC)0 || hdc == (HDC)-1) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (GreOpenDC failed)");
+            DISPATCH_RETURN(GPI_ERROR);
+        }
+
+        F_DbgCtxExitf(ctx, "hdc=%p", (void*)hdc);
+        DISPATCH_RETURN((ULONG)hdc);
     }
 
     /* ==================================================================== */

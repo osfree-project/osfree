@@ -31,6 +31,12 @@
    #define INCL_GRE_XFORMS
 #endif /* INCL_GREALL */
 
+#ifdef INCL_GRE_DEVMISC
+   #define INCL_GRE_DEVMISC1
+   #define INCL_GRE_DEVMISC2
+   #define INCL_GRE_DEVMISC3
+#endif  /* INCL_GRE_DEVMISC */
+
 #ifdef __cplusplus
       extern "C" {
 #endif

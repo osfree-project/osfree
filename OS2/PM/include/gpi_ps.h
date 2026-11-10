@@ -36,24 +36,14 @@ extern "C" {
 /*! @brief Maximum number of simultaneous PS entries. */
 #define GPI_MAX_PS 64
 
-#ifndef PS_IS_RECORDING
 #define PS_IS_RECORDING(m)  ((m) == DM_RETAIN || (m) == DM_DRAWANDRETAIN)
-#endif
-#ifndef PS_IS_DRAWING
 #define PS_IS_DRAWING(m)    ((m) == DM_DRAW   || (m) == DM_DRAWANDRETAIN)
-#endif
 
-#ifndef SEGEM_INSERT
 #define SEGEM_INSERT   1L
-#endif
-#ifndef SEGEM_REPLACE
 #define SEGEM_REPLACE  2L
-#endif
 
-#ifndef SEGATTR_BIT
 /*! @brief Bit mask for one attribute in ulInitialSegAttrs. */
 #define SEGATTR_BIT(a)  (1UL << (ULONG)(a))
-#endif
 
 /*!
  * @struct _GPI_PS
@@ -132,7 +122,7 @@ static inline PGPI_PS GpiPsFind(HPS hps)
 }
 
 /*! @brief Register or update a PS entry. */
-static inline PGPI_PS GpiPsCreate(HPS hps, ULONG flOptions)
+static inline PGPI_PS GpiPsCreate(HPS hps, HDC hdc, ULONG flOptions)
 {
     int i;
 
@@ -159,7 +149,7 @@ static inline PGPI_PS GpiPsCreate(HPS hps, ULONG flOptions)
 
 #ifdef GPI_SERVER
             ps->m_hHab = 0;
-            GocaInit(&ps->goca, (HDC)hps, NULL, 0);
+            GocaInit(&ps->goca, hdc, NULL, 0);
             ps->pbGoca          = NULL;
             ps->cbGoca          = 0;
             ps->cbGocaAlloc     = 0;
@@ -200,7 +190,7 @@ static inline PGPI_PS GpiPsGet(HPS hps)
 {
     PGPI_PS ps = GpiPsFind(hps);
     if (ps) return ps;
-    return GpiPsCreate(hps, 0);
+    return GpiPsCreate(hps, NULL, 0);
 }
 
 /*! @brief Update flOptions for an existing PS entry. */

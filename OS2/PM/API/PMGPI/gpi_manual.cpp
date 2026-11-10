@@ -103,8 +103,7 @@ HPS APIENTRY GpiCreatePS(HAB hab, HDC hdc, PSIZEL psizlSize, ULONG flOptions)
 
     rc = GpiDispatch((HPS)0, NGpiCreatePS, &args, sizeof(args), &result);
     if (rc == 0 && (ULONG)result != (ULONG)GPI_ERROR && result != 0)
-        GpiPsCreate((HPS)result, flOptions);
-
+        GpiPsCreate((HPS)result, hdc, flOptions);
     GPI_RESULT_HANDLE(HPS);
 }
 
@@ -4004,18 +4003,45 @@ EXTERN LONG APIENTRY DevPostDeviceModes(HAB hab, PDRIVDATA pdriv,
 
 /*!
  * @brief DevOpenDC.
- * @return NULL.
+ * @return HDC handle from server, or NULL on error.
  */
 EXTERN HDC APIENTRY DevOpenDC(HAB hab, LONG lType, PCSZ pszToken,
-                              LONG lCount, PDEVOPENDATA pdop, HDC hdc)
+                              LONG lCount, PDEVOPENDATA pdop, HDC hdcComp)
 {
-    GPICallEnter("hab=%p, lType=%ld, pszToken=%p, lCount=%ld, pdop=%p, hdc=%p",
-                 (void*)hab, (long)lType, (void*)pszToken, (long)lCount,
-                 (void*)pdop, (void*)hdc);
-    GPICallResult("NULL");
-    (void)hab; (void)lType; (void)pszToken; (void)lCount;
-    (void)pdop; (void)hdc;
-    return (HDC)NULL;
+    GpiDevOpenDC_Args args;
+    BYTE  buf[2048];
+    ULONG cbArgs = sizeof(args);
+    ULONG result = 0;
+    BYTE *p = buf + sizeof(args);
+    int   i, rc;
+
+    GPICallEnter("hab=%p, lType=%ld, pszToken=%p, lCount=%ld, pdop=%p, hdcComp=%p",
+                 (void*)hab, (long)lType, (void*)pszToken, (long)lCount, (void*)pdop, (void*)hdcComp);
+
+    args.hab     = hab;
+    args.lType   = lType;
+    args.lCount  = lCount;
+    args.hdcComp = hdcComp;
+    memcpy(buf, &args, sizeof(args));
+
+    if (pszToken) {
+        ULONG len = (ULONG)strlen(pszToken) + 1;
+        if (cbArgs + len > sizeof(buf)) { GPICallResult("GPI_ERROR (overflow)"); return NULL; }
+        memcpy(p, pszToken, len);
+        p += len; cbArgs += len;
+    } else {
+        *p++ = '\0'; cbArgs++;
+    }
+
+    for (i = 0; i < lCount && pdop && pdop[i]; i++) {
+        ULONG len = (ULONG)strlen(pdop[i]) + 1;
+        if (cbArgs + len > sizeof(buf)) { GPICallResult("GPI_ERROR (overflow)"); return NULL; }
+        memcpy(p, pdop[i], len);
+        p += len; cbArgs += len;
+    }
+
+    rc = GpiDispatch((HPS)0, NDevOpenDC, buf, cbArgs, &result);
+    GPI_RESULT_HANDLE(HDC);
 }
 
 #undef FPM_UNDOC_STUB

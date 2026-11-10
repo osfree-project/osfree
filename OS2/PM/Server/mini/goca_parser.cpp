@@ -149,8 +149,8 @@ static void RefreshCurPos(GOCA_CTX *c)
  */
 static BOOL GocaSetAttr(HDC hdc, LONG lPrimType, ULONG flAttrs, PVOID pBundle)
 {
-    return GreSetAttributes(hdc, (ULONG)lPrimType, 0UL, flAttrs,
-                            (PBUNDLE)pBundle);
+    return GreDeviceSetAttributes(hdc, (ULONG)lPrimType, 0UL, flAttrs,
+                                  (PBUNDLE)pBundle);
 }
 
 /* ======================================================================== */
@@ -957,20 +957,20 @@ void GocaInit(GOCA_CTX *c, HDC hdc, PBYTE pb, ULONG cb)
     /* Server only: pull live bundles so untouched attributes keep the
        DC defaults, and seed the current position. Client passes hdc == NULL. */
     if (hdc) {
-        GreGetAttributes(hdc, PRIM_LINE,
+        GreDeviceGetAttributes(hdc, PRIM_LINE,
             LBB_COLOR|LBB_BACK_COLOR|LBB_MIX_MODE|LBB_BACK_MIX_MODE|
             LBB_WIDTH|LBB_GEOM_WIDTH|LBB_TYPE|LBB_END|LBB_JOIN,
             (PBUNDLE)&c->lb);
-        GreGetAttributes(hdc, PRIM_CHAR,
+        GreDeviceGetAttributes(hdc, PRIM_CHAR,
             CBB_COLOR|CBB_BACK_COLOR|CBB_MIX_MODE|CBB_BACK_MIX_MODE|
             CBB_SET|CBB_MODE|CBB_BOX|CBB_ANGLE|CBB_SHEAR|
             CBB_DIRECTION|CBB_TEXT_ALIGN|CBB_EXTRA|CBB_BREAK_EXTRA,
             (PBUNDLE)&c->cb);
-        GreGetAttributes(hdc, PRIM_MARKER,
+        GreDeviceGetAttributes(hdc, PRIM_MARKER,
             MBB_COLOR|MBB_BACK_COLOR|MBB_MIX_MODE|MBB_BACK_MIX_MODE|
             MBB_SET|MBB_SYMBOL|MBB_BOX,
             (PBUNDLE)&c->mb);
-        GreGetAttributes(hdc, PRIM_AREA,
+        GreDeviceGetAttributes(hdc, PRIM_AREA,
             ABB_COLOR|ABB_BACK_COLOR|ABB_MIX_MODE|ABB_BACK_MIX_MODE|
             ABB_SET|ABB_SYMBOL|ABB_REF_POINT,
             (PBUNDLE)&c->ab);

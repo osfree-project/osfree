@@ -66,53 +66,48 @@ ULONG GpiDispatch(HPS hps, ULONG ulFnCode,
                (unsigned long)F_CMD_GET_OPCODE(cmd),
                (void*)hps, (unsigned long)cbArgs);
 
-    rc = PmcPostCommand(cmd, (ULONG)hps);
+    rc = Fc_SesPostCommand(cmd, (ULONG)hps);
     if (rc) {
         F_DbgPrint(F_DBG_SEC_GPI_DISPATCH, F_DBG_LVL_ERROR,
-                   "PMGPI Transport ERR: PmcPostCommand failed with %d",
-                   (int)rc);
-        F_DbgCtxExitf(ctx, "PmcPostCommand rc=%d", (int)rc);
+                   "PMGPI Transport ERR: Fc_SesPostCommand failed with %d", (int)rc);
+        F_DbgCtxExitf(ctx, "Fc_SesPostCommand rc=%d", (int)rc);
         return rc;
     }
 
-    rc = PmcSendData(&cbArgs, sizeof(cbArgs));
+    rc = Fc_SesPostData(&cbArgs, sizeof(cbArgs));
     if (rc) {
         F_DbgPrint(F_DBG_SEC_GPI_DISPATCH, F_DBG_LVL_ERROR,
-                   "PMGPI Transport ERR: PmcSendData(cbArgs) failed with %d",
-                   (int)rc);
-        F_DbgCtxExitf(ctx, "PmcSendData(cbArgs) rc=%d", (int)rc);
+                   "PMGPI Transport ERR: Fc_SesPostData(cbArgs) failed with %d", (int)rc);
+        F_DbgCtxExitf(ctx, "Fc_SesPostData(cbArgs) rc=%d", (int)rc);
         return rc;
     }
 
     if (cbArgs > 0 && pArgs != NULL) {
-        rc = PmcSendData((PVOID)pArgs, cbArgs);
+        rc = Fc_SesPostData((PVOID)pArgs, cbArgs);
         if (rc) {
             F_DbgPrint(F_DBG_SEC_GPI_DISPATCH, F_DBG_LVL_ERROR,
-                       "PMGPI Transport ERR: PmcSendData(args) failed with %d",
-                       (int)rc);
-            F_DbgCtxExitf(ctx, "PmcSendData(args) rc=%d", (int)rc);
+                       "PMGPI Transport ERR: Fc_SesPostData(args) failed with %d", (int)rc);
+            F_DbgCtxExitf(ctx, "Fc_SesPostData(args) rc=%d", (int)rc);
             return rc;
         }
     }
 
     len = 0;
-    rc = PmcGetData(&resp, &len, sizeof(resp));
+    rc = Fc_SesGetData(&resp, &len, sizeof(resp));
     if (rc || len != (LONG)sizeof(resp)) {
         F_DbgPrint(F_DBG_SEC_GPI_DISPATCH, F_DBG_LVL_ERROR,
-                   "PMGPI Transport ERR: PmcGetData(header) failed rc=%d, len=%d",
-                   (int)rc, (int)len);
-        F_DbgCtxExitf(ctx, "PmcGetData(header) rc=%d len=%d", (int)rc, (int)len);
+                   "PMGPI Transport ERR: Fc_SesGetData(header) failed rc=%d, len=%d", (int)rc, (int)len);
+        F_DbgCtxExitf(ctx, "Fc_SesGetData(header) rc=%d len=%d", (int)rc, (int)len);
         return (rc != 0) ? rc : 1;
     }
 
     if (resp.cbPayload > 0 && pArgs != NULL && cbArgs >= resp.cbPayload) {
         len = 0;
-        rc = PmcGetData((PVOID)pArgs, &len, resp.cbPayload);
+        rc = Fc_SesGetData((PVOID)pArgs, &len, resp.cbPayload);
         if (rc) {
             F_DbgPrint(F_DBG_SEC_GPI_DISPATCH, F_DBG_LVL_ERROR,
-                       "PMGPI Transport ERR: PmcGetData(payload) failed with %d",
-                       (int)rc);
-            F_DbgCtxExitf(ctx, "PmcGetData(payload) rc=%d", (int)rc);
+                       "PMGPI Transport ERR: Fc_SesGetData(payload) failed with %d", (int)rc);
+            F_DbgCtxExitf(ctx, "Fc_SesGetData(payload) rc=%d", (int)rc);
             return rc;
         }
     }

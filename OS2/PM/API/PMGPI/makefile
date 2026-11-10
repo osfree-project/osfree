@@ -23,16 +23,18 @@ SRCDIR  = $(MYDIR)..$(SEP)
 ADD_COPT = -bt=nt
 !endif
 
-ADD_COPT     += -i=$(SRCDIR) -i=$(SRCDIR)..$(SEP)..$(SEP)include -sg -of+ -bd -3s
+ADD_COPT     += -i=$(SRCDIR) -i=$(SRCDIR)..$(SEP)include -i=$(SRCDIR)..$(SEP)..$(SEP)include  -sg -of+ -bd -3s
 
 OPTIONS  += caseexact
 
 IMPORTS      = &
-    PmcPostCommand             PMCLIENT.1, &
-    PmcSendData                PMCLIENT.2, &
-    PmcGetData                 PMCLIENT.3, &
-    PmcSendCommand             PMCLIENT.4, &
-    PmcSendCommandData         PMCLIENT.5, &
+    Fc_SesPostCommand          PMCLIENT.1, &
+    Fc_SesPostData             PMCLIENT.2, &
+    Fc_SesGetData              PMCLIENT.3, &
+    Fc_SesSendCommand          PMCLIENT.4, &
+    Fc_SesSendCommandData      PMCLIENT.5, &
+    Fc_SesConnect              PMCLIENT.6, &
+    Fc_SesDisconnect           PMCLIENT.7, &
 #                F_DbgInit        PMDEBUG.1, &
 #                F_DbgSetLevels   PMDEBUG.2, &
 #                F_DbgRotate      PMDEBUG.3, &
