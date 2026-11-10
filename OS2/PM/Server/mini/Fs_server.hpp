@@ -38,6 +38,10 @@ public:
     void MonitorLoop();
     int  ActiveCount() const { return m_procs.CountActive(); }
 
+    Fs_ProcessList    *GetProcs() { return &m_procs; }
+    Fs_ConnectionList *GetConns() { return &m_conns; }
+    Fs_HabList        *GetHabs()  { return &m_habs;  }
+
 private:
     /* Client lifecycle */
     void HandleClientConnect(void *pRecvobj, ULONG idClient);
@@ -50,12 +54,15 @@ private:
     void HandleWinCall(Fs_Thread *pThread, ULONG fnCode, ULONG data);
     void HandleCoreCommand(Fs_Thread *pThread, ULONG ncmd, ULONG data);
 
+    /* Unified WIN dispatcher (sync HAB path + async path). */
+    ULONG DispatchWinHab(void *pRecvobj, ULONG fnCode, ULONG data,
+                         PBYTE pArgs, ULONG cbArgs, PULONG pcbPayload);
+
     /* Response helpers */
     void SendClientConfig(void *pRecvobj, Fs_Thread *pThread);
     void SendHeader(void *pRecvobj, ULONG ulStatus, ULONG ulResult,
                     ULONG cbPayload, ULONG ulLastError);
 
-    /* Thread entry wrapper */
     static void MonitorThreadFn(void *param);
 
     Fs_PfnRecv        m_pfnRecv;
@@ -65,6 +72,7 @@ private:
     F_ServerConfig    m_cfg;
     Fs_ProcessList    m_procs;
     Fs_ConnectionList m_conns;
+    Fs_HabList        m_habs;
 };
 
 #endif /* FS_SERVER_HPP */

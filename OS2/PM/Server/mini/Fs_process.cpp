@@ -7,15 +7,12 @@
 #include "Fs_connection.hpp"
 #include "F_debug.h"
 
-#define GPI_SERVER
-#include "gpi_ps.h"
-
 /* ======================================================================== */
 /*  Fs_Process                                                              */
 /* ======================================================================== */
 
 Fs_Process::Fs_Process()
-    : m_bUsed(FALSE), m_idClient(0), m_ulNextHab(1)
+    : m_bUsed(FALSE), m_idClient(0)
 {
 }
 
@@ -23,9 +20,8 @@ BOOL Fs_Process::Init(ULONG idClient)
 {
     if (m_bUsed)       return FALSE;
     if (idClient == 0) return FALSE;
-    m_bUsed     = TRUE;
-    m_idClient  = idClient;
-    m_ulNextHab = 1;
+    m_bUsed    = TRUE;
+    m_idClient = idClient;
     return TRUE;
 }
 
@@ -33,10 +29,8 @@ void Fs_Process::Shutdown()
 {
     if (!m_bUsed) return;
     m_threads.Shutdown();
-    DestroyAllHabs();
-    m_bUsed     = FALSE;
-    m_idClient  = 0;
-    m_ulNextHab = 1;
+    m_bUsed    = FALSE;
+    m_idClient = 0;
 }
 
 Fs_Thread *Fs_Process::AllocThread(Fs_ConnectionList *pConns, void *pRecvobj)
@@ -59,17 +53,10 @@ Fs_Thread *Fs_Process::AllocThread(Fs_ConnectionList *pConns, void *pRecvobj)
 void Fs_Process::FreeThread(Fs_Thread *pThread)
 {
     Fs_Connection *pConn;
-
     if (!pThread) return;
-
     pConn = pThread->GetConn();
     if (pConn) pConn->Shutdown();
     pThread->Shutdown();
-}
-
-Fs_Thread *Fs_Process::FindThreadByConn(void *pRecvobj)
-{
-    return m_threads.FindByConn(pRecvobj);
 }
 
 Fs_Thread *Fs_Process::FindThreadByTid(ULONG tid)
@@ -80,82 +67,6 @@ Fs_Thread *Fs_Process::FindThreadByTid(ULONG tid)
 int Fs_Process::CountActiveThreads() const
 {
     return m_threads.CountActive();
-}
-
-Fs_Hab *Fs_Process::AttachHab(Fs_Thread *pThread, ULONG tid,
-                              ULONG *pIHab)
-{
-    int     i;
-    ULONG   iHab;
-    Fs_Hab *pHab = NULL;
-
-    if (pIHab) *pIHab = 0;
-    if (!m_bUsed)        return NULL;
-    if (pThread == NULL) return NULL;
-    if (tid == 0)        return NULL;
-    if (pThread->GetIHab() != 0) return NULL;   /* already attached */
-
-    for (i = 0; i < F_MAX_HABS; i++) {
-        if (!m_aHabs[i].IsUsed()) {
-            iHab = m_ulNextHab++;
-            if (iHab == 0) iHab = m_ulNextHab++;
-            if (m_aHabs[i].Init(m_idClient, tid, iHab)) {
-                pHab = &m_aHabs[i];
-                pThread->AttachHab(tid, iHab);
-                if (pIHab) *pIHab = iHab;
-                break;
-            }
-        }
-    }
-    return pHab;
-}
-
-BOOL Fs_Process::DetachHab(ULONG iHab)
-{
-    int     i;
-    BOOL    found = FALSE;
-
-    if (!m_bUsed)  return FALSE;
-    if (iHab == 0) return FALSE;
-
-    for (i = 0; i < F_MAX_HABS; i++) {
-        if (m_aHabs[i].IsUsed() && m_aHabs[i].GetIHab() == iHab) {
-            ULONG tid = m_aHabs[i].GetTid();
-            m_aHabs[i].Shutdown();
-            {
-                Fs_Thread *pThread = FindThreadByTid(tid);
-                if (pThread) pThread->DetachHab();
-            }
-            found = TRUE;
-            break;
-        }
-    }
-
-    if (found) GpiPsDestroyByHab(iHab);
-    return found;
-}
-
-Fs_Hab *Fs_Process::FindHabByIHab(ULONG iHab)
-{
-    int i;
-    if (iHab == 0) return NULL;
-    for (i = 0; i < F_MAX_HABS; i++) {
-        if (m_aHabs[i].IsUsed() && m_aHabs[i].GetIHab() == iHab)
-            return &m_aHabs[i];
-    }
-    return NULL;
-}
-
-void Fs_Process::DestroyAllHabs()
-{
-    int i;
-    for (i = 0; i < F_MAX_HABS; i++) {
-        if (m_aHabs[i].IsUsed()) {
-            ULONG iHab = m_aHabs[i].GetIHab();
-            m_aHabs[i].Shutdown();
-            GpiPsDestroyByHab(iHab);
-        }
-    }
 }
 
 /* ======================================================================== */
@@ -175,10 +86,7 @@ Fs_ProcessList::Fs_ProcessList()
 
 Fs_ProcessList::~Fs_ProcessList()
 {
-    if (m_hmtx) {
-        DosCloseMutexSem(m_hmtx);
-        m_hmtx = NULL;
-    }
+    if (m_hmtx) { DosCloseMutexSem(m_hmtx); m_hmtx = NULL; }
 }
 
 void Fs_ProcessList::Lock()
@@ -201,10 +109,9 @@ Fs_Process *Fs_ProcessList::Create(Fs_ConnectionList *pConns,
 
     if (pIdClient) *pIdClient = 0;
     if (pRecvobj == NULL) return NULL;
-    if (pConns == NULL)   return NULL;
+    if (pConns   == NULL) return NULL;
 
     Lock();
-
     for (i = 0; i < F_MAX_CLIENTS; i++)
         if (m_aProcs[i].IsUsed()) nUsed++;
 
@@ -247,55 +154,6 @@ Fs_Process *Fs_ProcessList::FindByIdClient(ULONG idClient)
         if (m_aProcs[i].IsUsed() && m_aProcs[i].GetIdClient() == idClient) {
             pFound = &m_aProcs[i];
             break;
-        }
-    }
-    Unlock();
-    return pFound;
-}
-
-Fs_Process *Fs_ProcessList::FindByConn(void *pRecvobj)
-{
-    int i;
-    Fs_Process *pFound = NULL;
-    if (pRecvobj == NULL) return NULL;
-    Lock();
-    for (i = 0; i < F_MAX_CLIENTS; i++) {
-        if (m_aProcs[i].IsUsed() &&
-            m_aProcs[i].FindThreadByConn(pRecvobj) != NULL) {
-            pFound = &m_aProcs[i];
-            break;
-        }
-    }
-    Unlock();
-    return pFound;
-}
-
-Fs_Thread *Fs_ProcessList::FindThreadByConn(void *pRecvobj)
-{
-    int i;
-    Fs_Thread *pFound = NULL;
-    if (pRecvobj == NULL) return NULL;
-    Lock();
-    for (i = 0; i < F_MAX_CLIENTS; i++) {
-        if (m_aProcs[i].IsUsed()) {
-            Fs_Thread *pThread = m_aProcs[i].FindThreadByConn(pRecvobj);
-            if (pThread) { pFound = pThread; break; }
-        }
-    }
-    Unlock();
-    return pFound;
-}
-
-Fs_Hab *Fs_ProcessList::FindHabByIHab(ULONG iHab)
-{
-    int i;
-    Fs_Hab *pFound = NULL;
-    if (iHab == 0) return NULL;
-    Lock();
-    for (i = 0; i < F_MAX_CLIENTS; i++) {
-        if (m_aProcs[i].IsUsed()) {
-            Fs_Hab *pHab = m_aProcs[i].FindHabByIHab(iHab);
-            if (pHab) { pFound = pHab; break; }
         }
     }
     Unlock();

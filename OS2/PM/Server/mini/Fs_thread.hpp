@@ -1,15 +1,6 @@
 /*!
  * @file Fs_thread.hpp
  * @brief One client thread + the per-process thread registry.
- *
- * Fs_Thread mirrors a client-side OS thread: it holds the client's TID
- * (reported in NWinInitialize), the HAB id currently attached to it,
- * and two back-refs — to the owning Fs_Process and to this thread's
- * Fs_Connection (which lives in Fs_Server::m_conns, not here).
- *
- * Fs_ThreadList holds F_MAX_THREADS slots inside one Fs_Process. It
- * does not own connections: Alloc/Free coordinate with a caller-supplied
- * Fs_ConnectionList so the thread<->connection pair stays in sync.
  */
 #ifndef FS_THREAD_HPP
 #define FS_THREAD_HPP
@@ -17,20 +8,21 @@
 #include "F_platform.h"
 #include "Fs_config.hpp"
 #include "Fs_connection.hpp"
+#include "Fs_hab.hpp"
 
 class Fs_Process;
 
 class Fs_Thread {
 public:
     Fs_Thread()
-        : m_bUsed(FALSE), m_tid(0), m_iHab(0),
+        : m_bUsed(FALSE), m_tid(0), m_pHab(NULL),
           m_pProcess(NULL), m_pConn(NULL) {}
 
     void Init(Fs_Process *pProcess, Fs_Connection *pConn)
     {
         m_bUsed    = TRUE;
         m_tid      = 0;
-        m_iHab     = 0;
+        m_pHab     = NULL;
         m_pProcess = pProcess;
         m_pConn    = pConn;
     }
@@ -39,20 +31,21 @@ public:
     {
         m_bUsed    = FALSE;
         m_tid      = 0;
-        m_iHab     = 0;
+        m_pHab     = NULL;
         m_pProcess = NULL;
         m_pConn    = NULL;
     }
 
-    void AttachHab(ULONG tid, ULONG iHab) { m_tid = tid; m_iHab = iHab; }
-    void DetachHab()                      { m_tid = 0;   m_iHab = 0;   }
+    /* HAB back-ref (§4.3). */
+    void    SetHab(Fs_Hab *pHab) { m_pHab = pHab; if (pHab) m_tid = pHab->GetTid(); }
+    void    ClearHab()           { m_pHab = NULL; }
+    Fs_Hab *GetHab()      const  { return m_pHab; }
+    ULONG   GetIHab()     const  { return m_pHab ? m_pHab->GetIHab() : 0; }
+    ULONG   GetTid()      const  { return m_tid; }
 
-    BOOL  IsUsed() const { return m_bUsed; }
-    ULONG GetTid() const { return m_tid; }
-    ULONG GetIHab() const { return m_iHab; }
-
-    Fs_Process    *GetProcess() const { return m_pProcess; }
-    Fs_Connection *GetConn()    const { return m_pConn; }
+    BOOL          IsUsed()     const { return m_bUsed; }
+    Fs_Process   *GetProcess() const { return m_pProcess; }
+    Fs_Connection*GetConn()    const { return m_pConn; }
 
     void SetProcess(Fs_Process *pProcess) { m_pProcess = pProcess; }
     void SetConn(Fs_Connection *pConn)    { m_pConn = pConn; }
@@ -60,7 +53,7 @@ public:
 private:
     BOOL           m_bUsed;
     ULONG          m_tid;
-    ULONG          m_iHab;
+    Fs_Hab        *m_pHab;
     Fs_Process    *m_pProcess;
     Fs_Connection *m_pConn;
 };
