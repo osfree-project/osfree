@@ -29,7 +29,7 @@ ULONG DispatchWinHab(Fs_ProcessList *pProcs, void *pRecvobj,
 
     case NWinInitialize: {
         Fs_Process          *pProc;
-        Fs_ClientConnection *pThread;
+        Fs_Thread           *pThread;
         ULONG                iHab = 0;
         int                  ctx;
 
