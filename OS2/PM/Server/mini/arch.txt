@@ -1,0 +1,970 @@
+﻿# OS/2 Presentation Manager — Full Architecture (AD 17.0)
+
+## 1. Идентификация
+
+| Поле | Значение |
+|---|---|
+| Архитектура | OS/2 Presentation Manager — Full Architecture (Window Manager, Graphics, IPC) |
+| Система | Оконная и графическая подсистема PM + межпрограммное взаимодействие |
+| Версия | AD 17.0 |
+| Границы | PM API (Win*, Gpi*), клиент-серверный раздел (PMCLIENT.DLL ↔ wire ↔ PMSERVER.EXE / Fs_Server::HandleCommand), GRE (Gre* + Dispatch Table / OS2_PM_DRV_ENABLE + VMI), драйверные модели (Dispatch Table, GRADD, SNAP/Nucleus), подсистема шрифтов (FOCA/IFI), метафайлы (MO:DCA-L), подсистема ввода (System Queue), hardcopy-драйверы и спулер (PMSPL, SPOOLCP, PMPRINT.QPR), hooks, clipboard, DDE, atom tables |
+
+**Структура системы**: PM разделён на два процесса, связанных транспортным уровнем:
+
+| Сторона | Состав | Роль |
+|---|---|---|
+| Клиент | приложение; PMCLIENT.DLL | маршалинг Win*/Gpi* в команды; транспортный клиент |
+| Сервер | PMSERVER.EXE; Fs_Server::HandleCommand; PMWIN, PMGPI, PMGRE; DDI (модели 1/2/3); IFI; .met; hardcopy .DRV; PMDD.SYS / System Queue | приём и диспетчеризация команд; владение handle'ами; рендеринг; работа с оборудованием |
+| Транспорт | wire: named pipe / TCP/IP (PMSERVER.EXE <> PMCLIENT.DLL) | передача opcode + data между клиентом и сервером |
+
+**Внешние акторы**: приложение (вызывает API, получает сообщения); удалённый клиент (приложение на другой машине, подключающееся к серверу по сети); WPS — потребитель PM API, вне слоя PM; пользователь через устройства ввода; устройство вывода (дисплей, принтер, плоттер); файловая система (.met, файлы шрифтов, spool file); другое приложение как clipboard/DDE-партнёр.
+
+**Что пересекает границу**:
+
+| Направление | Содержимое |
+|---|---|
+| вход | Gpi*/Win* от приложения; opcode + data команды от PMCLIENT.DLL через wire (named pipe / TCP/IP); connect / F_CMD_GET_IHAB / F_CMD_CLIENT_RECONNECT → HandleCoreCommand; GPI-команды → HandleGpiCall; PMWIN-команды → HandleWinCall; Win* от WPS; SQMSG от PMDD; Gre* через Dispatch Table (16-бит и 32-бит) или VMI_CMD_* к VMAN (Warp 4); .met при проигрывании (GpiPlayMetaFile); данные clipboard; DDE-сообщения; перехват через hooks; запросы GRE к IFI-драйверу (загрузка шрифта, метрики, глифы); spooler API от hardcopy .DRV |
+| выход | WM_* в HMQ приложения; ihab / clientId, результаты, события от сервера к клиенту; команды устройства от display- или hardcopy-драйвера; GOCA orders в .met; растр в memory bitmap; job data в spool file; байты .met на диск; глифы (растровые/контурные) от IFI-драйвера к GRE; данные clipboard; DDE-сообщения |
+
+**Подсистема ввода**: PMDD.SYS (Ring 0) помещает события в системную очередь (System Queue), которая является циклическим массивом структур SQMSG. SQMSG доставляется в PMWIN сервера. Приложение получает сообщения через свою очередь (QMSG), асинхронные (WinPostMsg) и синхронные (WinSendMsg, список SMS). Сообщения между окнами разных клиентов проходят через сервер (HandleWinCall).
+
+**GOCA**: определяет GPS — двумерное концептуальное пространство, не зависящее от среды, в котором определяются drawing orders. В OS/2 PM GPS материализуется как PS (GpiCreatePS); drawing orders существуют только в retained-контексте (segment store, буферы orders, .met).
+
+**Три драйверные модели** (вложенные; хостятся в процессе сервера):
+
+| Модель | Точка подключения | Трансляция | Компоненты |
+|---|---|---|---|
+| 1. Dispatch Table | DDI → DispatchTable[func_no] | прямая .DRV; 16-бит (1.1–1.3) и 32-бит (2.0+) — одна модель, разная разрядность | .DRV; display .DRV и hardcopy .DRV — обе модели 1 |
+| 2. GRADD (через модель 1) | DispatchTable → GRE2VMAN → VMI → VMAN → GHI | GRE2VMAN (GRE→VMI), GHI (VMAN→GRADD) | GRE2VMAN, VMAN, GRADD, SOFTDRAW |
+| 3. SNAP/Nucleus (через модель 2) | VMAN → GHI → SNAP-драйвер → Nucleus | SNAP-драйвер транслирует GHI в вызовы Nucleus | SDDGRADD, Nucleus (ядро + BPD) |
+
+**Доступ к устройству**:
+
+| Компонент | Модель | Характер доступа |
+|---|---|---|
+| .DRV (display) | 1 | прямой |
+| hardcopy .DRV | 1 | прямой (через PRTxxx при OD_DIRECT; через SplQm* при OD_QUEUED) |
+| SOFTDRAW | 1 (опц.) и 2 (fallback) | библиотека; пишет в aperture, предоставленный вызывающим |
+| GRADD | 2 | прямой; только GRADD имеют прямой доступ к видеооборудованию |
+| Nucleus (BPD) | 3 | прямой |
+
+SOFTDRAW — единая DLL (SOFTDRAW.DLL), графическая библиотека, экспортирующая SDBitBlt и SDLine; получает указатель на линейный адрес (VRAM bit map или системный bit map) и рисует напрямую в него. Не является путём к устройству.
+
+IFI — прямой вызов PMGRE к драйверам шрифтов; к устройству не идёт.
+
+Гибридный GRE: Dispatch Table в Warp 4 обслуживает обе ветви. Старый DDI-драйвер попадает в модель 1 и не знает о VMAN; GRADD-драйвер загружается через GRE2VMAN в модель 2. 16-битный PM старше гибридного GRE и в гибридность не входит.
+
+**DC и graphic orders**:
+
+| Тип DC | Устройство | Драйвер |
+|---|---|---|
+| Window DC | дисплей | display (модель 1/2/3) |
+| OD_QUEUED / OD_DIRECT | принтер, плоттер | hardcopy .DRV (модель 1), загружается при DevOpenDC |
+| OD_METAFILE / OD_METAFILE_NOQUERY | .met | без драйвера устройства; GOCA orders |
+| OD_MEMORY | bitmap | без драйвера устройства |
+| OD_INFO | принтер, плоттер (только запрос) | hardcopy .DRV; вывод не производится |
+
+**Режимы рисования**:
+
+| GpiSetDrawingMode | Chained | Unchained | Вне сегмента |
+|---|---|---|---|
+| DM_DRAW | draw; orders не формируются | retain; orders в segment store | draw; orders не формируются |
+| DM_RETAIN | retain; orders в segment store | retain; orders в segment store | draw; orders не формируются |
+| DM_DRAWANDRETAIN | draw и retain | retain | draw; orders не формируются |
+
+Segment store, элементы и element pointer существуют только в retained-контексте. Element pointer и edit mode (SEGEM_INSERT / SEGEM_REPLACE) действительны только в DM_RETAIN. Micro PS не имеет segment store; режим всегда DM_DRAW. Смена GpiSetDrawingMode в уже созданном PS разрешена вне сегментного bracket; внутри открытого сегмента — ошибка.
+
+---
+
+## 2. Stakeholders / Concerns
+
+| Stakeholder | Concern | Viewpoint |
+|---|---|---|
+| Разработчик приложений | Device independence, retained mode, предсказуемый ввод, логические шрифты; controls/dialogs/CUA; hooks, clipboard/DDE; replay .met в принтер | V2, V3, V4, V7, V8, V9, V12 |
+| Разработчик приложений | Прозрачность клиент-серверного разделения: Win*/Gpi* не меняются, меняется транспорт | V1, V2, V13 |
+| Разработчик драйверов | Dispatch Table ABI, GRADD (GHI), SNAP/Nucleus, SOFTDRAW, ring levels; hardcopy .DRV (PRTxxx, SplQm*) | V2, V5, V12 |
+| Разработчик драйверов | Драйверная DLL мини-сервера (PMWINDOW.DLL / PMDRIVER.DLL) | V5, V13 |
+| Разработчик шрифтов | IFI (GRE↔Font Driver), FOCA-структуры, UGL, PMFONT.H | V2, V3, V5, V6 |
+| Интегратор | Три модели, гибридный GRE, eCS/ArcaOS (SNAP как штатный GRADD); DDE-протокол; разделяемые ресурсы; спулер и queue processor | V2, V5, V9, V11, V12 |
+| Интегратор | Сетевой доступ к серверу, лимиты сессий, таймауты, переподключение | V4, V5, V11, V13 |
+| Разработчик сервера | Диспетчеризация команд, владение handle'ами, синхронизация сессий | V2, V3, V11, V13 |
+| Пользователь | Отзывчивость, Z-order, type-ahead | V4, V7 |
+
+---
+
+## 3. Viewpoints
+
+V1 Context · V2 Functional · V3 Information · V4 Concurrency · V5 Deployment · V6 Font Subsystem · V7 Window Management · V8 Controls / Dialogs / Menus · V9 Inter-Application Communication · V11 Resource Serialization · V12 Printing / Non-display DC · V13 Client/Server Boundary
+
+---
+
+### V1 Context
+
+```text
+                                        ┌─────────────────────────────────────────┐
+   пользователь ───────────────────────►│ клавиатура / мышь                       │
+                                        └──────────────────┬──────────────────────┘
+                                                           │ IRQ
+                                        ┌──────────────────▼──────────────────────┐
+                                        │ PMDD.SYS (Ring 0)                       │
+                                        │  System Queue (SQMSG, circular array)   │
+                                        └──────────────────┬──────────────────────┘
+                                                           │ SQMSG
+┌──────────────────────────────────────────────────────────┼──────────────────────────────────────────────────────────────┐
+│ КЛИЕНТ (Ring 3, локальный / удалённый)                   │                                                              │
+│                                                          │                                                              │
+│  ┌──────────────┐    Gpi*/Win*                           │                                                              │
+│  │ приложение   │────────────────┐                       │                                                              │
+│  │ (Ring 3)     │◄───────────────┘                       │                                                              │
+│  └──────────────┘   WM_*, ret                            │                                                              │
+│                                                          │                                                              │
+│  ┌────────────────────────────────────────────────────┐  │                                                              │
+│  │ PMCLIENT.DLL                                       │  │                                                              │
+│  │  маршалинг Win*/Gpi* → opcode + data               │  │                                                              │
+│  └───────────────────────────┬────────────────────────┘  │                                                              │
+└──────────────────────────────┼───────────────────────────┼──────────────────────────────────────────────────────────────┘
+                               │                           │
+═══════════════════════════════╪═══════════ КЛИЕНТ-СЕРВЕРНЫЙ РАЗДЕЛ ══════════════════════════════════════════════════════
+                               │                           │
+                               │  wire: named pipe / TCP/IP
+                               │  (PMSERVER.EXE <> PMCLIENT.DLL)
+                               │                           │
+═══════════════════════════════╪═══════════════════════════╪═════════════════════════════════════════════════════════════
+                               │                           │
+┌──────────────────────────────▼───────────────────────────▼─────────────────────────────────────────────────────────────┐
+│ СЕРВЕР (PMSERVER.EXE, Ring 3)                                                                                          │
+│                                                                                                                         │
+│  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │ Fs_Server::HandleCommand                                                                                            │  │
+│  │   HandleCoreCommand  (connect, F_CMD_GET_IHAB, reconnect)                                                         │  │
+│  │   HandleWinCall      (PMWIN-команды)                                                                              │  │
+│  │   HandleGpiCall      (GPI-команды)                                                                                │  │
+│  │  Fs_ClientList  Fs_HabList  поток-монитор (тик 1000 мс)                                                           │  │
+│  └───────────────────────────────────────────────┬───────────────────────────────────────────────────────────────────┘  │
+│                                                  │                                                                      │
+│                                                  ▼                                                                      │
+│  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │ PMWIN                                                                                                              │  │
+│  │  окна, Z-order, HMQ, hooks, clipboard, DDE, atom tables                                                            │  │
+│  └───────────────────────────────────────────────┬───────────────────────────────────────────────────────────────────┘  │
+│                                                  │ Gpi* / внутренний                                                 │
+│                                                  ▼                                                                      │
+│  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │ PMGPI (GPI)                                                                                                        │  │
+│  │  PS = GPS (GOCA)                                                                                                   │  │
+│  │  DC: тип из DevOpenDC                                                                                              │  │
+│  │   ├─ DM_DRAW / вне сегмента:                                                                                       │  │
+│  │   │    Gpi* → Gre* (order не формируется)                                                                          │  │
+│  │   └─ DM_RETAIN / DM_DRAWANDRETAIN:                                                                                 │  │
+│  │        Gpi* → GOCA order → segment store → GpiDrawChain                                                            │  │
+│  └───────────────────────────────────────────────┬───────────────────────────────────────────────────────────────────┘  │
+│                                                  │ Gre* + тип DC                                                     │
+│                                                  ▼                                                                      │
+│  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │ PMGRE                                                                                                              │  │
+│  │  растровые операции; упаковка команд; прямой вызов IFI; маршрутизация по типу DC                                   │  │
+│  └──┬───────────────────────────────┬──────────────────────────────────────┬────────────────────────────────────────┘  │
+│     │ IFI                           │ DDI                                  │ без драйвера                           │
+│     ▼                               ▼                                      ▼                                         │
+│  ┌───────────────┐  ┌───────────────────────────────────────────────┐  ┌──────────────────────────┐                     │
+│  │ IFI-драйвер   │  │ МОДЕЛЬ 1: Dispatch Table                      │  │ OD_METAFILE /            │                     │
+│  │ (Font Driver) │  │                                               │  │ OD_METAFILE_NOQUERY:     │                     │
+│  │      │        │  │  ┌─────────────────────────────────────────┐  │  │  GOCA orders →           │                     │
+│  │      ▼        │  │  │ Display .DRV                            │  │  │  MO:DCA-L (GOCA + IOCA)  │                     │
+│  │ файлы шрифтов │  │  │  (16-бит 1.1–1.3 / 32-бит 2.0+)         │  │  │  → .met (файл)           │                     │
+│  │ (к устройству │  │  │ SOFTDRAW (aperture от .DRV) ────────────┼──┼──┼──► УСТРОЙСТВО (дисплей)  │                     │
+│  │  не идёт)     │  │  └─────────────────────────────────────────┘  │  │                          │                     │
+│  └───────────────┘  │  ┌─────────────────────────────────────────┐  │  │ OD_MEMORY:               │                     │
+│                     │  │ Hardcopy .DRV (модель 1)                │  │  │  растр → bitmap →        │                     │
+│                     │  │  OD_QUEUED: SplQm* → PMSPL.DLL →        │  │  │  память                  │                     │
+│                     │  │   spool file → PMPRINT.QPR →            │  │  │                          │                     │
+│                     │  │   kernel driver ────────────────────────┼──┼──┼──► УСТРОЙСТВО (принтер)  │                     │
+│                     │  │  OD_DIRECT: PRTxxx → kernel driver ─────┼──┼──┼──► УСТРОЙСТВО (принтер)  │                     │
+│                     │  │  OD_INFO: caps / свойства (без вывода)  │  │  │                          │                     │
+│                     │  └─────────────────────────────────────────┘  │  │                          │                     │
+│                     │  ┌─────────────────────────────────────────┐  │  │                          │                     │
+│                     │  │ МОДЕЛЬ 2: GRADD (через модель 1)        │  │  │                          │                     │
+│                     │  │  GRE2VMAN (перехват Gre*)               │  │  │                          │                     │
+│                     │  │       │ VMI                             │  │  │                          │                     │
+│                     │  │       ▼                                 │  │  │                          │                     │
+│                     │  │     VMAN                                │  │  │                          │                     │
+│                     │  │       │ GHI                             │  │  │                          │                     │
+│                     │  │       ├──────────────────────┐          │  │  │                          │                     │
+│                     │  │       ▼                      ▼          │  │  │                          │                     │
+│                     │  │  GRADD (GENGRADD,       ┌──────────┐    │  │  │                          │                     │
+│                     │  │   VGAGRADD,             │МОДЕЛЬ 3: │    │  │  │                          │                     │
+│                     │  │   SDDGRAD) ─────────────┼──► УСТРОЙСТВО (дисплей)                          │                     │
+│                     │  │       │                 │SNAP/Nucleus                                    │                     │
+│                     │  │       └─ RC_SIMULATE    │ SNAP-др  │    │  │  │                          │                     │
+│                     │  │            │            │ (GHI→    │    │  │  │                          │                     │
+│                     │  │            ▼            │  Nucleus)│    │  │  │                          │                     │
+│                     │  │        SOFTDRAW         │    │     │    │  │  │                          │                     │
+│                     │  │        (aperture        │    ▼     │    │  │  │                          │                     │
+│                     │  │         от GRADD        │ Nucleus  │    │  │  │                          │                     │
+│                     │  │         через VMAN)     │ (ядро+BPD)┼────┼──┼──┼──► УСТРОЙСТВО (дисплей)  │                     │
+│                     │  │                         └──────────┘    │  │  │                          │                     │
+│                     │  └─────────────────────────────────────────┘  │  │                          │                     │
+│                     └───────────────────────────────────────────────┘  └──────────────────────────┘                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+Границы системы: PM API (Win*, Gpi*), GRE-интерфейс (Gre* + Dispatch Table или OS2_PM_DRV_ENABLE + VMI), OS2_PM_ENABLE, System Queue (PMDD↔PMWIN, SQMSG), формат .met, IFI-интерфейс (GRE↔Font Driver), hardcopy .DRV, PMSPL.DLL, SPOOLCP.DLL, PMPRINT.QPR, hooks, clipboard, DDE, atom tables; клиент-серверный раздел (PMCLIENT.DLL ↔ wire ↔ PMSERVER.EXE / Fs_Server::HandleCommand). 16-битный PM (OS/2 1.1–1.3) входит в объём; SNAP — штатный компонент линейки (Warp 4.5, eCS, ArcaOS).
+
+Внешние акторы: приложение (вызывает API, получает сообщения); удалённый клиент — приложение на другой машине, подключающееся к серверу по сети; WPS — потребитель PM API, вне слоя PM; пользователь через устройства ввода; устройство вывода (дисплей, принтер, плоттер); файловая система (.met, файлы шрифтов, spool file); другое приложение как clipboard/DDE-партнёр.
+
+Что пересекает границу:
+
+· Вход: Gpi*/Win* от приложения; opcode + data команды от PMCLIENT.DLL через wire (named pipe / TCP/IP); connect / F_CMD_GET_IHAB / F_CMD_CLIENT_RECONNECT → HandleCoreCommand; GPI-команды → HandleGpiCall; PMWIN-команды → HandleWinCall; Win* от WPS; SQMSG от PMDD; Gre* через Dispatch Table (16-бит и 32-бит) или VMI_CMD_* к VMAN (Warp 4); .met при проигрывании (GpiPlayMetaFile); данные clipboard; DDE-сообщения; перехват через hooks; запросы GRE к IFI-драйверу (загрузка шрифта, метрики, глифы); spooler API от hardcopy .DRV.
+
+· Выход: WM_* в HMQ приложения; ihab / clientId, результаты, события от сервера к клиенту; команды устройства от display- или hardcopy-драйвера; GOCA orders в .met; растр в memory bitmap; job data в spool file; байты .met на диск; глифы (растровые/контурные) от IFI-драйвера к GRE; данные clipboard; DDE-сообщения.
+
+Подсистема ввода: PMDD.SYS (Ring 0) помещает события в системную очередь (System Queue), которая является циклическим массивом структур SQMSG. SQMSG доставляется в PMWIN сервера. Приложение получает сообщения через свою очередь (QMSG), асинхронные (WinPostMsg) и синхронные (WinSendMsg, список SMS). Сообщения между окнами разных клиентов проходят через сервер (HandleWinCall).
+
+GOCA: определяет GPS — двумерное концептуальное пространство, не зависящее от среды, в котором определяются drawing orders. В OS/2 PM GPS материализуется как PS (GpiCreatePS); drawing orders существуют только в retained-контексте (segment store, буферы orders, .met).
+
+Три драйверные модели (вложенные; хостятся в процессе сервера):
+
+| Модель | Точка подключения | Трансляция | Компоненты |
+|---|---|---|---|
+| 1. Dispatch Table | DDI → DispatchTable[func_no] | прямая .DRV; 16-бит (1.1–1.3) и 32-бит (2.0+) — одна модель, разная разрядность | .DRV; display .DRV и hardcopy .DRV — обе модели 1 |
+| 2. GRADD (через модель 1) | DispatchTable → GRE2VMAN → VMI → VMAN → GHI | GRE2VMAN (GRE→VMI), GHI (VMAN→GRADD) | GRE2VMAN, VMAN, GRADD, SOFTDRAW |
+| 3. SNAP/Nucleus (через модель 2) | VMAN → GHI → SNAP-драйвер → Nucleus | SNAP-драйвер транслирует GHI в вызовы Nucleus | SDDGRADD, Nucleus (ядро + BPD) |
+
+Доступ к устройству:
+
+| Компонент | Модель | Характер доступа |
+|---|---|---|
+| .DRV (display) | 1 | прямой |
+| hardcopy .DRV | 1 | прямой (через PRTxxx при OD_DIRECT; через SplQm* при OD_QUEUED) |
+| SOFTDRAW | 1 (опц.) и 2 (fallback) | библиотека; пишет в aperture, предоставленный вызывающим |
+| GRADD | 2 | прямой; только GRADD имеют прямой доступ к видеооборудованию |
+| Nucleus (BPD) | 3 | прямой |
+
+SOFTDRAW — единая DLL (SOFTDRAW.DLL), графическая библиотека, экспортирующая SDBitBlt и SDLine; получает указатель на линейный адрес (VRAM bit map или системный bit map) и рисует напрямую в него. Не является путём к устройству.
+
+IFI — прямой вызов PMGRE к драйверам шрифтов; к устройству не идёт.
+
+Гибридный GRE: Dispatch Table в Warp 4 обслуживает обе ветви. Старый DDI-драйвер попадает в модель 1 и не знает о VMAN; GRADD-драйвер загружается через GRE2VMAN в модель 2. 16-битный PM старше гибридного GRE и в гибридность не входит.
+
+DC и graphic orders:
+
+| Тип DC | Устройство | Драйвер |
+|---|---|---|
+| Window DC | дисплей | display (модель 1/2/3) |
+| OD_QUEUED / OD_DIRECT | принтер, плоттер | hardcopy .DRV (модель 1), загружается при DevOpenDC |
+| OD_METAFILE / OD_METAFILE_NOQUERY | .met | без драйвера устройства; GOCA orders |
+| OD_MEMORY | bitmap | без драйвера устройства |
+| OD_INFO | принтер, плоттер (только запрос) | hardcopy .DRV; вывод не производится |
+
+Режимы рисования:
+
+| GpiSetDrawingMode | Chained | Unchained | Вне сегмента |
+|---|---|---|---|
+| DM_DRAW | draw; orders не формируются | retain; orders в segment store | draw; orders не формируются |
+| DM_RETAIN | retain; orders в segment store | retain; orders в segment store | draw; orders не формируются |
+| DM_DRAWANDRETAIN | draw и retain | retain | draw; orders не формируются |
+
+Segment store, элементы и element pointer существуют только в retained-контексте. Element pointer и edit mode (SEGEM_INSERT / SEGEM_REPLACE) действительны только в DM_RETAIN. Micro PS не имеет segment store; режим всегда DM_DRAW. Смена GpiSetDrawingMode в уже созданном PS разрешена вне сегментного bracket; внутри открытого сегмента — ошибка.
+
+---
+
+### V2 Functional
+
+| Элемент | Модель | Обязанность |
+|---|---|---|
+| PMGRE | все | Растровые операции; упаковка команд; прямой вызов IFI |
+| PMGPI | все | Gpi* API; PS/DC; segment store; трансформации; clip; примитивы; bitmap; текст; метафайлы; корреляция |
+| IFI-драйвер | IFI | Dynalink DLL: шрифты, метрики, глифы; вызывается только GRE |
+| Presentation Driver (.DRV) | 1 | Переопределение Gre* через Dispatch Table |
+| hardcopy .DRV | 1 | Трансляция GPI-потока в device-dependent raw data; OD_QUEUED → SplQm*; OD_DIRECT → PRTxxx; OD_INFO → caps/properties |
+| PMSPL.DLL | — | Spooler API: очереди, задания, принтеры, драйверы |
+| SPOOLCP.DLL | — | Code-page support спулера |
+| PMPRINT.QPR | — | Штатный queue processor; PM_Q_STD / PM_Q_RAW |
+| GRE2VMAN | 2 | Трансляционный слой GRE→VMI; загружается GRE через DDI, получает Dispatch Table; при загрузке вызывает VMAN.VMIEntry с VMI_CMD_INIT |
+| VMAN | 2/3 | Диспетчер VMI; сериализация GRADD и SNAP; вызов SOFTDRAW при RC_SIMULATE; VMIEntry — единственная экспортируемая функция; GHI_CMD_REQUESTHW; управление указателем; helper-функции (VHAllocMem, VHFreeMem, VHLockMem, VHPhystoVirt, VHMap, VHMapVRAM) |
+| GRADD | 2 | Исполнение GHI; прямой доступ к видеооборудованию; RC_SIMULATE при отсутствии поддержки |
+| SNAP-драйвер (SDDGRADD) | 3 | Трансляция GHI → Nucleus; загрузка BPD |
+| Nucleus | 3 | Ядро + BPD; прямой доступ к железу |
+| SOFTDRAW | 1/2 | Программная эмуляция (SDBitBlt, SDLine); единая DLL |
+| PMWIN | все | Окна; иерархия; Z-order; HMQ; hooks; clipboard; DDE; atom tables |
+| PMCLIENT.DLL | — | Маршалинг Win*/Gpi* → opcode + data; транспортный клиент; WinInitialize = установка соединения + запрос HAB |
+| PMSERVER.EXE / Fs_Server | — | SetWire(Fs_PfnRecv, Fs_PfnSend); HandleCommand — единая точка входа |
+| HandleCoreCommand | — | connect, F_CMD_GET_IHAB, F_CMD_CLIENT_RECONNECT, ping, config |
+| HandleWinCall | — | Диспетчеризация PMWIN-команд (proxy) |
+| HandleGpiCall | — | Диспетчеризация GPI-команд |
+| Fs_ClientList / Fs_ClientConnection | — | Жизненный цикл сессий; StateFree / StateActive / StateDetached; таймауты inactive 60 c / grace 30 c |
+| Fs_HabList | — | Потокобезопасная выдача HAB (монотонный счётчик с 1, лимит 128) |
+| поток-монитор | — | Тик F_MONITOR_TICK_MS (1000 мс): Active→Detached по inactive, Detached→Free по grace |
+| драйверная DLL (PMWINDOW.DLL / PMDRIVER.DLL) | — | Создание PM-окна, мониторинг событий (мышь, изменение размера), доступ к фреймбуферу |
+
+GPI — группы Gpi*:
+
+| Группа | Функции (примеры) | Назначение |
+|---|---|---|
+| Presentation state | GpiSetColor, GpiSetBackColor, GpiSetMix, GpiSetBackMix | Атрибуты рисования |
+| Segments | GpiOpenSegment, GpiCloseSegment, GpiDeleteSegment, GpiSetSegmentAttrs, GpiSetDrawingMode, GpiSetEditMode, GpiSetElementPointer, GpiOffsetElementPointer | Управление сегментами и редактирование |
+| Transforms | GpiSetModelTransform, GpiSetWorldTransform, GpiSetPageTransform, GpiSetDefaultViewMatrix | Координатные пространства |
+| Clipping | GpiSetClipRegion, GpiSetClipPath | Обрезка |
+| Primitives | GpiLine, GpiPolyLine, GpiBox, GpiMarker, GpiArea, GpiFullArc, GpiPartialArc, GpiChord, GpiPie, GpiPolygon, GpiPolyFillet, GpiPolySpline, GpiMove | Примитивы |
+| Bitmaps | GpiBitBlt, GpiCreateBitmap, GpiSetBitmap, GpiWCBitBlt, GpiDrawBits | Растровые операции |
+| Text | GpiCharString, GpiCharStringAt, GpiCharStringPos, GpiQueryCharStringPos | Текст (связь с V6) |
+| Metafiles | GpiPlayMetaFile, GpiSetMetaFileBits, GpiQueryMetaFileBits | Метафайлы (связь с V3) |
+| Data | GpiPutData, GpiGetData | Буферы orders |
+| Correlation | GpiCorrelateChain, GpiCorrelateFrom, GpiCorrelateSegment | Корреляция (только retained) |
+| Error | GpiErrorSegmentData, GpiSetEditMode | Ошибки и редактирование |
+
+Все группы GPI device-independent: целевое устройство определяется типом DC из DevOpenDC, а не функцией GPI. Ограничения на конкретном устройстве задаёт драйвер (display / hardcopy).
+
+IFI-операции:
+
+| Операция | Направление | Результат |
+|---|---|---|
+| Загрузка шрифта | GRE → IFI | дескриптор |
+| Выгрузка шрифта | GRE → IFI | освобождение |
+| Запрос метрик | GRE → IFI | FOCAMETRICS |
+| Запрос глифа | GRE → IFI | bitmap или outline |
+| Перечисление | GRE → IFI | список шрифтов |
+
+Связи:
+
+| Связь | Интерфейс | Что передаётся |
+|---|---|---|
+| Win* → PMGPI | внутренний | корреляция окна и PS/DC; clip по Z-order |
+| Gpi* → PMGPI | GPI API | атрибуты, примитивы, сегменты, трансформации, bitmap, текст |
+| PMGPI → PMGRE | Gre* | упакованные orders (retained) или прямые команды (draw) |
+| PMGPI ↔ PS/DC | внутренний | PS (per-thread, владелец — приложение), DC (владелец — GRE) |
+| PMGRE → IFI | IFI (прямой) | шрифты, метрики, глифы |
+| Dispatch Table → .DRV | DDI, модель 1 | Gre* |
+| .DRV → SOFTDRAW | внутренний, модель 1 | необязательные функции; aperture от .DRV |
+| Dispatch Table → GRE2VMAN | DDI, модель 2 | перехваченные Gre* |
+| GRE2VMAN → VMAN | VMI | VMI_CMD_* через VMIEntry |
+| VMAN → GRADD | GHI | GHI_CMD_* через HWEntry |
+| GRADD → VMAN | GHI | RC_SIMULATE |
+| VMAN → GRADD (aperture) | GHI | GHI_CMD_REQUESTHW |
+| VMAN → SOFTDRAW | внутренний, модель 2 | SDBitBlt, SDLine; aperture от GRADD через VMAN |
+| VMAN → SNAP-драйвер | GHI | GHI_CMD_* |
+| SNAP-драйвер → Nucleus | внутренний | транслированные команды |
+| PMGRE → hardcopy .DRV | DDI, модель 1 | стандартный GPI-поток → device-dependent raw data |
+| hardcopy .DRV → PMSPL.DLL | spooler API | SplQm*; PM_Q_STD (metafile) или PM_Q_RAW (raw) |
+| hardcopy .DRV → PRTxxx | kernel driver | raw data напрямую к порту (OD_DIRECT) |
+| PMSPL.DLL → queue processor | spool file | job data + параметры очереди (FORM, PRTY) |
+| GpiPlayMetaFile → target DC | GOCA replay orders | проигрываются в window / printer / memory / другой .met DC |
+| PMGRE → .met | GOCA orders | MO:DCA-L structured fields (GOCA + IOCA) |
+| PMCLIENT.DLL → wire | opcode + data | Win*/Gpi* → команды |
+| wire → Fs_Server::HandleCommand | opcode + data | приём и маршрутизация |
+| HandleCoreCommand / HandleWinCall / HandleGpiCall | внутренний | диспетчеризация по типу команды |
+| Fs_HabList → wire → PMCLIENT.DLL | ihab / clientId | идентификаторы клиента |
+
+RC_SIMULATE — единый механизм: GRADD получает GHI-команду; если не поддерживает — возвращает RC_SIMULATE; VMAN вызывает SOFTDRAW. Возвращая RC_SIMULATE, GRADD даёт SOFTDRAW разрешение рисовать напрямую в видеопамять; сериализация доступа к видеопамяти выполняется VMAN через GHI_CMD_REQUESTHW.
+
+Обязательные GHI-функции: GHI_CMD_INIT, GHI_CMD_QUERYCAPS, GHI_CMD_QUERYMODES, GHI_CMD_SETMODE, GHI_CMD_PALETTE (при 256 цветах).
+
+VMI_CMD_ (примеры): VMI_CMD_INIT, VMI_CMD_INITPROC, VMI_CMD_TERMPROC, VMI_CMD_QUERYMODES, VMI_CMD_SETMODE, VMI_CMD_PALETTE, VMI_CMD_BITBLT.
+
+GRADD-варианты:
+
+| Драйвер | Тип | Зависимость | Ускорение | Место |
+|---|---|---|---|---|
+| GENGRADD | GRADD | VESA BIOS | Нет | GRADD-стек; fallback → RC_SIMULATE → SOFTDRAW |
+| SDDGRAD | GRADD | SciTech Nucleus | Да | GRADD-стек |
+| SNAP | GRADD | SciTech Nucleus | Да | GRADD-стек; Warp 4.5 / eCS / ArcaOS |
+
+---
+
+### V3 Information
+
+| Артефакт | Владелец | Назначение |
+|---|---|---|
+| GPS (Graphics Presentation Space) | GOCA / PMGPI | Концептуальное пространство GOCA; не зависит от среды; материализуется как PS |
+| PS (Presentation Space) | Приложение / GRE | Реализация GPS в PM: per-thread, привязка к DC, segment store, текущая позиция, координатные пространства |
+| DC | GRE | состояние / привязка к устройству; тип из DevOpenDC |
+| Segment / Element / Order | PS | retained-графика |
+| HMQ | Поток | очередь (WinPostMsg) + список (WinSendMsg) |
+| System Queue / SQMSG | PMDD.SYS | системная очередь ввода (циклический массив) |
+| .met (MO:DCA-L) | Файл | Structured fields: GOCA (вектор) + IOCA (растр) |
+| Spool file | PMSPL | job data (PM_Q_STD / PM_Q_RAW) для queue processor |
+| VMI | VMAN | GRE2VMAN→VMAN |
+| GHI | GRADD / SNAP | VMAN→драйвер |
+| BPD | Nucleus | бинарный драйвер чипсета |
+| FOCA / IFI | Ресурс / GRE | шрифты |
+| Clipboard formats | PMWIN | CF_* и private |
+| Atom tables | PMWIN | глобальные/локальные строки |
+| HAB | Сервер (Fs_HabList) | Индекс в m_aHabs[], 0 невалиден, лимит 128 |
+| Клиентская сессия | Сервер (Fs_ClientConnection) | Состояние, idClient, метки таймаутов |
+
+Режимы рисования:
+
+| GpiSetDrawingMode | Chained | Unchained | Вне сегмента |
+|---|---|---|---|
+| DM_DRAW | draw | retain | draw |
+| DM_RETAIN | retain | retain | draw |
+| DM_DRAWANDRETAIN | draw-and-retain | retain | draw |
+
+Фактический режим определяется GpiSetDrawingMode и контекстом: вызовы вне сегмента всегда nonretained, unchained-сегменты всегда retained. В retained-режиме GPI-функции накапливаются как drawing orders в segment store PS, а не отображаются и не отбрасываются. GOCA orders существуют только в retained-контексте. Смена GpiSetDrawingMode в уже созданном PS разрешена вне сегментного bracket; внутри открытого сегмента — ошибка. Micro PS не имеет segment store; режим всегда DM_DRAW.
+
+Координатные пространства: model → world → page → device; матрицы преобразований (GpiSetModelTransform, GpiSetWorldTransform, GpiSetPageTransform, GpiSetDefaultViewMatrix).
+
+Segment store: список сегментов, drawing orders (GCO_*, GOM_*, GOT_*), element pointer, edit mode (SEGEM_INSERT / SEGEM_REPLACE). Ограничения: 64 КБ на PS; до 16378 сегментов.
+
+Clip region / clip path: GpiSetClipRegion, GpiSetClipPath; неявный clip по Z-order (связь с V7).
+
+Bitmap / bit map handle: GpiCreateBitmap, GpiSetBitmap, GpiBitBlt, GpiWCBitBlt, GpiDrawBits.
+
+FOCA-структуры:
+
+```text
+FOCAFONT (контейнер)
+ ├─ FONTSIGNATURE
+ ├─ FOCAMETRICS
+ └─ FONTDEFINITIONHEADER
+      └─ glyph definitions
+```
+
+FONTMETRICS выводится GRE из FOCAMETRICS.
+
+Маппинг FOCAMETRICS → FONTMETRICS:
+
+| Поле | Правило |
+|---|---|
+| Identity | = 1; не входит в FONTMETRICS |
+| Size | размер FOCAMETRICS; не входит в FONTMETRICS |
+| Codepage | 850 — любая; 65400 — Symbol; иначе конкретная |
+| world-coordinate | bitmap — pel; outline — notional units |
+
+Поток отображения текста: FOCA → IFI-драйвер (прямой вызов GRE) → GpiCreateLogFont/GpiSetCharSet → GpiCharString → GOCA text order → устройство.
+
+Жизненные циклы:
+
+| Артефакт | Создание | Уничтожение |
+|---|---|---|
+| PS | GpiCreatePS | GpiDestroyPS |
+| DC | DevOpenDC | DevCloseDC |
+| Segment | GpiOpenSegment | GpiCloseSegment → GpiDeleteSegment |
+| Element | GpiBeginElement/GpiEndElement | GpiRemoveElement |
+| HMQ | WinCreateMsgQueue | WinDestroyMsgQueue |
+| .met | DevOpenDC(OD_METAFILE) | GpiDeleteMetaFile |
+| Шрифт (FOCA) | GRE через IFI | GRE через IFI |
+| SNAP-драйвер | PM через DDI | выгрузка PM |
+| Nucleus | ядро при инициализации SNAP | при выгрузке SNAP |
+| BPD | Nucleus при детекте чипсета | Nucleus |
+| Клиентская сессия | connect → StateActive | разрыв → StateDetached → grace истёк → StateFree |
+| HAB | F_CMD_GET_IHAB | не подтверждено кодом |
+
+Владение: PS — приложение (per-thread); DC — GRE; HMQ — поток; .met — ФС; сегменты — PS; шрифты — кэш GRE; HAB/сессия — сервер (Fs_HabList / Fs_ClientConnection).
+
+---
+
+### V4 Concurrency
+
+| Поток | Путь |
+|---|---|
+| Ввод | IRQ → PMDD → System Queue → Input Router → HMQ → wndproc |
+| Отрисовка (модель 1) | wndproc → Gpi* → Gre* → .DRV |
+| Отрисовка (модель 2) | wndproc → Gpi* → GRE2VMAN → VMI → VMAN → GHI → GRADD |
+| Отрисовка (модель 3) | wndproc → Gpi* → GRE2VMAN → VMI → VMAN → GHI → SNAP-драйвер → Nucleus → BPD |
+| Печать (OD_QUEUED) | Gpi* → PMGRE → hardcopy .DRV → SplQm* → PMSPL → spool file → PMPRINT.QPR |
+| Печать (OD_DIRECT) | Gpi* → PMGRE → hardcopy .DRV → PRTxxx → kernel driver |
+| Шрифты (IFI) | GpiCreateLogFont → PMGRE → IFI-драйвер → кэш GRE |
+| Repaint | uncover/resize → invalid region (clip по Z-order) → WM_PAINT |
+| Клиент-сервер | app → PMCLIENT.DLL → wire → Fs_Server::HandleCommand → HandleGpiCall/HandleWinCall → PMWIN/PMGPI/PMGRE → DDI → железо |
+
+Точки синхронизации:
+
+| Объект | Защита | Область |
+|---|---|---|
+| HMQ | mutex (DosRequestMutexSem) | per-thread; Post — из другого потока |
+| System Queue | ядро PMDD | global |
+| PS | не потокобезопасен; принадлежит создавшему потоку | per-thread |
+| DC / Dispatch Table | сериализация на уровне GRE | per-DC |
+| VMAN | семафор VMAN — сериализует доступ к GRADD и SNAP | global |
+| Кэш шрифтов | внутренняя синхронизация GRE | global |
+| Spooler | внутренняя синхронизация спулера | global (очередь) |
+| PMSEM / GRESEM | см. V11 | global |
+| Fs_ClientList | мьютекс OS/2 (DosRequestMutexSem) | слоты сессий |
+| Fs_HabList | мьютекс OS/2 | m_aHabs[], m_ulNextHab |
+| Поток-монитор | тик 1000 мс | Active→Detached (inactive 60 c), Detached→Free (grace 30 c) |
+
+Program Inversion: WinGetMsg не возвращает управление в цикл приложения, а вызывает wndproc внутри себя. PM владеет циклом диспетчеризации; hooks и модальные циклы работают до приложения.
+
+Focus: единственное окно на систему получает клавиатурный ввод. При активации система поднимает frame-окна между HWND_DESKTOP и фокусным окном, отправляет WM_ACTIVATE и WM_SETFOCUS.
+
+Capture: WinSetCapture переопределяет маршрут мыши — все события идут в capture-окно независимо от позиции курсора.
+
+VMAN helper-функции: VHAllocMem, VHFreeMem, VHLockMem, VHPhystoVirt, VHMap, VHMapVRAM — GRADD не делает прямых вызовов ОС.
+
+Управление указателем: VMAN полностью отвечает за курсор; VMI_CMD_MOVEPTR уведомляет VMAN; при RC_SIMULATE VMAN использует bitblt для симуляции движения указателя.
+
+---
+
+### V5 Deployment
+
+| Компонент | Модель | Ring | Формат |
+|---|---|---|---|
+| PMGRE | все | 3 | DLL |
+| PMGPI | все | 3 | DLL |
+| PMWIN | все | 3 | DLL |
+| IFI-драйверы | IFI | 3 | DLL |
+| Presentation Driver | 1 | 3/2 | .DRV |
+| hardcopy .DRV | 1 | 3/2 | .DRV (загружается при DevOpenDC для OD_QUEUED / OD_DIRECT / OD_INFO) |
+| PMSPL.DLL | — | 3 | DLL |
+| SPOOLCP.DLL | — | 3 | DLL |
+| PMPRINT.QPR | — | 3 | QPR |
+| GRE2VMAN, VMAN | 2 | 3 | DLL |
+| GRADD (GENGRADD, VGAGRADD, SDDGRAD) | 2 | 3 | DLL |
+| GRADD.SYS | 2 | 0 | SYS |
+| SNAP-драйвер (SDDGRADD) | 3 | 3 | DLL |
+| Nucleus + BPD | 3 | 3 | DLL + BPD |
+| SOFTDRAW | 1/2 | 3 | DLL |
+| PMDD | все | 0 | SYS |
+| PMSERVER.EXE | — | 3 | EXE (отдельный процесс) |
+| PMCLIENT.DLL | — | 3 | DLL |
+| wire | — | — | named pipe / TCP/IP |
+| PMWINDOW.DLL / PMDRIVER.DLL | — | 3 | DLL |
+
+Загрузка:
+
+· Модель 1: GRE → OS2_PM_DRV_ENABLE → Dispatch Table.
+· Модель 2: GRE → OS2_PM_DRV_ENABLE → GRE2VMAN → VMIEntry (VMI_CMD_INIT) → VMAN загружает остальные компоненты GRADD-модели.
+· Модель 3: VMAN → GHI → SNAP-драйвер → Nucleus → BPD.
+· IFI: GRE загружает IFI-драйвер как dynalink DLL при первом обращении к шрифту.
+· Hardcopy .DRV: DevOpenDC(OD_QUEUED / OD_DIRECT / OD_INFO) → OS2_PM_DRV_ENABLE → Dispatch Table.
+· PMSPL.DLL: загружается при первом обращении hardcopy .DRV к spooler API (OD_QUEUED); queue processor PMPRINT.QPR запускается спулером.
+· Клиент-сервер: клиент подключается к серверу — удалённый → локальный → запуск локальной копии сервера.
+
+Chaining GRADD: между VMAN и основным GRADD может быть помещён filter GRADD для модификации поведения без переписывания драйвера.
+
+Nucleus: модульность — ОС-независимое ядро + BPD. Кроссплатформенность — один BPD работает в DOS, OS/2, Windows, Linux, QNX, SMX, AmigaOS 4.x на x86, PowerPC, x86-64.
+
+SNAP в дистрибутивах: OS/2 Warp 4.5 (Convenience Package), eComStation, ArcaOS (Arca Noae SNAP Graphics).
+
+---
+
+### V6 Font Subsystem
+
+FOCA (Font Object Content Architecture) — ресурсная архитектура: структура, метрики, глифы. Определена в PMFONT.H.
+
+GOCA (Graphics Object Content Architecture) — команды отображения символов (text orders) в PS/DC. GOCA также определяет GPS — концептуальное пространство, в котором определяются orders; GPS не зависит от среды; в OS/2 PM материализуется как PS.
+
+IFI (Intelligent Font Interface) — API для поддержки произвольных outline-технологий (TrueType, Type1 и др.). IFI-драйверы — dynalink DLL, вызываемые только GRE.
+
+UGL (Universal Glyph List) — управление глифами для многоязычной поддержки; внутренний каталог глифов.
+
+PMFONT.H — заголовочный файл структур FOCA: FOCAMETRICS, FONTSIGNATURE, FONTDEFINITIONHEADER.
+
+FOCA-структуры и маппинг метрик — см. V3.
+
+Поток отображения текста — см. V3.
+
+FOCA не имеет номеров ордеров в PMORD.H. Это ресурсная архитектура, а не поток команд. GOCA-ордера ссылаются на FOCA-шрифт через логический шрифт PS.
+
+IFI-драйверы в OS/2: TRUETYPE.DLL, FreeType/2-IFI (замена TRUETYPE.DLL). Приложения не взаимодействуют с IFI-драйверами напрямую.
+
+---
+
+### V7 Window Management
+
+Concern: иерархия окон, frame/client/control, Z-order, активация, перерисовка, классы окон.
+
+Типы окон:
+
+| Тип | Описание |
+|---|---|
+| Desktop window | базовое окно сеанса PM; рисует фон; основа для всех окон |
+| Desktop-object window | невидимая основа для координирующих окон |
+| Frame window | application main window; содержит client window и control windows (title bar, System menu) |
+| Client window | область приложения внутри frame |
+| Control window | дочернее окно frame или dialog (title bar, menu bar, icons) |
+| Dialog | временное окно для ввода; управляется dialog manager |
+| Message box | предопределённый диалог для уведомлений |
+| Menu | pop-up или pulldown; control window класса WC_MENU |
+
+Window class:
+
+| Элемент | Назначение |
+|---|---|
+| WinRegisterClass | регистрация класса |
+| WINDOWCLASS | pfnWindowProc, flClassStyle, cbWndExtra |
+| WinSubclassWindow | subclassing существующего класса |
+| WinQueryClassInfo | запрос информации о классе |
+
+Иерархия parent-child-owner: control window всегда owned by frame или dialog; frame является parent'ом своих frame-control окон (icons, menu bar) и одновременно их owner. Parent определяет координатную систему и clip; owner получает нотификации.
+
+Z-order и активация: frame-подъём при активации; WM_ACTIVATE / WM_SETFOCUS; frame-окна между HWND_DESKTOP и фокусным окном.
+
+Перерисовка: invalid region; clip по Z-order; WM_PAINT; синхронная перерисовка контролов.
+
+Стейкхолдер: разработчик приложений (иерархия, Z-order, активация).
+
+---
+
+### V8 Controls / Dialogs / Menus
+
+Concern: предопределённые классы, диалоговый менеджер, шаблоны диалогов, нотификации.
+
+Предопределённые классы:
+
+| Класс | Назначение |
+|---|---|
+| WC_BUTTON | кнопки (push, radio, checkbox, ownerdraw) |
+| WC_ENTRYFIELD | поле ввода |
+| WC_LISTBOX | список (single/multi-select, ownerdraw) |
+| WC_COMBOBOX | комбинированный список |
+| WC_SCROLLBAR | полоса прокрутки |
+| WC_STATIC | статический текст/иконка |
+| WC_MENU | меню |
+| WC_TITLEBAR | заголовок frame |
+| WC_VALUESET | набор значений |
+
+Владение и нотификации: control всегда owned by frame или dialog; отправляет WM_CONTROL (id + notification code) owner'у; ID уникален, задаётся в WinCreateWindow или dialog template.
+
+Dialog manager: WinDefDlgProc; загрузка dialog template из resource-definition file; автоматическое создание контролов; маршрутизация WM_COMMAND / WM_CONTROL.
+
+Кастомные контролы: ownerdraw listbox/menu/button; subclassing; регистрация нового класса с нуля.
+
+Стейкхолдер: разработчик приложений (CUA-совместимость, диалоги, элементы управления).
+
+---
+
+### V9 Inter-Application Communication
+
+Concern: hooks (input/sent-message/message-filter), clipboard, DDE, atom tables, разделяемая память.
+
+Hooks:
+
+| Hook | Регистрация | Назначение |
+|---|---|---|
+| Input hook | WinSetHook | перехват ввода до маршрутизации |
+| Sent-message hook | WinSetHook | перехват WinSendMsg |
+| Message-filter hook | WinSetHook | фильтрация сообщений в цикле |
+| PM hook | WinSetHook | вызов PM hook-процедур до/после window procedure |
+
+Hooks вызываются до/после window procedure; модальные циклы и message filter hooks работают до приложения (Program Inversion, V4).
+
+Clipboard:
+
+| Функция | Назначение |
+|---|---|
+| WinOpenClipbrd | открытие clipboard (только один владелец одновременно; PM блокирует вызывающего, но тот продолжает получать сообщения) |
+| WinEmptyClipbrd | очистка |
+| WinEnumClipbrdFmts | перечисление форматов |
+| WinQueryClipbrdData | чтение данных |
+| WinSetClipbrdData | запись данных |
+| WinSetClipbrdOwner | смена владельца |
+| WM_DESTROYCLIPBOARD | нотификация об уничтожении |
+
+Форматы: CF_* (предопределённые) и private.
+
+DDE:
+
+| Сообщение | Назначение |
+|---|---|
+| WM_DDE_INITIATE | broadcast INITIATE всем приложениям |
+| WM_DDE_INITIATEACK | ответ на INITIATE |
+| WinDdePostMsg | адресная отправка DDE-сообщений |
+
+PM управляет сообщениями и определяет протокол.
+
+Atom tables: PMSEM ATOM как семафор; глобальные/локальные atom tables (совместное использование строк между приложениями).
+
+Разделяемая память: PM shared memory (same selector в каждом процессе, одинаковый linear address).
+
+Маршрутизация через сервер: сообщения между окнами разных клиентов проходят через сервер (HandleWinCall): Send — синхронно с ожиданием, Post — в очередь целевого процесса. Сообщения между окнами одного клиента не выходят за его пределы.
+
+Стейкхолдер: интегратор (DDE/clipboard между приложениями), разработчик приложений (hooks для расширения поведения).
+
+---
+
+### V11 Resource Serialization
+
+Concern: сериализация разделяемых ресурсов PM и GRE, блокировки, владение.
+
+PMSEM / GRESEM: композитная структура семафора (signature PMSEM / GRESEM, 386 semaphore byte, owner pid/tid, nested count, event semaphore handle).
+
+Перечень PM-семафоров: PMSEM_ATOM, PMSEM_USER, PMSEM_VISLOCK, PMSEM_HOOK, PMSEM_HEAP, PMSEM_CLIP, PMSEM_INPUT, PMSEM_DESKTOP, PMSEM_TIMER, PMSEM_CONTROLS.
+
+Перечень GRE-семафоров: GRESEM_Init, GRESEM_PDEV, GRESEM_HFont, GRESEM_FntDrvr, GRESEM_GlobalData, GRESEM_DriverSem, GRESEM_semIfiCache.
+
+Механизм: PMRequestMutexSem; polling на встроенном event semaphore с ограниченным временем; поток может выглядеть blocked/ready/running в зависимости от цикла polling.
+
+Серверные семафоры:
+
+| Объект | Защита | Область |
+|---|---|---|
+| Fs_ClientList | мьютекс OS/2 | список сессий |
+| Fs_HabList | мьютекс OS/2 | таблица HAB |
+| Grace/inactive | монитор | глобально на сервере |
+
+Это не PMSEM/GRESEM — другой уровень и другой набор объектов.
+
+Стейкхолдер: интегратор, разработчик драйверов (кто с кем конкурирует за PMSEM_CLIP, PMSEM_HOOK, GRESEM_FntDrvr).
+
+---
+
+### V12 Printing / Non-display DC
+
+Concern: device independence для всех типов DC; hardcopy-драйверы (модель 1); спулер и queue processor; replay .met в не-дисплейный DC; ограничения прямого вывода.
+
+Типы DC и путь после PMGPI/PMGRE:
+
+| DC type | Устройство | Драйвер / путь | Spooler |
+|---|---|---|---|
+| Window DC | дисплей | display DDI (модель 1/2/3): .DRV / GRADD / SNAP | нет |
+| OD_QUEUED + PM_Q_STD | принтер, плоттер | hardcopy .DRV → PMSPL.DLL → spool file → queue processor (PMPRINT.QPR) → kernel driver | да |
+| OD_QUEUED + PM_Q_RAW | принтер, плоттер | hardcopy .DRV → PMSPL.DLL → spool file (raw) → queue processor | да |
+| OD_DIRECT | принтер, плоттер | hardcopy .DRV → PRTxxx → kernel driver (spooler обойдён) | нет |
+| OD_INFO | принтер, плоттер | hardcopy .DRV; вывод не производится; только запрос caps/properties | нет |
+| OD_METAFILE / OD_METAFILE_NOQUERY | .met | без драйвера устройства; GOCA orders → MO:DCA-L | нет |
+| OD_MEMORY | bitmap | без драйвера устройства; растр в память | нет |
+
+Модель hardcopy .DRV: hardcopy .DRV — presentation driver модели 1. Загружается при DevOpenDC(OD_QUEUED / OD_DIRECT / OD_INFO). Транслирует стандартный device-independent поток GPI в device-dependent raw data (управляющие коды принтера). Для OD_DIRECT использует PRTxxx-вызовы; для OD_QUEUED — spooler API (SplQmOpen, SplQmStartDoc, SplQmWrite, SplQmEndDoc, SplQmClose). OD_INFO не создаёт job и не пишет данных; служит для GreQueryHardcopyCaps и запроса свойств.
+
+Spooler: PMSPL.DLL — API спулера: очереди, задания, принтеры, драйверы. SPOOLCP.DLL — helper code-page support (DosPFSActivate, DosPFSQueryAct, DosPFSVerifyFont, DosPFSCloseUser). PMPRINT.QPR — штатный queue processor PM; обязанные типы данных — PM_Q_STD и PM_Q_RAW. Спулер хранит job на диске (spool file), управляет очередью (FIFO / priority), асинхронно передаёт queue processor'у. Print Manager — UI спулера (WPS printer object). При отключённом спулере OD_QUEUED деградирует до поведения OD_DIRECT.
+
+Device independence: что сохраняется и что нет:
+
+· Gpi* не привязаны к дисплею. Один и тот же код работает на window / printer / memory / .met DC; целевое устройство определяется DevOpenDC.
+· Retained mode и .met — device-independent контейнеры; GpiPlayMetaFile проигрывает orders в любой целевой DC.
+· Ограничения: bitmap-операции на принтере зависят от hardcopy .DRV; корреляция (GpiCorrelate*) только в retained; OD_INFO не допускает вывода; OD_METAFILE_NOQUERY запрещает запрос атрибутов.
+· Масштабирование: OD_DIRECT по умолчанию печатает «actual size»; OD_QUEUED — «scaled to fit» (различие поведения, не API).
+
+Lifecycle:
+
+| Артефакт | Создание | Уничтожение |
+|---|---|---|
+| hardcopy DC | DevOpenDC(OD_QUEUED / OD_DIRECT / OD_INFO) | DevCloseDC |
+| spool file | SplQmOpen / DevOpenDC(OD_QUEUED) | SplQmClose; queue processor удаляет после печати |
+| print job | SplQmStartDoc / DEVESC_STARTDOC | SplQmEndDoc / DEVESC_ENDDOC; job ID возвращается спулером |
+| .met | DevOpenDC(OD_METAFILE) | GpiDeleteMetaFile / DevCloseDC |
+
+Стейкхолдеры: разработчик приложений (device independence, replay .met в принтер, выбор OD_QUEUED vs OD_DIRECT); разработчик hardcopy .DRV (DDI модели 1, PRTxxx, spooler API, GreQueryHardcopyCaps); интегратор (спулер, queue processor, Print Manager / WPS printer object, PMSPL / SPOOLCP).
+
+---
+
+### V13 Client/Server Boundary
+
+Concern: где проходит граница между клиентом и сервером; что пересекает границу; что остаётся на каждой стороне; владение handle'ами; маршрутизация сообщений; синхронизация; развёртывание.
+
+Граница: транспортный уровень (Fs_PfnSend / Fs_PfnRecv), реализованный через named pipe или TCP/IP. Всё выше — клиент; всё ниже — сервер.
+
+Что пересекает границу:
+
+| Что | Направление | Точка в коде |
+|---|---|---|
+| opcode + data команды | клиент → сервер | PMCLIENT.DLL → Fs_PfnSend |
+| connect / F_CMD_GET_IHAB / F_CMD_CLIENT_RECONNECT | клиент → сервер | HandleCoreCommand |
+| GPI-команды | клиент → сервер | HandleGpiCall |
+| PMWIN-команды | клиент → сервер | HandleWinCall |
+| ihab / clientId | сервер → клиент | Fs_HabList |
+| результаты, события | сервер → клиент | Fs_PfnSend |
+
+Что остаётся на клиенте: приложение; Win*/Gpi* (API-контракт); PMCLIENT.DLL (маршалинг); очередь сообщений процесса.
+
+Что остаётся на сервере: Fs_Server::HandleCommand; PMWIN; PMGPI; PMGRE; Fs_ClientList; Fs_HabList; поток-монитор; DDI (модели 1/2/3); IFI; .met; hardcopy-ветвь; PMDD.SYS / System Queue.
+
+Владение handle'ами:
+
+| Handle | Владелец | Форма |
+|---|---|---|
+| HAB | Сервер (Fs_HabList) | индекс в m_aHabs[] |
+| HWND | Сервер | индекс в серверном массиве WND |
+| DC | Сервер | индекс в F_DC |
+| HPS | Сервер | индекс в F_PS |
+| HMQ | Поток | очередь в процессе; межпроцессные сообщения идут через сервер |
+
+Маршрутизация сообщений:
+
+| Источник → получатель | Путь |
+|---|---|
+| тот же поток | напрямую |
+| другой поток того же клиента | косвенно, без очереди |
+| другой клиент | через сервер (HandleWinCall) |
+
+Синхронизация:
+
+| Объект | Защита | Область |
+|---|---|---|
+| Fs_ClientList | мьютекс OS/2 | список сессий |
+| Fs_HabList | мьютекс OS/2 | таблица HAB |
+| Grace/inactive | монитор | глобально на сервере |
+
+Развёртывание:
+
+| Компонент | Ring | Форма |
+|---|---|---|
+| PMSERVER.EXE | 3 | EXE |
+| PMCLIENT.DLL | 3 | DLL |
+| wire | — | named pipe / TCP/IP |
+| PMWINDOW.DLL / PMDRIVER.DLL | 3 | DLL |
+
+---
+
+## 4. Эволюция драйверной модели
+
+| Период | Модель | Ключевое изменение |
+|---|---|---|
+| OS/2 1.1 – 1.3 | Прямой Dispatch Table (16-бит) | Первый PM; 16-битный GRE; сегментная модель; драйвер реализует все Gre*. Display-драйвер называется DISPLAY.DLL; DDI версии 1.0 (OS/2 1.1) и 1.2 (OS/2 1.2) |
+| OS/2 2.0 | 16-битный GRE + 16-битные драйверы | Архитектурно те же драйверы, что и в 1.x, плюс поддержка VDD для DOS-сессий; PMDD.SYS берёт на себя часть работы |
+| OS/2 2.00.1 / Service Pak XR06055 | 32-битный GRE | GRE переписан на 32 бита; продолжает поддерживать 16-битные драйверы; появляются 32-битные драйверы (IBMVGA32, SVGA256, XGA/8514/A) |
+| OS/2 Warp 3 | SOFTDRAW (метадрайвер) | Графический движок теперь поддерживает SOFTDRAW, программный растеризатор; драйверы могут делегировать рисование в память и на экран SOFTDRAW |
+| OS/2 Warp 4 | GRADD (VMAN + GRADD) | GRE2VMAN загружается как DDI-драйвер; VMAN; RC_SIMULATE; SOFTDRAW через VMAN; модель 1 сохраняется |
+| OS/2 Warp 4.5 / eCS | SNAP как GRADD | SciTech SNAP Graphics в дистрибутиве; модель 3 |
+| ArcaOS | SNAP как GRADD | SNAP лицензирован Arca Noae; продолжение линии |
+| 2026 | Клиент-серверная | PMCLIENT.DLL ↔ wire ↔ Fs_Server; DDI/GRADD/SNAP хостятся в сервере; hardcopy сохраняется |
+
+Hardcopy-драйверы и спулер существуют во всех версиях линии (1.1 → ArcaOS) как модель 1; от версии к версии меняются spooler API и queue processor, но не точка подключения (DevOpenDC → Dispatch Table).
+
+---
+
+## 5. Inconsistencies
+
+| # | Несоответствие |
+|---|---|
+| 1 | Три модели сосуществуют; поведение зависит от версии PM и fixpack |
+| 2 | FONTMETRICS ↔ FOCAMETRICS: не все поля документированы |
+| 3 | .met допускает IOCA, но не все версии PM исполняют |
+| 4 | Ring level драйвера зависит от OS2_PM_DRV_RING_LEVELS |
+| 5 | RC_SIMULATE семантика в SOFTDRAW-модели (Warp 3) и GRADD (Warp 4) различается механизмом вызова |
+| 6 | SNAP документирован менее полно, чем GENGRADD; при этом SNAP — штатный компонент с Warp 4.5 (Warp 4.5, eCS, ArcaOS) |
+| 7 | 16-битный PM (1.1–1.3): иная разрядность, сегментная модель, 16-битные DISPLAY.DLL, отсутствие части Gpi*/Gre* |
+| 8 | Hooks и subclassing — два механизма перехвата; семантика и порядок вызова различаются и слабо документированы |
+| 9 | Clipboard single-owner vs многозадачность: блокировка вызывающего при открытом clipboard — потенциальная точка deadlock |
+| 10 | PMSEM/GRESEM — внутренняя структура, не публичный ABI; версии PM могут менять набор семафоров |
+| 11 | GOCA GPS не зависит от среды, но в OS/2 PM GPS материализуется только через GpiCreatePS; в GDDM/IPDS GPS реализуется без GPI |
+| 12 | OD_DIRECT vs OD_QUEUED: разное масштабирование (actual size vs scaled to fit) при одинаковом API; поведение зависит от типа DC |
+| 13 | OD_QUEUED с PM_Q_STD vs PM_Q_RAW: escapes по-разному метафайлятся / записываются в spool file (см. DevEscape); не все queue processor'ы поддерживают оба типа |
+| 14 | Wire: named pipe vs TCP/IP — в разных артефактах упоминаются оба, выбор не канонизирован |
+| 15 | Отслеживание PS/HAB в клиентских слотах не завершено (по комментарию в коде) |
+| 16 | Лимиты F_MAX_CLIENTS=64, F_MAX_HABS=128 — compile-time, не runtime |
+| 17 | Удалённый клиент меняет модель безопасности PM (аутентификация на границе не упомянута) |
+
+---
+
+## 6. Rationale
+
+| Решение | Причина |
+|---|---|
+| Модель 2 через модель 1 | GRE2VMAN загружается как DDI-драйвер и перехватывает Gre* в Dispatch Table |
+| Модель 3 через модель 2 | SNAP-драйвер получает GHI от VMAN и транслирует в вызовы Nucleus |
+| SOFTDRAW — единая DLL | Не путь к устройству; активируется вызывающим; aperture предоставляется .DRV или GRADD через VMAN |
+| RC_SIMULATE → GHI_CMD_REQUESTHW → SOFTDRAW | Единый механизм программной эмуляции в модели GRADD |
+| IFI — прямой вызов GRE | Только GRE вызывает IFI-драйверы; приложения не зависят от шрифтовой технологии |
+| MO:DCA-L для .met | GOCA (вектор) + IOCA (растр), совместимость с AFP |
+| Гибридный GRE | Совместимость старых DDI-драйверов при появлении GRADD |
+| V6 Font Subsystem | Concerns разработчика шрифтов не покрываются V1–V5 полностью |
+| 16-бит PM как отправная точка | OS/2 1.1–1.3 — первая реализация PM; 32-битный GRE появился в 2.0 fixpack |
+| SNAP в линии Warp 4.5 → eCS → ArcaOS | SNAP вошёл в дистрибутив с Warp 4.5; унаследован eCS и ArcaOS; лицензирован Arca Noae |
+| V7 Window Management | Concerns разработчика приложений в части иерархии окон, Z-order, активации не покрывались V1–V6 |
+| V8 Controls / Dialogs / Menus | Concerns CUA-совместимости, диалогов, элементов управления не покрывались V1–V6 |
+| V9 Inter-Application Communication | Concerns hooks, clipboard, DDE, atom tables не покрывались V1–V6 |
+| V11 Resource Serialization | V4 фрагментарен (HMQ/DC/VMAN); полная карта PMSEM/GRESEM — самостоятельный concern интегратора |
+| V12 Printing / Non-display DC | Печать и не-дисплейные DC — самостоятельный concern: hardcopy-драйверы модели 1, спулер, queue processor, replay .met; не покрываются V1–V9 и не сводятся к дисплейному пути |
+| WPS вне слоя PM | WPS — потребитель PM API, не часть PM; concerns WPS-разработчика (SOM/IDL) не относятся к PM |
+| Клиент-серверная граница по транспортному уровню | Позволяет удалённые клиенты и кроссплатформенный транспорт, не меняя Win*/Gpi* для приложения |
+| Диспетчеризация через HandleCommand | Единая точка маршрутизации GPI/PMWIN/core, изолирует протокол от реализации |
+| Централизованное владение HAB/сессиями | Устраняет локальные таблицы процессов, даёт единый учёт и таймауты |
+| Сохранение hardcopy-ветви в сервере | Печать не зависит от дисплейной модели; модель 1 остаётся нужной |
+
+---
+
+## 7. Изменения относительно AD 16.0
+
+| Что изменено | Обоснование |
+|---|---|
+| Заголовок: AD 17.0 | Ревизия = AD 16.0 + клиент-серверный раздел |
+| Раздел 1: границы включают клиент-серверный раздел | Согласовано с V13 |
+| Раздел 1: структура системы (клиент / сервер / транспорт) | Мини-сервер как штатная часть PM |
+| Раздел 1: внешние акторы — удалённый клиент | Сетевой доступ к серверу |
+| Раздел 1: что пересекает границу — команды, ihab/clientId | Согласовано с V2, V13 |
+| Раздел 2: новые stakeholders/concerns | Прозрачность клиент-серверного разделения, драйверная DLL, сетевой доступ, диспетчеризация |
+| V1: клиент-серверный раздел в диаграмме | Единая диаграмма; PMWIN/PMGPI/GOCA/PMGRE и все три драйверные модели сохранены в полном объёме |
+| V1: текст — команды, маршрутизация, SQMSG в сервер | Согласовано с V13 |
+| V2: новые элементы (PMCLIENT.DLL, Fs_Server, HandleCommand, Fs_ClientList, Fs_HabList, монитор, драйверная DLL) | Функциональная карта клиент-серверного раздела |
+| V2: новые связи (PMCLIENT → wire → Fs_Server; Fs_HabList → wire → PMCLIENT) | Согласовано с V13 |
+| V3: HAB и клиентская сессия — серверные | Централизованное владение |
+| V3: lifecycle клиентской сессии | StateFree → StateActive → StateDetached → StateFree |
+| V4: поток клиент-сервер, Fs_ClientList, Fs_HabList, монитор | Новые точки синхронизации |
+| V5: PMSERVER.EXE, PMCLIENT.DLL, wire, PMWINDOW.DLL / PMDRIVER.DLL | Новые единицы развёртывания |
+| V5: загрузка клиент-серверной ветви (удалённый → локальный → запуск копии) | Алгоритм подключения |
+| V9: маршрутизация через сервер | Межклиентские сообщения |
+| V11: серверные семафоры | Не PMSEM/GRESEM; другой уровень |
+| V12: hardcopy-ветвь хостится в сервере | Согласовано с V13 |
+| V13: новый viewpoint | Клиент-серверная граница |
+| Раздел 4: строка 2026 (клиент-серверная модель) | Эволюция |
+| Раздел 5: #14–#17 | Новые несоответствия |
+| Раздел 6: rationale для клиент-серверной границы, HandleCommand, централизованного владения, hardcopy | Обоснование |
+| Раздел 7.1: предыдущая ревизия 15.0 → 16.0 | Сохранена |
+
+### 7.1 Предыдущая ревизия (AD 15.0 → AD 16.0)
+
+| Что изменено | Обоснование |
+|---|---|
+| Заголовок: OS/2 Presentation Manager — Full Architecture (Window Manager, Graphics, IPC) | Объём расширен до полного PM |
+| Раздел 1: «Система» — оконная и графическая подсистема PM + IPC | Синхронизация с заголовком |
+| Раздел 1: разделён с V1 | Устранено дублирование |
+| Раздел 1: 16-битный PM (1.1–1.3) входит в объём | Отправная точка линии PM |
+| Раздел 1: SNAP — штатный компонент линейки | SNAP вошёл в дистрибутив с Warp 4.5 |
+| Раздел 1: WPS — внешний актор | WPS вне слоя PM |
+| Раздел 1: DC types | Устройства, отличные от дисплея |
+| Раздел 1: GOCA/GPS/PS уточнение | GOCA определяет GPS; GPS не зависит от среды |
+| Раздел 1: таблица DM_DRAW/DM_RETAIN/DM_DRAWANDRETAIN с orders | Orders существуют только в retained |
+| Раздел 1: смена GpiSetDrawingMode вне bracket разрешена | Уточнение поведения PS |
+| Раздел 1: ветви вывода после PMGRE (дисплей / hardcopy / .met / memory) | Device independence GPI |
+| Раздел 1: границы системы включают hardcopy .DRV, PMSPL, SPOOLCP, PMPRINT.QPR | Согласовано с V12 |
+| Раздел 1: «что пересекает границу» — вход/выход для hardcopy, spool file, memory bitmap | Согласовано с V12 |
+| Раздел 1: таблица «Доступ к устройству» — строка hardcopy .DRV | Прямой доступ через PRTxxx / SplQm* |
+| Раздел 2: интегратор — eCS/ArcaOS (SNAP как штатный GRADD); спулер и queue processor | Снятие оттенка нелегитимности SNAP; покрытие V12 |
+| Раздел 2: добавлены concerns разработчика приложений (controls/dialogs/CUA, hooks/clipboard/DDE, replay .met в принтер) | Покрытие V7–V9, V12 |
+| Раздел 2: добавлены concerns разработчика драйверов (hardcopy .DRV) | Покрытие V12 |
+| Раздел 3: V1 обновлён | Согласованные правки |
+| Раздел 3: V2 углублён (GPI-группы, связи Win*→PMGPI→PMGRE) | GPI как явный слой |
+| Раздел 3: V2 — строки hardcopy .DRV, PMSPL.DLL, SPOOLCP.DLL, PMPRINT.QPR; связи для печати и replay .met | Согласовано с V12 |
+| Раздел 3: V2 — примечание «все группы GPI device-independent» | Дисплей — не единственное целевое устройство |
+| Раздел 3: V3 углублён (GPS, координатные пространства, segment store, clipboard formats, atom tables); добавлен spool file | Информационная модель полного PM |
+| Раздел 3: V4 — потоки печати OD_QUEUED / OD_DIRECT; семафор спулера | Согласовано с V12 |
+| Раздел 3: V5 — SNAP указан для Warp 4.5 и eCS | Штатный компонент линии |
+| Раздел 3: V5 — hardcopy .DRV, PMSPL.DLL, SPOOLCP.DLL, PMPRINT.QPR; строка загрузки hardcopy .DRV | Согласовано с V12 |
+| Раздел 3: добавлены V7, V8, V9, V11 | Покрытие concerns полного PM |
+| Раздел 3: добавлен V12 Printing / Non-display DC | Печать и не-дисплейные DC не покрывались V1–V11 |
+| Раздел 3: V10 отсутствует | WPS вне слоя PM |
+| Раздел 4: переписан — 16-бит PM как отправная точка; SNAP в линии Warp 4.5 → eCS → ArcaOS | Согласовано |
+| Раздел 4: добавлена строка о hardcopy-драйверах и спулере во всех версиях линии | Согласовано с V12 |
+| Раздел 5: #6 SNAP — снят оттенок нелегитимности | Штатный компонент |
+| Раздел 5: добавлены #7 (16-бит PM), #8 (hooks/subclassing), #9 (clipboard deadlock), #10 (PMSEM/GRESEM ABI), #11 (GOCA GPS vs PS) | Новые несоответствия |
+| Раздел 5: добавлены #12 (OD_DIRECT vs OD_QUEUED), #13 (PM_Q_STD vs PM_Q_RAW) | Несоответствия не-дисплейных DC |
+| Раздел 6: добавлены rationale для 16-бит PM, SNAP, V7–V9, V11, WPS | Обоснование решений |
+| Раздел 6: добавлен rationale V12 | Обоснование выделения печати и не-дисплейных DC |
+| Убраны «ветви A/B», используются «модель 1 / 2 / 3» | Терминология моделей |
+| GDI2VMAN, TAL2VMAN, EXT2VMAN, VVMI отсутствуют | Не относятся к PM |
+| GRE2VMAN — единственный трансляционный слой PM | Подтверждено |
+| System Queue / SQMSG, Program Inversion, VMAN helper-функции, обязательные GHI-функции, GHI_CMD_REQUESTHW, Chaining GRADD | Сохранены |
+| V6 Font Subsystem сохранён | Concerns разработчика шрифтов |
+| V12: печать и не-дисплейные DC | Сохранён объём device-independent GPI |
+
+---
+
+## 8. Источники
+
+| # | Источник | URL | Что подтверждает |
+|---|---|---|---|
+| 1 | Writing OS/2 2.1 Device Drivers in C (Mastrianni, 1993) | — | Dispatch Table, OS2_PM_DRV_ENABLE, FillLogicalDeviceBlock, _cdecl, флаги COM_DRAW/COM_BOUND/COM_CORR |
+| 2 | osFree PM Architecture | http://osfree.org/doku/doku.php?id=en:docs:os2:pm:architecture | GPI/GRE как два слоя, PS vs DC, Dispatch Table, hooking драйверов |
+| 3 | GRADD Model Components (EDM2) | http://www.edm2.com/index.php?title=Graphics_Subsystem&oldid=34604 | VMAN, VMI, GHI, SOFTDRAW (SDBitBlt/SDLine), RC_SIMULATE, chaining GRADD |
+| 4 | Graphics Hardware Interface (GHI) (osFree) | http://osfree.org/pub/downloads/docs/os2power.pdf | HWEntry, RC_SIMULATE, GHI_CMD_REQUESTHW, обязательные GHI-функции |
+| 5 | Graphics Hardware Interface Functions (osFree) | https://studyres.com/doc/3170994/ | Различие VMIEntry/HWEntry, список GHI-функций |
+| 6 | VMI_CMD определения (SDL_gradd.h) | — | VMI_CMD_INITPROC, VMI_CMD_TERMPROC, VMI_CMD_QUERYMODES, VMI_CMD_SETMODE, VMI_CMD_PALETTE, VMI_CMD_BITBLT |
+| 7 | OS/2 2.0 PM Programming Reference, Vol. 1 | — | GpiSetDrawingMode, DM_DRAW/DM_RETAIN/DM_DRAWANDRETAIN, фактический режим, правило «вне сегмента — всегда nonretained; unchained — всегда retained» |
+| 8 | OS/2 Presentation Manager GPI (Winn) | — | Retained mode: drawing orders накапливаются в segment store PS |
+| 9 | Metric Information Contained in Fonts (os2books) | — | FOCAMETRICS в PMFONT.H, маппинг Identity/Size/Codepage/world-coordinate |
+| 10 | MO:DCA-L: The OS/2 PM Metafile (.met) Format (AFP Consortium) | http://www.afpconsortium.org | Структура .met: GOCA DR/3V1, IOCA FS20, structured fields |
+| 11 | OS/2 Debugging Handbook Vol. 1 (Feb 1996) | — | Program Inversion, WinGetMsg, message queue + message list, System Queue, SQMSG от PMDD.SYS |
+| 12 | FreeType/2-IFI (Hobbes) | — | IFI-драйвер как замена TRUETYPE.DLL |
+| 13 | OS/2 FAQ (osFree) | http://www.osfree.org | GRE2VMAN/GREZWAN в OS2.INI, SDDGRADD, NUCLEUS, GRAPHICS.BPD, VMAN.DLL |
+| 14 | SNAP Graphics (os2world) | http://www.os2world.com | SNAP для OS/2, AGP.BDP/GRAPHICS.BDP как BPD-файлы |
+| 15 | GRE2VMAN (osFree wiki) | http://osfree.org/doku/doku.php?id=en:docs:os2:pm:architecture | GRE2VMAN — первый трансляционный слой, вызываемый GRE; ординалы |
+| 16 | AFP GOCA Architecture | http://www.afpconsortium.org | GPS — двумерное концептуальное пространство, не зависящее от среды; GOCA определяет графическую подсистему |
+| 17 | OS/2 PM Programming Guide (IBM) | — | Window classes, controls, dialog manager, hooks, clipboard, DDE |
+| 18 | OS/2 PM Programming Reference, Vol. 2 (Printing) | http://www.os2.kr | DevOpenDC (OD_QUEUED/OD_DIRECT/OD_INFO), DevEscape, GreQueryHardcopyCaps, SplQmOpen/SplQmStartDoc/SplQmWrite/SplQmEndDoc/SplQmClose, PM_Q_STD/PM_Q_RAW, PRTxxx |
+| 19 | OS/2 Print Subsystem (IBM) | http://www.os2.kr | PMSPL.DLL, SPOOLCP.DLL, PMPRINT.QPR, Print Manager, spool file, queue processor |
+| 20 | The OS/2 Display Driver Zoo (os2museum.com) | https://www.os2museum.com/wp/the-os-2-display-driver-zoo/ | Эволюция display-драйверов: 16-бит DDI 1.0/1.2, 32-битный GRE (2.00.1/XR06055), SOFTDRAW (Warp 3), GRADD (Warp 4) |
+| 21 | PMSEM/GRESEM (os2.kr) | http://www.os2.kr | Композитная структура семафора PMSEM/GRESEM для PMWIN и PMGRE |
+| 22 | osFree Project (GitHub) — OS2/PM/Server/mini | https://github.com/osfree-project/osfree | Fs_Server, Fs_ClientList, Fs_HabList, Fs_config; TCP/IP-соединение PMSERVER.EXE <> PMCLIENT.DLL; состояния сессий; лимиты; таймауты |

@@ -22,6 +22,7 @@ Fs_Dc::Fs_Dc()
 {
     m_curPos.x = 0;
     m_curPos.y = 0;
+    m_pInstance = NULL;
 }
 
 /*!

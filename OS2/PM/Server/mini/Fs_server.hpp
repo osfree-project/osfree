@@ -14,7 +14,6 @@
 #include "Fs_thread.hpp"
 #include "Fs_hab.hpp"
 #include "Fs_wnd.hpp"
-#include "Fs_dc.hpp"
 #include "F_cmd.h"
 
 /*! @brief Server configuration, defined in pmserver.cpp.
@@ -55,7 +54,6 @@ public:
     Fs_ConnectionList *GetConns() { return &m_conns; }
     Fs_HabList        *GetHabs()  { return &m_habs;  }
     Fs_WndList        *GetWnds()  { return &m_wnds;  }
-    Fs_DcList         *GetDcs()   { return &m_dcs;   }
 
     /*! @brief HWND of the server-side desktop window.
         @return Monotonic HWND assigned in Fs_Server(), or 0 if the
@@ -141,7 +139,6 @@ private:
     Fs_ConnectionList m_conns;
     Fs_HabList        m_habs;
     Fs_WndList        m_wnds;
-    Fs_DcList         m_dcs;
     ULONG             m_iHwndDesktop;   /*!< Monotonic HWND of the desktop; 0 on failure. */
 };
 

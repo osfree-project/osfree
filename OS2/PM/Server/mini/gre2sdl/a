@@ -1,0 +1,64 @@
+Win64 build host
+root=C:\devl\osfree\
+for %f in (C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\*.c) do C:\devl\osfree\osFreeBE\watcom\binnt\wmake.exe -h PROJ=gre2sdl srcfile=%f ext=.c add_source
+C:\devl\osfree\osFreeBE\watcom\binnt\wmake.exe -h PROJ=gre2sdl srcfile=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\*.c ext=.c add_source
+for %f in (C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\*.cpp) do C:\devl\osfree\osFreeBE\watcom\binnt\wmake.exe -h PROJ=gre2sdl srcfile=%f ext=.cpp add_source
+C:\devl\osfree\osFreeBE\watcom\binnt\wmake.exe -h PROJ=gre2sdl srcfile=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\gre2sdl.cpp ext=.cpp add_source
+for %f in (C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\*.asm) do C:\devl\osfree\osFreeBE\watcom\binnt\wmake.exe -h PROJ=gre2sdl srcfile=%f ext=.asm add_source
+C:\devl\osfree\osFreeBE\watcom\binnt\wmake.exe -h PROJ=gre2sdl srcfile=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\*.asm ext=.asm add_source
+%append C:\devl\osfree\build\OS2\PM\Server\mini\gre2sdl\_sources.mk !endif
+C:\devl\osfree\osFreeBE\watcom\binnt\wmake.exe -h PROJ=gre2sdl withsources=C:\devl\osfree\build\OS2\PM\Server\mini\gre2sdl\_sources.mk
+wmake -h -h PROJ=gre2sdl withsources=C:\devl\osfree\build\OS2\PM\Server\mini\gre2sdl\_sources.mk -f C:\devl\osfree\tools\scripts\makefile tools
+for %d in () do if exist C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\%d\. cd /d C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\%d && wmake -h install PLATFORM=
+echo CD       OS2\PM\Server\mini\gre2sdl\
+CD       OS2\PM\Server\mini\gre2sdl\ 
+"C:\devl\osfree\osFreeBE\REXX\binnt\regina.exe" mdhier.cmd C:\devl\osfree\build\OS2\PM\Server\mini\gre2sdl\
+CXX      gre2sdl.obj 
+if exist C:\devl\osfree\build\bin\\host\win32\bin\doxy-lint.exe doxy-lint.exe gre2sdl.cpp -zq -q -d__WATCOM__ -d__OSFREE__ -i=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\ -i=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\.. -i=C:\devl\osfree\build\OS2\PM\Server\mini\gre2sdl\ -i=C:\devl\osfree\build\OS2\PM\Server\mini\gre2sdl\.. -bt=os2 -d__OS2__ -i=C:\devl\osfree\osFreeBE\watcom\h -5 -fp5 -ei -i=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\ -i=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\..\..\..\include -i=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\..\include -sg -of+ -bd -3s -bm -i=C:\devl\osfree\osFreeBE\watcom\h\os2 -i=C:\devl\osfree\\include -i=C:\devl\osfree\\include\os3 -i=C:\devl\osfree\\include\os3\zlib -i=C:\devl\osfree\\include\os3\ojpeg -i=C:\devl\osfree\\include\os3\GDlib -i=C:\devl\osfree\\include\os3\GL -i=C:\devl\osfree\\include\os3\lpng -i=C:\devl\osfree\\include\os3\jpeglib -i=C:\devl\osfree\\include\os3\libtiff -i=C:\devl\osfree\\include\os3\gbm -i=C:\devl\osfree\\include\os3\pdcurses -i=C:\devl\osfree\\include\os3\glib -i=C:\devl\osfree\\include\os3\acpitk -i=C:\devl\osfree\\include\os3\lvmtk -i=C:\devl\osfree\\include\os3\xwphelpers
+doxy-lint.exe gre2sdl.cpp -zq -q -d__WATCOM__ -d__OSFREE__ -i=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\ -i=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\.. -i=C:\devl\osfree\build\OS2\PM\Server\mini\gre2sdl\ -i=C:\devl\osfree\build\OS2\PM\Server\mini\gre2sdl\.. -bt=os2 -d__OS2__ -i=C:\devl\osfree\osFreeBE\watcom\h -5 -fp5 -ei -i=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\ -i=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\..\..\..\include -i=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\..\include -sg -of+ -bd -3s -bm -i=C:\devl\osfree\osFreeBE\watcom\h\os2 -i=C:\devl\osfree\\include -i=C:\devl\osfree\\include\os3 -i=C:\devl\osfree\\include\os3\zlib -i=C:\devl\osfree\\include\os3\ojpeg -i=C:\devl\osfree\\include\os3\GDlib -i=C:\devl\osfree\\include\os3\GL -i=C:\devl\osfree\\include\os3\lpng -i=C:\devl\osfree\\include\os3\jpeglib -i=C:\devl\osfree\\include\os3\libtiff -i=C:\devl\osfree\\include\os3\gbm -i=C:\devl\osfree\\include\os3\pdcurses -i=C:\devl\osfree\\include\os3\glib -i=C:\devl\osfree\\include\os3\acpitk -i=C:\devl\osfree\\include\os3\lvmtk -i=C:\devl\osfree\\include\os3\xwphelpers
+gre2sdl.cpp:107: warning: macro 'HOOK': missing Doxygen comment
+gre2sdl.cpp:39: warning: missing Doxygen comment
+gre2sdl.cpp:52: warning: function 'Gre2SdlSetCurrentPosition': missing Doxygen comment
+gre2sdl.cpp:53: warning: function 'Gre2SdlGetCurrentPosition': missing Doxygen comment
+gre2sdl.cpp:54: warning: function 'Gre2SdlPolyLine': missing Doxygen comment
+gre2sdl.cpp:55: warning: function 'Gre2SdlPolyMarker': missing Doxygen comment
+gre2sdl.cpp:56: warning: function 'Gre2SdlBoxInterior': missing Doxygen comment
+gre2sdl.cpp:57: warning: function 'Gre2SdlBoxBoundary': missing Doxygen comment
+gre2sdl.cpp:58: warning: function 'Gre2SdlBoxBoth': missing Doxygen comment
+gre2sdl.cpp:59: warning: function 'Gre2SdlFullArcBoth': missing Doxygen comment
+gre2sdl.cpp:60: warning: function 'Gre2SdlPartialArc': missing Doxygen comment
+gre2sdl.cpp:62: warning: function 'Gre2SdlPolySpline': missing Doxygen comment
+gre2sdl.cpp:63: warning: function 'Gre2SdlPolyFillet': missing Doxygen comment
+gre2sdl.cpp:64: warning: function 'Gre2SdlCharString': missing Doxygen comment
+gre2sdl.cpp:65: warning: function 'Gre2SdlCharStringPos': missing Doxygen comment
+gre2sdl.cpp:68: warning: function 'Gre2SdlSetAttributes': missing Doxygen comment
+gre2sdl.cpp:70: warning: function 'Gre2SdlGetAttributes': missing Doxygen comment
+gre2sdl.cpp:77: warning: function 'OS2_PM_DRV_ENABLE': missing Doxygen comment
+gre2sdl.cpp:271: warning: function 'Gre2SdlSetCurrentPosition': missing Doxygen comment
+gre2sdl.cpp:282: warning: function 'Gre2SdlGetCurrentPosition': missing Doxygen comment
+gre2sdl.cpp:293: warning: function 'Gre2SdlPolyLine': missing Doxygen comment
+gre2sdl.cpp:320: warning: function 'Gre2SdlPolyMarker': missing Doxygen comment
+gre2sdl.cpp:345: warning: function 'Gre2SdlBoxInterior': missing Doxygen comment
+gre2sdl.cpp:372: warning: function 'Gre2SdlBoxBoundary': missing Doxygen comment
+gre2sdl.cpp:399: warning: function 'Gre2SdlBoxBoth': missing Doxygen comment
+gre2sdl.cpp:427: warning: function 'Gre2SdlFullArcBoth': missing Doxygen comment
+gre2sdl.cpp:455: warning: function 'Gre2SdlPartialArc': missing Doxygen comment
+gre2sdl.cpp:465: warning: function 'Gre2SdlPolySpline': missing Doxygen comment
+gre2sdl.cpp:471: warning: function 'Gre2SdlPolyFillet': missing Doxygen comment
+gre2sdl.cpp:477: warning: function 'Gre2SdlCharString': missing Doxygen comment
+gre2sdl.cpp:496: warning: function 'Gre2SdlCharStringPos': missing Doxygen comment
+gre2sdl.cpp:512: warning: function 'Gre2SdlSetAttributes': missing Doxygen comment
+gre2sdl.cpp:544: warning: function 'Gre2SdlGetAttributes': missing Doxygen comment
+wpp386 -zq -q -d__WATCOM__ -d__OSFREE__ -i=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\ -i=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\.. -i=C:\devl\osfree\build\OS2\PM\Server\mini\gre2sdl\ -i=C:\devl\osfree\build\OS2\PM\Server\mini\gre2sdl\.. -bt=os2 -d__OS2__ -i=C:\devl\osfree\osFreeBE\watcom\h -5 -fp5 -ei -i=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\ -i=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\..\..\..\include -i=C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\..\include -sg -of+ -bd -3s -bm -i=C:\devl\osfree\osFreeBE\watcom\h\os2 -i=C:\devl\osfree\\include -i=C:\devl\osfree\\include\os3 -i=C:\devl\osfree\\include\os3\zlib -i=C:\devl\osfree\\include\os3\ojpeg -i=C:\devl\osfree\\include\os3\GDlib -i=C:\devl\osfree\\include\os3\GL -i=C:\devl\osfree\\include\os3\lpng -i=C:\devl\osfree\\include\os3\jpeglib -i=C:\devl\osfree\\include\os3\libtiff -i=C:\devl\osfree\\include\os3\gbm -i=C:\devl\osfree\\include\os3\pdcurses -i=C:\devl\osfree\\include\os3\glib -i=C:\devl\osfree\\include\os3\acpitk -i=C:\devl\osfree\\include\os3\lvmtk -i=C:\devl\osfree\\include\os3\xwphelpers  -fr=C:\devl\osfree\build\OS2\PM\Server\mini\gre2sdl\gre2sdl.err -fo=C:\devl\osfree\build\OS2\PM\Server\mini\gre2sdl\gre2sdl.obj gre2sdl.cpp
+SDL_endian.h(249): Error! E605: col(3) assembler: 'Invalid instruction with current CPU setting'
+SDL_endian.h(249): Note! N393: col(3) included from SDL_audio.h(35)
+SDL_endian.h(249): Note! N393: col(3) included from C:\devl\osfree\OS2\PM\Server\mini\gre2sdl\SDL.h(35)
+SDL_endian.h(249): Note! N393: col(3) included from gre2sdl.cpp(33)
+SDL_endian.h(302): Error! E605: col(3) assembler: 'Invalid instruction with current CPU setting'
+SDL_endian.h(303): Error! E605: col(3) assembler: 'Invalid instruction with current CPU setting'
+Error(E42): Last command making (C:\devl\osfree\build\OS2\PM\Server\mini\gre2sdl\gre2sdl.obj) returned a bad status
+Error(E02): Make execution terminated
+Error(E42): Last command making (targets) returned a bad status
+Error(E02): Make execution terminated
+Error(E42): Last command making (gen_sources) returned a bad status
+Error(E02): Make execution terminated

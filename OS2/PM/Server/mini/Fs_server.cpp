@@ -207,14 +207,16 @@ void Fs_Server::ExpireSessions(time_t now)
 }
 
 /*!
- * @brief Tear down one thread: destroy its DCs, windows, HAB,
+ * @brief Tear down one thread: destroy its windows, HAB,
  *        free slot + connection.
  *
- * Cascade order: DCs first (they reference the window and the target
- * buffer), then windows (they reference the HAB), then the HAB itself
- * (destroying its PS via GpiPsDestroyByHab), then the thread slot and
- * its connection. If this was the last active thread of the process,
- * Fs_Process and any remaining HABs/DCs/windows are destroyed too.
+ * Cascade order: windows first (they reference the HAB), then the HAB
+ * itself (destroying its PS via GpiPsDestroyByHab), then the thread
+ * slot and its connection. If this was the last active thread of the
+ * process, Fs_Process and any remaining HABs/windows are destroyed too.
+ *
+ * DCs are owned by the GRE module, not by the server; per OS/2 PM
+ * semantics the application is responsible for calling DevCloseDC.
  *
  * @param [in] pThread  Thread slot to tear down.
  * @param [in] reason   Short tag for log messages ("EXIT" / "EXPIRE").
@@ -232,7 +234,6 @@ void Fs_Server::TeardownThread(Fs_Thread *pThread, const char *reason)
     iHab     = pThread->GetIHab();
 
     if (pProc && iHab != 0) {
-        m_dcs.DestroyByHab(iHab);
         m_wnds.DestroyByHab(iHab);
         m_habs.Destroy(idClient, pThread->GetTid(), iHab);
         pThread->ClearHab();

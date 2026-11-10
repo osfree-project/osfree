@@ -31,6 +31,8 @@
   typedef long          LONG;
   typedef unsigned short USHORT;
   typedef short         SHORT;
+  typedef USHORT       *PUSHORT;  
+  typedef SHORT        *PSHORT;   
   typedef unsigned char BYTE;
   typedef unsigned char UCHAR;
   typedef char          CHAR;

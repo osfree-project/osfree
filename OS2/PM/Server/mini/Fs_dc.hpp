@@ -63,11 +63,14 @@ public:
     LONG   GetBpp()     const { return m_bpp; }
     LONG   GetColor()   const { return m_color; }
     POINTL GetCurPos()  const { return m_curPos; }
+    PVOID  GetInstance() const { return m_pInstance; }
 
     /* ---- Mutators (used by GRE tier-1 in E5) ---- */
     void SetTarget(PBYTE p)                { m_pTarget = p; }
     void SetColor(LONG c)                  { m_color = c; }
     void SetCurPos(const POINTL &pt)       { m_curPos = pt; }
+    void SetHab(ULONG iHab)                { m_iHab = iHab; }
+    void SetInstance(PVOID p)              { m_pInstance = p; }
 
 private:
     BOOL   m_bUsed;
@@ -80,6 +83,7 @@ private:
     LONG   m_bpp;
     LONG   m_color;
     POINTL m_curPos;
+    PVOID  m_pInstance;
 };
 
 /*!
