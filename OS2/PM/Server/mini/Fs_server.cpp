@@ -45,7 +45,7 @@ void Fs_Server::SetWire(Fs_PfnRecv pfnRecv, Fs_PfnSend pfnSend)
     m_pfnSend = pfnSend;
 }
 
-void Fs_Server::SetConfig(const Fs_ServerConfig &cfg)
+void Fs_Server::SetConfig(const F_ServerConfig &cfg)
 {
     m_cfg = cfg;
 }

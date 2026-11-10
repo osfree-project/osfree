@@ -31,7 +31,7 @@ public:
     ~Fs_Server();
 
     void SetWire(Fs_PfnRecv pfnRecv, Fs_PfnSend pfnSend);
-    void SetConfig(const Fs_ServerConfig &cfg);
+    void SetConfig(const F_ServerConfig &cfg);
     void StartMonitor();
     void HandleCommand(void *pRecvobj, int ncmd, int data, int threadNum);
     void HandleDisconnect(void *pRecvobj);
@@ -62,7 +62,7 @@ private:
     Fs_PfnSend        m_pfnSend;
     volatile BOOL     m_fShutdown;
     volatile BOOL     m_fEverHadClient;
-    Fs_ServerConfig   m_cfg;
+    F_ServerConfig   m_cfg;
     Fs_ProcessList    m_procs;
 };
 
