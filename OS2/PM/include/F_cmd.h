@@ -3,7 +3,7 @@
 #define FREEPM_CMD
 
 #include "gpi_wire.h"   /* NGpi* function codes for GPI class */
-#include "gpi_wire.h"   /* NGpi* function codes for GPI class */
+#include "win_wire.h"   /* NWin* function codes for WIN class */
 
 /* ------------------------------------------------------------------------
  * Wire command layout:

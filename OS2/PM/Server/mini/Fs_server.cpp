@@ -31,18 +31,44 @@
 /* ======================================================================== */
 
 /*!
- * @brief Default constructor. Wire callbacks are installed by SetWire.
+ * @brief Default constructor.
+ *
+ * Wire callbacks are installed by SetWire. Configuration is taken
+ * from the process-wide FPMs_config (already read from fpmsrv.ini in
+ * main() before this object is constructed). The desktop window slot
+ * is allocated here: it is the server-side stand-in for HWND_DESKTOP
+ * (0x00000001 in PMWIN.H, ((HWND)1) in the Win32 emulation). The
+ * monotonic HWND counter yields 1 for the first Create call, so
+ * GetHwndDesktop() == HWND_DESKTOP on OS/2 by construction.
+ *
+ * @return Nothing (constructor).
  */
 Fs_Server::Fs_Server()
     : m_pfnRecv(NULL),
       m_pfnSend(NULL),
       m_fShutdown(FALSE),
-      m_fEverHadClient(FALSE)
+      m_fEverHadClient(FALSE),
+      m_cfg(FPMs_config),
+      m_iHwndDesktop(0)
 {
+    ULONG hwnd = 0;
+
+    m_habs.SetMax(m_cfg.ulMaxHabs);
+
+    if (m_wnds.Create(0, &hwnd) != NULL) {
+        m_iHwndDesktop = hwnd;
+        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                   "[SERVER] desktop window allocated: hwnd=%lu",
+                   (unsigned long)hwnd);
+    } else {
+        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_ERROR,
+                   "[SERVER] ERROR: failed to allocate desktop window slot");
+    }
 }
 
 /*!
  * @brief Destructor. Registries clean themselves up.
+ * @return Nothing (destructor).
  */
 Fs_Server::~Fs_Server()
 {
@@ -57,16 +83,6 @@ void Fs_Server::SetWire(Fs_PfnRecv pfnRecv, Fs_PfnSend pfnSend)
 {
     m_pfnRecv = pfnRecv;
     m_pfnSend = pfnSend;
-}
-
-/*!
- * @brief Apply the runtime configuration and propagate to subobjects.
- * @param [in] cfg  Configuration read from fpmsrv.ini.
- */
-void Fs_Server::SetConfig(const F_ServerConfig &cfg)
-{
-    m_cfg = cfg;
-    m_habs.SetMax(cfg.ulMaxHabs);
 }
 
 /* ======================================================================== */
@@ -191,12 +207,14 @@ void Fs_Server::ExpireSessions(time_t now)
 }
 
 /*!
- * @brief Tear down one thread: destroy its HAB, free slot + connection.
+ * @brief Tear down one thread: destroy its DCs, windows, HAB,
+ *        free slot + connection.
  *
- * Idempotent with respect to the process: if this was the last
- * active thread of the process, Fs_Process and any remaining HABs
- * are destroyed too. Called from HandleClientExit (EXIT command) and
- * from ExpireSessions (grace expiry).
+ * Cascade order: DCs first (they reference the window and the target
+ * buffer), then windows (they reference the HAB), then the HAB itself
+ * (destroying its PS via GpiPsDestroyByHab), then the thread slot and
+ * its connection. If this was the last active thread of the process,
+ * Fs_Process and any remaining HABs/DCs/windows are destroyed too.
  *
  * @param [in] pThread  Thread slot to tear down.
  * @param [in] reason   Short tag for log messages ("EXIT" / "EXPIRE").
@@ -214,6 +232,8 @@ void Fs_Server::TeardownThread(Fs_Thread *pThread, const char *reason)
     iHab     = pThread->GetIHab();
 
     if (pProc && iHab != 0) {
+        m_dcs.DestroyByHab(iHab);
+        m_wnds.DestroyByHab(iHab);
         m_habs.Destroy(idClient, pThread->GetTid(), iHab);
         pThread->ClearHab();
     }

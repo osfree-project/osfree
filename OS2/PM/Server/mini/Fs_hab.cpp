@@ -16,6 +16,7 @@
 
 /*!
  * @brief Default constructor. Slot starts unused, all fields zeroed.
+ * @return Nothing (constructor).
  */
 Fs_Hab::Fs_Hab()
     : m_bUsed(FALSE),
@@ -77,6 +78,8 @@ void Fs_Hab::Shutdown()
  * creation failure m_hmtx is left NULL and Lock/Unlock become no-ops,
  * so callers continue to work (without inter-thread protection in
  * that degenerate case).
+ *
+ * @return Nothing (constructor).
  */
 Fs_HabList::Fs_HabList()
     : m_ulNextHab(1),          /* skip 0: 0 = invalid HAB */
@@ -92,6 +95,7 @@ Fs_HabList::Fs_HabList()
 
 /*!
  * @brief Close the registry mutex.
+ * @return Nothing (destructor).
  */
 Fs_HabList::~Fs_HabList()
 {
@@ -320,7 +324,8 @@ BOOL Fs_HabList::Destroy(ULONG idClient, ULONG tid, ULONG iHab)
  *
  * @param [in] idClient  Owning session (0 = no-op).
  * @return Number of HABs destroyed.
- * @retval >=0  Count of freed slots.
+ * @retval 0    idClient == 0 (no-op), or no HABs owned by idClient.
+ * @retval >0   Count of freed slots.
  */
 int Fs_HabList::DestroyAll(ULONG idClient)
 {
@@ -354,8 +359,9 @@ int Fs_HabList::DestroyAll(ULONG idClient)
 /*!
  * @brief Count HABs owned by a given session.
  * @param [in] idClient  Owning session.
- * @return Number of matching HABs (0 for idClient==0).
- * @retval >=0  Count.
+ * @return Number of matching HABs.
+ * @retval 0    idClient == 0, or no HABs owned by idClient.
+ * @retval >0   Count.
  */
 int Fs_HabList::CountByClient(ULONG idClient)
 {

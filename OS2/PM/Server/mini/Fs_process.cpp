@@ -11,11 +11,23 @@
 /*  Fs_Process                                                              */
 /* ======================================================================== */
 
+/*!
+ * @brief Default constructor. Slot starts unused, idClient zeroed.
+ * @return Nothing (constructor).
+ */
 Fs_Process::Fs_Process()
     : m_bUsed(FALSE), m_idClient(0)
 {
 }
 
+/*!
+ * @brief Install a new process into a FREE slot.
+ *
+ * @param [in] idClient  Monotonic client id (non-zero).
+ * @return TRUE on success, FALSE if slot used or idClient == 0.
+ * @retval TRUE   Slot populated.
+ * @retval FALSE  Slot already used or idClient == 0.
+ */
 BOOL Fs_Process::Init(ULONG idClient)
 {
     if (m_bUsed)       return FALSE;
@@ -25,6 +37,9 @@ BOOL Fs_Process::Init(ULONG idClient)
     return TRUE;
 }
 
+/*!
+ * @brief Release all threads of this process and free the slot.
+ */
 void Fs_Process::Shutdown()
 {
     if (!m_bUsed) return;
@@ -33,6 +48,19 @@ void Fs_Process::Shutdown()
     m_idClient = 0;
 }
 
+/*!
+ * @brief Allocate a thread slot + connection for the given recvobj.
+ *
+ * Pairs Fs_Thread with Fs_Connection: the connection is allocated in
+ * the caller-supplied Fs_ConnectionList, then the thread slot is
+ * allocated in m_threads, and the two back-refs are cross-linked.
+ *
+ * @param [in] pConns    Server-wide connection registry.
+ * @param [in] pRecvobj  Transport handle of the calling thread.
+ * @return Thread slot, or NULL on failure.
+ * @retval !NULL  Thread + connection allocated.
+ * @retval NULL   Process unused, args invalid, or table full.
+ */
 Fs_Thread *Fs_Process::AllocThread(Fs_ConnectionList *pConns, void *pRecvobj)
 {
     Fs_Connection *pConn;
@@ -50,6 +78,11 @@ Fs_Thread *Fs_Process::AllocThread(Fs_ConnectionList *pConns, void *pRecvobj)
     return pThread;
 }
 
+/*!
+ * @brief Free a thread slot and its connection.
+ *
+ * @param [in] pThread  Thread slot to free (no-op if NULL).
+ */
 void Fs_Process::FreeThread(Fs_Thread *pThread)
 {
     Fs_Connection *pConn;
@@ -59,11 +92,25 @@ void Fs_Process::FreeThread(Fs_Thread *pThread)
     pThread->Shutdown();
 }
 
+/*!
+ * @brief Find a thread slot by client TID.
+ *
+ * @param [in] tid  Client thread id.
+ * @return Thread slot, or NULL if not found.
+ * @retval !NULL  Matching slot.
+ * @retval NULL   No such tid.
+ */
 Fs_Thread *Fs_Process::FindThreadByTid(ULONG tid)
 {
     return m_threads.FindByTid(tid);
 }
 
+/*!
+ * @brief Count active thread slots of this process.
+ *
+ * @return Number of used slots.
+ * @retval >=0  Count.
+ */
 int Fs_Process::CountActiveThreads() const
 {
     return m_threads.CountActive();
@@ -73,6 +120,15 @@ int Fs_Process::CountActiveThreads() const
 /*  Fs_ProcessList                                                          */
 /* ======================================================================== */
 
+/*!
+ * @brief Create the process registry and its OS/2 mutex.
+ *
+ * The monotonic idClient counter starts at 1 (0 = invalid idClient).
+ * On mutex creation failure m_hmtx is left NULL and Lock/Unlock become
+ * no-ops.
+ *
+ * @return Nothing (constructor).
+ */
 Fs_ProcessList::Fs_ProcessList()
     : m_ulNextId(1)
 {
@@ -84,21 +140,41 @@ Fs_ProcessList::Fs_ProcessList()
     }
 }
 
+/*!
+ * @brief Close the registry mutex.
+ * @return Nothing (destructor).
+ */
 Fs_ProcessList::~Fs_ProcessList()
 {
     if (m_hmtx) { DosCloseMutexSem(m_hmtx); m_hmtx = NULL; }
 }
 
+/*!
+ * @brief Acquire the registry mutex (no-op if it was not created).
+ */
 void Fs_ProcessList::Lock()
 {
     if (m_hmtx) DosRequestMutexSem(m_hmtx, SEM_INDEFINITE_WAIT);
 }
 
+/*!
+ * @brief Release the registry mutex (no-op if it was not created).
+ */
 void Fs_ProcessList::Unlock()
 {
     if (m_hmtx) DosReleaseMutexSem(m_hmtx);
 }
 
+/*!
+ * @brief Create a new process and allocate its first thread.
+ *
+ * @param [in]  pConns     Server-wide connection registry.
+ * @param [in]  pRecvobj   Transport handle of the first thread.
+ * @param [out] pIdClient  Receives the assigned idClient.
+ * @return Process slot, or NULL on failure.
+ * @retval !NULL  Process + first thread allocated.
+ * @retval NULL   Args invalid, table full, or thread/conn slot full.
+ */
 Fs_Process *Fs_ProcessList::Create(Fs_ConnectionList *pConns,
                                     void *pRecvobj, ULONG *pIdClient)
 {
@@ -144,6 +220,14 @@ Fs_Process *Fs_ProcessList::Create(Fs_ConnectionList *pConns,
     return pProc;
 }
 
+/*!
+ * @brief Find a process by idClient.
+ *
+ * @param [in] idClient  Client id (non-zero).
+ * @return Process slot, or NULL if not found.
+ * @retval !NULL  Matching slot.
+ * @retval NULL   No such idClient.
+ */
 Fs_Process *Fs_ProcessList::FindByIdClient(ULONG idClient)
 {
     int i;
@@ -160,6 +244,11 @@ Fs_Process *Fs_ProcessList::FindByIdClient(ULONG idClient)
     return pFound;
 }
 
+/*!
+ * @brief Destroy a process slot (all threads released by Shutdown).
+ *
+ * @param [in] idClient  Client id (0 = no-op).
+ */
 void Fs_ProcessList::Destroy(ULONG idClient)
 {
     int i;
@@ -181,6 +270,12 @@ void Fs_ProcessList::Destroy(ULONG idClient)
                "[PROCLIST] Destroy idClient=%lu", (unsigned long)idClient);
 }
 
+/*!
+ * @brief Count active process slots.
+ *
+ * @return Number of used slots.
+ * @retval >=0  Count.
+ */
 int Fs_ProcessList::CountActive() const
 {
     int i, n = 0;

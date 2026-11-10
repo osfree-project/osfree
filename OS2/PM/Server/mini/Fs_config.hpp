@@ -13,6 +13,8 @@
 #define F_MAX_CLIENTS           64   /*!< Maximum simultaneous connections. */
 #define F_MAX_HABS              128  /*!< Maximum simultaneous HABs. */
 #define F_MAX_THREADS           16   /*!< Maximum simultaneous threads per client. */
+#define F_MAX_WINDOWS           256  /*!< Maximum simultaneous windows. */
+#define F_MAX_DCS               256  /*!< Maximum simultaneous device contexts. */
 #define F_MONITOR_TICK_MS       1000 /*!< Monitor thread wake-up, ms. */
 #define F_DEFAULT_INACTIVE      60   /*!< Default inactivity timeout, sec. */
 #define F_DEFAULT_GRACE         30   /*!< Default grace timeout, sec. */

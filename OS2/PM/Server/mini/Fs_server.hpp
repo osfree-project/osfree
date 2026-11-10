@@ -1,6 +1,7 @@
 /*!
  * @file Fs_server.hpp
- * @brief Top-level server object: processes, connections, HABs, wire, monitor.
+ * @brief Top-level server object: processes, connections, HABs, windows,
+ *        wire, monitor.
  */
 #ifndef FS_SERVER_HPP
 #define FS_SERVER_HPP
@@ -12,8 +13,14 @@
 #include "Fs_connection.hpp"
 #include "Fs_thread.hpp"
 #include "Fs_hab.hpp"
+#include "Fs_wnd.hpp"
+#include "Fs_dc.hpp"
 #include "F_cmd.h"
-#include "win_wire.h"
+
+/*! @brief Server configuration, defined in pmserver.cpp.
+    Read from fpmsrv.ini before Fs_Server is constructed; Fs_Server's
+    ctor copies it into m_cfg and applies ulMaxHabs to m_habs. */
+extern F_ServerConfig FPMs_config;
 
 #if defined(__OS2__) || defined(__OS2V2__)
   #define FS_CALLCONV   _System
@@ -38,7 +45,6 @@ public:
     ~Fs_Server();
 
     void SetWire(Fs_PfnRecv pfnRecv, Fs_PfnSend pfnSend);
-    void SetConfig(const F_ServerConfig &cfg);
     void StartMonitor();
     void HandleCommand(void *pRecvobj, int ncmd, int data, int threadNum);
     void HandleDisconnect(void *pRecvobj);
@@ -48,6 +54,15 @@ public:
     Fs_ProcessList    *GetProcs() { return &m_procs; }
     Fs_ConnectionList *GetConns() { return &m_conns; }
     Fs_HabList        *GetHabs()  { return &m_habs;  }
+    Fs_WndList        *GetWnds()  { return &m_wnds;  }
+    Fs_DcList         *GetDcs()   { return &m_dcs;   }
+
+    /*! @brief HWND of the server-side desktop window.
+        @return Monotonic HWND assigned in Fs_Server(), or 0 if the
+                desktop slot could not be allocated.
+        @retval 0    Allocation failed.
+        @retval !=0  HWND of the desktop window (normally 1). */
+    ULONG GetHwndDesktop() const { return m_iHwndDesktop; }
 
 private:
     /* ---- Client lifecycle ---- */
@@ -125,6 +140,9 @@ private:
     Fs_ProcessList    m_procs;
     Fs_ConnectionList m_conns;
     Fs_HabList        m_habs;
+    Fs_WndList        m_wnds;
+    Fs_DcList         m_dcs;
+    ULONG             m_iHwndDesktop;   /*!< Monotonic HWND of the desktop; 0 on failure. */
 };
 
 #endif /* FS_SERVER_HPP */
