@@ -21,7 +21,7 @@
  *      ULONG APIENTRY GreXxx(ULONG a, ULONG b, ..., ULONG fnCode);
  *  We store them as generic pointers and cast at call sites.
  */
-typedef ULONG (APIENTRY *PFN_GRE)(ULONG, ULONG, ULONG, ULONG, ULONG,
+typedef ULONG (__cdecl *PFN_GRE)(ULONG, ULONG, ULONG, ULONG, ULONG,
                                   ULONG, ULONG, ULONG, ULONG, ULONG);
 
 /*! @brief Extract the table index from an NGre* constant. */

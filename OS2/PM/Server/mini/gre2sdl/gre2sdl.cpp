@@ -173,25 +173,25 @@ typedef struct _GRE2SDL_INSTANCE {
 /*  Forward declarations of hooked handlers                               */
 /* ======================================================================== */
 
-static ULONG APIENTRY Gre2SdlSetCurrentPosition(ULONG, ULONG, ULONG, ULONG);
-static ULONG APIENTRY Gre2SdlGetCurrentPosition(ULONG, ULONG, ULONG, ULONG);
-static ULONG APIENTRY Gre2SdlPolyLine(ULONG, ULONG, ULONG, ULONG, ULONG);
-static ULONG APIENTRY Gre2SdlPolyMarker(ULONG, ULONG, ULONG, ULONG, ULONG);
-static ULONG APIENTRY Gre2SdlBoxInterior(ULONG, ULONG, ULONG, ULONG);
-static ULONG APIENTRY Gre2SdlBoxBoundary(ULONG, ULONG, ULONG, ULONG);
-static ULONG APIENTRY Gre2SdlBoxBoth(ULONG, ULONG, ULONG, ULONG);
-static ULONG APIENTRY Gre2SdlFullArcBoth(ULONG, ULONG, ULONG, ULONG);
-static ULONG APIENTRY Gre2SdlPartialArc(ULONG, ULONG, ULONG, ULONG, ULONG,
+static ULONG __cdecl Gre2SdlSetCurrentPosition(ULONG, ULONG, ULONG, ULONG);
+static ULONG __cdecl Gre2SdlGetCurrentPosition(ULONG, ULONG, ULONG, ULONG);
+static ULONG __cdecl Gre2SdlPolyLine(ULONG, ULONG, ULONG, ULONG, ULONG);
+static ULONG __cdecl Gre2SdlPolyMarker(ULONG, ULONG, ULONG, ULONG, ULONG);
+static ULONG __cdecl Gre2SdlBoxInterior(ULONG, ULONG, ULONG, ULONG);
+static ULONG __cdecl Gre2SdlBoxBoundary(ULONG, ULONG, ULONG, ULONG);
+static ULONG __cdecl Gre2SdlBoxBoth(ULONG, ULONG, ULONG, ULONG);
+static ULONG __cdecl Gre2SdlFullArcBoth(ULONG, ULONG, ULONG, ULONG);
+static ULONG __cdecl Gre2SdlPartialArc(ULONG, ULONG, ULONG, ULONG, ULONG,
                                        ULONG, ULONG);
-static ULONG APIENTRY Gre2SdlPolySpline(ULONG, ULONG, ULONG, ULONG, ULONG);
-static ULONG APIENTRY Gre2SdlPolyFillet(ULONG, ULONG, ULONG, ULONG, ULONG);
-static ULONG APIENTRY Gre2SdlCharString(ULONG, ULONG, ULONG, ULONG, ULONG);
-static ULONG APIENTRY Gre2SdlCharStringPos(ULONG, ULONG, ULONG, ULONG,
+static ULONG __cdecl Gre2SdlPolySpline(ULONG, ULONG, ULONG, ULONG, ULONG);
+static ULONG __cdecl Gre2SdlPolyFillet(ULONG, ULONG, ULONG, ULONG, ULONG);
+static ULONG __cdecl Gre2SdlCharString(ULONG, ULONG, ULONG, ULONG, ULONG);
+static ULONG __cdecl Gre2SdlCharStringPos(ULONG, ULONG, ULONG, ULONG,
                                            ULONG, ULONG, ULONG, ULONG,
                                            ULONG, ULONG);
-static ULONG APIENTRY Gre2SdlSetAttributes(ULONG, ULONG, ULONG, ULONG,
+static ULONG __cdecl Gre2SdlSetAttributes(ULONG, ULONG, ULONG, ULONG,
                                            ULONG, ULONG, ULONG);
-static ULONG APIENTRY Gre2SdlGetAttributes(ULONG, ULONG, ULONG, ULONG,
+static ULONG __cdecl Gre2SdlGetAttributes(ULONG, ULONG, ULONG, ULONG,
                                            ULONG, ULONG);
 
 /* ======================================================================== */
@@ -849,7 +849,7 @@ extern "C" ULONG EXPENTRY OS2_PM_DRV_ENABLE(ULONG ulSubFunc,
  *
  * Pure state update; no drawing.
  */
-static ULONG APIENTRY Gre2SdlSetCurrentPosition(ULONG hdc, ULONG pptl,
+static ULONG __cdecl Gre2SdlSetCurrentPosition(ULONG hdc, ULONG pptl,
                                                 ULONG pInstance, ULONG fnCode)
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
@@ -863,7 +863,7 @@ static ULONG APIENTRY Gre2SdlSetCurrentPosition(ULONG hdc, ULONG pptl,
 /*!
  * @brief GreGetCurrentPosition: return the current position for this DC.
  */
-static ULONG APIENTRY Gre2SdlGetCurrentPosition(ULONG hdc, ULONG pptl,
+static ULONG __cdecl Gre2SdlGetCurrentPosition(ULONG hdc, ULONG pptl,
                                                 ULONG pInstance, ULONG fnCode)
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
@@ -880,7 +880,7 @@ static ULONG APIENTRY Gre2SdlGetCurrentPosition(ULONG hdc, ULONG pptl,
  * Each segment is drawn with Bresenham into g_pBuf under g_hmtxDraw.
  * The current position is updated to the last point.
  */
-static ULONG APIENTRY Gre2SdlPolyLine(ULONG hdc, ULONG pptl, ULONG cPoints,
+static ULONG __cdecl Gre2SdlPolyLine(ULONG hdc, ULONG pptl, ULONG cPoints,
                                       ULONG pInstance, ULONG fnCode)
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
@@ -907,7 +907,7 @@ static ULONG APIENTRY Gre2SdlPolyLine(ULONG hdc, ULONG pptl, ULONG cPoints,
 /*!
  * @brief GrePolyMarker: draw marker pixels in the DC's foreground colour.
  */
-static ULONG APIENTRY Gre2SdlPolyMarker(ULONG hdc, ULONG pptl, ULONG cPoints,
+static ULONG __cdecl Gre2SdlPolyMarker(ULONG hdc, ULONG pptl, ULONG cPoints,
                                         ULONG pInstance, ULONG fnCode)
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
@@ -933,7 +933,7 @@ static ULONG APIENTRY Gre2SdlPolyMarker(ULONG hdc, ULONG pptl, ULONG cPoints,
 /*!
  * @brief GreBoxInterior: filled rectangle from current position to bp->ptl.
  */
-static ULONG APIENTRY Gre2SdlBoxInterior(ULONG hdc, ULONG pBoxParams,
+static ULONG __cdecl Gre2SdlBoxInterior(ULONG hdc, ULONG pBoxParams,
                                          ULONG pInstance, ULONG fnCode)
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
@@ -959,7 +959,7 @@ static ULONG APIENTRY Gre2SdlBoxInterior(ULONG hdc, ULONG pBoxParams,
 /*!
  * @brief GreBoxBoundary: outlined rectangle from current position to bp->ptl.
  */
-static ULONG APIENTRY Gre2SdlBoxBoundary(ULONG hdc, ULONG pBoxParams,
+static ULONG __cdecl Gre2SdlBoxBoundary(ULONG hdc, ULONG pBoxParams,
                                          ULONG pInstance, ULONG fnCode)
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
@@ -985,7 +985,7 @@ static ULONG APIENTRY Gre2SdlBoxBoundary(ULONG hdc, ULONG pBoxParams,
 /*!
  * @brief GreBoxBoth: filled rectangle with an outline.
  */
-static ULONG APIENTRY Gre2SdlBoxBoth(ULONG hdc, ULONG pBoxParams,
+static ULONG __cdecl Gre2SdlBoxBoth(ULONG hdc, ULONG pBoxParams,
                                      ULONG pInstance, ULONG fnCode)
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
@@ -1019,7 +1019,7 @@ static ULONG APIENTRY Gre2SdlBoxBoth(ULONG hdc, ULONG pBoxParams,
  * rasterised by scanning x and solving y = sqrt(r^2 - (x-r)^2), one pair
  * of points per column. Fine enough for a first-pass display driver.
  */
-static ULONG APIENTRY Gre2SdlFullArcBoth(ULONG hdc, ULONG fxMultiplier,
+static ULONG __cdecl Gre2SdlFullArcBoth(ULONG hdc, ULONG fxMultiplier,
                                          ULONG pInstance, ULONG fnCode)
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
@@ -1050,7 +1050,7 @@ static ULONG APIENTRY Gre2SdlFullArcBoth(ULONG hdc, ULONG fxMultiplier,
  * Start angle and sweep are not honoured yet; TODO when the transform
  * layer arrives.
  */
-static ULONG APIENTRY Gre2SdlPartialArc(ULONG hdc, ULONG pptlCenter,
+static ULONG __cdecl Gre2SdlPartialArc(ULONG hdc, ULONG pptlCenter,
                                         ULONG fxMultiplier, ULONG fxStart,
                                         ULONG fxSweep, ULONG pInstance,
                                         ULONG fnCode)
@@ -1062,7 +1062,7 @@ static ULONG APIENTRY Gre2SdlPartialArc(ULONG hdc, ULONG pptlCenter,
 /*!
  * @brief GrePolySpline: currently delegates to GrePolyLine.
  */
-static ULONG APIENTRY Gre2SdlPolySpline(ULONG hdc, ULONG pptl, ULONG cPoints,
+static ULONG __cdecl Gre2SdlPolySpline(ULONG hdc, ULONG pptl, ULONG cPoints,
                                         ULONG pInstance, ULONG fnCode)
 {
     return Gre2SdlPolyLine(hdc, pptl, cPoints, pInstance, fnCode);
@@ -1071,7 +1071,7 @@ static ULONG APIENTRY Gre2SdlPolySpline(ULONG hdc, ULONG pptl, ULONG cPoints,
 /*!
  * @brief GrePolyFillet: currently delegates to GrePolyLine.
  */
-static ULONG APIENTRY Gre2SdlPolyFillet(ULONG hdc, ULONG pptl, ULONG cPoints,
+static ULONG __cdecl Gre2SdlPolyFillet(ULONG hdc, ULONG pptl, ULONG cPoints,
                                         ULONG pInstance, ULONG fnCode)
 {
     return Gre2SdlPolyLine(hdc, pptl, cPoints, pInstance, fnCode);
@@ -1084,7 +1084,7 @@ static ULONG APIENTRY Gre2SdlPolyFillet(ULONG hdc, ULONG pptl, ULONG cPoints,
  * Until that is in place, this preserves the current-position contract
  * (the position is not advanced, matching "no visible advance").
  */
-static ULONG APIENTRY Gre2SdlCharString(ULONG hdc, ULONG cch, ULONG pch,
+static ULONG __cdecl Gre2SdlCharString(ULONG hdc, ULONG cch, ULONG pch,
                                         ULONG pInstance, ULONG fnCode)
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
@@ -1105,7 +1105,7 @@ static ULONG APIENTRY Gre2SdlCharString(ULONG hdc, ULONG cch, ULONG pch,
 /*!
  * @brief GreCharStringPos: set current position, then draw at it.
  */
-static ULONG APIENTRY Gre2SdlCharStringPos(ULONG hdc, ULONG pptl, ULONG prcl,
+static ULONG __cdecl Gre2SdlCharStringPos(ULONG hdc, ULONG pptl, ULONG prcl,
                                            ULONG flOptions, ULONG cch,
                                            ULONG pch, ULONG pAdx,
                                            ULONG pCspInfo, ULONG pInstance,
@@ -1128,7 +1128,7 @@ static ULONG APIENTRY Gre2SdlCharStringPos(ULONG hdc, ULONG pptl, ULONG prcl,
  * the colour attribute is currently honoured; other attributes are
  * accepted and ignored until the drawing layer needs them.
  */
-static ULONG APIENTRY Gre2SdlSetAttributes(ULONG hdc, ULONG lPrimType,
+static ULONG __cdecl Gre2SdlSetAttributes(ULONG hdc, ULONG lPrimType,
                                            ULONG flAttrs, ULONG flDefMask,
                                            ULONG pBundle, ULONG pInstance,
                                            ULONG fnCode)
@@ -1163,7 +1163,7 @@ static ULONG APIENTRY Gre2SdlSetAttributes(ULONG hdc, ULONG lPrimType,
 /*!
  * @brief GreDeviceGetAttributes: return the DC's foreground colour.
  */
-static ULONG APIENTRY Gre2SdlGetAttributes(ULONG hdc, ULONG lPrimType,
+static ULONG __cdecl Gre2SdlGetAttributes(ULONG hdc, ULONG lPrimType,
                                            ULONG flAttrs, ULONG pBundle,
                                            ULONG pInstance, ULONG fnCode)
 {
