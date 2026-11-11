@@ -34,7 +34,6 @@
 #include "F_platform.h"
 #include "F_debug.h"
 #include "Fs_dc.hpp"
-#include "gre_debug.cpp"
 
 #include <string.h>
 
@@ -53,6 +52,8 @@
  *  @brief Number of slots in driver dispatch table.
  */
 #define MAXTABLEENTRIES   223
+
+#include "gre_debug.hpp"
 
 /* ======================================================================== */
 /*  Driver hook shapes (arity 2..10)                                      */
@@ -1384,8 +1385,8 @@ extern "C" {
 ULONG APIENTRY Gre32Entry2(ULONG a, ULONG fnCode)
 {
     int   ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
-                               "[GRE] Gre32Entry2(fn=0x%lx, a=0x%lx)",
-                               (unsigned long)fnCode, (unsigned long)a);
+                               "[GRE] Gre32Entry2(fn=0x%lx(%s), a=0x%lx)",
+                               (unsigned long)fnCode, GreFuncName(fnCode), (unsigned long)a);
     PFN   h   = SelectTable(fnCode)[fnCode & 0xFF];
     ULONG rc  = ((PFN_GRE2)h)(a, fnCode);
 
@@ -1402,13 +1403,13 @@ ULONG APIENTRY Gre32Entry2(ULONG a, ULONG fnCode)
 ULONG APIENTRY Gre32Entry3(ULONG a, ULONG b, ULONG fnCode)
 {
     int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
-                                 "[GRE] Gre32Entry3(fn=0x%lx, a=0x%lx)",
-                                 (unsigned long)fnCode, (unsigned long)a);
+                                 "[GRE] Gre32Entry3(fn=0x%lx(%s), a=0x%lx)",
+                                 (unsigned long)fnCode, GreFuncName(fnCode), (unsigned long)a);
     PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
     PVOID pInst = NULL;
     ULONG rc;
 
-    if (fnCode & 0x40) {
+    if (fnCode & 0x4000) {
         Fs_Dc *pDc = g_greDcs.Find(a);
         if (!pDc) {
             F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",
@@ -1429,13 +1430,13 @@ ULONG APIENTRY Gre32Entry3(ULONG a, ULONG b, ULONG fnCode)
 ULONG APIENTRY Gre32Entry4(ULONG a, ULONG b, ULONG c, ULONG fnCode)
 {
     int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
-                                 "[GRE] Gre32Entry4(fn=0x%lx, a=0x%lx)",
-                                 (unsigned long)fnCode, (unsigned long)a);
+                                 "[GRE] Gre32Entry4(fn=0x%lx(%s), a=0x%lx)",
+                                 (unsigned long)fnCode, GreFuncName(fnCode), (unsigned long)a);
     PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
     PVOID pInst = NULL;
     ULONG rc;
 
-    if (fnCode & 0x40) {
+    if (fnCode & 0x4000) {
         Fs_Dc *pDc = g_greDcs.Find(a);
         if (!pDc) {
             F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",
@@ -1456,13 +1457,13 @@ ULONG APIENTRY Gre32Entry4(ULONG a, ULONG b, ULONG c, ULONG fnCode)
 ULONG APIENTRY Gre32Entry5(ULONG a, ULONG b, ULONG c, ULONG d, ULONG fnCode)
 {
     int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
-                                 "[GRE] Gre32Entry5(fn=0x%lx, a=0x%lx)",
-                                 (unsigned long)fnCode, (unsigned long)a);
+                                 "[GRE] Gre32Entry5(fn=0x%lx(%s), a=0x%lx)",
+                                 (unsigned long)fnCode, GreFuncName(fnCode), (unsigned long)a);
     PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
     PVOID pInst = NULL;
     ULONG rc;
 
-    if (fnCode & 0x40) {
+    if (fnCode & 0x4000) {
         Fs_Dc *pDc = g_greDcs.Find(a);
         if (!pDc) {
             F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",
@@ -1484,13 +1485,13 @@ ULONG APIENTRY Gre32Entry6(ULONG a, ULONG b, ULONG c, ULONG d, ULONG e,
                            ULONG fnCode)
 {
     int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
-                                 "[GRE] Gre32Entry6(fn=0x%lx, a=0x%lx)",
-                                 (unsigned long)fnCode, (unsigned long)a);
+                                 "[GRE] Gre32Entry6(fn=0x%lx(%s), a=0x%lx)",
+                                 (unsigned long)fnCode, GreFuncName(fnCode), (unsigned long)a);
     PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
     PVOID pInst = NULL;
     ULONG rc;
 
-    if (fnCode & 0x40) {
+    if (fnCode & 0x4000) {
         Fs_Dc *pDc = g_greDcs.Find(a);
         if (!pDc) {
             F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",
@@ -1512,13 +1513,13 @@ ULONG APIENTRY Gre32Entry7(ULONG a, ULONG b, ULONG c, ULONG d, ULONG e,
                            ULONG f, ULONG fnCode)
 {
     int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
-                                 "[GRE] Gre32Entry7(fn=0x%lx, a=0x%lx)",
-                                 (unsigned long)fnCode, (unsigned long)a);
+                                 "[GRE] Gre32Entry7(fn=0x%lx(%s), a=0x%lx)",
+                                 (unsigned long)fnCode, GreFuncName(fnCode), (unsigned long)a);
     PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
     PVOID pInst = NULL;
     ULONG rc;
 
-    if (fnCode & 0x40) {
+    if (fnCode & 0x4000) {
         Fs_Dc *pDc = g_greDcs.Find(a);
         if (!pDc) {
             F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",
@@ -1540,13 +1541,13 @@ ULONG APIENTRY Gre32Entry8(ULONG a, ULONG b, ULONG c, ULONG d, ULONG e,
                            ULONG f, ULONG g, ULONG fnCode)
 {
     int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
-                                 "[GRE] Gre32Entry8(fn=0x%lx, a=0x%lx)",
-                                 (unsigned long)fnCode, (unsigned long)a);
+                                 "[GRE] Gre32Entry8(fn=0x%lx(%s), a=0x%lx)",
+                                 (unsigned long)fnCode, GreFuncName(fnCode), (unsigned long)a);
     PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
     PVOID pInst = NULL;
     ULONG rc;
 
-    if (fnCode & 0x40) {
+    if (fnCode & 0x4000) {
         Fs_Dc *pDc = g_greDcs.Find(a);
         if (!pDc) {
             F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",
@@ -1568,13 +1569,13 @@ ULONG APIENTRY Gre32Entry9(ULONG a, ULONG b, ULONG c, ULONG d, ULONG e,
                            ULONG f, ULONG g, ULONG h_, ULONG fnCode)
 {
     int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
-                                 "[GRE] Gre32Entry9(fn=0x%lx, a=0x%lx)",
-                                 (unsigned long)fnCode, (unsigned long)a);
+                                 "[GRE] Gre32Entry9(fn=0x%lx(%s), a=0x%lx)",
+                                 (unsigned long)fnCode, GreFuncName(fnCode), (unsigned long)a);
     PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
     PVOID pInst = NULL;
     ULONG rc;
 
-    if (fnCode & 0x40) {
+    if (fnCode & 0x4000) {
         Fs_Dc *pDc = g_greDcs.Find(a);
         if (!pDc) {
             F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",
@@ -1596,13 +1597,13 @@ ULONG APIENTRY Gre32Entry10(ULONG a, ULONG b, ULONG c, ULONG d, ULONG e,
                             ULONG f, ULONG g, ULONG h_, ULONG i, ULONG fnCode)
 {
     int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
-                                 "[GRE] Gre32Entry10(fn=0x%lx, a=0x%lx)",
-                                 (unsigned long)fnCode, (unsigned long)a);
+                                 "[GRE] Gre32Entry10(fn=0x%lx(%s), a=0x%lx)",
+                                 (unsigned long)fnCode, GreFuncName(fnCode), (unsigned long)a);
     PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
     PVOID pInst = NULL;
     ULONG rc;
 
-    if (fnCode & 0x40) {
+    if (fnCode & 0x4000) {
         Fs_Dc *pDc = g_greDcs.Find(a);
         if (!pDc) {
             F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",

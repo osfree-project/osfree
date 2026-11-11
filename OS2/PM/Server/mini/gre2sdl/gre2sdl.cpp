@@ -132,7 +132,12 @@ public:
     int DesktopNx;
     int DesktopNy;
 
-    Gre2SdlConfig() : DesktopNx(640), DesktopNy(480) {}
+    Gre2SdlConfig() : DesktopNx(640), DesktopNy(480)
+    {
+        int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                                 "[GRE2SDL] Gre2SdlConfig::Gre2SdlConfig");
+        F_DbgCtxExitf(ctx, "Nx=%d Ny=%d", DesktopNx, DesktopNy);
+    }
 
     /*!
      * @brief Handle one key from fpmsrv.ini.
@@ -142,9 +147,16 @@ public:
      */
     int AnalizeRecodrRead(char *name, char *par)
     {
-        if (strcmp(name, "DesktopNx") == 0) { sscanf(par, "%i", &DesktopNx); return 0; }
-        if (strcmp(name, "DesktopNy") == 0) { sscanf(par, "%i", &DesktopNy); return 0; }
-        return F_Config::AnalizeRecodrRead(name, par);
+        int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                                 "[GRE2SDL] Gre2SdlConfig::AnalizeRecodrRead(name=%s)",
+                                 name ? name : "(null)");
+        if (strcmp(name, "DesktopNx") == 0) { sscanf(par, "%i", &DesktopNx); F_DbgCtxExitf(ctx, "DesktopNx=%d", DesktopNx); return 0; }
+        if (strcmp(name, "DesktopNy") == 0) { sscanf(par, "%i", &DesktopNy); F_DbgCtxExitf(ctx, "DesktopNy=%d", DesktopNy); return 0; }
+        {
+            int rc = F_Config::AnalizeRecodrRead(name, par);
+            F_DbgCtxExitf(ctx, "delegated rc=%d", rc);
+            return rc;
+        }
     }
 };
 
@@ -204,8 +216,12 @@ static ULONG __cdecl Gre2SdlGetAttributes(ULONG, ULONG, ULONG, ULONG,
  */
 static void CanvasClear(Uint8 r, Uint8 g, Uint8 b)
 {
-    if (!g_pBuf) return;
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] CanvasClear(r=%u g=%u b=%u)",
+                             (unsigned)r, (unsigned)g, (unsigned)b);
+    if (!g_pBuf) { F_DbgCtxExitf(ctx, "no buffer"); return; }
     SDL_FillRect(g_pBuf, NULL, SDL_MapRGB(g_pBuf->format, r, g, b));
+    F_DbgCtxExitf(ctx, "ok");
 }
 
 /*!
@@ -216,11 +232,15 @@ static void CanvasPixel(int x, int y, Uint8 r, Uint8 g, Uint8 b)
 {
     Uint32 *row;
 
-    if (!g_pBuf) return;
-    if (x < 0 || x >= g_pBuf->w || y < 0 || y >= g_pBuf->h) return;
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] CanvasPixel(x=%d y=%d r=%u g=%u b=%u)",
+                             x, y, (unsigned)r, (unsigned)g, (unsigned)b);
+    if (!g_pBuf) { F_DbgCtxExitf(ctx, "no buffer"); return; }
+    if (x < 0 || x >= g_pBuf->w || y < 0 || y >= g_pBuf->h) { F_DbgCtxExitf(ctx, "clipped"); return; }
 
     row = (Uint32 *)((Uint8 *)g_pBuf->pixels + (size_t)y * g_pBuf->pitch);
     row[x] = SDL_MapRGB(g_pBuf->format, r, g, b);
+    F_DbgCtxExitf(ctx, "ok");
 }
 
 /*!
@@ -234,6 +254,10 @@ static void CanvasLine(int x0, int y0, int x1, int y1,
     int dy = -abs(y1 - y0), sy = (y0 < y1) ? 1 : -1;
     int err = dx + dy, e2;
 
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] CanvasLine(%d,%d -> %d,%d)",
+                             x0, y0, x1, y1);
+
     for (;;) {
         CanvasPixel(x0, y0, r, g, b);
         if (x0 == x1 && y0 == y1) break;
@@ -241,6 +265,7 @@ static void CanvasLine(int x0, int y0, int x1, int y1,
         if (e2 >= dy) { err += dy; x0 += sx; }
         if (e2 <= dx) { err += dx; y0 += sy; }
     }
+    F_DbgCtxExitf(ctx, "ok");
 }
 
 /*!
@@ -252,7 +277,11 @@ static void CanvasRect(int x, int y, int w, int h,
 {
     SDL_Rect rc;
 
-    if (!g_pBuf || w <= 0 || h <= 0) return;
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] CanvasRect(%d,%d %dx%d fill=%d)",
+                             x, y, w, h, (int)bFill);
+
+    if (!g_pBuf || w <= 0 || h <= 0) { F_DbgCtxExitf(ctx, "no-op"); return; }
 
     rc.x = (Sint16)x;
     rc.y = (Sint16)y;
@@ -267,6 +296,7 @@ static void CanvasRect(int x, int y, int w, int h,
         CanvasLine(x,         y,         x,         y + h - 1, r, g, b);
         CanvasLine(x + w - 1, y,         x + w - 1, y + h - 1, r, g, b);
     }
+    F_DbgCtxExitf(ctx, "ok");
 }
 
 /*!
@@ -274,9 +304,13 @@ static void CanvasRect(int x, int y, int w, int h,
  */
 static void Os2ColorToRgb(LONG lColor, Uint8 *r, Uint8 *g, Uint8 *b)
 {
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Os2ColorToRgb(lColor=0x%08lx)",
+                             (unsigned long)lColor);
     *r = (Uint8)( lColor        & 0xFF);
     *g = (Uint8)((lColor >>  8) & 0xFF);
     *b = (Uint8)((lColor >> 16) & 0xFF);
+    F_DbgCtxExitf(ctx, "r=%u g=%u b=%u", (unsigned)*r, (unsigned)*g, (unsigned)*b);
 }
 
 /* ======================================================================== */
@@ -306,6 +340,9 @@ static void WorkerProc(void *param)
     SDL_Window  *pWin;
     SDL_Surface *pScr;
 
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] WorkerProc(param=%p)", param);
+
     (void)param;
 
     F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
@@ -325,6 +362,7 @@ static void WorkerProc(void *param)
                    "[GRE2SDL] WorkerProc: SDL_CreateWindow failed: %s",
                    SDL_GetError());
         g_bRun = FALSE;
+        F_DbgCtxExitf(ctx, "SDL_CreateWindow failed");
         return;
     }
     g_pWin = pWin;
@@ -342,6 +380,7 @@ static void WorkerProc(void *param)
         SDL_DestroyWindow(pWin);
         g_pWin = NULL;
         g_bRun = FALSE;
+        F_DbgCtxExitf(ctx, "SDL_GetWindowSurface failed");
         return;
     }
 
@@ -382,6 +421,7 @@ static void WorkerProc(void *param)
 
     F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
                "[GRE2SDL] WorkerProc: exit");
+    F_DbgCtxExitf(ctx, "done");
 }
 
 /*!
@@ -397,6 +437,9 @@ static BOOL StartWorker(void)
 {
     ULONG tid;
 
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] StartWorker");
+
     F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
                "[GRE2SDL] StartWorker: begin");
 
@@ -409,6 +452,7 @@ static BOOL StartWorker(void)
     if (tid == (ULONG)-1) {
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_ERROR,
                    "[GRE2SDL] StartWorker: _beginthread failed");
+        F_DbgCtxExitf(ctx, "FALSE (_beginthread failed)");
         return FALSE;
     }
     g_tidWorker = (TID)tid;
@@ -416,6 +460,7 @@ static BOOL StartWorker(void)
     F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
                "[GRE2SDL] StartWorker: _beginthread -> tid=%lu",
                (unsigned long)g_tidWorker);
+    F_DbgCtxExitf(ctx, "TRUE (tid=%lu)", (unsigned long)g_tidWorker);
     return TRUE;
 }
 
@@ -446,8 +491,11 @@ static BOOL Gre2SdlInit(void)
 {
     int i;
 
-    if (g_bReady)      return TRUE;
-    if (g_bInitTried)  return FALSE;
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlInit");
+
+    if (g_bReady)      { F_DbgCtxExitf(ctx, "TRUE (cached)"); return TRUE; }
+    if (g_bInitTried)  { F_DbgCtxExitf(ctx, "FALSE (cached failure)"); return FALSE; }
     g_bInitTried = TRUE;
 
     F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
@@ -472,6 +520,7 @@ static BOOL Gre2SdlInit(void)
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_ERROR,
                    "[GRE2SDL] Gre2SdlInit: SDL_Init failed: %s",
                    SDL_GetError());
+        F_DbgCtxExitf(ctx, "FALSE (SDL_Init failed)");
         return FALSE;
     }
     F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
@@ -481,6 +530,7 @@ static BOOL Gre2SdlInit(void)
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_ERROR,
                    "[GRE2SDL] Gre2SdlInit: DosCreateMutexSem failed");
         g_hmtxDraw = NULL;
+        F_DbgCtxExitf(ctx, "FALSE (DosCreateMutexSem failed)");
         return FALSE;
     }
     F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
@@ -494,6 +544,7 @@ static BOOL Gre2SdlInit(void)
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_ERROR,
                    "[GRE2SDL] Gre2SdlInit: SDL_CreateRGBSurfaceWithFormat "
                    "failed: %s", SDL_GetError());
+        F_DbgCtxExitf(ctx, "FALSE (SDL_CreateRGBSurfaceWithFormat failed)");
         return FALSE;
     }
     F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
@@ -511,6 +562,7 @@ static BOOL Gre2SdlInit(void)
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_ERROR,
                    "[GRE2SDL] Gre2SdlInit: StartWorker failed");
         g_bRun = FALSE;
+        F_DbgCtxExitf(ctx, "FALSE (StartWorker failed)");
         return FALSE;
     }
 
@@ -533,12 +585,14 @@ static BOOL Gre2SdlInit(void)
                    "[GRE2SDL] Gre2SdlInit: worker did not report ready; "
                    "g_bRun=%d g_pWin=%p",
                    (int)g_bRun, (void *)g_pWin);
+        F_DbgCtxExitf(ctx, "FALSE (worker not ready)");
         return FALSE;
     }
 
     g_bReady = TRUE;
     F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
                "[GRE2SDL] Gre2SdlInit: done, ready=1");
+    F_DbgCtxExitf(ctx, "TRUE");
     return TRUE;
 }
 
@@ -565,11 +619,16 @@ static BOOL Gre2SdlInit(void)
 #if defined(__WIN32__) || defined(_WIN32)
 BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved)
 {
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] DllMain(reason=%lu)",
+                             (unsigned long)reason);
+
     (void)hinst; (void)reserved;
 
     if (reason == DLL_PROCESS_ATTACH) {
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
                    "[GRE2SDL] DllMain(ATTACH)");
+        F_DbgCtxExitf(ctx, "TRUE (ATTACH)");
         return TRUE;
     }
 
@@ -596,9 +655,11 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved)
 
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
                    "[GRE2SDL] DllMain(DETACH): done");
+        F_DbgCtxExitf(ctx, "TRUE (DETACH)");
         return TRUE;
     }
 
+    F_DbgCtxExitf(ctx, "TRUE (passthrough reason=%lu)", (unsigned long)reason);
     return TRUE;
 }
 #else
@@ -610,11 +671,16 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved)
  */
 unsigned long _System _DLL_InitTerm(unsigned long hmod, unsigned long flag)
 {
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] _DLL_InitTerm(flag=%lu)",
+                             (unsigned long)flag);
+
     (void)hmod;
 
     if (flag == 0) {
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
                    "[GRE2SDL] _DLL_InitTerm(attach)");
+        F_DbgCtxExitf(ctx, "1 (attach)");
         return 1;
     }
 
@@ -637,6 +703,7 @@ unsigned long _System _DLL_InitTerm(unsigned long hmod, unsigned long flag)
 
     F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
                "[GRE2SDL] _DLL_InitTerm(detach): done");
+    F_DbgCtxExitf(ctx, "1 (detach)");
     return 1;
 }
 #endif
@@ -672,6 +739,10 @@ extern "C" ULONG EXPENTRY OS2_PM_DRV_ENABLE(ULONG ulSubFunc,
                                             PULONG pParam1,
                                             PLONG pParam2)
 {
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] OS2_PM_DRV_ENABLE(sub=%02lxh)",
+                             (unsigned long)ulSubFunc);
+
     switch (ulSubFunc) {
 
     case EN_FILL_LDB: { /* FillLogicalDeviceBlock */
@@ -690,12 +761,14 @@ extern "C" ULONG EXPENTRY OS2_PM_DRV_ENABLE(ULONG ulSubFunc,
         if (!Gre2SdlInit()) {
             F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_ERROR,
                        "[GRE2SDL] FillLogicalDeviceBlock: Gre2SdlInit failed");
+            F_DbgCtxExitf(ctx, "-1 (Gre2SdlInit failed)");
             return (ULONG)-1;
         }
 
         if (!pInfo || !pRet || !pRet->DispTab) {
             F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_ERROR,
                        "[GRE2SDL] FillLogicalDeviceBlock: NULL pParam1/pParam2");
+            F_DbgCtxExitf(ctx, "-1 (NULL pParam1/pParam2)");
             return (ULONG)-1;
         }
 
@@ -749,18 +822,21 @@ extern "C" ULONG EXPENTRY OS2_PM_DRV_ENABLE(ULONG ulSubFunc,
             *pRet->Flags = (USHORT)((*pRet->Flags & 0xFFF8U) | 0x0004U);
         }
 
+        F_DbgCtxExitf(ctx, "0 (FILL_LDB)");
         return 0;
     }
 
     case EN_FILL_PDB: { /* FillPhysicalDeviceBlock */
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
                    "[GRE2SDL] FillPhysicalDeviceBlock");
+        F_DbgCtxExitf(ctx, "0 (FILL_PDB)");
         return 0;
     }
 
     case EN_DISABLE_PDB: /* DisablePhysicalDeviceBlock */
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
                    "[GRE2SDL] DisablePhysicalDeviceBlock");
+        F_DbgCtxExitf(ctx, "0 (DISABLE_PDB)");
         return 0;
 
     case EN_ENABLE_CTX: { /* EnableDeviceContext */
@@ -772,6 +848,7 @@ extern "C" ULONG EXPENTRY OS2_PM_DRV_ENABLE(ULONG ulSubFunc,
         if (!pDen) {
             F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_ERROR,
                        "[GRE2SDL] EnableDeviceContext: NULL pParam1");
+            F_DbgCtxExitf(ctx, "-1 (NULL pParam1)");
             return (ULONG)-1;
         }
 
@@ -785,6 +862,7 @@ extern "C" ULONG EXPENTRY OS2_PM_DRV_ENABLE(ULONG ulSubFunc,
         if (arc != 0 || pv == NULL) {
             F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_ERROR,
                        "[GRE2SDL] EnableDeviceContext: out of memory");
+            F_DbgCtxExitf(ctx, "-1 (out of memory)");
             return (ULONG)-1;
         }
         inst = (PGRE2SDL_INSTANCE)pv;
@@ -796,6 +874,7 @@ extern "C" ULONG EXPENTRY OS2_PM_DRV_ENABLE(ULONG ulSubFunc,
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
                    "[GRE2SDL] EnableDeviceContext -> pInstance=%p",
                    (void *)inst);
+        F_DbgCtxExitf(ctx, "pInstance=%p", (void *)inst);
         return (ULONG)inst;
     }
 
@@ -804,6 +883,7 @@ extern "C" ULONG EXPENTRY OS2_PM_DRV_ENABLE(ULONG ulSubFunc,
         if (inst) DosFreeMem(inst);
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
                    "[GRE2SDL] DisableDeviceContext");
+        F_DbgCtxExitf(ctx, "0 (DISABLE_CTX)");
         return 0;
     }
 
@@ -812,6 +892,7 @@ extern "C" ULONG EXPENTRY OS2_PM_DRV_ENABLE(ULONG ulSubFunc,
     case EN_RESET_CTX:   /* ResetDCState */
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
                    "[GRE2SDL] subfunction %02lxh", (unsigned long)ulSubFunc);
+        F_DbgCtxExitf(ctx, "0 (ctx state)");
         return 0;
 
     case EN_COMPLETE_OPENDC: { /* CompleteOpenDC */
@@ -819,23 +900,28 @@ extern "C" ULONG EXPENTRY OS2_PM_DRV_ENABLE(ULONG ulSubFunc,
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
                    "[GRE2SDL] CompleteOpenDC: hdc=%lu, pInstance=%p",
                    (unsigned long)pParam1, (void *)inst);
+        F_DbgCtxExitf(ctx, "0 (COMPLETE_OPENDC)");
         return 0;
     }
 
     case EN_BEGIN_CLOSEDC: /* BeginCloseDC */
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
                    "[GRE2SDL] BeginCloseDC");
+        F_DbgCtxExitf(ctx, "0 (BEGIN_CLOSEDC)");
         return 0;
 
     case EN_INSTALL_HOOKS: /* InstallPMEngineDisplayHooks */
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_WARNING,
                    "[GRE2SDL] InstallPMEngineDisplayHooks not implemented");
+        F_DbgCtxExitf(ctx, "0 (INSTALL_HOOKS)");
         return 0;
 
     default:
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_WARNING,
                    "[GRE2SDL] unsupported subfunction %02lxh",
                    (unsigned long)ulSubFunc);
+        F_DbgCtxExitf(ctx, "-1 (unsupported subfunction %02lxh)",
+                      (unsigned long)ulSubFunc);
         return (ULONG)-1;
     }
 }
@@ -854,9 +940,15 @@ static ULONG __cdecl Gre2SdlSetCurrentPosition(ULONG hdc, ULONG pptl,
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
     PPOINTL p = (PPOINTL)pptl;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlSetCurrentPosition(fn=0x%lx, hdc=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc);
+
     (void)hdc; (void)fnCode;
-    if (!inst || !p) return (ULONG)-1;
+    if (!inst || !p) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
     inst->ptlCurPos = *p;
+    F_DbgCtxExitf(ctx, "0");
     return 0;
 }
 
@@ -868,9 +960,15 @@ static ULONG __cdecl Gre2SdlGetCurrentPosition(ULONG hdc, ULONG pptl,
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
     PPOINTL p = (PPOINTL)pptl;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlGetCurrentPosition(fn=0x%lx, hdc=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc);
+
     (void)hdc; (void)fnCode;
-    if (!inst || !p) return (ULONG)-1;
+    if (!inst || !p) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
     *p = inst->ptlCurPos;
+    F_DbgCtxExitf(ctx, "0");
     return 0;
 }
 
@@ -887,9 +985,15 @@ static ULONG __cdecl Gre2SdlPolyLine(ULONG hdc, ULONG pptl, ULONG cPoints,
     PPOINTL pts = (PPOINTL)pptl;
     Uint8   r, g, b;
     ULONG   i;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlPolyLine(fn=0x%lx, hdc=%lu, cPoints=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc,
+                             (unsigned long)cPoints);
+
     (void)hdc; (void)fnCode;
 
-    if (!inst || !pts || cPoints < 2) return (ULONG)-1;
+    if (!inst || !pts || cPoints < 2) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
 
     Os2ColorToRgb(inst->lColor, &r, &g, &b);
 
@@ -901,6 +1005,7 @@ static ULONG __cdecl Gre2SdlPolyLine(ULONG hdc, ULONG pptl, ULONG cPoints,
     DosReleaseMutexSem(g_hmtxDraw);
 
     inst->ptlCurPos = pts[cPoints - 1];
+    F_DbgCtxExitf(ctx, "0");
     return 0;
 }
 
@@ -914,9 +1019,15 @@ static ULONG __cdecl Gre2SdlPolyMarker(ULONG hdc, ULONG pptl, ULONG cPoints,
     PPOINTL pts = (PPOINTL)pptl;
     Uint8   r, g, b;
     ULONG   i;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlPolyMarker(fn=0x%lx, hdc=%lu, cPoints=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc,
+                             (unsigned long)cPoints);
+
     (void)hdc; (void)fnCode;
 
-    if (!inst || !pts || cPoints < 1) return (ULONG)-1;
+    if (!inst || !pts || cPoints < 1) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
 
     Os2ColorToRgb(inst->lColor, &r, &g, &b);
 
@@ -927,6 +1038,7 @@ static ULONG __cdecl Gre2SdlPolyMarker(ULONG hdc, ULONG pptl, ULONG cPoints,
     DosReleaseMutexSem(g_hmtxDraw);
 
     inst->ptlCurPos = pts[cPoints - 1];
+    F_DbgCtxExitf(ctx, "0");
     return 0;
 }
 
@@ -939,9 +1051,14 @@ static ULONG __cdecl Gre2SdlBoxInterior(ULONG hdc, ULONG pBoxParams,
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
     PBOXPARAMS bp = (PBOXPARAMS)pBoxParams;
     Uint8 r, g, b;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlBoxInterior(fn=0x%lx, hdc=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc);
+
     (void)hdc; (void)fnCode;
 
-    if (!inst || !bp) return (ULONG)-1;
+    if (!inst || !bp) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
 
     Os2ColorToRgb(inst->lColor, &r, &g, &b);
 
@@ -953,6 +1070,7 @@ static ULONG __cdecl Gre2SdlBoxInterior(ULONG hdc, ULONG pBoxParams,
     DosReleaseMutexSem(g_hmtxDraw);
 
     inst->ptlCurPos = bp->ptl;
+    F_DbgCtxExitf(ctx, "0");
     return 0;
 }
 
@@ -965,9 +1083,14 @@ static ULONG __cdecl Gre2SdlBoxBoundary(ULONG hdc, ULONG pBoxParams,
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
     PBOXPARAMS bp = (PBOXPARAMS)pBoxParams;
     Uint8 r, g, b;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlBoxBoundary(fn=0x%lx, hdc=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc);
+
     (void)hdc; (void)fnCode;
 
-    if (!inst || !bp) return (ULONG)-1;
+    if (!inst || !bp) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
 
     Os2ColorToRgb(inst->lColor, &r, &g, &b);
 
@@ -979,6 +1102,7 @@ static ULONG __cdecl Gre2SdlBoxBoundary(ULONG hdc, ULONG pBoxParams,
     DosReleaseMutexSem(g_hmtxDraw);
 
     inst->ptlCurPos = bp->ptl;
+    F_DbgCtxExitf(ctx, "0");
     return 0;
 }
 
@@ -991,9 +1115,14 @@ static ULONG __cdecl Gre2SdlBoxBoth(ULONG hdc, ULONG pBoxParams,
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
     PBOXPARAMS bp = (PBOXPARAMS)pBoxParams;
     Uint8 r, g, b;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlBoxBoth(fn=0x%lx, hdc=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc);
+
     (void)hdc; (void)fnCode;
 
-    if (!inst || !bp) return (ULONG)-1;
+    if (!inst || !bp) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
 
     Os2ColorToRgb(inst->lColor, &r, &g, &b);
 
@@ -1009,6 +1138,7 @@ static ULONG __cdecl Gre2SdlBoxBoth(ULONG hdc, ULONG pBoxParams,
     DosReleaseMutexSem(g_hmtxDraw);
 
     inst->ptlCurPos = bp->ptl;
+    F_DbgCtxExitf(ctx, "0");
     return 0;
 }
 
@@ -1027,9 +1157,15 @@ static ULONG __cdecl Gre2SdlFullArcBoth(ULONG hdc, ULONG fxMultiplier,
     int    rx = (int)((fx >> 16) & 0xFFFF);
     Uint8  r, g, b;
     int    w;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlFullArcBoth(fn=0x%lx, hdc=%lu, fxMultiplier=0x%lx)",
+                             (unsigned long)fnCode, (unsigned long)hdc,
+                             (unsigned long)fxMultiplier);
+
     (void)hdc; (void)fnCode;
 
-    if (!inst || rx <= 0) return (ULONG)-1;
+    if (!inst || rx <= 0) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
 
     Os2ColorToRgb(inst->lColor, &r, &g, &b);
 
@@ -1041,6 +1177,7 @@ static ULONG __cdecl Gre2SdlFullArcBoth(ULONG hdc, ULONG fxMultiplier,
     }
     DosReleaseMutexSem(g_hmtxDraw);
 
+    F_DbgCtxExitf(ctx, "0");
     return 0;
 }
 
@@ -1055,8 +1192,14 @@ static ULONG __cdecl Gre2SdlPartialArc(ULONG hdc, ULONG pptlCenter,
                                         ULONG fxSweep, ULONG pInstance,
                                         ULONG fnCode)
 {
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlPartialArc(fn=0x%lx, hdc=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc);
+    ULONG rc;
     (void)pptlCenter; (void)fxStart; (void)fxSweep;
-    return Gre2SdlFullArcBoth(hdc, fxMultiplier, pInstance, fnCode);
+    rc = Gre2SdlFullArcBoth(hdc, fxMultiplier, pInstance, fnCode);
+    F_DbgCtxExitf(ctx, "0x%lx (delegated)", (unsigned long)rc);
+    return rc;
 }
 
 /*!
@@ -1065,7 +1208,12 @@ static ULONG __cdecl Gre2SdlPartialArc(ULONG hdc, ULONG pptlCenter,
 static ULONG __cdecl Gre2SdlPolySpline(ULONG hdc, ULONG pptl, ULONG cPoints,
                                         ULONG pInstance, ULONG fnCode)
 {
-    return Gre2SdlPolyLine(hdc, pptl, cPoints, pInstance, fnCode);
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlPolySpline(fn=0x%lx, hdc=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc);
+    ULONG rc = Gre2SdlPolyLine(hdc, pptl, cPoints, pInstance, fnCode);
+    F_DbgCtxExitf(ctx, "0x%lx (delegated)", (unsigned long)rc);
+    return rc;
 }
 
 /*!
@@ -1074,7 +1222,12 @@ static ULONG __cdecl Gre2SdlPolySpline(ULONG hdc, ULONG pptl, ULONG cPoints,
 static ULONG __cdecl Gre2SdlPolyFillet(ULONG hdc, ULONG pptl, ULONG cPoints,
                                         ULONG pInstance, ULONG fnCode)
 {
-    return Gre2SdlPolyLine(hdc, pptl, cPoints, pInstance, fnCode);
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlPolyFillet(fn=0x%lx, hdc=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc);
+    ULONG rc = Gre2SdlPolyLine(hdc, pptl, cPoints, pInstance, fnCode);
+    F_DbgCtxExitf(ctx, "0x%lx (delegated)", (unsigned long)rc);
+    return rc;
 }
 
 /*!
@@ -1089,9 +1242,15 @@ static ULONG __cdecl Gre2SdlCharString(ULONG hdc, ULONG cch, ULONG pch,
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
     Uint8 r, g, b;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlCharString(fn=0x%lx, hdc=%lu, cch=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc,
+                             (unsigned long)cch);
+
     (void)hdc; (void)cch; (void)pch; (void)fnCode;
 
-    if (!inst) return (ULONG)-1;
+    if (!inst) { F_DbgCtxExitf(ctx, "-1 (no inst)"); return (ULONG)-1; }
 
     Os2ColorToRgb(inst->lColor, &r, &g, &b);
 
@@ -1099,6 +1258,7 @@ static ULONG __cdecl Gre2SdlCharString(ULONG hdc, ULONG cch, ULONG pch,
     CanvasPixel(inst->ptlCurPos.x, inst->ptlCurPos.y, r, g, b);
     DosReleaseMutexSem(g_hmtxDraw);
 
+    F_DbgCtxExitf(ctx, "0");
     return 0;
 }
 
@@ -1113,12 +1273,20 @@ static ULONG __cdecl Gre2SdlCharStringPos(ULONG hdc, ULONG pptl, ULONG prcl,
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
     PPOINTL p = (PPOINTL)pptl;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlCharStringPos(fn=0x%lx, hdc=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc);
+    ULONG rc;
+
     (void)hdc; (void)prcl; (void)flOptions; (void)cch; (void)pch;
     (void)pAdx; (void)pCspInfo; (void)fnCode;
 
-    if (!inst || !p) return (ULONG)-1;
+    if (!inst || !p) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
     inst->ptlCurPos = *p;
-    return Gre2SdlCharString(hdc, cch, pch, pInstance, fnCode);
+    rc = Gre2SdlCharString(hdc, cch, pch, pInstance, fnCode);
+    F_DbgCtxExitf(ctx, "0x%lx", (unsigned long)rc);
+    return rc;
 }
 
 /*!
@@ -1135,9 +1303,15 @@ static ULONG __cdecl Gre2SdlSetAttributes(ULONG hdc, ULONG lPrimType,
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
     PBUNDLE pb = (PBUNDLE)pBundle;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlSetAttributes(fn=0x%lx, hdc=%lu, lPrimType=0x%lx, flAttrs=0x%lx)",
+                             (unsigned long)fnCode, (unsigned long)hdc,
+                             (unsigned long)lPrimType, (unsigned long)flAttrs);
+
     (void)hdc; (void)flDefMask; (void)fnCode;
 
-    if (!inst || !pb) return (ULONG)-1;
+    if (!inst || !pb) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
 
     switch (lPrimType) {
     case PRIM_LINE:
@@ -1157,6 +1331,7 @@ static ULONG __cdecl Gre2SdlSetAttributes(ULONG hdc, ULONG lPrimType,
             inst->lColor = ((PAREABUNDLE)pb)->lColor & 0x00FFFFFF;
         break;
     }
+    F_DbgCtxExitf(ctx, "0 (lColor=0x%06lx)", (unsigned long)(inst->lColor & 0x00FFFFFF));
     return 0;
 }
 
@@ -1169,9 +1344,15 @@ static ULONG __cdecl Gre2SdlGetAttributes(ULONG hdc, ULONG lPrimType,
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
     PBUNDLE pb = (PBUNDLE)pBundle;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlGetAttributes(fn=0x%lx, hdc=%lu, lPrimType=0x%lx, flAttrs=0x%lx)",
+                             (unsigned long)fnCode, (unsigned long)hdc,
+                             (unsigned long)lPrimType, (unsigned long)flAttrs);
+
     (void)hdc; (void)fnCode;
 
-    if (!inst || !pb) return (ULONG)-1;
+    if (!inst || !pb) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
 
     switch (lPrimType) {
     case PRIM_LINE:
@@ -1187,5 +1368,6 @@ static ULONG __cdecl Gre2SdlGetAttributes(ULONG hdc, ULONG lPrimType,
         if (flAttrs & ABB_COLOR) ((PAREABUNDLE)pb)->lColor = inst->lColor;
         break;
     }
+    F_DbgCtxExitf(ctx, "0 (lColor=0x%06lx)", (unsigned long)(inst->lColor & 0x00FFFFFF));
     return 0;
 }

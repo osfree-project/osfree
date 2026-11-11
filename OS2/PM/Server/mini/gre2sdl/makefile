@@ -11,6 +11,8 @@ TARGET_CLASS = LIBRARY
 SRCDIR  = $(MYDIR)
 OPTIONS = manyautodata,
 IMPORTS = F_DbgPrint       PMDEBUG.5, &
+          F_DbgCtxEnterf   PMDEBUG.15, &
+          F_DbgCtxExitf    PMDEBUG.16, &
           SDL_Init SDL2, &
           SDL_Quit SDL2, &
           SDL_WasInit SDL2, &
@@ -38,6 +40,8 @@ IMPORTS = F_DbgPrint       PMDEBUG.5, &
 SRCDIR  = $(MYDIR)..$(SEP)
 ADD_COPT += -bt=nt
 IMPORTS = F_DbgPrint       PMDEBUG.5, &
+          F_DbgCtxEnterf   PMDEBUG.15, &
+          F_DbgCtxExitf    PMDEBUG.16, &
           _SDL_Init SDL2.SDL_Init, &
           _SDL_Quit SDL2.SDL_Quit, &
           _SDL_WasInit SDL2.SDL_WasInit, &
