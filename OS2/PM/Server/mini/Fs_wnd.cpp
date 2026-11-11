@@ -14,7 +14,7 @@
  * @return Nothing (constructor).
  */
 Fs_Wnd::Fs_Wnd()
-    : m_bUsed(FALSE), m_iHwnd(0), m_iHab(0), m_hPS(NULL)
+    : m_bUsed(FALSE), m_iHwnd(0), m_iHab(0), m_hPS(NULL), m_hdc(NULL)
 {
 }
 
@@ -36,11 +36,12 @@ BOOL Fs_Wnd::Init(ULONG iHwnd, ULONG iHab)
     m_iHwnd  = iHwnd;
     m_iHab   = iHab;
     m_hPS    = NULL;
+    m_hdc    = NULL;
     return TRUE;
 }
 
 /*!
- * @brief Release the slot (state -> FREE, cached HPS cleared).
+ * @brief Release the slot (state -> FREE, cached HPS and HDC cleared).
  */
 void Fs_Wnd::Shutdown()
 {
@@ -48,6 +49,7 @@ void Fs_Wnd::Shutdown()
     m_iHwnd = 0;
     m_iHab  = 0;
     m_hPS   = NULL;
+    m_hdc   = NULL;
 }
 
 /* ======================================================================== */

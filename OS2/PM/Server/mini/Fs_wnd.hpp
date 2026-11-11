@@ -24,8 +24,9 @@
  * @brief One server-side window slot.
  *
  * Keyed by m_iHwnd (monotonic, unique). Holds a back-ref to the owning
- * HAB (m_iHab) and a cache of the HPS that was created for this window
- * by Fs_Wnd::GetPS (created in E3; cache only in E1).
+ * HAB (m_iHab), a cache of the HPS that was created for this window
+ * by Fs_Wnd::GetPS (created in E3; cache only in E1), and a cache of
+ * the HDC created by WinOpenWindowDC.
  */
 class Fs_Wnd {
 public:
@@ -41,7 +42,7 @@ public:
      */
     BOOL Init(ULONG iHwnd, ULONG iHab);
 
-    /*! @brief Release the slot (state -> FREE, cached HPS cleared). */
+    /*! @brief Release the slot (state -> FREE, cached HPS and HDC cleared). */
     void Shutdown();
 
     /* ---- Accessors ---- */
@@ -49,17 +50,24 @@ public:
     ULONG GetHwnd() const { return m_iHwnd; }
     ULONG GetHab()  const { return m_iHab;  }
     HPS   GetPS()   const { return m_hPS;   }
+    HDC   GetDC()   const { return m_hdc;   }
 
     /*! @brief Cache the HPS for this window (E3). */
     void  SetPS(HPS hps)  { m_hPS = hps; }
     /*! @brief Clear the cached HPS reference (does not release it). */
     void  ClearPS()       { m_hPS = NULL; }
 
+    /*! @brief Cache the HDC for this window (created by WinOpenWindowDC). */
+    void  SetDC(HDC hdc)  { m_hdc = hdc; }
+    /*! @brief Clear the cached HDC reference. */
+    void  ClearDC()       { m_hdc = NULL; }
+
 private:
     BOOL  m_bUsed;
     ULONG m_iHwnd;
     ULONG m_iHab;
     HPS   m_hPS;
+    HDC   m_hdc;
 };
 
 /*!
@@ -115,6 +123,7 @@ public:
 
     /*!
      * @brief Count windows owned by a given HAB.
+     *
      * @param [in] iHab  Owning HAB id.
      * @return Number of matching windows.
      * @retval >=0  Count.
