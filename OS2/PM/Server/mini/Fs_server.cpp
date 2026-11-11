@@ -53,14 +53,18 @@ Fs_Server::Fs_Server()
 
     m_habs.SetMax(m_cfg.ulMaxHabs);
 
-    if (m_wnds.Create(0, &hwnd) != NULL) {
-        m_iHwndDesktop = hwnd;
-        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
-                   "[SERVER] desktop window allocated: hwnd=%lu",
-                   (unsigned long)hwnd);
-    } else {
-        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_ERROR,
-                   "[SERVER] ERROR: failed to allocate desktop window slot");
+    {
+        Fs_Wnd *pDesktop = m_wnds.Create(0, &hwnd);
+        if (pDesktop != NULL) {
+            m_iHwndDesktop = hwnd;
+            pDesktop->SetVisible(TRUE);
+            F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                       "[SERVER] desktop window allocated: hwnd=%lu",
+                       (unsigned long)hwnd);
+        } else {
+            F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_ERROR,
+                       "[SERVER] ERROR: failed to allocate desktop window slot");
+        }
     }
 }
 
@@ -688,6 +692,9 @@ void Fs_Server::HandleWinCall(Fs_Thread *pThread,
 
         if (rawFn >= 0x0001 && rawFn <= 0x000F)
             ulResult = DispatchWinHab(pRecvobj, fnCode, data,
+                                       NULL, 0, &cbPayload);
+        else if (rawFn >= 0x0020 && rawFn <= 0x005F)
+            ulResult = DispatchWinWnd(pRecvobj, fnCode, data,
                                        NULL, 0, &cbPayload);
         else if (rawFn >= 0x0060 && rawFn <= 0x007F)
             ulResult = DispatchWinPs (pRecvobj, fnCode, data,

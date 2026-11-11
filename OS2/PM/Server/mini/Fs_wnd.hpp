@@ -24,9 +24,9 @@
  * @brief One server-side window slot.
  *
  * Keyed by m_iHwnd (monotonic, unique). Holds a back-ref to the owning
- * HAB (m_iHab), a cache of the HPS that was created for this window
- * by Fs_Wnd::GetPS (created in E3; cache only in E1), and a cache of
- * the HDC created by WinOpenWindowDC.
+ * HAB (m_iHab), the HDC created by WinOpenWindowDC for this window,
+ * geometry, visibility, style, title, and the ctlData/presParams
+ * blobs captured at creation time. The PS belongs to the client.
  */
 class Fs_Wnd {
 public:
@@ -42,32 +42,66 @@ public:
      */
     BOOL Init(ULONG iHwnd, ULONG iHab);
 
-    /*! @brief Release the slot (state -> FREE, cached HPS and HDC cleared). */
+    /*! @brief Release the slot (state -> FREE, HDC and blobs cleared). */
     void Shutdown();
 
     /* ---- Accessors ---- */
     BOOL  IsUsed()  const { return m_bUsed; }
     ULONG GetHwnd() const { return m_iHwnd; }
     ULONG GetHab()  const { return m_iHab;  }
-    HPS   GetPS()   const { return m_hPS;   }
+//    HPS   GetPS()   const { return m_hPS;   }
     HDC   GetDC()   const { return m_hdc;   }
 
     /*! @brief Cache the HPS for this window (E3). */
-    void  SetPS(HPS hps)  { m_hPS = hps; }
+//    void  SetPS(HPS hps)  { m_hPS = hps; }
     /*! @brief Clear the cached HPS reference (does not release it). */
-    void  ClearPS()       { m_hPS = NULL; }
+//    void  ClearPS()       { m_hPS = NULL; }
 
     /*! @brief Cache the HDC for this window (created by WinOpenWindowDC). */
     void  SetDC(HDC hdc)  { m_hdc = hdc; }
     /*! @brief Clear the cached HDC reference. */
     void  ClearDC()       { m_hdc = NULL; }
 
+    LONG  GetX() const { return m_x; }
+    LONG  GetY() const { return m_y; }
+    LONG  GetCx() const { return m_cx; }
+    LONG  GetCy() const { return m_cy; }
+    BOOL  IsVisible() const { return m_bVisible; }
+    ULONG GetStyle()  const { return m_flStyle; }
+    const char *GetTitle() const { return m_szTitle; }
+
+    void SetRect(LONG x, LONG y, LONG cx, LONG cy)
+    { m_x = x; m_y = y; m_cx = cx; m_cy = cy; }
+    void SetPos(LONG x, LONG y) { m_x = x; m_y = y; }
+    void SetSize(LONG cx, LONG cy) { m_cx = cx; m_cy = cy; }
+    void SetVisible(BOOL v) { m_bVisible = v; }
+    void SetStyle(ULONG s)  { m_flStyle = s; }
+    void SetTitle(const char *t);
+
+    void SetCtlData(PBYTE p, ULONG cb)
+    { if (m_pCtlData) DosFreeMem(m_pCtlData); m_pCtlData = p; m_cbCtlData = cb; }
+    void SetPresParams(PBYTE p, ULONG cb)
+    { if (m_pPresParams) DosFreeMem(m_pPresParams); m_pPresParams = p; m_cbPresParams = cb; }
+
+    PBYTE GetCtlData()     const { return m_pCtlData;    }
+    ULONG GetCbCtlData()   const { return m_cbCtlData;   }
+    PBYTE GetPresParams()  const { return m_pPresParams; }
+    ULONG GetCbPresParams()const { return m_cbPresParams;}
+
 private:
     BOOL  m_bUsed;
     ULONG m_iHwnd;
     ULONG m_iHab;
-    HPS   m_hPS;
+//    HPS   m_hPS;
     HDC   m_hdc;
+
+    LONG  m_x, m_y, m_cx, m_cy;
+    BOOL  m_bVisible;
+    ULONG m_flStyle;
+    char  m_szTitle[64];
+
+    PBYTE m_pCtlData;    ULONG m_cbCtlData;
+    PBYTE m_pPresParams; ULONG m_cbPresParams;
 };
 
 /*!
@@ -102,7 +136,7 @@ public:
     Fs_Wnd *Find(ULONG iHwnd);
 
     /*!
-     * @brief Destroy one window slot (does not release HPS; caller must).
+     * @brief Destroy one window slot; closes its HDC if one was opened.
      * @param [in] iHwnd  Window id.
      * @return TRUE if found and destroyed.
      * @retval TRUE   Slot freed.

@@ -133,7 +133,7 @@ typedef struct _WinQueryQueueStatus_Args { ULONG iHab; } WinQueryQueueStatus_Arg
 
 #define NWinCreateWindow              0x0020L
 #define NWinCreateStdWindow           0x0021L
-#define NWinDestroyWindow             0x0022L
+#define NWinDestroyWindow             (0x0022UL | NWIN_SYNC_FLAG)
 #define NWinSetWindowPos              0x0023L
 #define NWinSetMultWindowPos          0x0024L
 #define NWinShowWindow                0x0025L
@@ -167,17 +167,30 @@ typedef struct _WinQueryQueueStatus_Args { ULONG iHab; } WinQueryQueueStatus_Arg
 /* HWND WinCreateWindow(HWND parent, PCSZ class, PCSZ name, ULONG style,
                         LONG x, y, cx, cy, HWND owner, HWND behind, ULONG id,
                         PVOID pCtlData, PVOID pPresParams) */
+
+/*! @brief Wire args for NWinCreateWindow (hwndParent travels in `data`).
+ *
+ * Followed by (contiguous, no NUL terminators — lengths are explicit):
+ *   char szClass[cbClass];
+ *   char szName[cbName];
+ *   if (flPresent & WCRF_HAS_CTLDATA):
+ *     BYTE abCtlData[];     (first 2 bytes = USHORT cbCtlData)
+ *   if (flPresent & WCRF_HAS_PRESPARAMS):
+ *     BYTE abPresParams[];  (first 4 bytes = ULONG  cbPresParams)
+ */
+#define WCRF_HAS_CTLDATA     0x01
+#define WCRF_HAS_PRESPARAMS  0x02
+
 typedef struct _WinCreateWindow_Args {
-    HWND hwndParent;
-    ULONG cbClass;  char szClass[1];   /* variable */
-    ULONG cbName;   char szName[1];    /* variable */
+    ULONG cbClass;
+    ULONG cbName;
     ULONG flStyle;
     LONG  x, y, cx, cy;
-    HWND hwndOwner, hwndInsertBehind;
+    HWND  hwndOwner, hwndInsertBehind;
     ULONG id;
-    ULONG cbCtlData;    ULONG cbPresParams;   /* 0 = NULL */
-    /* followed by abCtlData[cbCtlData], abPresParams[cbPresParams] */
+    BYTE  flPresent;
 } WinCreateWindow_Args, *PWinCreateWindow_Args;
+
 /* HWND WinCreateStdWindow(HWND parent, ULONG style, PULONG pflCreateFlags,
     PCSZ clientClass, PCSZ title, ULONG clientStyle, HMODULE hmod,
     ULONG idResources, PHWND phwndClient) */

@@ -5,6 +5,11 @@
 #include "Fs_wnd.hpp"
 #include "F_debug.h"
 
+#define INCL_GRE_DCS
+#include "pmddi.h"
+
+#include <string.h>
+
 /* ======================================================================== */
 /*  Fs_Wnd                                                                  */
 /* ======================================================================== */
@@ -14,8 +19,13 @@
  * @return Nothing (constructor).
  */
 Fs_Wnd::Fs_Wnd()
-    : m_bUsed(FALSE), m_iHwnd(0), m_iHab(0), m_hPS(NULL), m_hdc(NULL)
+    : m_bUsed(FALSE), m_iHwnd(0), m_iHab(0), /* m_hPS(NULL),*/ m_hdc(NULL),
+      m_x(0), m_y(0), m_cx(0), m_cy(0),
+      m_bVisible(FALSE), m_flStyle(0),
+      m_pCtlData(NULL), m_cbCtlData(0),
+      m_pPresParams(NULL), m_cbPresParams(0)
 {
+    m_szTitle[0] = '\0';
 }
 
 /*!
@@ -35,8 +45,14 @@ BOOL Fs_Wnd::Init(ULONG iHwnd, ULONG iHab)
     m_bUsed  = TRUE;
     m_iHwnd  = iHwnd;
     m_iHab   = iHab;
-    m_hPS    = NULL;
+//    m_hPS    = NULL;
     m_hdc    = NULL;
+    m_x = m_y = m_cx = m_cy = 0;
+    m_bVisible = FALSE;
+    m_flStyle  = 0;
+    m_szTitle[0] = '\0';
+    m_pCtlData = NULL;    m_cbCtlData    = 0;
+    m_pPresParams = NULL; m_cbPresParams = 0;
     return TRUE;
 }
 
@@ -45,12 +61,26 @@ BOOL Fs_Wnd::Init(ULONG iHwnd, ULONG iHab)
  */
 void Fs_Wnd::Shutdown()
 {
+    if (m_pCtlData)    { DosFreeMem(m_pCtlData);    m_pCtlData    = NULL; }
+    if (m_pPresParams) { DosFreeMem(m_pPresParams); m_pPresParams = NULL; }
+    m_cbCtlData    = 0;
+    m_cbPresParams = 0;
+
+    if (m_hdc != NULLHANDLE) {
+        GreCloseDC(m_hdc);
+        m_hdc = NULLHANDLE;
+    }
+
     m_bUsed = FALSE;
     m_iHwnd = 0;
+//    m_hPS   = NULL;
     m_iHab  = 0;
-    m_hPS   = NULL;
-    m_hdc   = NULL;
+    m_x = m_y = m_cx = m_cy = 0;
+    m_bVisible = FALSE;
+    m_flStyle  = 0;
+    m_szTitle[0] = '\0';
 }
+
 
 /* ======================================================================== */
 /*  Fs_WndList                                                              */
@@ -290,4 +320,11 @@ int Fs_WndList::CountActive()
         if (m_aWnds[i].IsUsed()) n++;
     Unlock();
     return n;
+}
+
+void Fs_Wnd::SetTitle(const char *t)
+{
+    if (!t) { m_szTitle[0] = '\0'; return; }
+    strncpy(m_szTitle, t, sizeof(m_szTitle) - 1);
+    m_szTitle[sizeof(m_szTitle) - 1] = '\0';
 }
