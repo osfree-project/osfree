@@ -140,6 +140,27 @@ void APIENTRY F_DbgCtxExitf(int ctx, const char *fmt, ...);
     @param [in] flag  Non-zero to suppress asserts during shutdown. */
 void APIENTRY F_DbgSetShuttingDown(int flag);
 
+
+/*!
+ * @def ContextEnter
+ * @brief Open a debug context for a function.
+ *
+ * Declares a function-local @c _fpm_ctx and enters a debug context at
+ * F_DBG_LVL_VERBOSE with the proxy name and its formatted arguments.
+ * The context is closed on every return path by GPICallResult.
+ *
+ * @param [in] fmt  printf-style format for the arguments.
+ * @param [in] ...  Arguments for the format string.
+ */
+#define F_DbgEnterContext(fmt, ...) \
+    int _fpm_ctx = F_DbgCtxEnterf(F_DBG_SEC_PMCLIENT, F_DBG_LVL_VERBOSE, \
+                                  DBG_TAG ": %s(" fmt ")", \
+                                  __FUNCTION__, ##__VA_ARGS__)
+
+#define F_DbgExitContext(fmt, ...) \
+    F_DbgCtxExitf(_fpm_ctx, fmt , ##__VA_ARGS__)
+
+
 #ifdef __cplusplus
 }
 #endif

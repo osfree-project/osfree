@@ -55,19 +55,6 @@ WIN_DOMAIN_STUB(Fs_Server, DispatchWinMq)
 WIN_DOMAIN_STUB(Fs_Server, DispatchWinWnd)
 
 /*!
- * @brief DispatchWinPs stub.
- * @param [in]  pRecvobj   Unused.
- * @param [in]  fnCode     Unused.
- * @param [in]  data       Unused.
- * @param [in]  pArgs      Unused.
- * @param [in]  cbArgs     Unused.
- * @param [out] pcbPayload Always 0.
- * @return Always 0.
- * @retval 0 Domain not implemented yet.
- */
-WIN_DOMAIN_STUB(Fs_Server, DispatchWinPs)
-
-/*!
  * @brief DispatchWinCls stub.
  * @param [in]  pRecvobj   Unused.
  * @param [in]  fnCode     Unused.

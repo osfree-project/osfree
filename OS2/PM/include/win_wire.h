@@ -19,10 +19,12 @@
 
 #include "F_platform.h"
 
+#define NWIN_SYNC_FLAG  0x8000UL
+
 /* ========================================================================== */
 /*  Domain ranges                                                             */
 /* ========================================================================== */
-/*  0x0001-0x000F  HAB lifecycle (Phase 2)                                   */
+/*  0x0001-0x000F  HAB lifecycle                                             */
 /*  0x0010-0x001F  Message queue                                             */
 /*  0x0020-0x003F  Window lifecycle                                          */
 /*  0x0040-0x005F  Window queries                                            */
@@ -48,23 +50,11 @@
 /*  HAB lifecycle                                                             */
 /* ========================================================================== */
 
-#define NWinInitialize                0x0001L
-#define NWinTerminate                 0x0002L
-#define NWinGetLastError              0x0003L
-#define NWinQueryAnchorBlock          0x0004L
-#define NWinQueryVersion              0x0005L
-
-typedef struct _WinInitialize_Args {
-    ULONG flOptions;
-} WinInitialize_Args, *PWinInitialize_Args;
-
-typedef struct _WinTerminate_Args {
-    ULONG iHab;
-} WinTerminate_Args, *PWinTerminate_Args;
-
-typedef struct _WinGetLastError_Args {
-    ULONG iHab;
-} WinGetLastError_Args, *PWinGetLastError_Args;
+#define NWinInitialize                (0x0001UL | NWIN_SYNC_FLAG)
+#define NWinTerminate                 (0x0002UL | NWIN_SYNC_FLAG)
+#define NWinGetLastError              (0x0003UL | NWIN_SYNC_FLAG)
+#define NWinQueryAnchorBlock          0x0004UL
+#define NWinQueryVersion              0x0005UL
 
 typedef struct _WinQueryAnchorBlock_Args {
     HWND hwnd;
@@ -331,8 +321,6 @@ typedef struct _WinQueryWindowUShort_Args { HWND hwnd; LONG index; } WinQueryWin
 typedef struct _WinQueryWindowProcess_Args { HWND hwnd; /* out */ ULONG pid, tid; } WinQueryWindowProcess_Args, *PWinQueryWindowProcess_Args;
 /* ULONG WinQueryWindowModel(HWND) */
 typedef struct _WinQueryWindowModel_Args { HWND hwnd; } WinQueryWindowModel_Args, *PWinQueryWindowModel_Args;
-/* HDC WinQueryWindowDC(HWND) */
-typedef struct _WinQueryWindowDC_Args { HWND hwnd; } WinQueryWindowDC_Args, *PWinQueryWindowDC_Args;
 /* HWND WinWindowFromPoint(HWND parent, PPOINTL, BOOL fEnumChildren) */
 typedef struct _WinWindowFromPoint_Args { HWND hwndParent; POINTL ptl; BOOL fEnumChildren; } WinWindowFromPoint_Args, *PWinWindowFromPoint_Args;
 /* HWND WinWindowFromID(HWND parent, ULONG id) */
@@ -379,7 +367,7 @@ typedef struct _WinQueryClassInfo_Args {
 #define NWinGetClipPS                 0x0065L
 #define NWinGetErasePS                0x0066L
 #define NWinReleaseErasePS            0x0067L
-#define NWinOpenWindowDC              0x0068L
+#define NWinOpenWindowDC              (0x0068UL | NWIN_SYNC_FLAG)
 #define NWinInvalidateRect            0x0069L
 #define NWinInvalidateRegion          0x006AL
 #define NWinValidateRect              0x006BL
@@ -408,8 +396,6 @@ typedef struct _WinGetClipPS_Args { HWND hwnd; HWND hwndClip; ULONG fl; } WinGet
 typedef struct _WinGetErasePS_Args { HWND hwnd; } WinGetErasePS_Args, *PWinGetErasePS_Args;
 /* BOOL WinReleaseErasePS(HPS) */
 typedef struct _WinReleaseErasePS_Args { HPS hps; } WinReleaseErasePS_Args, *PWinReleaseErasePS_Args;
-/* HDC WinOpenWindowDC(HWND) */
-typedef struct _WinOpenWindowDC_Args { HWND hwnd; } WinOpenWindowDC_Args, *PWinOpenWindowDC_Args;
 /* BOOL WinInvalidateRect(HWND, PRECTL, BOOL) */
 typedef struct _WinInvalidateRect_Args { HWND hwnd; RECTL rcl; BOOL fIncludeChildren; BOOL fNull; } WinInvalidateRect_Args, *PWinInvalidateRect_Args;
 /* BOOL WinInvalidateRegion(HWND, HRGN, BOOL) */

@@ -1989,6 +1989,7 @@ BOOL APIENTRY GpiQueryArcParams(HPS, PARCPARAMS);
   HMQ   APIENTRY WinCreateMsgQueue(HAB hab, LONG cMsg);
   BOOL  APIENTRY WinDestroyMsgQueue(HMQ hmq);
   BOOL  APIENTRY WinTerminate(HAB hab);
+  HDC   APIENTRY WinOpenWindowDC(HWND hwnd);
   HPS   APIENTRY WinGetScreenPS(HWND hwndDesktop);
   BOOL  APIENTRY WinReleasePS(HPS hps);
 

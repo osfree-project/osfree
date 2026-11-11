@@ -6,9 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#if defined(__OS2__) || defined(__OS2V2__)
-  #include <process.h>
-#endif
+#include <process.h>
 
 #include "Fs_server.hpp"
 #include "F_debug.h"
@@ -681,13 +679,25 @@ void Fs_Server::HandleWinCall(Fs_Thread *pThread,
         SERVER_RETURN(ctx, "no wire");
     }
 
-    /* HAB lifecycle (0x0001-0x000F): sync, no cbArgs, 4-byte reply. */
-    if (fnCode >= NWinInitialize && fnCode <= 0x000F) {
-        ulResult = DispatchWinHab(pRecvobj, fnCode, data,
-                                   NULL, 0, &cbPayload);
+    /* Sync path: NWIN_SYNC_FLAG marks SendCommand callers. Reply is a
+       bare 4-byte ulResult, no cbArgs/payload on the wire. The flag is
+       preserved in fnCode passed to the dispatcher, so its `case
+       NWinInitialize:` (0x8001) matches. */
+    if (fnCode & NWIN_SYNC_FLAG) {
+        ULONG rawFn = fnCode & ~NWIN_SYNC_FLAG;
+
+        if (rawFn >= 0x0001 && rawFn <= 0x000F)
+            ulResult = DispatchWinHab(pRecvobj, fnCode, data,
+                                       NULL, 0, &cbPayload);
+        else if (rawFn >= 0x0060 && rawFn <= 0x007F)
+            ulResult = DispatchWinPs (pRecvobj, fnCode, data,
+                                       NULL, 0, &cbPayload);
+        else
+            ulResult = 0;
+
         if (m_pfnSend)
             m_pfnSend(pRecvobj, &ulResult, sizeof(ulResult));
-        SERVER_RETURN(ctx, "result=0x%lx (sync HAB)", (unsigned long)ulResult);
+        SERVER_RETURN(ctx, "result=0x%lx (sync)", (unsigned long)ulResult);
     }
 
     rc = m_pfnRecv(pRecvobj, &cbArgs, &len, sizeof(cbArgs));
