@@ -34,6 +34,7 @@
 #include "F_platform.h"
 #include "F_debug.h"
 #include "Fs_dc.hpp"
+#include "gre_debug.cpp"
 
 #include <string.h>
 
@@ -946,15 +947,6 @@ static PFN g_tblDriver[MAXTABLEENTRIES] = {
 /*!
  * @brief Internal dispatch table (0x02xx / 0x42xx).
  *
- * Every slot is initialized at compile time: real handlers where the
- * GRE behavior is implemented, per-function stubs elsewhere. All entries
- * are non-NULL, so Gre32EntryN never dereferences a NULL pointer.
- *
- * The (PFN) casts between function-pointer types of different arity are
- * a Watcom extension; the C++98 standard does not permit such casts in a
- * constant expression. If Watcom 1.9 rejects this initializer, the only
- * conforming alternative is a constructor (which runs at process start,
- * before main, but is formally runtime).
  */
 static PFN g_tblInternal[GRE_DISPATCH_SIZE] = {
     /* 0x00 */ (PFN)GreIntOpenDC,
@@ -1384,87 +1376,245 @@ static PFN *SelectTable(ULONG fnCode)
 
 extern "C" {
 
+/*!
+ * @brief Gre32Entry2 dispatch (arity 2: a, fnCode).
+ *
+ * No pInstance slot: arity-2 hooks receive a and fnCode only.
+ */
 ULONG APIENTRY Gre32Entry2(ULONG a, ULONG fnCode)
 {
-    PFN h = SelectTable(fnCode)[fnCode & 0xFF];
-    return ((PFN_GRE2)h)(a, fnCode);
+    int   ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                               "[GRE] Gre32Entry2(fn=0x%lx, a=0x%lx)",
+                               (unsigned long)fnCode, (unsigned long)a);
+    PFN   h   = SelectTable(fnCode)[fnCode & 0xFF];
+    ULONG rc  = ((PFN_GRE2)h)(a, fnCode);
+
+    F_DbgCtxExitf(ctx, "0x%lx", (unsigned long)rc);
+    return rc;
 }
 
+/*!
+ * @brief Gre32Entry3 dispatch (arity 3: a, b, fnCode).
+ *
+ * b is the dummy slot in pmddim.h macros; replaced with pInstance
+ * when bit 0x40 (per-DC operation) is set.
+ */
 ULONG APIENTRY Gre32Entry3(ULONG a, ULONG b, ULONG fnCode)
 {
-    PFN    h   = SelectTable(fnCode)[fnCode & 0xFF];
-    Fs_Dc *pDc = g_greDcs.Find(a);
-    PVOID  pInst = pDc ? pDc->GetInstance() : NULL;
+    int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                                 "[GRE] Gre32Entry3(fn=0x%lx, a=0x%lx)",
+                                 (unsigned long)fnCode, (unsigned long)a);
+    PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
+    PVOID pInst = NULL;
+    ULONG rc;
+
+    if (fnCode & 0x40) {
+        Fs_Dc *pDc = g_greDcs.Find(a);
+        if (!pDc) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",
+                          (unsigned long)a);
+            return (ULONG)GPI_ERROR;
+        }
+        pInst = pDc->GetInstance();
+    }
     (void)b;
-    return ((PFN_GRE3)h)(a, (ULONG)pInst, fnCode);
+    rc = ((PFN_GRE3)h)(a, (ULONG)pInst, fnCode);
+    F_DbgCtxExitf(ctx, "0x%lx (pInst=%p)", (unsigned long)rc, pInst);
+    return rc;
 }
 
+/*!
+ * @brief Gre32Entry4 dispatch (arity 4: a, b, c, fnCode).
+ */
 ULONG APIENTRY Gre32Entry4(ULONG a, ULONG b, ULONG c, ULONG fnCode)
 {
-    PFN    h   = SelectTable(fnCode)[fnCode & 0xFF];
-    Fs_Dc *pDc = g_greDcs.Find(a);
-    PVOID  pInst = pDc ? pDc->GetInstance() : NULL;
+    int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                                 "[GRE] Gre32Entry4(fn=0x%lx, a=0x%lx)",
+                                 (unsigned long)fnCode, (unsigned long)a);
+    PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
+    PVOID pInst = NULL;
+    ULONG rc;
+
+    if (fnCode & 0x40) {
+        Fs_Dc *pDc = g_greDcs.Find(a);
+        if (!pDc) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",
+                          (unsigned long)a);
+            return (ULONG)GPI_ERROR;
+        }
+        pInst = pDc->GetInstance();
+    }
     (void)c;
-    return ((PFN_GRE4)h)(a, b, (ULONG)pInst, fnCode);
+    rc = ((PFN_GRE4)h)(a, b, (ULONG)pInst, fnCode);
+    F_DbgCtxExitf(ctx, "0x%lx (pInst=%p)", (unsigned long)rc, pInst);
+    return rc;
 }
 
+/*!
+ * @brief Gre32Entry5 dispatch (arity 5: a, b, c, d, fnCode).
+ */
 ULONG APIENTRY Gre32Entry5(ULONG a, ULONG b, ULONG c, ULONG d, ULONG fnCode)
 {
-    PFN    h   = SelectTable(fnCode)[fnCode & 0xFF];
-    Fs_Dc *pDc = g_greDcs.Find(a);
-    PVOID  pInst = pDc ? pDc->GetInstance() : NULL;
+    int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                                 "[GRE] Gre32Entry5(fn=0x%lx, a=0x%lx)",
+                                 (unsigned long)fnCode, (unsigned long)a);
+    PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
+    PVOID pInst = NULL;
+    ULONG rc;
+
+    if (fnCode & 0x40) {
+        Fs_Dc *pDc = g_greDcs.Find(a);
+        if (!pDc) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",
+                          (unsigned long)a);
+            return (ULONG)GPI_ERROR;
+        }
+        pInst = pDc->GetInstance();
+    }
     (void)d;
-    return ((PFN_GRE5)h)(a, b, c, (ULONG)pInst, fnCode);
+    rc = ((PFN_GRE5)h)(a, b, c, (ULONG)pInst, fnCode);
+    F_DbgCtxExitf(ctx, "0x%lx (pInst=%p)", (unsigned long)rc, pInst);
+    return rc;
 }
 
+/*!
+ * @brief Gre32Entry6 dispatch (arity 6: a, b, c, d, e, fnCode).
+ */
 ULONG APIENTRY Gre32Entry6(ULONG a, ULONG b, ULONG c, ULONG d, ULONG e,
                            ULONG fnCode)
 {
-    PFN    h   = SelectTable(fnCode)[fnCode & 0xFF];
-    Fs_Dc *pDc = g_greDcs.Find(a);
-    PVOID  pInst = pDc ? pDc->GetInstance() : NULL;
+    int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                                 "[GRE] Gre32Entry6(fn=0x%lx, a=0x%lx)",
+                                 (unsigned long)fnCode, (unsigned long)a);
+    PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
+    PVOID pInst = NULL;
+    ULONG rc;
+
+    if (fnCode & 0x40) {
+        Fs_Dc *pDc = g_greDcs.Find(a);
+        if (!pDc) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",
+                          (unsigned long)a);
+            return (ULONG)GPI_ERROR;
+        }
+        pInst = pDc->GetInstance();
+    }
     (void)e;
-    return ((PFN_GRE6)h)(a, b, c, d, (ULONG)pInst, fnCode);
+    rc = ((PFN_GRE6)h)(a, b, c, d, (ULONG)pInst, fnCode);
+    F_DbgCtxExitf(ctx, "0x%lx (pInst=%p)", (unsigned long)rc, pInst);
+    return rc;
 }
 
+/*!
+ * @brief Gre32Entry7 dispatch (arity 7: a, b, c, d, e, f, fnCode).
+ */
 ULONG APIENTRY Gre32Entry7(ULONG a, ULONG b, ULONG c, ULONG d, ULONG e,
                            ULONG f, ULONG fnCode)
 {
-    PFN    h   = SelectTable(fnCode)[fnCode & 0xFF];
-    Fs_Dc *pDc = g_greDcs.Find(a);
-    PVOID  pInst = pDc ? pDc->GetInstance() : NULL;
+    int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                                 "[GRE] Gre32Entry7(fn=0x%lx, a=0x%lx)",
+                                 (unsigned long)fnCode, (unsigned long)a);
+    PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
+    PVOID pInst = NULL;
+    ULONG rc;
+
+    if (fnCode & 0x40) {
+        Fs_Dc *pDc = g_greDcs.Find(a);
+        if (!pDc) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",
+                          (unsigned long)a);
+            return (ULONG)GPI_ERROR;
+        }
+        pInst = pDc->GetInstance();
+    }
     (void)f;
-    return ((PFN_GRE7)h)(a, b, c, d, e, (ULONG)pInst, fnCode);
+    rc = ((PFN_GRE7)h)(a, b, c, d, e, (ULONG)pInst, fnCode);
+    F_DbgCtxExitf(ctx, "0x%lx (pInst=%p)", (unsigned long)rc, pInst);
+    return rc;
 }
 
+/*!
+ * @brief Gre32Entry8 dispatch (arity 8: a, b, c, d, e, f, g, fnCode).
+ */
 ULONG APIENTRY Gre32Entry8(ULONG a, ULONG b, ULONG c, ULONG d, ULONG e,
                            ULONG f, ULONG g, ULONG fnCode)
 {
-    PFN    h   = SelectTable(fnCode)[fnCode & 0xFF];
-    Fs_Dc *pDc = g_greDcs.Find(a);
-    PVOID  pInst = pDc ? pDc->GetInstance() : NULL;
+    int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                                 "[GRE] Gre32Entry8(fn=0x%lx, a=0x%lx)",
+                                 (unsigned long)fnCode, (unsigned long)a);
+    PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
+    PVOID pInst = NULL;
+    ULONG rc;
+
+    if (fnCode & 0x40) {
+        Fs_Dc *pDc = g_greDcs.Find(a);
+        if (!pDc) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",
+                          (unsigned long)a);
+            return (ULONG)GPI_ERROR;
+        }
+        pInst = pDc->GetInstance();
+    }
     (void)g;
-    return ((PFN_GRE8)h)(a, b, c, d, e, f, (ULONG)pInst, fnCode);
+    rc = ((PFN_GRE8)h)(a, b, c, d, e, f, (ULONG)pInst, fnCode);
+    F_DbgCtxExitf(ctx, "0x%lx (pInst=%p)", (unsigned long)rc, pInst);
+    return rc;
 }
 
+/*!
+ * @brief Gre32Entry9 dispatch (arity 9: a, b, c, d, e, f, g, h_, fnCode).
+ */
 ULONG APIENTRY Gre32Entry9(ULONG a, ULONG b, ULONG c, ULONG d, ULONG e,
                            ULONG f, ULONG g, ULONG h_, ULONG fnCode)
 {
-    PFN    h   = SelectTable(fnCode)[fnCode & 0xFF];
-    Fs_Dc *pDc = g_greDcs.Find(a);
-    PVOID  pInst = pDc ? pDc->GetInstance() : NULL;
+    int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                                 "[GRE] Gre32Entry9(fn=0x%lx, a=0x%lx)",
+                                 (unsigned long)fnCode, (unsigned long)a);
+    PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
+    PVOID pInst = NULL;
+    ULONG rc;
+
+    if (fnCode & 0x40) {
+        Fs_Dc *pDc = g_greDcs.Find(a);
+        if (!pDc) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",
+                          (unsigned long)a);
+            return (ULONG)GPI_ERROR;
+        }
+        pInst = pDc->GetInstance();
+    }
     (void)h_;
-    return ((PFN_GRE9)h)(a, b, c, d, e, f, g, (ULONG)pInst, fnCode);
+    rc = ((PFN_GRE9)h)(a, b, c, d, e, f, g, (ULONG)pInst, fnCode);
+    F_DbgCtxExitf(ctx, "0x%lx (pInst=%p)", (unsigned long)rc, pInst);
+    return rc;
 }
 
+/*!
+ * @brief Gre32Entry10 dispatch (arity 10: a, b, c, d, e, f, g, h_, i, fnCode).
+ */
 ULONG APIENTRY Gre32Entry10(ULONG a, ULONG b, ULONG c, ULONG d, ULONG e,
                             ULONG f, ULONG g, ULONG h_, ULONG i, ULONG fnCode)
 {
-    PFN    h   = SelectTable(fnCode)[fnCode & 0xFF];
-    Fs_Dc *pDc = g_greDcs.Find(a);
-    PVOID  pInst = pDc ? pDc->GetInstance() : NULL;
+    int   ctx   = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                                 "[GRE] Gre32Entry10(fn=0x%lx, a=0x%lx)",
+                                 (unsigned long)fnCode, (unsigned long)a);
+    PFN   h     = SelectTable(fnCode)[fnCode & 0xFF];
+    PVOID pInst = NULL;
+    ULONG rc;
+
+    if (fnCode & 0x40) {
+        Fs_Dc *pDc = g_greDcs.Find(a);
+        if (!pDc) {
+            F_DbgCtxExitf(ctx, "GPI_ERROR (no DC for hdc=%lu)",
+                          (unsigned long)a);
+            return (ULONG)GPI_ERROR;
+        }
+        pInst = pDc->GetInstance();
+    }
     (void)i;
-    return ((PFN_GRE10)h)(a, b, c, d, e, f, g, h_, (ULONG)pInst, fnCode);
+    rc = ((PFN_GRE10)h)(a, b, c, d, e, f, g, h_, (ULONG)pInst, fnCode);
+    F_DbgCtxExitf(ctx, "0x%lx (pInst=%p)", (unsigned long)rc, pInst);
+    return rc;
 }
 
 } /* extern "C" */
