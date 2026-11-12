@@ -20,6 +20,8 @@
  * Sync path (fnCode 0x0001-0x000F): no cbArgs read, reply is a bare
  * 4-byte ulResult, matching Fc_TrnSendCommand's contract (Fc_trn.cpp).
  */
+#define INCL_PM
+#include "F_platform.h"
 #include "Fs_server.hpp"
 #include "F_debug.h"
 

@@ -1933,6 +1933,34 @@ static inline APIRET DosQueryQueue(HQUEUE hq, PULONG pcbEntries)
     return 0;
 }
 
+  #define WS_VISIBLE   0x80000000UL
+
+  #define SWP_MOVE     0x0002UL
+  #define SWP_SIZE     0x0004UL
+  #define SWP_SHOW     0x0010UL
+  #define SWP_HIDE     0x0020UL
+
+  #define CLR_BLACK       (-1L)
+  #define CLR_BACKGROUND     0L
+  #define CLR_BLUE           1L
+  #define CLR_RED            2L
+  #define CLR_PINK           3L
+  #define CLR_GREEN          4L
+  #define CLR_CYAN           5L
+  #define CLR_YELLOW         6L
+  #define CLR_NEUTRAL        7L
+  #define CLR_WHITE          0L
+
+  #define HWND_DESKTOP     ((HWND)1)
+
+  #define GPIA_ASSOC       0x0001L
+
+  #define DRO_FILL         1L
+  #define DRO_OUTLINE      2L
+  #define DRO_OUTLINEFILL  3L
+
+  #define PMERR_INVALID_HAB                   0x104A
+
 #ifdef __cplusplus
   }
 #endif
@@ -1992,36 +2020,15 @@ BOOL APIENTRY GpiQueryArcParams(HPS, PARCPARAMS);
   HDC   APIENTRY WinOpenWindowDC(HWND hwnd);
   HPS   APIENTRY WinGetScreenPS(HWND hwndDesktop);
   BOOL  APIENTRY WinReleasePS(HPS hps);
-
-  /* ---------- PM/GPI constants (Win32 fallback) ---------- */
-  #ifndef HWND_DESKTOP
-    #define HWND_DESKTOP     ((HWND)1)
-  #endif
-
-  #ifndef GPIA_ASSOC
-    #define GPIA_ASSOC       0x0001L
-  #endif
-
-  #ifndef DRO_FILL
-    #define DRO_FILL         1L
-    #define DRO_OUTLINE      2L
-    #define DRO_OUTLINEFILL  3L
-  #endif
-
-  #ifndef CLR_BLACK
-    #define CLR_BLACK       (-1L)
-    #define CLR_BACKGROUND     0L
-    #define CLR_BLUE           1L
-    #define CLR_RED            2L
-    #define CLR_PINK           3L
-    #define CLR_GREEN          4L
-    #define CLR_CYAN           5L
-    #define CLR_YELLOW         6L
-    #define CLR_NEUTRAL        7L
-    #define CLR_WHITE          0L
-  #endif
-
-  #define PMERR_INVALID_HAB                   0x104A
+  HWND  APIENTRY WinCreateWindow(HWND hwndParent, PCSZ pszClass,
+                                 PCSZ pszName, ULONG flStyle,
+                                 LONG x, LONG y, LONG cx, LONG cy,
+                                 HWND hwndOwner, HWND hwndInsertBehind,
+                                 ULONG id, PVOID pCtlData, PVOID pPresParams);
+  BOOL  APIENTRY WinShowWindow(HWND hwnd, BOOL fShow);
+  BOOL  APIENTRY WinSetWindowPos(HWND hwnd, HWND hwndInsertBehind,
+                                 LONG x, LONG y, LONG cx, LONG cy, ULONG fl);
+  BOOL  APIENTRY WinDestroyWindow(HWND hwnd);
 
 
 #ifdef __cplusplus

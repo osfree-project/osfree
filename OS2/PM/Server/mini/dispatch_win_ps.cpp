@@ -54,20 +54,13 @@ ULONG Fs_Server::DispatchWinPs(void *pRecvobj, ULONG fnCode, ULONG data,
             return 0;
         }
 
-        /* Only the desktop window exists in the registry today. Any
-           other HWND -> NULLHANDLE (PM Reference: PMERR_INVALID_HWND). */
-        if (hwnd == 0 ||
-            GetHwndDesktop() == 0 ||
-            (ULONG)hwnd != GetHwndDesktop()) {
-            F_DbgCtxExitf(ctx, "NULLHANDLE (hwnd=%lu, desktop=%lu)",
-                          (unsigned long)hwnd,
-                          (unsigned long)GetHwndDesktop());
-            return 0;
-        }
-
         pWnd = m_wnds.Find((ULONG)hwnd);
         if (!pWnd) {
             F_DbgCtxExitf(ctx, "NULLHANDLE (window not found)");
+            return 0;
+        }
+        if (!pWnd->IsVisible()) {
+            F_DbgCtxExitf(ctx, "NULLHANDLE (window not visible)");
             return 0;
         }
 
