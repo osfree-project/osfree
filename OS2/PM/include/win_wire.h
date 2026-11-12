@@ -19,6 +19,13 @@
 
 #include "F_platform.h"
 
+/*!
+ * @def NWIN_SYNC_FLAG
+ * @brief High bit of a WIN fnCode: marks a sync command (SendCommand).
+ *
+ * Set in the command code definition (e.g. NWinInitialize). The server
+ * strips it before dispatch; the client does not use it directly.
+ */
 #define NWIN_SYNC_FLAG  0x8000UL
 
 /* ========================================================================== */
