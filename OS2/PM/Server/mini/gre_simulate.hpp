@@ -44,8 +44,15 @@ static ULONG __cdecl GreDrvSetupDC(ULONG hdc, ULONG hrgnVis,
 
     if (flFlags & SETUPDC_VISRGN) {
         RECTL rcl;
+        /* GreSetupDC receives prclBounds in device coordinates;
+         * GreNotifyClipChange expects screen coordinates.
+         * Convert device -> screen by adding the DC origin. */
         if (prclBounds) {
-            memcpy(&rcl, (PVOID)prclBounds, sizeof(RECTL));
+            PRECTL p = (PRECTL)prclBounds;
+            rcl.xLeft   = p->xLeft   + (LONG)xOrg;
+            rcl.yBottom = p->yBottom + (LONG)yOrg;
+            rcl.xRight  = p->xRight  + (LONG)xOrg;
+            rcl.yTop    = p->yTop    + (LONG)yOrg;
         } else {
             rcl.xLeft   = 0;
             rcl.yBottom = 0;

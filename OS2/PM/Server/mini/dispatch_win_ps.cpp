@@ -25,6 +25,9 @@
  * @param [in]  cbArgs     Unused (sync path).
  * @param [out] pcbPayload Always 0.
  * @return NWinOpenWindowDC: Associated HDC, or 0 (NULLHANDLE) on failure.
+ * @retval 0    NULLHANDLE (no HAB, window not found, window not visible,
+ *              GreOpenDC failed, or unknown fnCode).
+ * @retval !0   Valid HDC on success.
  */
 ULONG Fs_Server::DispatchWinPs(void *pRecvobj, ULONG fnCode, ULONG data,
                                 PBYTE pArgs, ULONG cbArgs,

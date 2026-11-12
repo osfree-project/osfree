@@ -70,12 +70,7 @@
 #include <math.h>
 #include <process.h>
 
-#define INCL_GRE_ARCS        /* BoxInterior, BoxBoundary, BoxBoth, FullArcBoth, PartialArc, PolySpline, PolyFillet */
-#define INCL_GRE_LINES       /* SetCurrentPosition, GetCurrentPosition, PolyLine */
-#define INCL_GRE_MARKERS     /* PolyMarker */
-#define INCL_GRE_STRINGS     /* CharString, CharStringPos */
-#define INCL_GRE_DEVSUPPORT  /* DeviceSetAttributes, DeviceGetAttributes */
-#define INCL_GRE_DEVMISC1    /* NGreDeviceSetAttributes, NGreDeviceGetAttributes */
+#define INCL_GREALL
 #include "pmddi.h"
 
 #include <SDL.h>
@@ -179,32 +174,55 @@ public:
 typedef struct _GRE2SDL_INSTANCE {
     LONG   lColor;      /*!< Foreground colour, OS/2 0x00BBGGRR layout. */
     POINTL ptlCurPos;   /*!< Current position for this DC. */
+    POINTL ptlOrigin;   /*!< DC origin in screen coordinates. */
+    RECTL  rclClip;     /*!< Clip region in screen coordinates. */
+    BOOL   fClipSet;    /*!< TRUE if rclClip is valid. */
 } GRE2SDL_INSTANCE, *PGRE2SDL_INSTANCE;
 
 /* ======================================================================== */
 /*  Forward declarations of hooked handlers                               */
 /* ======================================================================== */
 
+/*! @brief GreSetCurrentPosition hook. */
 static ULONG __cdecl Gre2SdlSetCurrentPosition(ULONG, ULONG, ULONG, ULONG);
+/*! @brief GreGetCurrentPosition hook. */
 static ULONG __cdecl Gre2SdlGetCurrentPosition(ULONG, ULONG, ULONG, ULONG);
+/*! @brief GrePolyLine hook. */
 static ULONG __cdecl Gre2SdlPolyLine(ULONG, ULONG, ULONG, ULONG, ULONG);
+/*! @brief GrePolyMarker hook. */
 static ULONG __cdecl Gre2SdlPolyMarker(ULONG, ULONG, ULONG, ULONG, ULONG);
+/*! @brief GreBoxInterior hook. */
 static ULONG __cdecl Gre2SdlBoxInterior(ULONG, ULONG, ULONG, ULONG);
+/*! @brief GreBoxBoundary hook. */
 static ULONG __cdecl Gre2SdlBoxBoundary(ULONG, ULONG, ULONG, ULONG);
+/*! @brief GreBoxBoth hook. */
 static ULONG __cdecl Gre2SdlBoxBoth(ULONG, ULONG, ULONG, ULONG);
+/*! @brief GreFullArcBoth hook. */
 static ULONG __cdecl Gre2SdlFullArcBoth(ULONG, ULONG, ULONG, ULONG);
+/*! @brief GrePartialArc hook. */
 static ULONG __cdecl Gre2SdlPartialArc(ULONG, ULONG, ULONG, ULONG, ULONG,
                                        ULONG, ULONG);
+/*! @brief GrePolySpline hook. */
 static ULONG __cdecl Gre2SdlPolySpline(ULONG, ULONG, ULONG, ULONG, ULONG);
+/*! @brief GrePolyFillet hook. */
 static ULONG __cdecl Gre2SdlPolyFillet(ULONG, ULONG, ULONG, ULONG, ULONG);
+/*! @brief GreCharString hook. */
 static ULONG __cdecl Gre2SdlCharString(ULONG, ULONG, ULONG, ULONG, ULONG);
+/*! @brief GreCharStringPos hook. */
 static ULONG __cdecl Gre2SdlCharStringPos(ULONG, ULONG, ULONG, ULONG,
                                            ULONG, ULONG, ULONG, ULONG,
                                            ULONG, ULONG);
+/*! @brief GreDeviceSetAttributes hook. */
 static ULONG __cdecl Gre2SdlSetAttributes(ULONG, ULONG, ULONG, ULONG,
                                            ULONG, ULONG, ULONG);
+/*! @brief GreDeviceGetAttributes hook. */
 static ULONG __cdecl Gre2SdlGetAttributes(ULONG, ULONG, ULONG, ULONG,
                                            ULONG, ULONG);
+/*! @brief GreDeviceSetDCOrigin hook (mandatory for drivers). */
+static ULONG __cdecl Gre2SdlDeviceSetDCOrigin(ULONG, ULONG, ULONG, ULONG);
+/*! @brief GreNotifyClipChange hook (mandatory for drivers). */
+static ULONG __cdecl Gre2SdlNotifyClipChange(ULONG, ULONG, ULONG, ULONG,
+                                              ULONG, ULONG);
 
 /* ======================================================================== */
 /*  Canvas primitives (write to g_pBuf)                                   */
@@ -228,18 +246,47 @@ static void CanvasClear(Uint8 r, Uint8 g, Uint8 b)
  * @brief Write one pixel into g_pBuf, clipping to its bounds.
  * @note Caller must hold g_hmtxDraw.
  */
-static void CanvasPixel(int x, int y, Uint8 r, Uint8 g, Uint8 b)
+/*!
+ * @brief Write one pixel into g_pBuf, applying DC origin and clip.
+ *
+ * Coordinates are device coordinates (as received by Gre* hooks).
+ * Screen coordinates are computed as device + DC origin.  If a clip
+ * region has been set by GreNotifyClipChange, pixels outside it are
+ * dropped.
+ *
+ * @note Caller must hold g_hmtxDraw.
+ */
+static void CanvasPixel(LONG x, LONG y, Uint8 r, Uint8 g, Uint8 b,
+                        PGRE2SDL_INSTANCE inst)
 {
+    LONG    sx, sy;
     Uint32 *row;
 
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
-                             "[GRE2SDL] CanvasPixel(x=%d y=%d r=%u g=%u b=%u)",
-                             x, y, (unsigned)r, (unsigned)g, (unsigned)b);
+                             "[GRE2SDL] CanvasPixel(x=%ld y=%ld r=%u g=%u b=%u)",
+                             (long)x, (long)y, (unsigned)r, (unsigned)g,
+                             (unsigned)b);
     if (!g_pBuf) { F_DbgCtxExitf(ctx, "no buffer"); return; }
-    if (x < 0 || x >= g_pBuf->w || y < 0 || y >= g_pBuf->h) { F_DbgCtxExitf(ctx, "clipped"); return; }
+    if (!inst)   { F_DbgCtxExitf(ctx, "no inst");  return; }
 
-    row = (Uint32 *)((Uint8 *)g_pBuf->pixels + (size_t)y * g_pBuf->pitch);
-    row[x] = SDL_MapRGB(g_pBuf->format, r, g, b);
+    sx = x + inst->ptlOrigin.x;
+    sy = y + inst->ptlOrigin.y;
+
+    if (inst->fClipSet) {
+        if (sx < inst->rclClip.xLeft   || sx >= inst->rclClip.xRight ||
+            sy < inst->rclClip.yBottom || sy >= inst->rclClip.yTop) {
+            F_DbgCtxExitf(ctx, "clipped (clip)");
+            return;
+        }
+    }
+
+    if (sx < 0 || sx >= g_pBuf->w || sy < 0 || sy >= g_pBuf->h) {
+        F_DbgCtxExitf(ctx, "clipped (buf)");
+        return;
+    }
+
+    row = (Uint32 *)((Uint8 *)g_pBuf->pixels + (size_t)sy * g_pBuf->pitch);
+    row[sx] = SDL_MapRGB(g_pBuf->format, r, g, b);
     F_DbgCtxExitf(ctx, "ok");
 }
 
@@ -247,19 +294,24 @@ static void CanvasPixel(int x, int y, Uint8 r, Uint8 g, Uint8 b)
  * @brief Bresenham line from (x0,y0) to (x1,y1), endpoints inclusive.
  * @note Caller must hold g_hmtxDraw.
  */
-static void CanvasLine(int x0, int y0, int x1, int y1,
-                       Uint8 r, Uint8 g, Uint8 b)
+/*!
+ * @brief Bresenham line from (x0,y0) to (x1,y1), endpoints inclusive.
+ * @note Caller must hold g_hmtxDraw.
+ */
+static void CanvasLine(LONG x0, LONG y0, LONG x1, LONG y1,
+                       Uint8 r, Uint8 g, Uint8 b,
+                       PGRE2SDL_INSTANCE inst)
 {
-    int dx =  abs(x1 - x0), sx = (x0 < x1) ? 1 : -1;
-    int dy = -abs(y1 - y0), sy = (y0 < y1) ? 1 : -1;
-    int err = dx + dy, e2;
+    LONG dx =  labs(x1 - x0), sx = (x0 < x1) ? 1 : -1;
+    LONG dy = -labs(y1 - y0), sy = (y0 < y1) ? 1 : -1;
+    LONG err = dx + dy, e2;
 
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
-                             "[GRE2SDL] CanvasLine(%d,%d -> %d,%d)",
-                             x0, y0, x1, y1);
+                             "[GRE2SDL] CanvasLine(%ld,%ld -> %ld,%ld)",
+                             (long)x0, (long)y0, (long)x1, (long)y1);
 
     for (;;) {
-        CanvasPixel(x0, y0, r, g, b);
+        CanvasPixel(x0, y0, r, g, b, inst);
         if (x0 == x1 && y0 == y1) break;
         e2 = 2 * err;
         if (e2 >= dy) { err += dy; x0 += sx; }
@@ -272,29 +324,33 @@ static void CanvasLine(int x0, int y0, int x1, int y1,
  * @brief Axis-aligned rectangle, filled or outlined.
  * @note Caller must hold g_hmtxDraw.
  */
-static void CanvasRect(int x, int y, int w, int h,
-                       Uint8 r, Uint8 g, Uint8 b, BOOL bFill)
+/*!
+ * @brief Axis-aligned rectangle, filled or outlined.
+ * @note Caller must hold g_hmtxDraw.
+ */
+static void CanvasRect(LONG x, LONG y, LONG w, LONG h,
+                       Uint8 r, Uint8 g, Uint8 b, BOOL bFill,
+                       PGRE2SDL_INSTANCE inst)
 {
     SDL_Rect rc;
 
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
-                             "[GRE2SDL] CanvasRect(%d,%d %dx%d fill=%d)",
-                             x, y, w, h, (int)bFill);
+                             "[GRE2SDL] CanvasRect(%ld,%ld %ldx%ld fill=%d)",
+                             (long)x, (long)y, (long)w, (long)h, (int)bFill);
 
     if (!g_pBuf || w <= 0 || h <= 0) { F_DbgCtxExitf(ctx, "no-op"); return; }
-
-    rc.x = (Sint16)x;
-    rc.y = (Sint16)y;
-    rc.w = (Uint16)w;
-    rc.h = (Uint16)h;
+    if (!inst) { F_DbgCtxExitf(ctx, "no inst"); return; }
 
     if (bFill) {
-        SDL_FillRect(g_pBuf, &rc, SDL_MapRGB(g_pBuf->format, r, g, b));
+        /* Fill via per-scanline CanvasLine so that origin and clip apply. */
+        LONG yy;
+        for (yy = 0; yy < h; yy++)
+            CanvasLine(x, y + yy, x + w - 1, y + yy, r, g, b, inst);
     } else {
-        CanvasLine(x,         y,         x + w - 1, y,         r, g, b);
-        CanvasLine(x,         y + h - 1, x + w - 1, y + h - 1, r, g, b);
-        CanvasLine(x,         y,         x,         y + h - 1, r, g, b);
-        CanvasLine(x + w - 1, y,         x + w - 1, y + h - 1, r, g, b);
+        CanvasLine(x,         y,         x + w - 1, y,         r, g, b, inst);
+        CanvasLine(x,         y + h - 1, x + w - 1, y + h - 1, r, g, b, inst);
+        CanvasLine(x,         y,         x,         y + h - 1, r, g, b, inst);
+        CanvasLine(x + w - 1, y,         x + w - 1, y + h - 1, r, g, b, inst);
     }
     F_DbgCtxExitf(ctx, "ok");
 }
@@ -810,6 +866,8 @@ extern "C" ULONG EXPENTRY OS2_PM_DRV_ENABLE(ULONG ulSubFunc,
         HOOK(NGreCharStringPos,        Gre2SdlCharStringPos);
         HOOK(NGreDeviceSetAttributes,  Gre2SdlSetAttributes);
         HOOK(NGreDeviceGetAttributes,  Gre2SdlGetAttributes);
+        HOOK(NGreDeviceSetDCOrigin,    Gre2SdlDeviceSetDCOrigin);
+        HOOK(NGreNotifyClipChange,     Gre2SdlNotifyClipChange);
 #undef HOOK
 
         /* FLReturnsLst::Flags is PUSHORT. Only bits 0 and 2 belong to
@@ -867,9 +925,16 @@ extern "C" ULONG EXPENTRY OS2_PM_DRV_ENABLE(ULONG ulSubFunc,
         }
         inst = (PGRE2SDL_INSTANCE)pv;
         memset(inst, 0, sizeof(*inst));
-        inst->lColor       = 0x00FFFFFF;
-        inst->ptlCurPos.x  = 0;
-        inst->ptlCurPos.y  = 0;
+        inst->lColor          = 0x00FFFFFF;
+        inst->ptlCurPos.x     = 0;
+        inst->ptlCurPos.y     = 0;
+        inst->ptlOrigin.x     = 0;
+        inst->ptlOrigin.y     = 0;
+        inst->rclClip.xLeft   = 0;
+        inst->rclClip.yBottom = 0;
+        inst->rclClip.xRight  = 0;
+        inst->rclClip.yTop    = 0;
+        inst->fClipSet        = FALSE;
 
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_INFO,
                    "[GRE2SDL] EnableDeviceContext -> pInstance=%p",
@@ -1000,7 +1065,7 @@ static ULONG __cdecl Gre2SdlPolyLine(ULONG hdc, ULONG pptl, ULONG cPoints,
     DosRequestMutexSem(g_hmtxDraw, SEM_INDEFINITE_WAIT);
     for (i = 0; i < cPoints - 1; i++) {
         CanvasLine(pts[i].x,   pts[i].y,
-                   pts[i+1].x, pts[i+1].y, r, g, b);
+                   pts[i+1].x, pts[i+1].y, r, g, b, inst);
     }
     DosReleaseMutexSem(g_hmtxDraw);
 
@@ -1033,7 +1098,7 @@ static ULONG __cdecl Gre2SdlPolyMarker(ULONG hdc, ULONG pptl, ULONG cPoints,
 
     DosRequestMutexSem(g_hmtxDraw, SEM_INDEFINITE_WAIT);
     for (i = 0; i < cPoints; i++) {
-        CanvasPixel(pts[i].x, pts[i].y, r, g, b);
+        CanvasPixel(pts[i].x, pts[i].y, r, g, b, inst);
     }
     DosReleaseMutexSem(g_hmtxDraw);
 
@@ -1066,7 +1131,7 @@ static ULONG __cdecl Gre2SdlBoxInterior(ULONG hdc, ULONG pBoxParams,
     CanvasRect(inst->ptlCurPos.x, inst->ptlCurPos.y,
                bp->ptl.x - inst->ptlCurPos.x,
                bp->ptl.y - inst->ptlCurPos.y,
-               r, g, b, TRUE);
+               r, g, b, TRUE, inst);
     DosReleaseMutexSem(g_hmtxDraw);
 
     inst->ptlCurPos = bp->ptl;
@@ -1098,7 +1163,7 @@ static ULONG __cdecl Gre2SdlBoxBoundary(ULONG hdc, ULONG pBoxParams,
     CanvasRect(inst->ptlCurPos.x, inst->ptlCurPos.y,
                bp->ptl.x - inst->ptlCurPos.x,
                bp->ptl.y - inst->ptlCurPos.y,
-               r, g, b, FALSE);
+               r, g, b, FALSE, inst);
     DosReleaseMutexSem(g_hmtxDraw);
 
     inst->ptlCurPos = bp->ptl;
@@ -1130,11 +1195,11 @@ static ULONG __cdecl Gre2SdlBoxBoth(ULONG hdc, ULONG pBoxParams,
     CanvasRect(inst->ptlCurPos.x, inst->ptlCurPos.y,
                bp->ptl.x - inst->ptlCurPos.x,
                bp->ptl.y - inst->ptlCurPos.y,
-               r, g, b, TRUE);
+               r, g, b, TRUE, inst);
     CanvasRect(inst->ptlCurPos.x, inst->ptlCurPos.y,
                bp->ptl.x - inst->ptlCurPos.x,
                bp->ptl.y - inst->ptlCurPos.y,
-               r, g, b, FALSE);
+               r, g, b, FALSE, inst);
     DosReleaseMutexSem(g_hmtxDraw);
 
     inst->ptlCurPos = bp->ptl;
@@ -1172,8 +1237,10 @@ static ULONG __cdecl Gre2SdlFullArcBoth(ULONG hdc, ULONG fxMultiplier,
     DosRequestMutexSem(g_hmtxDraw, SEM_INDEFINITE_WAIT);
     for (w = 0; w < rx * 2; w++) {
         int h = (int)sqrt((double)(rx * rx - (w - rx) * (w - rx)));
-        CanvasPixel(inst->ptlCurPos.x + w - rx, inst->ptlCurPos.y + h, r, g, b);
-        CanvasPixel(inst->ptlCurPos.x + w - rx, inst->ptlCurPos.y - h, r, g, b);
+        CanvasPixel(inst->ptlCurPos.x + w - rx, inst->ptlCurPos.y + h,
+                    r, g, b, inst);
+        CanvasPixel(inst->ptlCurPos.x + w - rx, inst->ptlCurPos.y - h,
+                    r, g, b, inst);
     }
     DosReleaseMutexSem(g_hmtxDraw);
 
@@ -1255,7 +1322,7 @@ static ULONG __cdecl Gre2SdlCharString(ULONG hdc, ULONG cch, ULONG pch,
     Os2ColorToRgb(inst->lColor, &r, &g, &b);
 
     DosRequestMutexSem(g_hmtxDraw, SEM_INDEFINITE_WAIT);
-    CanvasPixel(inst->ptlCurPos.x, inst->ptlCurPos.y, r, g, b);
+    CanvasPixel(inst->ptlCurPos.x, inst->ptlCurPos.y, r, g, b, inst);
     DosReleaseMutexSem(g_hmtxDraw);
 
     F_DbgCtxExitf(ctx, "0");
@@ -1371,3 +1438,78 @@ static ULONG __cdecl Gre2SdlGetAttributes(ULONG hdc, ULONG lPrimType,
     F_DbgCtxExitf(ctx, "0 (lColor=0x%06lx)", (unsigned long)(inst->lColor & 0x00FFFFFF));
     return 0;
 }
+
+/*!
+ * @brief GreDeviceSetDCOrigin: record the DC origin (screen coordinates).
+ *
+ * Mandatory for all drivers.  The origin is added to every device
+ * coordinate before conversion to screen coordinates, per OS/2 PM Ref
+ * Vol. 2 ("the presentation driver must add it to all device
+ * coordinates to make them screen coordinates").
+ *
+ * @param [in] hdc       Device context handle.
+ * @param [in] pptlDC    Pointer to the DC origin in screen coordinates.
+ * @param [in] pInstance Per-DC instance data (GRE2SDL_INSTANCE *).
+ * @param [in] fnCode    NGreDeviceSetDCOrigin.
+ * @return GPI_OK on success, (ULONG)-1 on failure.
+ * @retval 0          Origin recorded.
+ * @retval (ULONG)-1  Bad arguments (NULL inst or pptlDC).
+ */
+static ULONG __cdecl Gre2SdlDeviceSetDCOrigin(ULONG hdc, ULONG pptlDC,
+                                               ULONG pInstance, ULONG fnCode)
+{
+    PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
+    PPOINTL p = (PPOINTL)pptlDC;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlDeviceSetDCOrigin(fn=0x%lx, hdc=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc);
+
+    (void)hdc; (void)fnCode;
+
+    if (!inst || !p) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
+    inst->ptlOrigin = *p;
+    F_DbgCtxExitf(ctx, "0 (origin=(%ld,%ld))", (long)p->x, (long)p->y);
+    return 0;
+}
+
+/*!
+ * @brief GreNotifyClipChange: cache the new clip region (screen coords).
+ *
+ * Mandatory for all drivers.  The rectangle is inclusive on left and
+ * bottom, exclusive on right and top.  Only the bounding rectangle is
+ * cached; the full region (cRect rects) is not enumerated.
+ *
+ * @param [in] hdc        Device context handle.
+ * @param [in] prclBound  Bounding rectangle of the new clip region in
+ *                        screen coordinates.
+ * @param [in] cRect      Number of rectangles in the new clip region.
+ * @param [in] idClipPath Current ClipPath ID (unused for display).
+ * @param [in] pInstance  Per-DC instance data (GRE2SDL_INSTANCE *).
+ * @param [in] fnCode     NGreNotifyClipChange.
+ * @return GPI_OK on success, (ULONG)-1 on failure.
+ * @retval 0          Clip region cached.
+ * @retval (ULONG)-1  Bad arguments (NULL inst or prclBound).
+ */
+static ULONG __cdecl Gre2SdlNotifyClipChange(ULONG hdc, ULONG prclBound,
+                                              ULONG cRect, ULONG idClipPath,
+                                              ULONG pInstance, ULONG fnCode)
+{
+    PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
+    PRECTL p = (PRECTL)prclBound;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlNotifyClipChange(fn=0x%lx, hdc=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc);
+
+    (void)hdc; (void)cRect; (void)idClipPath; (void)fnCode;
+
+    if (!inst || !p) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
+    inst->rclClip  = *p;
+    inst->fClipSet = TRUE;
+    F_DbgCtxExitf(ctx, "0 (clip=(%ld,%ld)-(%ld,%ld))",
+                  (long)p->xLeft, (long)p->yBottom,
+                  (long)p->xRight, (long)p->yTop);
+    return 0;
+}
+

@@ -103,6 +103,23 @@ static BOOL                   g_bDriverLoaded  = FALSE;
  *         replaced. */
 static PFN                    g_tblDriverBefore[MAXTABLEENTRIES];
 
+/*! @brief Slots that MUST be filled by the presentation driver in
+ *         FillLogicalDeviceBlock.  These correspond to NGre* functions
+ *         that are mandatory for all drivers (see OS/2 PM Ref Vol. 2,
+ *         GreDeviceSetDCOrigin and GreNotifyClipChange — "mandatory for
+ *         all drivers, no simulation").  If the driver leaves one of
+ *         them NULL, GRE rejects the driver at load time.
+ *
+ *         Full NGre* code (flags + slot): low byte indexes g_tblDriver. */
+static const ULONG            g_mandatorySlots[] = {
+    NGreNotifyClipChange,
+    NGreDeviceSetDCOrigin
+};
+
+/*! @brief Number of entries in g_mandatorySlots[]. */
+#define MANDATORY_COUNT \
+    ((int)(sizeof(g_mandatorySlots) / sizeof(g_mandatorySlots[0])))
+
 /* ======================================================================== */
 /*  Forward declarations                                                  */
 /* ======================================================================== */
@@ -139,6 +156,17 @@ static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG fnCode) \
 }
 
 #define GRE_STUB_4(name) \
+static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG fnCode) \
+{ \
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
+                             "[GRE] %s(fn=0x%lx)", #name, \
+                             (unsigned long)fnCode); \
+    (void)a1; (void)a2; (void)a3; \
+    F_DbgCtxExitf(ctx, "GPI_ERROR (stub)"); \
+    return (ULONG)GPI_ERROR; \
+}
+
+#define GRE_STUB_5(name) \
 static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG fnCode) \
 { \
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
@@ -149,7 +177,7 @@ static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG fnCode) 
     return (ULONG)GPI_ERROR; \
 }
 
-#define GRE_STUB_5(name) \
+#define GRE_STUB_6(name) \
 static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULONG fnCode) \
 { \
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
@@ -160,7 +188,7 @@ static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULON
     return (ULONG)GPI_ERROR; \
 }
 
-#define GRE_STUB_6(name) \
+#define GRE_STUB_7(name) \
 static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULONG a6, ULONG fnCode) \
 { \
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
@@ -171,7 +199,7 @@ static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULON
     return (ULONG)GPI_ERROR; \
 }
 
-#define GRE_STUB_7(name) \
+#define GRE_STUB_8(name) \
 static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULONG a6, ULONG a7, ULONG fnCode) \
 { \
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
@@ -182,7 +210,7 @@ static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULON
     return (ULONG)GPI_ERROR; \
 }
 
-#define GRE_STUB_8(name) \
+#define GRE_STUB_9(name) \
 static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULONG a6, ULONG a7, ULONG a8, ULONG fnCode) \
 { \
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
@@ -193,24 +221,13 @@ static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULON
     return (ULONG)GPI_ERROR; \
 }
 
-#define GRE_STUB_9(name) \
+#define GRE_STUB_10(name) \
 static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULONG a6, ULONG a7, ULONG a8, ULONG a9, ULONG fnCode) \
 { \
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
                              "[GRE] %s(fn=0x%lx)", #name, \
                              (unsigned long)fnCode); \
     (void)a1; (void)a2; (void)a3; (void)a4; (void)a5; (void)a6; (void)a7; (void)a8; (void)a9; \
-    F_DbgCtxExitf(ctx, "GPI_ERROR (stub)"); \
-    return (ULONG)GPI_ERROR; \
-}
-
-#define GRE_STUB_10(name) \
-static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULONG a6, ULONG a7, ULONG a8, ULONG a9, ULONG a10, ULONG fnCode) \
-{ \
-    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
-                             "[GRE] %s(fn=0x%lx)", #name, \
-                             (unsigned long)fnCode); \
-    (void)a1; (void)a2; (void)a3; (void)a4; (void)a5; (void)a6; (void)a7; (void)a8; (void)a9; (void)a10; \
     F_DbgCtxExitf(ctx, "GPI_ERROR (stub)"); \
     return (ULONG)GPI_ERROR; \
 }
@@ -238,6 +255,17 @@ static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG fnCode) \
 }
 
 #define GRE_DRV_4(name) \
+static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG fnCode) \
+{ \
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
+                             "[GRE] %s(fn=0x%lx)", #name, \
+                             (unsigned long)fnCode); \
+    (void)a1; (void)a2; (void)a3; \
+    F_DbgCtxExitf(ctx, "GPI_ERROR (stub)"); \
+    return (ULONG)GPI_ERROR; \
+}
+
+#define GRE_DRV_5(name) \
 static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG fnCode) \
 { \
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
@@ -248,7 +276,7 @@ static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG fnCode) 
     return (ULONG)GPI_ERROR; \
 }
 
-#define GRE_DRV_5(name) \
+#define GRE_DRV_6(name) \
 static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULONG fnCode) \
 { \
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
@@ -259,7 +287,7 @@ static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULON
     return (ULONG)GPI_ERROR; \
 }
 
-#define GRE_DRV_6(name) \
+#define GRE_DRV_7(name) \
 static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULONG a6, ULONG fnCode) \
 { \
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
@@ -270,7 +298,7 @@ static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULON
     return (ULONG)GPI_ERROR; \
 }
 
-#define GRE_DRV_7(name) \
+#define GRE_DRV_8(name) \
 static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULONG a6, ULONG a7, ULONG fnCode) \
 { \
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
@@ -281,7 +309,7 @@ static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULON
     return (ULONG)GPI_ERROR; \
 }
 
-#define GRE_DRV_8(name) \
+#define GRE_DRV_9(name) \
 static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULONG a6, ULONG a7, ULONG a8, ULONG fnCode) \
 { \
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
@@ -292,24 +320,13 @@ static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULON
     return (ULONG)GPI_ERROR; \
 }
 
-#define GRE_DRV_9(name) \
+#define GRE_DRV_10(name) \
 static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULONG a6, ULONG a7, ULONG a8, ULONG a9, ULONG fnCode) \
 { \
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
                              "[GRE] %s(fn=0x%lx)", #name, \
                              (unsigned long)fnCode); \
     (void)a1; (void)a2; (void)a3; (void)a4; (void)a5; (void)a6; (void)a7; (void)a8; (void)a9; \
-    F_DbgCtxExitf(ctx, "GPI_ERROR (stub)"); \
-    return (ULONG)GPI_ERROR; \
-}
-
-#define GRE_DRV_10(name) \
-static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULONG a6, ULONG a7, ULONG a8, ULONG a9, ULONG a10, ULONG fnCode) \
-{ \
-    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE, \
-                             "[GRE] %s(fn=0x%lx)", #name, \
-                             (unsigned long)fnCode); \
-    (void)a1; (void)a2; (void)a3; (void)a4; (void)a5; (void)a6; (void)a7; (void)a8; (void)a9; (void)a10; \
     F_DbgCtxExitf(ctx, "GPI_ERROR (stub)"); \
     return (ULONG)GPI_ERROR; \
 }
@@ -406,8 +423,12 @@ static ULONG __cdecl GreIntQueryDeviceNames(
 }
 
 /* ======================================================================== */
-/*  Per-function stubs (driver table)                                     */
+/*  Driver table functions                                                  */
 /* ======================================================================== */
+
+/*  Real simulated handlers                                                 */
+
+#include "gre_simulate.hpp"
 
 /*! @brief Stub for empty slots — no NGre* constant exists for this slot.
  *
@@ -523,7 +544,6 @@ GRE_DRV_5 (GreDrvClipPathCurves)
 GRE_DRV_4 (GreDrvSelectPathRegion)
 GRE_DRV_4 (GreDrvRegionSelectBitmap)
 GRE_DRV_6 (GreDrvCopyClipRegion)
-GRE_DRV_8 (GreDrvSetupDC)
 GRE_DRV_4 (GreDrvGetPageUnits)
 GRE_DRV_6 (GreDrvSetPageUnits)
 GRE_DRV_4 (GreDrvGetModelXform)
@@ -553,7 +573,6 @@ GRE_DRV_5 (GreDrvGetPairKerningTable)
 GRE_DRV_5 (GreDrvDeviceSetAVIOFont)
 GRE_DRV_7 (GreDrvDeviceSetAttributes)
 GRE_DRV_6 (GreDrvDeviceSetGlobalAttribute)
-GRE_DRV_6 (GreDrvNotifyClipChange)
 GRE_DRV_5 (GreDrvNotifyTransformChange)
 GRE_DRV_6 (GreDrvRealizeFont)
 GRE_DRV_3 (GreDrvErasePS)
@@ -575,7 +594,6 @@ GRE_DRV_3 (GreDrvUnlockDevice)
 GRE_DRV_3 (GreDrvDeath)
 GRE_DRV_5 (GreDrvResurrection)
 GRE_DRV_4 (GreDrvGetDCOrigin)
-GRE_DRV_4 (GreDrvDeviceSetDCOrigin)
 GRE_DRV_4 (GreDrvGetLineOrigin)
 GRE_DRV_5 (GreDrvSetLineOrigin)
 GRE_DRV_4 (GreDrvGetStyleRatio)
@@ -884,7 +902,7 @@ static PFN g_tblDriver[MAXTABLEENTRIES] = {
     /* 0xA1 0x40A1 */ (PFN)GreDrvDeviceSetAVIOFont,
     /* 0xA2 0x60A2 */ (PFN)GreDrvDeviceSetAttributes,
     /* 0xA3 0x60A3 */ (PFN)GreDrvDeviceSetGlobalAttribute,
-    /* 0xA4 0x40A4 */ (PFN)GreDrvNotifyClipChange,
+    /* 0xA4 0x40A4 */ NULL, // Mandatory
     /* 0xA5 0x40A5 */ (PFN)GreDrvNotifyTransformChange,
     /* 0xA6 0x40A6 */ (PFN)GreDrvRealizeFont,
     /* 0xA7 0x40A7 */ (PFN)GreDrvErasePS,
@@ -907,7 +925,7 @@ static PFN g_tblDriver[MAXTABLEENTRIES] = {
     /* 0xB8 0x40B8 */ (PFN)GreDrvResurrection,
     /* 0xB9 -------- */ NULL,
     /* 0xBA 0x40BA */ (PFN)GreDrvGetDCOrigin,
-    /* 0xBB 0x40BB */ (PFN)GreDrvDeviceSetDCOrigin,
+    /* 0xBB 0x40BB */ NULL, // Mandatory
     /* 0xBC 0x40BC */ (PFN)GreDrvGetLineOrigin,
     /* 0xBD 0x40BD */ (PFN)GreDrvSetLineOrigin,
     /* 0xBE 0x40BE */ (PFN)GreDrvGetStyleRatio,
@@ -1245,6 +1263,8 @@ static BOOL LoadGre2Sdl(void)
     FLReturnsLst flReturns;
     USHORT       fsDeviceFlags = 0;
     ULONG        drvRc;
+    int          i;
+    int          nBad;
 
     if (g_bDriverLoaded) return TRUE;
 
@@ -1282,6 +1302,29 @@ static BOOL LoadGre2Sdl(void)
         F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_ERROR,
                    "[GRE] GRE2SDL: FillLogicalDeviceBlock failed rc=%lu",
                    (unsigned long)drvRc);
+        DosFreeModule(g_hmodGre2Sdl);
+        g_hmodGre2Sdl = 0;
+        g_pfnEnable   = NULL;
+        return FALSE;
+    }
+
+    /* Verify that the driver filled all mandatory slots.  If any is
+     * still NULL, the driver is incomplete and would crash on the
+     * first call through that slot.  Reject it at load time instead. */
+    nBad = 0;
+    for (i = 0; i < MANDATORY_COUNT; i++) {
+        ULONG fc = g_mandatorySlots[i];
+        if (g_tblDriver[fc & 0xFF] == NULL) {
+            F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_ERROR,
+                       "[GRE] GRE2SDL: mandatory NGre 0x%04lx(%s) not filled",
+                       (unsigned long)fc, GreFuncName(fc));
+            nBad++;
+        }
+    }
+    if (nBad > 0) {
+        F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_ERROR,
+                   "[GRE] GRE2SDL: %d mandatory slot(s) missing, "
+                   "rejecting driver", nBad);
         DosFreeModule(g_hmodGre2Sdl);
         g_hmodGre2Sdl = 0;
         g_pfnEnable   = NULL;
