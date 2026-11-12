@@ -23,6 +23,8 @@
 #include "Fs_config.hpp"
 #include "Fs_server.hpp"
 
+#define DBG_TAG PMSERVER
+
 /*! @brief Server-specific debug configuration.
  *
  * The defaults below are used only if the corresponding keys are not

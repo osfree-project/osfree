@@ -60,11 +60,15 @@ int main(void)
     for (i = 0; i < 10; i++) DosSleep(100);
 
     check(WinShowWindow(hwnd, TRUE), "WinShowWindow(TRUE)");
+    check(GpiMove(hps, &pt10),  "GpiMove after show");
+    check(GpiLine(hps, &pt290), "GpiLine after show");
     printf("  shown; waiting 1 s\n");
     for (i = 0; i < 10; i++) DosSleep(100);
 
     check(WinSetWindowPos(hwnd, NULLHANDLE, 200, 150, 0, 0, SWP_MOVE),
           "WinSetWindowPos(move to 200,150)");
+    check(GpiMove(hps, &pt10),  "GpiMove after move");
+    check(GpiLine(hps, &pt290), "GpiLine after move");
     printf("  moved; waiting 2 s\n");
     for (i = 0; i < 20; i++) DosSleep(100);
 

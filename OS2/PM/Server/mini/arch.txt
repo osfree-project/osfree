@@ -83,7 +83,6 @@ Segment store, элементы и element pointer существуют толь
 | Разработчик приложений | Device independence, retained mode, предсказуемый ввод, логические шрифты; controls/dialogs/CUA; hooks, clipboard/DDE; replay .met в принтер | V2, V3, V4, V7, V8, V9, V12 |
 | Разработчик приложений | Прозрачность клиент-серверного разделения: Win*/Gpi* не меняются, меняется транспорт | V1, V2, V13 |
 | Разработчик драйверов | Dispatch Table ABI, GRADD (GHI), SNAP/Nucleus, SOFTDRAW, ring levels; hardcopy .DRV (PRTxxx, SplQm*) | V2, V5, V12 |
-| Разработчик драйверов | Драйверная DLL мини-сервера (PMWINDOW.DLL / PMDRIVER.DLL) | V5, V13 |
 | Разработчик шрифтов | IFI (GRE↔Font Driver), FOCA-структуры, UGL, PMFONT.H | V2, V3, V5, V6 |
 | Интегратор | Три модели, гибридный GRE, eCS/ArcaOS (SNAP как штатный GRADD); DDE-протокол; разделяемые ресурсы; спулер и queue processor | V2, V5, V9, V11, V12 |
 | Интегратор | Сетевой доступ к серверу, лимиты сессий, таймауты, переподключение | V4, V5, V11, V13 |
@@ -295,7 +294,7 @@ Segment store, элементы и element pointer существуют толь
 | Fs_ClientList / Fs_ClientConnection | — | Жизненный цикл сессий; StateFree / StateActive / StateDetached; таймауты inactive 60 c / grace 30 c |
 | Fs_HabList | — | Потокобезопасная выдача HAB (монотонный счётчик с 1, лимит 128) |
 | поток-монитор | — | Тик F_MONITOR_TICK_MS (1000 мс): Active→Detached по inactive, Detached→Free по grace |
-| драйверная DLL (PMWINDOW.DLL / PMDRIVER.DLL) | — | Создание PM-окна, мониторинг событий (мышь, изменение размера), доступ к фреймбуферу |
+
 
 GPI — группы Gpi*:
 
@@ -519,7 +518,7 @@ VMAN helper-функции: VHAllocMem, VHFreeMem, VHLockMem, VHPhystoVirt, VHMa
 | PMSERVER.EXE | — | 3 | EXE (отдельный процесс) |
 | PMCLIENT.DLL | — | 3 | DLL |
 | wire | — | — | named pipe / TCP/IP |
-| PMWINDOW.DLL / PMDRIVER.DLL | — | 3 | DLL |
+
 
 Загрузка:
 
@@ -794,7 +793,7 @@ Concern: где проходит граница между клиентом и �
 | PMSERVER.EXE | 3 | EXE |
 | PMCLIENT.DLL | 3 | DLL |
 | wire | — | named pipe / TCP/IP |
-| PMWINDOW.DLL / PMDRIVER.DLL | 3 | DLL |
+
 
 ---
 
@@ -883,7 +882,7 @@ Hardcopy-драйверы и спулер существуют во всех в�
 | V3: HAB и клиентская сессия — серверные | Централизованное владение |
 | V3: lifecycle клиентской сессии | StateFree → StateActive → StateDetached → StateFree |
 | V4: поток клиент-сервер, Fs_ClientList, Fs_HabList, монитор | Новые точки синхронизации |
-| V5: PMSERVER.EXE, PMCLIENT.DLL, wire, PMWINDOW.DLL / PMDRIVER.DLL | Новые единицы развёртывания |
+| V5: PMSERVER.EXE, PMCLIENT.DLL, wire | Новые единицы развёртывания |
 | V5: загрузка клиент-серверной ветви (удалённый → локальный → запуск копии) | Алгоритм подключения |
 | V9: маршрутизация через сервер | Межклиентские сообщения |
 | V11: серверные семафоры | Не PMSEM/GRESEM; другой уровень |

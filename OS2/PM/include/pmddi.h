@@ -168,6 +168,27 @@ typedef ULONG (DDI_CALLCONV *PFN_OS2_PM_DRV_ENABLE)(ULONG subfunc,
 #define EN_BEGIN_CLOSEDC    0x0000000BUL  /*!< BeginCloseDC. */
 #define EN_INSTALL_HOOKS    0x0000000CUL  /*!< InstallPMEngineDisplayHooks. */
 
+#ifdef INCL_GRE_CLIP
+   
+   /* CopyClipRegion */
+   
+   #define COPYCRGN_ALLINTERSECT        0L
+   #define COPYCRGN_VISRGN              1L
+   #define COPYCRGN_CLIPRGN             2L
+   
+   /* SetupDC */
+   
+   #define SETUPDC_VISRGN               0x00000001L
+   #define SETUPDC_ORIGIN               0x00000002L
+   #define SETUPDC_ACCUMBOUNDSON        0x00000004L
+   #define SETUPDC_ACCUMBOUNDSOFF       0x00000008L
+   #define SETUPDC_RECALCCLIP           0x00000010L
+   #define SETUPDC_SETOWNER             0x00000020L
+   #define SETUPDC_CLEANDC              0x00000040L
+   
+#endif /* INCL_GRE_CLIP */
+
+
 #ifdef __cplusplus
       }
 #endif

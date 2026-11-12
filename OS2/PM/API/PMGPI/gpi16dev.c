@@ -21,7 +21,7 @@ EXTERN USHORT APIENTRY16 DEVOPENDC(void)
 #ifdef BIT32
 	return unimplemented(__FUNCTION__);
 #else
-#	include "devopendc.c"
+	return unimplemented(__FUNCTION__);
 #endif
 }
 
