@@ -46,7 +46,7 @@ int main(void)
     check(hps != NULLHANDLE, "GpiCreatePS");
     if (hps == NULLHANDLE) goto destroy;
 
-    check(GpiSetColor(hps, CLR_RED), "GpiSetColor(CLR_RED)");
+    check(GpiSetColor(hps, 0x00FF0000), "GpiSetColor(0x00FF0000)");
     pt.x = 10; pt.y = 10;
     check(GpiMove(hps, &pt), "GpiMove({10,10})");
     pt.x = 290; pt.y = 190;

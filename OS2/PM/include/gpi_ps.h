@@ -185,12 +185,23 @@ static inline PGPI_PS GpiPsCreate(HPS hps, HDC hdc, ULONG flOptions)
     return (PGPI_PS)NULL;
 }
 
-/*! @brief Find or auto-create a PS entry. */
+/*!
+ * @brief Find a PS entry by handle;
+ *
+ * Returns NULL for an unknown or destroyed HPS. 
+ *
+ * Callers in dispatch.cpp check for NULL and return GPI_ERROR;
+ * DISPATCH_STUB returns GPI_ERROR unconditionally.
+ *
+ * @param [in] hps  Presentation-space handle. NULL is valid input.
+ * @return Pointer to the PS slot, or NULL.
+ * @retval !NULL  Matching in-use slot found.
+ * @retval NULL   hps == NULL, or hps not in g_psTable, or the slot
+ *                was released by GpiPsDestroy.
+ */
 static inline PGPI_PS GpiPsGet(HPS hps)
 {
-    PGPI_PS ps = GpiPsFind(hps);
-    if (ps) return ps;
-    return GpiPsCreate(hps, NULL, 0);
+    return GpiPsFind(hps);
 }
 
 /*! @brief Update flOptions for an existing PS entry. */
