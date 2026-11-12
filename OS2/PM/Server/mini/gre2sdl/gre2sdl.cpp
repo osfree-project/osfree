@@ -277,7 +277,8 @@ static void CanvasPixel(LONG x, LONG y, Uint8 r, Uint8 g, Uint8 b,
 {
     LONG    sx, sy;
     Uint32 *row;
-
+#define F_DbgCtxEnterf(x, ...) 0
+#define F_DbgCtxExitf(x, ...) {}
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
                              "[GRE2SDL] CanvasPixel(x=%ld y=%ld r=%u g=%u b=%u)",
                              (long)x, (long)y, (unsigned)r, (unsigned)g,
@@ -305,6 +306,9 @@ static void CanvasPixel(LONG x, LONG y, Uint8 r, Uint8 g, Uint8 b,
     row[sx] = SDL_MapRGB(g_pBuf->format, r, g, b);
     F_DbgCtxExitf(ctx, "ok");
 }
+
+#undef F_DbgCtxEnterf
+#undef F_DbgCtxExitf
 
 /*!
  * @brief Bresenham line from (x0,y0) to (x1,y1), endpoints inclusive.
@@ -1418,7 +1422,7 @@ static ULONG __cdecl Gre2SdlCharStringPos(ULONG hdc, ULONG pptl, ULONG prcl,
  * accepted and ignored until the drawing layer needs them.
  */
 static ULONG __cdecl Gre2SdlSetAttributes(ULONG hdc, ULONG lPrimType,
-                                           ULONG flAttrs, ULONG flDefMask,
+                                           ULONG flDefsMask, ULONG flAttrsMask,
                                            ULONG pBundle, ULONG pInstance,
                                            ULONG fnCode)
 {
@@ -1426,29 +1430,31 @@ static ULONG __cdecl Gre2SdlSetAttributes(ULONG hdc, ULONG lPrimType,
     PBUNDLE pb = (PBUNDLE)pBundle;
 
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
-                             "[GRE2SDL] Gre2SdlSetAttributes(fn=0x%lx, hdc=%lu, lPrimType=0x%lx, flAttrs=0x%lx)",
+                             "[GRE2SDL] Gre2SdlSetAttributes(fn=0x%lx, hdc=%lu, lPrimType=0x%lx, flDefs=0x%lx, flAttrs=0x%lx)",
                              (unsigned long)fnCode, (unsigned long)hdc,
-                             (unsigned long)lPrimType, (unsigned long)flAttrs);
+                             (unsigned long)lPrimType,
+                             (unsigned long)flDefsMask,
+                             (unsigned long)flAttrsMask);
 
-    (void)hdc; (void)flDefMask; (void)fnCode;
+    (void)hdc; (void)flDefsMask; (void)fnCode;
 
     if (!inst || !pb) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
 
     switch (lPrimType) {
     case PRIM_LINE:
-        if (flAttrs & LBB_COLOR)
+        if (flAttrsMask & LBB_COLOR)
             inst->lColor = ((PLINEBUNDLE)pb)->lColor & 0x00FFFFFF;
         break;
     case PRIM_CHAR:
-        if (flAttrs & CBB_COLOR)
+        if (flAttrsMask & CBB_COLOR)
             inst->lColor = ((PCHARBUNDLE)pb)->lColor & 0x00FFFFFF;
         break;
     case PRIM_MARKER:
-        if (flAttrs & MBB_COLOR)
+        if (flAttrsMask & MBB_COLOR)
             inst->lColor = ((PMARKERBUNDLE)pb)->lColor & 0x00FFFFFF;
         break;
     case PRIM_AREA:
-        if (flAttrs & ABB_COLOR)
+        if (flAttrsMask & ABB_COLOR)
             inst->lColor = ((PAREABUNDLE)pb)->lColor & 0x00FFFFFF;
         break;
     }

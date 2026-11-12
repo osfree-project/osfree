@@ -169,6 +169,31 @@ public:
         @retval >=0  Count. */
     int CountActive();
 
+    /*!
+     * @brief Server-side default window procedure.
+     *
+     * Analogue of PMWIN's WinDefWindowProc for the server side: every
+     * window in PM shares certain fundamental behaviour defined by the
+     * default window procedure, and FreePM houses that behaviour here
+     * (until per-class Server*WndProc implementations appear in
+     * Phase 5 / D3, at which point DefWindowProc will dispatch into
+     * them for standard classes and stay the generic fallback for
+     * custom classes).
+     *
+     * Called from NWinDispatchMsg in place of a real client window
+     * procedure. Handles the small set of messages the server can
+     * meaningfully act on today (WM_CLOSE > Destroy(hwnd)); all other
+     * messages are accepted as "not handled" and return 0.
+     *
+     * @param [in] hwnd  Target window handle. May be 0 or unknown.
+     * @param [in] msg   Message id.
+     * @param [in] mp1   First message parameter.
+     * @param [in] mp2   Second message parameter.
+     * @return Message result (MRESULT).
+     * @retval 0  Message not handled, or handled with a zero result.
+     */
+    MRESULT DefWindowProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2);
+
 private:
     void Lock();
     void Unlock();

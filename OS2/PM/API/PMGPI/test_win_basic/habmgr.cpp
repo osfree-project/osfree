@@ -127,6 +127,49 @@ static ULONG SendWinAsync(ULONG fnCode, ULONG data, const void *args, ULONG cbAr
 }
 
 /*!
+ * @brief Send one async WIN command; copy the reply payload back
+ *        into `args` in place.
+ *
+ * The counterpart of SendWinAsync for commands whose server-side
+ * reply includes an updated copy of the input argument structure
+ * (currently NWinGetMsg, whose out QMSG is written back into
+ * WinGetMsg_Args.qmsg). Uses cbArgs on the way out and
+ * FPM_RESP_HEADER.cbPayload on the way back, matching HandleWinCall's
+ * "in-place payload" contract.
+ *
+ * @param [in]     fnCode  NWin* opcode (async, no NWIN_SYNC_FLAG).
+ * @param [in]     data    Primary handle for Fc_SesPostCommand.
+ * @param [in,out] args    Input payload; receives the reply payload
+ *                         when cbPayload > 0.
+ * @param [in]     cbArgs  Size of `args` in bytes.
+ * @return Server ulResult; 0 on transport error or cbPayload too large.
+ * @retval 0  Transport error, status != 0, or reply larger than cbArgs.
+ * @retval >0 Server ulResult (BOOL, handle, or MRESULT).
+ */
+static ULONG SendWinAsyncData(ULONG fnCode, ULONG data,
+                               void *args, ULONG cbArgs)
+{
+    struct FPM_RESP_HEADER resp;
+    LONG  received = 0;
+    LONG  len      = 0;
+    ULONG cb       = cbArgs;
+
+    if (Fc_SesPostCommand(F_CMD_WIN(fnCode), data) != 0) return 0;
+    if (Fc_SesPostData(&cb, sizeof(cb)) != 0) return 0;
+    if (cb > 0 && args && Fc_SesPostData(args, cb) != 0) return 0;
+
+    if (Fc_SesGetData(&resp, &received, sizeof(resp)) != 0) return 0;
+    if (received < (LONG)sizeof(resp)) return 0;
+    if (resp.ulStatus != 0) return 0;
+
+    if (resp.cbPayload > 0) {
+        if (!args || resp.cbPayload > cbArgs) return 0;
+        if (Fc_SesGetData(args, &len, (LONG)resp.cbPayload) != 0) return 0;
+    }
+    return resp.ulResult;
+}
+
+/*!
  * @brief Create a window.
  *
  * Wire: hwndParent in `data`, variable-length payload.
@@ -248,4 +291,105 @@ BOOL APIENTRY WinDestroyWindow(HWND hwnd)
     rc = Fc_SesSendCommand(F_CMD_WIN(NWinDestroyWindow), (ULONG)hwnd);
     F_DbgExitContext("%s", rc == 1 ? "TRUE" : "FALSE");
     return (rc == 1) ? TRUE : FALSE;
+}
+
+/*!
+ * @brief Retrieve the next message from the calling thread's queue.
+ *
+ * Blocks until a message is available (the server side blocks on
+ * Fs_Queue::Get via an event semaphore). Returns FALSE if WM_QUIT was
+ * received; per EDM2 WinGetMsg, WM_QUIT terminates the loop without
+ * being delivered to the caller.
+ *
+ * Message filtering (hwndFilter / msgFirst / msgLast) is accepted for
+ * API compatibility but not applied yet.
+ *
+ * @param [in]  hab        Anchor block of the calling thread.
+ * @param [out] pqmsg      Receives the extracted message.
+ * @param [in]  hwndFilter Window filter (0 = any window).
+ * @param [in]  msgFirst   First message id (0 = WM_FIRST).
+ * @param [in]  msgLast    Last message id (0 = WM_LAST).
+ * @return TRUE if a message was retrieved, FALSE otherwise.
+ * @retval TRUE   Message delivered into *pqmsg.
+ * @retval FALSE  pqmsg == NULL, no queue on the calling HAB, transport
+ *                error, or WM_QUIT was received (no message delivered).
+ */
+BOOL APIENTRY WinGetMsg(HAB hab, PQMSG pqmsg, HWND hwndFilter,
+                        ULONG msgFirst, ULONG msgLast)
+{
+    WinGetMsg_Args a;
+    ULONG rc;
+
+    F_DbgEnterContext("hab=%lu filter=%lu first=0x%lx last=0x%lx",
+                      (unsigned long)hab, (unsigned long)hwndFilter,
+                      (unsigned long)msgFirst, (unsigned long)msgLast);
+
+    if (!pqmsg) {
+        F_DbgExitContext("FALSE (pqmsg NULL)");
+        return FALSE;
+    }
+
+    a.iHab       = (ULONG)hab;
+    a.hwndFilter = hwndFilter;
+    a.msgFirst   = msgFirst;
+    a.msgLast    = msgLast;
+    /* a.qmsg is out; zero it so a failed Get is observably "no message". */
+    a.qmsg.hwnd       = NULLHANDLE;
+    a.qmsg.msg        = 0;
+    a.qmsg.mp1        = 0;
+    a.qmsg.mp2        = 0;
+    a.qmsg.time       = 0;
+    a.qmsg.ptl.x      = 0;
+    a.qmsg.ptl.y      = 0;
+
+    rc = SendWinAsyncData(NWinGetMsg, 0, &a, sizeof(a));
+    if (rc != 1) {
+        F_DbgExitContext("FALSE (rc=0x%lx)", (unsigned long)rc);
+        return FALSE;
+    }
+
+    *pqmsg = a.qmsg;
+    F_DbgExitContext("TRUE (hwnd=%lu, msg=0x%lx)",
+                     (unsigned long)a.qmsg.hwnd,
+                     (unsigned long)a.qmsg.msg);
+    return TRUE;
+}
+
+/*!
+ * @brief Dispatch a message to its target window's procedure.
+ *
+ * Sends the QMSG to the server, which calls the server-side default
+ * window procedure (Fs_WndList::DefWindowProc) and returns the
+ * message result. Until per-class Server*WndProc implementations
+ * appear (Phase 5 / D3), every message goes through the default
+ * handler. The server-side default is the analogue of PMWIN's
+ * WinDefWindowProc.
+ *
+ * @param [in] hab    Anchor block of the calling thread.
+ * @param [in] pqmsg  Message to dispatch.
+ * @return Message result (MRESULT); 0 on transport error.
+ * @retval 0  Transport error, or handled with a zero result.
+ * @retval !=0 Message result returned by the window procedure.
+ */
+MRESULT APIENTRY WinDispatchMsg(HAB hab, PQMSG pqmsg)
+{
+    WinDispatchMsg_Args a;
+    ULONG rc;
+
+    F_DbgEnterContext("hab=%lu", (unsigned long)hab);
+
+    if (!pqmsg) {
+        F_DbgExitContext("0 (pqmsg NULL)");
+        return 0;
+    }
+
+    a.iHab = (ULONG)hab;
+    a.qmsg = *pqmsg;
+
+    rc = SendWinAsync(NWinDispatchMsg, 0, &a, sizeof(a));
+    F_DbgExitContext("0x%lx (hwnd=%lu, msg=0x%lx)",
+                     (unsigned long)rc,
+                     (unsigned long)pqmsg->hwnd,
+                     (unsigned long)pqmsg->msg);
+    return (MRESULT)rc;
 }

@@ -95,19 +95,18 @@ typedef struct _WinQueryVersion_Args {
 /* BOOL WinGetMsg(HAB, PQMSG, HWND filter, ULONG first, ULONG last) */
 typedef struct _WinGetMsg_Args {
     ULONG iHab; HWND hwndFilter; ULONG msgFirst; ULONG msgLast;
-    /* out: QMSG, pcbPayload = sizeof(QMSG) */
+    QMSG  qmsg;   /* out: extracted message (WinGetMsg) */
 } WinGetMsg_Args, *PWinGetMsg_Args;
 /* BOOL WinPeekMsg(HAB, PQMSG, HWND, ULONG, ULONG, ULONG fl) */
 typedef struct _WinPeekMsg_Args {
     ULONG iHab; HWND hwndFilter; ULONG msgFirst; ULONG msgLast; ULONG fl;
-    /* out: QMSG, pcbPayload = sizeof(QMSG) */
+    QMSG  qmsg;   /* out: peeked message (WinPeekMsg) */
 } WinPeekMsg_Args, *PWinPeekMsg_Args;
 /* BOOL WinWaitMsg(HAB, ULONG first, ULONG last) */
 typedef struct _WinWaitMsg_Args { ULONG iHab; ULONG msgFirst; ULONG msgLast; } WinWaitMsg_Args, *PWinWaitMsg_Args;
 /* MRESULT WinDispatchMsg(HAB, PQMSG) */
 typedef struct _WinDispatchMsg_Args {
-    ULONG iHab; HWND hwnd; ULONG msg; MPARAM mp1; MPARAM mp2;
-    ULONG time; POINTL ptl; ULONG ulReserved; /* QMSG in */
+    ULONG iHab; QMSG qmsg;   /* in: message to dispatch */
 } WinDispatchMsg_Args, *PWinDispatchMsg_Args;
 /* BOOL WinPostMsg(HWND, ULONG msg, MPARAM mp1, MPARAM mp2) */
 typedef struct _WinPostMsg_Args { HWND hwnd; ULONG msg; MPARAM mp1; MPARAM mp2; } WinPostMsg_Args, *PWinPostMsg_Args;
@@ -1177,8 +1176,7 @@ typedef struct _WinSetCharXlateTbl_Args { ULONG pTable; } WinSetCharXlateTbl_Arg
 typedef struct _WinLoadVkeyGlyphXlatetbl_Args { ULONG iHab; ULONG cb; char ab[1]; } WinLoadVkeyGlyphXlatetbl_Args, *PWinLoadVkeyGlyphXlatetbl_Args;
 typedef struct _WinSetVKeyGlyphXlatetbl_Args { ULONG pTable; } WinSetVKeyGlyphXlatetbl_Args, *PWinSetVKeyGlyphXlatetbl_Args;
 typedef struct _WinQueryVKeyGlyphXlatetbl_Args { ULONG dummy; } WinQueryVKeyGlyphXlatetbl_Args, *PWinQueryVKeyGlyphXlatetbl_Args;
-/* BOOL WinWaitMsgTimeout(HAB, PQMSG, HWND filter, ULONG first, ULONG last, ULONG timeout) */
-typedef struct _WinWaitMsgTimeout_Args { ULONG iHab; HWND hwndFilter; ULONG msgFirst; ULONG msgLast; ULONG timeout; /* out: QMSG, pcbPayload = sizeof(QMSG) */ } WinWaitMsgTimeout_Args, *PWinWaitMsgTimeout_Args;
+typedef struct _WinWaitMsgTimeout_Args { ULONG iHab; HWND hwndFilter; ULONG msgFirst; ULONG msgLast; ULONG timeout; QMSG qmsg; /* out: */ } WinWaitMsgTimeout_Args, *PWinWaitMsgTimeout_Args;
 
 /* ========================================================================== */
 /*  Dax* — Direct Access 32-bit PMWIN exports (not Win*-prefixed)             */

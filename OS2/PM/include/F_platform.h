@@ -1959,6 +1959,12 @@ static inline APIRET DosCloseEventSem(HEV hev)
   #define SWP_SHOW     0x0010UL
   #define SWP_HIDE     0x0020UL
 
+  /* Window messages (subset used by the server-side default window
+   * procedure; the full set comes from <os2.h> on OS/2). */
+  #define WM_USER      0x0400
+  #define WM_CLOSE     0x002BUL
+  #define WM_QUIT      0x001AUL
+
   #define CLR_BLACK       (-1L)
   #define CLR_BACKGROUND     0L
   #define CLR_BLUE           1L
@@ -2048,9 +2054,10 @@ BOOL APIENTRY GpiQueryArcParams(HPS, PARCPARAMS);
   BOOL  APIENTRY WinSetWindowPos(HWND hwnd, HWND hwndInsertBehind,
                                  LONG x, LONG y, LONG cx, LONG cy, ULONG fl);
   BOOL  APIENTRY WinDestroyWindow(HWND hwnd);
-  HMQ   APIENTRY WinCreateMsgQueue(HAB hab, LONG cMsg);
-  BOOL  APIENTRY WinDestroyMsgQueue(HMQ hmq);
   BOOL  APIENTRY WinPostMsg(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2);
+  BOOL  APIENTRY WinGetMsg(HAB hab, PQMSG pqmsg, HWND hwndFilter,
+                           ULONG msgFirst, ULONG msgLast);
+  MRESULT APIENTRY WinDispatchMsg(HAB hab, PQMSG pqmsg);
 
 
 #ifdef __cplusplus

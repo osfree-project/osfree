@@ -322,6 +322,58 @@ int Fs_WndList::CountActive()
     return n;
 }
 
+/*!
+ * @brief Server-side default window procedure.
+ *
+ * The analogue of PMWIN's WinDefWindowProc on the server side. Every
+ * window in PM shares certain fundamental behaviour defined by the
+ * default window procedure; FreePM houses that behaviour here. As
+ * per-class Server*WndProc implementations appear (Phase 5 / D3),
+ * this function will dispatch into them for standard classes and stay
+ * the generic fallback for custom classes.
+ *
+ * Handles the small set of messages the server can meaningfully act
+ * on today:
+ *
+ *   WM_CLOSE  destroys the target window via the WndList and returns 0.
+ *
+ * All other messages are accepted as "not handled" and return 0.
+ *
+ * @param [in] hwnd  Target window handle. 0 or an unknown value is
+ *                   tolerated (returns 0).
+ * @param [in] msg   Message id.
+ * @param [in] mp1   First message parameter (currently unused).
+ * @param [in] mp2   Second message parameter (currently unused).
+ * @return Message result (MRESULT).
+ * @retval 0  Message not handled, or handled with a zero result.
+ */
+MRESULT Fs_WndList::DefWindowProc(HWND hwnd, ULONG msg,
+                                   MPARAM mp1, MPARAM mp2)
+{
+    int ctx;
+
+    (void)mp1;
+    (void)mp2;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                         "[WNDLIST] DefWindowProc(hwnd=%lu, msg=0x%lx)",
+                         (unsigned long)hwnd, (unsigned long)msg);
+
+    switch (msg) {
+
+    case WM_CLOSE:
+        if (Destroy((ULONG)hwnd))
+            F_DbgCtxExitf(ctx, "0 (WM_CLOSE: window destroyed)");
+        else
+            F_DbgCtxExitf(ctx, "0 (WM_CLOSE: hwnd not found)");
+        return 0;
+
+    default:
+        F_DbgCtxExitf(ctx, "0 (unhandled)");
+        return 0;
+    }
+}
+
 void Fs_Wnd::SetTitle(const char *t)
 {
     if (!t) { m_szTitle[0] = '\0'; return; }
