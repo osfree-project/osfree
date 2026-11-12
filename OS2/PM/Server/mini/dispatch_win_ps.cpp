@@ -12,7 +12,7 @@
 #include "Fs_server.hpp"
 #include "F_debug.h"
 
-#define INCL_GRE_DCS
+#define INCL_GREALL
 #include "pmddi.h"
 
 /*!
@@ -77,12 +77,34 @@ ULONG Fs_Server::DispatchWinPs(void *pRecvobj, ULONG fnCode, ULONG data,
                             (PDEVOPENDATA)pdop);
         }
 
-        if (hdc == NULLHANDLE) {
-            F_DbgCtxExitf(ctx, "NULLHANDLE (GreOpenDC failed)");
+        /* GreOpenDC returns (HDC)(ULONG)-1 on failure (driver rejected
+         * by GRE, NewDc failed).  Both 0 and 0xFFFFFFFF are invalid
+         * HDC values.  Report NULLHANDLE, otherwise the client would
+         * treat 0xFFFFFFFF as a transport error (sync contract of
+         * Fc_SesSendCommand uses -1 for transport error). */
+        if (hdc == NULLHANDLE || (ULONG)hdc == (ULONG)-1) {
+            F_DbgCtxExitf(ctx, "NULLHANDLE (GreOpenDC failed, hdc=0x%lx)",
+                          (unsigned long)hdc);
             return 0;
         }
 
         pWnd->SetDC(hdc);
+
+        /* PMWIN sets up the DC when the window is created.  In real PM
+         * this is done by GreSetupDC; GRE implements it by simulating
+         * the mandatory driver hooks (GreDeviceSetDCOrigin and
+         * GreNotifyClipChange). */
+        {
+            RECTL rcl;
+            rcl.xLeft   = 0;
+            rcl.yBottom = 0;
+            rcl.xRight  = pWnd->GetCx();
+            rcl.yTop    = pWnd->GetCy();
+            GreSetupDC(hdc, 0,
+                       (LONG)pWnd->GetX(), (LONG)pWnd->GetY(),
+                       &rcl,
+                       SETUPDC_VISRGN | SETUPDC_ORIGIN);
+        }
 
         F_DbgCtxExitf(ctx, "HDC=%lu (new)", (unsigned long)hdc);
         return (ULONG)hdc;
