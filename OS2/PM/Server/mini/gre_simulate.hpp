@@ -66,3 +66,45 @@ static ULONG __cdecl GreDrvSetupDC(ULONG hdc, ULONG hrgnVis,
     F_DbgCtxExitf(ctx, "%d", ok ? 1 : 0);
     return ok ? (ULONG)GPI_OK : (ULONG)GPI_ERROR;
 }
+
+
+/*!
+ * @brief GRE-side default implementation of GreNotifyClipChange.
+ *
+ * This is the "default dispatch table" entry that a presentation
+ * driver is expected to save (in FillLogicalDeviceBlock) and
+ * re-dispatch to after its own processing, per OS/2 PM Ref Vol. 2
+ * ("On completion, the handling routine must re-dispatch this call
+ * to the graphics engine using the pointer supplied in the default
+ * dispatch table").
+ *
+ * The minimal GRE keeps no DC-side clip state: the driver is
+ * responsible for caching the rectangles.  The default entry
+ * therefore only accepts the notification and reports success, which
+ * matches the documented contract for drivers that do not cache
+ * clip rectangles ("should return TRUE, if there are no errors").
+ *
+ * @param [in] hdc        Device context handle.
+ * @param [in] prclBound  Bounding rectangle of the new clip region
+ *                        in screen coordinates.
+ * @param [in] cRect      Number of rectangles in the new clip region.
+ * @param [in] idClipPath Current ClipPath ID.
+ * @param [in] pInstance  Per-DC instance data (driver-owned).
+ * @param [in] fnCode     NGreNotifyClipChange.
+ * @return GPI_OK unconditionally.
+ * @retval GPI_OK Notification accepted.
+ */
+static ULONG __cdecl GreDrvNotifyClipChange(ULONG hdc, ULONG prclBound,
+                                             ULONG cRect, ULONG idClipPath,
+                                             ULONG pInstance, ULONG fnCode)
+{
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE] GreNotifyClipChange(hdc=%lu, "
+                             "cRect=%lu, idClipPath=%lu, fn=0x%lx)",
+                             (unsigned long)hdc, (unsigned long)cRect,
+                             (unsigned long)idClipPath,
+                             (unsigned long)fnCode);
+    (void)prclBound; (void)pInstance;
+    F_DbgCtxExitf(ctx, "GPI_OK");
+    return (ULONG)GPI_OK;
+}

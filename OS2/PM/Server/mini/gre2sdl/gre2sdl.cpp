@@ -75,8 +75,17 @@
 
 #include <SDL.h>
 
+/*!
+ * @brief Signature of a 6-argument Gre* hook (arity GRE_DRV_6).
+ *
+ * Used to save and re-dispatch the default dispatch-table entry for
+ * GreNotifyClipChange, as required by OS/2 PM Ref Vol. 2.
+ */
+typedef ULONG (__cdecl *PFN_GRE2SDL_HOOK6)(ULONG, ULONG, ULONG, ULONG,
+                                            ULONG, ULONG);
+
 /* ======================================================================== */
-/*  Process-wide (PMSERVER-level) state                                    */
+/*  Process-wide (PMSERVER-level) state                                     */
 /* ======================================================================== */
 
 /*! @brief SDL window owned by the worker thread (NULL until created). */
@@ -108,6 +117,13 @@ static volatile BOOL g_bReady      = FALSE;
 
 /*! @brief TRUE once Gre2SdlInit has been attempted (success or not). */
 static volatile BOOL g_bInitTried  = FALSE;
+
+/*! @brief Default (GRE-side) GreNotifyClipChange entry, captured in
+ *         FillLogicalDeviceBlock before the driver overwrites the
+ *         dispatch-table slot.  Gre2SdlNotifyClipChange re-dispatches
+ *         to this pointer after its own processing, per OS/2 PM Ref
+ *         Vol. 2. */
+static PFN_GRE2SDL_HOOK6 g_pfnDefaultNotifyClipChange = NULL;
 
 /* ======================================================================== */
 /*  Configuration                                                         */
@@ -851,6 +867,16 @@ extern "C" ULONG EXPENTRY OS2_PM_DRV_ENABLE(ULONG ulSubFunc,
                     pTable[idx] = (PFN)(fn); \
             } while (0)
 
+        /* Save the default (GRE-side) entry for GreNotifyClipChange
+         * before overwriting the slot.  Gre2SdlNotifyClipChange will
+         * re-dispatch to it, per OS/2 PM Ref Vol. 2. */
+        idx = (ULONG)(NGreNotifyClipChange & 0xFF);
+        if (idx < cTableSize) {
+            g_pfnDefaultNotifyClipChange = (PFN_GRE2SDL_HOOK6)pTable[idx];
+        } else {
+            g_pfnDefaultNotifyClipChange = NULL;
+        }
+
         HOOK(NGreSetCurrentPosition,   Gre2SdlSetCurrentPosition);
         HOOK(NGreGetCurrentPosition,   Gre2SdlGetCurrentPosition);
         HOOK(NGrePolyLine,             Gre2SdlPolyLine);
@@ -1491,25 +1517,57 @@ static ULONG __cdecl Gre2SdlDeviceSetDCOrigin(ULONG hdc, ULONG pptlDC,
  * @retval 0          Clip region cached.
  * @retval (ULONG)-1  Bad arguments (NULL inst or prclBound).
  */
+/*!
+ * @brief GreNotifyClipChange: cache the new clip region (screen coords).
+ *
+ * Mandatory for all drivers.  The rectangle is inclusive on left and
+ * bottom, exclusive on right and top.  Only the bounding rectangle is
+ * cached; the full region (cRect rects) is not enumerated.
+ *
+ * On completion re-dispatches to the default (GRE-side) entry saved
+ * in FillLogicalDeviceBlock, per OS/2 PM Ref Vol. 2.
+ *
+ * @param [in] hdc        Device context handle.
+ * @param [in] prclBound  Bounding rectangle of the new clip region in
+ *                        screen coordinates.
+ * @param [in] cRect      Number of rectangles in the new clip region.
+ * @param [in] idClipPath Current ClipPath ID (unused for display).
+ * @param [in] pInstance  Per-DC instance data (GRE2SDL_INSTANCE *).
+ * @param [in] fnCode     NGreNotifyClipChange.
+ * @return GPI_OK on success, (ULONG)-1 on failure.
+ * @retval 0          Clip region cached, GRE-side entry dispatched.
+ * @retval (ULONG)-1  Bad arguments (NULL inst or prclBound).
+ */
 static ULONG __cdecl Gre2SdlNotifyClipChange(ULONG hdc, ULONG prclBound,
                                               ULONG cRect, ULONG idClipPath,
                                               ULONG pInstance, ULONG fnCode)
 {
     PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
     PRECTL p = (PRECTL)prclBound;
+    ULONG  rc;
 
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
                              "[GRE2SDL] Gre2SdlNotifyClipChange(fn=0x%lx, hdc=%lu)",
                              (unsigned long)fnCode, (unsigned long)hdc);
 
-    (void)hdc; (void)cRect; (void)idClipPath; (void)fnCode;
+    (void)hdc; (void)fnCode;
 
-    if (!inst || !p) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
-    inst->rclClip  = *p;
-    inst->fClipSet = TRUE;
-    F_DbgCtxExitf(ctx, "0 (clip=(%ld,%ld)-(%ld,%ld))",
-                  (long)p->xLeft, (long)p->yBottom,
-                  (long)p->xRight, (long)p->yTop);
-    return 0;
+    if (!inst || !p) {
+        F_DbgCtxExitf(ctx, "-1 (bad args)");
+        rc = (ULONG)-1;
+    } else {
+        inst->rclClip  = *p;
+        inst->fClipSet = TRUE;
+        F_DbgCtxExitf(ctx, "0 (clip=(%ld,%ld)-(%ld,%ld))",
+                      (long)p->xLeft, (long)p->yBottom,
+                      (long)p->xRight, (long)p->yTop);
+        rc = 0;
+    }
+
+    if (g_pfnDefaultNotifyClipChange) {
+        g_pfnDefaultNotifyClipChange(hdc, prclBound, cRect, idClipPath,
+                                      pInstance, fnCode);
+    }
+    return rc;
 }
 

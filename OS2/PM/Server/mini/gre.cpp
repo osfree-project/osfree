@@ -902,7 +902,7 @@ static PFN g_tblDriver[MAXTABLEENTRIES] = {
     /* 0xA1 0x40A1 */ (PFN)GreDrvDeviceSetAVIOFont,
     /* 0xA2 0x60A2 */ (PFN)GreDrvDeviceSetAttributes,
     /* 0xA3 0x60A3 */ (PFN)GreDrvDeviceSetGlobalAttribute,
-    /* 0xA4 0x40A4 */ NULL, // Mandatory
+    /* 0xA4 0x40A4 */ (PFN)GreDrvNotifyClipChange, // Mandatory, driver must chain
     /* 0xA5 0x40A5 */ (PFN)GreDrvNotifyTransformChange,
     /* 0xA6 0x40A6 */ (PFN)GreDrvRealizeFont,
     /* 0xA7 0x40A7 */ (PFN)GreDrvErasePS,
@@ -1314,9 +1314,9 @@ static BOOL LoadGre2Sdl(void)
     nBad = 0;
     for (i = 0; i < MANDATORY_COUNT; i++) {
         ULONG fc = g_mandatorySlots[i];
-        if (g_tblDriver[fc & 0xFF] == NULL) {
+        if (g_tblDriver[fc & 0xFF] == g_tblDriverBefore[fc & 0xFF]) {
             F_DbgPrint(F_DBG_SEC_GRE, F_DBG_LVL_ERROR,
-                       "[GRE] GRE2SDL: mandatory NGre 0x%04lx(%s) not filled",
+                       "[GRE] GRE2SDL: mandatory NGre 0x%04lx(%s) not hooked by driver",
                        (unsigned long)fc, GreFuncName(fc));
             nBad++;
         }
