@@ -348,8 +348,6 @@ static void CanvasRect(LONG x, LONG y, LONG w, LONG h,
                        Uint8 r, Uint8 g, Uint8 b, BOOL bFill,
                        PGRE2SDL_INSTANCE inst)
 {
-    SDL_Rect rc;
-
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
                              "[GRE2SDL] CanvasRect(%ld,%ld %ldx%ld fill=%d)",
                              (long)x, (long)y, (long)w, (long)h, (int)bFill);
@@ -358,10 +356,40 @@ static void CanvasRect(LONG x, LONG y, LONG w, LONG h,
     if (!inst) { F_DbgCtxExitf(ctx, "no inst"); return; }
 
     if (bFill) {
-        /* Fill via per-scanline CanvasLine so that origin and clip apply. */
-        LONG yy;
-        for (yy = 0; yy < h; yy++)
-            CanvasLine(x, y + yy, x + w - 1, y + yy, r, g, b, inst);
+        /* Fast path: fill via SDL_FillRect on the clipped screen-space
+         * rectangle.  The per-scanline CanvasLine path performed one
+         * CanvasPixel call per pixel and produced O(w*h) log lines; for
+         * a typical erase that was ~60 000 log records and tens of
+         * seconds of wall time. */
+        SDL_Rect rc;
+        LONG     sx0, sy0, sx1, sy1;
+
+        sx0 = x + inst->ptlOrigin.x;
+        sy0 = y + inst->ptlOrigin.y;
+        sx1 = sx0 + w;
+        sy1 = sy0 + h;
+
+        if (inst->fClipSet) {
+            if (sx0 < inst->rclClip.xLeft)   sx0 = inst->rclClip.xLeft;
+            if (sy0 < inst->rclClip.yBottom) sy0 = inst->rclClip.yBottom;
+            if (sx1 > inst->rclClip.xRight)  sx1 = inst->rclClip.xRight;
+            if (sy1 > inst->rclClip.yTop)    sy1 = inst->rclClip.yTop;
+        }
+        if (sx0 < 0)         sx0 = 0;
+        if (sy0 < 0)         sy0 = 0;
+        if (sx1 > g_pBuf->w) sx1 = g_pBuf->w;
+        if (sy1 > g_pBuf->h) sy1 = g_pBuf->h;
+
+        if (sx1 <= sx0 || sy1 <= sy0) {
+            F_DbgCtxExitf(ctx, "no-op (empty intersection)");
+            return;
+        }
+
+        rc.x = (Sint16)sx0;
+        rc.y = (Sint16)sy0;
+        rc.w = (Uint16)(sx1 - sx0);
+        rc.h = (Uint16)(sy1 - sy0);
+        SDL_FillRect(g_pBuf, &rc, SDL_MapRGB(g_pBuf->format, r, g, b));
     } else {
         CanvasLine(x,         y,         x + w - 1, y,         r, g, b, inst);
         CanvasLine(x,         y + h - 1, x + w - 1, y + h - 1, r, g, b, inst);
@@ -1478,7 +1506,7 @@ static ULONG __cdecl Gre2SdlGetAttributes(ULONG hdc, ULONG lPrimType,
  * @param [in] pInstance Per-DC instance data (GRE2SDL_INSTANCE *).
  * @param [in] fnCode    NGreDeviceSetDCOrigin.
  * @return GPI_OK on success, (ULONG)-1 on failure.
- * @retval 0          Origin recorded.
+ * @retval GPI_OK     Origin recorded.
  * @retval (ULONG)-1  Bad arguments (NULL inst or pptlDC).
  */
 static ULONG __cdecl Gre2SdlDeviceSetDCOrigin(ULONG hdc, ULONG pptlDC,
@@ -1495,28 +1523,10 @@ static ULONG __cdecl Gre2SdlDeviceSetDCOrigin(ULONG hdc, ULONG pptlDC,
 
     if (!inst || !p) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
     inst->ptlOrigin = *p;
-    F_DbgCtxExitf(ctx, "0 (origin=(%ld,%ld))", (long)p->x, (long)p->y);
-    return 0;
+    F_DbgCtxExitf(ctx, "GPI_OK (origin=(%ld,%ld))", (long)p->x, (long)p->y);
+    return (ULONG)GPI_OK;
 }
 
-/*!
- * @brief GreNotifyClipChange: cache the new clip region (screen coords).
- *
- * Mandatory for all drivers.  The rectangle is inclusive on left and
- * bottom, exclusive on right and top.  Only the bounding rectangle is
- * cached; the full region (cRect rects) is not enumerated.
- *
- * @param [in] hdc        Device context handle.
- * @param [in] prclBound  Bounding rectangle of the new clip region in
- *                        screen coordinates.
- * @param [in] cRect      Number of rectangles in the new clip region.
- * @param [in] idClipPath Current ClipPath ID (unused for display).
- * @param [in] pInstance  Per-DC instance data (GRE2SDL_INSTANCE *).
- * @param [in] fnCode     NGreNotifyClipChange.
- * @return GPI_OK on success, (ULONG)-1 on failure.
- * @retval 0          Clip region cached.
- * @retval (ULONG)-1  Bad arguments (NULL inst or prclBound).
- */
 /*!
  * @brief GreNotifyClipChange: cache the new clip region (screen coords).
  *
@@ -1535,7 +1545,7 @@ static ULONG __cdecl Gre2SdlDeviceSetDCOrigin(ULONG hdc, ULONG pptlDC,
  * @param [in] pInstance  Per-DC instance data (GRE2SDL_INSTANCE *).
  * @param [in] fnCode     NGreNotifyClipChange.
  * @return GPI_OK on success, (ULONG)-1 on failure.
- * @retval 0          Clip region cached, GRE-side entry dispatched.
+ * @retval GPI_OK     Clip region cached, GRE-side entry dispatched.
  * @retval (ULONG)-1  Bad arguments (NULL inst or prclBound).
  */
 static ULONG __cdecl Gre2SdlNotifyClipChange(ULONG hdc, ULONG prclBound,
@@ -1558,10 +1568,10 @@ static ULONG __cdecl Gre2SdlNotifyClipChange(ULONG hdc, ULONG prclBound,
     } else {
         inst->rclClip  = *p;
         inst->fClipSet = TRUE;
-        F_DbgCtxExitf(ctx, "0 (clip=(%ld,%ld)-(%ld,%ld))",
+        F_DbgCtxExitf(ctx, "GPI_OK (clip=(%ld,%ld)-(%ld,%ld))",
                       (long)p->xLeft, (long)p->yBottom,
                       (long)p->xRight, (long)p->yTop);
-        rc = 0;
+        rc = (ULONG)GPI_OK;
     }
 
     if (g_pfnDefaultNotifyClipChange) {
@@ -1570,4 +1580,3 @@ static ULONG __cdecl Gre2SdlNotifyClipChange(ULONG hdc, ULONG prclBound,
     }
     return rc;
 }
-

@@ -10,6 +10,9 @@
 #include "Fs_server.hpp"
 #include "F_debug.h"
 
+#define INCL_GREALL
+#include "pmddi.h"
+
 #include <string.h>
 
 /*! @brief Read `cb` bytes from payload and duplicate into a fresh blob. */
@@ -21,6 +24,52 @@ static PBYTE CopyBlob(PBYTE p, ULONG cb)
         return NULL;
     memcpy(pv, p, cb);
     return (PBYTE)pv;
+}
+
+/*!
+ * @brief Fill the current window rectangle with black.
+ *
+ * Simulation of the desktop repaint that in real PM redraws the area
+ * uncovered by hiding or moving a window.  Saves the current line
+ * colour, paints the DC's current window rectangle in black, and
+ * restores the colour.
+ *
+ * Must be called while the DC origin still reflects the window's
+ * current position (i.e., before a move updates the origin).
+ *
+ * The colour is passed as a raw 0x00BBGGRR value (0x00000000 = black),
+ * not as an OS/2 CLR_* logical index: the presentation driver currently
+ * interprets lColor as RGB (see Os2ColorToRgb in gre2sdl.cpp), so CLR_*
+ * constants would produce meaningless results.
+ *
+ * @param [in] hdc  Device context of the window.
+ * @param [in] pWnd Window whose rectangle should be painted.
+ */
+static void SrvEraseWindowRect(HDC hdc, Fs_Wnd *pWnd)
+{
+    LINEBUNDLE savedLb, lb;
+    BOXPARAMS  box;
+    POINTL     ptl00;
+
+    memset(&savedLb, 0, sizeof(savedLb));
+    memset(&lb,      0, sizeof(lb));
+
+    GreDeviceGetAttributes(hdc, PRIM_LINE, LBB_COLOR, &savedLb);
+
+    lb.lColor = 0x00000000L;
+    GreDeviceSetAttributes(hdc, PRIM_LINE, LBB_COLOR, 0L, &lb);
+
+    ptl00.x = 0;
+    ptl00.y = 0;
+    GreSetCurrentPosition(hdc, &ptl00);
+
+    box.ptl.x   = pWnd->GetCx();
+    box.ptl.y   = pWnd->GetCy();
+    box.sizl.cx = 0;
+    box.sizl.cy = 0;
+    GreBoxInterior(hdc, &box);
+
+    GreDeviceSetAttributes(hdc, PRIM_LINE, LBB_COLOR, 0L, &savedLb);
 }
 
 /*!
@@ -136,28 +185,102 @@ ULONG Fs_Server::DispatchWinWnd(void *pRecvobj, ULONG fnCode, ULONG data,
     case NWinShowWindow: {
         PWinShowWindow_Args a;
         Fs_Wnd *pWnd;
+        HDC     hdc;
+        BOOL    bWasVisible, bNewVisible;
 
         if (!pArgs || cbArgs < sizeof(WinShowWindow_Args)) return 0;
         a = (PWinShowWindow_Args)pArgs;
         pWnd = m_wnds.Find((ULONG)a->hwnd);
         if (!pWnd) return 0;
-        pWnd->SetVisible(a->fShow ? TRUE : FALSE);
+
+        hdc = pWnd->GetDC();
+        bWasVisible = pWnd->IsVisible();
+        bNewVisible = a->fShow ? TRUE : FALSE;
+
+        if (hdc != NULLHANDLE && bWasVisible && !bNewVisible) {
+            /* Hide: erase the window rectangle (simulated desktop
+             * repaint) and clear the visible region. */
+            RECTL rclEmpty;
+            SrvEraseWindowRect(hdc, pWnd);
+            rclEmpty.xLeft   = 0;
+            rclEmpty.yBottom = 0;
+            rclEmpty.xRight  = 0;
+            rclEmpty.yTop    = 0;
+            GreSetupDC(hdc, 0,
+                       (LONG)pWnd->GetX(), (LONG)pWnd->GetY(),
+                       &rclEmpty,
+                       SETUPDC_VISRGN);
+        } else if (hdc != NULLHANDLE && !bWasVisible && bNewVisible) {
+            /* Show: restore the visible region to the full window rect.
+             * The canvas content was erased on hide; the client is
+             * expected to redraw. */
+            RECTL rcl;
+            rcl.xLeft   = 0;
+            rcl.yBottom = 0;
+            rcl.xRight  = pWnd->GetCx();
+            rcl.yTop    = pWnd->GetCy();
+            GreSetupDC(hdc, 0,
+                       (LONG)pWnd->GetX(), (LONG)pWnd->GetY(),
+                       &rcl,
+                       SETUPDC_VISRGN | SETUPDC_ORIGIN);
+        }
+
+        pWnd->SetVisible(bNewVisible);
         return 1;
     }
 
     case NWinSetWindowPos: {
         PWinSetWindowPos_Args a;
         Fs_Wnd *pWnd;
+        HDC     hdc;
+        BOOL    bWasVisible, bNewVisible;
 
         if (!pArgs || cbArgs < sizeof(WinSetWindowPos_Args)) return 0;
         a = (PWinSetWindowPos_Args)pArgs;
         pWnd = m_wnds.Find((ULONG)a->hwnd);
         if (!pWnd) return 0;
 
+        hdc = pWnd->GetDC();
+        bWasVisible = pWnd->IsVisible();
+        bNewVisible = bWasVisible;
+        if (a->fl & SWP_SHOW) bNewVisible = TRUE;
+        if (a->fl & SWP_HIDE) bNewVisible = FALSE;
+
+        if (hdc != NULLHANDLE && bWasVisible) {
+            /* Erase the old rectangle while the DC origin still
+             * reflects the old position (simulated desktop repaint). */
+            SrvEraseWindowRect(hdc, pWnd);
+        }
+
         if (a->fl & SWP_MOVE) pWnd->SetPos(a->x, a->y);
         if (a->fl & SWP_SIZE) pWnd->SetSize(a->cx, a->cy);
-        if (a->fl & SWP_SHOW) pWnd->SetVisible(TRUE);
-        if (a->fl & SWP_HIDE) pWnd->SetVisible(FALSE);
+        pWnd->SetVisible(bNewVisible);
+
+        if (hdc != NULLHANDLE) {
+            if (bNewVisible) {
+                /* Re-setup DC with the new origin and clip. */
+                RECTL rcl;
+                rcl.xLeft   = 0;
+                rcl.yBottom = 0;
+                rcl.xRight  = pWnd->GetCx();
+                rcl.yTop    = pWnd->GetCy();
+                GreSetupDC(hdc, 0,
+                           (LONG)pWnd->GetX(), (LONG)pWnd->GetY(),
+                           &rcl,
+                           SETUPDC_VISRGN | SETUPDC_ORIGIN);
+            } else {
+                RECTL rclEmpty;
+                rclEmpty.xLeft   = 0;
+                rclEmpty.yBottom = 0;
+                rclEmpty.xRight  = 0;
+                rclEmpty.yTop    = 0;
+                GreSetupDC(hdc, 0,
+                           (LONG)pWnd->GetX(), (LONG)pWnd->GetY(),
+                           &rclEmpty,
+                           SETUPDC_VISRGN);
+            }
+        }
+
         return 1;
     }
 
