@@ -104,14 +104,17 @@ static BOOL                   g_bDriverLoaded  = FALSE;
 static PFN                    g_tblDriverBefore[MAXTABLEENTRIES];
 
 /*! @brief Slots that MUST be filled by the presentation driver in
- *         FillLogicalDeviceBlock.  These correspond to NGre* functions
- *         that are mandatory for all drivers (see OS/2 PM Ref Vol. 2,
- *         GreDeviceSetDCOrigin and GreNotifyClipChange — "mandatory for
- *         all drivers, no simulation").  If the driver leaves one of
- *         them NULL, GRE rejects the driver at load time.
+ *         FillLogicalDeviceBlock.  If the driver leaves one of them
+ *         NULL, GRE rejects the driver at load time.
+ *
+ *         Mandatory status per IBM Device Driver Kit for OS/2,
+ *         Presentation Driver Reference (PDRREF), mandatory functions
+ *         table: GreQueryDeviceCaps, GreNotifyClipChange,
+ *         GreDeviceSetDCOrigin are all listed as mandatory.
  *
  *         Full NGre* code (flags + slot): low byte indexes g_tblDriver. */
 static const ULONG            g_mandatorySlots[] = {
+    NGreQueryDeviceCaps,
     NGreNotifyClipChange,
     NGreDeviceSetDCOrigin
 };
@@ -609,7 +612,6 @@ GRE_DRV_5 (GreDrvQueryRGBColor)
 GRE_DRV_5 (GreDrvQueryDevFntMetrics)
 GRE_DRV_4 (GreDrvDeviceEnableYInversion)
 GRE_DRV_5 (GreDrvQueryDeviceBitmaps)
-GRE_DRV_6 (GreDrvQueryDeviceCaps)
 GRE_DRV_8 (GreDrvEscape)
 GRE_DRV_6 (GreDrvQueryHardcopyCaps)
 GRE_DRV_5 (GreDrvQueryDevResource2)
@@ -947,7 +949,7 @@ static PFN g_tblDriver[MAXTABLEENTRIES] = {
     /* 0xCE -------- */ NULL,
     /* 0xCF -------- */ NULL,
     /* 0xD0 0x40D0 */ (PFN)GreDrvQueryDeviceBitmaps,
-    /* 0xD1 0x40D1 */ (PFN)GreDrvQueryDeviceCaps,
+    /* 0xD1 0x40D1 */ NULL, // Mandatory
     /* 0xD2 0x40D2 */ (PFN)GreDrvEscape,
     /* 0xD3 0x40D3 */ (PFN)GreDrvQueryHardcopyCaps,
     /* 0xD4 0x40D4 */ (PFN)GreDrvQueryDevResource2,

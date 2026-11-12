@@ -439,3 +439,85 @@ MRESULT APIENTRY WinDispatchMsg(HAB hab, PQMSG pqmsg)
                      (unsigned long)pqmsg->msg);
     return (MRESULT)rc;
 }
+
+/*!
+ * @brief Begin a paint cycle for a window.
+ *
+ * DEVIATION FROM OS/2 PM: real PM returns a cached micro presentation
+ * space (GPIT_MICRO) with no segment store and no retained mode.
+ * FreePM's minimal server has only Normal PS (see the server-side
+ * NWinBeginPaint comment and spec3 §A4), so this call creates a fresh
+ * Normal PS on the window's DC and WinEndPaint destroys it.
+ *
+ * Consequence: GpiOpenSegment / GpiSetDrawingMode(DM_RETAIN) /
+ * GpiBeginElement succeed where they should return GPI_ERROR for a
+ * micro PS. Accepted as a known deviation until micro PS support is
+ * added.
+ *
+ * The returned rcl is the full window rectangle in device
+ * coordinates; no update-region tracking is performed yet.
+ *
+ * @param [in]  hwnd  Target window.
+ * @param [in]  hps   Ignored (PM allows NULLHANDLE here; cached PS
+ *                    is not supported).
+ * @param [out] prcl  Receives the invalid rectangle (full window).
+ *                    May be NULL.
+ * @return HPS on success, NULLHANDLE on error.
+ * @retval NULLHANDLE  hwnd not found, no DC, or PS allocation failed.
+ * @retval !=NULLHANDLE Fresh Normal PS.
+ */
+HPS APIENTRY WinBeginPaint(HWND hwnd, HPS hps, PRECTL prcl)
+{
+    WinBeginPaint_Args a;
+    ULONG rc;
+
+    F_DbgEnterContext("hwnd=%lu", (unsigned long)hwnd);
+
+    a.hwnd = hwnd;
+    a.hps  = hps;
+    /* rcl is out; zero it so a failed call is observably "no rect". */
+    a.rcl.xLeft   = 0;
+    a.rcl.yBottom = 0;
+    a.rcl.xRight  = 0;
+    a.rcl.yTop    = 0;
+
+    rc = SendWinAsyncData(NWinBeginPaint, (ULONG)hwnd, &a, sizeof(a));
+    if (rc == 0) {
+        F_DbgExitContext("NULLHANDLE (rc=0)");
+        return NULLHANDLE;
+    }
+
+    if (prcl) *prcl = a.rcl;
+
+    F_DbgExitContext("hps=%p (rcl={%ld,%ld,%ld,%ld})",
+                     (void*)a.hps,
+                     (long)a.rcl.xLeft, (long)a.rcl.yBottom,
+                     (long)a.rcl.xRight, (long)a.rcl.yTop);
+    return a.hps;
+}
+
+/*!
+ * @brief End a paint cycle; destroys the PS returned by WinBeginPaint.
+ *
+ * See WinBeginPaint for the deviation from PM (Normal PS instead of
+ * cached micro PS).
+ *
+ * @param [in] hps  PS returned by WinBeginPaint.
+ * @return TRUE on success, FALSE on error (unknown HPS, transport
+ *         failure).
+ * @retval TRUE   PS destroyed.
+ * @retval FALSE  PS not destroyed.
+ */
+BOOL APIENTRY WinEndPaint(HPS hps)
+{
+    WinEndPaint_Args a;
+    ULONG rc;
+
+    F_DbgEnterContext("hps=%p", (void*)hps);
+
+    a.hps = hps;
+
+    rc = SendWinAsync(NWinEndPaint, (ULONG)hps, &a, sizeof(a));
+    F_DbgExitContext("%s", rc == 1 ? "TRUE" : "FALSE");
+    return (rc == 1) ? TRUE : FALSE;
+}

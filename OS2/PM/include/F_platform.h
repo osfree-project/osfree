@@ -2058,6 +2058,8 @@ BOOL APIENTRY GpiQueryArcParams(HPS, PARCPARAMS);
   BOOL  APIENTRY WinGetMsg(HAB hab, PQMSG pqmsg, HWND hwndFilter,
                            ULONG msgFirst, ULONG msgLast);
   MRESULT APIENTRY WinDispatchMsg(HAB hab, PQMSG pqmsg);
+  HPS   APIENTRY WinBeginPaint(HWND hwnd, HPS hps, PRECTL prcl);
+  BOOL  APIENTRY WinEndPaint(HPS hps);
 
 
 #ifdef __cplusplus
