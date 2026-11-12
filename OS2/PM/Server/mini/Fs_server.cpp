@@ -11,6 +11,9 @@
 #include "Fs_server.hpp"
 #include "F_debug.h"
 
+#define INCL_GREALL
+#include "pmddi.h"
+
 /*!
  * @def SERVER_RETURN
  * @brief Close the debug context and return from the current function.
@@ -39,6 +42,20 @@
  * monotonic HWND counter yields 1 for the first Create call, so
  * GetHwndDesktop() == HWND_DESKTOP on OS/2 by construction.
  *
+ * As the server-side analogue of PM at PM-session start, the
+ * constructor also opens the desktop DC (GreOpenDC), queries the
+ * physical screen dimensions from the presentation driver
+ * (GreQueryDeviceCaps, CAPS_WIDTH/CAPS_HEIGHT — "media width/depth
+ * in pels of a full-screen, maximized window for displays") and sets
+ * up the DC origin and visible region (GreSetupDC). This matches PM
+ * behaviour, where the desktop window and its DC exist before any
+ * client calls WinOpenWindowDC.
+ *
+ * If any of the GRE calls fails, the desktop slot remains allocated
+ * but without a DC and with zero dimensions; a subsequent
+ * NWinOpenWindowDC(HWND_DESKTOP) will retry DC creation. The error
+ * is logged.
+ *
  * @return Nothing (constructor).
  */
 Fs_Server::Fs_Server()
@@ -58,9 +75,62 @@ Fs_Server::Fs_Server()
         if (pDesktop != NULL) {
             m_iHwndDesktop = hwnd;
             pDesktop->SetVisible(TRUE);
+
+            /* Desktop DC: opened here, in the constructor, before
+             * any client can call WinOpenWindowDC(HWND_DESKTOP).
+             * PM does the same at PM-session start. */
+            {
+                PSZ  pdop[2] = { (PSZ)"DISPLAY", (PSZ)"GRE2SDL" };
+                HDC  hdc;
+                LONG cx = 0;
+                LONG cy = 0;
+                BOOL bCapsOk;
+
+                hdc = GreOpenDC(NULLHANDLE, OD_DIRECT, (PSZ)"*", 2,
+                                (PDEVOPENDATA)pdop);
+                if (hdc == NULLHANDLE || (ULONG)hdc == (ULONG)-1) {
+                    F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_ERROR,
+                               "[SERVER] ERROR: desktop GreOpenDC "
+                               "failed (hdc=0x%lx)",
+                               (unsigned long)hdc);
+                    hdc = NULLHANDLE;
+                }
+
+                if (hdc != NULLHANDLE) {
+                    pDesktop->SetDC(hdc);
+
+                    bCapsOk = GreQueryDeviceCaps(hdc, CAPS_WIDTH, &cx, 1) &&
+                              GreQueryDeviceCaps(hdc, CAPS_HEIGHT, &cy, 1);
+                    if (!bCapsOk || cx <= 0 || cy <= 0) {
+                        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_ERROR,
+                                   "[SERVER] ERROR: desktop "
+                                   "GreQueryDeviceCaps failed "
+                                   "(cx=%ld, cy=%ld); using 0x0",
+                                   (long)cx, (long)cy);
+                        cx = 0;
+                        cy = 0;
+                    }
+
+                    pDesktop->SetRect(0, 0, cx, cy);
+
+                    if (cx > 0 && cy > 0) {
+                        RECTL rcl;
+                        rcl.xLeft   = 0;
+                        rcl.yBottom = 0;
+                        rcl.xRight  = cx;
+                        rcl.yTop    = cy;
+                        GreSetupDC(hdc, 0, 0, 0, &rcl,
+                                   SETUPDC_VISRGN | SETUPDC_ORIGIN);
+                    }
+                }
+            }
+
             F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
-                       "[SERVER] desktop window allocated: hwnd=%lu",
-                       (unsigned long)hwnd);
+                       "[SERVER] desktop window allocated: hwnd=%lu, "
+                       "size=%ldx%ld",
+                       (unsigned long)hwnd,
+                       (long)pDesktop->GetCx(),
+                       (long)pDesktop->GetCy());
         } else {
             F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_ERROR,
                        "[SERVER] ERROR: failed to allocate desktop window slot");

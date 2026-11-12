@@ -285,7 +285,24 @@ ULONG Fs_Server::DispatchWinWnd(void *pRecvobj, ULONG fnCode, ULONG data,
     }
 
     case NWinDestroyWindow: {
-        if (!m_wnds.Find((ULONG)data)) return 0;
+        Fs_Wnd *pWnd;
+        Fs_Hab *pHab;
+        ULONG   iHab;
+
+        pWnd = m_wnds.Find((ULONG)data);
+        if (!pWnd) return 0;
+
+        /* EDM2 WinDestroyWindow: "The window to be destroyed must
+         * have been created by the thread that is issuing this call."
+         * Verified via the window's HAB back-ref: HWND -> iHab ->
+         * Fs_Hab -> tid. HWND_DESKTOP is server-owned (iHab == 0),
+         * so no client thread can match it. */
+        iHab = pWnd->GetHab();
+        if (iHab == 0) return 0;
+
+        pHab = m_habs.FindByIHab(iHab);
+        if (!pHab || pHab->GetTid() != pThread->GetTid()) return 0;
+
         m_wnds.Destroy((ULONG)data);
         return 1;
     }
