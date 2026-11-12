@@ -158,6 +158,8 @@
     #define SEMAPHORE_MODIFY_STATE  0x0002L
 
   /* ---------- OS/2 GPI constants (Win32 fallback) ---------- */
+#define CAPS_WIDTH   8L
+#define CAPS_HEIGHT  9L
 
   /* ---------- Paths (Win32 fallback) ---------- */
   #define MPATH_STROKE          6L
@@ -177,55 +179,23 @@
    #define DM_RETAIN                       2L
    #define DM_DRAWANDRETAIN                3L
 
-  #ifndef ATTR_DETECTABLE
   #define ATTR_DETECTABLE      1L
-  #endif
-  #ifndef ATTR_VISIBLE
   #define ATTR_VISIBLE         2L
-  #endif
-  #ifndef ATTR_CHAINED
   #define ATTR_CHAINED         6L
-  #endif
-  #ifndef ATTR_DYNAMIC
   #define ATTR_DYNAMIC         8L
-  #endif
-  #ifndef ATTR_FASTCHAIN
   #define ATTR_FASTCHAIN       9L
-  #endif
-  #ifndef ATTR_PROP_DETECTABLE
   #define ATTR_PROP_DETECTABLE 10L
-  #endif
-  #ifndef ATTR_PROP_VISIBLE
   #define ATTR_PROP_VISIBLE    11L
-  #endif
-  #ifndef ATTR_OFF
   #define ATTR_OFF             0L
-  #endif
-  #ifndef ATTR_ON
   #define ATTR_ON              1L
-  #endif
 
-  #ifndef DCTL_ERASE
   #define DCTL_ERASE           1L
-  #endif
-  #ifndef DCTL_DISPLAY
   #define DCTL_DISPLAY         2L
-  #endif
-  #ifndef DCTL_BOUNDARY
   #define DCTL_BOUNDARY        3L
-  #endif
-  #ifndef DCTL_DYNAMIC
   #define DCTL_DYNAMIC         4L
-  #endif
-  #ifndef DCTL_CORRELATE
   #define DCTL_CORRELATE       5L
-  #endif
-  #ifndef DCTL_OFF
   #define DCTL_OFF             0L
-  #endif
-  #ifndef DCTL_ON
   #define DCTL_ON              1L
-  #endif
 
   #define SDW_OFF              0L
   #define SDW_ON               1L

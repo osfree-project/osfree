@@ -81,6 +81,8 @@ int main(void)
 destroy:
     check(WinDestroyWindow(hwnd), "WinDestroyWindow");
 
+    check(WinDestroyWindow(HWND_DESKTOP) == FALSE, "WinDestroyWindow(HWND_DESKTOP) = FALSE");
+
 done:
     WinTerminate(hab);
 
