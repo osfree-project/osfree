@@ -69,6 +69,13 @@ private:
     void HandleClientExit(Fs_Thread *pThread);
     void HandleClientPing(Fs_Thread *pThread, ULONG idClient);
 
+    /*!
+     * @brief Allocate a fresh HMQ (system-wide unique, monotonic,
+     *        never reused).
+     * @return HMQ value; never 0.
+     */
+    ULONG AllocHmq();
+
     /* ---- Session timeout ---- */
     void ExpireSessions(time_t now);
     void TeardownThread(Fs_Thread *pThread, const char *reason);
@@ -140,6 +147,8 @@ private:
     Fs_HabList        m_habs;
     Fs_WndList        m_wnds;
     ULONG             m_iHwndDesktop;   /*!< Monotonic HWND of the desktop; 0 on failure. */
+    HMTX              m_hmtxHmq;        /*!< Serializes HMQ allocation. */
+    ULONG             m_ulNextHmq;      /*!< Monotonic HMQ counter; 0 reserved. */
 };
 
 #endif /* FS_SERVER_HPP */

@@ -5,7 +5,7 @@
  * One Fs_Hab per WinInitialize() call on the client. Keyed by a
  * monotonically increasing m_iHab (never reused); linked to the
  * owning session through m_idClient. HABs own per-thread state
- * (last error, message queue in Phase 4) but do NOT own PS, WND
+ * (last error, message queue) but do NOT own PS, WND
  * or DC — those live in their own global registries and only
  * back-reference the HAB via m_hHab.
  *
@@ -24,9 +24,9 @@
 #define INCL_PM
 #include "F_platform.h"
 #include "Fs_config.hpp"
+#include "Fs_queue.hpp"
 
-/* Phase 4 forward declarations. Not implemented yet. */
-class Fs_Queue;
+/* Phase 4 forward declaration. Not implemented yet. */
 class Fs_ClassInfo;
 
 /*!
@@ -66,6 +66,27 @@ public:
     /*! @brief Set the per-thread last error (PMERR_*). */
     void   SetLastError(int err) { m_lastError = err; }
 
+    /*!
+     * @brief Owning message queue attached to this HAB, or NULL.
+     * @return Queue pointer, or NULL if WinCreateMsgQueue was not
+     *         called for this HAB.
+     */
+    Fs_Queue *GetQueue() const  { return m_pQueue; }
+
+    /*!
+     * @brief Attach a message queue (NWinCreateMsgQueue).
+     *        Ownership transfers to this HAB.
+     * @param [in] pQueue  Newly allocated queue.
+     */
+    void      SetQueue(Fs_Queue *pQueue) { m_pQueue = pQueue; }
+
+    /*!
+     * @brief Detach a message queue without deleting it
+     *        (NWinDestroyMsgQueue after the caller has already
+     *        deleted it).
+     */
+    void      ClearQueue()      { m_pQueue = NULL; }
+
 private:
     BOOL     m_bUsed;
     ULONG    m_iHab;        /*!< Monotonic, unique, never reused. */
@@ -73,7 +94,8 @@ private:
     ULONG    m_tid;         /*!< Client thread id (unique within process). */
     int      m_lastError;   /*!< Per-thread last error (PMERR_*). */
 
-    /* Phase 4: Fs_Queue *m_pQueue; Fs_ClassInfo *m_pClassList; */
+    Fs_Queue *m_pQueue;     /*!< Owning message queue; NULL if none. */
+    /* Phase 4: Fs_ClassInfo *m_pClassList; */
 };
 
 /*!

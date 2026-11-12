@@ -10,6 +10,8 @@
 #define GPI_SERVER
 #include "gpi_ps.h"
 
+#include "Fs_queue.hpp"
+
 #define INCL_WINERRORS
 #include "F_platform.h"
 
@@ -27,7 +29,8 @@ Fs_Hab::Fs_Hab()
       m_iHab(0),
       m_idClient(0),
       m_tid(0),
-      m_lastError(0)
+      m_lastError(0),
+      m_pQueue(NULL)
 {
 }
 
@@ -56,6 +59,7 @@ BOOL Fs_Hab::Init(ULONG idClient, ULONG tid, ULONG iHab)
     m_idClient  = idClient;
     m_tid       = tid;
     m_lastError = 0;
+    m_pQueue    = NULL;
     return TRUE;
 }
 
@@ -64,6 +68,10 @@ BOOL Fs_Hab::Init(ULONG idClient, ULONG tid, ULONG iHab)
  */
 void Fs_Hab::Shutdown()
 {
+    if (m_pQueue) {
+        delete m_pQueue;
+        m_pQueue = NULL;
+    }
     m_bUsed     = FALSE;
     m_iHab      = 0;
     m_idClient  = 0;

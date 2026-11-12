@@ -75,8 +75,8 @@ typedef struct _WinQueryVersion_Args {
 /*  Message queue                                                             */
 /* ========================================================================== */
 
-#define NWinCreateMsgQueue            0x0010L
-#define NWinDestroyMsgQueue           0x0011L
+#define NWinCreateMsgQueue            (0x0010UL | NWIN_SYNC_FLAG)
+#define NWinDestroyMsgQueue           (0x0011UL | NWIN_SYNC_FLAG)
 #define NWinGetMsg                    0x0012L
 #define NWinPeekMsg                   0x0013L
 #define NWinWaitMsg                   0x0014L
@@ -92,10 +92,6 @@ typedef struct _WinQueryVersion_Args {
 #define NWinWakeThread                0x001EL
 #define NWinQueryQueueStatus          0x001FL
 
-/* HMQ WinCreateMsgQueue(HAB hab, LONG cmsg) */
-typedef struct _WinCreateMsgQueue_Args { ULONG iHab; LONG cmsg; } WinCreateMsgQueue_Args, *PWinCreateMsgQueue_Args;
-/* BOOL WinDestroyMsgQueue(HMQ hmq) */
-typedef struct _WinDestroyMsgQueue_Args { ULONG hmq; } WinDestroyMsgQueue_Args, *PWinDestroyMsgQueue_Args;
 /* BOOL WinGetMsg(HAB, PQMSG, HWND filter, ULONG first, ULONG last) */
 typedef struct _WinGetMsg_Args {
     ULONG iHab; HWND hwndFilter; ULONG msgFirst; ULONG msgLast;
@@ -110,25 +106,25 @@ typedef struct _WinPeekMsg_Args {
 typedef struct _WinWaitMsg_Args { ULONG iHab; ULONG msgFirst; ULONG msgLast; } WinWaitMsg_Args, *PWinWaitMsg_Args;
 /* MRESULT WinDispatchMsg(HAB, PQMSG) */
 typedef struct _WinDispatchMsg_Args {
-    ULONG iHab; HWND hwnd; ULONG msg; ULONG mp1; ULONG mp2;
+    ULONG iHab; HWND hwnd; ULONG msg; MPARAM mp1; MPARAM mp2;
     ULONG time; POINTL ptl; ULONG ulReserved; /* QMSG in */
 } WinDispatchMsg_Args, *PWinDispatchMsg_Args;
 /* BOOL WinPostMsg(HWND, ULONG msg, MPARAM mp1, MPARAM mp2) */
-typedef struct _WinPostMsg_Args { HWND hwnd; ULONG msg; ULONG mp1; ULONG mp2; } WinPostMsg_Args, *PWinPostMsg_Args;
+typedef struct _WinPostMsg_Args { HWND hwnd; ULONG msg; MPARAM mp1; MPARAM mp2; } WinPostMsg_Args, *PWinPostMsg_Args;
 /* BOOL WinPostQueueMsg(HMQ, ULONG msg, MPARAM mp1, MPARAM mp2) */
-typedef struct _WinPostQueueMsg_Args { ULONG hmq; ULONG msg; ULONG mp1; ULONG mp2; } WinPostQueueMsg_Args, *PWinPostQueueMsg_Args;
+typedef struct _WinPostQueueMsg_Args { ULONG hmq; ULONG msg; MPARAM mp1; MPARAM mp2; } WinPostQueueMsg_Args, *PWinPostQueueMsg_Args;
 /* MRESULT WinSendMsg(HWND, ULONG msg, MPARAM mp1, MPARAM mp2) */
-typedef struct _WinSendMsg_Args { HWND hwnd; ULONG msg; ULONG mp1; ULONG mp2; } WinSendMsg_Args, *PWinSendMsg_Args;
+typedef struct _WinSendMsg_Args { HWND hwnd; ULONG msg; MPARAM mp1; MPARAM mp2; } WinSendMsg_Args, *PWinSendMsg_Args;
 /* MRESULT WinSendDlgItemMsg(HWND dlg, ULONG id, ULONG msg, MPARAM mp1, MPARAM mp2) */
-typedef struct _WinSendDlgItemMsg_Args { HWND hwndDlg; ULONG idItem; ULONG msg; ULONG mp1; ULONG mp2; } WinSendDlgItemMsg_Args, *PWinSendDlgItemMsg_Args;
+typedef struct _WinSendDlgItemMsg_Args { HWND hwndDlg; ULONG idItem; ULONG msg; MPARAM mp1; MPARAM mp2; } WinSendDlgItemMsg_Args, *PWinSendDlgItemMsg_Args;
 /* BOOL WinBroadcastMsg(HWND, ULONG msg, MPARAM mp1, MPARAM mp2, ULONG fl) */
-typedef struct _WinBroadcastMsg_Args { HWND hwnd; ULONG msg; ULONG mp1; ULONG mp2; ULONG fl; } WinBroadcastMsg_Args, *PWinBroadcastMsg_Args;
+typedef struct _WinBroadcastMsg_Args { HWND hwnd; ULONG msg; MPARAM mp1; MPARAM mp2; ULONG fl; } WinBroadcastMsg_Args, *PWinBroadcastMsg_Args;
 /* BOOL WinInSendMsg(HAB) */
 typedef struct _WinInSendMsg_Args { ULONG iHab; } WinInSendMsg_Args, *PWinInSendMsg_Args;
 /* BOOL WinQuerySendMsg(HAB) */
 typedef struct _WinQuerySendMsg_Args { ULONG iHab; } WinQuerySendMsg_Args, *PWinQuerySendMsg_Args;
 /* BOOL WinReplyMsg(HMQ, ULONG msg, MRESULT mres, MPARAM mp1, MPARAM mp2) */
-typedef struct _WinReplyMsg_Args { ULONG hmq; ULONG msg; ULONG mres; ULONG mp1; ULONG mp2; } WinReplyMsg_Args, *PWinReplyMsg_Args;
+typedef struct _WinReplyMsg_Args { ULONG hmq; ULONG msg; MRESULT mres; MPARAM mp1; MPARAM mp2; } WinReplyMsg_Args, *PWinReplyMsg_Args;
 /* BOOL WinWakeThread(HMQ) */
 typedef struct _WinWakeThread_Args { ULONG hmq; } WinWakeThread_Args, *PWinWakeThread_Args;
 /* ULONG WinQueryQueueStatus(HAB) */
@@ -467,7 +463,7 @@ typedef struct _WinSetWindowThunkProc_Args { HWND hwnd; ULONG pfnThunkProc; /* o
 /* PVOID WinQueryWindowThunkProc(HWND) */
 typedef struct _WinQueryWindowThunkProc_Args { HWND hwnd; } WinQueryWindowThunkProc_Args, *PWinQueryWindowThunkProc_Args;
 /* MRESULT WinDefWindowProc(HWND, ULONG msg, MPARAM mp1, MPARAM mp2) */
-typedef struct _WinDefWindowProc_Args { HWND hwnd; ULONG msg; ULONG mp1; ULONG mp2; } WinDefWindowProc_Args, *PWinDefWindowProc_Args;
+typedef struct _WinDefWindowProc_Args { HWND hwnd; ULONG msg; MPARAM mp1; MPARAM mp2; } WinDefWindowProc_Args, *PWinDefWindowProc_Args;
 
 /* ========================================================================== */
 /*  Dialogs                                                                   */
@@ -505,7 +501,7 @@ typedef struct _WinProcessDlg_Args { HWND hwndDlg; } WinProcessDlg_Args, *PWinPr
 /* BOOL WinDismissDlg(HWND dlg, ULONG ulResult) */
 typedef struct _WinDismissDlg_Args { HWND hwndDlg; ULONG ulResult; } WinDismissDlg_Args, *PWinDismissDlg_Args;
 /* MRESULT WinDefDlgProc(HWND, ULONG msg, MPARAM mp1, MPARAM mp2) */
-typedef struct _WinDefDlgProc_Args { HWND hwndDlg; ULONG msg; ULONG mp1; ULONG mp2; } WinDefDlgProc_Args, *PWinDefDlgProc_Args;
+typedef struct _WinDefDlgProc_Args { HWND hwndDlg; ULONG msg; MPARAM mp1; MPARAM mp2; } WinDefDlgProc_Args, *PWinDefDlgProc_Args;
 /* HWND WinEnumDlgItem(HWND dlg, HWND hwnd, ULONG code) */
 typedef struct _WinEnumDlgItem_Args { HWND hwndDlg; HWND hwnd; ULONG code; } WinEnumDlgItem_Args, *PWinEnumDlgItem_Args;
 /* BOOL WinGetDlgMsg(HWND dlg, PQMSG) */
@@ -793,7 +789,7 @@ typedef struct _WinCreateAccelTable_Args { ULONG iHab; ULONG cbAccelTable; char 
 /* BOOL WinDestroyAccelTable(HACCEL) */
 typedef struct _WinDestroyAccelTable_Args { ULONG haccel; } WinDestroyAccelTable_Args, *PWinDestroyAccelTable_Args;
 /* BOOL WinTranslateAccel(HAB, HWND, HACCEL, PQMSG) */
-typedef struct _WinTranslateAccel_Args { ULONG iHab; HWND hwnd; ULONG haccel; /* in/out QMSG */ HWND qmsgHwnd; ULONG qmsgMsg; ULONG qmsgMp1, qmsgMp2; ULONG qmsgTime; POINTL qmsgPtl; ULONG qmsgReserved; } WinTranslateAccel_Args, *PWinTranslateAccel_Args;
+typedef struct _WinTranslateAccel_Args { ULONG iHab; HWND hwnd; ULONG haccel; /* in/out QMSG */ HWND qmsgHwnd; ULONG qmsgMsg; MPARAM qmsgMp1, qmsgMp2; ULONG qmsgTime; POINTL qmsgPtl; ULONG qmsgReserved; } WinTranslateAccel_Args, *PWinTranslateAccel_Args;
 /* BOOL WinSetAccelTable(HAB, HACCEL, HWND) */
 typedef struct _WinSetAccelTable_Args { ULONG iHab; ULONG haccel; HWND hwnd; } WinSetAccelTable_Args, *PWinSetAccelTable_Args;
 /* HACCEL WinQueryAccelTable(HAB, HWND) */
@@ -809,8 +805,7 @@ typedef struct _WinSetHook_Args { ULONG iHab; ULONG hmq; LONG idHook; ULONG pfnH
 /* BOOL WinReleaseHook(HAB, HMQ, LONG idHook, PFNHOOK, HMODULE) */
 typedef struct _WinReleaseHook_Args { ULONG iHab; ULONG hmq; LONG idHook; ULONG pfnHook; HMODULE hmod; } WinReleaseHook_Args, *PWinReleaseHook_Args;
 /* BOOL WinCallMsgFilter(HAB, PQMSG, LONG idFilter) */
-typedef struct _WinCallMsgFilter_Args { ULONG iHab; HWND hwnd; ULONG msg; ULONG mp1; ULONG mp2; ULONG time; POINTL ptl; ULONG ulReserved; LONG idFilter; } WinCallMsgFilter_Args, *PWinCallMsgFilter_Args;
-/* BOOL WinSetMsgInterest(HAB, HWND, ULONG ulClass, ULONG flInterest) */
+typedef struct _WinCallMsgFilter_Args { ULONG iHab; HWND hwnd; ULONG msg; MPARAM mp1; MPARAM mp2; ULONG time; POINTL ptl; ULONG ulReserved; LONG idFilter; } WinCallMsgFilter_Args, *PWinCallMsgFilter_Args;
 typedef struct _WinSetMsgInterest_Args { ULONG iHab; HWND hwnd; ULONG ulClass; ULONG flInterest; } WinSetMsgInterest_Args, *PWinSetMsgInterest_Args;
 /* BOOL WinSetClassMsgInterest(HAB, PCSZ class, ULONG ulClass, ULONG flInterest) */
 typedef struct _WinSetClassMsgInterest_Args { ULONG iHab; ULONG cbClass; char szClass[1]; ULONG ulClass; ULONG flInterest; } WinSetClassMsgInterest_Args, *PWinSetClassMsgInterest_Args;

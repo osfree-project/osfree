@@ -64,11 +64,22 @@ Fs_Server::Fs_Server()
       m_fShutdown(FALSE),
       m_fEverHadClient(FALSE),
       m_cfg(FPMs_config),
-      m_iHwndDesktop(0)
+      m_iHwndDesktop(0),
+      m_hmtxHmq(NULL),
+      m_ulNextHmq(1)
 {
     ULONG hwnd = 0;
 
     m_habs.SetMax(m_cfg.ulMaxHabs);
+
+    /* HMQ counter is server-wide; serialize allocation across all
+     * client threads. m_hmtxHmq == NULL disables locking (single
+     * client thread case); AllocHmq falls through without a lock. */
+    if (DosCreateMutexSem(NULL, &m_hmtxHmq, 0, FALSE) != 0) {
+        F_DbgPrint(F_DBG_SEC_FS_SERVER, F_DBG_LVL_ERROR,
+                   "[SERVER] ERROR: hmq mutex DosCreateMutexSem failed");
+        m_hmtxHmq = NULL;
+    }
 
     {
         Fs_Wnd *pDesktop = m_wnds.Create(0, &hwnd);
@@ -319,6 +330,27 @@ void Fs_Server::TeardownThread(Fs_Thread *pThread, const char *reason)
         m_procs.Destroy(idClient);
         m_habs.DestroyAll(idClient);
     }
+}
+
+/*!
+ * @brief Allocate a fresh HMQ (system-wide unique, monotonic, never
+ *        reused).
+ *
+ * Serialized by m_hmtxHmq. 0 is reserved for NULLHANDLE, so it is
+ * skipped after overflow (never expected in practice).
+ *
+ * @return Fresh HMQ value, never 0.
+ */
+ULONG Fs_Server::AllocHmq()
+{
+    ULONG hmq;
+
+    if (m_hmtxHmq) DosRequestMutexSem(m_hmtxHmq, SEM_INDEFINITE_WAIT);
+    hmq = m_ulNextHmq++;
+    if (hmq == 0) hmq = m_ulNextHmq++;
+    if (m_hmtxHmq) DosReleaseMutexSem(m_hmtxHmq);
+
+    return hmq;
 }
 
 /* ======================================================================== */
@@ -762,6 +794,9 @@ void Fs_Server::HandleWinCall(Fs_Thread *pThread,
 
         if (rawFn >= 0x0001 && rawFn <= 0x000F)
             ulResult = DispatchWinHab(pRecvobj, fnCode, data,
+                                       NULL, 0, &cbPayload);
+        else if (rawFn >= 0x0010 && rawFn <= 0x001F)
+            ulResult = DispatchWinMq (pRecvobj, fnCode, data,
                                        NULL, 0, &cbPayload);
         else if (rawFn >= 0x0020 && rawFn <= 0x005F)
             ulResult = DispatchWinWnd(pRecvobj, fnCode, data,

@@ -224,7 +224,6 @@
   #endif
 
   /* ---------- Win32 API ---------- */
-  /* ---------- Win32 API ---------- */
   __declspec(dllimport) PVOID __stdcall VirtualAlloc(PVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
   __declspec(dllimport) DWORD __stdcall VirtualFree(PVOID lpAddress, SIZE_T dwSize, DWORD dwFreeType);
   __declspec(dllimport) HMODULE __stdcall GetModuleHandleA(const char *lpModuleName);
@@ -809,7 +808,7 @@ static inline APIRET DosGetNamedSharedMem(PVOID *ppv, const char *pszName,
   typedef struct _RGNRECT { ULONG ircStart, crc, crcReturned, ulDirection; } RGNRECT, *PRGNRECT;
   typedef CHAR FFDESCS[2][32];
   typedef FFDESCS *PFFDESCS;
-  typedef struct _QMSG { HWND hwnd; ULONG msg; MPARAM mp1, mp2; ULONG time; POINTL ptl; ULONG ulReserved; } QMSG, *PQMSG;
+  typedef struct _QMSG { HWND hwnd; ULONG msg; MPARAM mp1, mp2; ULONG time; POINTL ptl; } QMSG, *PQMSG;
 
   typedef PSZ *PDEVOPENDATA;                          /* user-provided */
 
@@ -1903,6 +1902,56 @@ static inline APIRET DosQueryQueue(HQUEUE hq, PULONG pcbEntries)
     return 0;
 }
 
+/* ---------- Event semaphores (Win32 emulation of OS/2 Dos*EventSem) ----------
+ *
+ * OS/2 event semaphores carry a post count; DosPostEventSem increments
+ * it, DosWaitEventSem waits for it to be non-zero, DosResetEventSem
+ * clears it. The Win32 emulation uses a manual-reset event: the
+ * producer's SetEvent is idempotent, and the consumer resets the
+ * event under its own lock when the last queued item is drained, so
+ * no wakeup is lost.
+ */
+
+__declspec(dllimport) HANDLE __stdcall CreateEventA(void *lpEventAttributes,
+                                                     BOOL bManualReset,
+                                                     BOOL bInitialState,
+                                                     const char *lpName);
+__declspec(dllimport) BOOL   __stdcall SetEvent(HANDLE hEvent);
+__declspec(dllimport) BOOL   __stdcall ResetEvent(HANDLE hEvent);
+
+static inline APIRET DosCreateEventSem(const char *pszName, HEV *phev,
+                                       ULONG flAttr, BOOL fState)
+{
+    (void)flAttr;
+    *phev = CreateEventA(NULL, TRUE, fState ? TRUE : FALSE, pszName);
+    return (*phev != NULL) ? 0 : 1;
+}
+
+static inline APIRET DosPostEventSem(HEV hev)
+{
+    return SetEvent((HANDLE)hev) ? 0 : 1;
+}
+
+static inline APIRET DosResetEventSem(HEV hev, PULONG pulPostCt)
+{
+    BOOL ok = ResetEvent((HANDLE)hev);
+    if (pulPostCt) *pulPostCt = 0;
+    return ok ? 0 : 1;
+}
+
+static inline APIRET DosWaitEventSem(HEV hev, ULONG ulTimeout)
+{
+    DWORD dwTimeout = (ulTimeout == SEM_INDEFINITE_WAIT)
+                      ? INFINITE : (DWORD)ulTimeout;
+    DWORD dwWait = WaitForSingleObject((HANDLE)hev, dwTimeout);
+    return (dwWait == WAIT_OBJECT_0) ? 0 : 1;
+}
+
+static inline APIRET DosCloseEventSem(HEV hev)
+{
+    return CloseHandle((HANDLE)hev) ? 0 : 1;
+}
+
   #define WS_VISIBLE   0x80000000UL
 
   #define SWP_MOVE     0x0002UL
@@ -1999,6 +2048,9 @@ BOOL APIENTRY GpiQueryArcParams(HPS, PARCPARAMS);
   BOOL  APIENTRY WinSetWindowPos(HWND hwnd, HWND hwndInsertBehind,
                                  LONG x, LONG y, LONG cx, LONG cy, ULONG fl);
   BOOL  APIENTRY WinDestroyWindow(HWND hwnd);
+  HMQ   APIENTRY WinCreateMsgQueue(HAB hab, LONG cMsg);
+  BOOL  APIENTRY WinDestroyMsgQueue(HMQ hmq);
+  BOOL  APIENTRY WinPostMsg(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2);
 
 
 #ifdef __cplusplus
