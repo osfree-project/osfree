@@ -4,8 +4,7 @@
  *
  * Fs_Wnd is the minimal per-window record needed to hand out a PS for
  * a window (HWND -> HAB back-ref -> cached HPS). It does not yet carry
- * geometry, parent/child links, WndProc, message queue, or class — those
- * come with Phase 5.
+ * WndProc or a message queue — those come with Phase 5.
  *
  * Fs_WndList holds F_MAX_WINDOWS slots, keyed by a monotonic HWND
  * (never reused, like idClient / iHab). Owned by Fs_Server (peer to
@@ -25,8 +24,9 @@
  *
  * Keyed by m_iHwnd (monotonic, unique). Holds a back-ref to the owning
  * HAB (m_iHab), the HDC created by WinOpenWindowDC for this window,
- * geometry, visibility, style, title, and the ctlData/presParams
- * blobs captured at creation time. The PS belongs to the client.
+ * geometry, visibility, style, title, parent / Z-order / class, and the
+ * ctlData/presParams blobs captured at creation time. The PS belongs to
+ * the client.
  */
 class Fs_Wnd {
 public:
@@ -78,6 +78,24 @@ public:
     void SetStyle(ULONG s)  { m_flStyle = s; }
     void SetTitle(const char *t);
 
+    /*!
+     * @brief Store the window class name.
+     *
+     * The caller (NWinCreateWindow) rejects class names longer than
+     * the buffer; this setter only truncates defensively.
+     *
+     * @param [in] c  NUL-terminated class name (NULL clears the field).
+     */
+    void SetClass(const char *c);
+
+    /* ---- Parent / Z-order / class ---- */
+    ULONG GetParent() const { return m_iParent; }
+    LONG  GetZOrder() const { return m_lZOrder; }
+    const char *GetClass() const { return m_szClass; }
+
+    void SetParent(ULONG p) { m_iParent = p; }
+    void SetZOrder(LONG z)  { m_lZOrder = z; }
+
     void SetCtlData(PBYTE p, ULONG cb)
     { if (m_pCtlData) DosFreeMem(m_pCtlData); m_pCtlData = p; m_cbCtlData = cb; }
     void SetPresParams(PBYTE p, ULONG cb)
@@ -99,6 +117,15 @@ private:
     BOOL  m_bVisible;
     ULONG m_flStyle;
     char  m_szTitle[64];
+
+    /*! @brief Parent HWND (0 = none; HWND_DESKTOP for top-level frames). */
+    ULONG m_iParent;
+
+    /*! @brief Z-order rank among siblings. Higher = nearer the top. */
+    LONG  m_lZOrder;
+
+    /*! @brief Window class name (NUL-terminated, at most 31 chars). */
+    char  m_szClass[32];
 
     PBYTE m_pCtlData;    ULONG m_cbCtlData;
     PBYTE m_pPresParams; ULONG m_cbPresParams;
@@ -168,6 +195,35 @@ public:
         @return Number of used slots.
         @retval >=0  Count. */
     int CountActive();
+
+    /*!
+     * @brief Place hwnd in the sibling Z-order.
+     *
+     * Per OS/2 PM (WinCreateWindow / WinSetWindowPos):
+     *   HWND_TOP     — place hwnd on top of all its siblings.
+     *   HWND_BOTTOM  — place hwnd behind all its siblings.
+     *   otherwise    — hwndInsertBehind must be a sibling of hwnd;
+     *                  hwnd is placed immediately behind it
+     *                  (the named sibling stays above hwnd).
+     *
+     * If hwndInsertBehind is not a valid sibling of hwnd, the call
+     * is a no-op (PM returns PMERR_INVALID_HWND).
+     *
+     * @param [in] hwnd              Window to move (0 = no-op).
+     * @param [in] hwndInsertBehind  HWND_TOP, HWND_BOTTOM, or a sibling.
+     */
+    void PlaceWindow(ULONG hwnd, ULONG hwndInsertBehind);
+
+    /*!
+     * @brief Destroy hwnd and all descendants (m_iParent chain).
+     *
+     * The subtree is collected under one lock acquisition, then
+     * destroyed outside the lock, children before parent (matches OS/2
+     * PM: every window is destroyed before its parent).
+     *
+     * @param [in] hwnd  Window handle (0 = no-op).
+     */
+    void DestroyTree(ULONG hwnd);
 
     /*!
      * @brief Server-side default window procedure.

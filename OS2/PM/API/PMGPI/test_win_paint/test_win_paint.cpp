@@ -44,7 +44,7 @@ int main(void)
     hwnd = WinCreateWindow(HWND_DESKTOP, "TestClass", "PaintTest",
                            WS_VISIBLE,
                            100, 100, 300, 200,
-                           NULLHANDLE, NULLHANDLE, 0, NULL, NULL);
+                           NULLHANDLE, HWND_TOP, 0, NULL, NULL);
     check(hwnd != NULLHANDLE, "WinCreateWindow(300x200)");
     if (hwnd == NULLHANDLE) goto destroy_mq;
 

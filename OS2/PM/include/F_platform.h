@@ -2041,16 +2041,17 @@ static inline APIRET DosCloseEventSem(HEV hev)
 
   #define WS_VISIBLE   0x80000000UL
 
+  #define SWP_SIZE     0x0001UL
   #define SWP_MOVE     0x0002UL
-  #define SWP_SIZE     0x0004UL
-  #define SWP_SHOW     0x0010UL
-  #define SWP_HIDE     0x0020UL
+  #define SWP_ZORDER   0x0004UL
+  #define SWP_SHOW     0x0008UL
+  #define SWP_HIDE     0x0010UL
 
   /* Window messages (subset used by the server-side default window
    * procedure; the full set comes from <os2.h> on OS/2). */
-  #define WM_USER      0x0400
-  #define WM_CLOSE     0x002BUL
-  #define WM_QUIT      0x001AUL
+  #define WM_USER      0x1000UL
+  #define WM_CLOSE     0x0029UL
+  #define WM_QUIT      0x002aUL
 
   #define CLR_BLACK       (-1L)
   #define CLR_BACKGROUND     0L
@@ -2064,6 +2065,8 @@ static inline APIRET DosCloseEventSem(HEV hev)
   #define CLR_WHITE          0L
 
   #define HWND_DESKTOP     ((HWND)1)
+  #define HWND_TOP         ((HWND)3)
+  #define HWND_BOTTOM      ((HWND)4)
 
   #define GPIA_ASSOC       0x0001L
 

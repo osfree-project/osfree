@@ -22,10 +22,12 @@ Fs_Wnd::Fs_Wnd()
     : m_bUsed(FALSE), m_iHwnd(0), m_iHab(0), /* m_hPS(NULL),*/ m_hdc(NULL),
       m_x(0), m_y(0), m_cx(0), m_cy(0),
       m_bVisible(FALSE), m_flStyle(0),
+      m_iParent(0), m_lZOrder(0),
       m_pCtlData(NULL), m_cbCtlData(0),
       m_pPresParams(NULL), m_cbPresParams(0)
 {
     m_szTitle[0] = '\0';
+    m_szClass[0] = '\0';
 }
 
 /*!
@@ -51,6 +53,9 @@ BOOL Fs_Wnd::Init(ULONG iHwnd, ULONG iHab)
     m_bVisible = FALSE;
     m_flStyle  = 0;
     m_szTitle[0] = '\0';
+    m_szClass[0] = '\0';
+    m_iParent  = 0;
+    m_lZOrder  = 0;
     m_pCtlData = NULL;    m_cbCtlData    = 0;
     m_pPresParams = NULL; m_cbPresParams = 0;
     return TRUE;
@@ -79,6 +84,9 @@ void Fs_Wnd::Shutdown()
     m_bVisible = FALSE;
     m_flStyle  = 0;
     m_szTitle[0] = '\0';
+    m_szClass[0] = '\0';
+    m_iParent  = 0;
+    m_lZOrder  = 0;
 }
 
 
@@ -323,6 +331,168 @@ int Fs_WndList::CountActive()
 }
 
 /*!
+ * @brief Place hwnd in the sibling Z-order.
+ *
+ * Sibling set = all used windows sharing hwnd's parent (hwnd itself
+ * excluded). The set is sorted by current Z, and hwnd is reinserted:
+ *
+ *   HWND_TOP     — first element (topmost sibling).
+ *   HWND_BOTTOM  — last element (bottom-most sibling).
+ *   otherwise    — immediately after hwndInsertBehind (the named
+ *                  sibling stays above hwnd; any siblings that were
+ *                  below hwndInsertBehind end up below hwnd).
+ *
+ * If hwndInsertBehind is not HWND_TOP, not HWND_BOTTOM, and not a
+ * sibling of hwnd, the call is a no-op.
+ *
+ * Ranks are renumbered 1..N in the new top-to-bottom order.
+ *
+ * @param [in] hwnd              Window to move (0 = no-op).
+ * @param [in] hwndInsertBehind  HWND_TOP, HWND_BOTTOM, or a sibling.
+ */
+void Fs_WndList::PlaceWindow(ULONG hwnd, ULONG hwndInsertBehind)
+{
+    int   hwndSlot = -1;
+    ULONG parent;
+    int   sibSlot[F_MAX_WINDOWS];
+    LONG  sibZ[F_MAX_WINDOWS];
+    int   nSib = 0;
+    int   pos;
+    int   i, j;
+    int   ctx;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                         "[WNDLIST] PlaceWindow(hwnd=%lu, behind=%lu)",
+                         (unsigned long)hwnd,
+                         (unsigned long)hwndInsertBehind);
+
+    if (hwnd == 0) {
+        F_DbgCtxExitf(ctx, "no-op (hwnd=0)");
+        return;
+    }
+
+    Lock();
+
+    /* Locate hwnd's slot and its parent. */
+    for (i = 0; i < F_MAX_WINDOWS; i++) {
+        if (m_aWnds[i].IsUsed() && m_aWnds[i].GetHwnd() == hwnd) {
+            hwndSlot = i;
+            break;
+        }
+    }
+    if (hwndSlot < 0) {
+        Unlock();
+        F_DbgCtxExitf(ctx, "no-op (hwnd not found)");
+        return;
+    }
+    parent = m_aWnds[hwndSlot].GetParent();
+
+    /* Collect siblings (same parent, not hwnd). */
+    for (i = 0; i < F_MAX_WINDOWS; i++) {
+        if (!m_aWnds[i].IsUsed())          continue;
+        if (i == hwndSlot)                 continue;
+        if (m_aWnds[i].GetParent() != parent) continue;
+        sibSlot[nSib] = i;
+        sibZ[nSib]    = m_aWnds[i].GetZOrder();
+        nSib++;
+    }
+
+    /* Sort siblings by Z, descending (topmost first). */
+    for (i = 0; i < nSib - 1; i++) {
+        for (j = 0; j < nSib - 1 - i; j++) {
+            if (sibZ[j] < sibZ[j + 1]) {
+                int  ts = sibSlot[j]; sibSlot[j] = sibSlot[j + 1]; sibSlot[j + 1] = ts;
+                LONG tz = sibZ[j];    sibZ[j]    = sibZ[j + 1];    sibZ[j + 1]    = tz;
+            }
+        }
+    }
+
+    /* Decide the insertion position (0 = before all siblings). */
+    if (hwndInsertBehind == (ULONG)HWND_TOP) {
+        pos = 0;
+    } else if (hwndInsertBehind == (ULONG)HWND_BOTTOM) {
+        pos = nSib;
+    } else {
+        pos = -1;
+        for (i = 0; i < nSib; i++) {
+            if (m_aWnds[sibSlot[i]].GetHwnd() == hwndInsertBehind) {
+                pos = i + 1;   /* sibling stays above; hwnd goes below it */
+                break;
+            }
+        }
+        if (pos < 0) {
+            Unlock();
+            F_DbgCtxExitf(ctx, "no-op (behind=%lu not a sibling)",
+                          (unsigned long)hwndInsertBehind);
+            return;
+        }
+    }
+
+    /* Renumber: top-to-bottom ranks N..1.  Siblings before pos keep
+     * their relative order above hwnd; siblings from pos onwards end
+     * up below hwnd. */
+    for (i = 0; i < pos; i++)
+        m_aWnds[sibSlot[i]].SetZOrder((LONG)(nSib + 1 - i));
+    m_aWnds[hwndSlot].SetZOrder((LONG)(nSib + 1 - pos));
+    for (i = pos; i < nSib; i++)
+        m_aWnds[sibSlot[i]].SetZOrder((LONG)(nSib - i));
+
+    Unlock();
+
+    F_DbgCtxExitf(ctx, "pos=%d of %d sibling(s)", pos, nSib);
+}
+
+/*!
+ * @brief Destroy hwnd and all descendants (m_iParent chain).
+ *
+ * The subtree is collected under one lock acquisition, then destroyed
+ * outside the lock, children before parent. This matches OS/2 PM:
+ * every window is destroyed before its parent.
+ *
+ * @param [in] hwnd  Window handle (0 = no-op).
+ */
+void Fs_WndList::DestroyTree(ULONG hwnd)
+{
+    ULONG stack[F_MAX_WINDOWS];
+    ULONG toDestroy[F_MAX_WINDOWS];
+    int   nStack   = 0;
+    int   nDestroy = 0;
+    int   i;
+    int   ctx;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                         "[WNDLIST] DestroyTree(hwnd=%lu)",
+                         (unsigned long)hwnd);
+
+    if (hwnd == 0) {
+        F_DbgCtxExitf(ctx, "no-op (hwnd=0)");
+        return;
+    }
+
+    Lock();
+    stack[nStack++] = hwnd;
+    while (nStack > 0) {
+        ULONG cur = stack[--nStack];
+        if (nDestroy < F_MAX_WINDOWS)
+            toDestroy[nDestroy++] = cur;
+        for (i = 0; i < F_MAX_WINDOWS; i++) {
+            if (m_aWnds[i].IsUsed() &&
+                m_aWnds[i].GetParent() == cur &&
+                nStack < F_MAX_WINDOWS) {
+                stack[nStack++] = m_aWnds[i].GetHwnd();
+            }
+        }
+    }
+    Unlock();
+
+    /* Reverse order: children before parent. */
+    for (i = nDestroy - 1; i >= 0; i--)
+        Destroy(toDestroy[i]);
+
+    F_DbgCtxExitf(ctx, "%d window(s) destroyed", nDestroy);
+}
+
+/*!
  * @brief Server-side default window procedure.
  *
  * The analogue of PMWIN's WinDefWindowProc on the server side. Every
@@ -379,4 +549,19 @@ void Fs_Wnd::SetTitle(const char *t)
     if (!t) { m_szTitle[0] = '\0'; return; }
     strncpy(m_szTitle, t, sizeof(m_szTitle) - 1);
     m_szTitle[sizeof(m_szTitle) - 1] = '\0';
+}
+
+/*!
+ * @brief Store the window class name.
+ *
+ * The caller (NWinCreateWindow) rejects class names longer than the
+ * buffer; this setter only truncates defensively.
+ *
+ * @param [in] c  NUL-terminated class name (NULL clears the field).
+ */
+void Fs_Wnd::SetClass(const char *c)
+{
+    if (!c) { m_szClass[0] = '\0'; return; }
+    strncpy(m_szClass, c, sizeof(m_szClass) - 1);
+    m_szClass[sizeof(m_szClass) - 1] = '\0';
 }

@@ -4,8 +4,8 @@
  *
  * Handles NWinCreateWindow, NWinShowWindow, NWinSetWindowPos,
  * NWinDestroyWindow. The server stores geometry, visibility, style,
- * title, ctlData and presParams. No rendering: the client draws via
- * Gpi* on the PS created for this window's DC.
+ * title, parent, Z-order, class, ctlData and presParams. No rendering:
+ * the client draws via Gpi* on the PS created for this window's DC.
  */
 #include "Fs_server.hpp"
 #include "F_debug.h"
@@ -101,7 +101,9 @@ ULONG Fs_Server::DispatchWinWnd(void *pRecvobj, ULONG fnCode, ULONG data,
         ULONG  off, cbClass, cbName;
         PBYTE  pbCtlData = NULL, pbPresParams = NULL;
         ULONG  cbCtlData = 0, cbPresParams = 0;
-        char   szClass[256], szTitle[64];
+        char   szClass[32], szTitle[64];
+        ULONG  hwndParent, hwndBehind;
+        Fs_Wnd *pParent, *pBehind;
         Fs_Wnd *pWnd;
         ULONG   hwnd = 0;
         int     ctx;
@@ -113,7 +115,9 @@ ULONG Fs_Server::DispatchWinWnd(void *pRecvobj, ULONG fnCode, ULONG data,
         cbName  = a->cbName;
         off     = sizeof(WinCreateWindow_Args);
 
-        if (cbClass > 255 || cbName > 255) return 0;
+        /* Class name must fit m_szClass (31 chars + NUL). */
+        if (cbClass >= sizeof(szClass)) return 0;
+        if (cbName  > 255)              return 0;
         if (off + cbClass + cbName > cbArgs) return 0;
 
         memcpy(szClass, pArgs + off, cbClass);
@@ -153,11 +157,42 @@ ULONG Fs_Server::DispatchWinWnd(void *pRecvobj, ULONG fnCode, ULONG data,
         ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
                              "[PMSERVER] NWinCreateWindow(parent=%lu, "
                              "class=%s, title=%s, %ld,%ld %ldx%ld, "
-                             "cbCtl=%lu, cbPres=%lu)",
+                             "behind=%lu, cbCtl=%lu, cbPres=%lu)",
                              (unsigned long)data, szClass, szTitle,
                              (long)a->x, (long)a->y, (long)a->cx, (long)a->cy,
+                             (unsigned long)a->hwndInsertBehind,
                              (unsigned long)cbCtlData,
                              (unsigned long)cbPresParams);
+
+        /* Validate parent (OS/2 PM WinCreateWindow: parent must be
+         * HWND_DESKTOP, HWND_OBJECT or a child of the caller).
+         * HWND_DESKTOP is server-owned (iHab == 0); any other parent
+         * must exist and belong to the caller's HAB. */
+        hwndParent = (ULONG)data;
+        if (hwndParent != m_iHwndDesktop) {
+            pParent = m_wnds.Find(hwndParent);
+            if (!pParent || !pParent->IsUsed() ||
+                pParent->GetHab() != pThread->GetIHab()) {
+                F_DbgCtxExitf(ctx, "NULLHANDLE (bad parent=%lu)",
+                              (unsigned long)hwndParent);
+                return 0;
+            }
+        }
+
+        /* Validate hwndInsertBehind (OS/2 PM WinCreateWindow: "This
+         * parameter must be HWND_TOP, HWND_BOTTOM, or a child of
+         * hwndParent"). NULLHANDLE is not in the set. */
+        hwndBehind = (ULONG)a->hwndInsertBehind;
+        if (hwndBehind != (ULONG)HWND_TOP &&
+            hwndBehind != (ULONG)HWND_BOTTOM) {
+            pBehind = m_wnds.Find(hwndBehind);
+            if (!pBehind || !pBehind->IsUsed() ||
+                pBehind->GetParent() != hwndParent) {
+                F_DbgCtxExitf(ctx, "NULLHANDLE (bad hwndInsertBehind=%lu)",
+                              (unsigned long)hwndBehind);
+                return 0;
+            }
+        }
 
         pWnd = m_wnds.Create(pThread->GetIHab(), &hwnd);
         if (!pWnd) {
@@ -168,6 +203,8 @@ ULONG Fs_Server::DispatchWinWnd(void *pRecvobj, ULONG fnCode, ULONG data,
         pWnd->SetStyle(a->flStyle);
         pWnd->SetVisible((a->flStyle & WS_VISIBLE) ? TRUE : FALSE);
         pWnd->SetTitle(szTitle);
+        pWnd->SetParent(hwndParent);
+        pWnd->SetClass(szClass);
 
         if (cbCtlData) {
             PBYTE p = CopyBlob(pbCtlData, cbCtlData);
@@ -177,6 +214,10 @@ ULONG Fs_Server::DispatchWinWnd(void *pRecvobj, ULONG fnCode, ULONG data,
             PBYTE p = CopyBlob(pbPresParams, cbPresParams);
             if (p) pWnd->SetPresParams(p, cbPresParams);
         }
+
+        /* hwndInsertBehind was validated above; PlaceWindow only
+         * re-orders siblings. */
+        m_wnds.PlaceWindow(hwnd, hwndBehind);
 
         F_DbgCtxExitf(ctx, "hwnd=%lu", (unsigned long)hwnd);
         return hwnd;
@@ -281,6 +322,11 @@ ULONG Fs_Server::DispatchWinWnd(void *pRecvobj, ULONG fnCode, ULONG data,
             }
         }
 
+        /* SWP_ZORDER: hwndInsertBehind is honoured only when
+         * SWP_ZORDER is selected, per OS/2 PM WinSetWindowPos. */
+        if (a->fl & SWP_ZORDER)
+            m_wnds.PlaceWindow((ULONG)a->hwnd, (ULONG)a->hwndInsertBehind);
+
         return 1;
     }
 
@@ -292,7 +338,7 @@ ULONG Fs_Server::DispatchWinWnd(void *pRecvobj, ULONG fnCode, ULONG data,
         pWnd = m_wnds.Find((ULONG)data);
         if (!pWnd) return 0;
 
-        /* EDM2 WinDestroyWindow: "The window to be destroyed must
+        /* OS/2 PM WinDestroyWindow: "The window to be destroyed must
          * have been created by the thread that is issuing this call."
          * Verified via the window's HAB back-ref: HWND -> iHab ->
          * Fs_Hab -> tid. HWND_DESKTOP is server-owned (iHab == 0),
@@ -303,7 +349,9 @@ ULONG Fs_Server::DispatchWinWnd(void *pRecvobj, ULONG fnCode, ULONG data,
         pHab = m_habs.FindByIHab(iHab);
         if (!pHab || pHab->GetTid() != pThread->GetTid()) return 0;
 
-        m_wnds.Destroy((ULONG)data);
+        /* Destroy the window and all of its descendants, per OS/2 PM
+         * WinDestroyWindow ("A window is destroyed before its parent"). */
+        m_wnds.DestroyTree((ULONG)data);
         return 1;
     }
 
