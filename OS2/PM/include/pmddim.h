@@ -235,11 +235,49 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreDrawRLE 0x00004058L
    #define GreDrawRLE(a,b) (ULONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRLEHDR)(b),0L,NGreDrawRLE)
 
-   /* GreDevicePolygonSet — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Draw a device-dependent polygon set.
+    *
+    * @param[in] hdc       Device context handle.
+    * @param[in] pPolyset  Pointer to a POLYSET structure.
+    *
+    * @return Integer (cHits) indicating correlation/error status.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_HITS  Successful with correlation hit.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_INV_IN_AREA
+    *       - PMERR_INV_IN_PATH
+    */
    #define NGreDevicePolygonSet 0x00004059L
    #define GreDevicePolygonSet(a,b) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PPOLYSET)(b),0L,NGreDevicePolygonSet)
 
-   /* GrePolygon3d — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Draw a 3-D polygon.
+    *
+    * @param[in] hdc         Device context handle.
+    * @param[in] pPolysinfo  Pointer to a POLYSINFO structure.
+    * @param[in] cOptions    Option flags.
+    *
+    * @return Integer (cHits) indicating correlation/error status.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_HITS  Successful with correlation hit.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_INV_IN_AREA
+    */
    #define NGrePolygon3d 0x0000405CL
    #define GrePolygon3d(a,b,c) (ULONG) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(PPOLYSINFO)(b),(ULONG)(ULONG)(c),0L,NGrePolygon3d)
 #endif
@@ -624,7 +662,34 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGrePolySpline 0x0000400CL
    #define GrePolySpline(a,b,c) (INT) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),(ULONG)(LONG)(c),0L,NGrePolySpline)
 
-   /* GreOval — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Draw an oval.
+    *
+    * @param[in] hdc       Device context handle.
+    * @param[in] pptl      Pointer to a POINTL structure.
+    * @param[in] fx        FIXED value.
+    * @param[in] fy        FIXED value.
+    * @param[in] cOptions  Option flags.
+    *
+    * @return Integer (cHits) indicating correlation/error status.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_HITS  Successful with correlation hit.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_COORD_SPACE
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_IN_AREA
+    *       - PMERR_INV_IN_PATH
+    *       - PMERR_PATH_LIMIT_EXCEEDED
+    */
    #define NGreOval 0x0000400DL
    #define GreOval(a,b,c,d,e) (INT) Gre32Entry7((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),(ULONG)(FIXED)(c),(ULONG)(FIXED)(d),(ULONG)(e),0L,NGreOval)
 
@@ -919,6 +984,10 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
     *       - PMERR_HDC_BUSY
     *       - PMERR_HRGN_BUSY
     *       - PMERR_INV_HDC
+    *       - PMERR_INV_HRGN
+    *       - PMERR_INV_IN_AREA
+    *       - PMERR_INV_IN_PATH
+    *       - PMERR_REGION_IS_CLIP_REGION
     */
    #define NGrePaintRegion 0x00004069L
    #define GrePaintRegion(a,b) (INT) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(HRGN)(b),0L,NGrePaintRegion)
@@ -944,7 +1013,27 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreSetRegionOwner 0x0000406AL
    #define GreSetRegionOwner(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(HRGN)(b),(ULONG)(ULONG)(c),0L,NGreSetRegionOwner)
 
-   /* GreFrameRegion — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Frame a region.
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] hrgn  Region handle.
+    * @param[in] pszl  Pointer to a SIZEL structure.
+    *
+    * @return Integer result.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_HRGN_BUSY
+    *       - PMERR_INV_HRGN
+    *       - PMERR_REGION_IS_CLIP_REGION
+    */
    #define NGreFrameRegion 0x0000406BL
    #define GreFrameRegion(a,b,c) (INT) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(HRGN)(b),(ULONG)(PSIZEL)(c),0L,NGreFrameRegion)
 #endif
@@ -1119,7 +1208,41 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreSetPel 0x00004028L
    #define GreSetPel(a,b) (INT) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),0L,NGreSetPel)
 
-   /* GreImageData — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Draw a single row of image data (one bit per pel).
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] pData Pointer to data string.
+    * @param[in] cBits Number of bits in row (maximum is 2040).
+    * @param[in] offRow Row number relative to the current y-position.
+    *
+    * @return LONG integer (cHits) indicating correlation/error status.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_HITS  Successful with correlation hit.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BITMAP_NOT_SELECTED
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_COLOR_DATA
+    *       - PMERR_INV_COLOR_INDEX
+    *       - PMERR_INV_COORD_SPACE
+    *       - PMERR_INV_COORDINATE
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_IMAGE_DATA_LENGTH
+    *       - PMERR_INV_IN_AREA
+    *       - PMERR_INV_IN_PATH
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    *       - PMERR_INV_PICK_APERTURE_POSN
+    *       - PMERR_INV_RECT
+    *       - PMERR_INV_REGION_CONTROL
+    *       - PMERR_INV_SCAN_START
+    */
    #define NGreImageData 0x00004029L
    #define GreImageData(a,b,c,d) (INT) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(PBYTE)(b),(ULONG)(LONG)(c),(ULONG)(LONG)(d),0L,NGreImageData)
 
@@ -1200,7 +1323,30 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreOpenDC 0x00000200L
    #define GreOpenDC(a,b,c,d,e) (HDC) Gre32Entry7((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(PSZ)(c),(ULONG)(LONG)(d),(ULONG)(PDEVOPENDATA)(e),0L,NGreOpenDC)
 
-   /* GreCloseDC — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Close a device context.
+    *
+    * @param[in] hdc Device context handle.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_BITMAP_IS_SELECTED
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_CODEPAGE
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_IN_AREA
+    *       - PMERR_INV_IN_PATH
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    */
    #define NGreCloseDC 0x00004201L
    #define GreCloseDC(a) (BOOL) Gre32Entry3((ULONG)(HDC)(a),0L,NGreCloseDC)
 #endif
@@ -1269,7 +1415,24 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreDeletePalette 0x00000241L
    #define GreDeletePalette(a) (ULONG) Gre32Entry3((ULONG)(HPAL)(a),0L,NGreDeletePalette)
 
-   /* GreSelectPalette — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Select a palette into a DC.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] hpal Palette handle.
+    *
+    * @return ULONG previous palette handle, or NULL on error.
+    *
+    * @retval NULL  Error.
+    *
+    * @note If NULL is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_HDC
+    *       - PMERR_PALETTE_BUSY
+    */
    #define NGreSelectPalette 0x00004242L
    #define GreSelectPalette(a,b) (ULONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(HPAL)(b),0L,NGreSelectPalette)
 
@@ -1530,7 +1693,23 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreCharRect 0x0000403BL
    #define GreCharRect(a,b,c) (ULONG) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(VioPresentationSpace *)(b),(ULONG)(LPGridRectRef)(c),0L,NGreCharRect)
 
-   /* GreCharStr — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Draw a string of character cells from the LVB to the device context.
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] pPs   Presentation space.
+    * @param[in] pStr  Pointer to a grid string reference.
+    *
+    * @return LONG value indicating success or an error code.
+    *
+    * @retval NO_ERROR  Successful.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    */
    #define NGreCharStr 0x0000403CL
    #define GreCharStr(a,b,c) (ULONG) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(VioPresentationSpace *)(b),(ULONG)(LPGridStringRef)(c),0L,NGreCharStr)
 
@@ -1582,7 +1761,28 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreBeginArea 0x00004046L
    #define GreBeginArea(a,b) (INT) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(ULONG)(b),0L,NGreBeginArea)
 
-   /* GreEndArea — no verifiable error list found; left undocumented. */
+   /**
+    * @brief End an area.
+    *
+    * @param[in] hdc      Device context handle.
+    * @param[in] lOptions Options.
+    *
+    * @return Integer result.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_IN_AREA
+    *       - PMERR_NOT_IN_PATH
+    *       - PMERR_PATH_LIMIT_EXCEEDED
+    */
    #define NGreEndArea 0x00004047L
    #define GreEndArea(a,b) (INT) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(ULONG)(b),0L,NGreEndArea)
 
