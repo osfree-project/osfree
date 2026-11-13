@@ -157,9 +157,89 @@
     #define MUTEX_MODIFY_STATE      0x0001L
     #define SEMAPHORE_MODIFY_STATE  0x0002L
 
-  /* ---------- OS/2 GPI constants (Win32 fallback) ---------- */
-#define CAPS_WIDTH   8L
-#define CAPS_HEIGHT  9L
+  /* ---------- DevQueryCaps indices (pmdev.h values) ---------- */
+  #define CAPS_FAMILY                     0L
+  #define CAPS_IO_CAPS                    1L
+  #define CAPS_TECHNOLOGY                 2L
+  #define CAPS_DRIVER_VERSION             3L
+  #define CAPS_WIDTH                      4L
+  #define CAPS_HEIGHT                     5L
+  #define CAPS_WIDTH_IN_CHARS             6L
+  #define CAPS_HEIGHT_IN_CHARS            7L
+  #define CAPS_HORIZONTAL_RESOLUTION      8L
+  #define CAPS_VERTICAL_RESOLUTION        9L
+  #define CAPS_CHAR_WIDTH                10L
+  #define CAPS_CHAR_HEIGHT               11L
+  #define CAPS_SMALL_CHAR_WIDTH          12L
+  #define CAPS_SMALL_CHAR_HEIGHT         13L
+  #define CAPS_COLORS                    14L
+  #define CAPS_COLOR_PLANES              15L
+  #define CAPS_COLOR_BITCOUNT            16L
+  #define CAPS_COLOR_TABLE_SUPPORT       17L
+  #define CAPS_MOUSE_BUTTONS             18L
+  #define CAPS_FOREGROUND_MIX_SUPPORT    19L
+  #define CAPS_BACKGROUND_MIX_SUPPORT    20L
+  #define CAPS_VIO_LOADABLE_FONTS        21L
+  #define CAPS_WINDOW_BYTE_ALIGNMENT     22L
+  #define CAPS_BITMAP_FORMATS            23L
+  #define CAPS_RASTER_CAPS               24L
+  #define CAPS_MARKER_HEIGHT             25L
+  #define CAPS_MARKER_WIDTH              26L
+  #define CAPS_DEVICE_FONTS              27L
+  #define CAPS_GRAPHICS_SUBSET           28L
+  #define CAPS_GRAPHICS_VERSION          29L
+  #define CAPS_GRAPHICS_VECTOR_SUBSET    30L
+  #define CAPS_DEVICE_WINDOWING          31L
+  #define CAPS_ADDITIONAL_GRAPHICS       32L
+  #define CAPS_PHYS_COLORS               33L
+  #define CAPS_COLOR_INDEX               34L
+  #define CAPS_GRAPHICS_CHAR_WIDTH       35L
+  #define CAPS_GRAPHICS_CHAR_HEIGHT      36L
+  #define CAPS_HORIZONTAL_FONT_RES       37L
+  #define CAPS_VERTICAL_FONT_RES         38L
+  #define CAPS_DEVICE_FONT_SIM           39L
+  #define CAPS_LINEWIDTH_THICK           40L
+  #define CAPS_DEVICE_POLYSET_POINTS     41L
+
+  /* CAPS_IO_CAPS values */
+  #define CAPS_IO_DUMMY                   1L
+  #define CAPS_IO_SUPPORTS_OP             2L
+  #define CAPS_IO_SUPPORTS_IP             3L
+  #define CAPS_IO_SUPPORTS_IO             4L
+
+  /* CAPS_TECHNOLOGY values */
+  #define CAPS_TECH_UNKNOWN               0L
+  #define CAPS_TECH_VECTOR_PLOTTER        1L
+  #define CAPS_TECH_RASTER_DISPLAY        2L
+  #define CAPS_TECH_RASTER_PRINTER        3L
+  #define CAPS_TECH_RASTER_CAMERA         4L
+  #define CAPS_TECH_POSTSCRIPT            5L
+
+  /* CAPS_FOREGROUND_MIX_SUPPORT bitmask */
+  #define CAPS_FM_OR                      1L
+  #define CAPS_FM_OVERPAINT               2L
+  #define CAPS_FM_XOR                     8L
+  #define CAPS_FM_LEAVEALONE             16L
+  #define CAPS_FM_AND                    32L
+
+  /* CAPS_BACKGROUND_MIX_SUPPORT bitmask */
+  #define CAPS_BM_OR                      1L
+  #define CAPS_BM_OVERPAINT               2L
+  #define CAPS_BM_XOR                     8L
+  #define CAPS_BM_LEAVEALONE             16L
+  #define CAPS_BM_AND                    32L
+
+  /* CAPS_DEVICE_WINDOWING */
+  #define CAPS_DEV_WINDOWING_SUPPORT      1L
+
+  /* CAPS_WINDOW_BYTE_ALIGNMENT */
+  #define CAPS_BYTE_ALIGN_REQUIRED        0L
+  #define CAPS_BYTE_ALIGN_RECOMMENDED     1L
+  #define CAPS_BYTE_ALIGN_NOT_REQUIRED    2L
+
+  /* CAPS_RASTER_CAPS */
+  #define CAPS_RASTER_BITBLT              1L
+  #define CAPS_RASTER_SET_PEL            16L
 
   /* ---------- Paths (Win32 fallback) ---------- */
   #define MPATH_STROKE          6L
@@ -202,26 +282,33 @@
 
 /* ---------- DevOpenDC output device types (Win32 fallback) ---------- */
 
-  #define OD_QUEUED            0L
-  #define OD_DIRECT            1L
-  #define OD_INFO              2L
-  #define OD_MEMORY            3L
-  #define OD_METAFILE          4L
-  #define OD_METAFILE_NOQUERY  5L
+  #define OD_SCREEN            0L
+  #define OD_QUEUED            2L
+  #define OD_DIRECT            5L
+  #define OD_INFO              6L
+  #define OD_METAFILE          7L
+  #define OD_MEMORY            8L
+  #define OD_METAFILE_NOQUERY  9L
 
   /* ---------- Segment priority (Win32 fallback) ---------- */
   #define LOWER_PRI            (-1L)
   #define HIGHER_PRI              1L
 
-  /* ---------- Foreground/background mix (Win32 fallback) ---------- */
-  #define FM_XOR               4L    /* PMGPI.H */
-  #define BM_LEAVEALONE        5L    /* PMGPI.H */
+  /* ---------- Foreground/background mix modes (PMGPI.H) ---------- */
+  #define FM_OR                0x0000
+  #define FM_XOR               0x0001
+  #define FM_AND               0x0002
+  #define FM_OVERPAINT         0x000D
+  #define FM_LEAVEALONE        0x000E
+  #define BM_OR                0x0000
+  #define BM_OVERPAINT         0x000D
+  #define BM_XOR               0x0001
+  #define BM_AND               0x0002
+  #define BM_LEAVEALONE        0x000E
 
   /* ---------- MAKELONG (Win32) ---------- */
-  #ifndef MAKELONG
     #define MAKELONG(a, b) \
         ((LONG)(((USHORT)(a)) | ((ULONG)((USHORT)(b)) << 16)))
-  #endif
 
   /* ---------- Win32 API ---------- */
   __declspec(dllimport) PVOID __stdcall VirtualAlloc(PVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);

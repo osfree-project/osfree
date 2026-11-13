@@ -125,6 +125,12 @@ static volatile BOOL g_bInitTried  = FALSE;
  *         Vol. 2. */
 static PFN_GRE2SDL_HOOK6 g_pfnDefaultNotifyClipChange = NULL;
 
+/*! @brief Device capabilities array, filled lazily from g_pBuf. */
+static ULONG g_devCaps[CAPS_DEVICE_POLYSET_POINTS + 1];
+
+/*! @brief TRUE once g_devCaps has been filled. */
+static BOOL  g_bCapsValid = FALSE;
+
 /* ======================================================================== */
 /*  Configuration                                                         */
 /* ======================================================================== */
@@ -189,6 +195,8 @@ public:
  */
 typedef struct _GRE2SDL_INSTANCE {
     LONG   lColor;      /*!< Foreground colour, OS/2 0x00BBGGRR layout. */
+    USHORT usFgMix;     /*!< Foreground mix (FM_*). Default FM_OVERPAINT. */
+    USHORT usBgMix;     /*!< Background mix (BM_*). Default BM_OVERPAINT. */
     POINTL ptlCurPos;   /*!< Current position for this DC. */
     POINTL ptlOrigin;   /*!< DC origin in screen coordinates. */
     RECTL  rclClip;     /*!< Clip region in screen coordinates. */
@@ -199,6 +207,13 @@ typedef struct _GRE2SDL_INSTANCE {
 /*  Forward declarations of hooked handlers                               */
 /* ======================================================================== */
 
+/*! @brief GreQueryDeviceCaps hook. */
+static ULONG __cdecl Gre2SdlQueryDeviceCaps(ULONG, ULONG, ULONG, ULONG,
+                                             ULONG, ULONG);
+/*! @brief GreSetPel hook. */
+static ULONG __cdecl Gre2SdlSetPel(ULONG, ULONG, ULONG, ULONG);
+/*! @brief GreGetPel hook. */
+static ULONG __cdecl Gre2SdlGetPel(ULONG, ULONG, ULONG, ULONG);
 /*! @brief GreSetCurrentPosition hook. */
 static ULONG __cdecl Gre2SdlSetCurrentPosition(ULONG, ULONG, ULONG, ULONG);
 /*! @brief GreGetCurrentPosition hook. */
@@ -259,10 +274,6 @@ static void CanvasClear(Uint8 r, Uint8 g, Uint8 b)
 }
 
 /*!
- * @brief Write one pixel into g_pBuf, clipping to its bounds.
- * @note Caller must hold g_hmtxDraw.
- */
-/*!
  * @brief Write one pixel into g_pBuf, applying DC origin and clip.
  *
  * Coordinates are device coordinates (as received by Gre* hooks).
@@ -277,6 +288,7 @@ static void CanvasPixel(LONG x, LONG y, Uint8 r, Uint8 g, Uint8 b,
 {
     LONG    sx, sy;
     Uint32 *row;
+    Uint32  fg, dest;
 #define F_DbgCtxEnterf(x, ...) 0
 #define F_DbgCtxExitf(x, ...) {}
     int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
@@ -302,11 +314,20 @@ static void CanvasPixel(LONG x, LONG y, Uint8 r, Uint8 g, Uint8 b,
         return;
     }
 
-    row = (Uint32 *)((Uint8 *)g_pBuf->pixels + (size_t)sy * g_pBuf->pitch);
-    row[sx] = SDL_MapRGB(g_pBuf->format, r, g, b);
+    row  = (Uint32 *)((Uint8 *)g_pBuf->pixels + (size_t)sy * g_pBuf->pitch);
+    fg   = SDL_MapRGB(g_pBuf->format, r, g, b);
+    dest = row[sx];
+
+    switch (inst->usFgMix) {
+    case FM_OR:          row[sx] = dest | fg; break;
+    case FM_OVERPAINT:   row[sx] = fg;        break;
+    case FM_XOR:         row[sx] = dest ^ fg; break;
+    case FM_AND:         row[sx] = dest & fg; break;
+    case FM_LEAVEALONE:                       break;
+    default:             row[sx] = fg;        break;
+    }
     F_DbgCtxExitf(ctx, "ok");
 }
-
 #undef F_DbgCtxEnterf
 #undef F_DbgCtxExitf
 
@@ -360,40 +381,48 @@ static void CanvasRect(LONG x, LONG y, LONG w, LONG h,
     if (!inst) { F_DbgCtxExitf(ctx, "no inst"); return; }
 
     if (bFill) {
+        if (inst->usFgMix != FM_OVERPAINT) {
+            /* Per-pixel path: honours mix. Slower but correct. */
+            LONG yy;
+            for (yy = 0; yy < h; yy++) {
+                CanvasLine(x, y + yy, x + w - 1, y + yy, r, g, b, inst);
+            }
+        } else {
         /* Fast path: fill via SDL_FillRect on the clipped screen-space
          * rectangle.  The per-scanline CanvasLine path performed one
          * CanvasPixel call per pixel and produced O(w*h) log lines; for
          * a typical erase that was ~60 000 log records and tens of
          * seconds of wall time. */
-        SDL_Rect rc;
-        LONG     sx0, sy0, sx1, sy1;
+ SDL_Rect rc;
+            LONG     sx0, sy0, sx1, sy1;
 
-        sx0 = x + inst->ptlOrigin.x;
-        sy0 = y + inst->ptlOrigin.y;
-        sx1 = sx0 + w;
-        sy1 = sy0 + h;
+            sx0 = x + inst->ptlOrigin.x;
+            sy0 = y + inst->ptlOrigin.y;
+            sx1 = sx0 + w;
+            sy1 = sy0 + h;
 
-        if (inst->fClipSet) {
-            if (sx0 < inst->rclClip.xLeft)   sx0 = inst->rclClip.xLeft;
-            if (sy0 < inst->rclClip.yBottom) sy0 = inst->rclClip.yBottom;
-            if (sx1 > inst->rclClip.xRight)  sx1 = inst->rclClip.xRight;
-            if (sy1 > inst->rclClip.yTop)    sy1 = inst->rclClip.yTop;
+            if (inst->fClipSet) {
+                if (sx0 < inst->rclClip.xLeft)   sx0 = inst->rclClip.xLeft;
+                if (sy0 < inst->rclClip.yBottom) sy0 = inst->rclClip.yBottom;
+                if (sx1 > inst->rclClip.xRight)  sx1 = inst->rclClip.xRight;
+                if (sy1 > inst->rclClip.yTop)    sy1 = inst->rclClip.yTop;
+            }
+            if (sx0 < 0)         sx0 = 0;
+            if (sy0 < 0)         sy0 = 0;
+            if (sx1 > g_pBuf->w) sx1 = g_pBuf->w;
+            if (sy1 > g_pBuf->h) sy1 = g_pBuf->h;
+
+            if (sx1 <= sx0 || sy1 <= sy0) {
+                F_DbgCtxExitf(ctx, "no-op (empty intersection)");
+                return;
+            }
+
+            rc.x = (Sint16)sx0;
+            rc.y = (Sint16)sy0;
+            rc.w = (Uint16)(sx1 - sx0);
+            rc.h = (Uint16)(sy1 - sy0);
+            SDL_FillRect(g_pBuf, &rc, SDL_MapRGB(g_pBuf->format, r, g, b));
         }
-        if (sx0 < 0)         sx0 = 0;
-        if (sy0 < 0)         sy0 = 0;
-        if (sx1 > g_pBuf->w) sx1 = g_pBuf->w;
-        if (sy1 > g_pBuf->h) sy1 = g_pBuf->h;
-
-        if (sx1 <= sx0 || sy1 <= sy0) {
-            F_DbgCtxExitf(ctx, "no-op (empty intersection)");
-            return;
-        }
-
-        rc.x = (Sint16)sx0;
-        rc.y = (Sint16)sy0;
-        rc.w = (Uint16)(sx1 - sx0);
-        rc.h = (Uint16)(sy1 - sy0);
-        SDL_FillRect(g_pBuf, &rc, SDL_MapRGB(g_pBuf->format, r, g, b));
     } else {
         CanvasLine(x,         y,         x + w - 1, y,         r, g, b, inst);
         CanvasLine(x,         y + h - 1, x + w - 1, y + h - 1, r, g, b, inst);
@@ -926,6 +955,9 @@ extern "C" ULONG EXPENTRY OS2_PM_DRV_ENABLE(ULONG ulSubFunc,
         HOOK(NGreDeviceGetAttributes,  Gre2SdlGetAttributes);
         HOOK(NGreDeviceSetDCOrigin,    Gre2SdlDeviceSetDCOrigin);
         HOOK(NGreNotifyClipChange,     Gre2SdlNotifyClipChange);
+        HOOK(NGreQueryDeviceCaps,      Gre2SdlQueryDeviceCaps);
+        HOOK(NGreSetPel,               Gre2SdlSetPel);
+        HOOK(NGreGetPel,               Gre2SdlGetPel);
 #undef HOOK
 
         /* FLReturnsLst::Flags is PUSHORT. Only bits 0 and 2 belong to
@@ -984,6 +1016,8 @@ extern "C" ULONG EXPENTRY OS2_PM_DRV_ENABLE(ULONG ulSubFunc,
         inst = (PGRE2SDL_INSTANCE)pv;
         memset(inst, 0, sizeof(*inst));
         inst->lColor          = 0x00FFFFFF;
+        inst->usFgMix         = FM_OVERPAINT;
+        inst->usBgMix         = BM_OVERPAINT;
         inst->ptlCurPos.x     = 0;
         inst->ptlCurPos.y     = 0;
         inst->ptlOrigin.x     = 0;
@@ -1441,22 +1475,40 @@ static ULONG __cdecl Gre2SdlSetAttributes(ULONG hdc, ULONG lPrimType,
     if (!inst || !pb) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
 
     switch (lPrimType) {
-    case PRIM_LINE:
-        if (flAttrsMask & LBB_COLOR)
-            inst->lColor = ((PLINEBUNDLE)pb)->lColor & 0x00FFFFFF;
-        break;
-    case PRIM_CHAR:
-        if (flAttrsMask & CBB_COLOR)
-            inst->lColor = ((PCHARBUNDLE)pb)->lColor & 0x00FFFFFF;
-        break;
-    case PRIM_MARKER:
-        if (flAttrsMask & MBB_COLOR)
-            inst->lColor = ((PMARKERBUNDLE)pb)->lColor & 0x00FFFFFF;
-        break;
-    case PRIM_AREA:
-        if (flAttrsMask & ABB_COLOR)
-            inst->lColor = ((PAREABUNDLE)pb)->lColor & 0x00FFFFFF;
-        break;
+        case PRIM_LINE: {
+            PLINEBUNDLE lb = (PLINEBUNDLE)pb;
+            if (flAttrsMask & LBB_COLOR)
+                inst->lColor = lb->lColor & 0x00FFFFFF;
+            if (flAttrsMask & LBB_MIX_MODE)
+                inst->usFgMix = lb->usMixMode;
+            if (flAttrsMask & LBB_BACK_MIX_MODE)
+                inst->usBgMix = lb->usBackMixMode;
+            break;
+        }
+        case PRIM_CHAR: {
+            PCHARBUNDLE cb = (PCHARBUNDLE)pb;
+            if (flAttrsMask & CBB_COLOR)
+                inst->lColor = cb->lColor & 0x00FFFFFF;
+            if (flAttrsMask & CBB_MIX_MODE)
+                inst->usFgMix = cb->usMixMode;
+            break;
+        }
+        case PRIM_MARKER: {
+            PMARKERBUNDLE mb = (PMARKERBUNDLE)pb;
+            if (flAttrsMask & MBB_COLOR)
+                inst->lColor = mb->lColor & 0x00FFFFFF;
+            if (flAttrsMask & MBB_MIX_MODE)
+                inst->usFgMix = mb->usMixMode;
+            break;
+        }
+        case PRIM_AREA: {
+            PAREABUNDLE ab = (PAREABUNDLE)pb;
+            if (flAttrsMask & ABB_COLOR)
+                inst->lColor = ab->lColor & 0x00FFFFFF;
+            if (flAttrsMask & ABB_MIX_MODE)
+                inst->usFgMix = ab->usMixMode;
+            break;
+        }
     }
     F_DbgCtxExitf(ctx, "0 (lColor=0x%06lx)", (unsigned long)(inst->lColor & 0x00FFFFFF));
     return 0;
@@ -1482,18 +1534,31 @@ static ULONG __cdecl Gre2SdlGetAttributes(ULONG hdc, ULONG lPrimType,
     if (!inst || !pb) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
 
     switch (lPrimType) {
-    case PRIM_LINE:
-        if (flAttrs & LBB_COLOR) ((PLINEBUNDLE)pb)->lColor = inst->lColor;
-        break;
-    case PRIM_CHAR:
-        if (flAttrs & CBB_COLOR) ((PCHARBUNDLE)pb)->lColor = inst->lColor;
-        break;
-    case PRIM_MARKER:
-        if (flAttrs & MBB_COLOR) ((PMARKERBUNDLE)pb)->lColor = inst->lColor;
-        break;
-    case PRIM_AREA:
-        if (flAttrs & ABB_COLOR) ((PAREABUNDLE)pb)->lColor = inst->lColor;
-        break;
+        case PRIM_LINE: {
+            PLINEBUNDLE lb = (PLINEBUNDLE)pb;
+            if (flAttrs & LBB_COLOR)          lb->lColor     = inst->lColor;
+            if (flAttrs & LBB_MIX_MODE)       lb->usMixMode  = inst->usFgMix;
+            if (flAttrs & LBB_BACK_MIX_MODE)  lb->usBackMixMode = inst->usBgMix;
+            break;
+        }
+        case PRIM_CHAR: {
+            PCHARBUNDLE cb = (PCHARBUNDLE)pb;
+            if (flAttrs & CBB_COLOR)    cb->lColor    = inst->lColor;
+            if (flAttrs & CBB_MIX_MODE) cb->usMixMode = inst->usFgMix;
+            break;
+        }
+        case PRIM_MARKER: {
+            PMARKERBUNDLE mb = (PMARKERBUNDLE)pb;
+            if (flAttrs & MBB_COLOR)    mb->lColor    = inst->lColor;
+            if (flAttrs & MBB_MIX_MODE) mb->usMixMode = inst->usFgMix;
+            break;
+        }
+        case PRIM_AREA: {
+            PAREABUNDLE ab = (PAREABUNDLE)pb;
+            if (flAttrs & ABB_COLOR)    ab->lColor    = inst->lColor;
+            if (flAttrs & ABB_MIX_MODE) ab->usMixMode = inst->usFgMix;
+            break;
+        }
     }
     F_DbgCtxExitf(ctx, "0 (lColor=0x%06lx)", (unsigned long)(inst->lColor & 0x00FFFFFF));
     return 0;
@@ -1585,4 +1650,194 @@ static ULONG __cdecl Gre2SdlNotifyClipChange(ULONG hdc, ULONG prclBound,
                                       pInstance, fnCode);
     }
     return rc;
+}
+
+/*!
+ * @brief Fill g_devCaps from the actual drawable surface and from what
+ *        this driver actually implements. Idempotent.
+ */
+static void Gre2SdlFillDevCaps(void)
+{
+    ULONG *c = g_devCaps;
+    float  hdpi = 0.0f, vdpi = 0.0f;
+    ULONG  hres = 0, vres = 0;
+
+    if (g_bCapsValid) return;
+
+    memset(c, 0, sizeof(g_devCaps));
+
+    c[CAPS_FAMILY]         = (ULONG)OD_DIRECT;
+    c[CAPS_IO_CAPS]        = CAPS_IO_SUPPORTS_OP;
+    c[CAPS_TECHNOLOGY]     = CAPS_TECH_RASTER_DISPLAY;
+    c[CAPS_DRIVER_VERSION] = 0x00000200UL;
+
+    c[CAPS_WIDTH]  = g_pBuf ? (ULONG)g_pBuf->w : (ULONG)g_cxScreen;
+    c[CAPS_HEIGHT] = g_pBuf ? (ULONG)g_pBuf->h : (ULONG)g_cyScreen;
+
+    c[CAPS_WIDTH_IN_CHARS]  = c[CAPS_WIDTH]  / 8;
+    c[CAPS_HEIGHT_IN_CHARS] = c[CAPS_HEIGHT] / 16;
+
+    if (SDL_GetDisplayDPI(0, NULL, &hdpi, &vdpi) == 0) {
+        hres = (ULONG)(hdpi * 39.3701f);
+        vres = (ULONG)(vdpi * 39.3701f);
+    }
+    c[CAPS_HORIZONTAL_RESOLUTION] = hres;
+    c[CAPS_VERTICAL_RESOLUTION]   = vres;
+
+    c[CAPS_CHAR_WIDTH]        = 8;
+    c[CAPS_CHAR_HEIGHT]       = 16;
+    c[CAPS_SMALL_CHAR_WIDTH]  = 0;
+    c[CAPS_SMALL_CHAR_HEIGHT] = 0;
+
+    c[CAPS_COLORS]              = 1UL << 24;
+    c[CAPS_COLOR_PLANES]        = 1;
+    c[CAPS_COLOR_BITCOUNT]      = g_pBuf
+                                  ? (ULONG)g_pBuf->format->BitsPerPixel
+                                  : 32UL;
+    c[CAPS_COLOR_TABLE_SUPPORT] = 0;
+    c[CAPS_MOUSE_BUTTONS]       = 0;
+
+    c[CAPS_FOREGROUND_MIX_SUPPORT] =
+        CAPS_FM_OR | CAPS_FM_OVERPAINT | CAPS_FM_XOR |
+        CAPS_FM_LEAVEALONE | CAPS_FM_AND;
+    c[CAPS_BACKGROUND_MIX_SUPPORT] =
+        CAPS_BM_OVERPAINT | CAPS_BM_LEAVEALONE;
+
+    c[CAPS_VIO_LOADABLE_FONTS]    = 0;
+    c[CAPS_WINDOW_BYTE_ALIGNMENT] = CAPS_BYTE_ALIGN_NOT_REQUIRED;
+    c[CAPS_BITMAP_FORMATS]        = 0;
+    c[CAPS_RASTER_CAPS]           = CAPS_RASTER_SET_PEL;
+
+    c[CAPS_MARKER_HEIGHT] = 1;
+    c[CAPS_MARKER_WIDTH]  = 1;
+    c[CAPS_DEVICE_FONTS]  = 0;
+
+    /* DR/2: lines, markers, boxes, chars, arcs, fillets. No FullArc / Image. */
+    c[CAPS_GRAPHICS_SUBSET]        = 2;
+    c[CAPS_GRAPHICS_VERSION]       = 1;
+    c[CAPS_GRAPHICS_VECTOR_SUBSET] = 2;
+
+    c[CAPS_DEVICE_WINDOWING]    = CAPS_DEV_WINDOWING_SUPPORT;
+    c[CAPS_ADDITIONAL_GRAPHICS] = 0;
+
+    c[CAPS_PHYS_COLORS]           = c[CAPS_COLORS];
+    c[CAPS_COLOR_INDEX]           = 0;
+    c[CAPS_GRAPHICS_CHAR_WIDTH]   = 0;
+    c[CAPS_GRAPHICS_CHAR_HEIGHT]  = 0;
+    c[CAPS_HORIZONTAL_FONT_RES]   = 0;
+    c[CAPS_VERTICAL_FONT_RES]     = 0;
+    c[CAPS_DEVICE_FONT_SIM]       = 0;
+    c[CAPS_LINEWIDTH_THICK]       = 1;
+    c[CAPS_DEVICE_POLYSET_POINTS] = 0;
+
+    g_bCapsValid = TRUE;
+}
+
+static ULONG __cdecl Gre2SdlQueryDeviceCaps(ULONG hdc, ULONG lIndex,
+                                             ULONG paOutData, ULONG cOutData,
+                                             ULONG pInstance, ULONG fnCode)
+{
+    PLONG out = (PLONG)paOutData;
+    ULONG i;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlQueryDeviceCaps(fn=0x%lx, hdc=%lu, lIndex=%lu, cOutData=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc,
+                             (unsigned long)lIndex, (unsigned long)cOutData);
+
+    (void)hdc; (void)pInstance; (void)fnCode;
+
+    if (!out) {
+        F_DbgCtxExitf(ctx, "FALSE (null out)");
+        return FALSE;
+    }
+    if ((LONG)lIndex < 0 ||
+        lIndex + cOutData > (ULONG)(CAPS_DEVICE_POLYSET_POINTS + 1)) {
+        F_DbgCtxExitf(ctx, "FALSE (lIndex=%lu cOutData=%lu out of range)",
+                      (unsigned long)lIndex, (unsigned long)cOutData);
+        return FALSE;
+    }
+
+    Gre2SdlFillDevCaps();
+
+    for (i = 0; i < cOutData; i++)
+        out[i] = (LONG)g_devCaps[lIndex + i];
+
+    F_DbgCtxExitf(ctx, "TRUE");
+    return TRUE;
+}
+
+/*!
+ * @brief GreSetPel: write one pel in the current foreground colour.
+ *        Honours the current foreground mix (via CanvasPixel).
+ */
+static ULONG __cdecl Gre2SdlSetPel(ULONG hdc, ULONG pptl,
+                                    ULONG pInstance, ULONG fnCode)
+{
+    PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
+    PPOINTL p = (PPOINTL)pptl;
+    Uint8 r, g, b;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlSetPel(fn=0x%lx, hdc=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc);
+
+    (void)hdc; (void)fnCode;
+
+    if (!inst || !p) { F_DbgCtxExitf(ctx, "-1 (bad args)"); return (ULONG)-1; }
+
+    Os2ColorToRgb(inst->lColor, &r, &g, &b);
+
+    DosRequestMutexSem(g_hmtxDraw, SEM_INDEFINITE_WAIT);
+    CanvasPixel(p->x, p->y, r, g, b, inst);
+    DosReleaseMutexSem(g_hmtxDraw);
+
+    F_DbgCtxExitf(ctx, "0");
+    return 0;
+}
+
+/*!
+ * @brief GreGetPel: read one pel, return it as 0x00BBGGRR. Returns
+ *        (ULONG)-1 if the point is outside the drawable surface.
+ */
+static ULONG __cdecl Gre2SdlGetPel(ULONG hdc, ULONG pptl,
+                                    ULONG pInstance, ULONG fnCode)
+{
+    PGRE2SDL_INSTANCE inst = (PGRE2SDL_INSTANCE)pInstance;
+    PPOINTL p = (PPOINTL)pptl;
+    LONG    sx, sy;
+    Uint32 *row;
+    Uint32  px;
+    Uint8   r, g, b;
+    LONG    lColor;
+
+    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
+                             "[GRE2SDL] Gre2SdlGetPel(fn=0x%lx, hdc=%lu)",
+                             (unsigned long)fnCode, (unsigned long)hdc);
+
+    (void)hdc; (void)fnCode;
+
+    if (!inst || !p || !g_pBuf) {
+        F_DbgCtxExitf(ctx, "-1 (bad args)");
+        return (ULONG)-1;
+    }
+
+    sx = p->x + inst->ptlOrigin.x;
+    sy = p->y + inst->ptlOrigin.y;
+
+    if (sx < 0 || sx >= g_pBuf->w || sy < 0 || sy >= g_pBuf->h) {
+        F_DbgCtxExitf(ctx, "-1 (out of bounds)");
+        return (ULONG)-1;
+    }
+
+    DosRequestMutexSem(g_hmtxDraw, SEM_INDEFINITE_WAIT);
+    row = (Uint32 *)((Uint8 *)g_pBuf->pixels + (size_t)sy * g_pBuf->pitch);
+    px  = row[sx];
+    DosReleaseMutexSem(g_hmtxDraw);
+
+    SDL_GetRGB(px, g_pBuf->format, &r, &g, &b);
+    lColor = ((LONG)r) | ((LONG)g << 8) | ((LONG)b << 16);
+
+    F_DbgCtxExitf(ctx, "0x%06lx", (unsigned long)lColor);
+    return (ULONG)lColor;
 }

@@ -35,6 +35,8 @@ IMPORTS = F_DbgPrint       PMDEBUG.5, &
           SDL_UpdateWindowSurface SDL2, &
           SDL_CreateRGBSurfaceWithFormat SDL2, &
           SDL_FreeSurface SDL2, &
+          SDL_GetDisplayDPI SDL2, &
+          SDL_GetRGB SDL2, &
           SDL_RenderDrawRect SDL2
 !else
 SRCDIR  = $(MYDIR)..$(SEP)
@@ -64,6 +66,8 @@ IMPORTS = F_DbgPrint       PMDEBUG.5, &
           _SDL_UpdateWindowSurface SDL2.SDL_UpdateWindowSurface, &
           _SDL_CreateRGBSurfaceWithFormat SDL2.SDL_CreateRGBSurfaceWithFormat, &
           _SDL_FreeSurface SDL2.SDL_FreeSurface, &
+          _SDL_GetDisplayDPI SDL2.SDL_GetDisplayDPI, &
+          _SDL_GetRGB SDL2.SDL_GetRGB, &
           _SDL_RenderDrawRect SDL2.SDL_RenderDrawRect
 !endif
 
