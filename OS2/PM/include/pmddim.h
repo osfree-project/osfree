@@ -1274,11 +1274,67 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreImageData 0x00004029L
    #define GreImageData(a,b,c,d) (INT) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(PBYTE)(b),(ULONG)(LONG)(c),(ULONG)(LONG)(d),0L,NGreImageData)
 
-   /* GreScanLR — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Scan a line.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] pptl Pointer to a POINTL structure.
+    * @param[in] lX   X coordinate.
+    * @param[in] lY   Y coordinate.
+    * @param[in] plX  Pointer to X result.
+    * @param[in] plY  Pointer to Y result.
+    *
+    * @return Integer result.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_BITMAP_NOT_SELECTED
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_EXCEEDS_MAX_SEG_LENGTH
+    *       - PMERR_HBITMAP_BUSY
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_HUGE_FONTS_NOT_SUPPORTED
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_BACKGROUND_COL_ATTR
+    *       - PMERR_INV_COLOR_ATTR
+    *       - PMERR_INV_COLOR_DATA
+    *       - PMERR_INV_COLOR_FORMAT
+    */
    #define NGreScanLR 0x0000602AL
    #define GreScanLR(a,b,c,d,e,f) (INT) Gre32Entry8((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),(ULONG)(LONG)(c),(ULONG)(LONG)(d),(ULONG)(PLONG)(e),(ULONG)(PLONG)(f),0L,NGreScanLR)
 
-   /* GreFloodFill — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Flood fill an area.
+    *
+    * @param[in] hdc Device context handle.
+    * @param[in] lX  X coordinate.
+    * @param[in] lY  Y coordinate.
+    *
+    * @return Integer result.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_COORD_SPACE
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_HRGN
+    *       - PMERR_INV_IN_PATH
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    *       - PMERR_INV_RECT
+    */
    #define NGreFloodFill 0x0000602BL
    #define GreFloodFill(a,b,c) (INT) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(LONG)(c),0L,NGreFloodFill)
 
@@ -1301,7 +1357,74 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreSaveScreenBits 0x0000402CL
    #define GreSaveScreenBits(a,b) (ULONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),0L,NGreSaveScreenBits)
 
-   /* GreRestoreScreenBits — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Restore screen bits.
+    *
+    * @param[in] hdc     Device context handle.
+    * @param[in] hsbBits Handle to saved bits.
+    * @param[in] prcl    Pointer to a RECTL structure.
+    * @param[in] lOptions Option flags.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_BITMAP_IS_SELECTED
+    *       - PMERR_BITMAP_NOT_SELECTED
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_EXCEEDS_MAX_SEG_LENGTH
+    *       - PMERR_HBITMAP_BUSY
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_HUGE_FONTS_NOT_SUPPORTED
+    *       - PMERR_INCOMPATIBLE_BITMAP
+    *       - PMERR_INCORRECT_DC_TYPE
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_BACKGROUND_COL_ATTR
+    *       - PMERR_INV_BACKGROUND_MIX_ATTR
+    *       - PMERR_INV_BITBLT_MIX
+    *       - PMERR_INV_BITBLT_STYLE
+    *       - PMERR_INV_BITMAP_DIMENSION
+    *       - PMERR_INV_CHAR_DIRECTION_ATTR
+    *       - PMERR_INV_CHAR_MODE_ATTR
+    *       - PMERR_INV_CHAR_SET_ATTR
+    *       - PMERR_INV_CHAR_SHEAR_ATTR
+    *       - PMERR_INV_CODEPAGE
+    *       - PMERR_INV_COLOR_ATTR
+    *       - PMERR_INV_COLOR_DATA
+    *       - PMERR_INV_COLOR_FORMAT
+    *       - PMERR_INV_COLOR_INDEX
+    *       - PMERR_INV_COLOR_OPTIONS
+    *       - PMERR_INV_COLOR_START_INDEX
+    *       - PMERR_INV_COORD_SPACE
+    *       - PMERR_INV_COORDINATE
+    *       - PMERR_INV_DC_DATA
+    *       - PMERR_INV_DC_TYPE
+    *       - PMERR_INV_DRIVER_NAME
+    *       - PMERR_INV_GEOM_LINE_WIDTH_ATTR
+    *       - PMERR_INV_HBITMAP
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_HRGN
+    *       - PMERR_INV_ID
+    *       - PMERR_INV_IN_AREA
+    *       - PMERR_INV_IN_PATH
+    *       - PMERR_INV_INFO_TABLE
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    *       - PMERR_INV_LINE_END_ATTR
+    *       - PMERR_INV_LINE_JOIN_ATTR
+    *       - PMERR_INV_LINE_TYPE_ATTR
+    *       - PMERR_INV_LINE_WIDTH_ATTR
+    *       - PMERR_INV_MARKER_SET_ATTR
+    *       - PMERR_INV_MARKER_SYMBOL_ATTR
+    *       - PMERR_INV_MIX_ATTR
+    *       - PMERR_INV_PATTERN_REF_PT_ATTR
+    *       - PMERR_INV_PATTERN_SET_ATTR
+    */
    #define NGreRestoreScreenBits 0x0000402DL
    #define GreRestoreScreenBits(a,b,c,d) (BOOL) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(LHANDLE)(b),(ULONG)(PRECTL)(c),(ULONG)(ULONG)(d),0L,NGreRestoreScreenBits)
 
@@ -1702,7 +1825,39 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreQueryTextBox 0x00005037L
    #define GreQueryTextBox(a,b,c,d,e) (BOOL) Gre32Entry7((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(PCH)(c),(ULONG)(LONG)(d),(ULONG)(PPOINTL)(e),0L,NGreQueryTextBox)
 
-   /* GreQueryCharPositions — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Query character positions.
+    *
+    * @param[in] hdc        Device context handle.
+    * @param[in] pptlStart  Pointer to starting position.
+    * @param[in] lOptions   Option flags.
+    * @param[in] cChars     Number of bytes in string.
+    * @param[in] pchString  Pointer to character string.
+    * @param[in] pAdx       Pointer to increment array.
+    * @param[in] paptXY     Pointer to output positions.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_INV_MATRIX_ELEMENT
+    *       - PMERR_INV_SETID
+    *       - PMERR_INV_CHAR_MODE_ATTR
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    *       - PMERR_INV_CODEPAGE
+    *       - PMERR_EXCEEDS_MAX_SEG_LENGTH
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_CHAR_ANGLE_ATTR
+    *       - PMERR_INV_TRANSFORM_TYPE
+    */
    #define NGreQueryCharPositions 0x00005038L
    #define GreQueryCharPositions(a,b,c,d,e,f,g) (ULONG) Gre32Entry9((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),(ULONG)(ULONG)(c),(ULONG)(LONG)(d),(ULONG)(PCH)(e),(ULONG)(PLONG)(f),(ULONG)(PPOINTL)(g),0L,NGreQueryCharPositions)
 
@@ -1730,7 +1885,27 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreQueryWidthTable 0x00005039L
    #define GreQueryWidthTable(a,b,c,d) (BOOL) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(LONG)(c),(ULONG)(PLONG)(d),0L,NGreQueryWidthTable)
 
-   /* GreQueryCharOutline — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Query character outline.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] lCode Code.
+    * @param[in] pData Pointer to output data.
+    * @param[in] lOptions Options.
+    * @param[in] lCount Count.
+    *
+    * @return LONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_IN_AREA
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_EXCEEDS_MAX_SEG_LENGTH
+    */
    #define NGreQueryCharOutline 0x00004256L
    #define GreQueryCharOutline(a,b,c,d,e) (LONG)Gre32Entry7((HDC)(a),(ULONG)(b),(ULONG)(PBYTE)(c),(ULONG)(d),(ULONG)(e),0L,NGreQueryCharOutline)
 
@@ -2111,7 +2286,21 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreRectVisible 0x00004072L
    #define GreRectVisible(a,b) (INT) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),0L,NGreRectVisible)
 
-   /* GreQueryClipRegion — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Query the clip region.
+    *
+    * @param[in] hdc Device context handle.
+    *
+    * @return HRGN handle, or NULL on error.
+    *
+    * @retval NULL  Error.
+    *
+    * @note If NULL is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_HDC
+    */
    #define NGreQueryClipRegion 0x00004073L
    #define GreQueryClipRegion(a) (HRGN) Gre32Entry3((ULONG)(HDC)(a),0L,NGreQueryClipRegion)
 
@@ -4125,7 +4314,7 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    /**
     * @brief Get bitmap parameters.
     *
-    * @param[in] hbm Bitmap handle.
+    * @param[in] hbm   Bitmap handle.
     * @param[in] pBmih Pointer to a BITMAPINFOHEADER structure.
     *
     * @return BOOLEAN success indicator.
@@ -4146,7 +4335,7 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    /**
     * @brief Get bitmap dimension.
     *
-    * @param[in] hbm Bitmap handle.
+    * @param[in] hbm    Bitmap handle.
     * @param[in] pSizel Pointer to a SIZEL structure.
     *
     * @return BOOLEAN success indicator.
