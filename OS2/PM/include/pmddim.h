@@ -701,7 +701,35 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreCookPathCurves 0x0000400FL
    #define GreCookPathCurves(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(PPATH)(b),(ULONG)(PPIPELINEINFO)(c),0L,NGreCookPathCurves)
 
-   /* GreRenderPath — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Render a path.
+    *
+    * @param[in] hdc       Device context handle.
+    * @param[in] pPath     Pointer to a PATH structure.
+    * @param[in] pCurve    Pointer to a CURVE structure.
+    * @param[in] cLines    Number of lines.
+    * @param[in] cCurves   Number of curves.
+    * @param[in] cPoints   Number of points.
+    * @param[in] pShortLine Pointer to a SHORTLINE structure.
+    * @param[in] lOptions  Option flags.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_PATH_LIMIT_EXCEEDED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_COORD_SPACE
+    */
    #define NGreRenderPath 0x00004011L
    #define GreRenderPath(a,b,c,d,e,f,g,h) (BOOL) Gre32Entry10((ULONG)(HDC)(a),(ULONG)(PPATH)(b),(ULONG)(PCURVE)(c),(ULONG)(LONG)(d),(ULONG)(LONG)(e),(ULONG)(LONG)(f),(ULONG)(PSHORTLINE)(g),(ULONG)(LONG)(h),0L,NGreRenderPath)
 #endif
@@ -1254,7 +1282,22 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreFloodFill 0x0000602BL
    #define GreFloodFill(a,b,c) (INT) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(LONG)(c),0L,NGreFloodFill)
 
-   /* GreSaveScreenBits — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Save screen bits.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] prcl Pointer to a RECTL structure.
+    *
+    * @return ULONG handle, or 0 on error.
+    *
+    * @retval 0  Error.
+    *
+    * @note If 0 is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    */
    #define NGreSaveScreenBits 0x0000402CL
    #define GreSaveScreenBits(a,b) (ULONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),0L,NGreSaveScreenBits)
 
@@ -1262,15 +1305,79 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreRestoreScreenBits 0x0000402DL
    #define GreRestoreScreenBits(a,b,c,d) (BOOL) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(LHANDLE)(b),(ULONG)(PRECTL)(c),(ULONG)(ULONG)(d),0L,NGreRestoreScreenBits)
 
-   /* GreDrawBorder — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Draw a border.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] prcl   Pointer to a RECTL structure.
+    * @param[in] lThick Thickness.
+    * @param[in] lType  Type.
+    * @param[in] color  Color.
+    * @param[in] clrBk  Background color.
+    * @param[in] cOptions Options.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_INV_IN_AREA
+    *       - PMERR_INV_IN_PATH
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_BITMAP_NOT_SELECTED
+    */
    #define NGreDrawBorder 0x0000602EL
    #define GreDrawBorder(a,b,c,d,e,f,g) (BOOL) Gre32Entry9((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),(ULONG)(LONG)(c),(ULONG)(LONG)(d),(ULONG)(COLOR)(e),(ULONG)(COLOR)(f),(ULONG)(ULONG)(g),0L,NGreDrawBorder)
 
-   /* GreDeviceSetCursor — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set the cursor for a device.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] pptl Pointer to a POINTL structure.
+    * @param[in] hbm  Bitmap handle.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_COORDINATE
+    *       - PMERR_INV_CURSOR_BITMAP
+    *       - PMERR_INV_HDC
+    */
    #define NGreDeviceSetCursor 0x0000402FL
    #define GreDeviceSetCursor(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),(ULONG)(HBITMAP)(c),0L,NGreDeviceSetCursor)
 
-   /* GreGetBitmapBits — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get bitmap bits.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] hbm    Bitmap handle.
+    * @param[in] lSrcX  Source X.
+    * @param[in] lSrcY  Source Y.
+    * @param[in] pBits  Pointer to output buffer.
+    * @param[in] pBmi   Pointer to a BITMAPINFO2 structure.
+    *
+    * @return LONG value indicating success or an error code.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BITMAP_NOT_SELECTED
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_HDC
+    */
    #define NGreGetBitmapBits 0x00006030L
    #define GreGetBitmapBits(a,b,c,d,e,f) (LONG) Gre32Entry8((ULONG)(HDC)(a),(ULONG)(HBITMAP)(b),(ULONG)(LONG)(c),(ULONG)(LONG)(d),(ULONG)(PBYTE)(e),(ULONG)(PBITMAPINFO2)(f),0L,NGreGetBitmapBits)
 
@@ -1786,11 +1893,51 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreEndArea 0x00004047L
    #define GreEndArea(a,b) (INT) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(ULONG)(b),0L,NGreEndArea)
 
-   /* GreBeginPath — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Begin a path.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] pHid Pointer to a HID structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_ALREADY_IN_PATH
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    */
    #define NGreBeginPath 0x00004048L
    #define GreBeginPath(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PHID)(b),0L,NGreBeginPath)
 
-   /* GreEndPath — no verifiable error list found; left undocumented. */
+   /**
+    * @brief End a path.
+    *
+    * @param[in] hdc      Device context handle.
+    * @param[in] lOptions Options.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_END_PATH_OPTIONS
+    *       - PMERR_NOT_IN_PATH
+    *       - PMERR_PATH_LIMIT_EXCEEDED
+    */
    #define NGreEndPath 0x00004049L
    #define GreEndPath(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(ULONG)(b),0L,NGreEndPath)
 
@@ -1871,19 +2018,96 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreGetClipBox 0x0000406EL
    #define GreGetClipBox(a,b) (INT) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),0L,NGreGetClipBox)
 
-   /* GreGetClipRects — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get the clip rectangles.
+    *
+    * @param[in] hdc      Device context handle.
+    * @param[in] prcl     Pointer to a RECTL structure.
+    * @param[in] prgnrc   Pointer to a RGNRECT structure.
+    * @param[in] prclOut  Pointer to a RECTL structure.
+    *
+    * @return Integer result.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_COORDINATE
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_RECT
+    *       - PMERR_INV_REGION_CONTROL
+    */
    #define NGreGetClipRects 0x0000406FL
    #define GreGetClipRects(a,b,c,d) (INT) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),(ULONG)(PRGNRECT)(c),(ULONG)(PRECTL)(d),0L,NGreGetClipRects)
 
-   /* GreOffsetClipRegion — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Offset the clip region.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] pptl Pointer to a POINTL structure.
+    *
+    * @return Integer result.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_COORD_OFFSET
+    */
    #define NGreOffsetClipRegion 0x00004070L
    #define GreOffsetClipRegion(a,b) (INT) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),0L,NGreOffsetClipRegion)
 
-   /* GrePtVisible — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Test if a point is visible.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] pptl Pointer to a POINTL structure.
+    *
+    * @return Integer result.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_COORD_SPACE
+    */
    #define NGrePtVisible 0x00004071L
    #define GrePtVisible(a,b) (INT) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),0L,NGrePtVisible)
 
-   /* GreRectVisible — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Test if a rectangle is visible.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] prcl Pointer to a RECTL structure.
+    *
+    * @return Integer result.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_COORD_SPACE
+    */
    #define NGreRectVisible 0x00004072L
    #define GreRectVisible(a,b) (INT) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),0L,NGreRectVisible)
 
@@ -1912,43 +2136,241 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreSelectClipRegion 0x00004074L
    #define GreSelectClipRegion(a,b,c) (INT) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(HRGN)(b),(ULONG)(PHRGN)(c),0L,NGreSelectClipRegion)
 
-   /* GreIntersectClipRectangle — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Intersect the clip with a rectangle.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] prcl Pointer to a RECTL structure.
+    *
+    * @return Integer result.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    */
    #define NGreIntersectClipRectangle 0x00004075L
    #define GreIntersectClipRectangle(a,b) (INT) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),0L,NGreIntersectClipRectangle)
 
-   /* GreExcludeClipRectangle — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Exclude a rectangle from the clip.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] prcl Pointer to a RECTL structure.
+    *
+    * @return Integer result.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    */
    #define NGreExcludeClipRectangle 0x00004076L
    #define GreExcludeClipRectangle(a,b) (INT) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),0L,NGreExcludeClipRectangle)
 
-   /* GreSetXformRect — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set an XForm rectangle.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] prcl Pointer to a RECTL structure.
+    *
+    * @return ULONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_COORDINATE
+    */
    #define NGreSetXformRect 0x00004077L
    #define GreSetXformRect(a,b) (ULONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),0L,NGreSetXformRect)
 
-   /* GreSaveRegion — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Save the region.
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] lMode Mode.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_COORDINATE
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_HRGN
+    *       - PMERR_INV_RECT
+    */
    #define NGreSaveRegion 0x0000407BL
    #define GreSaveRegion(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(LONG)(b),0L,NGreSaveRegion)
 
-   /* GreRestoreRegion — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Restore the region.
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] lMode Mode.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_COORDINATE
+    */
    #define NGreRestoreRegion 0x0000407CL
    #define GreRestoreRegion(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(LONG)(b),0L,NGreRestoreRegion)
 
-   /* GreClipPathCurves — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Clip path curves.
+    *
+    * @param[in] hdc       Device context handle.
+    * @param[in] pPath     Pointer to a PATH structure.
+    * @param[in] pPipeline Pointer to a PIPELINEINFO structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_INV_IN_AREA
+    *       - PMERR_PATH_LIMIT_EXCEEDED
+    *       - PMERR_INV_IN_PATH
+    *       - PMERR_PATH_UNKNOWN
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_BITMAP_NOT_SELECTED
+    *       - PMERR_INSUFFICIENT_MEMORY
+    */
    #define NGreClipPathCurves 0x0000407DL
    #define GreClipPathCurves(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(PPATH)(b),(ULONG)(PPIPELINEINFO)(c),0L,NGreClipPathCurves)
 
-   /* GreSelectPathRegion — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Select a path region.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] hrgn Region handle.
+    *
+    * @return Integer result.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_HRGN_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_COORDINATE
+    */
    #define NGreSelectPathRegion 0x0000407EL
    #define GreSelectPathRegion(a,b) (INT) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(HRGN)(b),0L,NGreSelectPathRegion)
 
-   /* GreRegionSelectBitmap — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Select a bitmap for a region.
+    *
+    * @param[in] hdc Device context handle.
+    * @param[in] hbm Bitmap handle.
+    *
+    * @return ULONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_COORDINATE
+    */
    #define NGreRegionSelectBitmap 0x0000407FL
    #define GreRegionSelectBitmap(a,b) (ULONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(HBITMAP)(b),0L,NGreRegionSelectBitmap)
 
-   /* GreCopyClipRegion — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Copy the clip region.
+    *
+    * @param[in] hdc      Device context handle.
+    * @param[in] hrgn     Region handle.
+    * @param[in] prcl     Pointer to a RECTL structure.
+    * @param[in] lOptions Options.
+    *
+    * @return Integer result.
+    *
+    * @retval GPI_OK    Successful.
+    * @retval GPI_ERROR Error.
+    *
+    * @note If the function returns GPI_ERROR, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_HRGN_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_COORDINATE
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_HRGN
+    *       - PMERR_REGION_IS_CLIP_REGION
+    */
    #define NGreCopyClipRegion 0x00004080L
    #define GreCopyClipRegion(a,b,c,d) (INT) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(HRGN)(b),(ULONG)(PRECTL)(c),(ULONG)(ULONG)(d),0L,NGreCopyClipRegion)
 
-   /* GreSetupDC — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set up a DC.
+    *
+    * @param[in] hdc      Device context handle.
+    * @param[in] hrgn     Region handle.
+    * @param[in] lMode    Mode.
+    * @param[in] lOptions Options.
+    * @param[in] prcl     Pointer to a RECTL structure.
+    * @param[in] lParam   Parameter.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_PATH_LIMIT_EXCEEDED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_COORD_SPACE
+    */
    #define NGreSetupDC 0x00004081L
    #define GreSetupDC(a,b,c,d,e,f) (BOOL) Gre32Entry8((ULONG)(HDC)(a),(ULONG)(HRGN)(b),(ULONG)(LONG)(c),(ULONG)(LONG)(d),(ULONG)(PRECTL)(e),(ULONG)(ULONG)(f),0L,NGreSetupDC)
 #endif
@@ -1971,7 +2393,25 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreGetPageUnits 0x00004083L
    #define GreGetPageUnits(a,b) (LONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PULONG)(b),0L,NGreGetPageUnits)
 
-   /* GreSetPageUnits — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set page units.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] lUnits Units.
+    * @param[in] lX     X value.
+    * @param[in] lY     Y value.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_HDC
+    */
    #define NGreSetPageUnits 0x00004084L
    #define GreSetPageUnits(a,b,c,d) (BOOL) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(LONG)(c),(ULONG)(LONG)(d),0L,NGreSetPageUnits)
 
@@ -2108,15 +2548,63 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreSetGlobalViewingXform 0x0000408AL
    #define GreSetGlobalViewingXform(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(PXFORM)(b),(ULONG)(ULONG)(c),0L,NGreSetGlobalViewingXform)
 
-   /* GreSaveXformData — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Save XForm data.
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] lMode Mode.
+    * @param[in] pData Pointer to data.
+    *
+    * @return LONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    */
    #define NGreSaveXformData 0x0000408BL
    #define GreSaveXformData(a,b,c) (LONG) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(PBYTE)(c),0L,NGreSaveXformData)
 
-   /* GreRestoreXformData — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Restore XForm data.
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] lMode Mode.
+    * @param[in] pData Pointer to data.
+    *
+    * @return LONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    */
    #define NGreRestoreXformData 0x0000408CL
    #define GreRestoreXformData(a,b,c) (LONG) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(PBYTE)(c),0L,NGreRestoreXformData)
 
-   /* GreGetPageViewport — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get the page viewport.
+    *
+    * @param[in]  hdc  Device context handle.
+    * @param[out] prcl Pointer to a RECTL structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_HDC
+    */
    #define NGreGetPageViewport 0x0000408DL
    #define GreGetPageViewport(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),0L,NGreGetPageViewport)
 
@@ -2128,15 +2616,69 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreGetGraphicsField 0x00004091L
    #define GreGetGraphicsField(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),0L,NGreGetGraphicsField)
 
-   /* GreSetGraphicsField — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set the graphics field.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] prcl Pointer to a RECTL structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_COORDINATE
+    *       - PMERR_INV_GRAPHICS_FIELD
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_IN_AREA
+    */
    #define NGreSetGraphicsField 0x00004092L
    #define GreSetGraphicsField(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),0L,NGreSetGraphicsField)
 
-   /* GreGetViewingLimits — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get the viewing limits.
+    *
+    * @param[in]  hdc  Device context handle.
+    * @param[out] prcl Pointer to a RECTL structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_HDC
+    */
    #define NGreGetViewingLimits 0x00004093L
    #define GreGetViewingLimits(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),0L,NGreGetViewingLimits)
 
-   /* GreSetViewingLimits — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set the viewing limits.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] prcl Pointer to a RECTL structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_COORDINATE
+    *       - PMERR_INV_GRAPHICS_FIELD
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_IN_AREA
+    */
    #define NGreSetViewingLimits 0x00004094L
    #define GreSetViewingLimits(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),0L,NGreSetViewingLimits)
 
@@ -2144,7 +2686,29 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreQueryViewportSize 0x00004095L
    #define GreQueryViewportSize(a,b,c,d) (BOOL) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(LONG)(c),(ULONG)(PVIEWPORTSIZE)(d),0L,NGreQueryViewportSize)
 
-   /* GreConvert — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Convert coordinates.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] lSrcX Source X.
+    * @param[in] lSrcY Source Y.
+    * @param[in] pptl Pointer to a POINTL array.
+    * @param[in] lCount Count.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_COORD_SPACE
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    */
    #define NGreConvert 0x00004096L
    #define GreConvert(a,b,c,d,e) (BOOL) Gre32Entry7((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(LONG)(c),(ULONG)(PPOINTL)(d),(ULONG)(LONG)(e),0L,NGreConvert)
 
@@ -2193,17 +2757,71 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreRestoreXform 0x00004099L
    #define GreRestoreXform(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(LONG)(b),0L,NGreRestoreXform)
 
-   /* GreMultiplyXforms — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Multiply two XForms.
+    *
+    * @param[in] hdc     Device context handle.
+    * @param[in] pXform1 Pointer to the first XFORM.
+    * @param[in] pXform2 Pointer to the second XFORM.
+    * @param[in] lOptions Options.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_INV_MATRIX_ELEMENT
+    *       - PMERR_INV_TRANSFORM_TYPE
+    */
    #define NGreMultiplyXforms 0x0000409AL
    #define GreMultiplyXforms(a,b,c,d) (BOOL) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(PXFORM)(b),(ULONG)(PXFORM)(c),(ULONG)(ULONG)(d),0L,NGreMultiplyXforms)
 
-   /* GreConvertWithMatrix — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Convert points using a matrix.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] pptl   Pointer to a POINTL array.
+    * @param[in] lCount Count.
+    * @param[in] pXform Pointer to an XFORM structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    */
    #define NGreConvertWithMatrix 0x0000409BL
    #define GreConvertWithMatrix(a,b,c,d) (BOOL) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),(ULONG)(LONG)(c),(ULONG)(PXFORM)(d),0L,NGreConvertWithMatrix)
 #endif
 
 #ifdef INCL_GRE_DEVMISC1
-   /* GreDeviceGetAttributes — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get device attributes.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] lAttr  Attribute.
+    * @param[in] lOptions Options.
+    * @param[in] pBundle Pointer to a BUNDLE structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    */
    #define NGreDeviceGetAttributes 0x0000609DL
    #define GreDeviceGetAttributes(a,b,c,d) (BOOL) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(ULONG)(c),(ULONG)(PBUNDLE)(d),0L,NGreDeviceGetAttributes)
 
@@ -2211,7 +2829,23 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreDeviceSetAVIOFont2 0x0000409EL
    #define GreDeviceSetAVIOFont2(a,b,c,d) (ULONG) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(PFATTRS)(b),(ULONG)(PFOCAFONT)(c),(ULONG)(LCID)(d),0L,NGreDeviceSetAVIOFont2)
 
-   /* GreGetPairKerningTable — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get the pair kerning table.
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] lCode Code.
+    * @param[in] pKerning Pointer to a KERNINGPAIRS structure.
+    *
+    * @return ULONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_EXCEEDS_MAX_SEG_LENGTH
+    *       - PMERR_HDC_BUSY
+    */
    #define NGreGetPairKerningTable 0x000040A0L
    #define GreGetPairKerningTable(a,b,c) (ULONG) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(PKERNINGPAIRS)(c),0L,NGreGetPairKerningTable)
 
@@ -2229,55 +2863,261 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
 #endif
 
 #ifdef INCL_GRE_DEVMISC2
-   /* GreNotifyClipChange — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Notify the driver of a clip change.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] prcl   Pointer to a RECTL structure.
+    * @param[in] lMode  Mode.
+    * @param[in] lOptions Options.
+    *
+    * @return ULONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_COORDINATE
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_RECT
+    *       - PMERR_INV_REGION_CONTROL
+    */
    #define NGreNotifyClipChange 0x000040A4L
    #define GreNotifyClipChange(a,b,c,d) (ULONG) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),(ULONG)(LONG)(c),(ULONG)(ULONG)(d),0L,NGreNotifyClipChange)
 
-   /* GreNotifyTransformChange — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Notify the driver of a transform change.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] lOptions Options.
+    * @param[in] pData  Pointer to NOTIFYTRANSFORMDATA.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_COORD_SPACE
+    */
    #define NGreNotifyTransformChange 0x000040A5L
    #define GreNotifyTransformChange(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(PNOTIFYTRANSFORMDATA)(c),0L,NGreNotifyTransformChange)
 
-   /* GreRealizeFont — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Realize a font.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] lOptions Options.
+    * @param[in] pAttrs Pointer to FATTRS.
+    * @param[in] pFont  Pointer to FOCAFONT.
+    *
+    * @return ULONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_COORD_SPACE
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    */
    #define NGreRealizeFont 0x000040A6L
    #define GreRealizeFont(a,b,c,d) (ULONG) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(PFATTRS)(c),(ULONG)(PFOCAFONT)(d),0L,NGreRealizeFont)
 
-   /* GreErasePS — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Erase the presentation space.
+    *
+    * @param[in] hdc Device context handle.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    */
    #define NGreErasePS 0x000040A7L
    #define GreErasePS(a) (BOOL) Gre32Entry3((ULONG)(HDC)(a),0L,NGreErasePS)
 
-   /* GreSetStyleRatio — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set the style ratio.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] pData Pointer to data.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    */
    #define NGreSetStyleRatio 0x000040A8L
    #define GreSetStyleRatio(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PBYTE)(b),0L,NGreSetStyleRatio)
 
-   /* GreDeviceQueryFontAttributes — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Query device font attributes.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] lCode Code.
+    * @param[in] pMetrics Pointer to FONTMETRICS.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    */
    #define NGreDeviceQueryFontAttributes 0x000040A9L
    #define GreDeviceQueryFontAttributes(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(PFONTMETRICS)(c),0L,NGreDeviceQueryFontAttributes)
 
-   /* GreDeviceQueryFonts — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Query device fonts.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] lOptions Options.
+    * @param[in] psz    Pointer to a string.
+    * @param[in] pMetrics Pointer to FONTMETRICS.
+    * @param[in] lCount Count.
+    * @param[in] plCount Pointer to count.
+    *
+    * @return LONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_COORD_SPACE
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    */
    #define NGreDeviceQueryFonts 0x000040AAL
    #define GreDeviceQueryFonts(a,b,c,d,e,f) (LONG) Gre32Entry8((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(PSZ)(c),(ULONG)(PFONTMETRICS)(d),(ULONG)(LONG)(e),(ULONG)(PLONG)(f),0L,NGreDeviceQueryFonts)
 
-   /* GreDeviceInvalidateVisRegion — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Invalidate the visible region.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] lMode Mode.
+    * @param[in] pBlock Pointer to a DC_BLOCK structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    */
    #define NGreDeviceInvalidateVisRegion 0x000040ABL
    #define GreDeviceInvalidateVisRegion(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(PDC_BLOCK)(c),0L,NGreDeviceInvalidateVisRegion)
 
-   /* GreSetFontMappingFlags — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set font mapping flags.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] lFlags Flags.
+    *
+    * @return LONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_EXCEEDS_MAX_SEG_LENGTH
+    *       - PMERR_INV_HDC
+    */
    #define NGreSetFontMappingFlags 0x00004268L
    #define GreSetFontMappingFlags(a,b) (LONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(LONG)(b),0L,NGreSetFontMappingFlags)
 #endif
 
 #ifdef INCL_GRE_PICK
-   /* GreGetPickWindow — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get the pick window.
+    *
+    * @param[in]  hdc  Device context handle.
+    * @param[out] prcl Pointer to a RECTL structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    */
    #define NGreGetPickWindow 0x000040ACL
    #define GreGetPickWindow(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),0L,NGreGetPickWindow)
 
-   /* GreSetPickWindow — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set the pick window.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] prcl Pointer to a RECTL structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_COORD_SPACE
+    */
    #define NGreSetPickWindow 0x000040ADL
    #define GreSetPickWindow(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PRECTL)(b),0L,NGreSetPickWindow)
 #endif
 
 #ifdef INCL_GRE_DEVMISC3
-   /* GreResetBounds — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Reset bounds.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] lMode Mode.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    */
    #define NGreResetBounds 0x000040AEL
    #define GreResetBounds(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(ULONG)(b),0L,NGreResetBounds)
 
@@ -2297,94 +3137,445 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreSetExtraError 0x000040B2L
    #define GreSetExtraError(a,b) (VOID) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(FIXED)(b),0L,NGreSetExtraError)
 
-   /* GreGetCodePage — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get the code page.
+    *
+    * @param[in] hdc Device context handle.
+    *
+    * @return LONG code page.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    */
    #define NGreGetCodePage 0x000040B3L
    #define GreGetCodePage(a) (LONG) Gre32Entry3((ULONG)(HDC)(a),0L,NGreGetCodePage)
 
-   /* GreSetCodePage — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set the code page.
+    *
+    * @param[in] hdc      Device context handle.
+    * @param[in] lCodePage Code page.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_EXCEEDS_MAX_SEG_LENGTH
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_CODEPAGE
+    */
    #define NGreSetCodePage 0x000040B4L
    #define GreSetCodePage(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(ULONG)(b),0L,NGreSetCodePage)
 
-   /* GreLockDevice — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Lock the device.
+    *
+    * @param[in] hdc Device context handle.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    */
    #define NGreLockDevice 0x000040B5L
    #define GreLockDevice(a) (BOOL) Gre32Entry3((ULONG)(HDC)(a),0L,NGreLockDevice)
 
-   /* GreUnlockDevice — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Unlock the device.
+    *
+    * @param[in] hdc Device context handle.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    */
    #define NGreUnlockDevice 0x000040B6L
    #define GreUnlockDevice(a) (BOOL) Gre32Entry3((ULONG)(HDC)(a),0L,NGreUnlockDevice)
 
-   /* GreDeath — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Notify the driver of device death.
+    *
+    * @param[in] hdc Device context handle.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    */
    #define NGreDeath 0x000040B7L
    #define GreDeath(a) (BOOL) Gre32Entry3((ULONG)(HDC)(a),0L,NGreDeath)
 
-   /* GreResurrection — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Notify the driver of device resurrection.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] lMode Mode.
+    * @param[in] pData Pointer to data.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    */
    #define NGreResurrection 0x000040B8L
    #define GreResurrection(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(PBYTE)(c),0L,NGreResurrection)
 
-   /* GreGetDCOrigin — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get the DC origin.
+    *
+    * @param[in]  hdc  Device context handle.
+    * @param[out] pptl Pointer to a POINTL structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    */
    #define NGreGetDCOrigin 0x000040BAL
    #define GreGetDCOrigin(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),0L,NGreGetDCOrigin)
 
-   /* GreDeviceSetDCOrigin — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set the DC origin.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] pptl Pointer to a POINTL structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    */
    #define NGreDeviceSetDCOrigin 0x000040BBL
    #define GreDeviceSetDCOrigin(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),0L,NGreDeviceSetDCOrigin)
 
-   /* GreGetLineOrigin — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get the line origin.
+    *
+    * @param[in]  hdc  Device context handle.
+    * @param[out] pptl Pointer to a POINTL structure.
+    *
+    * @return LONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    */
    #define NGreGetLineOrigin 0x000040BCL
    #define GreGetLineOrigin(a,b) (LONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),0L,NGreGetLineOrigin)
 
-   /* GreSetLineOrigin — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set the line origin.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] pptl Pointer to a POINTL structure.
+    * @param[in] lStyle Style.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_COORD_SPACE
+    */
    #define NGreSetLineOrigin 0x000040BDL
    #define GreSetLineOrigin(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),(ULONG)(LONG)(c),0L,NGreSetLineOrigin)
 #endif
 
 #ifdef INCL_GRE_DEVMISC2
-   /* GreGetStyleRatio — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get the style ratio.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] pData Pointer to data.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    */
    #define NGreGetStyleRatio 0x000040BEL
    #define GreGetStyleRatio(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PBYTE)(b),0L,NGreGetStyleRatio)
 #endif
 
 #ifdef INCL_GRE_COLORTABLE
-   /* GreQueryColorData — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Query color data.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] lStart Start index.
+    * @param[in] plData Pointer to output data.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_INV_IN_AREA
+    *       - PMERR_INV_IN_PATH
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    *       - PMERR_COL_TABLE_NOT_REALIZED
+    */
    #define NGreQueryColorData 0x000060C3L
    #define GreQueryColorData(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(PLONG)(c),0L,NGreQueryColorData)
 
-   /* GreQueryLogColorTable — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Query the logical color table.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] lStart Start index.
+    * @param[in] lCount Count.
+    * @param[in] lOptions Options.
+    * @param[in] plArray Pointer to output array.
+    *
+    * @return LONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_COLOR_OPTIONS
+    *       - PMERR_INV_COLOR_START_INDEX
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    */
    #define NGreQueryLogColorTable 0x000060C4L
    #define GreQueryLogColorTable(a,b,c,d,e) (LONG) Gre32Entry7((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(LONG)(c),(ULONG)(LONG)(d),(ULONG)(PLONG)(e),0L,NGreQueryLogColorTable)
 
-   /* GreCreateLogColorTable — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Create a logical color table.
+    *
+    * @param[in] hdc      Device context handle.
+    * @param[in] lFormat  Format.
+    * @param[in] lOptions Options.
+    * @param[in] lStart   Start index.
+    * @param[in] lCount   Count.
+    * @param[in] plArray  Pointer to input array.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_COLOR_OPTIONS
+    *       - PMERR_INV_COLOR_START_INDEX
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    */
    #define NGreCreateLogColorTable 0x000060C5L
    #define GreCreateLogColorTable(a,b,c,d,e,f) (BOOL) Gre32Entry8((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(ULONG)(c),(ULONG)(LONG)(d),(ULONG)(LONG)(e),(ULONG)(PLONG)(f),0L,NGreCreateLogColorTable)
 
-   /* GreRealizeColorTable — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Realize the color table.
+    *
+    * @param[in] hdc Device context handle.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_COL_TABLE_NOT_REALIZABLE
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_IN_AREA
+    *       - PMERR_INV_IN_PATH
+    *       - PMERR_REALIZE_NOT_SUPPORTED
+    */
    #define NGreRealizeColorTable 0x000060C6L
    #define GreRealizeColorTable(a) (BOOL) Gre32Entry3((ULONG)(HDC)(a),0L,NGreRealizeColorTable)
 
-   /* GreUnrealizeColorTable — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Unrealize the color table.
+    *
+    * @param[in] hdc Device context handle.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_COL_TABLE_NOT_REALIZED
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_IN_AREA
+    */
    #define NGreUnrealizeColorTable 0x000060C7L
    #define GreUnrealizeColorTable(a) (BOOL) Gre32Entry3((ULONG)(HDC)(a),0L,NGreUnrealizeColorTable)
 
-   /* GreQueryRealColors — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Query real colors.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] lStart Start index.
+    * @param[in] lCount Count.
+    * @param[in] lOptions Options.
+    * @param[in] plArray Pointer to output array.
+    *
+    * @return LONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_INV_IN_AREA
+    *       - PMERR_INV_IN_PATH
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    *       - PMERR_COL_TABLE_NOT_REALIZED
+    */
    #define NGreQueryRealColors 0x000040C8L
    #define GreQueryRealColors(a,b,c,d,e) (LONG) Gre32Entry7((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(LONG)(c),(ULONG)(LONG)(d),(ULONG)(PLONG)(e),0L,NGreQueryRealColors)
 
-   /* GreQueryNearestColor — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Query the nearest color.
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] lOptions Options.
+    * @param[in] color Color.
+    *
+    * @return LONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_COLOR_OPTIONS
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_RGBCOLOR
+    */
    #define NGreQueryNearestColor 0x000040C9L
    #define GreQueryNearestColor(a,b,c) (LONG) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(COLOR)(c),0L,NGreQueryNearestColor)
 
-   /* GreQueryColorIndex — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Query the color index.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] lOptions Options.
+    * @param[in] color  Color.
+    *
+    * @return LONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_COLOR_OPTIONS
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_RGBCOLOR
+    */
    #define NGreQueryColorIndex 0x000060CAL
    #define GreQueryColorIndex(a,b,c) (LONG) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(COLOR)(c),0L,NGreQueryColorIndex)
 
-   /* GreQueryRGBColor — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Query the RGB color.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] lOptions Options.
+    * @param[in] color  Color.
+    *
+    * @return LONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_COLOR_DATA
+    *       - PMERR_INV_COLOR_INDEX
+    *       - PMERR_INV_COLOR_OPTIONS
+    *       - PMERR_INV_HDC
+    */
    #define NGreQueryRGBColor 0x000060CBL
    #define GreQueryRGBColor(a,b,c) (LONG) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(COLOR)(c),0L,NGreQueryRGBColor)
 #endif
 
 #ifdef INCL_GRE_DEVICE
    #ifndef NGreQueryDevFntMetrics
-      /* GreQueryDeviceFontMetrics — no verifiable error list found; left undocumented. */
+      /**
+       * @brief Query device font metrics.
+       *
+       * @param[in] hdc    Device context handle.
+       * @param[in] lCode  Code.
+       * @param[in] lCount Count.
+       *
+       * @return ULONG result.
+       *
+       * @note If an error is returned, the handling routine must call
+       *       WinSetErrorInfo. WinGetLastError may return one of the following
+       *       errors:
+       *       - PMERR_BASE_ERROR
+       *       - PMERR_INSUFFICIENT_MEMORY
+       *       - PMERR_INV_FONT_FILE_DATA
+       */
       #define NGreQueryDevFntMetrics 0x000060CCL
       #define GreQueryDeviceFontMetrics(a,b,c) (ULONG)Gre32Entry5((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(LONG)(c),0L,NGreQueryDevFntMetrics)
    #endif
@@ -2400,9 +3591,9 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    /**
     * @brief Query device bitmaps.
     *
-    * @param[in] hdc    Device context handle.
+    * @param[in] hdc     Device context handle.
     * @param[in] pFormat Pointer to a BITMAPFORMAT structure.
-    * @param[in] lCount Count.
+    * @param[in] lCount  Count.
     *
     * @return BOOLEAN success indicator.
     *
@@ -2444,12 +3635,12 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    /**
     * @brief Perform an escape.
     *
-    * @param[in] hdc     Device context handle.
-    * @param[in] lEscape Escape code.
-    * @param[in] lCount  Count.
-    * @param[in] pInData Pointer to input data.
+    * @param[in] hdc       Device context handle.
+    * @param[in] lEscape   Escape code.
+    * @param[in] lCount    Count.
+    * @param[in] pInData   Pointer to input data.
     * @param[in] plOutCount Pointer to output count.
-    * @param[in] pOutData Pointer to output data.
+    * @param[in] pOutData  Pointer to output data.
     *
     * @return LONG result.
     *
@@ -2482,7 +3673,23 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreQueryHardcopyCaps 0x000040D3L
    #define GreQueryHardcopyCaps(a,b,c,d) (LONG) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(LONG)(c),(ULONG)(PHCINFO)(d),0L,NGreQueryHardcopyCaps)
 
-   /* GreQueryDevResource2 — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Query device resources.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] lType  Resource type.
+    * @param[in] lIndex Resource index.
+    *
+    * @return PVOID pointer to the resource, or NULL on error.
+    *
+    * @retval NULL  Error.
+    *
+    * @note If NULL is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    */
    #define NGreQueryDevResource2 0x000040D4L
    #define GreQueryDevResource2(a,b,c) (PVOID) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(ULONG)(c),0L,NGreQueryDevResource2)
 
@@ -2510,22 +3717,51 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreOpenScreenChangeArea 0x00004012L
    #define GreOpenScreenChangeArea(a) (ULONG) Gre32Entry3((ULONG)(HDC)(a),0L,NGreOpenScreenChangeArea)
 
-   /* GreGetScreenChangeArea — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get a screen change area.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] lType Type.
+    * @param[in] lIndex Index.
+    *
+    * @return ULONG handle, or 0 on error.
+    *
+    * @retval 0  Error.
+    *
+    * @note If 0 is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_INV_HDC
+    *       - PMERR_NO_HANDLE
+    */
    #define NGreGetScreenChangeArea 0x00004013L
    #define GreGetScreenChangeArea(a,b,c) (ULONG) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(ULONG)(c),0L,NGreGetScreenChangeArea)
 
-   /* GreCloseScreenChangeArea — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Close a screen change area.
+    *
+    * @param[in] hdc  Device context handle.
+    * @param[in] hsca Screen change area handle.
+    *
+    * @return ULONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_INV_HDC
+    *       - PMERR_NO_HANDLE
+    */
    #define NGreCloseScreenChangeArea 0x00004014L
    #define GreCloseScreenChangeArea(a,b) (ULONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(ULONG)(b),0L,NGreCloseScreenChangeArea)
 
    /**
     * @brief Get screen bits.
     *
-    * @param[in] hdc    Device context handle.
+    * @param[in] hdc      Device context handle.
     * @param[in] lOptions Options.
-    * @param[in] lCount Count.
-    * @param[in] lParam1 Parameter 1.
-    * @param[in] lParam2 Parameter 2.
+    * @param[in] lCount   Count.
+    * @param[in] lParam1  Parameter 1.
+    * @param[in] lParam2  Parameter 2.
     *
     * @return ULONG result.
     *
@@ -2538,7 +3774,27 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreGetScreenBits 0x0000401DL
    #define GreGetScreenBits(a,b,c,d,e) (ULONG) Gre32Entry7((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(ULONG)(c),(ULONG)(ULONG)(d),(ULONG)(ULONG)(e),0L,NGreGetScreenBits)
 
-   /* GreSetScreenBits — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set screen bits.
+    *
+    * @param[in] hdc      Device context handle.
+    * @param[in] lOptions Options.
+    * @param[in] lCount   Count.
+    * @param[in] lParam   Parameter.
+    *
+    * @return ULONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BITMAP_NOT_SELECTED
+    *       - PMERR_INCOMPAT_COLOR_FORMAT
+    *       - PMERR_INV_DC_TYPE
+    *       - PMERR_INV_IMAGE_DIMENSION
+    *       - PMERR_INV_IN_AREA
+    *       - PMERR_INV_IN_PATH
+    *       - PMERR_INV_RECT
+    */
    #define NGreSetScreenBits 0x0000401EL
    #define GreSetScreenBits(a,b,c,d) (ULONG) Gre32Entry6((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(ULONG)(c),(ULONG)(ULONG)(d),0L,NGreSetScreenBits)
 #endif
@@ -2590,7 +3846,40 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
 #endif
 
 #ifdef INCL_GRE_DCS
-   /* GreResetDC — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Reset a device context.
+    *
+    * @param[in] hdc Device context handle.
+    * @param[in] lOptions Options.
+    *
+    * @return ULONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_INV_IN_AREA
+    *       - PMERR_INV_IN_PATH
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    *       - PMERR_INV_CODEPAGE
+    *       - PMERR_EXCEEDS_MAX_SEG_LENGTH
+    *       - PMERR_INV_RECT
+    *       - PMERR_INV_COORDINATE
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_HRGN
+    *       - PMERR_INV_REGION_CONTROL
+    *       - PMERR_INV_HBITMAP
+    *       - PMERR_INV_DC_TYPE
+    *       - PMERR_INV_ID
+    *       - PMERR_BITMAP_IS_SELECTED
+    *       - PMERR_HBITMAP_BUSY
+    *       - PMERR_INV_INFO_TABLE
+    *       - PMERR_INV_BITMAP_DIMENSION
+    *       - PMERR_INV_SCAN_START
+    */
    #define NGreResetDC 0x00004202L
    #define GreResetDC(a,b) (ULONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(ULONG)(b),0L,NGreResetDC)
 
@@ -2598,27 +3887,121 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreResetDC2 0x0000426BL
    #define GreResetDC2(a,b) (ULONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(ULONG)(b),0L,NGreResetDC2)
 
-   /* GreGetHandle — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get a handle.
+    *
+    * @param[in] hdc    Device context handle.
+    * @param[in] lIndex Index.
+    *
+    * @return LONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_HDC
+    */
    #define NGreGetHandle 0x00004203L
    #define GreGetHandle(a,b) (LONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(ULONG)(b),0L,NGreGetHandle)
 
-   /* GreSetHandle — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set a handle.
+    *
+    * @param[in] hdc     Device context handle.
+    * @param[in] lHandle Handle.
+    * @param[in] lIndex  Index.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_HDC
+    */
    #define NGreSetHandle 0x00004204L
    #define GreSetHandle(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(LHANDLE)(b),(ULONG)(ULONG)(c),0L,NGreSetHandle)
 
-   /* GreGetProcessControl — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get process control.
+    *
+    * @param[in] hdc Device context handle.
+    *
+    * @return LONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_HDC
+    */
    #define NGreGetProcessControl 0x00004205L
    #define GreGetProcessControl(a) (LONG) Gre32Entry3((ULONG)(HDC)(a),0L,NGreGetProcessControl)
 
-   /* GreSetProcessControl — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set process control.
+    *
+    * @param[in] hdc      Device context handle.
+    * @param[in] lFlags   Flags.
+    * @param[in] lOptions Options.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_HDC
+    */
    #define NGreSetProcessControl 0x00004206L
    #define GreSetProcessControl(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(ULONG)(c),0L,NGreSetProcessControl)
 
-   /* GreSaveDC — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Save a device context.
+    *
+    * @param[in] hdc Device context handle.
+    *
+    * @return LONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_EXCEEDS_MAX_SEG_LENGTH
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    */
    #define NGreSaveDC 0x00004207L
    #define GreSaveDC(a) (LONG) Gre32Entry3((ULONG)(HDC)(a),0L,NGreSaveDC)
 
-   /* GreRestoreDC — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Restore a device context.
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] lMode Mode.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_EXCEEDS_MAX_SEG_LENGTH
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_CODEPAGE
+    */
    #define NGreRestoreDC 0x00004208L
    #define GreRestoreDC(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(LONG)(b),0L,NGreRestoreDC)
 
@@ -2630,7 +4013,23 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreQueryEngineVersion 0x0000020AL
    #define GreQueryEngineVersion() (LONG) Gre32Entry2(0L,NGreQueryEngineVersion)
 
-   /* GreSetDCOwner — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set the DC owner.
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] lOwner Owner value.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INV_HDC
+    */
    #define NGreSetDCOwner 0x0000420BL
    #define GreSetDCOwner(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(ULONG)(b),0L,NGreSetDCOwner)
 #endif
@@ -2652,27 +4051,137 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreInvalidateVisRegion 0x0000420FL
    #define GreInvalidateVisRegion(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(PDC_BLOCK)(c),0L,NGreInvalidateVisRegion)
 
-   /* GreCreateBitmap — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Create a bitmap.
+    *
+    * @param[in] hdc      Device context handle.
+    * @param[in] pBmih    Pointer to a BITMAPINFOHEADER2 structure.
+    * @param[in] cOptions Options.
+    * @param[in] pBits    Pointer to bitmap data.
+    * @param[in] pBmi     Pointer to a BITMAPINFO2 structure.
+    *
+    * @return HBITMAP handle, or NULL on error.
+    *
+    * @retval NULL  Error.
+    *
+    * @note If NULL is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    *       - PMERR_INV_HDC
+    */
    #define NGreCreateBitmap 0x00004210L
    #define GreCreateBitmap(a,b,c,d,e) (HBITMAP) Gre32Entry7((ULONG)(HDC)(a),(ULONG)(PBITMAPINFOHEADER2)(b),(ULONG)(ULONG)(c),(ULONG)(PBYTE)(d),(ULONG)(PBITMAPINFO2)(e),0L,NGreCreateBitmap)
 
-   /* GreDeleteBitmap — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Delete a bitmap.
+    *
+    * @param[in] hbm Bitmap handle.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BITMAP_IS_SELECTED
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HBITMAP_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_HBITMAP
+    */
    #define NGreDeleteBitmap 0x00000211L
    #define GreDeleteBitmap(a) (BOOL) Gre32Entry3((ULONG)(HBITMAP)(a),0L,NGreDeleteBitmap)
 
-   /* GreSelectBitmap — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Select a bitmap.
+    *
+    * @param[in] hdc Device context handle.
+    * @param[in] hbm Bitmap handle.
+    *
+    * @return HBITMAP previous bitmap handle, or NULL on error.
+    *
+    * @retval NULL  Error.
+    *
+    * @note If NULL is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BITMAP_IS_SELECTED
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HBITMAP_BUSY
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_BITMAP_DIMENSION
+    *       - PMERR_INV_RECT
+    */
    #define NGreSelectBitmap 0x00004212L
    #define GreSelectBitmap(a,b) (HBITMAP) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(HBITMAP)(b),0L,NGreSelectBitmap)
 
-   /* GreGetBitmapParameters — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get bitmap parameters.
+    *
+    * @param[in] hbm Bitmap handle.
+    * @param[in] pBmih Pointer to a BITMAPINFOHEADER structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BITMAP_IS_SELECTED
+    *       - PMERR_HBITMAP_BUSY
+    *       - PMERR_INV_HBITMAP
+    */
    #define NGreGetBitmapParameters 0x00000213L
    #define GreGetBitmapParameters(a,b) (BOOL) Gre32Entry4((ULONG)(HBITMAP)(a),(ULONG)(PBITMAPINFOHEADER)(b),0L,NGreGetBitmapParameters)
 
-   /* GreGetBitmapDimension — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Get bitmap dimension.
+    *
+    * @param[in] hbm Bitmap handle.
+    * @param[in] pSizel Pointer to a SIZEL structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BITMAP_IS_SELECTED
+    *       - PMERR_HBITMAP_BUSY
+    *       - PMERR_INV_HBITMAP
+    */
    #define NGreGetBitmapDimension 0x00000214L
    #define GreGetBitmapDimension(a,b) (BOOL) Gre32Entry4((ULONG)(HBITMAP)(a),(ULONG)(PSIZEL)(b),0L,NGreGetBitmapDimension)
 
-   /* GreSetBitmapDimension — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set bitmap dimension.
+    *
+    * @param[in] hbm    Bitmap handle.
+    * @param[in] pSizel Pointer to a SIZEL structure.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BITMAP_IS_SELECTED
+    *       - PMERR_HBITMAP_BUSY
+    *       - PMERR_INV_HBITMAP
+    */
    #define NGreSetBitmapDimension 0x00000215L
    #define GreSetBitmapDimension(a,b) (BOOL) Gre32Entry4((ULONG)(HBITMAP)(a),(ULONG)(PSIZEL)(b),0L,NGreSetBitmapDimension)
 
@@ -2726,29 +4235,141 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
 #endif
 
 #ifdef INCL_GRE_SETID
-   /* GreDeleteSetId — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Delete a set ID.
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] lcid  Locale ID.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_COORDINATE_OVERFLOW
+    *       - PMERR_DEV_FUNC_NOT_INSTALLED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INSUFFICIENT_MEMORY
+    *       - PMERR_INV_CODEPAGE
+    *       - PMERR_SETID_NOT_FOUND
+    */
    #define NGreDeleteSetId 0x00004222L
    #define GreDeleteSetId(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(LCID)(b),0L,NGreDeleteSetId)
 
-   /* GreQueryNumberSetIds — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Query the number of set IDs.
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] lType Type.
+    *
+    * @return LONG result.
+    *
+    * @note If an error is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_SETID
+    *       - PMERR_INV_SETID_TYPE
+    */
    #define NGreQueryNumberSetIds 0x00004223L
    #define GreQueryNumberSetIds(a,b) (LONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(ULONG)(b),0L,NGreQueryNumberSetIds)
 
-   /* GreQuerySetIds — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Query set IDs.
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] lCount Count.
+    * @param[in] plTypes Pointer to types.
+    * @param[in] pStr   Pointer to string.
+    * @param[in] plcid  Pointer to locale ID.
+    * @param[in] lOptions Options.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_LENGTH_OR_COUNT
+    *       - PMERR_INV_SETID
+    *       - PMERR_INV_SETID_TYPE
+    */
    #define NGreQuerySetIds 0x00004224L
    #define GreQuerySetIds(a,b,c,d,e,f) (BOOL) Gre32Entry8((ULONG)(HDC)(a),(ULONG)(LONG)(b),(ULONG)(PLONG)(c),(ULONG)(PSTR8)(d),(ULONG)(PLCID)(e),(ULONG)(ULONG)(f),0L,NGreQuerySetIds)
 #endif
 
 #ifdef INCL_GRE_LCID
-   /* GreQueryBitmapHandle — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Query a bitmap handle.
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] lcid  Locale ID.
+    *
+    * @return HBITMAP handle, or NULL on error.
+    *
+    * @retval NULL  Error.
+    *
+    * @note If NULL is returned, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BITMAP_NOT_SELECTED
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_HDC
+    *       - PMERR_INV_SETID
+    */
    #define NGreQueryBitmapHandle 0x00000225L
    #define GreQueryBitmapHandle(a,b) (HBITMAP) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(LCID)(b),0L,NGreQueryBitmapHandle)
 
-   /* GreSetBitmapID — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Set a bitmap ID.
+    *
+    * @param[in] hdc   Device context handle.
+    * @param[in] hbm   Bitmap handle.
+    * @param[in] lcid  Locale ID.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BITMAP_IS_SELECTED
+    *       - PMERR_HBITMAP_BUSY
+    *       - PMERR_HDC_BUSY
+    *       - PMERR_INV_HBITMAP
+    *       - PMERR_INV_HDC
+    */
    #define NGreSetBitmapID 0x00004226L
    #define GreSetBitmapID(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(HBITMAP)(b),(ULONG)(LCID)(c),0L,NGreSetBitmapID)
 
-   /* GreCopyDCLoadData — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Copy DC load data.
+    *
+    * @param[in] hdc    Destination device context handle.
+    * @param[in] lCmd   Command.
+    * @param[in] hdcSrc Source device context handle.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_FONT_NOT_LOADED
+    *       - PMERR_KERNING_NOT_SUPPORTED
+    */
    #define NGreCopyDCLoadData 0x00004227L
    #define GreCopyDCLoadData(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(ULONG)(b),(ULONG)(HDC)(c),0L,NGreCopyDCLoadData)
 #endif
@@ -2792,7 +4413,22 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define NGreLoadFont 0x0000022EL
    #define GreLoadFont(a) (BOOL) Gre32Entry3((ULONG)(PSZ)(a),0L,NGreLoadFont)
 
-   /* GreUnloadFont — no verifiable error list found; left undocumented. */
+   /**
+    * @brief Unload a font.
+    *
+    * @param[in] pszFilename Pointer to the font file name.
+    *
+    * @return BOOLEAN success indicator.
+    *
+    * @retval TRUE  Successful.
+    * @retval FALSE Error.
+    *
+    * @note If the function returns FALSE, the handling routine must call
+    *       WinSetErrorInfo. WinGetLastError may return one of the following
+    *       errors:
+    *       - PMERR_BASE_ERROR
+    *       - PMERR_FONT_FILE_NOT_LOADED
+    */
    #define NGreUnloadFont 0x0000022FL
    #define GreUnloadFont(a) (BOOL) Gre32Entry3((ULONG)(PSZ)(a),0L,NGreUnloadFont)
 
@@ -2853,7 +4489,7 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    #define GreUnLoadPublicFont(a) (BOOL) Gre32Entry3((ULONG)(PSZ)(a),0L,NGreUnLoadPublicFont)
 
    /**
-    * @brief Query code page vector.
+    * @brief Query the code page vector.
     *
     * @param[in] lCodePage Code page.
     *
