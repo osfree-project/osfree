@@ -5,6 +5,7 @@
 #ifndef GOCA_COMMON_H
 #define GOCA_COMMON_H
 
+#define INCL_BASE
 #define INCL_PM
 #include "F_platform.h"
 #include "pmord.h"

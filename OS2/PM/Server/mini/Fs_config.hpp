@@ -6,6 +6,7 @@
 #ifndef FS_CONFIG_HPP
 #define FS_CONFIG_HPP
 
+#define INCL_PM
 #include "F_platform.h"
 #include "F_config.h"
 

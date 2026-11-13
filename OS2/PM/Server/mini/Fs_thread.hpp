@@ -5,6 +5,7 @@
 #ifndef FS_THREAD_HPP
 #define FS_THREAD_HPP
 
+#define INCL_BASE
 #include "F_platform.h"
 #include "Fs_config.hpp"
 #include "Fs_connection.hpp"

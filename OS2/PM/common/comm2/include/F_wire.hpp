@@ -4,7 +4,8 @@
 #ifndef F_WIRE_HPP
 #define F_WIRE_HPP
 
-#define INCL_DOSERRORS
+#define INCL_BASE
+#define INCL_PM
 #include "F_platform.h"
 #include "F_link.hpp"
 

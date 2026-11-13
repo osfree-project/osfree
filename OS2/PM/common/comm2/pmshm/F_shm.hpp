@@ -9,10 +9,8 @@
 #ifndef F_SHM_HPP
 #define F_SHM_HPP
 
-#define INCL_DOSERRORS
-#define INCL_DOSQUEUES
-#define INCL_DOSPROCESS
-#define INCL_DOSMEMMGR
+#define INCL_BASE
+#define INCL_PM
 #include "F_platform.h"
 
 #include "F_link.hpp"

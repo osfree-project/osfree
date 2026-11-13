@@ -9,12 +9,8 @@
 
 #if defined(__OS2__) || defined(__OS2V2__)
 
-  #define INCL_GPI
-  #define INCL_DEV
-  #define INCL_DOS
-  #define INCL_DOSMODULEMGR
-  #include <os2.h>
-  #define EXTERN extern "C"
+#include <os2.h>
+#define EXTERN extern "C"
 
 #elif defined(__WIN32__) || defined(_WIN32)
 
@@ -58,15 +54,9 @@
   /* OS/2-compatible pointer to a generic procedure (for DosQueryProcAddr). */
   typedef void (*PFN)(void);
 
-  #ifndef TRUE
   #define TRUE 1
-  #endif
-  #ifndef FALSE
   #define FALSE 0
-  #endif
-  #ifndef NULL
   #define NULL ((void*)0)
-  #endif
 
   /* ---------- Хэндлы ---------- */
   typedef void *HAB;
@@ -100,21 +90,15 @@
                value struct struct caller [] \
                modify [eax ecx edx]
 
-    #undef EXPENTRY
-    #define EXPENTRY __declspec(__pragma("__estdcall"))
+  #undef EXPENTRY
+  #define EXPENTRY __declspec(__pragma("__estdcall"))
 
-  #ifndef APIENTRY
-    #define APIENTRY   __declspec(__pragma("__estdcall"))
-  #endif
-  #ifndef APIENTRY16
-    #define APIENTRY16 far pascal
-  #endif
+  #define APIENTRY   __declspec(__pragma("__estdcall"))
+  #define APIENTRY16 far pascal
 
   #define EXTERN extern "C" 
 
-  #ifndef WINAPI
-    #define WINAPI __stdcall
-  #endif
+  #define WINAPI __stdcall
 
   /* ---------- Коды ошибок GPI ---------- */
   #define GPI_ERROR 0
@@ -122,20 +106,20 @@
   #define GPI_ALTERROR (-1)
 
   /* ---------- PS_FORMAT / PS_UNITS / PS_NORESET ---------- */
-    #define PS_UNITS_MASK     0x0000000FL
-    #define PU_ARBITRARY      0x00000000L
-    #define PU_PELS           0x00000001L
-    #define PU_LOMETRIC       0x00000002L
-    #define PU_HIMETRIC       0x00000003L
-    #define PU_LOENGLISH      0x00000004L
-    #define PU_HIENGLISH      0x00000005L
-    #define PU_TWIPS          0x00000006L
+    #define PS_UNITS_MASK     0x000000FCL
+    #define PU_ARBITRARY      0x00000004L
+    #define PU_PELS           0x00000008L
+    #define PU_LOMETRIC       0x0000000CL
+    #define PU_HIMETRIC       0x00000010L
+    #define PU_LOENGLISH      0x00000014L
+    #define PU_HIENGLISH      0x00000018L
+    #define PU_TWIPS          0x0000001CL
 
-  #define PS_FORMAT_MASK    0x0000FF00L
+  #define PS_FORMAT_MASK    0x00000F00L
   #define GPIF_DEFAULT      0x00000000L
-  #define GPIF_LONG         0x00000100L
-  #define GPIF_SHORT        0x00000200L
-  #define PS_NORESET        0x80000000L
+  #define GPIF_LONG         0x00000200L
+  #define GPIF_SHORT        0x00000100L
+  #define PS_NORESET        0x00008000L
 
   /* ---------- Константы DosAllocMem ---------- */
   #define PAG_COMMIT     0x00010000
@@ -295,16 +279,16 @@
   #define HIGHER_PRI              1L
 
   /* ---------- Foreground/background mix modes (PMGPI.H) ---------- */
-  #define FM_OR                0x0000
-  #define FM_XOR               0x0001
-  #define FM_AND               0x0002
-  #define FM_OVERPAINT         0x000D
-  #define FM_LEAVEALONE        0x000E
-  #define BM_OR                0x0000
-  #define BM_OVERPAINT         0x000D
-  #define BM_XOR               0x0001
-  #define BM_AND               0x0002
-  #define BM_LEAVEALONE        0x000E
+  #define FM_OR                1L
+  #define FM_XOR               4L
+  #define FM_AND               6L
+  #define FM_OVERPAINT         2L
+  #define FM_LEAVEALONE        5L
+  #define BM_OR                1L
+  #define BM_OVERPAINT         2L
+  #define BM_XOR               4L
+  #define BM_AND               6L
+  #define BM_LEAVEALONE        5L
 
   /* ---------- MAKELONG (Win32) ---------- */
     #define MAKELONG(a, b) \
@@ -365,18 +349,15 @@
   #define DC_SEM_SHARED        0x00000001UL   /* ignored on Win32 */
 
   /* ---------- DosExecPgm constants & RESULTCODES ---------- */
-  #ifndef EXEC_ASYNC
     #define EXEC_ASYNC          0L
     #define EXEC_ASYNCB         1L
     #define EXEC_SYNC           2L
     #define EXEC_SYNCB          3L
     #define EXEC_LOAD           4L
     #define EXEC_ASYNCRESULT    5L
-  #endif
+
   /* Legacy name used by F_platform.hpp. */
-  #ifndef EXEC_BACKGROUND
-    #define EXEC_BACKGROUND     EXEC_ASYNCRESULT
-  #endif
+  #define EXEC_BACKGROUND     EXEC_ASYNCRESULT
 
   typedef struct _RESULTCODES {
       ULONG codeTerminate;
@@ -405,16 +386,10 @@
       DWORD  dwProcessId, dwThreadId;
   } PROCESS_INFORMATION_LITE;
 
-  #ifndef DETACHED_PROCESS
-    #define DETACHED_PROCESS    0x00000008L
-  #endif
+  #define DETACHED_PROCESS    0x00000008L
 
-  #ifndef DLL_PROCESS_ATTACH
-    #define DLL_PROCESS_ATTACH  1
-  #endif
-  #ifndef DLL_PROCESS_DETACH
-    #define DLL_PROCESS_DETACH  0
-  #endif
+  #define DLL_PROCESS_ATTACH  1
+  #define DLL_PROCESS_DETACH  0
 
   __declspec(dllimport) void __stdcall ExitProcess(UINT uExitCode);
 
@@ -440,9 +415,7 @@
                                                       DWORD *lpThreadId);
 
 
-  #ifndef CREATE_NEW_CONSOLE
     #define CREATE_NEW_CONSOLE  0x00000010L
-  #endif
 
   __declspec(dllimport) BOOL __stdcall Beep(DWORD dwFreq, DWORD dwDuration);
 
@@ -716,8 +689,8 @@ static inline APIRET DosGetNamedSharedMem(PVOID *ppv, const char *pszName,
       return (*phmod != NULL) ? 0 : 1;
   }
   static inline APIRET DosQueryProcAddr(HMODULE hmod, ULONG ord, const char *pszName, PFN *ppfn) {
-      (void)pszName;
-      *ppfn = (PFN)GetProcAddress(hmod, (const char *)(ULONG)ord);
+      *ppfn = (PFN)GetProcAddress(hmod,
+                                  pszName ? pszName : (const char *)(ULONG)ord);
       return (*ppfn != 0) ? 0 : 1;
   }
   static inline APIRET DosLoadModule(const char *pszFailName, ULONG cbFailName,
@@ -777,7 +750,7 @@ static inline APIRET DosGetNamedSharedMem(PVOID *ppv, const char *pszName,
       return 0;
   }
   static inline APIRET DosOpenMutexSem(const char *pszName, HMTX *phmtx) {
-      *phmtx = OpenMutexA(SYNCHRONIZE, FALSE, pszName);
+      *phmtx = OpenMutexA(SYNCHRONIZE | MUTEX_MODIFY_STATE, FALSE, pszName);
       return (*phmtx != NULL) ? 0 : 1;
   }
   static inline APIRET DosCloseMutexSem(HMTX hmtx) {
@@ -1370,38 +1343,18 @@ EXTERN ULONG APIENTRY GpiQueryDCData(void);
 
   /* ---------- Winsock (без <windows.h>) ---------- */
 
-  #ifndef INADDR_ANY
-    #define INADDR_ANY       ((ULONG)0x00000000)
-  #endif
+  #define INADDR_ANY       ((ULONG)0x00000000)
 
-  #ifndef SOCKET
     typedef UINT SOCKET;
-  #endif
-  #ifndef INVALID_SOCKET
     #define INVALID_SOCKET   ((SOCKET)(~0))
-  #endif
-  #ifndef SOCKET_ERROR
     #define SOCKET_ERROR     (-1)
-  #endif
 
-  #ifndef AF_INET
     #define AF_INET          2
-  #endif
-  #ifndef SOCK_STREAM
     #define SOCK_STREAM      1
-  #endif
-  #ifndef SOL_SOCKET
     #define SOL_SOCKET       0xFFFF
-  #endif
-  #ifndef SO_REUSEADDR
     #define SO_REUSEADDR     0x0004
-  #endif
-  #ifndef SHUT_WR
     #define SHUT_WR          1
-  #endif
-  #ifndef SD_SEND
     #define SD_SEND          1
-  #endif
 
   struct in_addr {
       ULONG s_addr;
@@ -1427,9 +1380,7 @@ EXTERN ULONG APIENTRY GpiQueryDCData(void);
       char  *lpVendorInfo;
   } WSADATA, *LPWSADATA;
 
-  #ifndef MAKEWORD
     #define MAKEWORD(a, b) ((USHORT)(((BYTE)(a)) | ((BYTE)(b)) << 8))
-  #endif
 
   #define WSAEINTR          10004
   #define WSAECONNREFUSED   10061
@@ -1485,13 +1436,9 @@ EXTERN ULONG APIENTRY GpiQueryDCData(void);
 
 /* ---------- Winsock additions: select, non-blocking connect ---------- */
 
-#ifndef INADDR_NONE
     #define INADDR_NONE      ((ULONG)0xFFFFFFFF)
-#endif
 
-#ifndef FD_SETSIZE
     #define FD_SETSIZE 64
-#endif
 
 typedef struct fd_set {
     unsigned int fd_count;
@@ -1521,28 +1468,14 @@ __declspec(dllimport) int __stdcall getsockopt(SOCKET s, int level, int optname,
 
 #define FIONBIO  0x8004667E
 
-#ifndef WSAEWOULDBLOCK
     #define WSAEWOULDBLOCK 10035
-#endif
-#ifndef WSAEINPROGRESS
     #define WSAEINPROGRESS 10036
-#endif
-#ifndef WSAETIMEDOUT
     #define WSAETIMEDOUT   10060
-#endif
 
-#ifndef SO_ERROR
     #define SO_ERROR       0x1007
-#endif
-#ifndef SO_KEEPALIVE
     #define SO_KEEPALIVE   0x0008
-#endif
-#ifndef TCP_NODELAY
     #define TCP_NODELAY    0x0001
-#endif
-#ifndef IPPROTO_TCP
     #define IPPROTO_TCP    6
-#endif
 
 /* ---------- Named pipes (Win32 emulation of OS/2 Dos*NPipe) ---------- */
 
@@ -1560,8 +1493,8 @@ typedef void *HPIPE;
 
 /* OS/2 DosOpen constants (subset needed by FreePM transport). */
 #define OPEN_ACTION_OPEN_IF_EXISTS   2L
-#define OPEN_FLAGS_WRITE_THROUGH     0x00000002UL
-#define OPEN_FLAGS_FAIL_ON_ERROR     0x00000004UL
+#define OPEN_FLAGS_WRITE_THROUGH     0x00004000UL
+#define OPEN_FLAGS_FAIL_ON_ERROR     0x00002000UL
 #define OPEN_FLAGS_RANDOM            0x00000008UL
 #define OPEN_SHARE_DENYNONE          0x00000040UL
 #define OPEN_ACCESS_READWRITE        0x00000002UL
@@ -1659,32 +1592,21 @@ static inline APIRET DosWrite(HPIPE hpipe, const void *pv, ULONG cb,
 /* ---------- Queues (Win32 emulation of OS/2 Dos*Queue) ---------- */
 
 
-#ifndef PID
-  typedef ULONG PID;
-#endif
+typedef ULONG PID;
 
-#ifndef HQUEUE
-  typedef PVOID HQUEUE;
-#endif
+typedef PVOID HQUEUE;
 
-#ifndef QUE_FIFO
-  #define QUE_FIFO      0
-  #define QUE_LIFO      1
-  #define QUE_PRIORITY  2
-#endif
-#ifndef DCWW_WAIT
-  #define DCWW_WAIT     0
-  #define DCWW_NOWAIT   1
-#endif
+#define QUE_FIFO      0
+#define QUE_LIFO      1
+#define QUE_PRIORITY  2
+
+#define DCWW_WAIT     0
+#define DCWW_NOWAIT   1
 
 typedef struct _REQUESTDATA {
     ULONG ulData;
     PID   pid;
 } REQUESTDATA, *PREQUESTDATA;
-
-#ifndef HEV
-  typedef void *HEV;
-#endif
 
 typedef void *HEV;
 
@@ -2066,7 +1988,7 @@ static inline APIRET DosCloseEventSem(HEV hev)
   #define CLR_CYAN           5L
   #define CLR_YELLOW         6L
   #define CLR_NEUTRAL        7L
-  #define CLR_WHITE          0L
+  #define CLR_WHITE          (-2L)
 
   #define HWND_DESKTOP     ((HWND)1)
   #define HWND_TOP         ((HWND)3)
@@ -2108,7 +2030,7 @@ static inline APIRET DosCloseEventSem(HEV hev)
   #define FID_HORZSCROLL      0x8007UL
   #define FID_CLIENT          0x8008UL
 
-  #define GPIA_ASSOC       0x0001L
+  #define GPIA_ASSOC       0x4000L
 
   #define DRO_FILL         1L
   #define DRO_OUTLINE      2L

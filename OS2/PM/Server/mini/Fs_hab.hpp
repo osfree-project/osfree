@@ -21,6 +21,7 @@
 #ifndef FS_HAB_HPP
 #define FS_HAB_HPP
 
+#define INCL_BASE
 #define INCL_PM
 #include "F_platform.h"
 #include "Fs_config.hpp"

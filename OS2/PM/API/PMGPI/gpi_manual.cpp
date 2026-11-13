@@ -2,7 +2,7 @@
  * @file gpi_manual.c
  * @brief Hand-written client-side PMGPI proxies.
  */
-#define INCL_GPI
+#define INCL_PM
 #include <string.h>
 #include "F_platform.h"
 #include "F_cmd.h"

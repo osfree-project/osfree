@@ -7,6 +7,8 @@
 #define FS_SERVER_HPP
 
 #include <time.h>
+#define INCL_BASE
+#define INCL_PM
 #include "F_platform.h"
 #include "Fs_config.hpp"
 #include "Fs_process.hpp"

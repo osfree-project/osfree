@@ -4,10 +4,8 @@
 #ifndef F_PIPE_HPP
 #define F_PIPE_HPP
 
-#if defined(__OS2__) || defined(__OS2V2__)
-  #define INCL_DOSERRORS
-  #define INCL_DOSNMPIPES
-#endif
+#define INCL_BASE
+#define INCL_PM
 #include "F_platform.h"
 
 #include "F_link.hpp"

@@ -23,6 +23,8 @@
 #ifndef FS_QUEUE_HPP
 #define FS_QUEUE_HPP
 
+#define INCL_BASE
+#define INCL_PM
 #include "F_platform.h"
 
 /*! @brief Initial capacity in messages; the buffer doubles on Grow. */

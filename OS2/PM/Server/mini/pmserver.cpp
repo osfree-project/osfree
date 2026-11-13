@@ -16,6 +16,8 @@
 #include <string.h>
 #include <signal.h>
 
+#define INCL_BASE
+#define INCL_PM
 #include "F_platform.h"
 #include "F_config.h"
 #include "F_cmd.h"

@@ -25,7 +25,6 @@
     (backend=), then the default "PMPIPE".
 */
 
-#define INCL_GPI
 
 #include <string.h>
 #include <stdio.h>
@@ -34,6 +33,8 @@
 #include <time.h>
 #include <process.h>
 
+#define INCL_BASE
+#define INCL_PM
 #include "F_platform.h"
 #include "Fc_config.hpp"
 #include "F_config.h"

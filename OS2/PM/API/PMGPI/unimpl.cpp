@@ -19,7 +19,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#define INCL_DOSMODULEMGR
+#define INCL_BASE
+#define INCL_PM
 #include <F_platform.h>
 
 

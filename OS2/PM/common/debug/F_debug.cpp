@@ -21,6 +21,8 @@
 #include <string.h>
 #include <time.h>
 
+#define INCL_BASE
+#define INCL_PM
 #include "F_platform.h"
 #include "F_debug.h"
 

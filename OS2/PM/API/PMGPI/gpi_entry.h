@@ -5,6 +5,7 @@
 #ifndef GPI_ENTRY_H_INCLUDED
 #define GPI_ENTRY_H_INCLUDED
 
+#define INCL_BASE
 #define INCL_GPI
 #include "F_platform.h"
 

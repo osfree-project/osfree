@@ -60,7 +60,7 @@
  * codes are declared in pmddi.h.
  */
 
-#include "F_platform.h"
+#include "gre2sdl.h"
 #include "F_debug.h"
 #include "F_config.h"
 

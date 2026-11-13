@@ -6,6 +6,8 @@
 #define FS_PROCESS_HPP
 
 #include <time.h>
+#define INCL_BASE
+#define INCL_PM
 #include "F_platform.h"
 #include "Fs_config.hpp"
 #include "Fs_thread.hpp"

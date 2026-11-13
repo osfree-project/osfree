@@ -11,6 +11,8 @@
 #ifndef GRE2SDL_H
 #define GRE2SDL_H
 
+#define INCL_BASE
+#define INCL_PM
 #include "F_platform.h"
 
 /*! @brief Maximum number of entries in DISPATCHTABLE (from GRE22 docs). */

@@ -31,6 +31,8 @@
  * APIENTRY and EN_* subfunction codes are declared in pmddi.h.
  */
 
+#define INCL_BASE
+#define INCL_PM
 #include "F_platform.h"
 #include "F_debug.h"
 #include "Fs_dc.hpp"

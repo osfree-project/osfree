@@ -7,7 +7,8 @@
 #ifndef F_TCP_HPP
 #define F_TCP_HPP
 
-#define INCL_DOSERRORS
+#define INCL_BASE
+#define INCL_PM
 #include "F_platform.h"
 
 #if defined(__OS2__) || defined(__OS2V2__)

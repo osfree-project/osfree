@@ -16,7 +16,10 @@
 #define FS_CONNECTION_HPP
 
 #include <time.h>
+
+#define INCL_BASE
 #include "F_platform.h"
+
 #include "Fs_config.hpp"
 
 class Fs_Thread;
