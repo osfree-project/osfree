@@ -4,7 +4,9 @@
  *
  * NWinOpenWindowDC associates an HDC with a window and returns it.
  * The association is 1:1: subsequent calls for the same HWND return
- * the existing HDC. The DC is created via GreOpenDC.
+ * the existing HDC. The DC itself is owned by Fs_Wnd and opened by
+ * Fs_Wnd::EnsureDC (GreOpenDC + GreSetupDC with the window origin
+ * and full-window clip).
  *
  * Sync path in HandleWinCall: HWND travels in `data`, no payload, and
  * the reply is a bare 4-byte ulResult (the HDC).
@@ -20,65 +22,15 @@
 #include "gpi_ps.h"
 
 /*!
- * @brief Ensure the window has a DC, creating and setting it up if not.
- *
- * Shared by NWinOpenWindowDC and NWinBeginPaint: both need a valid
- * HDC on the window before any PS or drawing can happen. Idempotent:
- * returns the existing HDC if one is already attached.
- *
- * Mirrors the DC-open path in NWinOpenWindowDC (GreOpenDC with
- * {"DISPLAY","GRE2SDL"}, SetDC, GreSetupDC with the window origin and
- * full-window clip). Kept as a private helper so the two commands do
- * not drift apart.
- *
- * @param [in] pWnd  Window slot.
- * @return HDC on success, NULLHANDLE on failure.
- * @retval NULLHANDLE  pWnd is NULL, GreOpenDC failed, or driver
- *                     rejected the DC.
- * @retval !=NULLHANDLE Valid HDC (existing or freshly opened).
- */
-static HDC SrvEnsureWindowDC(Fs_Wnd *pWnd)
-{
-    HDC hdc;
-
-    if (!pWnd) return NULLHANDLE;
-
-    hdc = pWnd->GetDC();
-    if (hdc != NULLHANDLE) return hdc;
-
-    {
-        PSZ pdop[2] = { (PSZ)"DISPLAY", (PSZ)"GRE2SDL" };
-        hdc = GreOpenDC(NULLHANDLE, OD_DIRECT, (PSZ)"*", 2,
-                        (PDEVOPENDATA)pdop);
-    }
-    if (hdc == NULLHANDLE || (ULONG)hdc == (ULONG)-1)
-        return NULLHANDLE;
-
-    pWnd->SetDC(hdc);
-
-    {
-        RECTL rcl;
-        rcl.xLeft   = 0;
-        rcl.yBottom = 0;
-        rcl.xRight  = pWnd->GetCx();
-        rcl.yTop    = pWnd->GetCy();
-        GreSetupDC(hdc, 0,
-                   (LONG)pWnd->GetX(), (LONG)pWnd->GetY(),
-                   &rcl,
-                   SETUPDC_VISRGN | SETUPDC_ORIGIN);
-    }
-    return hdc;
-}
-
-/*!
  * @brief Dispatch NWin* commands in the PS / DC domain (0x0060..0x007F).
  *
  * @param [in]  pRecvobj   Transport connection handle.
  * @param [in]  fnCode     NWin* opcode (with NWIN_SYNC_FLAG).
  * @param [in]  data       HWND for NWinOpenWindowDC.
- * @param [in]  pArgs      Unused (sync path).
- * @param [in]  cbArgs     Unused (sync path).
- * @param [out] pcbPayload Always 0.
+ * @param [in]  pArgs      Payload for NWinBeginPaint / NWinEndPaint.
+ * @param [in]  cbArgs     Payload size.
+ * @param [out] pcbPayload sizeof(WinBeginPaint_Args) for NWinBeginPaint,
+ *                         0 otherwise.
  * @return NWinOpenWindowDC: Associated HDC, or 0 (NULLHANDLE) on failure.
  * @retval 0    NULLHANDLE (no HAB, window not found, window not visible,
  *              GreOpenDC failed, or unknown fnCode).
@@ -92,7 +44,6 @@ ULONG Fs_Server::DispatchWinPs(void *pRecvobj, ULONG fnCode, ULONG data,
     Fs_Thread     *pThread = pConn ? pConn->GetThread() : NULL;
     Fs_Process    *pProc   = pThread ? pThread->GetProcess() : NULL;
 
-    (void)pArgs; (void)cbArgs;
     if (pcbPayload) *pcbPayload = 0;
 
     switch (fnCode) {
@@ -100,7 +51,7 @@ ULONG Fs_Server::DispatchWinPs(void *pRecvobj, ULONG fnCode, ULONG data,
     case NWinOpenWindowDC: {
         HWND    hwnd = (HWND)data;
         Fs_Wnd *pWnd;
-        HDC     hdc;
+        HDC     hdc, hdcOld;
         int     ctx;
 
         ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
@@ -122,49 +73,17 @@ ULONG Fs_Server::DispatchWinPs(void *pRecvobj, ULONG fnCode, ULONG data,
             return 0;
         }
 
-        /* HWND -> HDC association is 1:1; return the existing HDC. */
-        hdc = pWnd->GetDC();
-        if (hdc != NULLHANDLE) {
-            F_DbgCtxExitf(ctx, "HDC=%lu (existing)", (unsigned long)hdc);
-            return (ULONG)hdc;
-        }
-
-        {
-            PSZ pdop[2] = { (PSZ)"DISPLAY", (PSZ)"GRE2SDL" };
-            hdc = GreOpenDC(NULLHANDLE, OD_DIRECT, (PSZ)"*", 2,
-                            (PDEVOPENDATA)pdop);
-        }
-
-        /* GreOpenDC returns (HDC)(ULONG)-1 on failure (driver rejected
-         * by GRE, NewDc failed).  Both 0 and 0xFFFFFFFF are invalid
-         * HDC values.  Report NULLHANDLE, otherwise the client would
-         * treat 0xFFFFFFFF as a transport error (sync contract of
-         * Fc_SesSendCommand uses -1 for transport error). */
-        if (hdc == NULLHANDLE || (ULONG)hdc == (ULONG)-1) {
-            F_DbgCtxExitf(ctx, "NULLHANDLE (GreOpenDC failed, hdc=0x%lx)",
-                          (unsigned long)hdc);
+        /* HWND -> HDC association is 1:1; EnsureDC returns the existing
+         * HDC or opens a fresh one and sets it up. */
+        hdcOld = pWnd->GetDC();
+        hdc = pWnd->EnsureDC();
+        if (hdc == NULLHANDLE) {
+            F_DbgCtxExitf(ctx, "NULLHANDLE (GreOpenDC failed)");
             return 0;
         }
 
-        pWnd->SetDC(hdc);
-
-        /* PMWIN sets up the DC when the window is created.  In real PM
-         * this is done by GreSetupDC; GRE implements it by simulating
-         * the mandatory driver hooks (GreDeviceSetDCOrigin and
-         * GreNotifyClipChange). */
-        {
-            RECTL rcl;
-            rcl.xLeft   = 0;
-            rcl.yBottom = 0;
-            rcl.xRight  = pWnd->GetCx();
-            rcl.yTop    = pWnd->GetCy();
-            GreSetupDC(hdc, 0,
-                       (LONG)pWnd->GetX(), (LONG)pWnd->GetY(),
-                       &rcl,
-                       SETUPDC_VISRGN | SETUPDC_ORIGIN);
-        }
-
-        F_DbgCtxExitf(ctx, "HDC=%lu (new)", (unsigned long)hdc);
+        F_DbgCtxExitf(ctx, "HDC=%lu (%s)", (unsigned long)hdc,
+                      (hdcOld != NULLHANDLE) ? "existing" : "new");
         return (ULONG)hdc;
     }
 
@@ -192,7 +111,7 @@ ULONG Fs_Server::DispatchWinPs(void *pRecvobj, ULONG fnCode, ULONG data,
             return 0;
         }
 
-        hdc = SrvEnsureWindowDC(pWnd);
+        hdc = pWnd->EnsureDC();
         if (hdc == NULLHANDLE) {
             F_DbgCtxExitf(ctx, "NULLHANDLE (no DC)");
             return 0;

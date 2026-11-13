@@ -3,8 +3,9 @@
  * @brief One server-side window + the server-wide window registry.
  *
  * Fs_Wnd is the minimal per-window record needed to hand out a PS for
- * a window (HWND -> HAB back-ref -> cached HPS). It does not yet carry
- * WndProc or a message queue — those come with Phase 5.
+ * a window (HWND -> HAB back-ref -> cached HPS). It also carries the
+ * server-side window procedure: DispatchMsg dispatches a message to
+ * the per-class handler, DefWindowProc is the leaf fallback.
  *
  * Fs_WndList holds F_MAX_WINDOWS slots, keyed by a monotonic HWND
  * (never reused, like idClient / iHab). Owned by Fs_Server (peer to
@@ -19,14 +20,16 @@
 #include "F_platform.h"
 #include "Fs_config.hpp"
 
+class Fs_WndList;
+
 /*!
  * @brief One server-side window slot.
  *
  * Keyed by m_iHwnd (monotonic, unique). Holds a back-ref to the owning
  * HAB (m_iHab), the HDC created by WinOpenWindowDC for this window,
- * geometry, visibility, style, title, parent / Z-order / class, and the
- * ctlData/presParams blobs captured at creation time. The PS belongs to
- * the client.
+ * geometry, visibility, style, title, parent / Z-order / class / id,
+ * and the ctlData/presParams blobs captured at creation time. The PS
+ * belongs to the client.
  */
 class Fs_Wnd {
 public:
@@ -62,6 +65,28 @@ public:
     /*! @brief Clear the cached HDC reference. */
     void  ClearDC()       { m_hdc = NULL; }
 
+    /*!
+     * @brief Return the window DC, opening it on first use.
+     *
+     * Idempotent: returns the cached HDC if one is already attached.
+     * On first call opens a display DC via GreOpenDC and sets it up
+     * with the window origin and full-window clip via GreSetupDC.
+     *
+     * @return HDC on success, NULLHANDLE on failure.
+     * @retval NULLHANDLE  GreOpenDC failed or driver rejected the DC.
+     * @retval !=NULLHANDLE Valid HDC (existing or freshly opened).
+     */
+    HDC EnsureDC();
+
+    /*!
+     * @brief Re-apply DC origin and clip from the current rectangle.
+     *
+     * No-op if the DC has not been opened yet (EnsureDC will set it
+     * up on first use). Used by WM_SIZE to keep the DC in sync after
+     * a child window has been repositioned.
+     */
+    void ResetDC();
+
     LONG  GetX() const { return m_x; }
     LONG  GetY() const { return m_y; }
     LONG  GetCx() const { return m_cx; }
@@ -88,13 +113,15 @@ public:
      */
     void SetClass(const char *c);
 
-    /* ---- Parent / Z-order / class ---- */
+    /* ---- Parent / Z-order / class / id ---- */
     ULONG GetParent() const { return m_iParent; }
     LONG  GetZOrder() const { return m_lZOrder; }
     const char *GetClass() const { return m_szClass; }
+    ULONG GetId()     const { return m_ulId;   }
 
     void SetParent(ULONG p) { m_iParent = p; }
     void SetZOrder(LONG z)  { m_lZOrder = z; }
+    void SetId(ULONG id)    { m_ulId = id;   }
 
     void SetCtlData(PBYTE p, ULONG cb)
     { if (m_pCtlData) DosFreeMem(m_pCtlData); m_pCtlData = p; m_cbCtlData = cb; }
@@ -105,6 +132,88 @@ public:
     ULONG GetCbCtlData()   const { return m_cbCtlData;   }
     PBYTE GetPresParams()  const { return m_pPresParams; }
     ULONG GetCbPresParams()const { return m_cbPresParams;}
+
+    /* ---- Server-side window procedure ---- */
+
+    /*!
+     * @brief Dispatch one message to the per-class handler.
+     *
+     * Switches on m_szClass and calls FrameWndProc / TitleBarWndProc.
+     * Unknown classes fall through to DefWindowProc.
+     *
+     * @param [in] pOwner  Owning registry (passed through to handlers;
+     *                     needed for DestroyTree on WM_CLOSE and for
+     *                     WM_SIZE child recalculation).
+     * @param [in] msg     Message id.
+     * @param [in] mp1     First message parameter.
+     * @param [in] mp2     Second message parameter.
+     * @return Message result (MRESULT).
+     * @retval 0  Message not handled, or handled with a zero result.
+     */
+    MRESULT DispatchMsg(Fs_WndList *pOwner, ULONG msg,
+                        MPARAM mp1, MPARAM mp2);
+
+    /*!
+     * @brief Frame (WC_FRAME) window procedure.
+     *
+     * WM_PAINT  draws the frame boundary around the client area.
+     * WM_SIZE   repositions FID_TITLEBAR (top strip) and FID_CLIENT
+     *           (remaining area) via pOwner->WindowFromID, then
+     *           calls ResetDC on each so the DC origin follows.
+     * WM_CLOSE  destroys the window tree via pOwner->DestroyTree.
+     * All other messages fall through to DefWindowProc.
+     *
+     * @param [in] pOwner  Owning registry.
+     * @param [in] msg     Message id.
+     * @param [in] mp1     First message parameter.
+     * @param [in] mp2     Second message parameter.
+     * @return Message result (MRESULT).
+     * @retval 0  Handled with a zero result, or not handled.
+     */
+    MRESULT FrameWndProc(Fs_WndList *pOwner, ULONG msg,
+                         MPARAM mp1, MPARAM mp2);
+
+    /*!
+     * @brief Title bar (WC_TITLEBAR) window procedure.
+     *
+     * WM_PAINT  fills the background and draws the close cross.
+     * All other messages fall through to DefWindowProc.
+     *
+     * @param [in] pOwner  Owning registry.
+     * @param [in] msg     Message id.
+     * @param [in] mp1     First message parameter.
+     * @param [in] mp2     Second message parameter.
+     * @return Message result (MRESULT).
+     * @retval 0  Handled with a zero result, or not handled.
+     */
+    MRESULT TitleBarWndProc(Fs_WndList *pOwner, ULONG msg,
+                            MPARAM mp1, MPARAM mp2);
+
+    /*!
+     * @brief Server-side default window procedure (leaf).
+     *
+     * Analogue of PMWIN's WinDefWindowProc for the server side. Every
+     * window in PM shares certain fundamental behaviour defined by the
+     * default window procedure; FreePM houses that behaviour here.
+     * This is a leaf: it does not dispatch into any per-class handler.
+     *
+     * Handles the small set of messages the server can meaningfully
+     * act on today:
+     *
+     *   WM_CLOSE  destroys the target window tree via
+     *             pOwner->DestroyTree and returns 0.
+     *
+     * All other messages are accepted as "not handled" and return 0.
+     *
+     * @param [in] pOwner  Owning registry.
+     * @param [in] msg     Message id.
+     * @param [in] mp1     First message parameter.
+     * @param [in] mp2     Second message parameter.
+     * @return Message result (MRESULT).
+     * @retval 0  Message not handled, or handled with a zero result.
+     */
+    MRESULT DefWindowProc(Fs_WndList *pOwner, ULONG msg,
+                          MPARAM mp1, MPARAM mp2);
 
 private:
     BOOL  m_bUsed;
@@ -126,6 +235,9 @@ private:
 
     /*! @brief Window class name (NUL-terminated, at most 31 chars). */
     char  m_szClass[32];
+
+    /*! @brief Window id (FID_TITLEBAR / FID_CLIENT / user id). */
+    ULONG m_ulId;
 
     PBYTE m_pCtlData;    ULONG m_cbCtlData;
     PBYTE m_pPresParams; ULONG m_cbPresParams;
@@ -161,6 +273,22 @@ public:
      * @retval NULL   No such window.
      */
     Fs_Wnd *Find(ULONG iHwnd);
+
+    /*!
+     * @brief Find a child window of parent by id.
+     *
+     * Per OS/2 PM WinWindowFromID: returns the window whose parent is
+     * hwndParent and whose id equals id. If several siblings share the
+     * same id, behaviour is unspecified in PM; here the first slot in
+     * registration order is returned.
+     *
+     * @param [in] hwndParent  Parent HWND.
+     * @param [in] id          Window id (e.g. FID_TITLEBAR / FID_CLIENT).
+     * @return Slot pointer, or NULL if not found.
+     * @retval !NULL  Matching slot.
+     * @retval NULL   No child of hwndParent with this id.
+     */
+    Fs_Wnd *WindowFromID(ULONG hwndParent, ULONG id);
 
     /*!
      * @brief Destroy one window slot; closes its HDC if one was opened.
@@ -226,29 +354,19 @@ public:
     void DestroyTree(ULONG hwnd);
 
     /*!
-     * @brief Server-side default window procedure.
+     * @brief Route one message to its target window.
      *
-     * Analogue of PMWIN's WinDefWindowProc for the server side: every
-     * window in PM shares certain fundamental behaviour defined by the
-     * default window procedure, and FreePM houses that behaviour here
-     * (until per-class Server*WndProc implementations appear in
-     * Phase 5 / D3, at which point DefWindowProc will dispatch into
-     * them for standard classes and stay the generic fallback for
-     * custom classes).
-     *
-     * Called from NWinDispatchMsg in place of a real client window
-     * procedure. Handles the small set of messages the server can
-     * meaningfully act on today (WM_CLOSE > Destroy(hwnd)); all other
-     * messages are accepted as "not handled" and return 0.
+     * Finds the slot by hwnd and delegates to Fs_Wnd::DispatchMsg.
+     * Unknown hwnd is accepted and returns 0.
      *
      * @param [in] hwnd  Target window handle. May be 0 or unknown.
      * @param [in] msg   Message id.
      * @param [in] mp1   First message parameter.
      * @param [in] mp2   Second message parameter.
      * @return Message result (MRESULT).
-     * @retval 0  Message not handled, or handled with a zero result.
+     * @retval 0  hwnd unknown, or the handler returned 0.
      */
-    MRESULT DefWindowProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2);
+    MRESULT DispatchMsg(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2);
 
 private:
     void Lock();

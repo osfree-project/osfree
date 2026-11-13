@@ -1,0 +1,25 @@
+Win64 build host
+root=C:\devl\osfree\
+CD       OS2\PM\API\PMGPI\test_win_stdwindow\ 
+CXX      test_win_stdwindow.obj 
+test_win_stdwindow.cpp:40: warning: macro 'CHECK': missing Doxygen comment
+test_win_stdwindow.cpp:37: warning: missing Doxygen comment
+test_win_stdwindow.cpp:38: warning: missing Doxygen comment
+test_win_stdwindow.cpp:54: warning: function 'PumpQueue': missing @param hab
+test_win_stdwindow.cpp:54: warning: function 'PumpQueue': missing @param maxMsgs
+test_win_stdwindow.cpp:54: warning: function 'PumpQueue': missing @return
+test_win_stdwindow.cpp:67: warning: function 'PumpCount': missing @param hab
+test_win_stdwindow.cpp:67: warning: function 'PumpCount': missing @param hwnd
+test_win_stdwindow.cpp:67: warning: function 'PumpCount': missing @param msg
+test_win_stdwindow.cpp:67: warning: function 'PumpCount': missing @param maxMsgs
+test_win_stdwindow.cpp:67: warning: function 'PumpCount': missing @return
+test_win_stdwindow.cpp:82: warning: function 'main': missing Doxygen comment
+test_win_stdwindow.cpp(207): Error! E121: col(39) syntax error
+test_win_stdwindow.cpp(210): Error! E121: col(39) syntax error
+test_win_stdwindow.cpp(213): Error! E121: col(51) syntax error
+Error(E42): Last command making (C:\devl\osfree\build\OS2\PM\API\PMGPI\test_win_stdwindow\test_win_stdwindow.obj) returned a bad status
+Should this file be deleted [Yes/No] ? Error(E02): Make execution terminated
+Error(E42): Last command making (targets) returned a bad status
+Error(E02): Make execution terminated
+Error(E42): Last command making (gen_sources) returned a bad status
+Error(E02): Make execution terminated

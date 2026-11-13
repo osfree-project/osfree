@@ -5,7 +5,7 @@
 #include "Fs_wnd.hpp"
 #include "F_debug.h"
 
-#define INCL_GRE_DCS
+#define INCL_GREALL
 #include "pmddi.h"
 
 #include <string.h>
@@ -22,7 +22,7 @@ Fs_Wnd::Fs_Wnd()
     : m_bUsed(FALSE), m_iHwnd(0), m_iHab(0), /* m_hPS(NULL),*/ m_hdc(NULL),
       m_x(0), m_y(0), m_cx(0), m_cy(0),
       m_bVisible(FALSE), m_flStyle(0),
-      m_iParent(0), m_lZOrder(0),
+      m_iParent(0), m_lZOrder(0), m_ulId(0),
       m_pCtlData(NULL), m_cbCtlData(0),
       m_pPresParams(NULL), m_cbPresParams(0)
 {
@@ -56,6 +56,7 @@ BOOL Fs_Wnd::Init(ULONG iHwnd, ULONG iHab)
     m_szClass[0] = '\0';
     m_iParent  = 0;
     m_lZOrder  = 0;
+    m_ulId     = 0;
     m_pCtlData = NULL;    m_cbCtlData    = 0;
     m_pPresParams = NULL; m_cbPresParams = 0;
     return TRUE;
@@ -87,6 +88,107 @@ void Fs_Wnd::Shutdown()
     m_szClass[0] = '\0';
     m_iParent  = 0;
     m_lZOrder  = 0;
+    m_ulId     = 0;
+}
+
+/*!
+ * @brief Return the window DC, opening it on first use.
+ *
+ * Opens a display DC via GreOpenDC(OD_DIRECT) and sets it up with the
+ * window origin and full-window clip via GreSetupDC. Idempotent: the
+ * cached HDC is returned on subsequent calls.
+ *
+ * @return HDC on success, NULLHANDLE on failure.
+ * @retval NULLHANDLE   GreOpenDC failed or driver rejected the DC.
+ * @retval !=NULLHANDLE Valid HDC (existing or freshly opened).
+ */
+HDC Fs_Wnd::EnsureDC()
+{
+    HDC hdc;
+    int ctx;
+
+    ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
+                         "[WND] EnsureDC(hwnd=%lu)",
+                         (unsigned long)m_iHwnd);
+
+    hdc = m_hdc;
+    if (hdc != NULLHANDLE) {
+        F_DbgCtxExitf(ctx, "HDC=%lu (existing)", (unsigned long)hdc);
+        return hdc;
+    }
+
+    {
+        PSZ pdop[2] = { (PSZ)"DISPLAY", (PSZ)"GRE2SDL" };
+        hdc = GreOpenDC(NULLHANDLE, OD_DIRECT, (PSZ)"*", 2,
+                        (PDEVOPENDATA)pdop);
+    }
+    if (hdc == NULLHANDLE || (ULONG)hdc == (ULONG)-1) {
+        F_DbgCtxExitf(ctx, "NULLHANDLE (GreOpenDC failed, hdc=0x%lx)",
+                      (unsigned long)hdc);
+        return NULLHANDLE;
+    }
+
+    m_hdc = hdc;
+
+    {
+        RECTL rcl;
+        rcl.xLeft   = 0;
+        rcl.yBottom = 0;
+        rcl.xRight  = m_cx;
+        rcl.yTop    = m_cy;
+        GreSetupDC(hdc, 0,
+                   (LONG)m_x, (LONG)m_y,
+                   &rcl,
+                   SETUPDC_VISRGN | SETUPDC_ORIGIN);
+    }
+
+    F_DbgCtxExitf(ctx, "HDC=%lu (new)", (unsigned long)hdc);
+    return hdc;
+}
+
+/*!
+ * @brief Re-apply DC origin and clip from the current rectangle.
+ *
+ * No-op if the DC has not been opened yet (EnsureDC will set it up
+ * on first use). Used by WM_SIZE to keep the DC in sync after a child
+ * window has been repositioned.
+ */
+void Fs_Wnd::ResetDC()
+{
+    RECTL rcl;
+
+    if (m_hdc == NULLHANDLE) return;
+
+    rcl.xLeft   = 0;
+    rcl.yBottom = 0;
+    rcl.xRight  = m_cx;
+    rcl.yTop    = m_cy;
+    GreSetupDC(m_hdc, 0,
+               (LONG)m_x, (LONG)m_y,
+               &rcl,
+               SETUPDC_VISRGN | SETUPDC_ORIGIN);
+}
+
+void Fs_Wnd::SetTitle(const char *t)
+{
+    if (!t) { m_szTitle[0] = '\0'; return; }
+    strncpy(m_szTitle, t, sizeof(m_szTitle) - 1);
+    m_szTitle[sizeof(m_szTitle) - 1] = '\0';
+}
+
+/*!
+ * @brief Store the window class name.
+ *
+ * The caller (NWinCreateWindow) rejects class names longer than the
+ * buffer; this setter only truncates defensively.
+ *
+ * @param [in] c  NUL-terminated class name (NULL clears the field).
+ */
+void Fs_Wnd::SetClass(const char *c)
+{
+    if (!c) { m_szClass[0] = '\0'; return; }
+    strncpy(m_szClass, c, sizeof(m_szClass) - 1);
+    m_szClass[sizeof(m_szClass) - 1] = '\0';
 }
 
 
@@ -216,6 +318,40 @@ Fs_Wnd *Fs_WndList::Find(ULONG iHwnd)
     Lock();
     for (i = 0; i < F_MAX_WINDOWS; i++) {
         if (m_aWnds[i].IsUsed() && m_aWnds[i].GetHwnd() == iHwnd) {
+            pFound = &m_aWnds[i];
+            break;
+        }
+    }
+    Unlock();
+    return pFound;
+}
+
+/*!
+ * @brief Find a child window of parent by id.
+ *
+ * Per OS/2 PM WinWindowFromID: returns the window whose parent is
+ * hwndParent and whose id equals id. If several siblings share the
+ * same id, behaviour is unspecified in PM; here the first slot in
+ * registration order is returned.
+ *
+ * @param [in] hwndParent  Parent HWND.
+ * @param [in] id          Window id (e.g. FID_TITLEBAR / FID_CLIENT).
+ * @return Slot pointer, or NULL if not found.
+ * @retval !NULL  Matching slot.
+ * @retval NULL   No child of hwndParent with this id.
+ */
+Fs_Wnd *Fs_WndList::WindowFromID(ULONG hwndParent, ULONG id)
+{
+    Fs_Wnd *pFound = NULL;
+    int     i;
+
+    if (hwndParent == 0) return NULL;
+
+    Lock();
+    for (i = 0; i < F_MAX_WINDOWS; i++) {
+        if (m_aWnds[i].IsUsed() &&
+            m_aWnds[i].GetParent() == hwndParent &&
+            m_aWnds[i].GetId()     == id) {
             pFound = &m_aWnds[i];
             break;
         }
@@ -493,75 +629,37 @@ void Fs_WndList::DestroyTree(ULONG hwnd)
 }
 
 /*!
- * @brief Server-side default window procedure.
+ * @brief Route one message to its target window.
  *
- * The analogue of PMWIN's WinDefWindowProc on the server side. Every
- * window in PM shares certain fundamental behaviour defined by the
- * default window procedure; FreePM houses that behaviour here. As
- * per-class Server*WndProc implementations appear (Phase 5 / D3),
- * this function will dispatch into them for standard classes and stay
- * the generic fallback for custom classes.
+ * Finds the slot by hwnd and delegates to Fs_Wnd::DispatchMsg.
+ * Unknown hwnd is accepted and returns 0.
  *
- * Handles the small set of messages the server can meaningfully act
- * on today:
- *
- *   WM_CLOSE  destroys the target window via the WndList and returns 0.
- *
- * All other messages are accepted as "not handled" and return 0.
- *
- * @param [in] hwnd  Target window handle. 0 or an unknown value is
- *                   tolerated (returns 0).
+ * @param [in] hwnd  Target window handle. May be 0 or unknown.
  * @param [in] msg   Message id.
- * @param [in] mp1   First message parameter (currently unused).
- * @param [in] mp2   Second message parameter (currently unused).
+ * @param [in] mp1   First message parameter.
+ * @param [in] mp2   Second message parameter.
  * @return Message result (MRESULT).
- * @retval 0  Message not handled, or handled with a zero result.
+ * @retval 0  hwnd unknown, or the handler returned 0.
  */
-MRESULT Fs_WndList::DefWindowProc(HWND hwnd, ULONG msg,
-                                   MPARAM mp1, MPARAM mp2)
+MRESULT Fs_WndList::DispatchMsg(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
 {
-    int ctx;
-
-    (void)mp1;
-    (void)mp2;
+    Fs_Wnd *pWnd;
+    MRESULT mres;
+    int     ctx;
 
     ctx = F_DbgCtxEnterf(F_DBG_SEC_FS_SERVER, F_DBG_LVL_VERBOSE,
-                         "[WNDLIST] DefWindowProc(hwnd=%lu, msg=0x%lx)",
+                         "[WNDLIST] DispatchMsg(hwnd=%lu, msg=0x%lx)",
                          (unsigned long)hwnd, (unsigned long)msg);
 
-    switch (msg) {
-
-    case WM_CLOSE:
-        if (Destroy((ULONG)hwnd))
-            F_DbgCtxExitf(ctx, "0 (WM_CLOSE: window destroyed)");
-        else
-            F_DbgCtxExitf(ctx, "0 (WM_CLOSE: hwnd not found)");
-        return 0;
-
-    default:
-        F_DbgCtxExitf(ctx, "0 (unhandled)");
+    pWnd = Find((ULONG)hwnd);
+    if (!pWnd) {
+        F_DbgCtxExitf(ctx, "0 (hwnd not found)");
         return 0;
     }
-}
 
-void Fs_Wnd::SetTitle(const char *t)
-{
-    if (!t) { m_szTitle[0] = '\0'; return; }
-    strncpy(m_szTitle, t, sizeof(m_szTitle) - 1);
-    m_szTitle[sizeof(m_szTitle) - 1] = '\0';
-}
+    mres = pWnd->DispatchMsg(this, msg, mp1, mp2);
 
-/*!
- * @brief Store the window class name.
- *
- * The caller (NWinCreateWindow) rejects class names longer than the
- * buffer; this setter only truncates defensively.
- *
- * @param [in] c  NUL-terminated class name (NULL clears the field).
- */
-void Fs_Wnd::SetClass(const char *c)
-{
-    if (!c) { m_szClass[0] = '\0'; return; }
-    strncpy(m_szClass, c, sizeof(m_szClass) - 1);
-    m_szClass[sizeof(m_szClass) - 1] = '\0';
+    F_DbgCtxExitf(ctx, "0x%lx (class=%s)",
+                  (unsigned long)mres, pWnd->GetClass());
+    return mres;
 }

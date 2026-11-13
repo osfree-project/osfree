@@ -2049,9 +2049,13 @@ static inline APIRET DosCloseEventSem(HEV hev)
 
   /* Window messages (subset used by the server-side default window
    * procedure; the full set comes from <os2.h> on OS/2). */
-  #define WM_USER      0x1000UL
+  #define WM_CREATE    0x0001UL
+  #define WM_DESTROY   0x0002UL
+  #define WM_PAINT     0x0023UL
+  #define WM_SIZE      0x0007UL
   #define WM_CLOSE     0x0029UL
   #define WM_QUIT      0x002aUL
+  #define WM_USER      0x1000UL
 
   #define CLR_BLACK       (-1L)
   #define CLR_BACKGROUND     0L
@@ -2067,6 +2071,42 @@ static inline APIRET DosCloseEventSem(HEV hev)
   #define HWND_DESKTOP     ((HWND)1)
   #define HWND_TOP         ((HWND)3)
   #define HWND_BOTTOM      ((HWND)4)
+
+  /* ---------- Frame creation flags (FCF_*, per PMWIN.H) ---------- */
+  #define FCF_TITLEBAR        0x00000001UL
+  #define FCF_SYSMENU         0x00000002UL
+  #define FCF_MENU            0x00000004UL
+  #define FCF_SIZEBORDER      0x00000008UL
+  #define FCF_MINBUTTON       0x00000010UL
+  #define FCF_MAXBUTTON       0x00000020UL
+  #define FCF_MINMAX          0x00000030UL
+  #define FCF_VERTSCROLL      0x00000040UL
+  #define FCF_HORZSCROLL      0x00000080UL
+  #define FCF_DLGBORDER       0x00000100UL
+  #define FCF_BORDER          0x00000200UL
+  #define FCF_SHELLPOSITION   0x00000400UL
+  #define FCF_TASKLIST        0x00000800UL
+  #define FCF_NOBYTEALIGN     0x00001000UL
+  #define FCF_NOMOVEWITHOWNER 0x00002000UL
+  #define FCF_ICON            0x00004000UL
+  #define FCF_ACCELTABLE      0x00008000UL
+  #define FCF_SYSMODAL        0x00010000UL
+  #define FCF_SCREENALIGN     0x00020000UL
+  #define FCF_MOUSEALIGN      0x00040000UL
+  #define FCF_HIDEBUTTON      0x01000000UL
+  #define FCF_HIDEMAX         0x01000020UL
+  #define FCF_CLOSEBUTTON     0x04000000UL
+  #define FCF_AUTOICON        0x40000000UL
+  #define FCF_STANDARD        0x0000CC3FUL
+
+  /* ---------- Frame control IDs (FID_*, per PMWIN.H) ---------- */
+  #define FID_SYSMENU         0x8002UL
+  #define FID_TITLEBAR        0x8003UL
+  #define FID_MINMAX          0x8004UL
+  #define FID_MENU            0x8005UL
+  #define FID_VERTSCROLL      0x8006UL
+  #define FID_HORZSCROLL      0x8007UL
+  #define FID_CLIENT          0x8008UL
 
   #define GPIA_ASSOC       0x0001L
 
@@ -2140,6 +2180,12 @@ BOOL APIENTRY GpiQueryArcParams(HPS, PARCPARAMS);
                                  LONG x, LONG y, LONG cx, LONG cy,
                                  HWND hwndOwner, HWND hwndInsertBehind,
                                  ULONG id, PVOID pCtlData, PVOID pPresParams);
+  HWND  APIENTRY WinCreateStdWindow(HWND hwndParent, ULONG flStyle,
+                                    PULONG pflCreateFlags,
+                                    PCSZ pszClientClass, PCSZ pszTitle,
+                                    ULONG flClientStyle, HMODULE hmod,
+                                    ULONG idResources, HWND *phwndClient);
+  HWND  APIENTRY WinWindowFromID(HWND hwndParent, ULONG id);
   BOOL  APIENTRY WinShowWindow(HWND hwnd, BOOL fShow);
   BOOL  APIENTRY WinSetWindowPos(HWND hwnd, HWND hwndInsertBehind,
                                  LONG x, LONG y, LONG cx, LONG cy, ULONG fl);

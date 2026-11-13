@@ -223,6 +223,138 @@ ULONG Fs_Server::DispatchWinWnd(void *pRecvobj, ULONG fnCode, ULONG data,
         return hwnd;
     }
 
+    case NWinCreateStdWindow: {
+        PWinCreateStdWindow_Args a = (PWinCreateStdWindow_Args)pArgs;
+        ULONG  off, cbClass, cbTitle;
+        char   szClass[32], szTitle[64];
+        ULONG  hwndParent;
+        ULONG  hwndFrame = 0, hwndTitle = 0, hwndClient = 0;
+        Fs_Wnd *pParent, *pFrame, *pTitle, *pClient;
+        ULONG  flSupported = FCF_TITLEBAR;   /* only what we can honour */
+        int    ctx;
+
+        if (!a || cbArgs < sizeof(*a)) return 0;
+
+        cbClass = a->cbClass;
+        cbTitle = a->cbTitle;
+        off     = sizeof(*a);
+
+        if (cbClass >= sizeof(szClass)) return 0;
+        if (cbTitle >= sizeof(szTitle)) return 0;
+        if (off + cbClass + cbTitle > cbArgs) return 0;
+
+        if (cbClass) {
+            memcpy(szClass, pArgs + off, cbClass);
+            szClass[cbClass] = '\0';
+        } else {
+            szClass[0] = '\0';
+        }
+        off += cbClass;
+
+        if (cbTitle) {
+            memcpy(szTitle, pArgs + off, cbTitle);
+            szTitle[cbTitle] = '\0';
+        } else {
+            szTitle[0] = '\0';
+        }
+        off += cbTitle;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NWinCreateStdWindow(parent=%lu, "
+                             "flStyle=0x%lx, flCreateFlags=0x%lx, "
+                             "flClientStyle=0x%lx, class=%s, title=%s, "
+                             "cbClass=%lu, cbTitle=%lu)",
+                             (unsigned long)a->hwndParent,
+                             (unsigned long)a->flStyle,
+                             (unsigned long)a->flCreateFlags,
+                             (unsigned long)a->flClientStyle,
+                             szClass, szTitle,
+                             (unsigned long)cbClass,
+                             (unsigned long)cbTitle);
+
+        /* Reject any FCF_* bit we cannot honour. Per PM, WinCreateStdWindow
+         * returns NULLHANDLE and WinGetLastError yields PMERR_INVALID_FLAG. */
+        if (a->flCreateFlags & ~flSupported) {
+            F_DbgCtxExitf(ctx, "NULLHANDLE (unsupported FCF_* 0x%lx)",
+                          (unsigned long)(a->flCreateFlags & ~flSupported));
+            return 0;
+        }
+
+        /* Validate parent. */
+        hwndParent = (ULONG)a->hwndParent;
+        if (hwndParent != m_iHwndDesktop) {
+            pParent = m_wnds.Find(hwndParent);
+            if (!pParent || !pParent->IsUsed() ||
+                pParent->GetHab() != pThread->GetIHab()) {
+                F_DbgCtxExitf(ctx, "NULLHANDLE (bad parent=%lu)",
+                              (unsigned long)hwndParent);
+                return 0;
+            }
+        }
+
+        /* Frame: WC_FRAME. Per PM: without FCF_SHELLPOSITION the frame
+         * is created 0x0; the caller sizes it with WinSetWindowPos. */
+        pFrame = m_wnds.Create(pThread->GetIHab(), &hwndFrame);
+        if (!pFrame) {
+            F_DbgCtxExitf(ctx, "NULLHANDLE (frame create failed)");
+            return 0;
+        }
+        pFrame->SetRect(0, 0, 0, 0);
+        pFrame->SetStyle(a->flStyle);
+        pFrame->SetVisible((a->flStyle & WS_VISIBLE) ? TRUE : FALSE);
+        pFrame->SetTitle(szTitle);
+        pFrame->SetParent(hwndParent);
+        pFrame->SetClass("WC_FRAME");
+        m_wnds.PlaceWindow(hwndFrame, (ULONG)HWND_TOP);
+
+        /* Title bar (only when FCF_TITLEBAR is requested). */
+        if (a->flCreateFlags & FCF_TITLEBAR) {
+            pTitle = m_wnds.Create(pThread->GetIHab(), &hwndTitle);
+            if (!pTitle) {
+                F_DbgCtxExitf(ctx, "NULLHANDLE (titlebar create failed)");
+                m_wnds.Destroy(hwndFrame);
+                return 0;
+            }
+            pTitle->SetRect(0, 0, 0, 0);
+            pTitle->SetStyle(WS_VISIBLE);
+            pTitle->SetVisible(TRUE);
+            pTitle->SetTitle(szTitle);
+            pTitle->SetParent(hwndFrame);
+            pTitle->SetClass("WC_TITLEBAR");
+            pTitle->SetId(FID_TITLEBAR);
+            m_wnds.PlaceWindow(hwndTitle, (ULONG)HWND_TOP);
+        }
+
+        /* Client (only when a client class was supplied). */
+        if (cbClass > 0) {
+            pClient = m_wnds.Create(pThread->GetIHab(), &hwndClient);
+            if (!pClient) {
+                F_DbgCtxExitf(ctx, "NULLHANDLE (client create failed)");
+                m_wnds.DestroyTree(hwndFrame);
+                return 0;
+            }
+            pClient->SetRect(0, 0, 0, 0);
+            pClient->SetStyle(a->flClientStyle);
+            pClient->SetVisible(TRUE);
+            pClient->SetTitle(szTitle);
+            pClient->SetParent(hwndFrame);
+            pClient->SetClass(szClass);
+            pClient->SetId(FID_CLIENT);
+            m_wnds.PlaceWindow(hwndClient, (ULONG)HWND_TOP);
+        }
+
+        /* hwndClient is an out field; pcbPayload = cbArgs so the caller
+         * gets the whole struct back. hwndFrame is the ulResult. */
+        a->hwndClient = (HWND)hwndClient;
+        if (pcbPayload) *pcbPayload = cbArgs;
+
+        F_DbgCtxExitf(ctx, "hwndFrame=%lu, hwndClient=%lu, hwndTitle=%lu",
+                      (unsigned long)hwndFrame,
+                      (unsigned long)hwndClient,
+                      (unsigned long)hwndTitle);
+        return hwndFrame;
+    }
+
     case NWinShowWindow: {
         PWinShowWindow_Args a;
         Fs_Wnd *pWnd;
@@ -297,6 +429,25 @@ ULONG Fs_Server::DispatchWinWnd(void *pRecvobj, ULONG fnCode, ULONG data,
         if (a->fl & SWP_SIZE) pWnd->SetSize(a->cx, a->cy);
         pWnd->SetVisible(bNewVisible);
 
+        /* Per OS/2 PM, WM_SIZE is sent to the window whose size
+         * changed. Here it is posted to the owning HAB queue; the
+         * client picks it up in WinGetMsg and dispatches it via
+         * WinDispatchMsg, which reaches Fs_Wnd::FrameWndProc. */
+        if (a->fl & SWP_SIZE) {
+            Fs_Hab *pHabSize = m_habs.FindByIHab(pWnd->GetHab());
+            if (pHabSize && pHabSize->GetQueue()) {
+                QMSG qm;
+                qm.hwnd  = a->hwnd;
+                qm.msg   = WM_SIZE;
+                qm.mp1   = 0;
+                qm.mp2   = 0;
+                qm.time  = 0;
+                qm.ptl.x = 0;
+                qm.ptl.y = 0;
+                pHabSize->GetQueue()->Add(&qm);
+            }
+        }
+
         if (hdc != NULLHANDLE) {
             if (bNewVisible) {
                 /* Re-setup DC with the new origin and clip. */
@@ -353,6 +504,35 @@ ULONG Fs_Server::DispatchWinWnd(void *pRecvobj, ULONG fnCode, ULONG data,
          * WinDestroyWindow ("A window is destroyed before its parent"). */
         m_wnds.DestroyTree((ULONG)data);
         return 1;
+    }
+
+    case NWinWindowFromID: {
+        PWinWindowFromID_Args a = (PWinWindowFromID_Args)pArgs;
+        Fs_Wnd *pChild;
+        int     ctx;
+
+        ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
+                             "[PMSERVER] NWinWindowFromID(recvobj=%p, cbArgs=%u)",
+                             pRecvobj, (unsigned)cbArgs);
+
+        if (!a || cbArgs < sizeof(*a)) {
+            F_DbgCtxExitf(ctx, "NULLHANDLE (bad args)");
+            return 0;
+        }
+
+        pChild = m_wnds.WindowFromID((ULONG)a->hwndParent, a->id);
+        if (!pChild) {
+            F_DbgCtxExitf(ctx, "NULLHANDLE (parent=%lu, id=0x%lx)",
+                          (unsigned long)a->hwndParent,
+                          (unsigned long)a->id);
+            return 0;
+        }
+
+        F_DbgCtxExitf(ctx, "hwnd=%lu (parent=%lu, id=0x%lx)",
+                      (unsigned long)pChild->GetHwnd(),
+                      (unsigned long)a->hwndParent,
+                      (unsigned long)a->id);
+        return pChild->GetHwnd();
     }
 
     default:

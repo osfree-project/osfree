@@ -23,11 +23,12 @@
  * QMSG), matching EDM2 WinGetMsg. Message filtering (hwndFilter /
  * msgFirst / msgLast) is accepted but not applied yet.
  *
- * NWinDispatchMsg calls the server-side default window procedure
- * (Fs_WndList::DefWindowProc). Until per-class Server*WndProc
- * implementations appear, every message goes through the default
- * handler; that is the server-side analogue of PMWIN's
- * WinDefWindowProc.
+ * NWinDispatchMsg routes the message through Fs_WndList::DispatchMsg,
+ * which finds the target window and calls its Fs_Wnd::DispatchMsg.
+ * That in turn picks the per-class handler (FrameWndProc /
+ * TitleBarWndProc) and falls back to Fs_Wnd::DefWindowProc. This is
+ * the server-side analogue of PMWIN's WinDispatchMsg -> class
+ * window procedure -> WinDefWindowProc chain.
  *
  * NWinPeekMsg is deferred (it needs the same wire layout as
  * NWinGetMsg plus the PM_REMOVE flag).
@@ -224,8 +225,8 @@ ULONG Fs_Server::DispatchWinMq(void *pRecvobj, ULONG fnCode, ULONG data,
     }
 
     case NWinDispatchMsg: {
-        /* Async: pArgs = WinDispatchMsg_Args. Calls the server-side
-         * default window procedure; result travels in ulResult. */
+        /* Async: pArgs = WinDispatchMsg_Args. Routes the message via
+         * the window registry; per-class handlers live on Fs_Wnd. */
         PWinDispatchMsg_Args a = (PWinDispatchMsg_Args)pArgs;
         MRESULT   mres;
         int       ctx;
@@ -239,8 +240,8 @@ ULONG Fs_Server::DispatchWinMq(void *pRecvobj, ULONG fnCode, ULONG data,
             return 0;
         }
 
-        mres = m_wnds.DefWindowProc(a->qmsg.hwnd, a->qmsg.msg,
-                                     a->qmsg.mp1, a->qmsg.mp2);
+        mres = m_wnds.DispatchMsg(a->qmsg.hwnd, a->qmsg.msg,
+                                  a->qmsg.mp1, a->qmsg.mp2);
         F_DbgCtxExitf(ctx, "0x%lx (hwnd=%lu, msg=0x%lx)",
                       (unsigned long)mres,
                       (unsigned long)a->qmsg.hwnd,

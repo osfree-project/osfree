@@ -196,13 +196,39 @@ typedef struct _WinCreateWindow_Args {
 /* HWND WinCreateStdWindow(HWND parent, ULONG style, PULONG pflCreateFlags,
     PCSZ clientClass, PCSZ title, ULONG clientStyle, HMODULE hmod,
     ULONG idResources, PHWND phwndClient) */
+/*! @brief Wire args for NWinCreateStdWindow.
+ *
+ * Maps PM's
+ *   HWND WinCreateStdWindow(HWND hwndParent, ULONG flStyle,
+ *       PULONG pflCreateFlags, PCSZ pszClientClass, PCSZ pszTitle,
+ *       ULONG flClientStyle, HMODULE hmodResource, ULONG ulFrameId,
+ *       PHWND phwndClient)
+ *
+ * hwndFrame travels in FPM_RESP_HEADER.ulResult; hwndClient is an out
+ * field inside this structure (server overwrites it in place and
+ * returns pcbPayload = cbArgs).
+ *
+ * The two NUL-terminated strings (client class, title) follow the
+ * fixed part contiguously, no NUL terminators on the wire — lengths
+ * are explicit:
+ *   char szClientClass[cbClass];
+ *   char szTitle[cbTitle];
+ *
+ * flCreateFlags is in/out (PM may modify it); the server rejects the
+ * call with NULLHANDLE if it cannot honour the requested FCF_* bits.
+ */
 typedef struct _WinCreateStdWindow_Args {
-    HWND hwndParent; ULONG flStyle; ULONG flCreateFlags;   /* in/out */
-    ULONG cbClass; char szClientClass[1];
-    ULONG cbTitle; char szTitle[1];
-    ULONG styleClient; HMODULE hmod; ULONG idResources;
-    HWND hwndClient; /* out */
+    HWND    hwndParent;
+    ULONG   flStyle;
+    ULONG   flCreateFlags;   /* in/out: FCF_* */
+    ULONG   flClientStyle;   /* WS_* for the client window */
+    HMODULE hmod;            /* resource module (unused: no resources) */
+    ULONG   idResources;     /* resource id (unused: no resources) */
+    ULONG   cbClass;
+    ULONG   cbTitle;
+    HWND    hwndClient;      /* out: filled by server */
 } WinCreateStdWindow_Args, *PWinCreateStdWindow_Args;
+
 /* BOOL WinDestroyWindow(HWND) */
 typedef struct _WinDestroyWindow_Args { HWND hwnd; } WinDestroyWindow_Args, *PWinDestroyWindow_Args;
 /* BOOL WinSetWindowPos(HWND, HWND behind, LONG x,y,cx,cy, ULONG fl) */
