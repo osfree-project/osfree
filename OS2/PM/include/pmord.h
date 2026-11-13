@@ -1499,34 +1499,53 @@ typedef struct _ORDERL_GSAP
 /*!
    @brief Set Background Indexed Color order (PM GPI extension).
 
-   Not part of AFP GOCA.
+   X'A7' (LEN, FLAGS, INDEX) 
+
+   @see OS/2 Programming Tools and Information v1.2 Presentation Manager
+        Programming Reference Vol. 2, Chapter 27, "Graphics Orders", p. 27-22
+
 */
 #define OCODE_GSBICOL  0xA7            /* Set b/g indexed color       */
 
 /*!
    @brief Push and Set Background Indexed Color order (PM GPI extension).
 
-   Not part of AFP GOCA.
+   X'E7' (LEN, FLAGS, INDEX) 
+
+   @see OS/2 Programming Tools and Information v1.2 Presentation Manager
+        Programming Reference Vol. 2, Chapter 27, "Graphics Orders", p. 27-22
+
 */
 #define OCODE_GPSBICOL 0xE7            /* Push and set b/g ind color  */
 
 /*!
    @brief Set Indexed Color order (PM GPI extension).
 
-   Not part of AFP GOCA.
+   X'A6' (LEN, FLAGS, INDEX) 
+
+   @see OS/2 Programming Tools and Information v1.2 Presentation Manager
+        Programming Reference Vol. 2, Chapter 27, "Graphics Orders", p. 27-31
+
+
 */
 #define OCODE_GSICOL   0xA6            /* Set indexed color           */
 
 /*!
    @brief Push and Set Indexed Color order (PM GPI extension).
 
-   Not part of AFP GOCA.
+   X'A6' (LEN, FLAGS, INDEX) 
+
+   @see OS/2 Programming Tools and Information v1.2 Presentation Manager
+        Programming Reference Vol. 2, Chapter 27, "Graphics Orders", p. 27-31
+
 */
 #define OCODE_GPSICOL  0xE6            /* Push and set indexd color   */
 
 /*!
-   @brief Structure for Set Background Indexed Color order (PM GPI
-          extension).
+   @brief Structure for GSICOL/GPSICOL/GSBICOL/GPSBICOL orders 
+
+   @see OS/2 Programming Tools and Information v1.2 Presentation Manager
+        Programming Reference Vol. 2, Chapter 27, "Graphics Orders", p. 27-31
 */
 typedef struct _ORDER_GSBICOL
 {
