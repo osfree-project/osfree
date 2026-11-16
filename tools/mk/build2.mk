@@ -56,7 +56,7 @@ deps: .symbolic
 
 subdirs: .symbolic
 !ifeq UNIX TRUE
- $(verbose)for %d in ($(DIRS)) do $(verbose)if [ -d $(MYDIR)%d ]; then $(verbose)cd $(MYDIR)%d && $(verbose)$(MAKE) $(__MAKEOPTS__) $(TARGET) PLATFORM=$(PLATFORM) && cd ..; fi
+ $(verbose)for %d in ($(DIRS)) do $(verbose)if [ -d $(MYDIR)%d ]; then cd $(MYDIR)%d && $(verbose)$(MAKE) $(__MAKEOPTS__) $(TARGET) PLATFORM=$(PLATFORM) && cd ..; fi
 !else
  $(verbose)for %d in ($(DIRS)) do $(verbose)if exist $(MYDIR)%d $(verbose)$(CD) $(MYDIR)%d && $(verbose)$(MAKE) $(__MAKEOPTS__) $(TARGET) PLATFORM=$(PLATFORM)
 !endif
