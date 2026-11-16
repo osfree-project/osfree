@@ -5,7 +5,7 @@
 PROJ = pmserver
 TRGT = $(PROJ).exe
 DESC = FreePM Server
-DIRS = drivers
+DIRS = mini drivers
 srcfiles = $(p)F_session$(e) $(p)F_utils$(e) $(p)Fs_config$(e) $(p)Fs_globals$(e) &
            $(p)Fs_hab$(e) $(p)Fs_main$(e) &
            $(p)Fs_queue$(e) $(p)Fs_wnd$(e) $(p)F_debug$(e) &
