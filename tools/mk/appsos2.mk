@@ -56,7 +56,11 @@ ADD_LINKOPT += option nod lib $(%WATCOM)$(SEP)lib386$(SEP)math387$(C).lib, &
 ADD_RCOPT    =         -bt=os2 $(ADD_RCOPT)
 
 !ifndef DEST
+!ifeq DLL 1
+DEST    = os2$(SEP)dll
+!else
 DEST    = os2
+!endif
 !endif
 
 SUF += .msg .rsf

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
 /*!
  * @file ed.c
  * @brief emxdoc (source) emitter for emxdoc.

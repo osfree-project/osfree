@@ -14,6 +14,6 @@ TARGET_CLASS = LIBRARY
 !include $(MYDIR)zlib.mk
 !include $(%ROOT)tools/mk/build.mk
 
-.c: $(PORT_BASE)$(SEP)zlib-1.3.2
+.c: $(PORT_BASE)$(SEP)zlib-1.4
 
-.h: $(PORT_BASE)$(SEP)zlib-1.3.2
+.h: $(PORT_BASE)$(SEP)zlib-1.4
