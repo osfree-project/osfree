@@ -6,7 +6,6 @@
 !define __appsw32_mk__
 
 32_BITS = 1
-#PLATFORM = nt
 CLEAN_ADD = *.inf *.cmd *.msg *.pl *.ru *.rsf *.c *.h
 ADD_COPT =            -d__WIN32__ -d__WINNT__ $(ADD_COPT) &
                       -i=$(%WATCOM)$(SEP)h$(SEP)nt -i=. -i=.. -i=win32 &
@@ -31,6 +30,8 @@ DEST    = nt
 
 !include $(%ROOT)/tools/mk/all.mk
 
+#!message $(srcfiles)
+
 !ifeq DLL 1
 TARGETS  = $(PATH)$(PROJ).dll # $(PATH)$(PROJ).sym
 dllopts = dll
@@ -47,11 +48,7 @@ RCOPT    = -bt=nt $(RCOPT)
 deps = $(RESOURCE)
 !endif
 
-!ifdef OBJS
-#$(OBJS):: $(MYDIR)makefile
-!endif
-
-$(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(MYDIR)makefile .always
+$(PATH)$(PROJ).lnk: $(deps) $(OBJS) $(ADDLIBS) $(MYDIR)makefile .always
  @%create $^@
  @%append $^@ SYSTEM win32 $(dllopts)
  @%append $^@ NAME $^*

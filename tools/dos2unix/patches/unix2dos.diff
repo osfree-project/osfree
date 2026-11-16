@@ -68,6 +68,17 @@ diff -urwN dos2unix/dos2unix/common.h dos2unix-new/dos2unix/common.h
  #include <wchar.h>
  #endif
  
+@@ -128,6 +128,10 @@
+ /* Watcom C defines S_ISLNK */
+ #ifdef __WATCOMC__
+ #undef S_ISLNK
++#endif
++
++#ifdef __WATCOMC__
++#define NO_CHMOD 1  /* no chmod() available */
+ #endif
+ 
+ /* Microsoft Visual C++ */
 diff -urwN dos2unix/dos2unix/dos2unix.c dos2unix-new/dos2unix/dos2unix.c
 --- dos2unix/dos2unix/dos2unix.c	2026-09-13 11:23:23.266169347 +0300
 +++ dos2unix-new/dos2unix/dos2unix.c	2026-09-13 11:09:58.103612256 +0300
