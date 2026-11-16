@@ -26,7 +26,7 @@ bin\
 	kifsmon.exe
 	kiiface.exe
 	kwikinf.exe
-	link386.exe			Clone by Open Watcom (mostly implemented)
+	link386.exe			Clone by Open Watcom (mostly implemented, need fix dll tool to be multiplatform)
 	mapsym.exe
 	markexe.exe
 	masm2alp.exe
