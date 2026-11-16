@@ -45,7 +45,7 @@ ADD_COPT += -i=. -i=$(%ROOT)include $(DEFINES)
 OS       = UNIX
 NO_DESCRIPTION = # option description "str" is not valid when build target is Linux.
 ADD_LINKOPT    += system linux
-ADD_COPT       += -i=$(%WATCOM)$(SEP)lh # -x
+ADD_COPT       += -i=$(%WATCOM)$(SEP)lh
 !endif
 
 !ifeq DLL 1

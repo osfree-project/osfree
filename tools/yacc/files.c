@@ -149,6 +149,7 @@ extern int noparserflag;/*!< Non-zero when -n (no parser) was requested. */
  *
  *  @return Pointer to @p tmpl on success, or @p tmpl with an empty
  *          first character when no unique name could be found.
+ *  @retval NULL error
  */
 char * mktemp (char *tmpl)
 {
@@ -164,9 +165,10 @@ char * mktemp (char *tmpl)
   
   if (sprintf (&tmpl[len - 5], "%.5u",
     (unsigned int) getpid () % 100000) != 5)
-
-  /* Inconceivable lossage.  */
-  return NULL;
+  {
+    /* Inconceivable lossage.  */
+    return NULL;
+  }
                                                                                                    
   for (i = 0; i < sizeof (letters); ++i)
   {
