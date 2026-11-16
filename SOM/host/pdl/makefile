@@ -1,2 +1,2 @@
 !define  HOSTBLD
-!include ../../pdl/makefile
+!include $(%ROOT)SOM/pdl/makefile

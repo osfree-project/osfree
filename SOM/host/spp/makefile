@@ -1,2 +1,2 @@
 !define  HOSTBLD
-!include ../../spp/makefile
+!include $(%ROOT)SOM/spp/makefile
