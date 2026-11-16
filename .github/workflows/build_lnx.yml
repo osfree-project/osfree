@@ -47,4 +47,4 @@ jobs:
 
             # Build
             - name: Build
-              run: ls -l & sudo ./_wcc.sh
+              run: ls -l & dos2unix _wcc.sh & sudo ./_wcc.sh
