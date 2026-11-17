@@ -6,6 +6,7 @@
 PROJECT      = gre
 DESCRIPTION  = FreePM gre
 TARGET_CLASS = LIBRARY
+SOURCES      = gre
 
 !ifndef TARGETBLD
 SRCDIR  = $(MYDIR)

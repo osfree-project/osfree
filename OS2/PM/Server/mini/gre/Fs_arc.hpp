@@ -2,10 +2,15 @@
 #define FS_ARC_HPP
 
 #define INCL_BASE
-#define INCL_PM
 #include "F_platform.h"
 
+#define INCL_GREALL
+#define INCL_GRE_PATHS
+#define INCL_DDIPATHS
+#include "pmddi.h"
+
 class Fs_Path;
+class Fs_Dc;
 
 /*!
  * @class Fs_Arc
@@ -71,7 +76,7 @@ public:
      * @par Simulation support
      * "This function is simulated by a handling routine in the graphics engine."
      */
-    BOOL SetArcParameters(const ARCPARAMS *pArcParms);
+//    BOOL SetArcParameters(const ARCPARAMS *pArcParms);
 
     /*!
      * @brief Query the current arc parameters.
@@ -80,7 +85,7 @@ public:
      * @retval TRUE   Copied.
      * @retval FALSE  pArcParms is NULL.
      */
-    BOOL QueryArcParameters(ARCPARAMS *pArcParms) const;
+//    BOOL QueryArcParameters(ARCPARAMS *pArcParms) const;
 
     /*!
      * @brief Draw an arc through three points.
@@ -167,9 +172,7 @@ public:
 
     /*!
      * @brief Draw a rectangular box (interior only).
-     * @param [in] pBox  Pointer to BOXPARAMS (ptl opposite corner, sizl? —
-     *                   actually ptl, sizl per pmddi.h; lHRound/lVRound from
-     *                   PMREF are not in this struct).
+     * @param [in] pBox  Pointer to BOXDATA.
      * @return cHits code.
      * @retval GPI_OK / GPI_HITS / GPI_ERROR.
      *
@@ -181,18 +184,18 @@ public:
      * @par Simulation support
      * "This function is simulated by a handling routine in the graphics engine."
      */
-    LONG BoxInterior(const BOXPARAMS *pBox);
+    LONG BoxInterior(Fs_Dc *pDc, const BOXDATA *pBox);
 
     /*!
      * @brief Draw a rectangular box (boundary only).
-     * @param [in] pBox  Pointer to BOXPARAMS.
+     * @param [in] pBox  Pointer to BOXDATA.
      * @return cHits code.
      * @retval GPI_OK / GPI_HITS / GPI_ERROR.
      *
      * @par EDM2 Reference
      * GreBoxBoundary (https://www.edm2.com/index.php/GreBoxBoundary).
      */
-    LONG BoxBoundary(const BOXPARAMS *pBox);
+    LONG BoxBoundary(Fs_Dc *pDc, const BOXDATA *pBox);
 
     /*!
      * @brief Draw a rectangular box (interior and boundary).
@@ -203,7 +206,7 @@ public:
      * @par EDM2 Reference
      * GreBoxBoth (simulated arc function).
      */
-    LONG BoxBoth(const BOXPARAMS *pBox);
+    LONG BoxBoth(Fs_Dc *pDc, const BOXPARAMS *pBox);
 
     /*!
      * @brief Draw a poly-fillet.
@@ -265,7 +268,7 @@ private:
     LONG EmitArc(const POINTL &center, LONG rx, LONG ry,
                  FIXED fxStart, FIXED fxSweep);
 
-    ARCPARAMS m_arcParms;   /*!< Current arc parameters. */
+//    ARCPARAMS m_arcParms;   /*!< Current arc parameters. */
     Fs_Path  *m_pPath;      /*!< Owning path (may be NULL). */
 };
 

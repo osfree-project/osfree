@@ -41,9 +41,85 @@
       extern "C" {
 #endif
 
+/*** GRE dispatch tables ************************************************/
+
+/*! @def MAXTABLEENTRIES
+ *  @brief Number of slots in driver dispatch table.
+ */
+#define MAXTABLEENTRIES   223
+
+/*! @def DISPATCHER
+typedef struct _DISPATCHER    /* dr */
+{
+   PFN    pfnTblEntry[MAXTABLEENTRIES];
+} DISPATCHER, *PDISPATCHER;
+
+
+//----------------------------------------------
+#ifndef POINTFX_DEFINED
+   #define POINTFX_DEFINED
+   typedef struct _POINTFX
+   {
+      FIXED x;
+      FIXED y;
+   } POINTFX;
+   typedef POINTFX *PPOINTFX;
+#endif
+
+
+#ifdef INCL_DDIPATHS
+
+   /* Curve types */
+   
+   #define CURVE_IDENTIFIER             0x43
+   #define LINE_IDENTIFIER              0x4C
+   #define CURVE_DO_FIRST_PEL           0x0002
+   
+   typedef struct _CURVE
+   {
+      BYTE        bIdent;             /*  1    1  */
+      BYTE        bType;              /*  1    2  */
+      USHORT      usReserved;         /*  2    4  */
+      ULONG       flStyle;            /*  4    8  */
+      ULONG       fl;                 /*  4   12  */
+      struct      _CURVE *pcvNext;    /*  4   16  */
+      struct      _CURVE *pcvPrev;    /*  4   20  */
+      struct      _CURVE *pcvAttrs;   /*  4   24  */
+      POINTFX     ptfxA;              /*  8   32  */
+      POINTFX     ptfxC;              /*  8   40  */
+      BYTE        Reserved2[28];      /* 28   68  */
+   } CURVE;
+   typedef CURVE *PCURVE;
+
+   typedef struct _LINE
+   {
+      BYTE        bIdent;             /*  1    1  */
+      BYTE        bType;              /*  1    2  */
+      USHORT      usReserved;         /*  2    4  */
+      ULONG       flStyle;            /*  4    8  */
+      ULONG       fl;                 /*  4   12  */
+      PCURVE      pcvNext;            /*  4   16  */
+      PCURVE      pcvPrev;            /*  4   20  */
+      PCURVE      pcvAttrs;           /*  4   24  */
+      POINTFX     ptfxA;              /*  8   32  */
+      POINTFX     ptfxC;              /*  8   40  */
+      POINTL      ptlA;               /*  8   48  */
+      POINTL      ptlC;               /*  8   56  */
+      FIXED       fxRslope;           /*  4   60  */
+      BYTE        Reserved1[8];       /*  8   68  */
+   } LINE, *PLINE;
+   
+#endif  /* INCL_DDIPATHS */
+
 #ifdef INCL_GRE_ARCS
 
 typedef LONG PHID;
+
+typedef struct _BOXDATA {
+ POINTL     ptlOpposite;  /*  Defines opposite corner of the box. */
+ LONG       lHRound;      /*  Horizontal length of the full axis of an ellipse. */
+ LONG       lVRound;      /*  Vertical length of the full axis of an ellipse. */
+} BOXDATA, *PBOXDATA;
 
 typedef struct _BOXPARAMS
 {

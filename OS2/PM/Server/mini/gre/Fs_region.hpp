@@ -2,7 +2,6 @@
 #define FS_REGION_HPP
 
 #define INCL_BASE
-#define INCL_PM
 #include "F_platform.h"
 
 /*!

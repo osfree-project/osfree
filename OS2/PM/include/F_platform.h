@@ -56,7 +56,9 @@
 
   #define TRUE 1
   #define FALSE 0
-  #define NULL ((void*)0)
+  #ifndef NULL
+  #  define NULL ((void*)0)
+  #endif
 
   /* ---------- Хэндлы ---------- */
   typedef void *HAB;
@@ -2038,6 +2040,36 @@ static inline APIRET DosCloseEventSem(HEV hev)
 
   #define PMERR_INVALID_HAB                   0x104A
 
+  /* ---------- PMWIN entry points ---------- */
+  HAB   APIENTRY WinInitialize(ULONG flOptions);
+  HMQ   APIENTRY WinCreateMsgQueue(HAB hab, LONG cMsg);
+  BOOL  APIENTRY WinDestroyMsgQueue(HMQ hmq);
+  BOOL  APIENTRY WinTerminate(HAB hab);
+  HDC   APIENTRY WinOpenWindowDC(HWND hwnd);
+  HPS   APIENTRY WinGetScreenPS(HWND hwndDesktop);
+  BOOL  APIENTRY WinReleasePS(HPS hps);
+  HWND  APIENTRY WinCreateWindow(HWND hwndParent, PCSZ pszClass,
+                                 PCSZ pszName, ULONG flStyle,
+                                 LONG x, LONG y, LONG cx, LONG cy,
+                                 HWND hwndOwner, HWND hwndInsertBehind,
+                                 ULONG id, PVOID pCtlData, PVOID pPresParams);
+  HWND  APIENTRY WinCreateStdWindow(HWND hwndParent, ULONG flStyle,
+                                    PULONG pflCreateFlags,
+                                    PCSZ pszClientClass, PCSZ pszTitle,
+                                    ULONG flClientStyle, HMODULE hmod,
+                                    ULONG idResources, HWND *phwndClient);
+  HWND  APIENTRY WinWindowFromID(HWND hwndParent, ULONG id);
+  BOOL  APIENTRY WinShowWindow(HWND hwnd, BOOL fShow);
+  BOOL  APIENTRY WinSetWindowPos(HWND hwnd, HWND hwndInsertBehind,
+                                 LONG x, LONG y, LONG cx, LONG cy, ULONG fl);
+  BOOL  APIENTRY WinDestroyWindow(HWND hwnd);
+  BOOL  APIENTRY WinPostMsg(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2);
+  BOOL  APIENTRY WinGetMsg(HAB hab, PQMSG pqmsg, HWND hwndFilter,
+                           ULONG msgFirst, ULONG msgLast);
+  MRESULT APIENTRY WinDispatchMsg(HAB hab, PQMSG pqmsg);
+  HPS   APIENTRY WinBeginPaint(HWND hwnd, HPS hps, PRECTL prcl);
+  BOOL  APIENTRY WinEndPaint(HPS hps);
+
 #ifdef __cplusplus
   }
 #endif
@@ -2087,37 +2119,10 @@ LONG APIENTRY GpiElement(HPS, LONG, PSZ, LONG, PBYTE);
 
 BOOL APIENTRY GpiEndElement(HPS);
 
+#ifdef INCL_GPIPRIMITIVES
 BOOL APIENTRY GpiQueryArcParams(HPS, PARCPARAMS);
+#endif
 
-  /* ---------- PMWIN entry points ---------- */
-  HAB   APIENTRY WinInitialize(ULONG flOptions);
-  HMQ   APIENTRY WinCreateMsgQueue(HAB hab, LONG cMsg);
-  BOOL  APIENTRY WinDestroyMsgQueue(HMQ hmq);
-  BOOL  APIENTRY WinTerminate(HAB hab);
-  HDC   APIENTRY WinOpenWindowDC(HWND hwnd);
-  HPS   APIENTRY WinGetScreenPS(HWND hwndDesktop);
-  BOOL  APIENTRY WinReleasePS(HPS hps);
-  HWND  APIENTRY WinCreateWindow(HWND hwndParent, PCSZ pszClass,
-                                 PCSZ pszName, ULONG flStyle,
-                                 LONG x, LONG y, LONG cx, LONG cy,
-                                 HWND hwndOwner, HWND hwndInsertBehind,
-                                 ULONG id, PVOID pCtlData, PVOID pPresParams);
-  HWND  APIENTRY WinCreateStdWindow(HWND hwndParent, ULONG flStyle,
-                                    PULONG pflCreateFlags,
-                                    PCSZ pszClientClass, PCSZ pszTitle,
-                                    ULONG flClientStyle, HMODULE hmod,
-                                    ULONG idResources, HWND *phwndClient);
-  HWND  APIENTRY WinWindowFromID(HWND hwndParent, ULONG id);
-  BOOL  APIENTRY WinShowWindow(HWND hwnd, BOOL fShow);
-  BOOL  APIENTRY WinSetWindowPos(HWND hwnd, HWND hwndInsertBehind,
-                                 LONG x, LONG y, LONG cx, LONG cy, ULONG fl);
-  BOOL  APIENTRY WinDestroyWindow(HWND hwnd);
-  BOOL  APIENTRY WinPostMsg(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2);
-  BOOL  APIENTRY WinGetMsg(HAB hab, PQMSG pqmsg, HWND hwndFilter,
-                           ULONG msgFirst, ULONG msgLast);
-  MRESULT APIENTRY WinDispatchMsg(HAB hab, PQMSG pqmsg);
-  HPS   APIENTRY WinBeginPaint(HWND hwnd, HPS hps, PRECTL prcl);
-  BOOL  APIENTRY WinEndPaint(HPS hps);
 
 
 #ifdef __cplusplus

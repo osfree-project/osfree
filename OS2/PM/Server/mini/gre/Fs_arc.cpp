@@ -1,5 +1,15 @@
+/*!
+ * @file Fs_arc.cpp
+ * @brief Arc, fillet and box primitives for one DC.
+ *
+ * All drawing is tessellated into line segments and emitted into the
+ * owning Fs_Path.
+ */
+
 #include "Fs_arc.hpp"
 #include "Fs_path.hpp"
+#include "Fs_dc.hpp"
+
 #include <string.h>
 #include <math.h>
 
@@ -22,15 +32,11 @@ Fs_Arc::~Fs_Arc() { Shutdown(); }
 
 /*!
  * @brief Reset ARCPARAMS to zero.
- * @return Nothing.
- * @retval (void)  No return value.
  */
 void Fs_Arc::Init() { memset(&m_arcParms, 0, sizeof(ARCPARAMS)); }
 
 /*!
  * @brief Alias for Init.
- * @return Nothing.
- * @retval (void)  No return value.
  */
 void Fs_Arc::Shutdown() { Init(); }
 
@@ -58,12 +64,12 @@ BOOL Fs_Arc::SetArcParameters(const ARCPARAMS *pArcParms)
  * @retval TRUE   Copied.
  * @retval FALSE  pArcParms is NULL.
  */
-BOOL Fs_Arc::QueryArcParameters(ARCPARAMS *pArcParms) const
-{
-    if (!pArcParms) return FALSE;
-    *pArcParms = m_arcParms;
-    return TRUE;
-}
+//BOOL Fs_Arc::QueryArcParameters(ARCPARAMS *pArcParms) const
+//{
+//    if (!pArcParms) return FALSE;
+//    *pArcParms = m_arcParms;
+//    return TRUE;
+//}
 
 /*!
  * @brief Emit a line segment into m_pPath.
@@ -142,7 +148,9 @@ LONG Fs_Arc::Arc(const POINTL *paptlPoint)
  * @param [in] fxStart      FIXED start angle.
  * @param [in] fxSweep      FIXED sweep angle.
  * @return cHits code.
- * @retval GPI_OK / GPI_HITS / GPI_ERROR.
+ * @retval GPI_OK    Arc emitted.
+ * @retval GPI_HITS  Correlation hit.
+ * @retval GPI_ERROR pptlCenter is NULL.
  *
  * @par EDM2 Reference
  * GrePartialArc — see header.
@@ -193,43 +201,125 @@ LONG Fs_Arc::FullArcBoth(FIXED fxMultiplier)
 
 /*!
  * @brief Draw a rectangular box (interior).
- * @param [in] pBox  Pointer to BOXPARAMS.
+ * @param [in] pDc   Device context; supplies the current (X,Y) position.
+ * @param [in] pBox  Pointer to BOXDATA (ptlOpposite, lHRound, lVRound).
  * @return cHits code.
- * @retval GPI_OK / GPI_HITS / GPI_ERROR.
+ * @retval GPI_OK    Figure emitted.
+ * @retval GPI_HITS  Correlation hit.
+ * @retval GPI_ERROR Invalid DC or pBox.
  *
  * @par EDM2 Reference
  * GreBoxInterior — see header.
  */
-LONG Fs_Arc::BoxInterior(const BOXPARAMS *pBox)
+LONG Fs_Arc::BoxInterior(Fs_Dc *pDc, const BOXDATA *pBox)
 {
-    if (!pBox) return GPI_ERROR;
-    POINTL p[5];
-    p[0] = pBox->ptl;
-    p[1].x = pBox->ptl.x + pBox->sizl.cx; p[1].y = pBox->ptl.y;
-    p[2].x = pBox->ptl.x + pBox->sizl.cx; p[2].y = pBox->ptl.y + pBox->sizl.cy;
-    p[3].x = pBox->ptl.x;                 p[3].y = pBox->ptl.y + pBox->sizl.cy;
-    p[4] = p[0];
-    for (int i = 0; i < 4; i++) EmitLine(p[i], p[i + 1]);
+    LONG rc = BoxBoundary(pDc, pBox);
+    if (rc != GPI_OK) return rc;
+    // TODO: fill the closed path via Fs_Area
+    return GPI_OK;
+}
+
+/*! @brief Quarter turn in the FIXED units EmitArc expects (pi/2 * 65536). */
+static const FIXED FX_QUARTER = 102944;
+
+/*!
+* @brief Draw a rectangular box boundary with optional rounded corners.
+* @param [in] pDc   Device context; supplies the current (X,Y) position.
+* @param [in] pBox  Pointer to BOXDATA (ptlOpposite, lHRound, lVRound).
+* @return cHits code.
+* @retval GPI_OK    Figure emitted.
+* @retval GPI_HITS  Correlation hit.
+* @retval GPI_ERROR pDc or pBox is NULL.
+*
+* @par EDM2 Reference
+* GreBoxBoundary — first corner is the current position, opposite corner
+* is pBox->ptlOpposite. Sides are parallel to axes. Corners rounded by
+* BOXDATA.lHRound/lVRound (DIAMETERS). Drawn counterclockwise.
+*/
+LONG Fs_Arc::BoxBoundary(Fs_Dc *pDc, const BOXDATA *pBox)
+{
+    if (!pDc || !pBox) return GPI_ERROR;
+
+    POINTL start = pDc->GetCurPos();
+
+    LONG x0 = start.x, y0 = start.y;
+    LONG x1 = pBox->ptlOpposite.x, y1 = pBox->ptlOpposite.y;
+
+    if (x0 > x1) { LONG t = x0; x0 = x1; x1 = t; }
+    if (y0 > y1) { LONG t = y0; y0 = y1; y1 = t; }
+
+    LONG width  = x1 - x0;
+    LONG height = y1 - y0;
+
+    // BOXDATA.lHRound/lVRound are DIAMETERS; clamp to the side length
+    LONG rx = pBox->lHRound / 2;
+    LONG ry = pBox->lVRound / 2;
+
+    if (rx > width  / 2) rx = width  / 2;
+    if (ry > height / 2) ry = height / 2;
+
+    // Either diameter 0 (or negative) disables rounding
+    if (rx <= 0 || ry <= 0) {
+        POINTL p[5] = {
+            {x0, y0}, {x1, y0}, {x1, y1}, {x0, y1}, {x0, y0}
+        };
+        for (int i = 0; i < 4; i++) EmitLine(p[i], p[i + 1]);
+        return GPI_OK;
+    }
+
+    // Rounded rectangle counterclockwise: 4 edges + 4 quarter-ellipse
+    // corners.  Each arc starts where the previous edge ended; the last
+    // arc closes the figure back at (x0 + rx, y0).
+    POINTL a, b, c;
+
+    // Bottom edge, then bottom-right corner
+    a.x = x0 + rx; a.y = y0;
+    b.x = x1 - rx; b.y = y0;
+    EmitLine(a, b);
+    c.x = x1 - rx; c.y = y0 + ry;
+    EmitArc(c, rx, ry, -FX_QUARTER, FX_QUARTER);
+
+    // Right edge, then top-right corner
+    a.x = x1;      a.y = y0 + ry;
+    b.x = x1;      b.y = y1 - ry;
+    EmitLine(a, b);
+    c.x = x1 - rx; c.y = y1 - ry;
+    EmitArc(c, rx, ry, 0, FX_QUARTER);
+
+    // Top edge, then top-left corner
+    a.x = x1 - rx; a.y = y1;
+    b.x = x0 + rx; b.y = y1;
+    EmitLine(a, b);
+    c.x = x0 + rx; c.y = y1 - ry;
+    EmitArc(c, rx, ry, FX_QUARTER, FX_QUARTER);
+
+    // Left edge, then bottom-left corner (closes the figure)
+    a.x = x0;      a.y = y1 - ry;
+    b.x = x0;      b.y = y0 + ry;
+    EmitLine(a, b);
+    c.x = x0 + rx; c.y = y0 + ry;
+    EmitArc(c, rx, ry, 2 * FX_QUARTER, FX_QUARTER);
+
     return GPI_OK;
 }
 
 /*!
- * @brief Draw a rectangular box (boundary).
- * @param [in] pBox  Pointer to BOXPARAMS.
- * @return cHits code.
- * @retval GPI_OK / GPI_HITS / GPI_ERROR.
- */
-LONG Fs_Arc::BoxBoundary(const BOXPARAMS *pBox)
-{ return BoxInterior(pBox); }
-
-/*!
- * @brief Draw a rectangular box (both).
- * @param [in] pBox  Pointer to BOXPARAMS.
- * @return cHits code.
- * @retval GPI_OK / GPI_HITS / GPI_ERROR.
- */
-LONG Fs_Arc::BoxBoth(const BOXPARAMS *pBox)
-{ return BoxInterior(pBox); }
+* @brief Draw and fill a rectangular box (interior and boundary).
+* @param [in] pDc   Device context; supplies the current (X,Y) position.
+* @param [in] pBox  Pointer to BOXPARAMS (ptl, sizl.cx, sizl.cy).
+* @return cHits code.
+* @retval GPI_OK    Figure emitted.
+* @retval GPI_HITS  Correlation hit.
+* @retval GPI_ERROR Invalid DC or pBox.
+*
+* @par EDM2 Reference
+* GreBoxBoth — pBox is PBOXPARAMS, but it is same as PBOXDATA.
+*/
+LONG Fs_Arc::BoxBoth(Fs_Dc *pDc, const BOXPARAMS *pBox)
+{
+    if (!pDc || !pBox) return GPI_ERROR;
+    return BoxInterior(pDc, (const BOXDATA *)pBox);
+}
 
 /*!
  * @brief Draw a poly-fillet.

@@ -1,8 +1,7 @@
-﻿#ifndef FS_DC_HPP
+#ifndef FS_DC_HPP
 #define FS_DC_HPP
 
 #define INCL_BASE
-#define INCL_PM
 #include "F_platform.h"
 #include "Fs_config.hpp"
 #include "Fs_region.hpp"
