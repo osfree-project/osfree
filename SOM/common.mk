@@ -8,14 +8,14 @@ defs = $(%ROOT)SOM$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)os2
 ADD_LINKOPT = lib clib3r
 !endif
 !ifeq %OS WIN32
-OPTS = -dWIN32_LEAN_AND_MEAN -br
+OPTS = -dWIN32_LEAN_AND_MEAN
 defs = $(%ROOT)SOM$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)nt
-ADD_LINKOPT = lib clbrdll
+ADD_LINKOPT = lib clbsdll
 !endif
 !ifeq %OS WIN64
-OPTS = -dWIN32_LEAN_AND_MEAN -br
+OPTS = -dWIN32_LEAN_AND_MEAN
 defs = $(%ROOT)SOM$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)nt
-ADD_LINKOPT = lib clbrdll
+ADD_LINKOPT = lib clbsdll
 !endif
 !ifeq %OS DOS
 OPTS =
