@@ -102,7 +102,11 @@ static PFN                    g_tblDriverBefore[MAXTABLEENTRIES];
  *         Graphics Engine Function Reference", column "Mandatory for
  *         All Drivers" (Hard Copy = x, Display = x).
  *
- *         Full NGre* code (flags + slot): low byte indexes g_tblDriver. */
+ *         Full NGre* code (flags + slot): low byte indexes g_tblDriver. 
+ *
+ * @todo: Display mandatory, Hardcopy mandatory tables
+ *  GrePolyShortLine: This function must be supported by all presentation drivers except those that hook GrePolyLine and all of the GreArcxxx functions that are simulated by handling routines in the graphics engine.
+ */
 static const ULONG            g_mandatorySlots[] = {
     NGreAccumulateBounds,           /* 0x40B0 */
     NGreBitblt,                     /* 0x6026 */
@@ -118,15 +122,12 @@ static const ULONG            g_mandatorySlots[] = {
     NGreDeviceSetAttributes,        /* 0x60A2 */
     NGreDeviceSetDCOrigin,          /* 0x40BB */
     NGreDeviceSetGlobalAttribute,   /* 0x60A3 */
-    NGreDisjointLines,              /* 0x4016 */
     NGreDrawBits,                   /* 0x6022 */
     NGreDrawBorder,                 /* 0x602E */
-    NGreDrawLinesInPath,            /* 0x401A */
     NGreErasePS,                    /* 0x40A7 */
     NGreGetBitmapBits,              /* 0x6030 */
     NGreGetBoundsData,              /* 0x40AF */
     NGreGetCodePage,                /* 0x40B3 */
-    NGreGetCurrentPosition,         /* 0x4017 */
     NGreGetDCOrigin,                /* 0x40BA */
     NGreGetLineOrigin,              /* 0x40BC */
     NGreGetPairKerningTable,        /* 0x40A0 */
@@ -135,10 +136,13 @@ static const ULONG            g_mandatorySlots[] = {
     NGreLockDevice,                 /* 0x40B5 */
     NGreNotifyClipChange,           /* 0x40A4 */
     NGreNotifyTransformChange,      /* 0x40A5 */
-    NGrePolyLine,                   /* 0x4019 */
     NGrePolyMarker,                 /* 0x403A */
+    NGreDisjointLines,              /* 0x4016 */
+    NGreGetCurrentPosition,         /* 0x4017 */
+    NGrePolyLine,                   /* 0x4019 */
+    NGreDrawLinesInPath,            /* 0x401A */
+    NGrePolyShortLine,              /* 0x401B */ // @todo see note in desc
     NGrePolyScanline,               /* 0x401C */
-    NGrePolyShortLine,              /* 0x401B */
     NGreQueryCharPositions,         /* 0x5038 */
     NGreQueryColorData,             /* 0x60C3 */
     NGreQueryColorIndex,            /* 0x60CA */
@@ -845,144 +849,6 @@ static ULONG __cdecl GreDrvAreaSetAttributes(ULONG hdc, ULONG lPrimType,
 /*  Arc dispatchers (real)                                                */
 /* ======================================================================== */
 
-   /**
-    * @brief Retrieve the current arc parameters.
-    *
-    * @param[in]  hdc       Device context handle.
-    * @param[out] pArcParms Pointer to an ARCPARAMS structure that receives the
-    *                       current arc parameters.
-    *
-    * @return BOOL success indicator.
-    *
-    * @retval TRUE  Successful.
-    * @retval FALSE Error.
-    *
-    * @note
-    * ! Mandatory ! Hook ! Chain ! Simulate !
-    * !     -     !  X   !   -   !    X     !
-    *
-    * @note If the function returns FALSE, the handling routine must call
-    *       WinSetErrorInfo. WinGetLastError may return one of the following
-    *       errors:
-    *       - PMERR_HDC_BUSY
-    *       - PMERR_INV_HDC
-    */
-static BOOL __cdecl GreDrvGetArcParameters(ULONG hdc, ULONG pArcParms,
-                                             ULONG pInstance, ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    (void)pInstance; (void)lFunction;
-    if (!pDc) return (ULONG)FALSE;
-//    return (ULONG)pDc->GetArc().QueryArcParameters((ARCPARAMS *)pArcParms);
-}
-
-static ULONG __cdecl GreDrvSetArcParameters(ULONG hdc, ULONG pArcParms,
-                                             ULONG pInstance, ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    (void)pInstance; (void)lFunction;
-    if (!pDc) return (ULONG)FALSE;
-    return (ULONG)pDc->GetArc().SetArcParameters((const ARCPARAMS *)pArcParms);
-}
-
-static ULONG __cdecl GreDrvArc(ULONG hdc, ULONG paptlPoint,
-                                ULONG pInstance, ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    (void)pInstance; (void)lFunction;
-    if (!pDc) return (ULONG)GPI_ERROR;
-    return (ULONG)pDc->GetArc().Arc((const POINTL *)paptlPoint);
-}
-
-static ULONG __cdecl GreDrvPartialArc(ULONG hdc, ULONG pptlCenter,
-                                       ULONG fxMultiplier, ULONG fxStart,
-                                       ULONG fxSweep, ULONG pInstance,
-                                       ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    (void)pInstance; (void)lFunction;
-    if (!pDc) return (ULONG)GPI_ERROR;
-    return (ULONG)pDc->GetArc().PartialArc((const POINTL *)pptlCenter,
-                                            (FIXED)fxMultiplier,
-                                            (FIXED)fxStart, (FIXED)fxSweep);
-}
-
-static ULONG __cdecl GreDrvFullArcInterior(ULONG hdc, ULONG fxAngle,
-                                            ULONG pInstance, ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    (void)pInstance; (void)lFunction;
-    if (!pDc) return (ULONG)GPI_ERROR;
-    return (ULONG)pDc->GetArc().FullArcInterior((FIXED)fxAngle);
-}
-
-static ULONG __cdecl GreDrvFullArcBoundary(ULONG hdc, ULONG fxAngle,
-                                            ULONG pInstance, ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    (void)pInstance; (void)lFunction;
-    if (!pDc) return (ULONG)GPI_ERROR;
-    return (ULONG)pDc->GetArc().FullArcBoundary((FIXED)fxAngle);
-}
-
-static ULONG __cdecl GreDrvFullArcBoth(ULONG hdc, ULONG fxAngle,
-                                        ULONG pInstance, ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    (void)pInstance; (void)lFunction;
-    if (!pDc) return (ULONG)GPI_ERROR;
-    return (ULONG)pDc->GetArc().FullArcBoth((FIXED)fxAngle);
-}
-
-static ULONG __cdecl GreDrvBoxInterior(ULONG hdc, ULONG pBox,
-                                       ULONG pInstance, ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    (void)pInstance; (void)lFunction;
-    if (!pDc) return (ULONG)GPI_ERROR;
-    return (ULONG)pDc->GetArc().BoxInterior(pDc, (const BOXDATA *)pBox);
-}
-
-static ULONG __cdecl GreDrvBoxBoundary(ULONG hdc, ULONG pBox,
-                                       ULONG pInstance, ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    (void)pInstance; (void)lFunction;
-    if (!pDc) return (ULONG)GPI_ERROR;
-    return (ULONG)pDc->GetArc().BoxBoundary(pDc, (const BOXDATA *)pBox);
-}
-
-static ULONG __cdecl GreDrvBoxBoth(ULONG hdc, ULONG pBox,
-                                   ULONG pInstance, ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    (void)pInstance; (void)lFunction;
-    if (!pDc) return (ULONG)GPI_ERROR;
-    return (ULONG)pDc->GetArc().BoxBoth(pDc, (const BOXPARAMS *)pBox);
-}
-
-static ULONG __cdecl GreDrvPolyFillet(ULONG hdc, ULONG paptlPoint,
-                                       ULONG cPoints, ULONG pInstance,
-                                       ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    (void)pInstance; (void)lFunction;
-    if (!pDc) return (ULONG)GPI_ERROR;
-    return (ULONG)pDc->GetArc().PolyFillet((const POINTL *)paptlPoint,
-                                            (LONG)cPoints);
-}
-
-static ULONG __cdecl GreDrvPolyFilletSharp(ULONG hdc, ULONG paptlPoint,
-                                            ULONG cPoints, ULONG pfxSharp,
-                                            ULONG pInstance, ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    (void)pInstance; (void)lFunction;
-    if (!pDc) return (ULONG)GPI_ERROR;
-    return (ULONG)pDc->GetArc().PolyFilletSharp((const POINTL *)paptlPoint,
-                                                 (LONG)cPoints,
-                                                 (const FIXED *)pfxSharp);
-}
 
 /* ======================================================================== */
 /*  Line dispatchers (real)                                               */
@@ -999,14 +865,6 @@ static ULONG __cdecl GreDrvPolySpline(ULONG hdc, ULONG paptlPoint,
                                              (LONG)cPoints);
 }
 
-static ULONG __cdecl GreDrvDrawRLE(ULONG hdc, ULONG pRLEHDR,
-                                    ULONG pInstance, ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    (void)pInstance; (void)lFunction;
-    if (!pDc) return (ULONG)GPI_ERROR;
-    return (ULONG)pDc->GetLine().DrawRLE((const RLEHDR *)pRLEHDR);
-}
 
 static ULONG __cdecl GreDrvPolyScanline(ULONG hdc, ULONG pScanData,
                                          ULONG pInstance, ULONG lFunction)
@@ -1356,17 +1214,12 @@ static ULONG __cdecl GreDrvQueryPaletteRealization(ULONG hdc, ULONG ulStart,
 GRE_DRV_7 (GreDrvOval)
 GRE_DRV_4 (GreDrvCookWholePath)
 GRE_DRV_5 (GreDrvCookPathCurves)
-GRE_DRV_5 (GreDrvBoxExclusive)
+GRE_DRV_5 (GreBoxExclusive)
 GRE_DRV_10(GreDrvRenderPath)
 GRE_DRV_3 (GreDrvOpenScreenChangeArea)
 GRE_DRV_5 (GreDrvGetScreenChangeArea)
 GRE_DRV_4 (GreDrvCloseScreenChangeArea)
-GRE_DRV_5 (GreDrvDisjointLines)
-GRE_DRV_4 (GreDrvGetCurrentPosition)
 GRE_DRV_4 (GreDrvSetCurrentPosition)
-GRE_DRV_5 (GreDrvPolyLine)
-GRE_DRV_6 (GreDrvDrawLinesInPath)
-GRE_DRV_4 (GreDrvPolyShortLine)
 GRE_DRV_7 (GreDrvGetScreenBits)
 GRE_DRV_6 (GreDrvSetScreenBits)
 GRE_DRV_9 (GreDrvDrawBits)
@@ -1401,8 +1254,6 @@ GRE_DRV_5 (GreDrvClip1DPath)
 GRE_DRV_4 (GreDrvDrawRawPath)
 GRE_DRV_6 (GreDrvDrawCookedPath)
 GRE_DRV_5 (GreDrvPathToRegion)
-GRE_DRV_4 (GreDrvDevicePolygonSet)
-GRE_DRV_5 (GreDrvPolygon3d)
 GRE_DRV_8 (GreDrvConvertPath)
 GRE_DRV_6 (GreDrvDeviceGetAttributes)
 GRE_DRV_6 (GreDrvDeviceSetAVIOFont2)
@@ -1553,38 +1404,40 @@ GRE_STUB_10(GreIntTabbedCharStringAtStub)
 GRE_STUB_4 (GreIntUnloadPDStub)
 
 /* ======================================================================== */
-/*  g_tblDriver                                                           */
+/*  g_tblDriver                                                             */
+/*  @brief Driver dispatcher table. All functions CAN be hooked, some MUST  */
+/*  be hooked. Some MUST be chained, some CAN be chained                    */
 /* ======================================================================== */
 
 static DISPATCHER g_tblDriver = {
-    /* 0x00 0x4000 */ (PFN)GreDrvGetArcParameters,
-    /* 0x01 0x4001 */ (PFN)GreDrvSetArcParameters,
-    /* 0x02 0x4002 */ (PFN)GreDrvArc,
-    /* 0x03 0x4003 */ (PFN)GreDrvPartialArc,
-    /* 0x04 0x4004 */ (PFN)GreDrvFullArcInterior,
-    /* 0x05 0x4005 */ (PFN)GreDrvFullArcBoundary,
-    /* 0x06 0x4006 */ (PFN)GreDrvFullArcBoth,
-    /* 0x07 0x4007 */ (PFN)GreDrvBoxInterior,
-    /* 0x08 0x4008 */ (PFN)GreDrvBoxBoundary,
-    /* 0x09 0x4009 */ (PFN)GreDrvBoxBoth,
-    /* 0x0A 0x400A */ (PFN)GreDrvPolyFillet,
-    /* 0x0B 0x400B */ (PFN)GreDrvPolyFilletSharp,
+    /* 0x00 0x4000 */ (PFN)GreGetArcParameters,
+    /* 0x01 0x4001 */ (PFN)GreSetArcParameters,
+    /* 0x02 0x4002 */ (PFN)GreArc,
+    /* 0x03 0x4003 */ (PFN)GrePartialArc,
+    /* 0x04 0x4004 */ (PFN)GreFullArcInterior,
+    /* 0x05 0x4005 */ (PFN)GreFullArcBoundary,
+    /* 0x06 0x4006 */ (PFN)GreFullArcBoth,
+    /* 0x07 0x4007 */ (PFN)GreBoxInterior,
+    /* 0x08 0x4008 */ (PFN)GreBoxBoundary,
+    /* 0x09 0x4009 */ (PFN)GreBoxBoth,
+    /* 0x0A 0x400A */ (PFN)GrePolyFillet,
+    /* 0x0B 0x400B */ (PFN)GrePolyFilletSharp,
     /* 0x0C 0x400C */ (PFN)GreDrvPolySpline,
     /* 0x0D 0x400D */ (PFN)GreDrvOval,
     /* 0x0E 0x400E */ (PFN)GreDrvCookWholePath,
     /* 0x0F 0x400F */ (PFN)GreDrvCookPathCurves,
-    /* 0x10 0x4010 */ (PFN)GreDrvBoxExclusive,
+    /* 0x10 0x4010 */ (PFN)GreBoxExclusive,
     /* 0x11 0x4011 */ (PFN)GreDrvRenderPath,
     /* 0x12 0x4012 */ (PFN)GreDrvOpenScreenChangeArea,
     /* 0x13 0x4013 */ (PFN)GreDrvGetScreenChangeArea,
     /* 0x14 0x4014 */ (PFN)GreDrvCloseScreenChangeArea,
-    /* 0x15 -------- */ NULL,
-    /* 0x16 0x4016 */ (PFN)GreDrvDisjointLines,
-    /* 0x17 0x4017 */ (PFN)GreDrvGetCurrentPosition,
-    /* 0x18 0x4018 */ (PFN)GreDrvSetCurrentPosition,
-    /* 0x19 0x4019 */ (PFN)GreDrvPolyLine,
-    /* 0x1A 0x401A */ (PFN)GreDrvDrawLinesInPath,
-    /* 0x1B 0x401B */ (PFN)GreDrvPolyShortLine,
+    /* 0x15 ------ */ NULL,
+    /* 0x16 0x4016 */ NULL, // Mandatory
+    /* 0x17 0x4017 */ NULL, // Mandatory
+    /* 0x18 0x4018 */ NULL, // Mandatory
+    /* 0x19 0x4019 */ (PFN)GrePolyLine, // Mandatory, can chain
+    /* 0x1A 0x401A */ NULL, // Mandatory
+    /* 0x1B 0x401B */ NULL, // Mandatory @todo see desc of Mandatory table
     /* 0x1C 0x401C */ (PFN)GreDrvPolyScanline,
     /* 0x1D 0x401D */ (PFN)GreDrvGetScreenBits,
     /* 0x1E 0x401E */ (PFN)GreDrvSetScreenBits,
@@ -1646,10 +1499,10 @@ static DISPATCHER g_tblDriver = {
     /* 0x56 0x4056 */ (PFN)GrePolygonSet,
     /* 0x57 0x4057 */ (PFN)GreDrvPathToRegion,
     /* 0x58 0x4058 */ (PFN)GreDrvDrawRLE,
-    /* 0x59 0x4059 */ (PFN)GreDrvDevicePolygonSet,
+    /* 0x59 0x4059 */ (PFN)GreDevicePolygonSet,
     /* 0x5A -------- */ NULL,
     /* 0x5B -------- */ NULL,
-    /* 0x5C 0x405C */ (PFN)GreDrvPolygon3d,
+    /* 0x5C 0x405C */ (PFN)GrePolygon3d,
     /* 0x5D 0x405D */ (PFN)GreDrvGetRegionBox,
     /* 0x5E 0x405E */ (PFN)GreDrvGetRegionRects,
     /* 0x5F 0x405F */ (PFN)GreDrvOffsetRegion,

@@ -238,22 +238,14 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    /**
     * @brief Draw a device-dependent polygon set.
     *
-    * @param[in] hdc       Device context handle.
-    * @param[in] pPolyset  Pointer to a POLYSET structure.
+    * @param[in] a
+    * @param[in] b
     *
-    * @return Integer (cHits) indicating correlation/error status.
+    * @return 
     *
-    * @retval GPI_OK    Successful.
-    * @retval GPI_HITS  Successful with correlation hit.
-    * @retval GPI_ERROR Error.
+    * @retval
     *
-    * @note If the function returns GPI_ERROR, the handling routine must call
-    *       WinSetErrorInfo. WinGetLastError may return one of the following
-    *       errors:
-    *       - PMERR_BASE_ERROR
-    *       - PMERR_COORDINATE_OVERFLOW
-    *       - PMERR_INV_IN_AREA
-    *       - PMERR_INV_IN_PATH
+    * @note Not found any info
     */
    #define NGreDevicePolygonSet 0x00004059L
    #define GreDevicePolygonSet(a,b) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PPOLYSET)(b),0L,NGreDevicePolygonSet)
@@ -261,22 +253,15 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
    /**
     * @brief Draw a 3-D polygon.
     *
-    * @param[in] hdc         Device context handle.
-    * @param[in] pPolysinfo  Pointer to a POLYSINFO structure.
-    * @param[in] cOptions    Option flags.
+    * @param[in] a
+    * @param[in] b
+    * @param[in] c
     *
-    * @return Integer (cHits) indicating correlation/error status.
+    * @return 
     *
-    * @retval GPI_OK    Successful.
-    * @retval GPI_HITS  Successful with correlation hit.
-    * @retval GPI_ERROR Error.
+    * @retval
     *
-    * @note If the function returns GPI_ERROR, the handling routine must call
-    *       WinSetErrorInfo. WinGetLastError may return one of the following
-    *       errors:
-    *       - PMERR_BASE_ERROR
-    *       - PMERR_COORDINATE_OVERFLOW
-    *       - PMERR_INV_IN_AREA
+    * @note Not found any info
     */
    #define NGrePolygon3d 0x0000405CL
    #define GrePolygon3d(a,b,c) (ULONG) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(PPOLYSINFO)(b),(ULONG)(ULONG)(c),0L,NGrePolygon3d)
@@ -385,7 +370,7 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
     *       - PMERR_INV_NESTED_FIGURES
     */
    #define NGrePartialArc 0x00004003L
-   #define GrePartialArc(a,b,c,d,e) (INT) Gre32Entry7((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),(ULONG)(FIXED)(c),(ULONG)(FIXED)(d),(ULONG)(FIXED)(e),0L,NGrePartialArc)
+   #define GrePartialArc(a,b,c,d,e) (LONG) Gre32Entry7((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),(ULONG)(FIXED)(c),(ULONG)(FIXED)(d),(ULONG)(FIXED)(e),0L,NGrePartialArc)
 
    /**
     * @brief Draw a full arc (interior only).
@@ -421,7 +406,7 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
     *       - PMERR_PATH_UNKNOWN
     */
    #define NGreFullArcInterior 0x00004004L
-   #define GreFullArcInterior(a,b) (INT) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(FIXED)(b),0L,NGreFullArcInterior)
+   #define GreFullArcInterior(a,b) (LONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(FIXED)(b),0L,NGreFullArcInterior)
 
    /**
     * @brief Draw a full arc (boundary only).
@@ -533,7 +518,7 @@ ULONG APIENTRY Gre32Entry10(ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULONG,ULON
     *       - PMERR_PATH_UNKNOWN
     */
    #define NGreBoxBoundary 0x00004008L
-   #define GreBoxBoundary(a,b) (INT) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PBOXPARAMS)(b),0L,NGreBoxBoundary)
+   #define GreBoxBoundary(a,b) (LONG) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PBOXPARAMS)(b),0L,NGreBoxBoundary)
 
    /**
     * @brief Draw a rectangular box (both interior and boundary).

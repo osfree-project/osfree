@@ -767,7 +767,7 @@ static PFN g_tblDriver[MAXTABLEENTRIES] = {
     /* 0x16 0x4016 */ (PFN)GreDrvDisjointLines,
     /* 0x17 0x4017 */ (PFN)GreDrvGetCurrentPosition,
     /* 0x18 0x4018 */ (PFN)GreDrvSetCurrentPosition,
-    /* 0x19 0x4019 */ (PFN)GreDrvPolyLine,
+    /* 0x19 0x4019 */ (PFN)GrePolyLine, // Mandatory, can chain
     /* 0x1A 0x401A */ (PFN)GreDrvDrawLinesInPath,
     /* 0x1B 0x401B */ (PFN)GreDrvPolyShortLine,
     /* 0x1C 0x401C */ (PFN)GreDrvPolyScanline,

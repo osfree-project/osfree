@@ -11,17 +11,14 @@ SOURCES      = gre
 !ifndef TARGETBLD
 SRCDIR  = $(MYDIR)
 OPTIONS = manyautodata,
-IMPORTS = F_DbgPrint       PMDEBUG.5, &
-          F_DbgCtxEnterf   PMDEBUG.15, &
-          F_DbgCtxExitf    PMDEBUG.16
 !else
 SRCDIR  = $(MYDIR)..$(SEP)
 ADD_COPT += -bt=nt
+!endif
+
 IMPORTS = F_DbgPrint       PMDEBUG.5, &
           F_DbgCtxEnterf   PMDEBUG.15, &
           F_DbgCtxExitf    PMDEBUG.16
-!endif
-
 
 ADD_COPT     +=  -fp5 -ei -i=$(SRCDIR) -i=$(SRCDIR)..$(SEP)..$(SEP)..$(SEP)include -i=$(SRCDIR)..$(SEP)include  -sg -of+ -bd -5s -bm
 

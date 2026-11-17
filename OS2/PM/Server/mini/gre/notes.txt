@@ -1,0 +1,9 @@
+1. plan
+  Check all mandatory function
+  Check all display mandatory functions
+  Check all hatdcopy mandatory function
+  Check specifig mandatory function (like mandatory except/if or similar)
+  Check return type and args type-castings
+  if (!pDc) return GPI_ERROR not required for most cases, but for chained functions better to check
+
+BOXPARAMS and BOXDATA is same structure.
