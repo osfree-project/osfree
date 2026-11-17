@@ -3,9 +3,8 @@
 # (c) osFree project
 #
 
-DESC  = Control file attributes
-TARGET_API = HOST
-ADD_COPT = -I$(PATH)..$(SEP)awk
+DESCRIPTION  = proctab.c generator
+ADD_COPT     = -I$(PATH)..$(SEP)awk
 LIBS = awk
 
 !include $(%ROOT)tools/mk/build.mk

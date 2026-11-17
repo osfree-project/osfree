@@ -552,7 +552,7 @@ subdirs: .symbolic
 !ifeq UNIX TRUE
  $(verbose)for %d in ($(DIRS)) do $(verbose)if [ -d $(MYDIR)%d ]; then cd $(MYDIR)%d && $(MAKE) $(__MAKEOPTS__) $(TARGET) PLATFORM=$(PLATFORM) && cd ..; fi
 !else
- $(verbose)for %d in ($(DIRS)) do $(verbose)if exist $(MYDIR)%d$(SEP). $(CD) $(MYDIR)%d && $(MAKE) $(__MAKEOPTS__) $(TARGET) PLATFORM=$(PLATFORM)
+ $(verbose)for %d in ($(DIRS)) do $(verbose)if exist $(MYDIR)%d$(SEP). $(verbose)$(CD) $(MYDIR)%d && $(MAKE) $(__MAKEOPTS__) $(TARGET) PLATFORM=$(PLATFORM)
 !endif
 
 dirhier: .symbolic

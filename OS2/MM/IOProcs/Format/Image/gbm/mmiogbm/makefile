@@ -5,11 +5,12 @@
 #
 
 PROJ  = mmiogbm
-TRGT  = $(PROJ).dll
-PROJ0 = mmiogbm
-DESC  = GBM IOProc generator
+DESCRIPTION  = GBM IOProc generator
+TARGET_CLASS = LIBRARY
+TARGET_PACKAGE = OS2-MM
+#PROJ0 = mmiogbm
 #defines object file names in format objname.$(O)
-srcfiles = $(p)mmioproc$(e)
+#srcfiles = $(p)mmioproc$(e)
 # defines additional options for C compiler
 ADD_COPT    = -i=$(%ROOT)include$(SEP)os3$(SEP)gbm -i=$(%WATCOM)$(SEP)h$(SEP)os2
 STUB=$(FILESDIR)$(SEP)os2$(SEP)mdos$(SEP)os2stub.exe
@@ -65,4 +66,4 @@ EXPORTS = &
 
 DEST = mmos2$(SEP)dll
 
-!include $(%ROOT)tools/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/build.mk

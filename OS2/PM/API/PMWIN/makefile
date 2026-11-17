@@ -4,17 +4,25 @@
 # author, date
 #
 
-PROJ     = pmwin
-TRGT     = $(PROJ).dll
+PROJECT     = pmwin
 DESC     = PM Windowing API
-srcfiles = $(p)..$(SEP)shared$(SEP)stub$(e)
-ADD_COPT = -i=..$(SEP)include
-ADD_LINKOPT  = lib os2386.lib lib clib3r.lib segment type DATA shared
-DLL     = 1
+TARGET_CLASS = LIBRARY
+#ADD_COPT = -i=..$(SEP)include
+#ADD_LINKOPT  = lib os2386.lib lib clib3r.lib segment type DATA shared
+#DLL     = 1
 DLLOPT  = initinstance terminstance
 OPTIONS = manyautodata, caseexact
-ADD_COPT = -i=..\include
-ADD_LINKOPT  = lib os2386.lib lib clib3r.lib
+#ADD_COPT = -i=..\include
+#ADD_LINKOPT  = lib os2386.lib lib clib3r.lib
+
+!ifndef TARGETBLD
+SRCDIR  = $(MYDIR)
+!else
+SRCDIR  = $(MYDIR)..$(SEP)
+ADD_COPT = -bt=nt
+!endif
+
+
 IMPORTS = WinInitialize      PMMERGE.5201,  &
           WinTerminate       PMMERGE.5396,  &
           WinCreateMsgQueue  PMMERGE.5136,  &
@@ -26,6 +34,7 @@ IMPORTS = WinInitialize      PMMERGE.5201,  &
           WinCreateStdWindow PMMERGE.5139,  &
           WinDefWindowProc   PMMERGE.5147,  &
           WinDestroyWindow   PMMERGE.5156,  &
+!ifndef TARGETBLD
           WINQUERYDESKTOPWINDOW     PMMERGE.3047,  &
           WINQUERYOBJECTWINDOW      PMMERGE.3193,  &
           WINREGISTERCLASS          PMMERGE.3058,  &
@@ -390,6 +399,7 @@ IMPORTS = WinInitialize      PMMERGE.5201,  &
           WINLOCKPOINTERUPDATE         PMMERGE.3162,  &
           WINCHECKINPUT                PMMERGE.3088,  &
           FARFLUSHBUFHOOK              PMMERGE.3000,  &
+!endif
           WinAddAtom                   PMMERGE.5111,  &
           WinAlarm                     PMMERGE.5113,  &
           WinBeginEnumWindows          PMMERGE.5114,  &
@@ -765,6 +775,7 @@ EXPORTS = WinInitialize.              00763,  &
           WinGetMsg.                  00915,  &
           WinSendMsg.                 00920,  &
           WinRegisterClass.           00926,  &
+!ifndef TARGETBLD
           WINQUERYDESKTOPWINDOW       .00001 RESIDENT,  &
           WINQUERYOBJECTWINDOW        .00002 RESIDENT,  &
           WINREGISTERCLASS            .00003 RESIDENT,  &
@@ -1150,6 +1161,7 @@ EXPORTS = WinInitialize.              00763,  &
           WIN16GETMINWINDOWVIEWER     .00637,  &
           WINQUERYWORKPLACEWINDOW     .00638,  &
           FARFLUSHBUFHOOK             .00641,  &
+!endif
           WinAddAtom                  .00700,  &
           WinAlarm                    .00701,  &
           WinBeginEnumWindows         .00702,  &
@@ -1496,4 +1508,6 @@ EXPORTS = WinInitialize.              00763,  &
 
 DEST     = os2$(SEP)dll
 
-!include $(%ROOT)tools/mk/appsos2_cmd.mk
+!include $(%ROOT)tools/mk/build.mk
+
+.c: $(SRCDIR)

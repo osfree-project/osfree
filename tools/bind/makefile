@@ -32,5 +32,4 @@ defs = $(%WATCOM)$(SEP)h$(SEP)dos
 defs = $(%WATCOM)$(SEP)lh
 !endif
 
-
 !include $(%ROOT)tools/mk/build.mk

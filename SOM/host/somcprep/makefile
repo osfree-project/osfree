@@ -1,2 +1,2 @@
 !define  HOSTBLD
-!include ../../somcprep/makefile
+!include $(%ROOT)SOM/somcprep/makefile

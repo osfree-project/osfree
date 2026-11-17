@@ -1,2 +1,2 @@
 !define  HOSTBLD
-!include ../../somwm35i/makefile
+!include $(%ROOT)SOM/somwm35i/makefile

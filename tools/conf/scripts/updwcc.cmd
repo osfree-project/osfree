@@ -23,7 +23,7 @@ ext  = substr(fn, p + 1)
 template = root'tools/conf/scripts/_wcc.'ext'-template'
 
 /* Создать (или усечь) выходной файл — как это делал redirect > в оригинале */
-'@type nul > "'fn'"'
+'type nul > "'fn'"'
 
 /* Подстановка @RT@ -> l построчно, без внешних утилит */
 if stream(template, 'c', 'QUERY EXISTS') <> '' then do

@@ -1,5 +1,6 @@
 PROJECT = pmserver
 DESCRIPTION = tests
+DIRS = gre2sdl
 IMPORTS = _InitServerConnection PMTCP.1,       &
            _CloseServerConnection PMTCP.2,     &
            _startServerThreads PMTCP.3,        &

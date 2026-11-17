@@ -1,2 +1,2 @@
 !define  HOSTBLD
-!include ../../genxh/makefile
+!include $(%ROOT)SOM/genxh/makefile

@@ -1,2 +1,2 @@
 !define  HOSTBLD
-!include ../../newemit/makefile
+!include $(%ROOT)SOM/newemit/makefile

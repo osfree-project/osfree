@@ -14,7 +14,7 @@ STACKSIZE = 65536
 !include $(%ROOT)tools/mk/build.mk
 
 $(PATH)proctab.c: $(PATH)awk$(SEP)ytab.h
-  $(CD) $(PATH)awk && maketab > $(PATH)proctab.c && $(CD) $(CWD)
+  $(CD) $(PATH)awk && maketab.exe > $(PATH)proctab.c && $(CD) $(CWD)
 
 .c: $(PATH)
 
