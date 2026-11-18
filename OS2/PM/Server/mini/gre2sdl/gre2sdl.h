@@ -12,8 +12,12 @@
 #define GRE2SDL_H
 
 #define INCL_BASE
-#define INCL_PM
+#define INCL_GPIPRIMITIVES
 #include "F_platform.h"
+#define INCL_GREALL
+#define INCL_DDIPATHS
+#define INCL_DDIBUNDLES
+#include "pmddi.h"
 
 /*! @brief Maximum number of entries in DISPATCHTABLE (from GRE22 docs). */
 #define GRE2SDL_MAX_DISPATCH 256

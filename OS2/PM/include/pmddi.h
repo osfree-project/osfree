@@ -1,8 +1,3 @@
-#ifndef PMDDI_H
-#define PMDDI_H
-
-#define DDI_INCLUDED
-
 #ifdef INCL_GREALL
    #define INCL_GRE_ARCS
    #define INCL_GRE_BITMAPS
@@ -48,23 +43,22 @@
  */
 #define MAXTABLEENTRIES   223
 
-/*! @def DISPATCHER
-typedef struct _DISPATCHER    /* dr */
+/*! @def DISPATCHER */
+typedef struct _DISPATCHER
 {
    PFN    pfnTblEntry[MAXTABLEENTRIES];
 } DISPATCHER, *PDISPATCHER;
 
 
 //----------------------------------------------
-#ifndef POINTFX_DEFINED
-   #define POINTFX_DEFINED
-   typedef struct _POINTFX
-   {
-      FIXED x;
-      FIXED y;
-   } POINTFX;
-   typedef POINTFX *PPOINTFX;
-#endif
+//#ifndef POINTFX_DEFINED
+//   #define POINTFX_DEFINED
+typedef struct _POINTFX
+{
+  FIXED x;
+  FIXED y;
+} POINTFX, *PPOINTFX;
+//#endif
 
 
 #ifdef INCL_DDIPATHS
@@ -109,7 +103,7 @@ typedef struct _DISPATCHER    /* dr */
       BYTE        Reserved1[8];       /*  8   68  */
    } LINE, *PLINE;
    
-#endif  /* INCL_DDIPATHS */
+#endif
 
 #ifdef INCL_GRE_ARCS
 
@@ -264,6 +258,88 @@ typedef ULONG (DDI_CALLCONV *PFN_OS2_PM_DRV_ENABLE)(ULONG subfunc,
    
 #endif /* INCL_GRE_CLIP */
 
+#ifdef INCL_DDIBUNDLES
+
+/* Device Line Bundle */
+
+typedef struct _LINEDEFS
+{
+   ULONG      defType;
+} LINEDEFS;
+typedef LINEDEFS *PLINDEFS;
+
+typedef struct _DLINEBUNDLE
+{
+   LONG       cAttr;
+   LONG       cDefs;
+   LINEBUNDLE lbnd;
+   LINEDEFS   ldef;
+} DLINEBUNDLE, *PDLINEBUNDLE;
+
+/* Device Area Bundle */
+
+typedef struct _AREADEFS
+{
+   ULONG      defSet;
+   ULONG      fFlags;
+   ULONG      CodePage;
+} AREADEFS, *PAREADEFS;
+
+typedef struct _DAREABUNDLE
+{
+   LONG       cAttr;
+   LONG       cDefs;
+   AREABUNDLE abnd;
+   AREADEFS   adef;
+} DAREABUNDLE, *PDAREABUNDLE;
+
+/* Device Character Bundle */
+
+typedef struct _CHARDEFS
+{
+   ULONG      defSet;
+   ULONG      fFlags;
+   ULONG      CodePage;
+   ULONG      charSpacing;
+} CHARDEFS, *PCHARDEFS;
+
+typedef struct _DCHARBUNDLE
+{
+   LONG       cAttr;
+   LONG       cDefs;
+   CHARBUNDLE cbnd;
+   CHARDEFS   cdef;
+} DCHARBUNDLE, *PDCHARBUNDLE;
+
+/* Device Image Bundle */
+
+typedef struct _DIMAGEBUNDLE
+{
+   LONG       cAttr;
+   LONG       cDefs;
+   IMAGEBUNDLE ibnd;
+} DIMAGEBUNDLE, *PDIMAGEBUNDLE;
+
+/* Device Marker Bundle */
+
+typedef struct _MARKERDEFS
+{
+   ULONG      defSet;
+   ULONG      fFlags;
+   ULONG      CodePage;
+} MARKERDEFS, *PMARKERDEFS;
+
+typedef struct _DMARKERBUNDLE
+{
+   LONG       cAttr;
+   LONG       cDefs;
+   MARKERBUNDLE mbnd;
+   MARKERDEFS   mdef;
+} DMARKERBUNDLE, *PDMARKERBUNDLE;
+
+   
+#endif /* INCL_DDIBUNDLES */
+
 
 #ifdef __cplusplus
       }
@@ -271,4 +347,3 @@ typedef ULONG (DDI_CALLCONV *PFN_OS2_PM_DRV_ENABLE)(ULONG subfunc,
 
 #include <pmddim.h>
 
-#endif

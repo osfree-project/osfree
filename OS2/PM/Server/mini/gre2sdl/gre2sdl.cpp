@@ -70,9 +70,6 @@
 #include <math.h>
 #include <process.h>
 
-#define INCL_GREALL
-#include "pmddi.h"
-
 #include <SDL.h>
 
 /*!

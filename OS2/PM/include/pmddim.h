@@ -2,7 +2,6 @@
       extern "C" {
 #endif
 
-#define DDIM_INCLUDED
 
 ULONG APIENTRY Gre32Entry2(ULONG,ULONG);
 ULONG APIENTRY Gre32Entry3(ULONG,ULONG,ULONG);

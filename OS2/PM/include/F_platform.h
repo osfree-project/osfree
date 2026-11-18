@@ -899,6 +899,13 @@ static inline APIRET DosGetNamedSharedMem(PVOID *ppv, const char *pszName,
   typedef CHAR STR64[64], *PSTR64;
 
   /* ---------- GPI foreground bundles ---------- */
+typedef struct _IMAGEBUNDLE {
+    LONG   lColor;
+    LONG   lBackColor;
+    USHORT usMixMode;
+    USHORT usBackMixMode;
+} IMAGEBUNDLE, *PIMAGEBUNDLE;
+
   typedef struct _LINEBUNDLE {
       LONG   lColor;
       LONG   lBackColor;
