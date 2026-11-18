@@ -106,6 +106,7 @@ static PFN                    g_tblDriverBefore[MAXTABLEENTRIES];
  *
  * @todo: Display mandatory, Hardcopy mandatory tables
  *  GrePolyShortLine: This function must be supported by all presentation drivers except those that hook GrePolyLine and all of the GreArcxxx functions that are simulated by handling routines in the graphics engine.
+ *  GrePolyScanline: This function must be supported by all presentation drivers except those that hook the GreDrawRLE, GreEndArea, and GreFillPath functions.
  */
 static const ULONG            g_mandatorySlots[] = {
     NGreAccumulateBounds,           /* 0x40B0 */
@@ -142,7 +143,7 @@ static const ULONG            g_mandatorySlots[] = {
     NGrePolyLine,                   /* 0x4019 */
     NGreDrawLinesInPath,            /* 0x401A */
     NGrePolyShortLine,              /* 0x401B */ // @todo see note in desc
-    NGrePolyScanline,               /* 0x401C */
+    NGrePolyScanline,               /* 0x401C */ // @todo see note in desc
     NGreQueryCharPositions,         /* 0x5038 */
     NGreQueryColorData,             /* 0x60C3 */
     NGreQueryColorIndex,            /* 0x60CA */
@@ -166,6 +167,13 @@ static const ULONG            g_mandatorySlots[] = {
     NGreUnlockDevice,               /* 0x40B6 */
     NGreUnrealizeColorTable,        /* 0x60C7 */
 };
+
+static const ULONG            g_mandatoryDisplaySlots[] = {
+    NGreSaveScreenBits,           /* 0x402C */
+    NGreRestoreScreenBits,        /* 0x402D */
+    NGreDeviceSetCursor,          /* 0x402F */
+    NGreSetColorCursor,           /* 0x4032 */
+}
 
 /*! @brief Number of entries in g_mandatorySlots[]. */
 #define MANDATORY_COUNT \
@@ -296,43 +304,7 @@ static ULONG __cdecl name(ULONG a1, ULONG a2, ULONG a3, ULONG a4, ULONG a5, ULON
 /*  Real internal handlers                                                */
 /* ======================================================================== */
 
-static ULONG __cdecl GreIntOpenDC(ULONG hdcComp, ULONG lType,
-                                    ULONG pszToken, ULONG lCount,
-                                    ULONG pdop, ULONG pInstance,
-                                    ULONG fnCode)
-{
-    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
-                             "[GRE] GreOpenDC(ulType=0x%lx, fn=0x%lx)",
-                             (unsigned long)lType, (unsigned long)fnCode);
-    ULONG newHdc;
 
-    (void)hdcComp; (void)pszToken; (void)lCount; (void)pdop;
-    (void)pInstance;
-
-    if (!g_bDriverLoaded && !LoadGre2Sdl()) {
-        F_DbgCtxExitf(ctx, "GPI_ERROR (driver load failed)");
-        return (ULONG)-1;
-    }
-    newHdc = NewDc(0, lType);
-    if (newHdc == (ULONG)-1) {
-        F_DbgCtxExitf(ctx, "GPI_ERROR (NewDc failed)");
-        return (ULONG)-1;
-    }
-    F_DbgCtxExitf(ctx, "hdc=%lu", (unsigned long)newHdc);
-    return newHdc;
-}
-
-static ULONG __cdecl GreIntCloseDC(ULONG hdc, ULONG pInstance, ULONG fnCode)
-{
-    int ctx = F_DbgCtxEnterf(F_DBG_SEC_GRE, F_DBG_LVL_VERBOSE,
-                             "[GRE] GreCloseDC(hdc=%lu, fn=0x%lx)",
-                             (unsigned long)hdc, (unsigned long)fnCode);
-    BOOL ok;
-    (void)pInstance;
-    ok = DestroyDc(hdc);
-    F_DbgCtxExitf(ctx, "%d", (int)(ok ? 1 : 0));
-    return ok ? (ULONG)GPI_OK : (ULONG)GPI_ERROR;
-}
 
 static ULONG __cdecl GreIntSetDCOwner(ULONG hdc, ULONG newOwner,
                                        ULONG pInstance, ULONG fnCode)
@@ -555,178 +527,6 @@ static ULONG __cdecl GreDrvClipPathCurves(ULONG hdc, ULONG pPath,
 }
 
 /* ======================================================================== */
-/*  Region dispatchers (real)                                             */
-/* ======================================================================== */
-
-static ULONG __cdecl GreDrvCombineRegion(ULONG hdc, ULONG hrgnDst,
-                                          ULONG hrgnSrc1, ULONG hrgnSrc2,
-                                          ULONG cmdMode, ULONG pInstance,
-                                          ULONG lFunction)
-{
-    Fs_Region *pDst = Fs_Region::FromHandle((HRGN)hrgnDst);
-    Fs_Region *pS1  = Fs_Region::FromHandle((HRGN)hrgnSrc1);
-    Fs_Region *pS2  = Fs_Region::FromHandle((HRGN)hrgnSrc2);
-    (void)hdc; (void)pInstance; (void)lFunction;
-    if (!pDst || !pS1 || !pS2) return (ULONG)RGN_ERROR;
-    if (pDst->IsClipSelected() || pS1->IsClipSelected() || pS2->IsClipSelected())
-        return (ULONG)RGN_ERROR;
-    return (ULONG)pDst->Combine(*pS1, *pS2, cmdMode);
-}
-
-static ULONG __cdecl GreDrvCombineRectRegion(ULONG hdc, ULONG hrgnDst,
-                                              ULONG prclRect, ULONG hrgnSrc,
-                                              ULONG cmdMode, ULONG pInstance,
-                                              ULONG lFunction)
-{
-    Fs_Region *pDst = Fs_Region::FromHandle((HRGN)hrgnDst);
-    Fs_Region *pSrc = Fs_Region::FromHandle((HRGN)hrgnSrc);
-    (void)hdc; (void)pInstance; (void)lFunction;
-    if (!pDst || !pSrc || !prclRect) return (ULONG)RGN_ERROR;
-    if (pDst->IsClipSelected() || pSrc->IsClipSelected())
-        return (ULONG)RGN_ERROR;
-    return (ULONG)pDst->CombineRect(*pSrc, *(PRECTL)prclRect, cmdMode);
-}
-
-static ULONG __cdecl GreDrvCreateRectRegion(ULONG hdc, ULONG paRegion,
-                                              ULONG cRect, ULONG pInstance,
-                                              ULONG lFunction)
-{
-    (void)hdc; (void)pInstance; (void)lFunction;
-    return (ULONG)Fs_Region::CreateFromRects(cRect, (const RECTL *)paRegion);
-}
-
-static ULONG __cdecl GreDrvDestroyRegion(ULONG hdc, ULONG hrgn,
-                                          ULONG pInstance, ULONG lFunction)
-{
-    Fs_Region *pRgn = Fs_Region::FromHandle((HRGN)hrgn);
-    (void)hdc; (void)pInstance; (void)lFunction;
-    if (!pRgn) return (ULONG)FALSE;
-    if (pRgn->IsClipSelected()) return (ULONG)FALSE;
-    delete pRgn;
-    return (ULONG)TRUE;
-}
-
-static ULONG __cdecl GreDrvEqualRegion(ULONG hdc, ULONG hrgn1, ULONG hrgn2,
-                                        ULONG pInstance, ULONG lFunction)
-{
-    Fs_Region *p1 = Fs_Region::FromHandle((HRGN)hrgn1);
-    Fs_Region *p2 = Fs_Region::FromHandle((HRGN)hrgn2);
-    (void)hdc; (void)pInstance; (void)lFunction;
-    if (!p1 || !p2) return (ULONG)EQRGN_ERROR;
-    if (p1->IsClipSelected() || p2->IsClipSelected())
-        return (ULONG)EQRGN_ERROR;
-    return (ULONG)p1->Equal(*p2);
-}
-
-static ULONG __cdecl GreDrvGetRegionBox(ULONG hdc, ULONG hrgn,
-                                         ULONG prclRect, ULONG pInstance,
-                                         ULONG lFunction)
-{
-    Fs_Region *pRgn = Fs_Region::FromHandle((HRGN)hrgn);
-    (void)hdc; (void)pInstance; (void)lFunction;
-    if (!pRgn || !prclRect) return (ULONG)RGN_ERROR;
-    if (pRgn->IsClipSelected()) return (ULONG)RGN_ERROR;
-    return (ULONG)pRgn->UpdateBounds(*(PRECTL)prclRect);
-}
-
-static ULONG __cdecl GreDrvGetRegionRects(ULONG hdc, ULONG hrgn,
-                                           ULONG prclBound, ULONG pControl,
-                                           ULONG parclRect,
-                                           ULONG pInstance, ULONG lFunction)
-{
-    Fs_Region *pRgn = Fs_Region::FromHandle((HRGN)hrgn);
-    (void)hdc; (void)pInstance; (void)lFunction;
-    if (!pRgn) return (ULONG)FALSE;
-    if (pRgn->IsClipSelected()) return (ULONG)FALSE;
-    return (ULONG)pRgn->EnumRects((const RECTL *)prclBound,
-                                   (PRGNRECT)pControl, (PRECTL)parclRect);
-}
-
-static ULONG __cdecl GreDrvOffsetRegion(ULONG hdc, ULONG hrgn, ULONG pdpt,
-                                         ULONG pInstance, ULONG lFunction)
-{
-    Fs_Region *pRgn = Fs_Region::FromHandle((HRGN)hrgn);
-    PPOINTL pptl = (PPOINTL)pdpt;
-    (void)hdc; (void)pInstance; (void)lFunction;
-    if (!pRgn || !pptl) return (ULONG)FALSE;
-    if (pRgn->IsClipSelected()) return (ULONG)FALSE;
-    pRgn->Offset(pptl->x, pptl->y);
-    return (ULONG)TRUE;
-}
-
-static ULONG __cdecl GreDrvPtInRegion(ULONG hdc, ULONG hrgn, ULONG pptl,
-                                       ULONG pInstance, ULONG lFunction)
-{
-    Fs_Region *pRgn = Fs_Region::FromHandle((HRGN)hrgn);
-    (void)hdc; (void)pInstance; (void)lFunction;
-    if (!pRgn || !pptl) return (ULONG)PRGN_ERROR;
-    if (pRgn->IsClipSelected()) return (ULONG)PRGN_ERROR;
-    return (ULONG)(pRgn->Contains(*(PPOINTL)pptl) ? PRGN_INSIDE : PRGN_OUTSIDE);
-}
-
-static ULONG __cdecl GreDrvRectInRegion(ULONG hdc, ULONG hrgn,
-                                         ULONG prclRect, ULONG pInstance,
-                                         ULONG lFunction)
-{
-    Fs_Region *pRgn = Fs_Region::FromHandle((HRGN)hrgn);
-    (void)hdc; (void)pInstance; (void)lFunction;
-    if (!pRgn || !prclRect) return (ULONG)RRGN_ERROR;
-    if (pRgn->IsClipSelected()) return (ULONG)RRGN_ERROR;
-    return (ULONG)pRgn->RectIn(*(PRECTL)prclRect);
-}
-
-static ULONG __cdecl GreDrvSetRectRegion(ULONG hdc, ULONG hrgn,
-                                          ULONG paRegion, ULONG cRect,
-                                          ULONG pInstance, ULONG lFunction)
-{
-    Fs_Region *pRgn = Fs_Region::FromHandle((HRGN)hrgn);
-    (void)hdc; (void)pInstance; (void)lFunction;
-    if (!pRgn) return (ULONG)FALSE;
-    if (pRgn->IsClipSelected()) return (ULONG)FALSE;
-    return (ULONG)pRgn->SetFromRects(cRect, (const RECTL *)paRegion);
-}
-
-static ULONG __cdecl GreDrvPaintRegion(ULONG hdc, ULONG hrgn,
-                                        ULONG pInstance, ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    Fs_Region *pRgn = Fs_Region::FromHandle((HRGN)hrgn);
-    (void)pInstance; (void)lFunction;
-    if (!pDc || !pRgn) return (ULONG)GPI_ERROR;
-    if (pRgn->IsClipSelected()) return (ULONG)GPI_ERROR;
-    return (ULONG)GPI_OK;
-}
-
-static ULONG __cdecl GreDrvFrameRegion(ULONG hdc, ULONG hrgn,
-                                        ULONG pszl, ULONG pInstance,
-                                        ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    Fs_Region *pRgn = Fs_Region::FromHandle((HRGN)hrgn);
-    (void)pszl; (void)pInstance; (void)lFunction;
-    if (!pDc || !pRgn) return (ULONG)GPI_ERROR;
-    if (pRgn->IsClipSelected()) return (ULONG)GPI_ERROR;
-    return (ULONG)GPI_OK;
-}
-
-static ULONG __cdecl GreDrvCombineShortLineRegion(ULONG hdc, ULONG hrgn,
-                                                   ULONG psl,
-                                                   ULONG pInstance, ULONG lFunction)
-{
-    (void)hdc; (void)hrgn; (void)psl; (void)pInstance; (void)lFunction;
-    return (ULONG)RGN_ERROR;
-}
-
-static ULONG __cdecl GreDrvSetRegionOwner(ULONG hdc, ULONG hrgn, ULONG lOwner,
-                                           ULONG pInstance, ULONG lFunction)
-{
-    Fs_Region *pRgn = Fs_Region::FromHandle((HRGN)hrgn);
-    (void)hdc; (void)lOwner; (void)pInstance; (void)lFunction;
-    if (!pRgn) return (ULONG)FALSE;
-    return (ULONG)TRUE;
-}
-
-/* ======================================================================== */
 /*  Path dispatchers (real)                                               */
 /* ======================================================================== */
 
@@ -845,35 +645,6 @@ static ULONG __cdecl GreDrvAreaSetAttributes(ULONG hdc, ULONG lPrimType,
                                                 flAttrsMask, (PVOID)pAttrs);
 }
 
-/* ======================================================================== */
-/*  Arc dispatchers (real)                                                */
-/* ======================================================================== */
-
-
-/* ======================================================================== */
-/*  Line dispatchers (real)                                               */
-/* ======================================================================== */
-
-static ULONG __cdecl GreDrvPolySpline(ULONG hdc, ULONG paptlPoint,
-                                       ULONG cPoints, ULONG pInstance,
-                                       ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    (void)pInstance; (void)lFunction;
-    if (!pDc) return (ULONG)GPI_ERROR;
-    return (ULONG)pDc->GetLine().PolySpline((const POINTL *)paptlPoint,
-                                             (LONG)cPoints);
-}
-
-
-static ULONG __cdecl GreDrvPolyScanline(ULONG hdc, ULONG pScanData,
-                                         ULONG pInstance, ULONG lFunction)
-{
-    Fs_Dc *pDc = g_greDcs.Find(hdc);
-    (void)pInstance; (void)lFunction;
-    if (!pDc) return (ULONG)GPI_ERROR;
-    return (ULONG)pDc->GetLine().PolyScanline((const SCANDATA *)pScanData);
-}
 
 /* ======================================================================== */
 /*  Transform dispatchers (real)                                          */
@@ -1211,45 +982,17 @@ static ULONG __cdecl GreDrvQueryPaletteRealization(ULONG hdc, ULONG ulStart,
 /*  Remaining driver-table stubs (not implemented)                        */
 /* ======================================================================== */
 
-GRE_DRV_7 (GreDrvOval)
-GRE_DRV_4 (GreDrvCookWholePath)
-GRE_DRV_5 (GreDrvCookPathCurves)
-GRE_DRV_5 (GreBoxExclusive)
-GRE_DRV_10(GreDrvRenderPath)
 GRE_DRV_3 (GreDrvOpenScreenChangeArea)
 GRE_DRV_5 (GreDrvGetScreenChangeArea)
 GRE_DRV_4 (GreDrvCloseScreenChangeArea)
 GRE_DRV_4 (GreDrvSetCurrentPosition)
 GRE_DRV_7 (GreDrvGetScreenBits)
 GRE_DRV_6 (GreDrvSetScreenBits)
-GRE_DRV_9 (GreDrvDrawBits)
-GRE_DRV_7 (GreDrvDeviceCreateBitmap)
-GRE_DRV_6 (GreDrvDeviceDeleteBitmap)
-GRE_DRV_4 (GreDrvDeviceSelectBitmap)
-GRE_DRV_9 (GreDrvBitblt)
-GRE_DRV_4 (GreDrvGetPel)
-GRE_DRV_4 (GreDrvSetPel)
-GRE_DRV_6 (GreDrvImageData)
-GRE_DRV_8 (GreDrvScanLR)
-GRE_DRV_5 (GreDrvFloodFill)
-GRE_DRV_4 (GreDrvSaveScreenBits)
-GRE_DRV_6 (GreDrvRestoreScreenBits)
-GRE_DRV_9 (GreDrvDrawBorder)
-GRE_DRV_5 (GreDrvDeviceSetCursor)
-GRE_DRV_8 (GreDrvGetBitmapBits)
-GRE_DRV_8 (GreDrvSetBitmapBits)
-GRE_DRV_4 (GreDrvSetColorCursor)
-GRE_DRV_5 (GreDrvCharString)
-GRE_DRV_10(GreDrvCharStringPos)
-GRE_DRV_7 (GreDrvQueryTextBox)
-GRE_DRV_9 (GreDrvQueryCharPositions)
-GRE_DRV_6 (GreDrvQueryWidthTable)
 GRE_DRV_5 (GreDrvPolyMarker)
 GRE_DRV_5 (GreDrvCharRect)
 GRE_DRV_5 (GreDrvCharStr)
 GRE_DRV_5 (GreDrvScrollRect)
 GRE_DRV_4 (GreDrvUpdateCursor)
-GRE_DRV_4 (GreDrvDeviceSetPointer)
 GRE_DRV_5 (GreDrvClip1DPath)
 GRE_DRV_4 (GreDrvDrawRawPath)
 GRE_DRV_6 (GreDrvDrawCookedPath)
@@ -1364,28 +1107,12 @@ GRE_STUB_4 (GreIntStartJournalFileStub)
 GRE_STUB_4 (GreIntStopJournalFileStub)
 GRE_STUB_4 (GreIntPlayJournalFileStub)
 GRE_STUB_5 (GreIntOpenJournalFileStub)
-GRE_STUB_6 (GreIntCreatePaletteStub)
-GRE_STUB_3 (GreIntDeletePaletteStub)
-GRE_STUB_4 (GreIntSelectPaletteStub)
-GRE_STUB_7 (GreIntSetPaletteEntriesStub)
-GRE_STUB_7 (GreIntAnimatePaletteStub)
-GRE_STUB_3 (GreIntQueryPaletteStub)
-GRE_STUB_7 (GreIntQueryPaletteInfoStub)
-GRE_STUB_4 (GreIntSetPaletteOwnerStub)
-GRE_STUB_4 (GreIntResizePaletteStub)
-GRE_STUB_7 (GreIntQueryDefaultPaletteInfoStub)
 GRE_STUB_5 (GreIntCreateFontHandleStub)
 GRE_STUB_7 (GreIntQueryFontHandleStub)
 GRE_STUB_4 (GreIntSelectFontHandleStub)
 GRE_STUB_3 (GreIntDeleteFontHandleStub)
 GRE_STUB_4 (GreIntSetFontHandleOwnerStub)
 GRE_STUB_5 (GreIntQueryCodePageObjectStub)
-GRE_STUB_7 (GreIntQueryCharOutlineStub)
-GRE_STUB_8 (GreIntRealizeStringStub)
-GRE_STUB_8 (GreIntQueryCharMetricsTableStub)
-GRE_STUB_5 (GreIntBeginInkPathStub)
-GRE_STUB_4 (GreIntEndInkPathStub)
-GRE_STUB_7 (GreIntStrokeInkPathStub)
 GRE_STUB_3 (GreIntPaxGetPolyFillModeStub)
 GRE_STUB_4 (GreIntPaxSetPolyFillModeStub)
 GRE_STUB_3 (GreIntQueryMitreLimitStub)
@@ -1399,8 +1126,6 @@ GRE_STUB_3 (GreIntQueryRasterCapsStub)
 GRE_STUB_6 (GreIntPaxStrokeAndFillPathStub)
 GRE_STUB_4 (GreIntQueryNearestPaletteIndexStub)
 GRE_STUB_4 (GreIntSetFontMappingFlagsStub)
-GRE_STUB_7 (GreIntQueryTabbedTextExtentStub)
-GRE_STUB_10(GreIntTabbedCharStringAtStub)
 GRE_STUB_4 (GreIntUnloadPDStub)
 
 /* ======================================================================== */
@@ -1422,12 +1147,12 @@ static DISPATCHER g_tblDriver = {
     /* 0x09 0x4009 */ (PFN)GreBoxBoth,
     /* 0x0A 0x400A */ (PFN)GrePolyFillet,
     /* 0x0B 0x400B */ (PFN)GrePolyFilletSharp,
-    /* 0x0C 0x400C */ (PFN)GreDrvPolySpline,
-    /* 0x0D 0x400D */ (PFN)GreDrvOval,
-    /* 0x0E 0x400E */ (PFN)GreDrvCookWholePath,
-    /* 0x0F 0x400F */ (PFN)GreDrvCookPathCurves,
+    /* 0x0C 0x400C */ (PFN)GrePolySpline,
+    /* 0x0D 0x400D */ (PFN)GreOval,
+    /* 0x0E 0x400E */ (PFN)GreCookWholePath,
+    /* 0x0F 0x400F */ (PFN)GreCookPathCurves,
     /* 0x10 0x4010 */ (PFN)GreBoxExclusive,
-    /* 0x11 0x4011 */ (PFN)GreDrvRenderPath,
+    /* 0x11 0x4011 */ (PFN)GreRenderPath,
     /* 0x12 0x4012 */ (PFN)GreDrvOpenScreenChangeArea,
     /* 0x13 0x4013 */ (PFN)GreDrvGetScreenChangeArea,
     /* 0x14 0x4014 */ (PFN)GreDrvCloseScreenChangeArea,
@@ -1438,42 +1163,42 @@ static DISPATCHER g_tblDriver = {
     /* 0x19 0x4019 */ (PFN)GrePolyLine, // Mandatory, can chain
     /* 0x1A 0x401A */ NULL, // Mandatory
     /* 0x1B 0x401B */ NULL, // Mandatory @todo see desc of Mandatory table
-    /* 0x1C 0x401C */ (PFN)GreDrvPolyScanline,
+    /* 0x1C 0x401C */ NULL, // Mandatory @todo see desc of Mandatory table
     /* 0x1D 0x401D */ (PFN)GreDrvGetScreenBits,
     /* 0x1E 0x401E */ (PFN)GreDrvSetScreenBits,
     /* 0x1F -------- */ NULL,
     /* 0x20 -------- */ NULL,
     /* 0x21 -------- */ NULL,
-    /* 0x22 0x6022 */ (PFN)GreDrvDrawBits,
-    /* 0x23 0x6023 */ (PFN)GreDrvDeviceCreateBitmap,
-    /* 0x24 0x4024 */ (PFN)GreDrvDeviceDeleteBitmap,
-    /* 0x25 0x4025 */ (PFN)GreDrvDeviceSelectBitmap,
-    /* 0x26 0x6026 */ (PFN)GreDrvBitblt,
-    /* 0x27 0x6027 */ (PFN)GreDrvGetPel,
-    /* 0x28 0x4028 */ (PFN)GreDrvSetPel,
-    /* 0x29 0x4029 */ (PFN)GreDrvImageData,
-    /* 0x2A 0x602A */ (PFN)GreDrvScanLR,
-    /* 0x2B 0x602B */ (PFN)GreDrvFloodFill,
-    /* 0x2C 0x402C */ (PFN)GreDrvSaveScreenBits,
-    /* 0x2D 0x402D */ (PFN)GreDrvRestoreScreenBits,
-    /* 0x2E 0x602E */ (PFN)GreDrvDrawBorder,
-    /* 0x2F 0x402F */ (PFN)GreDrvDeviceSetCursor,
-    /* 0x30 0x6030 */ (PFN)GreDrvGetBitmapBits,
-    /* 0x31 0x6031 */ (PFN)GreDrvSetBitmapBits,
-    /* 0x32 0x4032 */ (PFN)GreDrvSetColorCursor,
+    /* 0x22 0x6022 */ (PFN)GreDrawBits,
+    /* 0x23 0x6023 */ NULL, // Mandatory
+    /* 0x24 0x4024 */ NULL, // Mandatory
+    /* 0x25 0x4025 */ NULL, // Mandatory
+    /* 0x26 0x6026 */ (PFN)GreBitblt, // Mandatory, can chain
+    /* 0x27 0x6027 */ NULL, // Mandatory
+    /* 0x28 0x4028 */ NULL, // Mandatory
+    /* 0x29 0x4029 */ NULL, // Mandatory
+    /* 0x2A 0x602A */ (PFN)GreScanLR,
+    /* 0x2B 0x602B */ (PFN)GreFloodFill,
+    /* 0x2C 0x402C */ (PFN)GreSaveScreenBits, // Mandatory for display, simulate for others
+    /* 0x2D 0x402D */ (PFN)GreRestoreScreenBits, // Mandatory for display, simulate for others
+    /* 0x2E 0x602E */ NULL, // Mandatory
+    /* 0x2F 0x402F */ (PFN)GreDeviceSetCursor, // Mandatory for display, simulate for others
+    /* 0x30 0x6030 */ NULL, // Mandatory
+    /* 0x31 0x6031 */ NULL, // Mandatory
+    /* 0x32 0x4032 */ (PFN)GreSetColorCursor, // Mandatory for display, simulate for others
     /* 0x33 -------- */ NULL,
     /* 0x34 -------- */ NULL,
-    /* 0x35 0x5035 */ (PFN)GreDrvCharString,
-    /* 0x36 0x7036 */ (PFN)GreDrvCharStringPos,
-    /* 0x37 0x5037 */ (PFN)GreDrvQueryTextBox,
-    /* 0x38 0x5038 */ (PFN)GreDrvQueryCharPositions,
-    /* 0x39 0x5039 */ (PFN)GreDrvQueryWidthTable,
+    /* 0x35 0x5035 */ (PFN)GreCharString, // Mandatory, can chain
+    /* 0x36 0x7036 */ (PFN)GreCharStringPos, // Mandatory, can chain
+    /* 0x37 0x5037 */ NULL, // Mandatory
+    /* 0x38 0x5038 */ NULL, // Mandatory
+    /* 0x39 0x5039 */ NULL, // Mandatory
     /* 0x3A 0x403A */ (PFN)GreDrvPolyMarker,
     /* 0x3B 0x403B */ (PFN)GreDrvCharRect,
     /* 0x3C 0x403C */ (PFN)GreDrvCharStr,
     /* 0x3D 0x403D */ (PFN)GreDrvScrollRect,
     /* 0x3E 0x403E */ (PFN)GreDrvUpdateCursor,
-    /* 0x3F 0x403F */ (PFN)GreDrvDeviceSetPointer,
+    /* 0x3F 0x403F */ (PFN)GreDeviceSetPointer,
     /* 0x40 -------- */ NULL,
     /* 0x41 -------- */ NULL,
     /* 0x42 -------- */ NULL,
@@ -1503,21 +1228,21 @@ static DISPATCHER g_tblDriver = {
     /* 0x5A -------- */ NULL,
     /* 0x5B -------- */ NULL,
     /* 0x5C 0x405C */ (PFN)GrePolygon3d,
-    /* 0x5D 0x405D */ (PFN)GreDrvGetRegionBox,
-    /* 0x5E 0x405E */ (PFN)GreDrvGetRegionRects,
-    /* 0x5F 0x405F */ (PFN)GreDrvOffsetRegion,
-    /* 0x60 0x4060 */ (PFN)GreDrvPtInRegion,
-    /* 0x61 0x4061 */ (PFN)GreDrvRectInRegion,
-    /* 0x62 0x4062 */ (PFN)GreDrvCreateRectRegion,
-    /* 0x63 0x4063 */ (PFN)GreDrvDestroyRegion,
-    /* 0x64 0x4064 */ (PFN)GreDrvSetRectRegion,
-    /* 0x65 0x4065 */ (PFN)GreDrvCombineRegion,
-    /* 0x66 0x4066 */ (PFN)GreDrvCombineRectRegion,
-    /* 0x67 0x4067 */ (PFN)GreDrvCombineShortLineRegion,
-    /* 0x68 0x4068 */ (PFN)GreDrvEqualRegion,
-    /* 0x69 0x4069 */ (PFN)GreDrvPaintRegion,
-    /* 0x6A 0x406A */ (PFN)GreDrvSetRegionOwner,
-    /* 0x6B 0x406B */ (PFN)GreDrvFrameRegion,
+    /* 0x5D 0x405D */ (PFN)GreGetRegionBox,
+    /* 0x5E 0x405E */ (PFN)GreGetRegionRects,
+    /* 0x5F 0x405F */ (PFN)GreOffsetRegion,
+    /* 0x60 0x4060 */ (PFN)GrePtInRegion,
+    /* 0x61 0x4061 */ (PFN)GreRectInRegion,
+    /* 0x62 0x4062 */ (PFN)GreCreateRectRegion,
+    /* 0x63 0x4063 */ (PFN)GreDestroyRegion,
+    /* 0x64 0x4064 */ (PFN)GreSetRectRegion,
+    /* 0x65 0x4065 */ (PFN)GreCombineRegion,
+    /* 0x66 0x4066 */ (PFN)GreCombineRectRegion,
+    /* 0x67 0x4067 */ (PFN)GreCombineShortLineRegion,
+    /* 0x68 0x4068 */ (PFN)GreEqualRegion,
+    /* 0x69 0x4069 */ (PFN)GrePaintRegion,
+    /* 0x6A 0x406A */ (PFN)GreSetRegionOwner,
+    /* 0x6B 0x406B */ (PFN)GreFrameRegion,
     /* 0x6C -------- */ NULL,
     /* 0x6D -------- */ NULL,
     /* 0x6E 0x406E */ (PFN)GreDrvGetClipBox,
@@ -1640,8 +1365,8 @@ static DISPATCHER g_tblDriver = {
 /* ======================================================================== */
 
 static PFN g_tblInternal[GRE_DISPATCH_SIZE] = {
-    /* 0x00 */ (PFN)GreIntOpenDC,
-    /* 0x01 */ (PFN)GreIntCloseDC,
+    /* 0x00 */ (PFN)GreOpenDC,
+    /* 0x01 */ (PFN)GreCloseDC,
     /* 0x02 */ (PFN)GreIntResetDCStub,
     /* 0x03 */ (PFN)GreIntGetHandleStub,
     /* 0x04 */ (PFN)GreIntSetHandleStub,
@@ -1704,16 +1429,16 @@ static PFN g_tblInternal[GRE_DISPATCH_SIZE] = {
     /* 0x3D */ (PFN)GreIntStopJournalFileStub,
     /* 0x3E */ (PFN)GreIntPlayJournalFileStub,
     /* 0x3F */ (PFN)GreIntOpenJournalFileStub,
-    /* 0x40 */ (PFN)GreIntCreatePaletteStub,
-    /* 0x41 */ (PFN)GreIntDeletePaletteStub,
-    /* 0x42 */ (PFN)GreIntSelectPaletteStub,
-    /* 0x43 */ (PFN)GreIntSetPaletteEntriesStub,
-    /* 0x44 */ (PFN)GreIntAnimatePaletteStub,
-    /* 0x45 */ (PFN)GreIntQueryPaletteStub,
-    /* 0x46 */ (PFN)GreIntQueryPaletteInfoStub,
-    /* 0x47 */ (PFN)GreIntSetPaletteOwnerStub,
-    /* 0x48 */ (PFN)GreIntResizePaletteStub,
-    /* 0x49 */ (PFN)GreIntQueryDefaultPaletteInfoStub,
+    /* 0x40 */ (PFN)GreCreatePalette,
+    /* 0x41 */ (PFN)GreDeletePalette,
+    /* 0x42 */ (PFN)GreSelectPalette,
+    /* 0x43 */ (PFN)GreSetPaletteEntries,
+    /* 0x44 */ (PFN)GreAnimatePalette,
+    /* 0x45 */ (PFN)GreQueryPalette,
+    /* 0x46 */ (PFN)GreQueryPaletteInfo,
+    /* 0x47 */ (PFN)GreSetPaletteOwner,
+    /* 0x48 */ (PFN)GreResizePalette,
+    /* 0x49 */ (PFN)GreQueryDefaultPaletteInfo,
     /* 0x4A */ (PFN)GreIntGetHandleStub,
     /* 0x4B */ (PFN)GreIntGetHandleStub,
     /* 0x4C */ (PFN)GreIntGetHandleStub,
@@ -1726,12 +1451,12 @@ static PFN g_tblInternal[GRE_DISPATCH_SIZE] = {
     /* 0x53 */ (PFN)GreIntDeleteFontHandleStub,
     /* 0x54 */ (PFN)GreIntSetFontHandleOwnerStub,
     /* 0x55 */ (PFN)GreIntQueryCodePageObjectStub,
-    /* 0x56 */ (PFN)GreIntQueryCharOutlineStub,
-    /* 0x57 */ (PFN)GreIntRealizeStringStub,
-    /* 0x58 */ (PFN)GreIntQueryCharMetricsTableStub,
-    /* 0x59 */ (PFN)GreIntBeginInkPathStub,
-    /* 0x5A */ (PFN)GreIntEndInkPathStub,
-    /* 0x5B */ (PFN)GreIntStrokeInkPathStub,
+    /* 0x56 */ (PFN)GreQueryCharOutline,
+    /* 0x57 */ (PFN)GreRealizeString,
+    /* 0x58 */ (PFN)GreQueryCharMetricsTable,
+    /* 0x59 */ (PFN)GreBeginInkPath,
+    /* 0x5A */ (PFN)GreEndInkPath,
+    /* 0x5B */ (PFN)GreStrokeInkPath,
     /* 0x5C */ (PFN)GreIntPaxGetPolyFillModeStub,
     /* 0x5D */ (PFN)GreIntPaxSetPolyFillModeStub,
     /* 0x5E */ (PFN)GreIntQueryMitreLimitStub,
@@ -1745,8 +1470,8 @@ static PFN g_tblInternal[GRE_DISPATCH_SIZE] = {
     /* 0x66 */ (PFN)GreIntPaxStrokeAndFillPathStub,
     /* 0x67 */ (PFN)GreIntQueryNearestPaletteIndexStub,
     /* 0x68 */ (PFN)GreIntSetFontMappingFlagsStub,
-    /* 0x69 */ (PFN)GreIntQueryTabbedTextExtentStub,
-    /* 0x6A */ (PFN)GreIntTabbedCharStringAtStub,
+    /* 0x69 */ (PFN)GreQueryTabbedTextExtent,
+    /* 0x6A */ (PFN)GreTabbedCharStringAt,
     /* 0x6B */ (PFN)GreIntResetDC2Stub,
     /* 0x6C */ (PFN)GreIntGetHandleStub,
     /* 0x6D */ (PFN)GreIntGetHandleStub,

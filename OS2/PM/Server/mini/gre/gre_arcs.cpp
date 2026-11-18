@@ -1013,102 +1013,156 @@ static LONG __cdecl GrePolyFilletSharp(HDC hdc, PPOINTL paptlPoint,
                                                  (const FIXED *)pfxSharp);
 }
 
-   /**
-    * @brief Draw a spline.
-    *
-    * @param[in] hdc        Device context handle.
-    * @param[in] paptlPoint Pointer to an array of POINTL structures defining
-    *                       the control points of the spline.
-    * @param[in] cPoints    Number of (X,Y) pairs.
-    *
-    * @return Integer (cHits) indicating correlation/error status.
-    *
-    * @retval GPI_OK    Successful.
-    * @retval GPI_HITS  Successful with correlation hit.
-    * @retval GPI_ERROR Error.
-    *
-    * @note If the function returns GPI_ERROR, the handling routine must call
-    *       WinSetErrorInfo. WinGetLastError may return one of the following
-    *       errors:
-    *       - PMERR_BASE_ERROR
-    *       - PMERR_BITMAP_NOT_SELECTED
-    *       - PMERR_COORDINATE_OVERFLOW
-    *       - PMERR_DEV_FUNC_NOT_INSTALLED
-    *       - PMERR_HDC_BUSY
-    *       - PMERR_INV_IN_AREA
-    *       - PMERR_NOT_IN_PATH
-    *       - PMERR_PATH_LIMIT_EXCEEDED
-    */
-   #define NGrePolySpline 0x0000400CL
-   #define GrePolySpline(a,b,c) (INT) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),(ULONG)(LONG)(c),0L,NGrePolySpline)
+/*!
+ * @brief Dispatch for GrePolySpline — draw a sequence of Bezier splines.
+ *
+ * @param [in] hdc         Device context handle.
+ * @param [in] paptlPoint  Pointer to an array of elements in which each group
+ *                         contains three pairs of (X,Y) coordinates for the
+ *                         control and end points for the splines. If
+ *                         COM_TRANSFORM is not set, the function expects the
+ *                         points to be in screen coordinates.
+ * @param [in] cPoints     Number of coordinate pairs in the array. When this
+ *                         is passed as 0, it returns Successful.
+ * @param [in] pInstance   Pointer to instance data.
+ * @param [in] lFunction   High-order WORD=flags; low-order
+ *                         WORD=NGrePolySpline.
+ *
+ * @return Integer (cHits) indicating correlation/error status.
+ * @retval GPI_OK    Successful.
+ * @retval GPI_HITS  Successful with correlation hit (returned by display
+ *                   drivers when the correlation flag is ON, and a hit
+ *                   is detected).
+ * @retval GPI_ERROR Error.
+ *
+ * @par EDM2 Reference
+ * GrePolySpline (https://www.edm2.com/index.php/GrePolySpline):
+ * "GrePolySpline draws a sequence of one or more Bezier splines starting
+ * at the current (X,Y) position. As each spline is drawn, the specified
+ * end point for the spline becomes the start point for the next spline.
+ * Upon completion, the current (X,Y) position is the end point of the
+ * last spline."
+ *
+ * @par Support
+ * | Simulated | Hooked | Chained |
+ * |-----------|--------|---------|
+ * |    Yes    |   Can  |   Can   |
+ *
+ * @par Possible Errors
+ * When an error is detected, the handling routine must call WinSetErrorInfo
+ * to post the condition. Error codes for conditions that the handling
+ * routine is expected to check include:
+ * - PMERR_BASE_ERROR
+ * - PMERR_BITMAP_NOT_SELECTED
+ * - PMERR_COORDINATE_OVERFLOW
+ * - PMERR_DEV_FUNC_NOT_INSTALLED
+ * - PMERR_HDC_BUSY
+ * - PMERR_INV_COLOR_DATA
+ * - PMERR_INV_COLOR_INDEX
+ * - PMERR_INV_COORD_SPACE
+ * - PMERR_INV_HDC
+ * - PMERR_INV_IN_AREA
+ * - PMERR_INV_IN_PATH
+ * - PMERR_INV_LENGTH_OR_COUNT
+ * - PMERR_INV_PICK_APERTURE_POSN
+ * - PMERR_INV_RECT
+ * - PMERR_PATH_LIMIT_EXCEEDED
+ * - PMERR_PATH_UNKNOWN
+ *
+ * Refer to the "Error Explanations" section in the Presentation Manager
+ * Programming Reference for further explanation.
+ *
+ * @par Remarks
+ * "The shape of each spline is controlled by a set of coordinates for
+ * three connected lines. The spline starts at the current position and
+ * ends at the end point of the third line. The end points of the first
+ * and second lines are used as control points. An individual spline
+ * always lies within the area bounded by the start, end, and control
+ * points."
+ *
+ */
+static LONG __cdecl GrePolySpline(HDC hdc, PPOINTL paptlPoint,
+                                       LONG cPoints, PVOID pInstance,
+                                       ULONG lFunction)
+{
+    Fs_Dc *pDc = g_greDcs.Find(hdc);
+    (void)pInstance; (void)lFunction;
+    if (!pDc) return GPI_ERROR;
+    return pDc->GetLine().PolySpline((const POINTL *)paptlPoint,
+                                             cPoints);
+}
 
-   /**
-    * @brief Draw an oval.
-    *
-    * @param[in] hdc       Device context handle.
-    * @param[in] pptl      Pointer to a POINTL structure.
-    * @param[in] fx        FIXED value.
-    * @param[in] fy        FIXED value.
-    * @param[in] cOptions  Option flags.
-    *
-    * @return Integer (cHits) indicating correlation/error status.
-    *
-    * @retval GPI_OK    Successful.
-    * @retval GPI_HITS  Successful with correlation hit.
-    * @retval GPI_ERROR Error.
-    *
-    * @note If the function returns GPI_ERROR, the handling routine must call
-    *       WinSetErrorInfo. WinGetLastError may return one of the following
-    *       errors:
-    *       - PMERR_BASE_ERROR
-    *       - PMERR_COORDINATE_OVERFLOW
-    *       - PMERR_DEV_FUNC_NOT_INSTALLED
-    *       - PMERR_HDC_BUSY
-    *       - PMERR_INV_COORD_SPACE
-    *       - PMERR_INV_HDC
-    *       - PMERR_INV_IN_AREA
-    *       - PMERR_INV_IN_PATH
-    *       - PMERR_PATH_LIMIT_EXCEEDED
-    */
-   #define NGreOval 0x0000400DL
-   #define GreOval(a,b,c,d,e) (INT) Gre32Entry7((ULONG)(HDC)(a),(ULONG)(PPOINTL)(b),(ULONG)(FIXED)(c),(ULONG)(FIXED)(d),(ULONG)(e),0L,NGreOval)
+/**
+ * @brief
+ *
+ * @param[in] a
+ * @param[in] b
+ * @param[in] c
+ *
+ * @return 
+ *
+ * @retval 
+ *
+ * @note Not found any information yet and not found any driver used it?
+ */
+GRE_DRV_7 (GreOval)
 
-   /* GreCookWholePath — no verifiable error list found; left undocumented. */
-   #define NGreCookWholePath 0x0000400EL
-   #define GreCookWholePath(a,b) (BOOL) Gre32Entry4((ULONG)(HDC)(a),(ULONG)(PPATH)(b),0L,NGreCookWholePath)
+/**
+ * @brief
+ *
+ * @param[in] a
+ * @param[in] b
+ * @param[in] c
+ *
+ * @return 
+ *
+ * @retval 
+ *
+ * @note Not found any information yet and not found any driver used it?
+ */
+GRE_DRV_4 (GreCookWholePath)
 
-   /* GreCookPathCurves — no verifiable error list found; left undocumented. */
-   #define NGreCookPathCurves 0x0000400FL
-   #define GreCookPathCurves(a,b,c) (BOOL) Gre32Entry5((ULONG)(HDC)(a),(ULONG)(PPATH)(b),(ULONG)(PPIPELINEINFO)(c),0L,NGreCookPathCurves)
+/**
+ * @brief
+ *
+ * @param[in] a
+ * @param[in] b
+ * @param[in] c
+ *
+ * @return 
+ *
+ * @retval 
+ *
+ * @note Not found any information yet and not found any driver used it?
+ */
+GRE_DRV_5 (GreDrvCookPathCurves)
 
-   /**
-    * @brief Render a path.
-    *
-    * @param[in] hdc       Device context handle.
-    * @param[in] pPath     Pointer to a PATH structure.
-    * @param[in] pCurve    Pointer to a CURVE structure.
-    * @param[in] cLines    Number of lines.
-    * @param[in] cCurves   Number of curves.
-    * @param[in] cPoints   Number of points.
-    * @param[in] pShortLine Pointer to a SHORTLINE structure.
-    * @param[in] lOptions  Option flags.
-    *
-    * @return BOOLEAN success indicator.
-    *
-    * @retval TRUE  Successful.
-    * @retval FALSE Error.
-    *
-    * @note If the function returns FALSE, the handling routine must call
-    *       WinSetErrorInfo. WinGetLastError may return one of the following
-    *       errors:
-    *       - PMERR_BASE_ERROR
-    *       - PMERR_PATH_LIMIT_EXCEEDED
-    *       - PMERR_HDC_BUSY
-    *       - PMERR_DEV_FUNC_NOT_INSTALLED
-    *       - PMERR_COORDINATE_OVERFLOW
-    *       - PMERR_INV_LENGTH_OR_COUNT
-    *       - PMERR_INV_HDC
-    *       - PMERR_INV_COORD_SPACE
-    */
-   #define NGreRenderPath 0x00004011L
-   #define GreRenderPath(a,b,c,d,e,f,g,h) (BOOL) Gre32Entry10((ULONG)(HDC)(a),(ULONG)(PPATH)(b),(ULONG)(PCURVE)(c),(ULONG)(LONG)(d),(ULONG)(LONG)(e),(ULONG)(LONG)(f),(ULONG)(PSHORTLINE)(g),(ULONG)(LONG)(h),0L,NGreRenderPath)
+/**
+ * @brief
+ *
+ * @param[in] a
+ * @param[in] b
+ * @param[in] c
+ *
+ * @return 
+ *
+ * @retval 
+ *
+ * @note Not found any information yet and not found any driver used it?
+ */
+GRE_DRV_10(GreDrvRenderPath)
+
+/**
+ * @brief
+ *
+ * @param[in] a
+ * @param[in] b
+ * @param[in] c
+ *
+ * @return 
+ *
+ * @retval 
+ *
+ * @note Not found any information yet and not found any driver used it?
+ */
+GRE_DRV_5 (GreBoxExclusive)
