@@ -32,7 +32,7 @@ static inline LONG GocaEmitSetPickId(GOCA_CTX *c, PBYTE buf, ULONG cb, LONG lPic
     if (!c || !buf || cb < 6) return (LONG)GPI_ALTERROR;
     buf[0] = OCODE_GSPIK;
     buf[1] = 4;
-    GocaPutU32(c, buf + 2, (ULONG)lPickId);
+    GocaPutU32(buf + 2, (ULONG)lPickId);
     return 6;
 }
 

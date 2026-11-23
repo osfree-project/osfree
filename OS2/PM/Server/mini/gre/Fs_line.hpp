@@ -1,11 +1,6 @@
 #ifndef FS_LINE_HPP
 #define FS_LINE_HPP
 
-#define INCL_BASE
-#include "F_platform.h"
-#define INCL_GREALL
-#define INCL_DDIPATHS
-#include "pmddi.h"
 
 class Fs_Path;
 

@@ -1,0 +1,14 @@
+#include <os2.h>
+#include "cpdlg.h"
+
+DLGTEMPLATE IDD_CODEPAGE LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Select Codepage", IDD_CODEPAGE, 121, 67, 148, 84, WS_VISIBLE, 
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        ENTRYFIELD      "", IDEF_CODEPAGE, 17, 47, 87, 8, ES_MARGIN
+        LTEXT           "Specify codepage :", IDST_CODEPAGE, 15, 62, 85, 9
+        DEFPUSHBUTTON   "~Ok", DID_OK, 15, 18, 40, 14
+        PUSHBUTTON      "Cancel", DID_CANCEL, 82, 18, 40, 14
+    END
+END

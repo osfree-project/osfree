@@ -1,13 +1,6 @@
 #ifndef FS_PATH_HPP
 #define FS_PATH_HPP
 
-#define INCL_BASE
-#include "F_platform.h"
-#define INCL_GREALL
-#define INCL_GRE_PATHS
-#define INCL_DDIPATHS
-#include "pmddi.h"
-
 class Fs_Region;
 
 /*!

@@ -21,8 +21,8 @@ static inline LONG GocaEmitBeginPath(GOCA_CTX *c, PBYTE buf, ULONG cb,
     if (!c || !buf || cb < 8) return (LONG)GPI_ALTERROR;
     buf[0] = OCODE_GBPTH;
     buf[1] = 6;
-    GocaPutU16(c, buf + 2, 0);
-    GocaPutU32(c, buf + 4, (ULONG)lPath);
+    GocaPutU16(buf + 2, 0);
+    GocaPutU32(buf + 4, (ULONG)lPath);
     return 8;
 }
 
@@ -60,7 +60,7 @@ static inline LONG GocaEmitFillPath(GOCA_CTX *c, PBYTE buf, ULONG cb,
     buf[1] = 6;
     buf[2] = (UCHAR)ulFlags;
     buf[3] = 0;
-    GocaPutU32(c, buf + 4, (ULONG)lPath);
+    GocaPutU32(buf + 4, (ULONG)lPath);
     return 8;
 }
 
@@ -81,7 +81,7 @@ static inline LONG GocaEmitOutlinePath(GOCA_CTX *c, PBYTE buf, ULONG cb,
     buf[1] = 6;
     buf[2] = 0;
     buf[3] = 0;
-    GocaPutU32(c, buf + 4, (ULONG)lPath);
+    GocaPutU32(buf + 4, (ULONG)lPath);
     return 8;
 }
 
@@ -99,7 +99,7 @@ static inline LONG GocaEmitModifyPath(GOCA_CTX *c, PBYTE buf, ULONG cb,
     buf[1] = 6;
     buf[2] = uchMode;
     buf[3] = 0;
-    GocaPutU32(c, buf + 4, (ULONG)lPath);
+    GocaPutU32(buf + 4, (ULONG)lPath);
     return 8;
 }
 
@@ -118,7 +118,7 @@ static inline LONG GocaEmitSetClipPath(GOCA_CTX *c, PBYTE buf, ULONG cb,
     buf[1] = 6;
     buf[2] = (UCHAR)ulFlags;
     buf[3] = 0;
-    GocaPutU32(c, buf + 4, (ULONG)lPath);
+    GocaPutU32(buf + 4, (ULONG)lPath);
     return 8;
 }
 

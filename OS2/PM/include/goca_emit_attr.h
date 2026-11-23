@@ -25,7 +25,7 @@ static inline LONG GocaEmitSetColor(GOCA_CTX *c, PBYTE buf, ULONG cb, LONG lColo
         if (!buf || cb < 4) return (LONG)GPI_ALTERROR;
         buf[0] = OCODE_GSECOL;
         buf[1] = 2;
-        GocaPutU16(c, buf + 2, (USHORT)lColor);
+        GocaPutU16(buf + 2, (USHORT)lColor);
         return 4;
     }
     return (LONG)GPI_ALTERROR;
@@ -37,7 +37,7 @@ static inline LONG GocaEmitSetBackColor(GOCA_CTX *c, PBYTE buf, ULONG cb, LONG l
     if (!c || !buf || cb < 4) return (LONG)GPI_ALTERROR;
     buf[0] = OCODE_GSBCOL;
     buf[1] = 2;
-    GocaPutU16(c, buf + 2, (USHORT)lColor);
+    GocaPutU16(buf + 2, (USHORT)lColor);
     return 4;
 }
 

@@ -43,8 +43,6 @@ ADD_LINKOPT = lib clib3r
 
 !endif
 
-C = r
-
 !ifdef HOSTBLD
 !include $(%ROOT)tools/mk/tools.mk
 !else

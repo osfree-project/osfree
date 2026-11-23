@@ -1,0 +1,5 @@
+C02D  LBSnd
+LBSnd.Dll
+
+OS2.LIB C2.LIB MMPM2.Lib
+SndMgr.Def

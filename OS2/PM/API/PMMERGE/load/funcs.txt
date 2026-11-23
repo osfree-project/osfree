@@ -1,6 +1,0 @@
-implemented functions:
-
-WinLoadLibrary
-WinDeleteLibrary
-WinLoadProcedure
-WinDeleteProcedure

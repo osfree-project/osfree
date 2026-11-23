@@ -1,0 +1,59 @@
+January 7th, 1994
+
+************************************************************************
+************************************************************************
+*                           SPECIAL NOTE                               *
+************************************************************************
+************************************************************************
+*     The behaviour of this control is similar to that provided        *
+*     by OS/2 PM.  Although it may be based on documentation           *
+*     describing programming interfaces and techniques, it should      *
+*     not be misconstrued that this sample code is an official         *
+*     release of the OS/2 PM control and is supported as such.         *
+************************************************************************
+************************************************************************
+
+We are providing the build files for Zortech C++ for OS/2 Version 3.1
+even though we were not able to successfully use the DLL.  At this time,
+we have not had a response from Symantec Corp. on how to solve the
+problem.  These files are only provided as a convenience.
+
+
+If you have any questions or comments, please direct them to us AND NOT
+IBM.  This control is NOT supported by IBM's PSP Group.  Thanks and stay
+tuned 'cause more fun with the control is on its way.
+
+Mark Benge
+Matt Smith
+
+********************************************************************
+April 22nd, 1994
+
+Please note, that when you compile these files, you may find that you
+encounter errors within the MMPM/2 headers.  You will have to correct
+these manually yourself.
+
+These errors will vary depending on the compiler.
+
+We have compiled and tested the source code using IBM C Set++ Version 2.01,
+Borland C++ for OS/2 Version 1.5 and WATCOM C/C++32 Version 9.5.
+
+Please direct any comments, questions, and such to either Matt Smith
+(Internet: prominar@io.org CompuServe: 70363,1175) or Mark Benge
+(Internet: banzai@vnet.ibm.com CompuServe: 73532,2063  VNET: banzai AT CARVM1)
+
+********************************************************************
+July 6, 1994
+
+This is only a partial implementation of the entry field control.
+Support for the ES_CENTER and ES_RIGHT styles have not been implemented.
+Also, the control has not be fully tested to ensure compliance with
+the existing OS/2 PM entry field.
+
+The implementation presented here is designed to show you how the some
+of the "trickier" manipulation methods are accomplished.  It is not
+intended as a complete replacement to the existing control.
+
+Mark Benge
+Matt Smith
+

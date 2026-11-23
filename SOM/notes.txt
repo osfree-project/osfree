@@ -17,7 +17,7 @@ somc.dll
 emitlib.h and friends uses BOOL, bool and boolean types. They are differs. Also lot of int type. Replace int by long? 
 this is ok at least for AIX, OS/2 and Win32 original IBM SOM. Not sure about Apple SOM.
 
-Entry structure differs in size for IBM SOM 2.1 and IBM SOM 3.0. (Because stomttypes)
+Entry structure differs in size for IBM SOM 2.1 and IBM SOM 3.0. (Because stomttypes (NT/OS2!))
 
 Stab  structure differs in size for IBM SOM 2.1 and IBM SOM 3.0. (because BOOL)
 

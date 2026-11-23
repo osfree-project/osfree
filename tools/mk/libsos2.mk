@@ -1,4 +1,4 @@
-# tools/mk/libsdos.mk
+# tools/mk/libsos2.mk
 #
 # make macros
 # for building OS/2 static libs
@@ -47,6 +47,5 @@ ADD_COPT   +=         -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)zlib &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)xwphelpers &
                       -i=$(%ROOT)$(SEP)include$(SEP)os3$(SEP)lvmtk &
                       -bt=os2
-
 
 !endif

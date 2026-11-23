@@ -1,0 +1,72 @@
+#ifndef OS2_INCLUDED
+   #include <os2.h>
+#endif
+DLGINCLUDE 1 "gbmdlgrc.h"
+
+DLGTEMPLATE RID_GBM_FILEDLG LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "", RID_GBM_FILEDLG, 2, 2, 288, 198, FS_NOBYTEALIGN, FCF_SYSMENU | 
+            FCF_TITLEBAR
+    BEGIN
+        LTEXT           "Dateiname", 257, 5, 184, 39, 7
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        ENTRYFIELD      "", 258, 44, 185, 239, 6, ES_MARGIN
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "Optionen", DID_GBM_OPTIONS_TXT, 5, 171, 39, 7
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        ENTRYFIELD      "", DID_GBM_OPTIONS_ED, 44, 172, 239, 6, ES_MARGIN
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "Laufwerk", 259, 5, 157, 87, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        CONTROL         "", 260, 42, 115, 89, 51, WC_COMBOBOX, 
+                        CBS_DROPDOWNLIST | WS_TABSTOP | WS_VISIBLE
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "Dateityp", 261, 135, 157, 25, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        CONTROL         "", 262, 163, 40, 122, 126, WC_COMBOBOX, 
+                        CBS_DROPDOWNLIST | WS_TABSTOP | WS_VISIBLE
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "Datei", 265, 135, 143, 31, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LISTBOX         266, 135, 20, 149, 123, LS_HORZSCROLL
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "Verzeichnis", 263, 5, 143, 37, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LISTBOX         264, 4, 65, 126, 79, LS_OWNERDRAW | LS_HORZSCROLL
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        DEFPUSHBUTTON   "~OK", DID_OK, 4, 2, 50, 14, WS_GROUP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "Abbruch", DID_CANCEL, 57, 2, 50, 14, NOT WS_TABSTOP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "~Anwenden", 268, 109, 2, 50, 14, NOT WS_TABSTOP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        PUSHBUTTON      "Hilfe", 267, 236, 3, 50, 14, BS_HELP | 
+                        BS_NOPOINTERFOCUS | NOT WS_TABSTOP
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        GROUPBOX        "Vorschau", 513, 4, 20, 128, 43
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "Format:", 514, 75, 49, 30, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "Breite:", 515, 75, 42, 30, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "H”he:", 516, 75, 35, 30, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "Farbtiefe:", 517, 75, 28, 30, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "sss", 519, 104, 49, 27, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "bbb", 520, 104, 42, 27, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "hhh", 521, 104, 35, 27, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "fff", 522, 104, 28, 27, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "Seiten:", 518, 75, 21, 30, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        LTEXT           "fff", 524, 104, 21, 27, 8
+                        PRESPARAMS PP_FONTNAMESIZE, "9.WarpSans"
+        VALUESET        523, 7, 23, 64, 32, VS_BITMAP | VS_SCALEBITMAPS | 
+                        NOT WS_TABSTOP | WS_DISABLED
+                        PRESPARAMS PP_BACKGROUNDCOLOR, 0x00FFFFFFL
+    END
+END

@@ -1370,13 +1370,12 @@ LONG GocaParseStream(GOCA_CTX *c)
 const char *GocaErrorName(LONG lError)
 {
     switch (lError) {
-    case GOCA_OK:         return "OK";
+    case GOCA_OK:                   return "OK";
     case GOCA_EC_UNALLOCATED_ORDER: return "EC-0001: Unallocated order codes";
-    case GOCA_EC_GBAR_NESTED: return "EC-6800: A Begin Area order has been executed after another Begin Area order, without an intervening End Area order being executed";
+    case GOCA_EC_GBAR_NESTED:       return "EC-6800: A Begin Area order has been executed after another Begin Area order, without an intervening End Area order being executed";
     case GOCA_ERR_TRUNC:  return "truncated order";
     case GOCA_ERR_FORMAT: return "malformed order";
     case GOCA_ERR_NOMEM:  return "out of memory";
-    case GOCA_ERR_USER:   return "user handler failure";
     default:              return "unknown";
     }
 }

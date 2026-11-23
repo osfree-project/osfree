@@ -68,11 +68,10 @@ struct _GOCA_CTX {
 
 #include <F_gocaerr.h>
 
-#define GOCA_OK            0
+#define GOCA_OK            0   /*!< No error.                       */
 #define GOCA_ERR_TRUNC    -1   /*!< Truncated order.                */
 #define GOCA_ERR_FORMAT   -2   /*!< Malformed operand / flags.      */
 #define GOCA_ERR_NOMEM    -3   /*!< Out of memory.                  */
-#define GOCA_ERR_USER     -4   /*!< User handler aborted.           */
 
 /*! @brief Select geometric parameters size and byte order explicitly. */
 static inline void GocaSetFormat(GOCA_CTX *c, GOCA_COORD_SIZE size,

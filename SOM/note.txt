@@ -28,7 +28,7 @@ emitbrs.dll
 emitc.dll
 emitcsc.dll
 emitctm.dll
-emitdef.dll
+emitdef.dll		+
 emitgen.dll
 emith.dll
 emithc.dll
@@ -47,7 +47,7 @@ emitxh.dll
 emitxih.dll
 emitxph.dll
 emitxtm.dll
-somc.dll		+
+somc.dll		%
 somcd.dll
 somcd.lib
 somct.dll
@@ -547,7 +547,7 @@ srgc_os2.msg
 ps2tk45\som\msg:
 somc.msg		+
 
-extra:
+extra (was in other SOM versions or extension):
 poa.idl
 rhborbst.idl
 rhbtypes.idl
@@ -600,7 +600,7 @@ Directory	Name		Comments
 		SOMDIMPL.TOC	Distributed SOM implementation index
 \OS2\SYSTEM	SOMD.MSG	Messages for SOMD.DLL
 		SOME_OS2.MSG	
-		+SOMK.MSG	SOM Kernel error messages file
+		+ SOMK.MSG	SOM Kernel error messages file
 
 
 somc.dll exports

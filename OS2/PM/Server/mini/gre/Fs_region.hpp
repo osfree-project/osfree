@@ -1,9 +1,6 @@
 #ifndef FS_REGION_HPP
 #define FS_REGION_HPP
 
-#define INCL_BASE
-#include "F_platform.h"
-
 /*!
  * @class Fs_Region
  * @brief A clipping/visible region stored as an array of RECTL.

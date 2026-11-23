@@ -19,7 +19,7 @@ DEST = os2tk45$(SEP)som$(SEP)bin
 
 !include $(%ROOT)SOM/common.mk
 
-ADD_COPT = $(ADD_COPT) -i=$(PORT_BASE)somipc$(SEP)include -i=$(PORT_BASE)somirfmt$(SEP)include -i=$(PORT_BASE)include
+ADD_COPT = -br -6s -bm $(ADD_COPT) -i=$(PORT_BASE)somipc$(SEP)include -i=$(PORT_BASE)somirfmt$(SEP)include -i=$(PORT_BASE)include -DBUILD_RHBSEH2
 
 
 .cpp: $(PORT_BASE)somipc$(SEP)src

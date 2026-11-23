@@ -1,0 +1,8 @@
+EntryFld +
+HeapMgr +
+EventMgr
+EntryFld.Dll
+
+OS2386.Lib dde4nbs.lib
+EntryFld.Def
+

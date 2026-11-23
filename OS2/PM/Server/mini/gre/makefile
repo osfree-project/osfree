@@ -20,7 +20,10 @@ IMPORTS = F_DbgPrint       PMDEBUG.5, &
           F_DbgCtxEnterf   PMDEBUG.15, &
           F_DbgCtxExitf    PMDEBUG.16
 
-ADD_COPT     +=  -fp5 -ei -i=$(SRCDIR) -i=$(SRCDIR)..$(SEP)..$(SEP)..$(SEP)include -i=$(SRCDIR)..$(SEP)include  -sg -of+ -bd -5s -bm
+ADD_COPT     += -sg -of+ -bd -5s -bm -fp5 -ei -i=$(SRCDIR) &
+                          -i=$(SRCDIR)..$(SEP)include &
+                          -i=$(SRCDIR)..$(SEP)..$(SEP)..$(SEP)include
+
 
 ADD_LINKOPT  = segment   type DATA nonshared
 NOLIBS       = 1

@@ -1,5 +1,5 @@
-SOMWM35I.DLL     IBM VAC 3.5 Dynamic Runtime Emulation
-                 Implemented all things required for IBM SOM 3.0 for NT Emitters execution.
+todo: SOMWM35I.DLL     IBM VAC 3.5 Dynamic Runtime Emulation
+                       Implemented all things required for IBM SOM 3.0 for NT Emitters execution.
 
 Found bugs:
 
@@ -7,22 +7,34 @@ None yet...
 
 Improvements:
 a) SOM run-time:
-*) Error codes added to somcdev.h and some functions moved from somapi.h to somcdev.h (because not part of API).
-*) somPrintf uses vsprintf for output. But we have somVprintf, so we can easely reuse it instead.
+  *) Error codes added to somcdev.h and some functions moved from somapi.h to somcdev.h (because not part of API).
+  *) somPrintf uses vsprintf for output. But we have somVprintf, so we can easely reuse it instead.
   *) Improve SOMError errors handling according IBM docs (somFree uses simplified errors handling)
-*) somCheckArgs implemented
-*) somVprintf now checks buffer overflow
-*) somTest reworked
-*) somAssert reworked
-*) Added support of modules under OS/2
-*) Added MSG file support under OS/2
-*) Added empty somSaveMetrics, somWriteMetrics (seems they a empty in OS/2 too)
+  *) somCheckArgs implemented
+  *) somVprintf now checks buffer overflow
+  *) somTest reworked
+  *) somAssert reworked
+  *) Added support of modules under OS/2
+  *) Added MSG file support under OS/2
+  *) Added empty somSaveMetrics, somWriteMetrics (seems they a empty in OS/2 too)
 b) PDL
   *) now supports multiple files
   *) -s option now supported
   *) -c option now supported
 c) SOM Compiler
   *) Partal CORBA 2+ C Mapping support
+d) DUMP emitter
+  *) One binary for both IBM SOM 2.1 NT/IBM SOM 3.0 NT
+  *) DUMP all SOMC internal structures passed to emitter
+e) DEF emitter
+  *) One binary for both IBM SOM 2.1 NT/IBM SOM 3.0 NT
+  *) msvc modifier support as in IBM SOM 2.1 (names of exports)
+  *) Works as in SOM 2.1 (simple append logic)
+f) EXP emitter (was only in IBM SOM AIX)
+  *) One binary for both IBM SOM 2.1 NT/IBM SOM 3.0 NT
+  *) Works as in SOM 2.1 (simple append logic)
+g) SOMCPP now standalone, no external tools required
+h)
 
 Found not implemented functions:
 
@@ -50,3 +62,4 @@ Improvements ideas:
 *) Add filemask support to PDL
 *) Write PDL documentation
 *) Reuse SOMC.MSG in SC
+*) DEF emitter/EXP emitter - use better append logic (like in SOM 3.0). Collect classes first

@@ -283,7 +283,7 @@ static inline BOOL GpiPsGocaFindSeg(PGPI_PS ps, LONG lSegId,
         if (cb == 0) break;
 
         if (p[0] == OCODE_GBSEG && cb >= 6) {
-            ULONG name = GocaGetU32(&ps->goca, p + 2);
+            ULONG name = GocaGetU32(p + 2);
             if ((LONG)name == lSegId) {
                 start = off;
                 end   = ps->cbGoca;

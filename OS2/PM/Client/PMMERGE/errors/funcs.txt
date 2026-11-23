@@ -1,0 +1,11 @@
+- implemented:
+
+WinGetLastError
+WinGetErrorInfo
+WinFreeErrorInfo
+
+- not implemented:
+
+- new functions
+
+WinGetLastError2

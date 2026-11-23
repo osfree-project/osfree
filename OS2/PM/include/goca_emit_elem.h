@@ -33,7 +33,7 @@ static inline LONG GocaEmitBeginElement(GOCA_CTX *c, PBYTE buf, ULONG cb,
 
     buf[0] = OCODE_GBEL;
     buf[1] = (BYTE)(4 + cch);
-    GocaPutU32(c, buf + 2, (ULONG)lType);
+    GocaPutU32(buf + 2, (ULONG)lType);
     if (cch > 0) memcpy(buf + 6, pszDesc, cch);
     return (LONG)(6 + cch);
 }
@@ -59,7 +59,7 @@ static inline LONG GocaEmitLabel(GOCA_CTX *c, PBYTE buf, ULONG cb, LONG lLabel)
     if (!c || !buf || cb < 6) return (LONG)GPI_ALTERROR;
     buf[0] = OCODE_GLABL;
     buf[1] = 4;
-    GocaPutU32(c, buf + 2, (ULONG)lLabel);
+    GocaPutU32(buf + 2, (ULONG)lLabel);
     return 6;
 }
 

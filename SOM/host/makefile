@@ -3,10 +3,10 @@
 #
 
 !ifeq %OS WIN32
-WATCOM_RUNTIME = clbr19
+WATCOM_RUNTIME = clbs19
 !endif
 !ifeq %OS WIN64
-WATCOM_RUNTIME = clbr19
+WATCOM_RUNTIME = clbs19
 !endif
 
 SOM_COMPILER = &
@@ -16,11 +16,14 @@ SOM_COMPILER = &
   somcprep genh genxh &
 !ifneq %HOST linux
   ctoi newemit &
-  somwm35i somc &
+  somwm35i &
+  somc &
   spp &
   somopc &
 !endif
-  somtk
+  somtk &
+  emitdef emitexp emitdump
+
 # SOM Run-time kernel
 SOM_KERNEL = #somdtype somkprep som
 # Interface Repository Framework

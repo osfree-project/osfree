@@ -1,0 +1,16 @@
+
+- unimplemented:
+
+WinCompareStrings
+WinCpTranslateString
+WinCpTranslateChar
+WinNextChar
+WinPrevChar
+WinQueryCp
+WinQueryCpList
+WinSetCp
+WinUpper
+WinUpperChar
+
+
+

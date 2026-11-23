@@ -238,6 +238,51 @@ typedef ULONG (DDI_CALLCONV *PFN_OS2_PM_DRV_ENABLE)(ULONG subfunc,
 #define EN_BEGIN_CLOSEDC    0x0000000BUL  /*!< BeginCloseDC. */
 #define EN_INSTALL_HOOKS    0x0000000CUL  /*!< InstallPMEngineDisplayHooks. */
 
+#ifdef INCL_DDIMISC
+
+typedef struct _SHORTLINEHEADER
+{
+   ULONG  ulStyle;
+   ULONG  ulFormat;
+   POINTL ptlStart;
+   POINTL ptlStop;
+   LONG   lxLeft;
+   LONG   lxRight;
+   struct _SHORTLINEHEADER *pslhNext;
+   struct _SHORTLINEHEADER *pslhPrev;
+} SHORTLINEHEADER, *PSHORTLINEHEADER;
+   
+typedef struct _SHORTLINE
+{
+   SHORTLINEHEADER slh;
+   LONG      ax[1];
+} SHORTLINE, *PSHORTLINE;
+   
+typedef struct _BRECTL
+{
+   POINTL ptl1;
+   POINTL ptl2;
+} BRECTL, *PBRECTL;
+   
+typedef struct _RLEHDR
+{
+   LONG     lType;
+   BRECTL   brectlBounds;
+   PVOID    pRLE;
+} RLEHDR, *PRLEHDR;
+
+typedef struct _SCANDATA
+{
+   PSHORTLINE pslFirstLeft;
+   PSHORTLINE pslLastLeft;
+   PSHORTLINE pslFirstRight;
+   PSHORTLINE pslLastRight;
+   ULONG      c;
+   RECTL      rclBound;
+} SCANDATA, *PSCANDATA;
+   
+#endif  /* INCL_DDIMISC */
+
 #ifdef INCL_GRE_CLIP
    
    /* CopyClipRegion */

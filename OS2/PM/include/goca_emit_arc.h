@@ -16,10 +16,10 @@ static inline LONG GocaEmitSetArcParams(GOCA_CTX *c, PBYTE buf, ULONG cb, PARCPA
     if (!c || !pap || !buf || cb < 10) return (LONG)GPI_ALTERROR;
     buf[0] = OCODE_GSAP;
     buf[1] = 8;
-    GocaPutU16(c, buf + 2, (USHORT)pap->lP);
-    GocaPutU16(c, buf + 4, (USHORT)pap->lQ);
-    GocaPutU16(c, buf + 6, (USHORT)pap->lR);
-    GocaPutU16(c, buf + 8, (USHORT)pap->lS);
+    GocaPutU16(buf + 2, (USHORT)pap->lP);
+    GocaPutU16(buf + 4, (USHORT)pap->lQ);
+    GocaPutU16(buf + 6, (USHORT)pap->lR);
+    GocaPutU16(buf + 8, (USHORT)pap->lS);
     return 10;
 }
 
@@ -29,7 +29,7 @@ static inline LONG GocaEmitFullArc(GOCA_CTX *c, PBYTE buf, ULONG cb, FIXED fxMul
     if (!c || !buf || cb < 4) return (LONG)GPI_ALTERROR;
     buf[0] = OCODE_GCFARC;
     buf[1] = 2;
-    GocaPutU16(c, buf + 2, (USHORT)((ULONG)fxMultiplier >> 8));
+    GocaPutU16(buf + 2, (USHORT)((ULONG)fxMultiplier >> 8));
     return 4;
 }
 
@@ -53,9 +53,9 @@ static inline LONG GocaEmitPartialArc(GOCA_CTX *c, PBYTE buf, ULONG cb,
     buf[1] = (BYTE)(2 * pointSize + 10);
     pos += GocaPutCoord(c, buf + pos, ptlCenter.x);
     pos += GocaPutCoord(c, buf + pos, ptlCenter.y);
-    pos += GocaPutU16(c, buf + pos, (USHORT)((ULONG)fxMultiplier >> 8));
-    pos += GocaPutU32(c, buf + pos, (ULONG)fxStartAngle);
-    pos += GocaPutU32(c, buf + pos, (ULONG)fxSweepAngle);
+    pos += GocaPutU16(buf + pos, (USHORT)((ULONG)fxMultiplier >> 8));
+    pos += GocaPutU32(buf + pos, (ULONG)fxStartAngle);
+    pos += GocaPutU32(buf + pos, (ULONG)fxSweepAngle);
     return (LONG)pos;
 }
 

@@ -1,0 +1,11 @@
+file Listbox.Obj
+file EventMgr.Obj
+file heapmgr.Obj
+file listmgr.Obj
+file SndMgr.Obj
+file TraffMgr.Obj
+file EntryFld.Obj
+name ListBox
+library OS2386.Lib
+@WCLst.Def
+

@@ -1,0 +1,18 @@
+- implemented:
+
+WinCopyRect
+WinEqualRect
+WinInflateRect
+WinIntersectRect
+WinIsRectEmpty
+WinOffsetRect
+WinPtInRect
+WinSetRect
+WinSetRectEmpty
+WinSubtractRect
+WinUnionRect
+
+- stubs:
+
+WinMakeRect
+WinMakePoints

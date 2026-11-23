@@ -1,0 +1,6 @@
+
+OPTION DESCRIPTION '@#Heiko Nitzsche:1.31#@ GBM File Dialog (GBMDLG,WAT)'
+
+EXPORT GbmFileDlg
+EXPORT GbmDefFileDlgProc
+

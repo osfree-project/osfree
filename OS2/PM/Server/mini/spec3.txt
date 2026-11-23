@@ -263,7 +263,7 @@ GpiLine(hps, pt)
                          GocaParseStream(&ps->goca):
                            uPos = 0
                            while (uPos < cbStream):
-                             cbOrder = GocaOrderLength(c, p, cbAvail)
+                             cbOrder = GocaOrderLength(p, cbAvail)
                              oc = p[0]
                              switch (oc):
                                case OCODE_GCLINE: DoLine(c, p, cbOrder, TRUE)
@@ -381,7 +381,7 @@ GocaParseStream(&ps->goca)
 |---|---|---|
 | GPI → GOCA (emit) | `GocaEmit*(&ps->goca, buf, cb, ...)` | Возвращает `len >= 0` или `GPI_ALTERROR`. `buf == NULL` → возвращает `need`. **Не обновляет** `ps->goca.lb/cb/...`. |
 | GPI → GOCA (parse) | `SrvParseOrder(ps, p, cb)` → `ps->goca.pbStream = p; ps->goca.cbStream = cb; GocaParseStream(&ps->goca)` | `GocaParseStream` **обновляет** `ps->goca.lb/cb/mb/ab`, `ptlCurPos`, `lError`. Возвращает `GOCA_OK` или `GOCA_ERR_*`. |
-| GPI ← GOCA | `GocaOrderLength(&ps->goca, p, cb)` | Возвращает длину ордера (1/2/2+LEN/4+U16). 0 = truncation. |
+| GPI ← GOCA | `GocaOrderLength(p, cb)` | Возвращает длину ордера (1/2/2+LEN/4+U16). 0 = truncation. |
 | GPI ← GOCA | `GocaGetU32(&ps->goca, p + 2)` | Читает `GBSEG.Name` с учётом endian. |
 | GPI → GOCA (format) | `GocaSetFormatFromOptions(&ps->goca, flOptions)` | Устанавливает `coordSize`/`coordEndian` из `PS_FORMAT_MASK`. |
 
@@ -466,7 +466,7 @@ typedef struct _GPI_PS {
 | `hps` | `HPS` | `GpiPsCreate` | `GpiPsFind` (клиент), opaque (сервер) | Живёт до Destroy |
 | `flOptions` | `ULONG` | `CreatePS`, `SetPS`, `GpiPsSetOptions` | `GocaSetFormatFromOptions`, `GPI_PS` | Живёт до Destroy |
 | `szlPS` | `SIZEL` | **отсутствует** | **отсутствует** | Должен быть: `CreatePS`, `SetPS`, `QueryPS` |
-| `goca` | `GOCA_CTX` | `GocaInit`, `GocaParseStream`, `GocaSetFormatFromOptions` | `GocaEmit*`, `GocaOrderLength`, `GocaGetU32`, `Do*` | Живёт до Destroy |
+| `goca` | `GOCA_CTX` | `GocaInit`, `GocaParseStream`, `GocaSetFormatFromOptions` | `GocaEmit*`, `Do*` | Живёт до Destroy |
 | `m_hHab` | `ULONG` | **не пишется** (N7 — дыра) | `GpiPsDestroyByHab` | Должен быть: `NGpiCreatePS` |
 | `pbGoca` | `PBYTE` | `GpiPsGocaAppend`, `GpiPsGocaDelete`, `SrvGocaInsertBytes`, `NGpiResetPS` (free) | `GpiPsGocaFindSeg`, `SrvForEachSegment`, `NGpiGetData`, `GocaParseStream` | Растёт до `ResetPS`/`DestroyPS` |
 | `cbGoca` | `ULONG` | То же | То же | То же |
@@ -525,7 +525,7 @@ typedef struct _GOCA_CTX {
 | `cb` | ✅ | То же | То же | Кэш char bundle |
 | `mb` | ✅ | То же | То же | Кэш marker bundle |
 | `ab` | ✅ | То же | То же | Кэш area bundle |
-| `coordSize` | ✅ | `GocaSetFormatFromOptions` | `GocaEmit*`, `GocaPutCoord`, `GocaOrderLength` | Из `flOptions` |
+| `coordSize` | ✅ | `GocaSetFormatFromOptions` | `GocaEmit*`, `GocaPutCoord` | Из `flOptions` |
 | `coordEndian` | ✅ | То же | `GocaPutU16/U32`, `GocaGetU16/U32` | Из `GocaHostEndian` |
 | `pfnHandler` | ❌ | `GocaInit` (NULL) | `GocaParseStream` | Не используется |
 | `pUserData` | ❌ | `GocaInit` (NULL) | То же | То же |
@@ -1311,7 +1311,7 @@ LONG GocaParseStream(GOCA_CTX *c)
     while (c->uPos < c->cbStream) {
         const BYTE *p       = c->pbStream + c->uPos;
         ULONG       cbAvail = c->cbStream - c->uPos;
-        ULONG       cbOrder = GocaOrderLength(c, p, cbAvail);
+        ULONG       cbOrder = GocaOrderLength(p, cbAvail);
         UCHAR       oc;
         LONG        rc;
         BOOL        bHandled = FALSE;
@@ -1353,7 +1353,7 @@ LONG GocaParseStream(GOCA_CTX *c)
 ## VII.3. `GocaOrderLength`
 
 ```c
-static inline ULONG GocaOrderLength(GOCA_CTX *c, const BYTE *p, ULONG cbAvail)
+static inline ULONG GocaOrderLength(const BYTE *p, ULONG cbAvail)
 {
     UCHAR oc;
     if (cbAvail < 1) return 0;
@@ -1361,7 +1361,7 @@ static inline ULONG GocaOrderLength(GOCA_CTX *c, const BYTE *p, ULONG cbAvail)
     if (BYTE_ORDER(oc))  return 1;
     if (oc == OCODE_VLONG) {
         if (cbAvail < 4) return 0;
-        return 4u + GocaGetU16(c, p + 2);
+        return 4u + GocaGetU16(p + 2);
     }
     if (SHORT_ORDER(oc)) return 2;
     if (cbAvail < 2) return 0;

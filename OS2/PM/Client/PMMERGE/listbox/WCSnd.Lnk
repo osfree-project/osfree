@@ -1,0 +1,4 @@
+file lbsnd.Obj
+name LbSnd.Dll
+library MMPM2.Lib
+@WCSnd.Def

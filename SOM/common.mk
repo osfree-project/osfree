@@ -5,7 +5,7 @@ DEST = host$(SEP)$(%HOST)$(SEP)$(DEST)
 !ifeq %OS OS2
 OPTS = -bt=os2 -d_PLATFORM_OS2_
 defs = $(%ROOT)SOM$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)os2 
-ADD_LINKOPT = lib clib3r
+ADD_LINKOPT = lib clbsdll
 !endif
 !ifeq %OS WIN32
 OPTS = -dWIN32_LEAN_AND_MEAN
@@ -31,12 +31,11 @@ ADD_LINKOPT = lib clib3r
 !else
 
 defs = $(%ROOT)SOM$(SEP)include -i=$(%WATCOM)$(SEP)h$(SEP)os2
-ADD_LINKOPT = lib clib3r
+ADD_LINKOPT = lib clbsdll lib plbsdll
 OPTS = -bt=os2 -d_PLATFORM_OS2_
 
 !endif
 
-C = r
 
 !ifdef HOSTBLD
 !include $(%ROOT)tools/mk/tools.mk

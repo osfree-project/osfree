@@ -1,13 +1,6 @@
 #ifndef FS_ARC_HPP
 #define FS_ARC_HPP
 
-#define INCL_BASE
-#include "F_platform.h"
-
-#define INCL_GREALL
-#define INCL_GRE_PATHS
-#define INCL_DDIPATHS
-#include "pmddi.h"
 
 class Fs_Path;
 class Fs_Dc;

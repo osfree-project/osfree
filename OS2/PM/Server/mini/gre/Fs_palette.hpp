@@ -1,9 +1,6 @@
 #ifndef FS_PALETTE_HPP
 #define FS_PALETTE_HPP
 
-#define INCL_BASE
-#include "F_platform.h"
-
 /*!
  * @class Fs_Palette
  * @brief Palette object owned by one DC.

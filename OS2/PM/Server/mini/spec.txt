@@ -164,7 +164,7 @@ GpiLine(hps, pt)
                          GocaParseStream(&ps->goca):
                            uPos = 0
                            while (uPos < cbStream):
-                             cbOrder = GocaOrderLength(c, p, cbAvail)
+                             cbOrder = GocaOrderLength(p, cbAvail)
                              oc = p[0]
                              switch (oc):
                                case OCODE_GCLINE: DoLine(c, p, cbOrder, TRUE)
@@ -283,8 +283,8 @@ GocaParseStream(&ps->goca)
 |---|---|---|
 | GPI → GOCA (emit) | `GocaEmit*(&ps->goca, buf, cb, ...)` | Возвращает `len >= 0` или `GPI_ALTERROR`. `buf == NULL` → возвращает `need`. **Не обновляет** `ps->goca.lb/cb/...`. |
 | GPI → GOCA (parse) | `SrvParseOrder(ps, p, cb)` → `ps->goca.pbStream = p; ps->goca.cbStream = cb; GocaParseStream(&ps->goca)` | `GocaParseStream` **обновляет** `ps->goca.lb/cb/mb/ab`, `ptlCurPos`, `lError`. Возвращает `GOCA_OK` или `GOCA_ERR_*`. |
-| GPI ← GOCA | `GocaOrderLength(&ps->goca, p, cb)` | Возвращает длину ордера (1/2/2+LEN/4+U16). 0 = truncation. |
-| GPI ← GOCA | `GocaGetU32(&ps->goca, p + 2)` | Читает `GBSEG.Name` с учётом endian. |
+| GPI ← GOCA | `GocaOrderLength(p, cb)` | Возвращает длину ордера (1/2/2+LEN/4+U16). 0 = truncation. |
+| GPI ← GOCA | `GocaGetU32(p + 2)` | Читает `GBSEG.Name` с учётом endian. |
 | GPI → GOCA (format) | `GocaSetFormatFromOptions(&ps->goca, flOptions)` | Устанавливает `coordSize`/`coordEndian` из `PS_FORMAT_MASK`. |
 
 **Правило (предлагается):** `GocaEmit*` — только кодирование; `GocaParseStream` — единственное место, где registers обновляются. В DM_RETAIN registers **не** обновляются (per N1). GPI не парсит GOCA вручную, кроме `GocaOrderLength`/`GocaGetU32` для чтения метаданных (`GBSEG.Name`).
@@ -937,7 +937,7 @@ LONG GocaParseStream(GOCA_CTX *c)
     while (c->uPos < c->cbStream) {
         const BYTE *p       = c->pbStream + c->uPos;
         ULONG       cbAvail = c->cbStream - c->uPos;
-        ULONG       cbOrder = GocaOrderLength(c, p, cbAvail);
+        ULONG       cbOrder = GocaOrderLength(p, cbAvail);
         UCHAR       oc;
         LONG        rc;
         BOOL        bHandled = FALSE;
@@ -979,7 +979,7 @@ LONG GocaParseStream(GOCA_CTX *c)
 ### VII.3. `GocaOrderLength`
 
 ```c
-static inline ULONG GocaOrderLength(GOCA_CTX *c, const BYTE *p, ULONG cbAvail)
+static inline ULONG GocaOrderLength(const BYTE *p, ULONG cbAvail)
 {
     UCHAR oc;
     if (cbAvail < 1) return 0;
@@ -987,7 +987,7 @@ static inline ULONG GocaOrderLength(GOCA_CTX *c, const BYTE *p, ULONG cbAvail)
     if (BYTE_ORDER(oc))  return 1;
     if (oc == OCODE_VLONG) {
         if (cbAvail < 4) return 0;
-        return 4u + GocaGetU16(c, p + 2);
+        return 4u + GocaGetU16(p + 2);
     }
     if (SHORT_ORDER(oc)) return 2;
     if (cbAvail < 2) return 0;
@@ -1261,7 +1261,7 @@ DispatchGpi → case NGpiSetColor:
       ps->goca.pbStream = buf; cbStream = 2
       GocaParseStream(&ps->goca):
         uPos = 0
-        cbOrder = GocaOrderLength(c, p, 2)       // SHORT_ORDER(0x0A) → 2
+        cbOrder = GocaOrderLength(p, 2)       // SHORT_ORDER(0x0A) → 2
         oc = 0x0A
         case OCODE_GSCOL:
           clr = p[1] = CLR_RED

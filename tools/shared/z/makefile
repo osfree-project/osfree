@@ -4,12 +4,13 @@
 # valerius, 2006/10/30
 #
 
+TARGET_CLASS = LIBRARY
+
 SOURCES  = adler32 crc32 deflate infback &
            inffast inflate inftrees trees zutil &
            compress uncompr gzclose gzlib gzread &
            gzwrite 
 
-TARGET_CLASS = LIBRARY
 
 !include $(MYDIR)zlib.mk
 !include $(%ROOT)tools/mk/build.mk

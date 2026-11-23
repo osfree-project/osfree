@@ -1,9 +1,6 @@
 #ifndef FS_DC_HPP
 #define FS_DC_HPP
 
-#define INCL_BASE
-#include "F_platform.h"
-#include "Fs_config.hpp"
 #include "Fs_region.hpp"
 #include "Fs_path.hpp"
 #include "Fs_xformstate.hpp"

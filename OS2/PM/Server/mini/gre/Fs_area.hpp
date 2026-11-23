@@ -1,8 +1,6 @@
 #ifndef FS_AREA_HPP
 #define FS_AREA_HPP
 
-#define INCL_BASE
-#include "F_platform.h"
 
 class Fs_Path;
 

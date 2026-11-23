@@ -1,9 +1,6 @@
 #ifndef FS_XFORMSTATE_HPP
 #define FS_XFORMSTATE_HPP
 
-#define INCL_BASE
-#include "F_platform.h"
-
 /*!
  * @class Fs_XformState
  * @brief Viewing pipeline state for one DC.

@@ -31,18 +31,9 @@
  * APIENTRY and EN_* subfunction codes are declared in pmddi.h.
  */
 
-#define INCL_BASE
-#include "F_platform.h"
-#include "F_debug.h"
-//#include "Fs_dc.hpp"
+#include "gre.hpp"
 
 #include <string.h>
-
-#define INCL_GREALL
-#define INCL_AVIOP
-#define INCL_GRE_HFONT
-#define INCL_WINPOINTERS
-#include "pmddi.h"
 
 /*! @def GRE_DISPATCH_SIZE
  *  @brief Number of slots in internal dispatch table.
@@ -173,11 +164,10 @@ static const ULONG            g_mandatoryDisplaySlots[] = {
     NGreRestoreScreenBits,        /* 0x402D */
     NGreDeviceSetCursor,          /* 0x402F */
     NGreSetColorCursor,           /* 0x4032 */
-}
+};
 
 /*! @brief Number of entries in g_mandatorySlots[]. */
-#define MANDATORY_COUNT \
-    ((int)(sizeof(g_mandatorySlots) / sizeof(g_mandatorySlots[0])))
+#define MANDATORY_COUNT ((int)(sizeof(g_mandatorySlots) / sizeof(g_mandatorySlots[0])))
 
 /* ======================================================================== */
 /*  Forward declarations                                                  */
@@ -976,7 +966,7 @@ static ULONG __cdecl GreDrvQueryPaletteRealization(ULONG hdc, ULONG ulStart,
 /*  (GreDrvSetupDC at 0x81, GreDrvNotifyClipChange at 0xA4)               */
 /* ======================================================================== */
 
-#include "gre_simulate.hpp"
+//#include "gre_simulate.hpp"
 
 /* ======================================================================== */
 /*  Remaining driver-table stubs (not implemented)                        */
@@ -988,7 +978,6 @@ GRE_DRV_4 (GreDrvCloseScreenChangeArea)
 GRE_DRV_4 (GreDrvSetCurrentPosition)
 GRE_DRV_7 (GreDrvGetScreenBits)
 GRE_DRV_6 (GreDrvSetScreenBits)
-GRE_DRV_5 (GreDrvPolyMarker)
 GRE_DRV_5 (GreDrvCharRect)
 GRE_DRV_5 (GreDrvCharStr)
 GRE_DRV_5 (GreDrvScrollRect)
@@ -1193,7 +1182,7 @@ static DISPATCHER g_tblDriver = {
     /* 0x37 0x5037 */ NULL, // Mandatory
     /* 0x38 0x5038 */ NULL, // Mandatory
     /* 0x39 0x5039 */ NULL, // Mandatory
-    /* 0x3A 0x403A */ (PFN)GreDrvPolyMarker,
+    /* 0x3A 0x403A */ NULL, // Mandatory
     /* 0x3B 0x403B */ (PFN)GreDrvCharRect,
     /* 0x3C 0x403C */ (PFN)GreDrvCharStr,
     /* 0x3D 0x403D */ (PFN)GreDrvScrollRect,

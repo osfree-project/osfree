@@ -45,10 +45,10 @@ static inline LONG GocaEmitSetCharCell(GOCA_CTX *c, PBYTE buf, ULONG cb,
     if (!c || !buf || cb < 12) return (LONG)GPI_ALTERROR;
     buf[0]  = OCODE_GSCC;
     buf[1]  = 10;
-    GocaPutU16(c, buf + 2, (USHORT)cxInt);
-    GocaPutU16(c, buf + 4, (USHORT)cyInt);
-    GocaPutU16(c, buf + 6, cxFrac);
-    GocaPutU16(c, buf + 8, cyFrac);
+    GocaPutU16(buf + 2, (USHORT)cxInt);
+    GocaPutU16(buf + 4, (USHORT)cyInt);
+    GocaPutU16(buf + 6, cxFrac);
+    GocaPutU16(buf + 8, cyFrac);
     buf[10] = flags;
     buf[11] = 0;
     return 12;

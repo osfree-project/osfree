@@ -36,13 +36,13 @@ const char *GocaOrderName(UCHAR uCode);
  * bundles plus the current position from the device. Must be called
  * with a valid Gre* @c hdc.
  */
-void GocaInit(GOCA_CTX *pCtx, HDC hdc, PBYTE pb, ULONG cb);
+void APIENTRY GocaInit(GOCA_CTX *pCtx, HDC hdc, PBYTE pb, ULONG cb);
 
 /*!
  * @brief Parse the stream in @c pCtx->pbStream of @c pCtx->cbStream bytes.
  * @return GOCA_OK on success, GOCA_ERR_* on failure.
  */
-LONG GocaParseStream(GOCA_CTX *pCtx);
+LONG APIENTRY GocaParseStream(GOCA_CTX *pCtx);
 
 #ifdef __cplusplus
 }

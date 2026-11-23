@@ -35,8 +35,8 @@ static inline LONG GocaEmitSetMarkerCell(GOCA_CTX *c, PBYTE buf, ULONG cb,
     if (!c || !buf || cb < 8) return (LONG)GPI_ALTERROR;
     buf[0] = OCODE_GSMC;
     buf[1] = 6;
-    GocaPutU16(c, buf + 2, (USHORT)cx);
-    GocaPutU16(c, buf + 4, (USHORT)cy);
+    GocaPutU16(buf + 2, (USHORT)cx);
+    GocaPutU16(buf + 4, (USHORT)cy);
     buf[6] = 0;
     buf[7] = 0;
     return 8;

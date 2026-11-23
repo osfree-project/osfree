@@ -78,7 +78,6 @@ $(PATH)$(PROJ).exe: $(PATH)$(PROJ).lnk
 $(PATH)$(PROJ).lnk: $(OBJS) $(ADDLIBS) $(MYDIR)makefile
  @%create $^@
 !ifeq DLL 1
-
  @%append $^@ NAME $^*.dll
 !else
  @%append $^@ NAME $^*.exe

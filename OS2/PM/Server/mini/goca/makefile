@@ -24,7 +24,7 @@ IMPORTS = F_DbgPrint       PMDEBUG.5, &
           Gre32Entry7      PMGRE, &
           Gre32Entry10     PMGRE
 
-#EXPORTS = OS2_PM_DRV_ENABLE.200
+EXPORTS = GocaInit, GocaParseStream
 
 ADD_COPT     +=  -fp5 -ei -i=$(SRCDIR) -i=$(SRCDIR)..$(SEP)..$(SEP)..$(SEP)include -i=$(SRCDIR)..$(SEP)include  -sg -of+ -bd -5s -bm
 

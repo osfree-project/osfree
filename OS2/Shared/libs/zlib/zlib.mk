@@ -3,7 +3,5 @@
 PORT_NAME = os2$(SEP)zlib
 PORT_TYPE = wget
 PORT_URL  = https://www.zlib.net/zlib14.zip
-PORT_REV  = 
 PORT_PATCHES  = zlib.diff
 
-!include $(%ROOT)tools/mk/port.mk

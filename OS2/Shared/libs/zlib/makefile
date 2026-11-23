@@ -4,18 +4,19 @@
 # valerius, 2006/10/30
 #
 
-PROJ = libz
-TRGT = $(PROJ).lib
+PROJECT = libz
+TARGET_CLASS = LIBRARY
+TARGET_SUBCLASS = STATIC
+
 ADD_COPT = -d__WATCOM__ -d__OS2__ -i=. -i=..$(SEP)..$(SEP)include
-TARGETS  = $(PATH)$(PROJ).lib
 
-srcfiles = $(p)adler32$(e) $(p)crc32$(e) $(p)deflate$(e) $(p)infback$(e) &
-           $(p)inffast$(e) $(p)inflate$(e) $(p)inftrees$(e) $(p)trees$(e) $(p)zutil$(e) &
-           $(p)compress$(e) $(p)uncompr$(e) $(p)gzclose$(e) $(p)gzlib$(e) $(p)gzread$(e) &
-           $(p)gzwrite$(e) 
+SOURCES  = adler32 crc32 deflate infback &
+           inffast inflate inftrees trees zutil &
+           compress uncompr gzclose gzlib gzread &
+           gzwrite 
 
-!include $(%ROOT)tools/mk/libsos2.mk
 !include $(MYDIR)zlib.mk
+!include $(%ROOT)tools/mk/build.mk
 
 .c: $(PORT_BASE)$(SEP)zlib-1.4
 

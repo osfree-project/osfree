@@ -1,0 +1,8 @@
+option modname=EntryFld
+format os2 lx dll initinstance terminstance
+option description 'WATCOM Entry Field DLL'
+segment class 'code' loadoncall executeread noiopl nonconforming
+segment class 'data' loadoncall readwrite noiopl nonshared
+option manyautodata
+option protmode
+export fRegisterEntryField.1
