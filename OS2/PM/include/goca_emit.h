@@ -1,7 +1,7 @@
 #ifndef GOCA_EMIT_H
 #define GOCA_EMIT_H
 
-#include "goca_common.h"
+#include "F_goca.h"
 
 #include "goca_emit_attr.h"
 #include "goca_emit_line.h"

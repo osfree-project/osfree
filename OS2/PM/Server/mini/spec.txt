@@ -12,7 +12,7 @@
 |---|---|
 | `dispatch.cpp` | Все `case NGpi*`, все `Srv*` helpers, `SrvDeliver`, `DISPATCH_STUB` |
 | `goca_parser.cpp` | `GocaParseStream`, все `Do*`, `GocaInit`, `GocaSetAttr` |
-| `goca_common.h` | `GOCA_CTX`, `GocaPutCoord`, `GocaPutU16/U32`, `GocaGetU16/U32`, `GocaOrderLength`, `GocaSetFormatFromOptions` |
+| `F_goca.h` | `GOCA_CTX`, `GocaPutCoord`, `GocaPutU16/U32`, `GocaGetU16/U32`, `GocaOrderLength`, `GocaSetFormatFromOptions` |
 | `goca_emit*.h` | Все эмиттеры, контракты, overflow |
 | `gpi_ps.h` | `GPI_PS`, `GpiPsFind/Create/Get/SetOptions/Destroy`, `GpiPsGocaAppend/FindSeg/Delete` |
 | `gpi_wire.h` | Все `NGpi*`, все `Gpi*_Args` |
@@ -75,7 +75,7 @@
                             │ GOCA-ордера (байты)
 ┌───────────────────────────▼────────────────────────────────────┐
 │ GOCA — субстанция PS                                           │
-│   goca_common.h: GOCA_CTX, format helpers                      │
+│   F_goca.h: GOCA_CTX, format helpers                      │
 │   goca_emit*.h: emit (order → bytes)                           │
 │   goca_parser.cpp: parse (bytes → Gre*)                        │
 └───────────────────────────┬────────────────────────────────────┘

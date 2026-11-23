@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#include "gpi_ps.h"          /* pulls in goca_parser.hpp + goca_common.h */
+#include "gpi_ps.h"          /* pulls in goca_parser.hpp + F_goca.h */
 #include "goca_emit.h"       /* GocaEmit* order emitters */
 #include "F_cmd.h"
 #include "F_debug.h"

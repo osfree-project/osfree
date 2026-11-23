@@ -1,7 +1,7 @@
 #ifndef GOCA_EMIT_ELEM_H
 #define GOCA_EMIT_ELEM_H
 
-#include "goca_common.h"
+#include "F_goca.h"
 
 #ifdef __cplusplus
 extern "C" {

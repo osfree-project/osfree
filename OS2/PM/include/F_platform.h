@@ -33,6 +33,7 @@
   typedef unsigned char UCHAR;
   typedef char          CHAR;
   typedef void         *PVOID;
+  typedef PVOID        *PPVOID;
   typedef char         *PCH;
   typedef unsigned char *PBYTE;
   typedef LONG         *PLONG;

@@ -129,7 +129,7 @@ typedef struct _SIZES
 } SIZES;
 
 /*!
-   @brief Unsigned two-byte swapped integer (high byte first).
+   @brief Unsigned two-byte swapped integer (big-endian).
 
    AFP GOCA multi-byte fields are stored high-byte-first; this structure
    provides explicit access to the two bytes.
@@ -142,6 +142,12 @@ typedef struct _SWPUSHORT
    UCHAR  HiByte;
    UCHAR  LoByte;
 } SWPUSHORT;
+
+/* unsigned four-byte swapped integer (big-endian) */
+typedef struct _SWPULONG {
+    SWPUSHORT HiWord;  /* most significant 16 bits */
+    SWPUSHORT LoWord;  /* least significant 16 bits */
+} SWPULONG;
 
 /***************************************************************************\
 *

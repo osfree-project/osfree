@@ -15,7 +15,7 @@
 #ifndef GPI_PS_H
 #define GPI_PS_H
 
-#include "goca_common.h"
+#include "F_goca.h"
 #include <string.h>
 
 #if !defined(GPI_CLIENT) && !defined(GPI_SERVER)
@@ -54,7 +54,7 @@ typedef struct _GPI_PS {
     HPS      hps;        /*!< Handle used as map key.                     */
     ULONG    flOptions;  /*!< Last flOptions from GpiCreatePS/GpiSetPS.   */
     SIZEL    szlPS;       /* NEW: for GpiQueryPS, both sides */
-    GOCA_CTX goca;       /*!< GOCA context (coord size, endian, caches).  */
+    GOCA_CTX goca;       /*!< GOCA context (geometric parameters size, endian, caches).  */
 
 #ifdef GPI_SERVER
     ULONG    m_hHab;       /*!< Back-ref to Fs_Hab */
@@ -279,7 +279,7 @@ static inline BOOL GpiPsGocaFindSeg(PGPI_PS ps, LONG lSegId,
     off = 0;
     while (off < ps->cbGoca) {
         const BYTE *p = ps->pbGoca + off;
-        ULONG cb = GocaOrderLength(&ps->goca, p, ps->cbGoca - off);
+        ULONG cb = GocaOrderLength(p, ps->cbGoca - off);
         if (cb == 0) break;
 
         if (p[0] == OCODE_GBSEG && cb >= 6) {
@@ -290,7 +290,7 @@ static inline BOOL GpiPsGocaFindSeg(PGPI_PS ps, LONG lSegId,
                 off  += cb;
                 while (off < ps->cbGoca) {
                     const BYTE *q = ps->pbGoca + off;
-                    ULONG cq = GocaOrderLength(&ps->goca, q,
+                    ULONG cq = GocaOrderLength(q,
                                                ps->cbGoca - off);
                     if (cq == 0) break;
                     if (q[0] == OCODE_GBSEG) { end = off; break; }

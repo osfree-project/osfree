@@ -27,9 +27,9 @@
 ┌────────────────────────────────────────────────────────────────────┐
 │ Слой 1: Транспорт (внешний)                                        │
 │   PMTCP.dll — startServerThreads(handler, disc_cb), Recv, Send     │
-│   per-connection thread → handler(recvobj, cmd, data, threadNum)    │
+│   per-connection thread → handler(recvobj, cmd, data, threadNum)   │
 ├────────────────────────────────────────────────────────────────────┤
-│ Слой 2: Сессии и маршрутизация (Fs_Server)                          │
+│ Слой 2: Сессии и маршрутизация (Fs_Server)                         │
 │   HandleCommand: классификация ncmd, поиск/создание сессии,        │
 │   диспетчеризация по классу, отправка ответа                       │
 ├────────────────────────────────────────────────────────────────────┤
@@ -47,7 +47,7 @@
 │ Слой 5: GOCA                                                       │
 │   goca_emit_*  : order → bytes                                     │
 │   goca_parser  : bytes → Gre*                                      │
-│   goca_common  : GOCA_CTX, format, GocaPut*/Get*, GocaOrderLength  │
+│   F_goca  : GOCA_CTX, format, GocaPut*/Get*, GocaOrderLength       │
 ├────────────────────────────────────────────────────────────────────┤
 │ Слой 6: GRE (внешний, сейчас — заглушки)                           │
 │   Gre32EntryN → реальный GRE / эмуляция                            │

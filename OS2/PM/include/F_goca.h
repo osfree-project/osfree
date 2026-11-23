@@ -1,9 +1,9 @@
 /*!
- * @file goca_common.h
+ * @file F_goca.h
  * @brief Common GOCA types and helpers shared by client and server.
  */
-#ifndef GOCA_COMMON_H
-#define GOCA_COMMON_H
+#ifndef F_GOCA_H
+#define F_GOCA_H
 
 #define INCL_BASE
 #define INCL_PM
@@ -14,13 +14,14 @@
 extern "C" {
 #endif
 
-/*! @brief Size of a coordinate in the order stream. */
+/*! @brief Size of a geometric parameters in the orders. */
 typedef enum {
-    GOCA_COORD_SHORT = 2,   /*!< 16-bit coordinates. */
-    GOCA_COORD_LONG  = 4    /*!< 32-bit coordinates. */
+    GOCA_COORD_BYTE  = 1,   /*!< 8-bit geometric parameter. */
+    GOCA_COORD_SHORT = 2,   /*!< 16-bit geometric parameter. */
+    GOCA_COORD_LONG  = 4    /*!< 32-bit geometric parameter. */
 } GOCA_COORD_SIZE;
 
-/*! @brief Byte order of coordinates in the order stream. */
+/*! @brief Byte order of geometric parameters in the orders. */
 typedef enum {
     GOCA_ENDIAN_LE,         /*!< Least-significant byte first (x86, PC).  */
     GOCA_ENDIAN_BE          /*!< Most-significant byte first (360, S370). */
@@ -55,18 +56,17 @@ struct _GOCA_CTX {
     MARKERBUNDLE mb;      /*!< Cached marker bundle.                  */
     AREABUNDLE   ab;      /*!< Cached area bundle.                    */
 
-    GOCA_COORD_SIZE   coordSize;    /*!< SHORT or LONG.                */
-    GOCA_COORD_ENDIAN coordEndian;  /*!< LE or BE.                     */
+    GOCA_COORD_SIZE   coordSize;    /*!< BYTE or SHORT or LONG.       */
+    GOCA_COORD_ENDIAN coordEndian;  /*!< LE or BE.                    */
 
-    PFN_GOCA_HANDLER pfnHandler;
     void    *pUserData;
-
-    BOOL     bDebug;      /*!< Emit per-order trace to stderr.        */
 
     LONG     lError;
     ULONG    uErrOffset;
     UCHAR    uErrOrder;
 };
+
+#include <F_gocaerr.h>
 
 #define GOCA_OK            0
 #define GOCA_ERR_TRUNC    -1   /*!< Truncated order.                */
@@ -74,7 +74,7 @@ struct _GOCA_CTX {
 #define GOCA_ERR_NOMEM    -3   /*!< Out of memory.                  */
 #define GOCA_ERR_USER     -4   /*!< User handler aborted.           */
 
-/*! @brief Select coordinate size and byte order explicitly. */
+/*! @brief Select geometric parameters size and byte order explicitly. */
 static inline void GocaSetFormat(GOCA_CTX *c, GOCA_COORD_SIZE size,
                                  GOCA_COORD_ENDIAN endian)
 {
@@ -102,7 +102,7 @@ static inline GOCA_COORD_ENDIAN GocaHostEndian(void)
 #endif
 }
 
-/*! @brief Select coordinate size and byte order from PS flOptions. */
+/*! @brief Select geometric parameters size and byte order from PS flOptions. */
 static inline void GocaSetFormatFromOptions(GOCA_CTX *c, ULONG flOptions)
 {
     GOCA_COORD_SIZE   size   = GOCA_COORD_LONG;
@@ -115,7 +115,7 @@ static inline void GocaSetFormatFromOptions(GOCA_CTX *c, ULONG flOptions)
 }
 
 /*!
- * @brief Write an unsigned 16-bit value in the context's byte order.
+ * @brief Write an unsigned 16-bit value in the Big Endian byte order.
  *
  * Used wherever a fixed 2-byte field must be encoded (e.g. the colour
  * index of GSECOL) regardless of the current coordSize.
@@ -125,84 +125,121 @@ static inline void GocaSetFormatFromOptions(GOCA_CTX *c, ULONG flOptions)
  * @param [in]  v  Value to write.
  * @return Number of bytes written (always 2).
  */
-static inline ULONG GocaPutU16(GOCA_CTX *c, PBYTE p, USHORT v)
+static inline ULONG GocaPutU16(PBYTE p, USHORT v)
 {
-    if (c->coordEndian == GOCA_ENDIAN_LE) {
-        p[0] = (BYTE)v;
-        p[1] = (BYTE)(v >> 8);
-    } else {
-        p[0] = (BYTE)(v >> 8);
-        p[1] = (BYTE)v;
-    }
+    ((SWPUSHORT *)p)->HiByte = (UCHAR)(v >> 8);
+    ((SWPUSHORT *)p)->LoByte = (UCHAR)v;
     return 2;
 }
 
 /*!
- * @brief Write an unsigned 32-bit value in the context's byte order.
+ * @brief Write an unsigned 32-bit value in the Big Endian byte order.
  * @return Number of bytes written (always 4).
  */
-static inline ULONG GocaPutU32(GOCA_CTX *c, PBYTE p, ULONG v)
+static inline ULONG GocaPutU32(PBYTE p, ULONG v)
 {
-    if (c->coordEndian == GOCA_ENDIAN_LE) {
-        p[0] = (BYTE)v;
-        p[1] = (BYTE)(v >> 8);
-        p[2] = (BYTE)(v >> 16);
-        p[3] = (BYTE)(v >> 24);
-    } else {
-        p[0] = (BYTE)(v >> 24);
-        p[1] = (BYTE)(v >> 16);
-        p[2] = (BYTE)(v >> 8);
-        p[3] = (BYTE)v;
-    }
+    ((SWPULONG *)p)->HiWord.HiByte = (UCHAR)(v >> 24);
+    ((SWPULONG *)p)->HiWord.LoByte = (UCHAR)(v >> 16);
+    ((SWPULONG *)p)->LoWord.HiByte = (UCHAR)(v >> 8);
+    ((SWPULONG *)p)->LoWord.LoByte = (UCHAR)v;
     return 4;
 }
+/*!
+ * @brief Read an unsigned 16-bit value in Big Endian byte order.
+ */
+static inline USHORT GocaGetU16(const BYTE *p)
+{
+    return (USHORT)((((const SWPUSHORT*)p)->HiByte << 8) | ((const SWPUSHORT*)p)->LoByte);
+}   
 
 /*!
- * @brief Read an unsigned 16-bit value in the context's byte order.
+ * @brief Read an unsigned 32-bit value in the Big Endian order.
  */
-static inline USHORT GocaGetU16(GOCA_CTX *c, const BYTE *p)
+static inline ULONG GocaGetU32(const BYTE *p)
 {
-    if (c->coordEndian == GOCA_ENDIAN_LE)
-        return (USHORT)(((USHORT)p[1] << 8) | p[0]);
-    return (USHORT)(((USHORT)p[0] << 8) | p[1]);
+    return ((ULONG)(((const SWPULONG *)p)->HiWord.HiByte) << 24) |
+           ((ULONG)(((const SWPULONG *)p)->HiWord.LoByte) << 16) |
+           ((ULONG)(((const SWPULONG *)p)->LoWord.HiByte) << 8)  |
+            (ULONG)(((const SWPULONG *)p)->LoWord.LoByte);
 }
 
 /*!
- * @brief Read an unsigned 32-bit value in the context's byte order.
+ * @brief Read geometric parameters.
  */
-static inline ULONG GocaGetU32(GOCA_CTX *c, const BYTE *p)
+static inline LONG GocaGetCoord(GOCA_CTX *c, const BYTE *p)
 {
-    if (c->coordEndian == GOCA_ENDIAN_LE)
-        return ((ULONG)p[3] << 24) | ((ULONG)p[2] << 16) |
-               ((ULONG)p[1] << 8)  |  (ULONG)p[0];
-    return ((ULONG)p[0] << 24) | ((ULONG)p[1] << 16) |
-           ((ULONG)p[2] << 8)  |  (ULONG)p[3];
+    switch (c->coordSize) {
+    case GOCA_COORD_BYTE:
+        return (LONG)(CHAR)p[0];
+        
+    case GOCA_COORD_SHORT:
+        if (c->coordEndian == GOCA_ENDIAN_LE)
+            return (LONG)(SHORT)(((USHORT)p[1] << 8) | p[0]);
+        else
+            return (LONG)(SHORT)GocaGetU16(p);
+            
+    case GOCA_COORD_LONG:
+        if (c->coordEndian == GOCA_ENDIAN_LE)
+            return (LONG)(((ULONG)p[3] << 24) | ((ULONG)p[2] << 16) |
+                          ((ULONG)p[1] << 8)  |  (ULONG)p[0]);
+        else
+            return (LONG)GocaGetU32(p);
+            
+    default:
+        return 0;
+    }
 }
 
 /*!
- * @brief Write one coordinate in the context's current PS format.
+ * @brief Write one geometric parameter in the context's current PS format.
+ *
  * @param [in] c   GOCA context (uses c->coordSize / c->coordEndian).
  * @param [out] p  Destination buffer.
  * @param [in]  v  Coordinate value.
- * @return Number of bytes written (2 or 4).
+ * @return Number of bytes written (1, 2, or 4).
  */
 static inline ULONG GocaPutCoord(GOCA_CTX *c, PBYTE p, LONG v)
 {
-    if (c->coordSize == GOCA_COORD_SHORT)
-        return GocaPutU16(c, p, (USHORT)v);
-    return GocaPutU32(c, p, (ULONG)v);
+    switch (c->coordSize) {
+    case GOCA_COORD_BYTE:
+        p[0] = (BYTE)v;
+        return 1;
+        
+    case GOCA_COORD_SHORT:
+        if (c->coordEndian == GOCA_ENDIAN_LE) {
+            p[0] = (BYTE)v;
+            p[1] = (BYTE)(v >> 8);
+        } else {
+            GocaPutU16(p, (USHORT)v);
+        }
+        return 2;
+        
+    case GOCA_COORD_LONG:
+        if (c->coordEndian == GOCA_ENDIAN_LE) {
+            p[0] = (BYTE)v;
+            p[1] = (BYTE)(v >> 8);
+            p[2] = (BYTE)(v >> 16);
+            p[3] = (BYTE)(v >> 24);
+        } else {
+            GocaPutU32(p, (ULONG)v);
+        }
+        return 4;
+        
+    default:
+        return 0;
+    }
 }
 
 /*!
  * @brief Wire length of the order starting at p (0 on truncation).
  *
  * Format predicates are from pmord.h:
- *   BYTE_ORDER(oc)   — 1 byte
- *   SHORT_ORDER(oc)  — 2 bytes
- *   oc == OCODE_VLONG — 4 + U16 from p+2
- *   otherwise        — long, 2 + p[1]
+ *   BYTE_ORDER(oc)   - 1 byte
+ *   SHORT_ORDER(oc)  - 2 bytes
+ *   oc == OCODE_VLONG - 4 + U16 from p+2
+ *   otherwise        - long, 2 + p[1]
  */
-static inline ULONG GocaOrderLength(GOCA_CTX *c, const BYTE *p, ULONG cbAvail)
+static inline ULONG GocaOrderLength(const BYTE *p, ULONG cbAvail)
 {
     UCHAR oc;
     if (cbAvail < 1) return 0;
@@ -210,7 +247,7 @@ static inline ULONG GocaOrderLength(GOCA_CTX *c, const BYTE *p, ULONG cbAvail)
     if (BYTE_ORDER(oc))  return 1;
     if (oc == OCODE_VLONG) {
         if (cbAvail < 4) return 0;
-        return 4u + GocaGetU16(c, p + 2);
+        return 4u + GocaGetU16(p + 2);
     }
     if (SHORT_ORDER(oc)) return 2;
     if (cbAvail < 2) return 0;
@@ -220,4 +257,4 @@ static inline ULONG GocaOrderLength(GOCA_CTX *c, const BYTE *p, ULONG cbAvail)
 #ifdef __cplusplus
 }
 #endif
-#endif /* GOCA_COMMON_H */
+#endif /* F_GOCA_H */

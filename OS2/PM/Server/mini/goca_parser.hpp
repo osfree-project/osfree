@@ -8,12 +8,12 @@
  *
  * Common types (GOCA_CTX, GOCA_COORD_SIZE, GOCA_COORD_ENDIAN, GocaPutCoord,
  * GocaSetFormat, GocaSetFormatFromOptions, GOCA_OK/GOCA_ERR_*) live in
- * "goca_common.h" and are shared with the client.
+ * "F_goca.h" and are shared with the client.
  */
 #ifndef GOCA_PARSER_H
 #define GOCA_PARSER_H
 
-#include "goca_common.h"
+#include "F_goca.h"
 
 /* GRE feature set must precede pmddim.h */
 #define INCL_GREALL

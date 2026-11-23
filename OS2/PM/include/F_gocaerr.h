@@ -1,5 +1,5 @@
 /*!
-   @file GOCA_EXCEPTIONS.H
+   @file F_gocaerr.h
 
    @brief Exception Conditions (EC codes) of the GOCA architecture.
 
@@ -611,7 +611,7 @@ static __inline int GocaEcIsDrawingCheck(USHORT usEC)
     case GOCA_EC_INVALID_DESCRIPTOR:
     case GOCA_EC_INVALID_IN_PROLOG:
     case GOCA_EC_INVALID_SEGMENT_NAME:
-    case GOCA_EC_INVALID_DRAW_CONTROL:
+//@todo num double    case GOCA_EC_INVALID_DRAW_CONTROL:
     case GOCA_EC_DYNAMIC_SEQ_CHECK:
     case GOCA_EC_SEGCHAR_OUTSIDE_PROLOG:
     case GOCA_EC_END_PROLOG_OUTSIDE:
