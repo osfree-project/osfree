@@ -221,54 +221,38 @@ static LONG DoGSCP(GOCA_CTX *c, const BYTE *p, ULONG cb)
  * @param [in] c    GOCA context.
  * @param [in] p    Pointer to the order.
  * @param [in] cb   Bytes available from p to the end of the stream.
- * @param [in] bCur TRUE for GCLINE (start at current position).
+ * @param [in] bCur TRUE for GLINE (set current position from first point).
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
  * @retval GOCA_EC_INVALID_LENGTH Operand length inconsistent with point size.
  */
 static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    ULONG  len, nTotal, nPts, i;
+    ULONG  len, nPts;
     POINTL aptl[GOCA_MAX_POINTS];
     ULONG  pointSize = 2u * (ULONG)c->coordSize;
 
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
-
-    if (bCur) {
-        /* GCLINE: length is pointSize * count; prepend current position. */
-        if (len == 0 || (len % pointSize)) {
-            GocaCallResult("GOCA_EC_INVALID_LENGTH");
-            return GOCA_EC_INVALID_LENGTH;
-        }
-        nPts   = len / pointSize;
-        nTotal = nPts + 1;
-        GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
-        aptl[0] = c->ptlCurPos;
-        for (i = 0; i < nPts; i++) {
-            const BYTE *pPt = p + 2 + i * pointSize;
-            aptl[i+1].x = GocaGetCoord(c, pPt);
-            aptl[i+1].y = GocaGetCoord(c, pPt + c->coordSize);
-        }
-    } else {
-        /* GLINE: first point is pointSize bytes, rest pointSize each. */
-        if (len < pointSize || ((len - pointSize) % pointSize)) {
-            GocaCallResult("GOCA_EC_INVALID_LENGTH");
-            return GOCA_EC_INVALID_LENGTH;
-        }
-        nTotal = (len - pointSize) / pointSize + 1;
-        FillPtlArray(c, p + 2, nTotal, aptl);
+    if (len % pointSize) {
+        GocaCallResult("GOCA_EC_INVALID_LENGTH");
+        return GOCA_EC_INVALID_LENGTH;
     }
 
-    GocaTrace(c, "[GOCA]   %s: %u pts, end=(%ld,%ld)\n",
-              bCur ? "GCLINE" : "GLINE", (unsigned)nTotal,
-              (long)aptl[nTotal-1].x, (long)aptl[nTotal-1].y);
+    nPts = len / pointSize;
+    FillPtlArray(c, p + 2, nPts, aptl);
+    if (bCur) {
+        if (nPts == 0) {
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
+        }
+        GreSetCurrentPosition(c->hdc, &aptl[0]);
+        nPts--;
+    }
+    GrePolyLine(c->hdc, &aptl[bCur], (LONG)(nPts));
 
-    GrePolyLine(c->hdc, aptl, (LONG)nTotal);
-    c->ptlCurPos = aptl[nTotal - 1];
-
-    GocaCallResult("GOCA_OK (%u pts)", (unsigned)nTotal);
+    GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
 
@@ -282,52 +266,38 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @param [in] c    GOCA context.
  * @param [in] p    Pointer to the order.
  * @param [in] cb   Bytes available from p to the end of the stream.
- * @param [in] bCur TRUE for GCMRK (start at current position).
+ * @param [in] bCur TRUE for GMRK
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
  * @retval GOCA_EC_INVALID_LENGTH Operand length inconsistent with point size.
  */
 static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    ULONG  len, nTotal, nPts, i;
+    ULONG  len, nPts;
     POINTL aptl[GOCA_MAX_POINTS];
     ULONG  pointSize = 2u * (ULONG)c->coordSize;
 
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
-
-    if (bCur) {
-        if (len == 0 || (len % pointSize)) {
-            GocaCallResult("GOCA_EC_INVALID_LENGTH");
-            return GOCA_EC_INVALID_LENGTH;
-        }
-        nPts   = len / pointSize;
-        nTotal = nPts + 1;
-        GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
-        aptl[0] = c->ptlCurPos;
-        for (i = 0; i < nPts; i++) {
-            const BYTE *pPt = p + 2 + i * pointSize;
-            aptl[i+1].x = GocaGetCoord(c, pPt);
-            aptl[i+1].y = GocaGetCoord(c, pPt + c->coordSize);
-        }
-    } else {
-        if (len < pointSize || ((len - pointSize) % pointSize)) {
-            GocaCallResult("GOCA_EC_INVALID_LENGTH");
-            return GOCA_EC_INVALID_LENGTH;
-        }
-        nTotal = (len - pointSize) / pointSize + 1;
-        FillPtlArray(c, p + 2, nTotal, aptl);
+    if (len % pointSize) {
+        GocaCallResult("GOCA_EC_INVALID_LENGTH");
+        return GOCA_EC_INVALID_LENGTH;
     }
 
-    GocaTrace(c, "[GOCA]   %s: %u pts, end=(%ld,%ld)\n",
-              bCur ? "GCMRK" : "GMRK", (unsigned)nTotal,
-              (long)aptl[nTotal-1].x, (long)aptl[nTotal-1].y);
+    nPts = len / pointSize;
+    FillPtlArray(c, p + 2, nPts, aptl);
+    if (bCur) {
+        if (nPts == 0) {
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
+        }
+        GreSetCurrentPosition(c->hdc, &aptl[0]);
+        nPts--;
+    }
+    GrePolyMarker(c->hdc, &aptl[bCur], (LONG)(nPts));
 
-    GrePolyMarker(c->hdc, aptl, (LONG)nTotal);
-    c->ptlCurPos = aptl[nTotal - 1];
-
-    GocaCallResult("GOCA_OK (%u pts)", (unsigned)nTotal);
+    GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
 
@@ -1577,12 +1547,15 @@ LONG GocaParseStream(GOCA_CTX *c)
 
             /* ============ long: primitives ============ */
             case OCODE_GSCP:    rc = DoGSCP(c, p, cbOrder); break;
-            case OCODE_GLINE:   rc = DoLine(c, p, cbOrder, FALSE); break;
-            case OCODE_GCLINE:  rc = DoLine(c, p, cbOrder, TRUE);  break;
+
+            
+            case OCODE_GLINE:   rc = DoLine(c, p, cbOrder, TRUE); break;
+            case OCODE_GCLINE:  rc = DoLine(c, p, cbOrder, FALSE);  break;
+            case OCODE_GMRK:    rc = DoMark(c, p, cbOrder, TRUE); break;
+            case OCODE_GCMRK:   rc = DoMark(c, p, cbOrder, FALSE);  break;
+
             case OCODE_GRLINE:  rc = DoRelativeLine(c, p, cbOrder, FALSE); break;
             case OCODE_GCRLINE: rc = DoRelativeLine(c, p, cbOrder, TRUE);  break;
-            case OCODE_GMRK:    rc = DoMark(c, p, cbOrder, FALSE); break;
-            case OCODE_GCMRK:   rc = DoMark(c, p, cbOrder, TRUE);  break;
             case OCODE_GCHST:   rc = DoCharString(c, p, cbOrder, FALSE); break;
             case OCODE_GCCHST:  rc = DoCharString(c, p, cbOrder, TRUE);  break;
             case OCODE_GBOX:    rc = DoBox(c, p, cbOrder, FALSE); break;
