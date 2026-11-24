@@ -1,22 +1,24 @@
 /*!
-   @file F_gocaerr.h
+@file F_gocaerr.h
+@brief Exception Conditions (EC codes) of the GOCA architecture.
 
-   @brief Exception Conditions (EC codes) of the GOCA architecture.
+Contains the complete list of exception constants defined in:
+- AFP GOCA Reference (AFPC-0008-03), Chapter 8, "Exception Conditions"
+- IBM SC31-6804, "Graphics Object Content Architecture Reference"
 
-   Contains the complete list of exception constants defined in:
-     - AFP GOCA Reference (AFPC-0008-03), Chapter 8, "Exception Conditions"
-     - IBM SC31-6804, "Graphics Object Content Architecture Reference"
+Each exception belongs to one of three categories:
+- DRAWING_PROCESS_CHECK: drawing stops (fatal for the order)
+- STANDARD_ACTION:       a prescribed action is performed, drawing
+                         continues
+- RETIRED:               retired or obsolete condition; accepted but
+                         not reported by this receiver
 
-   Each exception belongs to one of two categories:
-     - DRAWING_PROCESS_CHECK: drawing stops (fatal for the order)
-     - STANDARD_ACTION:       a prescribed action is performed, drawing
-                               continues
-
-   @note  For the complete list of general exceptions not tied to a specific
-          drawing order, see "General Exception Conditions"
-          (AFPC-0008-03, p. 108–110).
+@note  For the complete list of general exceptions not tied to a specific
+       drawing order, see "Drawing Order Exceptions"
+       (AFPC-0008-03, p. 168-174).
+@note  Retired and obsolete conditions are listed in AFPC-0008-03,
+       Appendix C, "AFP GOCA Migration Functions", p. 195-197.
 */
-
 #ifndef GOCA_EXCEPTIONS_H
 #define GOCA_EXCEPTIONS_H
 
@@ -29,8 +31,9 @@ extern "C" {
 /* ======================================================================== */
 
 typedef enum _GOCA_EC_CATEGORY {
-    GOCA_ECCAT_DRAWING_CHECK = 0,  /* Drawing process check (stop)        */
-    GOCA_ECCAT_STANDARD_ACTION = 1  /* Standard action (continue)          */
+    GOCA_ECCAT_DRAWING_CHECK   = 0,  /* Drawing process check (stop)        */
+    GOCA_ECCAT_STANDARD_ACTION = 1,  /* Standard action (continue)          */
+    GOCA_ECCAT_RETIRED         = 2   /* Retired/obsolete (do not report)    */
 } GOCA_EC_CATEGORY;
 
 /* ======================================================================== */
@@ -45,23 +48,27 @@ typedef enum _GOCA_EC_CATEGORY {
              all other exceptions.
     @action  Standard action: ignore the order and advance to the next order
              using the order format information.
-    @see     AFPC-0008-03, p. 109; SC31-6804, p. 109. */
+    @see     AFPC-0008-03, p. 171; SC31-6804, p. 109. */
 #define GOCA_EC_UNALLOCATED_ORDER       0x0001  /* Std: skip order          */
 
 /*! @brief A reserved byte or bit in the order is not set to zero.
-    @details Receivers may or may not generate this exception; it is not
-             universally enforced (pre-May-2012 implementations may differ).
-    @action  Drawing process check: drawing stops.
-    @see     AFPC-0008-03, p. 168. */
-#define GOCA_EC_RESERVED_NOT_ZERO       0x0002  /* Drawing check            */
+    @details Retired. The use of this exception condition is restricted to
+             pre-May-2012 AFP GOCA receivers; new receivers should not report
+             it. Reserved fields are to be ignored by receiving applications.
+    @action  None: the condition is not reported.
+    @see     AFPC-0008-03, p. v ("How to Read the Syntax Diagrams"),
+             p. 169 and Appendix C, p. 197. */
+#define GOCA_EC_RESERVED_NOT_ZERO       0x0002  /* Retired                  */
 
-/*! @brief The order length is incorrect: it does not match the format or
-           specification for this order type.
-    @details For example, a fixed two-byte order whose second byte is missing,
-             or a long-format order whose length count does not match the
-             actual byte count.
+/*! @brief The order length is incorrect: the length in the order is not a
+           valid value for that order.
+    @details The length count does not match the form required by the order
+             specification (for example a point count that is not a whole
+             number of coordinate pairs). A missing length byte or a declared
+             length exceeding the remaining segment data is EC-0008, not
+             EC-0003.
     @action  Drawing process check.
-    @see     AFPC-0008-03, p. 168; SC31-6804, p. 168. */
+    @see     AFPC-0008-03, p. 169; SC31-6804, p. 168. */
 #define GOCA_EC_INVALID_LENGTH          0x0003  /* Drawing check            */
 
 /*! @brief An attribute value specified in the order is not valid.
@@ -69,18 +76,17 @@ typedef enum _GOCA_EC_CATEGORY {
              otherwise illegal for the current attribute.
     @action  Standard action: use the standard default value of the attribute.
              For color attributes, the action may be implementation-dependent.
-    @see     AFPC-0008-03, p. 168; SC31-6804, p. 196. */
+    @see     AFPC-0008-03, p. 171; SC31-6804, p. 196. */
 #define GOCA_EC_INVALID_ATTR_VALUE      0x0004  /* Std: default value       */
 
 /*! @brief Segment stack overflow (Push-and-Set orders only).
     @details The segment stack used by push/pop operations exceeds its
              architectural limit.
     @action  Drawing process check.
-    @see     AFPC-0008-03, p. 168. */
+    @see     SC31-6804, p. 168. */
 #define GOCA_EC_STACK_OVERFLOW          0x0005  /* Drawing check            */
 
-/*! @brief Truncated order: the order extends beyond the segment boundary,
-           or an extended-order qualifier is missing.
+/*! @brief Truncated order: the order about to be executed is not complete.
     @details Specific conditions include: a fixed two-byte order whose second
              byte is outside the segment; a long-format order whose length
              byte is outside the segment; a long/extended order whose declared
@@ -88,7 +94,7 @@ typedef enum _GOCA_EC_CATEGORY {
              missing its qualifier byte or length bytes.
              Orders may legitimately be split across an appended segment.
     @action  Drawing process check.
-    @see     AFPC-0008-03, p. 168; SC31-6804, p. 169. */
+    @see     AFPC-0008-03, p. 169; SC31-6804, p. 169. */
 #define GOCA_EC_TRUNCATED_ORDER         0x0008  /* Drawing check            */
 
 /*! @brief Invalid Graphics Data Descriptor (GDD).
@@ -98,6 +104,14 @@ typedef enum _GOCA_EC_CATEGORY {
     @action  Drawing process check.
     @see     AFPC-0008-03, p. 169. */
 #define GOCA_EC_INVALID_DESCRIPTOR      0x000A  /* Drawing check            */
+
+/*! @brief Invalid bits in the draw control (SC31-6804 designation of EC-000A).
+    @details Same exception condition and same code as GOCA_EC_INVALID_DESCRIPTOR:
+             the Graphics Data Descriptor passed in the invocation to the
+             drawing processor contains invalid bits.
+    @action  Drawing process check.
+    @see     SC31-6804, p. 109; AFPC-0008-03, p. 169. */
+#define GOCA_EC_INVALID_DRAW_CONTROL    GOCA_EC_INVALID_DESCRIPTOR
 
 /*! @brief An order that is not valid in the segment prolog has been detected,
            or the segment ends without an End Prolog (GEPROL) order.
@@ -112,17 +126,18 @@ typedef enum _GOCA_EC_CATEGORY {
 /*! @brief Graphic Presentation Space (GPS) overflow: an attempt to draw
            outside the GPS.
     @details An order is executed that tries to draw something outside the
-             Graphic Presentation Space.
-    @action  Implementation-dependent.
-    @see     AFPC-0008-03, p. 169. */
-#define GOCA_EC_GPS_OVERFLOW            0x000D  /* Implementation-dependent */
+             Graphic Presentation Space. For devices that can maintain a
+             position outside the GPS, this exception is optional.
+    @action  Standard action: implementation-dependent.
+    @see     AFPC-0008-03, p. 171. */
+#define GOCA_EC_GPS_OVERFLOW            0x000D  /* Std: impl-dependent      */
 
 /*! @brief An attribute value is not supported.
     @details The attribute value is syntactically valid but not supported by
              the receiver.
     @action  Standard action: use the standard default value. For color,
              implementation-dependent.
-    @see     AFPC-0008-03, p. 168. */
+    @see     AFPC-0008-03, p. 171. */
 #define GOCA_EC_UNSUPPORTED_ATTR_VALUE  0x000E  /* Std: default value       */
 
 /*! @brief The current Mix mode is XOR, and a line join cannot be correctly
@@ -140,15 +155,6 @@ typedef enum _GOCA_EC_CATEGORY {
     @action  Drawing process check.
     @see     SC31-6804, p. 109. */
 #define GOCA_EC_INVALID_SEGMENT_NAME    0x0009  /* Drawing check            */
-
-/*! @brief Invalid bits in the draw control.
-    @details **NOTE:** This code (0x000A) conflicts with
-             GOCA_EC_INVALID_DESCRIPTOR. Both are defined as 0x000A in the
-             original header. Verify against the target specification and
-             resolve the collision before deployment.
-    @action  Drawing process check (per SC31-6804).
-    @see     SC31-6804, p. 109. */
-#define GOCA_EC_INVALID_DRAW_CONTROL    0x000A  /* Drawing check            */
 
 /*! @brief Dynamic segment sequence violation.
     @details A segment operation violates the required sequence for dynamic
@@ -223,9 +229,9 @@ typedef enum _GOCA_EC_CATEGORY {
            immediate segment.
     @details The area to be drawn requires more temporary storage than is
              available in the immediate-segment environment.
-    @action  Implementation-dependent.
-    @see     AFPC-0008-03, p. 169. */
-#define GOCA_EC_AREA_STORAGE_OVERFLOW   0x6805  /* Impl-dependent           */
+    @action  Standard action: implementation-dependent completion.
+    @see     AFPC-0008-03, p. 172. */
+#define GOCA_EC_AREA_STORAGE_OVERFLOW   0x6805  /* Std: impl-dependent      */
 
 /*! @brief A GBAR was encountered inside a custom pattern, but the current
            pattern symbol refers to a custom pattern or gradient.
@@ -233,7 +239,7 @@ typedef enum _GOCA_EC_CATEGORY {
              while the active pattern symbol points to a custom pattern or
              gradient, which is architecturally inconsistent.
     @action  Standard action: use symbol X'10'.
-    @see     AFPC-0008-03, p. 169. */
+    @see     AFPC-0008-03, p. 172. */
 #define GOCA_EC_GBAR_IN_CUSTOM_PATTERN  0x6806  /* Std: symbol X'10'        */
 
 /* ======================================================================== */
@@ -282,14 +288,14 @@ typedef enum _GOCA_EC_CATEGORY {
              Image Data, and End Image orders are permitted. Any other
              supported order triggers this exception.
     @action  Drawing process check.
-    @see     AFPC-0008-03, p. 169. */
+    @see     AFPC-0008-03, p. 170. */
 #define GOCA_EC_ORDER_INVALID_IN_IMAGE  0xD101  /* Drawing check            */
 
 /*! @brief Unsupported FORMAT value in Begin Image.
     @details The value specified for the FORMAT parameter in a Begin Image
              order is not supported by the receiver.
     @action  Drawing process check.
-    @see     AFPC-0008-03, p. 169. */
+    @see     AFPC-0008-03, p. 170. */
 #define GOCA_EC_IMAGE_FORMAT_UNSUPPORTED 0xD102 /* Drawing check            */
 
 /*! @brief WIDTH in Begin Image is too large to be fully displayed.
@@ -346,8 +352,17 @@ typedef enum _GOCA_EC_CATEGORY {
     @see     AFPC-0008-03, p. 172. */
 #define GOCA_EC_MARKER_SYMBOL_UNDEFINED 0xC201  /* Std: default symbol X'01'*/
 
+/*! @brief The current marker set cannot support the functions implied by
+           the current marker precision attribute.
+    @details Obsolete: the marker precision attribute and the Set Marker
+             Precision order are obsolete in AFP GOCA. The condition is
+             accepted but not reported.
+    @action  None: the condition is not reported.
+    @see     AFPC-0008-03, Appendix C, p. 197. */
+#define GOCA_EC_MARKER_PRECISION_UNSUPPORTED 0xC202 /* Obsolete             */
+
 /* ======================================================================== */
-/*  Character (GSCS / GCHST / GCCHST / Extended Char Strings)               */
+/*  Character (GSCS / GSCA / GCHST / GCCHST / Extended Char Strings)        */
 /* ======================================================================== */
 
 /*! @brief The font specified in GSCS is unavailable.
@@ -382,6 +397,13 @@ typedef enum _GOCA_EC_CATEGORY {
     @action  Standard action: skip the invalid code points.
     @see     AFPC-0008-03, p. 172. */
 #define GOCA_EC_INVALID_UNICODE         0xC303  /* Std: skip code points    */
+
+/*! @brief The specific character angle requested by Set Character Angle is
+           not supported.
+    @details AFP GOCA supports only 0, 90, 180 and 270 degrees.
+    @action  Standard action: use the closest character angle supported.
+    @see     AFPC-0008-03, p. 133, 171. */
+#define GOCA_EC_CHAR_ANGLE_UNSUPPORTED  0x3400  /* Std: closest angle       */
 
 /* ======================================================================== */
 /*  Arc (GPARC / GCPARC / GFARC / GCFARC / GARC / GCARC)                    */
@@ -418,29 +440,57 @@ typedef enum _GOCA_EC_CATEGORY {
     @details A Begin Path order is executed while another Begin Path is still
              active.
     @action  Drawing process check.
-    @see     AFPC-0008-03 (PM GPI extension); outputlinks SC31-6804, p. 229. */
+    @see     SC31-6804, p. 229 (PM GPI extension). */
 #define GOCA_EC_PATH_NESTED             0xD000  /* Drawing check            */
 
 /*! @brief End of segment reached without an End Path after a Begin Path.
     @details A Begin Path has been executed in a segment, but the segment
              ends before the matching End Path.
     @action  Drawing process check.
-    @see     outputlinks SC31-6804, p. 229. */
+    @see     SC31-6804, p. 229. */
 #define GOCA_EC_PATH_UNCLOSED           0xD001  /* Drawing check            */
 
 /*! @brief An order that is not valid inside a path has been detected.
     @details A supported order appears inside a path (between GBPTH and
              GEPTH) where it is architecturally invalid.
     @action  Drawing process check.
-    @see     outputlinks SC31-6804, p. 229. */
+    @see     SC31-6804, p. 229. */
 #define GOCA_EC_ORDER_INVALID_IN_PATH   0xD002  /* Drawing check            */
 
 /*! @brief PTHID is zero.
     @details The path identifier (PTHID) is zero, which is not a valid path
              identifier.
     @action  Drawing process check.
-    @see     outputlinks SC31-6804, p. 229. */
+    @see     SC31-6804, p. 229. */
 #define GOCA_EC_PATH_ID_ZERO            0xD003  /* Drawing check            */
+
+/* ======================================================================== */
+/*  Process Color / Gradient Color Specification                            */
+/*  (GSPCOL, GLGD, GRGD)                                                    */
+/* ======================================================================== */
+
+/*! @brief Invalid or unsupported color space.
+    @action  Standard action: for Set Process Color use the device default
+             color; for Linear/Radial Gradient ignore the order.
+    @see     AFPC-0008-03, p. 171. */
+#define GOCA_EC_COLSPACE_INVALID        0x0E02  /* Std: default / ignore    */
+
+/*! @brief Invalid or unsupported color value.
+    @action  Standard action: for Set Process Color use the device default
+             color; for Linear/Radial Gradient ignore the order.
+    @see     AFPC-0008-03, p. 171. */
+#define GOCA_EC_COLVALUE_INVALID        0x0E03  /* Std: default / ignore    */
+
+/*! @brief Invalid highlight color percent value.
+    @action  Standard action: use the maximum valid percent value.
+    @see     AFPC-0008-03, p. 171. */
+#define GOCA_EC_COLPERCENT_INVALID      0x0E04  /* Std: max valid percent   */
+
+/*! @brief Invalid or unsupported number of bits for a color component.
+    @action  Standard action: for Set Process Color use the device default
+             color; for Linear/Radial Gradient ignore the order.
+    @see     AFPC-0008-03, p. 171. */
+#define GOCA_EC_COLSIZE_INVALID         0x0E05  /* Std: default / ignore    */
 
 /* ======================================================================== */
 /*  Linear Gradient                                                         */
@@ -481,6 +531,14 @@ typedef enum _GOCA_EC_CATEGORY {
 #define GOCA_EC_CP_STORAGE              0xDE06  /* Std: skip to GECP        */
 #define GOCA_EC_CP_ORDER_INVALID        0xDE07  /* Std: ignore order        */
 
+/*! @brief End Custom Pattern (GECP) without a preceding Begin Custom
+           Pattern.
+    @details A GECP order is executed without an unmatched GBCP order having
+             been executed previously.
+    @action  Standard action: ignore the End Custom Pattern order.
+    @see     AFPC-0008-03, p. 102, 171. */
+#define GOCA_EC_GECP_WITHOUT_GBCP       0x5E00  /* Std: ignore order        */
+
 /* ======================================================================== */
 /*  Delete Pattern (GDP)                                                    */
 /* ======================================================================== */
@@ -497,9 +555,9 @@ typedef enum _GOCA_EC_CATEGORY {
     @details The start point is within the GPS, but the computed end point
              falls outside the GPS. For devices that can maintain a position
              outside the GPS, this exception is optional.
-    @action  Implementation-dependent.
-    @see     AFPC-0008-03, p. 169. */
-#define GOCA_EC_RELLINE_OUTSIDE_GPS     0xE100  /* Impl-dependent           */
+    @action  Drawing process check; no standard action is defined.
+    @see     AFPC-0008-03, p. 128, 170. */
+#define GOCA_EC_RELLINE_OUTSIDE_GPS     0xE100  /* Drawing check            */
 
 /* ======================================================================== */
 /*  Partial Arc (GPARC / GCPARC)                                            */
@@ -511,20 +569,20 @@ typedef enum _GOCA_EC_CATEGORY {
              therefore the new current position) lies outside the GPS. For
              devices that can maintain a position outside the GPS, this
              exception is optional.
-    @action  Implementation-dependent.
-    @see     AFPC-0008-03, p. 169. */
-#define GOCA_EC_PARC_ENDS_OUTSIDE_GPS   0xE300  /* Impl-dependent           */
+    @action  Drawing process check; no standard action is defined.
+    @see     AFPC-0008-03, p. 120, 170. */
+#define GOCA_EC_PARC_ENDS_OUTSIDE_GPS   0xE300  /* Drawing check            */
 
 /*! @brief Negative SWEEP value in a Partial Arc.
     @details The SWEEP angle parameter is negative, which is not permitted.
     @action  Drawing process check.
-    @see     AFPC-0008-03, p. 169. */
+    @see     AFPC-0008-03, p. 170. */
 #define GOCA_EC_PARC_NEGATIVE_SWEEP     0xE302  /* Drawing check            */
 
 /*! @brief Negative START value in a Partial Arc.
     @details The START angle parameter is negative, which is not permitted.
     @action  Drawing process check.
-    @see     AFPC-0008-03, p. 169. */
+    @see     AFPC-0008-03, p. 170. */
 #define GOCA_EC_PARC_NEGATIVE_START     0xE303  /* Drawing check            */
 
 /*! @brief An exceptional situation may prevent the arc from being drawn
@@ -532,7 +590,7 @@ typedef enum _GOCA_EC_CATEGORY {
     @details The arc parameters or environment may degrade the achievable
              accuracy.
     @action  Standard action: draw the arc as accurately as possible.
-    @see     outputlinks SC31-6804, p. 232. */
+    @see     SC31-6804, p. 232. */
 #define GOCA_EC_PARC_ACCURACY           0xE301  /* Std: draw as accurately  */
 
 /* ======================================================================== */
@@ -543,14 +601,14 @@ typedef enum _GOCA_EC_CATEGORY {
     @details A supported order appears within a vector symbol definition
              where it is not permitted.
     @action  Drawing process check.
-    @see     AFPC-0008-03, p. 168. */
+    @see     SC31-6804, p. 168. */
 #define GOCA_EC_INVALID_VECTOR_SYMBOL   0x000F  /* Drawing check            */
 
 /*! @brief End of Symbol Definition executed outside a symbol definition.
     @details An End of Symbol Definition order appears when no symbol
              definition is active.
     @action  Drawing process check.
-    @see     outputlinks SC31-6804, p. 229. */
+    @see     SC31-6804, p. 229. */
 #define GOCA_EC_ESD_OUTSIDE_SYMBOL      0xFF00  /* Drawing check            */
 
 /* ======================================================================== */
@@ -565,7 +623,7 @@ typedef enum _GOCA_EC_CATEGORY {
 #define GOCA_EC_BITBLT_BMID_UNAVAILABLE 0xD605  /* Drawing check            */
 
 /* ======================================================================== */
-/*  Element (GBEL / GEEL — PM GPI extension)                                */
+/*  Element (GBEL / GEEL - PM GPI extension)                                */
 /* ======================================================================== */
 
 #define GOCA_EC_ELEMENT_NESTED          0xD200  /* Drawing check            */
@@ -580,7 +638,7 @@ typedef enum _GOCA_EC_CATEGORY {
     @details An escape order carries a type of X'80' and an identifier that
              is not registered.
     @action  Drawing process check.
-    @see     outputlinks SC31-6804, p. 229. */
+    @see     SC31-6804, p. 229. */
 #define GOCA_EC_ESCAPE_UNREG_ID         0xD500  /* Drawing check            */
 
 /* ======================================================================== */
@@ -591,27 +649,50 @@ typedef enum _GOCA_EC_CATEGORY {
     @details The path to be modified is too complex and exhausts available
              storage.
     @action  Drawing process check.
-    @see     outputlinks SC31-6804, p. 229. */
+    @see     SC31-6804, p. 229. */
 #define GOCA_EC_MODIFYPATH_OVERFLOW     0xD800  /* Drawing check            */
 
 /* ======================================================================== */
 /*  Helper Functions (inline)                                               */
 /* ======================================================================== */
 
-/*! @brief Returns TRUE if the exception belongs to the
-           "Drawing Process Check" category (drawing must stop). */
+/*!
+@brief Returns TRUE if the exception is retired or obsolete and must not be
+       reported by this receiver.
+@details Covers EC-0002 (retired, AFPC-0008-03 Appendix C p. 197) and
+         EC-C202 (obsolete, p. 197). Such conditions are accepted but
+         ignored; they neither stop drawing nor invoke a standard action.
+@param [in] usEC  Exception code.
+@return Non-zero if the condition is retired or obsolete.
+*/
+static __inline int GocaEcIsRetired(USHORT usEC)
+{
+    switch (usEC) {
+    case GOCA_EC_RESERVED_NOT_ZERO:
+    case GOCA_EC_MARKER_PRECISION_UNSUPPORTED:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+/*!
+@brief Returns TRUE if the exception belongs to the "Drawing Process Check"
+       category (drawing must stop).
+@details Retired and obsolete conditions are excluded.
+@param [in] usEC  Exception code.
+@return Non-zero if drawing must stop.
+*/
 static __inline int GocaEcIsDrawingCheck(USHORT usEC)
 {
     switch (usEC) {
     /* General */
-    case GOCA_EC_RESERVED_NOT_ZERO:
     case GOCA_EC_INVALID_LENGTH:
     case GOCA_EC_STACK_OVERFLOW:
     case GOCA_EC_TRUNCATED_ORDER:
     case GOCA_EC_INVALID_DESCRIPTOR:
     case GOCA_EC_INVALID_IN_PROLOG:
     case GOCA_EC_INVALID_SEGMENT_NAME:
-//@todo num double    case GOCA_EC_INVALID_DRAW_CONTROL:
     case GOCA_EC_DYNAMIC_SEQ_CHECK:
     case GOCA_EC_SEGCHAR_OUTSIDE_PROLOG:
     case GOCA_EC_END_PROLOG_OUTSIDE:
@@ -633,7 +714,10 @@ static __inline int GocaEcIsDrawingCheck(USHORT usEC)
     case GOCA_EC_PATH_UNCLOSED:
     case GOCA_EC_ORDER_INVALID_IN_PATH:
     case GOCA_EC_PATH_ID_ZERO:
+    /* Relative Line */
+    case GOCA_EC_RELLINE_OUTSIDE_GPS:
     /* Partial Arc */
+    case GOCA_EC_PARC_ENDS_OUTSIDE_GPS:
     case GOCA_EC_PARC_NEGATIVE_SWEEP:
     case GOCA_EC_PARC_NEGATIVE_START:
     /* Vector symbol */
@@ -658,15 +742,26 @@ static __inline int GocaEcIsDrawingCheck(USHORT usEC)
     }
 }
 
-/*! @brief Returns TRUE if a standard action is defined for the exception
-           (drawing continues). */
+/*!
+@brief Returns TRUE if a standard action is defined for the exception
+       (drawing continues).
+@details Zero and retired/obsolete codes are excluded: they carry no
+         standard action.
+@param [in] usEC  Exception code.
+@return Non-zero if a standard action is defined.
+*/
 static __inline int GocaEcHasStandardAction(USHORT usEC)
 {
-    return !GocaEcIsDrawingCheck(usEC) && usEC != 0x0000;
+    return usEC != 0x0000 &&
+           !GocaEcIsDrawingCheck(usEC) &&
+           !GocaEcIsRetired(usEC);
 }
 
-/*! @brief Returns a static string with the short name of the exception.
-    @note  For unknown codes, returns "EC-????". */
+/*!
+@brief Returns a static string with the short name of the exception.
+@param [in] usEC  Exception code.
+@return Static string; "EC-????" for unknown codes.
+*/
 const char *GocaEcName(USHORT usEC);
 
 #ifdef __cplusplus
