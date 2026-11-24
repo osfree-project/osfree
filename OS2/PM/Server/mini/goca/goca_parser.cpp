@@ -220,19 +220,18 @@ static LONG DoGSCP(GOCA_CTX *c, const BYTE *p, ULONG cb)
  *
  * @param [in] c    GOCA context.
  * @param [in] p    Pointer to the order.
- * @param [in] cb   Bytes available from p to the end of the stream.
- * @param [in] bCur TRUE for GLINE (set current position from first point).
+ * @param [in] bGiven TRUE for given position.
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
  * @retval GOCA_EC_INVALID_LENGTH Operand length inconsistent with point size.
  */
-static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
+static LONG DoLine(GOCA_CTX *c, const BYTE *p, BOOL bGiven)
 {
     ULONG  len, nPts;
     POINTL aptl[GOCA_MAX_POINTS];
     ULONG  pointSize = 2u * (ULONG)c->coordSize;
 
-    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
+    GocaCallEnter("p=%p, bGiven=%d", p, (int)bGiven);
 
     len = p[1];
     if (len % pointSize) {
@@ -242,7 +241,7 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     nPts = len / pointSize;
     FillPtlArray(c, p + 2, nPts, aptl);
-    if (bCur) {
+    if (bGiven) {
         if (nPts == 0) {
             GocaCallResult("GOCA_EC_INVALID_LENGTH");
             return GOCA_EC_INVALID_LENGTH;
@@ -250,7 +249,7 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
         GreSetCurrentPosition(c->hdc, &aptl[0]);
         nPts--;
     }
-    GrePolyLine(c->hdc, &aptl[bCur], (LONG)(nPts));
+    GrePolyLine(c->hdc, &aptl[bGiven], (LONG)(nPts));
 
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
@@ -265,19 +264,18 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  *
  * @param [in] c    GOCA context.
  * @param [in] p    Pointer to the order.
- * @param [in] cb   Bytes available from p to the end of the stream.
- * @param [in] bCur TRUE for GMRK
+ * @param [in] bGiven TRUE for given position
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
  * @retval GOCA_EC_INVALID_LENGTH Operand length inconsistent with point size.
  */
-static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
+static LONG DoMark(GOCA_CTX *c, const BYTE *p, BOOL bGiven)
 {
     ULONG  len, nPts;
     POINTL aptl[GOCA_MAX_POINTS];
     ULONG  pointSize = 2u * (ULONG)c->coordSize;
 
-    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
+    GocaCallEnter("p=%p, bGiven=%d", p, (int)bGiven);
 
     len = p[1];
     if (len % pointSize) {
@@ -287,7 +285,7 @@ static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     nPts = len / pointSize;
     FillPtlArray(c, p + 2, nPts, aptl);
-    if (bCur) {
+    if (bGiven) {
         if (nPts == 0) {
             GocaCallResult("GOCA_EC_INVALID_LENGTH");
             return GOCA_EC_INVALID_LENGTH;
@@ -295,7 +293,7 @@ static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
         GreSetCurrentPosition(c->hdc, &aptl[0]);
         nPts--;
     }
-    GrePolyMarker(c->hdc, &aptl[bCur], (LONG)(nPts));
+    GrePolyMarker(c->hdc, &aptl[bGiven], (LONG)(nPts));
 
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
@@ -1549,10 +1547,10 @@ LONG GocaParseStream(GOCA_CTX *c)
             case OCODE_GSCP:    rc = DoGSCP(c, p, cbOrder); break;
 
             
-            case OCODE_GLINE:   rc = DoLine(c, p, cbOrder, TRUE); break;
-            case OCODE_GCLINE:  rc = DoLine(c, p, cbOrder, FALSE);  break;
-            case OCODE_GMRK:    rc = DoMark(c, p, cbOrder, TRUE); break;
-            case OCODE_GCMRK:   rc = DoMark(c, p, cbOrder, FALSE);  break;
+            case OCODE_GLINE:   rc = DoLine(c, p, TRUE); break;
+            case OCODE_GCLINE:  rc = DoLine(c, p, FALSE);  break;
+            case OCODE_GMRK:    rc = DoMark(c, p, TRUE); break;
+            case OCODE_GCMRK:   rc = DoMark(c, p, FALSE);  break;
 
             case OCODE_GRLINE:  rc = DoRelativeLine(c, p, cbOrder, FALSE); break;
             case OCODE_GCRLINE: rc = DoRelativeLine(c, p, cbOrder, TRUE);  break;
