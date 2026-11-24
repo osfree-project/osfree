@@ -182,20 +182,20 @@ static PPOINTL AllocPtlArray(GOCA_CTX *c, const BYTE *pData, ULONG nPts)
  * @param [in] c   GOCA context.
  * @param [in] p   Pointer to the order (code, length, operands).
  * @param [in] cb  Bytes available from p to the end of the stream.
- * @return GOCA_OK or a negative error code.
- * @retval GOCA_OK         Order processed.
- * @retval GOCA_ERR_TRUNC  Order exceeds the stream.
+ * @return GOCA_OK or an exception code.
+ * @retval GOCA_OK                Order processed.
+ * @retval GOCA_EC_INVALID_LENGTH Declared length shorter than two
+ *                                geometric parameters.
  */
 static LONG DoGSCP(GOCA_CTX *c, const BYTE *p, ULONG cb)
 {
     POINTL pt;
-    ULONG  need = 2u + 2u * (ULONG)c->coordSize;
 
     GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
 
-    if (cb < need) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
+    if (p[1] < 2u * (ULONG)c->coordSize) {
+        GocaCallResult("GOCA_EC_INVALID_LENGTH");
+        return GOCA_EC_INVALID_LENGTH;
     }
     pt = PtsToPtl(c, p + 2);
     GocaTrace(c, "[GOCA]   GSCP: pos=(%ld,%ld)\n",
@@ -218,11 +218,10 @@ static LONG DoGSCP(GOCA_CTX *c, const BYTE *p, ULONG cb)
  * @param [in] p    Pointer to the order.
  * @param [in] cb   Bytes available from p to the end of the stream.
  * @param [in] bCur TRUE for GCLINE (start at current position).
- * @return GOCA_OK or a negative error code.
- * @retval GOCA_OK         Order processed.
- * @retval GOCA_ERR_TRUNC  Order exceeds the stream.
- * @retval GOCA_ERR_FORMAT Operand length inconsistent with point size.
- * @retval GOCA_ERR_NOMEM  Point array allocation failed.
+ * @return GOCA_OK or an exception code.
+ * @retval GOCA_OK                Order processed.
+ * @retval GOCA_EC_INVALID_LENGTH Operand length inconsistent with point size.
+ * @retval GOCA_ERR_NOMEM         Point array allocation failed.
  */
 static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
@@ -233,16 +232,12 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
-    if (cb < 2u + len) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
 
     if (bCur) {
         /* GCLINE: length is pointSize * count; prepend current position. */
         if (len == 0 || (len % pointSize)) {
-            GocaCallResult("GOCA_ERR_FORMAT");
-            return GOCA_ERR_FORMAT;
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
         }
         nPts   = len / pointSize;
         nTotal = nPts + 1;
@@ -261,8 +256,8 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     } else {
         /* GLINE: first point is pointSize bytes, rest pointSize each. */
         if (len < pointSize || ((len - pointSize) % pointSize)) {
-            GocaCallResult("GOCA_ERR_FORMAT");
-            return GOCA_ERR_FORMAT;
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
         }
         nTotal = (len - pointSize) / pointSize + 1;
         pptl   = AllocPtlArray(c, p + 2, nTotal);
@@ -295,11 +290,10 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @param [in] p    Pointer to the order.
  * @param [in] cb   Bytes available from p to the end of the stream.
  * @param [in] bCur TRUE for GCMRK (start at current position).
- * @return GOCA_OK or a negative error code.
- * @retval GOCA_OK         Order processed.
- * @retval GOCA_ERR_TRUNC  Order exceeds the stream.
- * @retval GOCA_ERR_FORMAT Operand length inconsistent with point size.
- * @retval GOCA_ERR_NOMEM  Point array allocation failed.
+ * @return GOCA_OK or an exception code.
+ * @retval GOCA_OK                Order processed.
+ * @retval GOCA_EC_INVALID_LENGTH Operand length inconsistent with point size.
+ * @retval GOCA_ERR_NOMEM         Point array allocation failed.
  */
 static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
@@ -310,15 +304,11 @@ static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
-    if (cb < 2u + len) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
 
     if (bCur) {
         if (len == 0 || (len % pointSize)) {
-            GocaCallResult("GOCA_ERR_FORMAT");
-            return GOCA_ERR_FORMAT;
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
         }
         nPts   = len / pointSize;
         nTotal = nPts + 1;
@@ -336,8 +326,8 @@ static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
         }
     } else {
         if (len < pointSize || ((len - pointSize) % pointSize)) {
-            GocaCallResult("GOCA_ERR_FORMAT");
-            return GOCA_ERR_FORMAT;
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
         }
         nTotal = (len - pointSize) / pointSize + 1;
         pptl   = AllocPtlArray(c, p + 2, nTotal);
@@ -370,11 +360,10 @@ static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @param [in] p    Pointer to the order.
  * @param [in] cb   Bytes available from p to the end of the stream.
  * @param [in] bCur TRUE for GCRLINE (start at current position).
- * @return GOCA_OK or a negative error code.
- * @retval GOCA_OK         Order processed.
- * @retval GOCA_ERR_TRUNC  Order exceeds the stream.
- * @retval GOCA_ERR_FORMAT Operand length inconsistent with offsets.
- * @retval GOCA_ERR_NOMEM  Point array allocation failed.
+ * @return GOCA_OK or an exception code.
+ * @retval GOCA_OK                Order processed.
+ * @retval GOCA_EC_INVALID_LENGTH Operand length inconsistent with offsets.
+ * @retval GOCA_ERR_NOMEM         Point array allocation failed.
  */
 static LONG DoRelativeLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
@@ -386,17 +375,13 @@ static LONG DoRelativeLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
-    if (cb < 2u + len) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
 
     off = 0;
     if (bCur) {
         /* GCRLINE: length is 2 * count. */
         if (len == 0 || (len & 1)) {
-            GocaCallResult("GOCA_ERR_FORMAT");
-            return GOCA_ERR_FORMAT;
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
         }
         GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
         x = (SHORT)c->ptlCurPos.x;
@@ -405,8 +390,8 @@ static LONG DoRelativeLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     } else {
         /* GRLINE: pointSize-byte start point, then 2 * count. */
         if (len < pointSize || ((len - pointSize) & 1)) {
-            GocaCallResult("GOCA_ERR_FORMAT");
-            return GOCA_ERR_FORMAT;
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
         }
         x = (SHORT)GocaGetCoord(c, p + 2);
         y = (SHORT)GocaGetCoord(c, p + 2 + c->coordSize);
@@ -455,10 +440,9 @@ static LONG DoRelativeLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @param [in] p    Pointer to the order.
  * @param [in] cb   Bytes available from p to the end of the stream.
  * @param [in] bCur TRUE for GCCHST (string at current position).
- * @return GOCA_OK or a negative error code.
- * @retval GOCA_OK         Order processed (empty string included).
- * @retval GOCA_ERR_TRUNC  Order exceeds the stream.
- * @retval GOCA_ERR_FORMAT Operand shorter than one point.
+ * @return GOCA_OK or an exception code.
+ * @retval GOCA_OK                Order processed (empty string included).
+ * @retval GOCA_EC_INVALID_LENGTH Operand shorter than one point.
  */
 static LONG DoCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
@@ -470,10 +454,6 @@ static LONG DoCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
-    if (cb < 2u + len) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
 
     if (bCur) {
         /* GCCHST: no explicit point, string at current pos. */
@@ -484,8 +464,8 @@ static LONG DoCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     } else {
         /* GCHST: pointSize-byte point, then string. */
         if (len < pointSize) {
-            GocaCallResult("GOCA_ERR_FORMAT");
-            return GOCA_ERR_FORMAT;
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
         }
         ptStart = PtsToPtl(c, p + 2);
         pStr    = p + 2 + pointSize;
@@ -520,10 +500,9 @@ static LONG DoCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @param [in] p    Pointer to the order.
  * @param [in] cb   Bytes available from p to the end of the stream.
  * @param [in] bCur TRUE for GCBOX (first corner at current position).
- * @return GOCA_OK or a negative error code.
- * @retval GOCA_OK         Order processed.
- * @retval GOCA_ERR_TRUNC  Order exceeds the stream.
- * @retval GOCA_ERR_FORMAT Operand too short for corners/axes.
+ * @return GOCA_OK or an exception code.
+ * @retval GOCA_OK                Order processed.
+ * @retval GOCA_EC_INVALID_LENGTH Operand too short for corners/axes.
  */
 static LONG DoBox(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
@@ -539,21 +518,17 @@ static LONG DoBox(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
-    if (cb < 2u + len) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
     if (len < 2) {
-        GocaCallResult("GOCA_ERR_FORMAT");
-        return GOCA_ERR_FORMAT;
+        GocaCallResult("GOCA_EC_INVALID_LENGTH");
+        return GOCA_EC_INVALID_LENGTH;
     }
     fbFlags = p[2];
 
     if (bCur) {
         /* GCBOX: corner (x2,y2) after flags+1 pad, optional axes. */
         if (len < 2u + pointSize) {
-            GocaCallResult("GOCA_ERR_FORMAT");
-            return GOCA_ERR_FORMAT;
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
         }
         GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
         x1 = c->ptlCurPos.x;
@@ -571,8 +546,8 @@ static LONG DoBox(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     } else {
         /* GBOX: both corners, optional axes. */
         if (len < 2u + 2u * pointSize) {
-            GocaCallResult("GOCA_ERR_FORMAT");
-            return GOCA_ERR_FORMAT;
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
         }
 
         off = 4;
@@ -635,10 +610,9 @@ static LONG DoBox(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @param [in] p    Pointer to the order.
  * @param [in] cb   Bytes available from p to the end of the stream.
  * @param [in] bCur TRUE for GCPARC (no leading start point).
- * @return GOCA_OK or a negative error code.
- * @retval GOCA_OK         Order processed.
- * @retval GOCA_ERR_TRUNC  Order exceeds the stream.
- * @retval GOCA_ERR_FORMAT Operand too short for centre/multiplier/angles.
+ * @return GOCA_OK or an exception code.
+ * @retval GOCA_OK                Order processed.
+ * @retval GOCA_EC_INVALID_LENGTH Operand too short for centre/multiplier/angles.
  */
 static LONG DoPartialArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
@@ -653,10 +627,6 @@ static LONG DoPartialArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
-    if (cb < 2u + len) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
 
     q   = p + 2;
     off = 0;
@@ -665,8 +635,8 @@ static LONG DoPartialArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     multSize = (c->coordSize == GOCA_COORD_SHORT) ? 2u : 4u;
 
     if (len < off + pointSize + multSize + 4u + 4u) {
-        GocaCallResult("GOCA_ERR_FORMAT");
-        return GOCA_ERR_FORMAT;
+        GocaCallResult("GOCA_EC_INVALID_LENGTH");
+        return GOCA_EC_INVALID_LENGTH;
     }
 
     ptCenter = PtsToPtl(c, q + off);
@@ -730,10 +700,9 @@ static LONG DoPartialArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @param [in] p    Pointer to the order.
  * @param [in] cb   Bytes available from p to the end of the stream.
  * @param [in] bCur TRUE for GCFARC (centre at current position).
- * @return GOCA_OK or a negative error code.
- * @retval GOCA_OK         Order processed.
- * @retval GOCA_ERR_TRUNC  Order exceeds the stream.
- * @retval GOCA_ERR_FORMAT Operand too short for the multiplier.
+ * @return GOCA_OK or an exception code.
+ * @retval GOCA_OK                Order processed.
+ * @retval GOCA_EC_INVALID_LENGTH Operand too short for the multiplier.
  */
 static LONG DoFullArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
@@ -746,18 +715,14 @@ static LONG DoFullArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
-    if (cb < 2u + len) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
 
     q   = p + 2;
     off = 0;
     if (!bCur) off += pointSize;            /* GFARC: skip start x,y */
 
     if (len < off + 2) {
-        GocaCallResult("GOCA_ERR_FORMAT");
-        return GOCA_ERR_FORMAT;
+        GocaCallResult("GOCA_EC_INVALID_LENGTH");
+        return GOCA_EC_INVALID_LENGTH;
     }
 
     /* FIXED88 multiplier: 16-bit, coordEndian */
@@ -787,11 +752,10 @@ static LONG DoFullArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @param [in] p    Pointer to the order.
  * @param [in] cb   Bytes available from p to the end of the stream.
  * @param [in] bCur TRUE for GCBEZ (start at current position).
- * @return GOCA_OK or a negative error code.
- * @retval GOCA_OK         Order processed.
- * @retval GOCA_ERR_TRUNC  Order exceeds the stream.
- * @retval GOCA_ERR_FORMAT Operand length inconsistent with point size.
- * @retval GOCA_ERR_NOMEM  Point array allocation failed.
+ * @return GOCA_OK or an exception code.
+ * @retval GOCA_OK                Order processed.
+ * @retval GOCA_EC_INVALID_LENGTH Operand length inconsistent with point size.
+ * @retval GOCA_ERR_NOMEM         Point array allocation failed.
  */
 static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
@@ -802,15 +766,11 @@ static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
-    if (cb < 2u + len) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
 
     if (bCur) {
         if (len == 0 || (len % pointSize)) {
-            GocaCallResult("GOCA_ERR_FORMAT");
-            return GOCA_ERR_FORMAT;
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
         }
         nPts = len / pointSize + 1;
         if (DosAllocMem((PPVOID)&pptl, nPts * sizeof(POINTL),
@@ -827,8 +787,8 @@ static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
         }
     } else {
         if (len < 2u * pointSize || (len % pointSize)) {
-            GocaCallResult("GOCA_ERR_FORMAT");
-            return GOCA_ERR_FORMAT;
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
         }
         nPts = len / pointSize;
         pptl = AllocPtlArray(c, p + 2, nPts);
@@ -860,11 +820,10 @@ static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @param [in] p    Pointer to the order.
  * @param [in] cb   Bytes available from p to the end of the stream.
  * @param [in] bCur TRUE for GCFLT (start at current position).
- * @return GOCA_OK or a negative error code.
- * @retval GOCA_OK         Order processed.
- * @retval GOCA_ERR_TRUNC  Order exceeds the stream.
- * @retval GOCA_ERR_FORMAT Fewer than two points supplied.
- * @retval GOCA_ERR_NOMEM  Point array allocation failed.
+ * @return GOCA_OK or an exception code.
+ * @retval GOCA_OK                Order processed.
+ * @retval GOCA_EC_INVALID_LENGTH Fewer than two points supplied.
+ * @retval GOCA_ERR_NOMEM         Point array allocation failed.
  */
 static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
@@ -875,16 +834,12 @@ static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
     len = p[1];
-    if (cb < 2u + len) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
 
     if (bCur) {
         /* GCFLT: points after current position; need at least 1 point. */
         if (len == 0 || (len % pointSize)) {
-            GocaCallResult("GOCA_ERR_FORMAT");
-            return GOCA_ERR_FORMAT;
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
         }
         nPts = len / pointSize + 1;
         if (DosAllocMem((PPVOID)&pptl, nPts * sizeof(POINTL),
@@ -902,8 +857,8 @@ static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     } else {
         /* GFLT: explicit points; need at least 2 points for fillet. */
         if (len < 2u * pointSize || (len % pointSize)) {
-            GocaCallResult("GOCA_ERR_FORMAT");
-            return GOCA_ERR_FORMAT;
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
         }
         nPts = len / pointSize;
         pptl = AllocPtlArray(c, p + 2, nPts);
@@ -933,26 +888,20 @@ static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @param [in] c   GOCA context.
  * @param [in] p   Pointer to the order.
  * @param [in] cb  Bytes available from p to the end of the stream.
- * @return GOCA_OK or a negative error code.
- * @retval GOCA_OK         Order processed.
- * @retval GOCA_ERR_TRUNC  Order exceeds the stream.
- * @retval GOCA_ERR_FORMAT Operand shorter than four parameters.
+ * @return GOCA_OK or an exception code.
+ * @retval GOCA_OK                Order processed.
+ * @retval GOCA_EC_INVALID_LENGTH Operand shorter than four parameters.
  */
 static LONG DoSetArcParams(GOCA_CTX *c, const BYTE *p, ULONG cb)
 {
     ARCPARAMS ap;
     ULONG     paramSize = (ULONG)c->coordSize;
-    ULONG     need = 2u + 4u * paramSize;
 
     GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
 
-    if (cb < need) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
     if (p[1] < 4u * paramSize) {
-        GocaCallResult("GOCA_ERR_FORMAT");
-        return GOCA_ERR_FORMAT;
+        GocaCallResult("GOCA_EC_INVALID_LENGTH");
+        return GOCA_EC_INVALID_LENGTH;
     }
 
     /* P,Q,R,S: geometric parameters, coordSize + coordEndian */
@@ -975,6 +924,9 @@ static LONG DoSetArcParams(GOCA_CTX *c, const BYTE *p, ULONG cb)
  * Layout per 64F0277 Vol.2: (len, cellx, celly, [cellxf, cellyf], [flags, res]).
  * cellx/celly: GROSOL; cellxf/cellyf: GUSHORT, optional (1 byte, 1/256,
  * in GDDM 1-byte format); flags/res optional, res required with flags.
+ * Reserved flag bits and the res byte must be zero: these fields are a
+ * PM GPI extension (pmord.h ORDERS_GSCC / ORDERL_GSCC) and are absent
+ * from the AFP GOCA syntax of this order.
  * flags.setzero (0x80, GSCC_ZEROZERO):
  *   0 - a cell size of zero sets drawing default;
  *   1 - a cell size of zero sets to zero.
@@ -984,11 +936,10 @@ static LONG DoSetArcParams(GOCA_CTX *c, const BYTE *p, ULONG cb)
  * @param [in] c   GOCA context.
  * @param [in] p   Pointer to the order.
  * @param [in] cb  Bytes available from p to the end of the stream.
- * @return GOCA_OK or a negative error code.
- * @retval GOCA_OK         Order processed and CBB_BOX applied.
- * @retval GOCA_ERR_TRUNC  Order exceeds the stream.
- * @retval GOCA_ERR_FORMAT Operand too short, trailing bytes present,
- *                         or reserved bits/bytes are non-zero.
+ * @return GOCA_OK or an exception code.
+ * @retval GOCA_OK                   Order processed and CBB_BOX applied.
+ * @retval GOCA_EC_INVALID_LENGTH    Operand too short or trailing bytes present.
+ * @retval GOCA_EC_RESERVED_NOT_ZERO Reserved flag bits or res byte non-zero.
  */
 static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
 {
@@ -1002,21 +953,13 @@ static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
 
     GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
 
-    if (cb < 2u) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
     dataLen = p[1];
-    if (cb < 2u + dataLen) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
 
     off = 2;
     rem = dataLen;
     if (rem < 2u * intSize) {
-        GocaCallResult("GOCA_ERR_FORMAT");
-        return GOCA_ERR_FORMAT;
+        GocaCallResult("GOCA_EC_INVALID_LENGTH");
+        return GOCA_EC_INVALID_LENGTH;
     }
     cxInt = GocaGetCoord(c, p + off); off += intSize; rem -= intSize;
     cyInt = GocaGetCoord(c, p + off); off += intSize; rem -= intSize;
@@ -1043,13 +986,13 @@ static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
         uchRes  = p[off]; off += 1u;
         rem -= 2u;
         if ((fbFlags & (UCHAR)~(UCHAR)GSCC_ZEROZERO) != 0 || uchRes != 0) {
-            GocaCallResult("GOCA_ERR_FORMAT");
-            return GOCA_ERR_FORMAT;
+            GocaCallResult("GOCA_EC_RESERVED_NOT_ZERO");
+            return GOCA_EC_RESERVED_NOT_ZERO;
         }
     }
     if (rem != 0) {
-        GocaCallResult("GOCA_ERR_FORMAT");
-        return GOCA_ERR_FORMAT;
+        GocaCallResult("GOCA_EC_INVALID_LENGTH");
+        return GOCA_EC_INVALID_LENGTH;
     }
 
     bZero = (cxInt == 0 && cyInt == 0 && cxFrac == 0 && cyFrac == 0);
@@ -1089,7 +1032,9 @@ static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
  * Layout per pmord.h (ORDERS_GSMC / ORDERL_GSMC) and 64F0277 Vol.2:
  *   (len, cellx, celly, [flags, res])
  * cellx/celly: GROSOL (signed, coordSize/coordEndian aware);
- * flags/res: optional pair, res required when flags present;
+ * flags/res: optional pair, res required when flags present.
+ * Reserved flag bits and the res byte must be zero (AFPC-0008-03 p. 152:
+ * RES bits 1-15, "only valid value").
  * flags.setzero (0x80 = GSMC_ZEROZERO):
  *   0 - a cell size of zero sets drawing default;
  *   1 - a cell size of zero sets to zero.
@@ -1097,11 +1042,10 @@ static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
  * @param [in] c   GOCA context.
  * @param [in] p   Pointer to the order.
  * @param [in] cb  Bytes available from p to the end of the stream.
- * @return GOCA_OK or a negative error code.
- * @retval GOCA_OK         Order processed and MBB_BOX applied.
- * @retval GOCA_ERR_TRUNC  Order exceeds the stream.
- * @retval GOCA_ERR_FORMAT Operand too short, trailing bytes present,
- *                         or reserved bits/bytes are non-zero.
+ * @return GOCA_OK or an exception code.
+ * @retval GOCA_OK                   Order processed and MBB_BOX applied.
+ * @retval GOCA_EC_INVALID_LENGTH    Operand too short or trailing bytes present.
+ * @retval GOCA_EC_RESERVED_NOT_ZERO Reserved flag bits or res byte non-zero.
  */
 static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
 {
@@ -1113,21 +1057,13 @@ static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
 
     GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
 
-    if (cb < 2u) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
     dataLen = p[1];
-    if (cb < 2u + dataLen) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
 
     off = 2;
     rem = dataLen;
     if (rem < 2u * intSize) {
-        GocaCallResult("GOCA_ERR_FORMAT");
-        return GOCA_ERR_FORMAT;
+        GocaCallResult("GOCA_EC_INVALID_LENGTH");
+        return GOCA_EC_INVALID_LENGTH;
     }
     cx = GocaGetCoord(c, p + off); off += intSize; rem -= intSize;
     cy = GocaGetCoord(c, p + off); off += intSize; rem -= intSize;
@@ -1138,13 +1074,13 @@ static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
         uchRes  = p[off]; off += 1u;
         rem -= 2u;
         if ((fbFlags & (UCHAR)~(UCHAR)GSMC_ZEROZERO) != 0 || uchRes != 0) {
-            GocaCallResult("GOCA_ERR_FORMAT");
-            return GOCA_ERR_FORMAT;
+            GocaCallResult("GOCA_EC_RESERVED_NOT_ZERO");
+            return GOCA_EC_RESERVED_NOT_ZERO;
         }
     }
     if (rem != 0) {
-        GocaCallResult("GOCA_ERR_FORMAT");
-        return GOCA_ERR_FORMAT;
+        GocaCallResult("GOCA_EC_INVALID_LENGTH");
+        return GOCA_EC_INVALID_LENGTH;
     }
 
     bZero = (cx == 0 && cy == 0);
@@ -1178,16 +1114,16 @@ static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
  *   (len, flags, res, x, y)
  * flags: GSPRP_DEFAULT (0x80) - pattern reference point is set to the
  * drawing default (origin), x/y ignored; GSPRP_SPECIFY (0x00) - use the
- * specified point.  Reserved flag bits and res must be zero.
+ * specified point.  Reserved flag bits and res must be zero
+ * (AFPC-0008-03 p. 157: RES1 bits 1-7 and RES2, "only valid value").
  *
  * @param [in] c   GOCA context.
  * @param [in] p   Pointer to the order.
  * @param [in] cb  Bytes available from p to the end of the stream.
- * @return GOCA_OK or a negative error code.
- * @retval GOCA_OK         Order processed and ABB_REF_POINT applied.
- * @retval GOCA_ERR_TRUNC  Order exceeds the stream.
- * @retval GOCA_ERR_FORMAT Operand too short or reserved bits/bytes
- *                         are non-zero.
+ * @return GOCA_OK or an exception code.
+ * @retval GOCA_OK                   Order processed and ABB_REF_POINT applied.
+ * @retval GOCA_EC_INVALID_LENGTH    Operand too short for flags, res and point.
+ * @retval GOCA_EC_RESERVED_NOT_ZERO Reserved flag bits or res byte non-zero.
  */
 static LONG DoSetPatternRefPoint(GOCA_CTX *c, const BYTE *p, ULONG cb)
 {
@@ -1197,20 +1133,16 @@ static LONG DoSetPatternRefPoint(GOCA_CTX *c, const BYTE *p, ULONG cb)
 
     GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
 
-    if (cb < 2u + 2u + pointSize) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
     if (p[1] < 2u + pointSize) {
-        GocaCallResult("GOCA_ERR_FORMAT");
-        return GOCA_ERR_FORMAT;
+        GocaCallResult("GOCA_EC_INVALID_LENGTH");
+        return GOCA_EC_INVALID_LENGTH;
     }
 
     fbFlags = p[2];
     uchRes  = p[3];
     if ((fbFlags & (UCHAR)~(UCHAR)GSPRP_DEFAULT) != 0 || uchRes != 0) {
-        GocaCallResult("GOCA_ERR_FORMAT");
-        return GOCA_ERR_FORMAT;
+        GocaCallResult("GOCA_EC_RESERVED_NOT_ZERO");
+        return GOCA_EC_RESERVED_NOT_ZERO;
     }
 
     pt = PtsToPtl(c, p + 4);
@@ -1240,7 +1172,8 @@ static LONG DoSetPatternRefPoint(GOCA_CTX *c, const BYTE *p, ULONG cb)
  *   string[cchString], adx[cchString] (optional, GROSOL each).
  * Flags per pmord.h: DRAWRECT 0x80, CLIP 0x40, LEAVEPOS 0x10,
  * UNDERSCORE 0x08, STRIKEOUT 0x04; bits 0x23 (DEEMPHASIZE plus the two
- * low bits) and the res byte are reserved and must be zero.
+ * low bits) and the res byte are reserved and must be zero. The order
+ * is a PM GPI extension and has no AFP GOCA counterpart.
  * The rectangle is normalized to xLeft <= xRight, yBottom <= yTop and
  * is passed to GreCharStringPos as the clip rectangle only when CLIP
  * is set; with DRAWRECT its boundary is stroked via GreBoxBoundary.
@@ -1260,12 +1193,11 @@ static LONG DoSetPatternRefPoint(GOCA_CTX *c, const BYTE *p, ULONG cb)
  *                    (the wire order length).
  * @param [in] bGiven TRUE for GCHSTE (string at the given rectangle
  *                    corner), FALSE for GCCHSTE (current position).
- * @return GOCA_OK or a negative error code.
- * @retval GOCA_OK         Order processed (empty string included).
- * @retval GOCA_ERR_TRUNC  Order or declared length exceeds the stream.
- * @retval GOCA_ERR_FORMAT Data length inconsistent with rect/string/adx,
- *                         or reserved bits/bytes are non-zero.
- * @retval GOCA_ERR_NOMEM  adx array allocation failed.
+ * @return GOCA_OK or an exception code.
+ * @retval GOCA_OK                   Order processed (empty string included).
+ * @retval GOCA_EC_INVALID_LENGTH    Data length inconsistent with rect/string/adx.
+ * @retval GOCA_EC_RESERVED_NOT_ZERO Reserved flag bits or res byte non-zero.
+ * @retval GOCA_ERR_NOMEM            adx array allocation failed.
  */
 static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
 {
@@ -1285,26 +1217,18 @@ static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
 
     GocaCallEnter("p=%p, cb=%u, bGiven=%d", p, (unsigned)cb, (int)bGiven);
 
-    if (cb < 4u) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
     dataLen = GocaGetU16(p + 2);               /* SWPUSHORT, always BE */
-    if (cb < 4u + dataLen) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
     if (dataLen < minData) {
-        GocaCallResult("GOCA_ERR_FORMAT");
-        return GOCA_ERR_FORMAT;
+        GocaCallResult("GOCA_EC_INVALID_LENGTH");
+        return GOCA_EC_INVALID_LENGTH;
     }
 
     q       = p + 4;
     fbFlags = q[0];
     uchRes  = q[1];
     if ((fbFlags & 0x23u) != 0 || uchRes != 0) {
-        GocaCallResult("GOCA_ERR_FORMAT");
-        return GOCA_ERR_FORMAT;
+        GocaCallResult("GOCA_EC_RESERVED_NOT_ZERO");
+        return GOCA_EC_RESERVED_NOT_ZERO;
     }
 
     ptCorner0 = PtsToPtl(c, q + 2);
@@ -1313,13 +1237,13 @@ static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
 
     consumed = minData + (ULONG)cch;
     if (dataLen < consumed) {
-        GocaCallResult("GOCA_ERR_FORMAT");
-        return GOCA_ERR_FORMAT;
+        GocaCallResult("GOCA_EC_INVALID_LENGTH");
+        return GOCA_EC_INVALID_LENGTH;
     }
     rem = dataLen - consumed;
     if (rem != 0 && rem != (ULONG)cch * (ULONG)c->coordSize) {
-        GocaCallResult("GOCA_ERR_FORMAT");
-        return GOCA_ERR_FORMAT;
+        GocaCallResult("GOCA_EC_INVALID_LENGTH");
+        return GOCA_EC_INVALID_LENGTH;
     }
     pStr = q + 2 + 2u * pointSize + 2;
 
@@ -1456,7 +1380,7 @@ void GocaInit(GOCA_CTX *c, HDC hdc, PBYTE pb, ULONG cb)
  * offending order.
  *
  * @param [in] c  GOCA context (stream, format, cached bundles).
- * @return GOCA_OK on success, GOCA_ERR_* on failure.
+ * @return GOCA_OK on success, an exception code on failure.
  * @retval GOCA_OK  All orders processed.
  */
 LONG GocaParseStream(GOCA_CTX *c)
@@ -1479,10 +1403,10 @@ LONG GocaParseStream(GOCA_CTX *c)
         if (cbOrder == 0 || cbOrder > cbAvail) {
             GocaTrace(c, "[GOCA] @%04X truncation: cbAvail=%u\n",
                       (unsigned)c->uPos, (unsigned)cbAvail);
-            c->lError     = GOCA_ERR_TRUNC;
+            c->lError     = GOCA_EC_TRUNCATED_ORDER;
             c->uErrOffset = c->uPos;
             c->uErrOrder  = p[0];
-            GocaCallResult("GOCA_ERR_TRUNC");
+            GocaCallResult("GOCA_EC_TRUNCATED_ORDER");
             return c->lError;
         }
         oc = p[0];
@@ -1519,7 +1443,7 @@ LONG GocaParseStream(GOCA_CTX *c)
             case OCODE_GSECOL: {
                 USHORT raw;
                 COLOR  clr;
-                if (p[1] < 2) { rc = GOCA_ERR_FORMAT; break; }
+                if (p[1] < 2) { rc = GOCA_EC_INVALID_LENGTH; break; }
                 raw = GocaGetU16(p + 2);
                 GocaCallEnter("GSECOL color=%04X", (unsigned)raw);
                 clr = ((raw & 0xFF00) == 0xFF00)
@@ -1583,7 +1507,7 @@ LONG GocaParseStream(GOCA_CTX *c)
             case OCODE_GSFLW: {
                 UCHAR ip, fp;
                 FIXED fx;
-                if (p[1] < 2) { rc = GOCA_ERR_FORMAT; break; }
+                if (p[1] < 2) { rc = GOCA_EC_INVALID_LENGTH; break; }
                 ip = p[2]; fp = p[3];
                 GocaCallEnter("GSFLW width=%u.%02X", (unsigned)ip, (unsigned)fp);
                 fx = MAKEFIXED(ip, (ULONG)fp << 8);
@@ -1771,7 +1695,7 @@ LONG GocaParseStream(GOCA_CTX *c)
 /*!
  * @brief Human-readable name for a GOCA error code.
  *
- * @param [in] lError  Error code (GOCA_OK, GOCA_ERR_*, GOCA_EC_*).
+ * @param [in] lError  Error code (GOCA_OK, GOCA_EC_*, GOCA_ERR_NOMEM).
  * @return Static string describing the error; "unknown" for
  *         unrecognized codes.
  */
@@ -1780,9 +1704,9 @@ const char *GocaErrorName(LONG lError)
     switch (lError) {
     case GOCA_OK:                   return "OK";
     case GOCA_EC_UNALLOCATED_ORDER: return "EC-0001: Unallocated order codes";
+    case GOCA_EC_INVALID_LENGTH:    return "EC-0003: Incorrect length specification";
+    case GOCA_EC_TRUNCATED_ORDER:   return "EC-0008: Truncated order";
     case GOCA_EC_GBAR_NESTED:       return "EC-6800: A Begin Area order has been executed after another Begin Area order, without an intervening End Area order being executed";
-    case GOCA_ERR_TRUNC:  return "truncated order";
-    case GOCA_ERR_FORMAT: return "malformed order";
     case GOCA_ERR_NOMEM:  return "out of memory";
     default:              return "unknown";
     }

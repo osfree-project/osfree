@@ -68,10 +68,12 @@ struct _GOCA_CTX {
 
 #include <F_gocaerr.h>
 
-#define GOCA_OK            0   /*!< No error.                       */
-#define GOCA_ERR_TRUNC    -1   /*!< Truncated order.                */
-#define GOCA_ERR_FORMAT   -2   /*!< Malformed operand / flags.      */
-#define GOCA_ERR_NOMEM    -3   /*!< Out of memory.                  */
+/* Parser return codes.
+ * GOCA_OK and the positive GOCA_EC_* codes (F_gocaerr.h) are architectural
+ * results. The negative code reports an implementation failure for which
+ * the architecture defines no exception condition. */
+#define GOCA_OK              0     /*!< No error.                       */
+#define GOCA_ERR_NOMEM      (-3)   /*!< DosAllocMem failed */
 
 /*! @brief Select geometric parameters size and byte order explicitly. */
 static inline void GocaSetFormat(GOCA_CTX *c, GOCA_COORD_SIZE size,
