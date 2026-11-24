@@ -645,12 +645,16 @@ static LONG DoPartialArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * Data layout:
  *   GCFARC: multiplier FIXED88
  *   GFARC:  start x,y, then multiplier FIXED88
+ *
+ * Multiplier is FIXED88 (16-bit, 8.8 fixed-point) in both variants,
+ * follows coordEndian. Converted to FIXED (16.16) via << 8.
  */
 static LONG DoFullArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
     ULONG       len, off;
     const BYTE *q;
     FIXED       fxMult;
+    USHORT      rawMult;
     ULONG       pointSize = 2u * (ULONG)c->coordSize;
 
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
@@ -670,10 +674,16 @@ static LONG DoFullArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
         return GOCA_ERR_FORMAT;
     }
 
-    fxMult = (FIXED)((ULONG)GocaGetU16(q + off) << 8);
+    /* FIXED88 multiplier: 16-bit, coordEndian */
+    if (c->coordEndian == GOCA_ENDIAN_LE)
+        rawMult = (USHORT)(((USHORT)q[off+1] << 8) | q[off]);
+    else
+        rawMult = GocaGetU16(q + off);   /* BE via SWPUSHORT */
+    
+    fxMult = (FIXED)((ULONG)rawMult << 8);   /* 8.8 -> 16.16 */
 
-    GocaTrace(c, "[GOCA]   %s: mult=%04X\n",
-              bCur ? "GCFARC" : "GFARC", (unsigned)fxMult);
+    GocaTrace(c, "[GOCA]   %s: mult=%08lX\n",
+              bCur ? "GCFARC" : "GFARC", (unsigned long)(ULONG)fxMult);
 
     GreFullArcBoth(c->hdc, fxMult);
 
@@ -685,9 +695,8 @@ static LONG DoFullArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
     ULONG   len, nPts, i;
-    PVOID   pv = NULL;
-    PPOINTL pptl;
-    ULONG       pointSize = 2u * (ULONG)c->coordSize;
+    PPOINTL pptl = NULL;
+    ULONG   pointSize = 2u * (ULONG)c->coordSize;
 
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
@@ -703,30 +712,24 @@ static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
             return GOCA_ERR_FORMAT;
         }
         nPts = len / pointSize + 1;
-        if (DosAllocMem(&pv, nPts * sizeof(POINTL), PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
+        if (DosAllocMem((PPVOID)&pptl, nPts * sizeof(POINTL),
+                        PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
             GocaCallResult("GOCA_ERR_NOMEM");
             return GOCA_ERR_NOMEM;
         }
-        pptl = (PPOINTL)pv;
         RefreshCurPos(c);
         pptl[0] = c->ptlCurPos;
-        if (c->coordSize == GOCA_COORD_SHORT) {
-            for (i = 0; i < nPts - 1; i++) {
-                pptl[i+1].x = GocaGetU16(p + 2 + i*4);
-                pptl[i+1].y = GocaGetU16(p + 2 + i*4 + 2);
-            }
-        } else {
-            for (i = 0; i < nPts - 1; i++) {
-                pptl[i+1].x = GocaGetU32(p + 2 + i*8);
-                pptl[i+1].y = GocaGetU32(p + 2 + i*8 + 4);
-            }
+        for (i = 0; i < nPts - 1; i++) {
+            const BYTE *pPt = p + 2 + i * pointSize;
+            pptl[i+1].x = GocaGetCoord(c, pPt);
+            pptl[i+1].y = GocaGetCoord(c, pPt + c->coordSize);
         }
     } else {
-        if (len < 2u * pointSize || ((len - pointSize) % pointSize)) {
+        if (len < 2u * pointSize || (len % pointSize)) {
             GocaCallResult("GOCA_ERR_FORMAT");
             return GOCA_ERR_FORMAT;
         }
-        nPts = (len - pointSize) / pointSize + 1;
+        nPts = len / pointSize;
         pptl = AllocPtlArray(c, p + 2, nPts);
         if (!pptl) {
             GocaCallResult("GOCA_ERR_NOMEM");
@@ -750,9 +753,8 @@ static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
     ULONG   len, nPts, i;
-    PVOID   pv = NULL;
-    PPOINTL pptl;
-    ULONG       pointSize = 2u * (ULONG)c->coordSize;
+    PPOINTL pptl = NULL;
+    ULONG   pointSize = 2u * (ULONG)c->coordSize;
 
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
@@ -763,35 +765,31 @@ static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     }
 
     if (bCur) {
+        /* GCFLT: points after current position; need at least 1 point. */
         if (len == 0 || (len % pointSize)) {
             GocaCallResult("GOCA_ERR_FORMAT");
             return GOCA_ERR_FORMAT;
         }
         nPts = len / pointSize + 1;
-        if (DosAllocMem(&pv, nPts * sizeof(POINTL), PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
+        if (DosAllocMem((PPVOID)&pptl, nPts * sizeof(POINTL), 
+                        PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
             GocaCallResult("GOCA_ERR_NOMEM");
             return GOCA_ERR_NOMEM;
         }
-        pptl = (PPOINTL)pv;
         RefreshCurPos(c);
         pptl[0] = c->ptlCurPos;
-        if (c->coordSize == GOCA_COORD_SHORT) {
-            for (i = 0; i < nPts - 1; i++) {
-                pptl[i+1].x = GocaGetU16(p + 2 + i*4);
-                pptl[i+1].y = GocaGetU16(p + 2 + i*4 + 2);
-            }
-        } else {
-            for (i = 0; i < nPts - 1; i++) {
-                pptl[i+1].x = GocaGetU32(p + 2 + i*8);
-                pptl[i+1].y = GocaGetU32(p + 2 + i*8 + 4);
-            }
+        for (i = 0; i < nPts - 1; i++) {
+            const BYTE *pPt = p + 2 + i * pointSize;
+            pptl[i+1].x = GocaGetCoord(c, pPt);
+            pptl[i+1].y = GocaGetCoord(c, pPt + c->coordSize);
         }
     } else {
-        if (len < pointSize || ((len - pointSize) % pointSize)) {
+        /* GFLT: explicit points; need at least 2 points for fillet. */
+        if (len < 2u * pointSize || (len % pointSize)) {
             GocaCallResult("GOCA_ERR_FORMAT");
             return GOCA_ERR_FORMAT;
         }
-        nPts = (len - pointSize) / pointSize + 1;
+        nPts = len / pointSize;
         pptl = AllocPtlArray(c, p + 2, nPts);
         if (!pptl) {
             GocaCallResult("GOCA_ERR_NOMEM");
@@ -807,29 +805,33 @@ static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     c->ptlCurPos = pptl[nPts - 1];
 
     DosFreeMem(pptl);
-    GocaCallResult("GOCA_OK");
+    GocaCallResult("GOCA_OK (%u pts)", (unsigned)nPts);
     return GOCA_OK;
 }
 
-/*! @brief GSAP (0x22) — Set Arc Parameters. Data: 4 x SHORT (P,Q,R,S). */
+/*! @brief GSAP (0x22) / GPSAP (0x62) - Set Arc Parameters. Data: P,Q,R,S. */
 static LONG DoSetArcParams(GOCA_CTX *c, const BYTE *p, ULONG cb)
 {
     ARCPARAMS ap;
+    ULONG     paramSize = (ULONG)c->coordSize;
+    ULONG     need = 2u + 4u * paramSize;
 
     GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
 
-    if (cb < 2u + 8) {
+    if (cb < need) {
         GocaCallResult("GOCA_ERR_TRUNC");
         return GOCA_ERR_TRUNC;
     }
-    if (p[1] < 8) {
+    if (p[1] < 4u * paramSize) {
         GocaCallResult("GOCA_ERR_FORMAT");
         return GOCA_ERR_FORMAT;
     }
-    ap.lP = GocaGetU16(p + 2);
-    ap.lQ = GocaGetU16(p + 4);
-    ap.lR = GocaGetU16(p + 6);
-    ap.lS = GocaGetU16(p + 8);
+
+    /* P,Q,R,S: geometric parameters, coordSize + coordEndian */
+    ap.lP = GocaGetCoord(c, p + 2);
+    ap.lQ = GocaGetCoord(c, p + 2 + paramSize);
+    ap.lR = GocaGetCoord(c, p + 2 + 2u * paramSize);
+    ap.lS = GocaGetCoord(c, p + 2 + 3u * paramSize);
 
     GocaTrace(c, "[GOCA]   GSAP: P=%ld Q=%ld R=%ld S=%ld\n",
               (long)ap.lP, (long)ap.lQ, (long)ap.lR, (long)ap.lS);
@@ -839,73 +841,213 @@ static LONG DoSetArcParams(GOCA_CTX *c, const BYTE *p, ULONG cb)
     return GOCA_OK;
 }
 
-/*! @brief GSCC (0x33) — Set Character Cell. */
+/*!
+ * @brief GSCC (0x33) / GPSCC (0x03) Set Character Cell.
+ *
+ * Layout per 64F0277 Vol.2: (len, cellx, celly, [cellxf, cellyf], [flags, res]).
+ * cellx/celly: GROSOL; cellxf/cellyf: GUSHORT, optional (1 byte, 1/256,
+ * in GDDM 1-byte format); flags/res optional, res required with flags.
+ * flags.setzero (0x80, GSCC_ZEROZERO):
+ *   0 - a cell size of zero sets drawing default;
+ *   1 - a cell size of zero sets to zero.
+ * The drawing default is taken from the DC default attribute bundle
+ * (GreGetDefaultAttributes, PRIM_CHAR / CBB_BOX).
+ *
+ * @param [in] c   GOCA context.
+ * @param [in] p   Pointer to the order.
+ * @param [in] cb  Bytes available from p to the end of the stream.
+ * @return GOCA_OK or a negative error code.
+ * @retval GOCA_OK         Order processed and CBB_BOX applied.
+ * @retval GOCA_ERR_TRUNC  Order exceeds the stream.
+ * @retval GOCA_ERR_FORMAT Operand too short, trailing bytes present,
+ *                         or reserved bits/bytes are non-zero.
+ */
 static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
 {
-    SHORT  cxInt, cyInt;
-    USHORT cxFrac, cyFrac;
-    UCHAR  fbFlags;
+    LONG   cxInt, cyInt;
+    USHORT cxFrac = 0, cyFrac = 0;
+    UCHAR  fbFlags = 0, uchRes = 0;
+    ULONG  intSize  = (ULONG)c->coordSize;
+    ULONG  fracSize = (c->coordSize == GOCA_COORD_BYTE) ? 1u : 2u;
+    ULONG  dataLen, rem, off;
+    BOOL   bZero;
 
     GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
 
-    if (cb < 2u + 10) {
+    if (cb < 2u) {
         GocaCallResult("GOCA_ERR_TRUNC");
         return GOCA_ERR_TRUNC;
     }
-    if (p[1] < 10) {
+    dataLen = p[1];
+    if (cb < 2u + dataLen) {
+        GocaCallResult("GOCA_ERR_TRUNC");
+        return GOCA_ERR_TRUNC;
+    }
+
+    off = 2;
+    rem = dataLen;
+    if (rem < 2u * intSize) {
         GocaCallResult("GOCA_ERR_FORMAT");
         return GOCA_ERR_FORMAT;
     }
-    cxInt  = GocaGetU16(p + 2);
-    cyInt  = GocaGetU16(p + 4);
-    cxFrac = GocaGetU16(p + 6);
-    cyFrac = GocaGetU16(p + 8);
-    fbFlags = p[10];
-    (void)fbFlags;
+    cxInt = GocaGetCoord(c, p + off); off += intSize; rem -= intSize;
+    cyInt = GocaGetCoord(c, p + off); off += intSize; rem -= intSize;
 
-    GocaTrace(c, "[GOCA]   GSCC: cell=(%d.%04X,%d.%04X)\n",
-              (int)cxInt, (unsigned)cxFrac, (int)cyInt, (unsigned)cyFrac);
-    c->cb.sizfxCell.cx = MAKEFIXED(cxInt, cxFrac);
-    c->cb.sizfxCell.cy = MAKEFIXED(cyInt, cyFrac);
+    /* Optional cellxf/cellyf, coordEndian */
+    if (rem >= 2u * fracSize) {
+        if (fracSize == 1u) {
+            /* GDDM 1-byte format: multiples of 1/256 -> normalize to 1/65536 */
+            cxFrac = (USHORT)((USHORT)p[off] << 8); off += 1u;
+            cyFrac = (USHORT)((USHORT)p[off] << 8); off += 1u;
+        } else if (c->coordEndian == GOCA_ENDIAN_LE) {
+            cxFrac = (USHORT)(((USHORT)p[off+1] << 8) | p[off]); off += 2u;
+            cyFrac = (USHORT)(((USHORT)p[off+1] << 8) | p[off]); off += 2u;
+        } else {
+            cxFrac = GocaGetU16(p + off); off += 2u;
+            cyFrac = GocaGetU16(p + off); off += 2u;
+        }
+        rem -= 2u * fracSize;
+    }
+
+    /* Optional flags + res; res must follow flags */
+    if (rem >= 2u) {
+        fbFlags = p[off]; off += 1u;
+        uchRes  = p[off]; off += 1u;
+        rem -= 2u;
+        if ((fbFlags & (UCHAR)~(UCHAR)GSCC_ZEROZERO) != 0 || uchRes != 0) {
+            GocaCallResult("GOCA_ERR_FORMAT");
+            return GOCA_ERR_FORMAT;
+        }
+    }
+    if (rem != 0) {
+        GocaCallResult("GOCA_ERR_FORMAT");
+        return GOCA_ERR_FORMAT;
+    }
+
+    bZero = (cxInt == 0 && cyInt == 0 && cxFrac == 0 && cyFrac == 0);
+
+    if (bZero && !(fbFlags & GSCC_ZEROZERO)) {
+        /* setzero=0: a cell size of zero sets drawing default.
+         * GRE exposes no char-box query; the drawing default is taken
+         * from the DC default attribute bundle. */
+        CHARBUNDLE cbDef;
+        if (GreGetDefaultAttributes(c->hdc, PRIM_CHAR, CBB_BOX,
+                                    (PBUNDLE)&cbDef)) {
+            c->cb.sizfxCell = cbDef.sizfxCell;
+        } else {
+            c->cb.sizfxCell.cx = 0;
+            c->cb.sizfxCell.cy = 0;
+        }
+    } else {
+        /* setzero=1: a cell size of zero sets to zero;
+         * non-zero cell: value as specified. */
+        c->cb.sizfxCell.cx = MAKEFIXED(cxInt, cxFrac);
+        c->cb.sizfxCell.cy = MAKEFIXED(cyInt, cyFrac);
+    }
+
+    GocaTrace(c, "[GOCA]   GSCC: cell=(%ld.%04X,%ld.%04X) setzero=%u\n",
+              (long)cxInt, (unsigned)cxFrac, (long)cyInt, (unsigned)cyFrac,
+              (unsigned)((fbFlags & GSCC_ZEROZERO) != 0));
+
     GocaSetAttr(c->hdc, PRIM_CHAR, CBB_BOX, &c->cb);
 
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
 
-/*! @brief GSMC (0x37) — Set Marker Cell. */
+/*!
+ * @brief GSMC (0x37) / GPSMC (0x77) Set Marker Cell.
+ *
+ * Layout per pmord.h (ORDERS_GSMC / ORDERL_GSMC) and 64F0277 Vol.2:
+ *   (len, cellx, celly, [flags, res])
+ * cellx/celly: GROSOL (signed, coordSize/coordEndian aware);
+ * flags/res: optional pair, res required when flags present;
+ * flags.setzero (0x80 = GSMC_ZEROZERO):
+ *   0 - a cell size of zero sets drawing default;
+ *   1 - a cell size of zero sets to zero.
+ */
 static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
 {
-    SHORT  cx, cy;
+    LONG  cx, cy;
+    UCHAR fbFlags = 0, uchRes = 0;
+    ULONG intSize = (ULONG)c->coordSize;
+    ULONG dataLen, rem, off;
+    BOOL  bZero;
 
     GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
 
-    if (cb < 2u + 6) {
+    if (cb < 2u) {
         GocaCallResult("GOCA_ERR_TRUNC");
         return GOCA_ERR_TRUNC;
     }
-    if (p[1] < 6) {
+    dataLen = p[1];
+    if (cb < 2u + dataLen) {
+        GocaCallResult("GOCA_ERR_TRUNC");
+        return GOCA_ERR_TRUNC;
+    }
+
+    off = 2;
+    rem = dataLen;
+    if (rem < 2u * intSize) {
         GocaCallResult("GOCA_ERR_FORMAT");
         return GOCA_ERR_FORMAT;
     }
-    cx = GocaGetU16(p + 2);
-    cy = GocaGetU16(p + 4);
+    cx = GocaGetCoord(c, p + off); off += intSize; rem -= intSize;
+    cy = GocaGetCoord(c, p + off); off += intSize; rem -= intSize;
 
-    GocaTrace(c, "[GOCA]   GSMC: cell=(%d,%d)\n", (int)cx, (int)cy);
-    c->mb.sizfxCell.cx = MAKEFIXED(cx, 0);
-    c->mb.sizfxCell.cy = MAKEFIXED(cy, 0);
+    /* Optional flags + res; res must follow flags */
+    if (rem >= 2u) {
+        fbFlags = p[off]; off += 1u;
+        uchRes  = p[off]; off += 1u;
+        rem -= 2u;
+        if ((fbFlags & (UCHAR)~(UCHAR)GSMC_ZEROZERO) != 0 || uchRes != 0) {
+            GocaCallResult("GOCA_ERR_FORMAT");
+            return GOCA_ERR_FORMAT;
+        }
+    }
+    if (rem != 0) {
+        GocaCallResult("GOCA_ERR_FORMAT");
+        return GOCA_ERR_FORMAT;
+    }
+
+    bZero = (cx == 0 && cy == 0);
+
+    if (bZero && !(fbFlags & GSMC_ZEROZERO)) {
+        /* setzero=0: a cell size of zero sets drawing default.
+         * MARKERBUNDLE: sizfxCell == 0 is the GRE sentinel for the
+         * default marker cell (nominal symbol size). */
+        c->mb.sizfxCell.cx = 0;
+        c->mb.sizfxCell.cy = 0;
+    } else {
+        /* Non-zero cell as specified, or zero + setzero=1 (literal zero). */
+        c->mb.sizfxCell.cx = MAKEFIXED(cx, 0);
+        c->mb.sizfxCell.cy = MAKEFIXED(cy, 0);
+    }
+
+    GocaTrace(c, "[GOCA]   GSMC: cell=(%ld,%ld) setzero=%u\n",
+              (long)cx, (long)cy,
+              (unsigned)((fbFlags & GSMC_ZEROZERO) != 0));
+
     GocaSetAttr(c->hdc, PRIM_MARKER, MBB_BOX, &c->mb);
 
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
 
-/*! @brief GSPRP (0xA0) — Set Pattern Reference Point. */
+/*!
+ * @brief GSPRP (0xA0) / GPSPRP (0xE0) Set Pattern Reference Point.
+ *
+ * Layout per pmord.h (ORDERS_GSPRP / ORDERL_GSPRP):
+ *   (len, flags, res, x, y)
+ * flags: GSPRP_DEFAULT (0x80) - pattern reference point is set to the
+ * drawing default (origin), x/y ignored; GSPRP_SPECIFY (0x00) - use the
+ * specified point.  Reserved flag bits and res must be zero.
+ */
 static LONG DoSetPatternRefPoint(GOCA_CTX *c, const BYTE *p, ULONG cb)
 {
     POINTL pt;
-    UCHAR  fbFlags;
-    ULONG       pointSize = 2u * (ULONG)c->coordSize;
+    UCHAR  fbFlags, uchRes;
+    ULONG  pointSize = 2u * (ULONG)c->coordSize;
 
     GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
 
@@ -917,11 +1059,25 @@ static LONG DoSetPatternRefPoint(GOCA_CTX *c, const BYTE *p, ULONG cb)
         GocaCallResult("GOCA_ERR_FORMAT");
         return GOCA_ERR_FORMAT;
     }
-    fbFlags = p[2];
-    pt = PtsToPtl(c, p + 4);
 
-    GocaTrace(c, "[GOCA]   GSPRP: ref=(%ld,%ld) flags=%02X\n",
-              (long)pt.x, (long)pt.y, (unsigned)fbFlags);
+    fbFlags = p[2];
+    uchRes  = p[3];
+    if ((fbFlags & (UCHAR)~(UCHAR)GSPRP_DEFAULT) != 0 || uchRes != 0) {
+        GocaCallResult("GOCA_ERR_FORMAT");
+        return GOCA_ERR_FORMAT;
+    }
+
+    pt = PtsToPtl(c, p + 4);
+    if (fbFlags & GSPRP_DEFAULT) {
+        /* Drawing default: pattern space origin; x/y ignored */
+        pt.x = 0;
+        pt.y = 0;
+    }
+
+    GocaTrace(c, "[GOCA]   GSPRP: ref=(%ld,%ld) default=%u\n",
+              (long)pt.x, (long)pt.y,
+              (unsigned)((fbFlags & GSPRP_DEFAULT) != 0));
+
     c->ab.ptlRefPoint = pt;
     GocaSetAttr(c->hdc, PRIM_AREA, ABB_REF_POINT, &c->ab);
 
@@ -930,68 +1086,158 @@ static LONG DoSetPatternRefPoint(GOCA_CTX *c, const BYTE *p, ULONG cb)
 }
 
 /*!
- * @brief GCCHSTE (0xB0) / GCHSTE (0xF0) — very long character string.
+ * @brief GCCHSTE (0xFEB0) / GCHSTE (0xFEF0): extended character string.
+ *
+ * Extended-format order: (0xFE, qualifier, SWPUSHORT len, data).
+ * Data per pmord.h (ORDERS_GCCHSTE / ORDERL_GCCHSTE):
+ *   flags, res, rect[2] (GROSOL pairs), cchString (SWPUSHORT),
+ *   string[cchString], adx[cchString] (optional, GROSOL each).
+ * Flags per pmord.h: DRAWRECT 0x80, CLIP 0x40, LEAVEPOS 0x10,
+ * UNDERSCORE 0x08, STRIKEOUT 0x04; bits 0x23 (DEEMPHASIZE plus the two
+ * low bits) and the res byte are reserved and must be zero.
+ * The rectangle is normalized to xLeft <= xRight, yBottom <= yTop and
+ * is passed to GreCharStringPos as the clip rectangle only when CLIP
+ * is set; with DRAWRECT its boundary is stroked via GreBoxBoundary.
+ * adx, when present (remaining length == cchString * coordSize), is
+ * converted to LONG[] and passed as the per-character increment array.
+ * With LEAVEPOS the previous current position is restored after the
+ * string; with MOVEPOS the cached position is refreshed from the DC.
+ * UNDERSCORE/STRIKEOUT are reported in the trace: the cached
+ * CHARBUNDLE exposes no character-definition bits in the provided
+ * headers.
+ *
+ * @param [in] c      GOCA context (coordSize, coordEndian, cached
+ *                    bundles, current position).
+ * @param [in] p      Pointer to the extended order (0xFE, qualifier,
+ *                    SWPUSHORT length, operands).
+ * @param [in] cb     Bytes available from p to the end of the stream
+ *                    (the wire order length).
+ * @param [in] bGiven TRUE for GCHSTE (string at the given rectangle
+ *                    corner), FALSE for GCCHSTE (current position).
+ * @return GOCA_OK or a negative error code.
+ * @retval GOCA_OK         Order processed (empty string included).
+ * @retval GOCA_ERR_TRUNC  Order or declared length exceeds the stream.
+ * @retval GOCA_ERR_FORMAT Data length inconsistent with rect/string/adx,
+ *                         or reserved bits/bytes are non-zero.
+ * @retval GOCA_ERR_NOMEM  adx array allocation failed.
  */
 static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
 {
     const BYTE *q;
-    UCHAR       fbFlags;
+    UCHAR       fbFlags, uchRes;
     USHORT      cch;
     const BYTE *pStr;
-    POINTL      ptStart;
+    POINTL      ptStart, ptOld;
     POINTL      ptCorner0, ptCorner1;
     RECTL       rcl;
-    ULONG       fl;
+    BOXPARAMS   bp;
+    ULONG       fl, dataLen, consumed, rem, i;
+    PLONG       plX = NULL;
+    PRECTL      prcl;
     ULONG       pointSize = 2u * (ULONG)c->coordSize;
-    ULONG       baseSize = 4u + 1u + 1u + pointSize * 2;
+    ULONG       minData   = 2u + 2u * pointSize + 2u;  /* flags+res+rect+cch */
 
     GocaCallEnter("p=%p, cb=%u, bGiven=%d", p, (unsigned)cb, (int)bGiven);
 
-    if (cb < baseSize) {
+    if (cb < 4u) {
         GocaCallResult("GOCA_ERR_TRUNC");
         return GOCA_ERR_TRUNC;
     }
+    dataLen = GocaGetU16(p + 2);               /* SWPUSHORT, always BE */
+    if (cb < 4u + dataLen) {
+        GocaCallResult("GOCA_ERR_TRUNC");
+        return GOCA_ERR_TRUNC;
+    }
+    if (dataLen < minData) {
+        GocaCallResult("GOCA_ERR_FORMAT");
+        return GOCA_ERR_FORMAT;
+    }
+
     q       = p + 4;
     fbFlags = q[0];
+    uchRes  = q[1];
+    if ((fbFlags & 0x23u) != 0 || uchRes != 0) {
+        GocaCallResult("GOCA_ERR_FORMAT");
+        return GOCA_ERR_FORMAT;
+    }
 
     ptCorner0 = PtsToPtl(c, q + 2);
     ptCorner1 = PtsToPtl(c, q + 2 + pointSize);
+    cch       = GocaGetU16(q + 2 + 2u * pointSize);
 
-    if (bGiven) {
-        ptStart = ptCorner0;
-    } else {
-        RefreshCurPos(c);
-        ptStart = c->ptlCurPos;
+    consumed = minData + (ULONG)cch;
+    if (dataLen < consumed) {
+        GocaCallResult("GOCA_ERR_FORMAT");
+        return GOCA_ERR_FORMAT;
     }
+    rem = dataLen - consumed;
+    if (rem != 0 && rem != (ULONG)cch * (ULONG)c->coordSize) {
+        GocaCallResult("GOCA_ERR_FORMAT");
+        return GOCA_ERR_FORMAT;
+    }
+    pStr = q + 2 + 2u * pointSize + 2;
 
     rcl.xLeft   = (ptCorner0.x < ptCorner1.x) ? ptCorner0.x : ptCorner1.x;
     rcl.yBottom = (ptCorner0.y < ptCorner1.y) ? ptCorner0.y : ptCorner1.y;
     rcl.xRight  = (ptCorner0.x > ptCorner1.x) ? ptCorner0.x : ptCorner1.x;
     rcl.yTop    = (ptCorner0.y > ptCorner1.y) ? ptCorner0.y : ptCorner1.y;
 
-    cch = GocaGetU16(q + 2 + pointSize * 2);
-    if (cb < baseSize + cch) {
-        GocaCallResult("GOCA_ERR_TRUNC");
-        return GOCA_ERR_TRUNC;
-    }
-    pStr = q + 2 + pointSize * 2 + 2;
     if (cch == 0) {
         GocaCallResult("GOCA_OK");
         return GOCA_OK;
     }
 
-    fl = 0;
-    if (fbFlags & 0x40) fl |= CHS_CLIP;
+    /* Optional adx[cch]: per-character increments, GROSOL each */
+    if (rem != 0) {
+        const BYTE *pAdx = pStr + cch;
+        if (DosAllocMem((PPVOID)&plX, (ULONG)cch * sizeof(LONG),
+                        PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
+            GocaCallResult("GOCA_ERR_NOMEM");
+            return GOCA_ERR_NOMEM;
+        }
+        for (i = 0; i < cch; i++)
+            plX[i] = GocaGetCoord(c, pAdx + i * (ULONG)c->coordSize);
+    }
 
-    GocaTrace(c, "[GOCA]   %s: %u chars at (%ld,%ld) clip=(%ld,%ld)-(%ld,%ld)\n",
+    ptOld = c->ptlCurPos;
+    if (bGiven) {
+        ptStart = ptCorner0;
+    } else {
+        RefreshCurPos(c);
+        ptOld   = c->ptlCurPos;
+        ptStart = ptOld;
+    }
+
+    fl   = CHS_START_XY;
+    prcl = (fbFlags & GCCHSTE_CLIP) ? &rcl : (PRECTL)NULL;
+
+    GocaTrace(c, "[GOCA]   %s: %u chars at (%ld,%ld) flags=%02X clip=(%ld,%ld)-(%ld,%ld)\n",
               bGiven ? "GCHSTE" : "GCCHSTE", (unsigned)cch,
-              (long)ptStart.x, (long)ptStart.y,
+              (long)ptStart.x, (long)ptStart.y, (unsigned)fbFlags,
               (long)rcl.xLeft, (long)rcl.yBottom,
               (long)rcl.xRight, (long)rcl.yTop);
 
-    GreCharStringPos(c->hdc, &ptStart, &rcl, fl, (LONG)cch,
-                     (PCH)pStr, (PLONG)NULL, (PCSP_INFO)NULL);
-    c->ptlCurPos = ptStart;
+    GreCharStringPos(c->hdc, &ptStart, prcl, fl, (LONG)cch,
+                     (PCH)pStr, plX, (PCSP_INFO)NULL);
+
+    /* DRAWRECT: stroke the rectangle boundary with line attributes */
+    if (fbFlags & GCCHSTE_DRAWRECT) {
+        bp.ptl.x   = rcl.xLeft;
+        bp.ptl.y   = rcl.yBottom;
+        bp.sizl.cx = rcl.xRight - rcl.xLeft;
+        bp.sizl.cy = rcl.yTop   - rcl.yBottom;
+        GreBoxBoundary(c->hdc, &bp);
+    }
+
+    /* LEAVEPOS: current position unchanged; MOVEPOS: ends at string end */
+    if (fbFlags & GCCHSTE_LEAVEPOS) {
+        GreSetCurrentPosition(c->hdc, &ptOld);
+        c->ptlCurPos = ptOld;
+    } else {
+        GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
+    }
+
+    if (plX) DosFreeMem(plX);
 
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
