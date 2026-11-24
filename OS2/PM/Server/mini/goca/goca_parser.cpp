@@ -78,10 +78,6 @@ AFP GOCA:
 /*!
  * @brief Conditional trace routed to F_DbgPrint.
  *
- * The c->bDebug flag is no longer consulted: per-level filtering in
- * F_DbgPrint (F_DBG_SEC_GOCA_PARSE) handles enable/disable. The flag
- * is still set by GocaInit but currently unused.
- *
  * @param [in] c    Parser context (unused in the current version).
  * @param [in] fmt  printf-style format string.
  * @param [in] ...  Arguments for the format string.
