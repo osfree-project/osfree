@@ -6,18 +6,14 @@ Contains the complete list of exception constants defined in:
 - AFP GOCA Reference (AFPC-0008-03), Chapter 8, "Exception Conditions"
 - IBM SC31-6804, "Graphics Object Content Architecture Reference"
 
-Each exception belongs to one of three categories:
+Each exception belongs to one of two categories:
 - DRAWING_PROCESS_CHECK: drawing stops (fatal for the order)
 - STANDARD_ACTION:       a prescribed action is performed, drawing
                          continues
-- RETIRED:               retired or obsolete condition; accepted but
-                         not reported by this receiver
 
 @note  For the complete list of general exceptions not tied to a specific
        drawing order, see "Drawing Order Exceptions"
        (AFPC-0008-03, p. 168-174).
-@note  Retired and obsolete conditions are listed in AFPC-0008-03,
-       Appendix C, "AFP GOCA Migration Functions", p. 195-197.
 */
 #ifndef GOCA_EXCEPTIONS_H
 #define GOCA_EXCEPTIONS_H
@@ -32,8 +28,7 @@ extern "C" {
 
 typedef enum _GOCA_EC_CATEGORY {
     GOCA_ECCAT_DRAWING_CHECK   = 0,  /* Drawing process check (stop)        */
-    GOCA_ECCAT_STANDARD_ACTION = 1,  /* Standard action (continue)          */
-    GOCA_ECCAT_RETIRED         = 2   /* Retired/obsolete (do not report)    */
+    GOCA_ECCAT_STANDARD_ACTION = 1   /* Standard action (continue)          */
 } GOCA_EC_CATEGORY;
 
 /* ======================================================================== */
@@ -52,13 +47,11 @@ typedef enum _GOCA_EC_CATEGORY {
 #define GOCA_EC_UNALLOCATED_ORDER       0x0001  /* Std: skip order          */
 
 /*! @brief A reserved byte or bit in the order is not set to zero.
-    @details Retired. The use of this exception condition is restricted to
-             pre-May-2012 AFP GOCA receivers; new receivers should not report
-             it. Reserved fields are to be ignored by receiving applications.
-    @action  None: the condition is not reported.
-    @see     AFPC-0008-03, p. v ("How to Read the Syntax Diagrams"),
-             p. 169 and Appendix C, p. 197. */
-#define GOCA_EC_RESERVED_NOT_ZERO       0x0002  /* Retired                  */
+    @details Receivers may or may not generate this exception; it is not
+             universally enforced (pre-May-2012 implementations may differ).
+    @action  Drawing process check: drawing stops.
+    @see     AFPC-0008-03, p. 168. */
+#define GOCA_EC_RESERVED_NOT_ZERO       0x0002  /* Drawing check            */
 
 /*! @brief The order length is incorrect: the length in the order is not a
            valid value for that order.
@@ -679,7 +672,6 @@ static __inline int GocaEcIsRetired(USHORT usEC)
 /*!
 @brief Returns TRUE if the exception belongs to the "Drawing Process Check"
        category (drawing must stop).
-@details Retired and obsolete conditions are excluded.
 @param [in] usEC  Exception code.
 @return Non-zero if drawing must stop.
 */
@@ -687,6 +679,7 @@ static __inline int GocaEcIsDrawingCheck(USHORT usEC)
 {
     switch (usEC) {
     /* General */
+    case GOCA_EC_RESERVED_NOT_ZERO:
     case GOCA_EC_INVALID_LENGTH:
     case GOCA_EC_STACK_OVERFLOW:
     case GOCA_EC_TRUNCATED_ORDER:
@@ -745,16 +738,12 @@ static __inline int GocaEcIsDrawingCheck(USHORT usEC)
 /*!
 @brief Returns TRUE if a standard action is defined for the exception
        (drawing continues).
-@details Zero and retired/obsolete codes are excluded: they carry no
-         standard action.
 @param [in] usEC  Exception code.
 @return Non-zero if a standard action is defined.
 */
 static __inline int GocaEcHasStandardAction(USHORT usEC)
 {
-    return usEC != 0x0000 &&
-           !GocaEcIsDrawingCheck(usEC) &&
-           !GocaEcIsRetired(usEC);
+    return !GocaEcIsDrawingCheck(usEC) && usEC != 0x0000;
 }
 
 /*!
