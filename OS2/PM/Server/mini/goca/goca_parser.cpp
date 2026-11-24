@@ -145,31 +145,35 @@ static POINTL PtsToPtl(GOCA_CTX *c, const BYTE *p)
 }
 
 /*!
- * @brief Allocate and fill POINTL[] from packed coordinates.
- *
- * @param [in] c      GOCA context (coordSize, coordEndian).
- * @param [in] pData  Pointer to the first packed point.
- * @param [in] nPts   Number of points to convert.
- * @return Pointer to the allocated POINTL array.
- * @retval NULL  nPts is zero or DosAllocMem failed.
+ * @def GOCA_MAX_POINTS
+ * @brief Maximum point count of a single long-format order.
+ * LENGTH is one byte (at most 255) and the smallest point is two bytes
+ * (GOCA_COORD_BYTE), giving 127 points, plus the prepended current
+ * position.
  */
-static PPOINTL AllocPtlArray(GOCA_CTX *c, const BYTE *pData, ULONG nPts)
-{
-    PPOINTL pptl = NULL;
-    ULONG   ptSize, i;
+#define GOCA_MAX_POINTS  (255u / 2u + 1u)
 
-    if (nPts == 0) return NULL;
-    if (DosAllocMem((PPVOID)&pptl, nPts * sizeof(POINTL),
-                    PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
-        return NULL;
-    }
+/*!
+ * @brief Fill POINTL[] from packed coordinates.
+ *
+ * Reads nPts consecutive points, each two geometric parameters wide,
+ * using the context's coordSize and coordEndian.
+ *
+ * @param [in]  c      GOCA context (coordSize, coordEndian).
+ * @param [in]  pData  Pointer to the first packed point.
+ * @param [in]  nPts   Number of points to convert.
+ * @param [out] pptl   Destination array of at least nPts elements.
+ */
+static void FillPtlArray(GOCA_CTX *c, const BYTE *pData, ULONG nPts, PPOINTL pptl)
+{
+    ULONG ptSize, i;
+
     ptSize = c->coordSize << 1;  /* x + y = 2 * coordSize */
     for (i = 0; i < nPts; i++) {
         const BYTE *pPt = pData + i * ptSize;
         pptl[i].x = GocaGetCoord(c, pPt);
         pptl[i].y = GocaGetCoord(c, pPt + c->coordSize);
     }
-    return pptl;
 }
 
 /* ======================================================================== */
@@ -221,13 +225,12 @@ static LONG DoGSCP(GOCA_CTX *c, const BYTE *p, ULONG cb)
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
  * @retval GOCA_EC_INVALID_LENGTH Operand length inconsistent with point size.
- * @retval GOCA_ERR_NOMEM         Point array allocation failed.
  */
 static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    ULONG   len, nTotal, nPts, i;
-    PPOINTL pptl = NULL;
-    ULONG   pointSize = 2u * (ULONG)c->coordSize;
+    ULONG  len, nTotal, nPts, i;
+    POINTL aptl[GOCA_MAX_POINTS];
+    ULONG  pointSize = 2u * (ULONG)c->coordSize;
 
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
@@ -241,17 +244,12 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
         }
         nPts   = len / pointSize;
         nTotal = nPts + 1;
-        if (DosAllocMem((PPVOID)&pptl, nTotal * sizeof(POINTL),
-                        PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
-            GocaCallResult("GOCA_ERR_NOMEM");
-            return GOCA_ERR_NOMEM;
-        }
         GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
-        pptl[0] = c->ptlCurPos;
+        aptl[0] = c->ptlCurPos;
         for (i = 0; i < nPts; i++) {
             const BYTE *pPt = p + 2 + i * pointSize;
-            pptl[i+1].x = GocaGetCoord(c, pPt);
-            pptl[i+1].y = GocaGetCoord(c, pPt + c->coordSize);
+            aptl[i+1].x = GocaGetCoord(c, pPt);
+            aptl[i+1].y = GocaGetCoord(c, pPt + c->coordSize);
         }
     } else {
         /* GLINE: first point is pointSize bytes, rest pointSize each. */
@@ -260,21 +258,16 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
             return GOCA_EC_INVALID_LENGTH;
         }
         nTotal = (len - pointSize) / pointSize + 1;
-        pptl   = AllocPtlArray(c, p + 2, nTotal);
-        if (!pptl) {
-            GocaCallResult("GOCA_ERR_NOMEM");
-            return GOCA_ERR_NOMEM;
-        }
+        FillPtlArray(c, p + 2, nTotal, aptl);
     }
 
     GocaTrace(c, "[GOCA]   %s: %u pts, end=(%ld,%ld)\n",
               bCur ? "GCLINE" : "GLINE", (unsigned)nTotal,
-              (long)pptl[nTotal-1].x, (long)pptl[nTotal-1].y);
+              (long)aptl[nTotal-1].x, (long)aptl[nTotal-1].y);
 
-    GrePolyLine(c->hdc, pptl, (LONG)nTotal);
-    c->ptlCurPos = pptl[nTotal - 1];
+    GrePolyLine(c->hdc, aptl, (LONG)nTotal);
+    c->ptlCurPos = aptl[nTotal - 1];
 
-    DosFreeMem(pptl);
     GocaCallResult("GOCA_OK (%u pts)", (unsigned)nTotal);
     return GOCA_OK;
 }
@@ -293,13 +286,12 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
  * @retval GOCA_EC_INVALID_LENGTH Operand length inconsistent with point size.
- * @retval GOCA_ERR_NOMEM         Point array allocation failed.
  */
 static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    ULONG   len, nTotal, nPts, i;
-    PPOINTL pptl = NULL;
-    ULONG   pointSize = 2u * (ULONG)c->coordSize;
+    ULONG  len, nTotal, nPts, i;
+    POINTL aptl[GOCA_MAX_POINTS];
+    ULONG  pointSize = 2u * (ULONG)c->coordSize;
 
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
@@ -312,17 +304,12 @@ static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
         }
         nPts   = len / pointSize;
         nTotal = nPts + 1;
-        if (DosAllocMem((PPVOID)&pptl, nTotal * sizeof(POINTL),
-                        PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
-            GocaCallResult("GOCA_ERR_NOMEM");
-            return GOCA_ERR_NOMEM;
-        }
         GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
-        pptl[0] = c->ptlCurPos;
+        aptl[0] = c->ptlCurPos;
         for (i = 0; i < nPts; i++) {
             const BYTE *pPt = p + 2 + i * pointSize;
-            pptl[i+1].x = GocaGetCoord(c, pPt);
-            pptl[i+1].y = GocaGetCoord(c, pPt + c->coordSize);
+            aptl[i+1].x = GocaGetCoord(c, pPt);
+            aptl[i+1].y = GocaGetCoord(c, pPt + c->coordSize);
         }
     } else {
         if (len < pointSize || ((len - pointSize) % pointSize)) {
@@ -330,21 +317,16 @@ static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
             return GOCA_EC_INVALID_LENGTH;
         }
         nTotal = (len - pointSize) / pointSize + 1;
-        pptl   = AllocPtlArray(c, p + 2, nTotal);
-        if (!pptl) {
-            GocaCallResult("GOCA_ERR_NOMEM");
-            return GOCA_ERR_NOMEM;
-        }
+        FillPtlArray(c, p + 2, nTotal, aptl);
     }
 
     GocaTrace(c, "[GOCA]   %s: %u pts, end=(%ld,%ld)\n",
               bCur ? "GCMRK" : "GMRK", (unsigned)nTotal,
-              (long)pptl[nTotal-1].x, (long)pptl[nTotal-1].y);
+              (long)aptl[nTotal-1].x, (long)aptl[nTotal-1].y);
 
-    GrePolyMarker(c->hdc, pptl, (LONG)nTotal);
-    c->ptlCurPos = pptl[nTotal - 1];
+    GrePolyMarker(c->hdc, aptl, (LONG)nTotal);
+    c->ptlCurPos = aptl[nTotal - 1];
 
-    DosFreeMem(pptl);
     GocaCallResult("GOCA_OK (%u pts)", (unsigned)nTotal);
     return GOCA_OK;
 }
@@ -363,14 +345,13 @@ static LONG DoMark(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
  * @retval GOCA_EC_INVALID_LENGTH Operand length inconsistent with offsets.
- * @retval GOCA_ERR_NOMEM         Point array allocation failed.
  */
 static LONG DoRelativeLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    ULONG   len, nPts, nTotal, i, off;
-    PPOINTL pptl = NULL;
-    SHORT   x, y;
-    ULONG   pointSize = 2u * (ULONG)c->coordSize;
+    ULONG  len, nPts, nTotal, i, off;
+    POINTL aptl[GOCA_MAX_POINTS];
+    SHORT  x, y;
+    ULONG  pointSize = 2u * (ULONG)c->coordSize;
 
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
@@ -400,32 +381,26 @@ static LONG DoRelativeLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     nPts   = (len - off) / 2;
     nTotal = nPts + 1;
-    if (DosAllocMem((PPVOID)&pptl, nTotal * sizeof(POINTL),
-                    PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
-        GocaCallResult("GOCA_ERR_NOMEM");
-        return GOCA_ERR_NOMEM;
-    }
 
-    pptl[0].x = x;
-    pptl[0].y = y;
+    aptl[0].x = x;
+    aptl[0].y = y;
 
     for (i = 0; i < nPts; i++) {
         CHAR dx = (CHAR)p[2 + off + i * 2];
         CHAR dy = (CHAR)p[2 + off + i * 2 + 1];
         x = (SHORT)(x + dx);
         y = (SHORT)(y + dy);
-        pptl[i + 1].x = x;
-        pptl[i + 1].y = y;
+        aptl[i + 1].x = x;
+        aptl[i + 1].y = y;
     }
 
     GocaTrace(c, "[GOCA]   %s: %u pts, end=(%ld,%ld)\n",
               bCur ? "GCRLINE" : "GRLINE", (unsigned)nTotal,
-              (long)pptl[nTotal-1].x, (long)pptl[nTotal-1].y);
+              (long)aptl[nTotal-1].x, (long)aptl[nTotal-1].y);
 
-    GrePolyLine(c->hdc, pptl, (LONG)nTotal);
-    c->ptlCurPos = pptl[nTotal - 1];
+    GrePolyLine(c->hdc, aptl, (LONG)nTotal);
+    c->ptlCurPos = aptl[nTotal - 1];
 
-    DosFreeMem(pptl);
     GocaCallResult("GOCA_OK (%u pts)", (unsigned)nTotal);
     return GOCA_OK;
 }
@@ -755,13 +730,12 @@ static LONG DoFullArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
  * @retval GOCA_EC_INVALID_LENGTH Operand length inconsistent with point size.
- * @retval GOCA_ERR_NOMEM         Point array allocation failed.
  */
 static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    ULONG   len, nPts, i;
-    PPOINTL pptl = NULL;
-    ULONG   pointSize = 2u * (ULONG)c->coordSize;
+    ULONG  len, nPts, i;
+    POINTL aptl[GOCA_MAX_POINTS];
+    ULONG  pointSize = 2u * (ULONG)c->coordSize;
 
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
@@ -773,17 +747,12 @@ static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
             return GOCA_EC_INVALID_LENGTH;
         }
         nPts = len / pointSize + 1;
-        if (DosAllocMem((PPVOID)&pptl, nPts * sizeof(POINTL),
-                        PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
-            GocaCallResult("GOCA_ERR_NOMEM");
-            return GOCA_ERR_NOMEM;
-        }
         GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
-        pptl[0] = c->ptlCurPos;
+        aptl[0] = c->ptlCurPos;
         for (i = 0; i < nPts - 1; i++) {
             const BYTE *pPt = p + 2 + i * pointSize;
-            pptl[i+1].x = GocaGetCoord(c, pPt);
-            pptl[i+1].y = GocaGetCoord(c, pPt + c->coordSize);
+            aptl[i+1].x = GocaGetCoord(c, pPt);
+            aptl[i+1].y = GocaGetCoord(c, pPt + c->coordSize);
         }
     } else {
         if (len < 2u * pointSize || (len % pointSize)) {
@@ -791,21 +760,16 @@ static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
             return GOCA_EC_INVALID_LENGTH;
         }
         nPts = len / pointSize;
-        pptl = AllocPtlArray(c, p + 2, nPts);
-        if (!pptl) {
-            GocaCallResult("GOCA_ERR_NOMEM");
-            return GOCA_ERR_NOMEM;
-        }
+        FillPtlArray(c, p + 2, nPts, aptl);
     }
 
     GocaTrace(c, "[GOCA]   %s: %u pts, end=(%ld,%ld)\n",
               bCur ? "GCBEZ" : "GBEZ", (unsigned)nPts,
-              (long)pptl[nPts-1].x, (long)pptl[nPts-1].y);
+              (long)aptl[nPts-1].x, (long)aptl[nPts-1].y);
 
-    GrePolySpline(c->hdc, pptl, (LONG)nPts);
-    c->ptlCurPos = pptl[nPts - 1];
+    GrePolySpline(c->hdc, aptl, (LONG)nPts);
+    c->ptlCurPos = aptl[nPts - 1];
 
-    DosFreeMem(pptl);
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
 }
@@ -823,13 +787,12 @@ static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
  * @retval GOCA_EC_INVALID_LENGTH Fewer than two points supplied.
- * @retval GOCA_ERR_NOMEM         Point array allocation failed.
  */
 static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 {
-    ULONG   len, nPts, i;
-    PPOINTL pptl = NULL;
-    ULONG   pointSize = 2u * (ULONG)c->coordSize;
+    ULONG  len, nPts, i;
+    POINTL aptl[GOCA_MAX_POINTS];
+    ULONG  pointSize = 2u * (ULONG)c->coordSize;
 
     GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
 
@@ -842,17 +805,12 @@ static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
             return GOCA_EC_INVALID_LENGTH;
         }
         nPts = len / pointSize + 1;
-        if (DosAllocMem((PPVOID)&pptl, nPts * sizeof(POINTL),
-                        PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
-            GocaCallResult("GOCA_ERR_NOMEM");
-            return GOCA_ERR_NOMEM;
-        }
         GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
-        pptl[0] = c->ptlCurPos;
+        aptl[0] = c->ptlCurPos;
         for (i = 0; i < nPts - 1; i++) {
             const BYTE *pPt = p + 2 + i * pointSize;
-            pptl[i+1].x = GocaGetCoord(c, pPt);
-            pptl[i+1].y = GocaGetCoord(c, pPt + c->coordSize);
+            aptl[i+1].x = GocaGetCoord(c, pPt);
+            aptl[i+1].y = GocaGetCoord(c, pPt + c->coordSize);
         }
     } else {
         /* GFLT: explicit points; need at least 2 points for fillet. */
@@ -861,21 +819,16 @@ static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
             return GOCA_EC_INVALID_LENGTH;
         }
         nPts = len / pointSize;
-        pptl = AllocPtlArray(c, p + 2, nPts);
-        if (!pptl) {
-            GocaCallResult("GOCA_ERR_NOMEM");
-            return GOCA_ERR_NOMEM;
-        }
+        FillPtlArray(c, p + 2, nPts, aptl);
     }
 
     GocaTrace(c, "[GOCA]   %s: %u pts, end=(%ld,%ld)\n",
               bCur ? "GCFLT" : "GFLT", (unsigned)nPts,
-              (long)pptl[nPts-1].x, (long)pptl[nPts-1].y);
+              (long)aptl[nPts-1].x, (long)aptl[nPts-1].y);
 
-    GrePolyFillet(c->hdc, pptl, (LONG)nPts);
-    c->ptlCurPos = pptl[nPts - 1];
+    GrePolyFillet(c->hdc, aptl, (LONG)nPts);
+    c->ptlCurPos = aptl[nPts - 1];
 
-    DosFreeMem(pptl);
     GocaCallResult("GOCA_OK (%u pts)", (unsigned)nPts);
     return GOCA_OK;
 }
