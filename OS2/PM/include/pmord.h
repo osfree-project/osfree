@@ -761,9 +761,9 @@ typedef struct _LORDER
 #define OCODE_GSCP     0x21            /* Set current position        */
 
 /*!
-   @brief Push and Set Current Position order (PM GPI extension).
+   @brief Push and Set Current Position order.
 
-   Not part of AFP GOCA.
+   Not part of AFP GOCA but part of GOCA.
 */
 #define OCODE_GPSCP    0x61            /* Push and set curr posn      */
 

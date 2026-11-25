@@ -29,9 +29,46 @@ typedef enum {
 
 typedef struct _GOCA_CTX GOCA_CTX;
 
-/*! @brief Optional fallback for orders not handled by the built-in switch. */
-typedef BOOL (*PFN_GOCA_HANDLER)(GOCA_CTX *pCtx, UCHAR uCode,
-                                  const BYTE *pbData, ULONG cbData);
+/*! @brief Attribute stack depth (implementation-defined limit).
+Exceeding the limit raises GOCA_EC_STACK_OVERFLOW.
+*/
+#define GOCA_STACK_DEPTH  64
+
+/*! @brief Kind of state held by one attribute-stack entry. */
+#define GOCA_STACK_ATTR       0   /*!< Primitive attributes, selected by masks. */
+#define GOCA_STACK_CURPOS     1   /*!< Current position.                        */
+#define GOCA_STACK_ARCPARAMS  2   /*!< Arc parameters.                          */
+
+/*!
+ * @brief One attribute-stack entry.
+ * A Push-and-Set order saves the current value of everything it is about
+ * to change; one Pop restores one entry. The masks select which parts of
+ * the saved bundles are applied, so a shorthand order that sets the same
+ * attribute in several primitive types is saved and restored as a unit.
+ * Drawing defaults are invariant during a drawing process and are not
+ * saved. The masks must cover exactly the attributes the paired Set order
+ * applies.
+ */
+typedef struct _GOCA_STACK_ENTRY {
+    UCHAR  uchKind;     /*!< GOCA_STACK_* selector.           */
+    USHORT usLine;      /*!< LBB_* mask to restore, 0 = skip. */
+    USHORT usChar;      /*!< CBB_* mask to restore, 0 = skip. */
+    USHORT usMarker;    /*!< MBB_* mask to restore, 0 = skip. */
+    USHORT usArea;      /*!< ABB_* mask to restore, 0 = skip. */
+    USHORT usImage;     /*!< IBB_* mask to restore, 0 = skip. */
+    union {
+        struct {
+            LINEBUNDLE   lb;   /*!< Saved line attributes.      */
+            CHARBUNDLE   cb;   /*!< Saved character attributes. */
+            MARKERBUNDLE mb;   /*!< Saved marker attributes.    */
+            AREABUNDLE   ab;   /*!< Saved area attributes.      */
+            IMAGEBUNDLE  ib;   /*!< Saved image attributes.     */
+        } bundles;
+        POINTL    ptlCurPos;   /*!< Saved current position.     */
+        ARCPARAMS ap;          /*!< Saved arc parameters.       */
+    } u;
+} GOCA_STACK_ENTRY;
+
 
 /*!
  * @brief Parser context.
@@ -55,6 +92,9 @@ struct _GOCA_CTX {
     CHARBUNDLE   cb;      /*!< Cached character bundle.               */
     MARKERBUNDLE mb;      /*!< Cached marker bundle.                  */
     AREABUNDLE   ab;      /*!< Cached area bundle.                    */
+
+    ULONG            uStackDepth;              /*!< Attribute stack depth. */
+    GOCA_STACK_ENTRY aStack[GOCA_STACK_DEPTH]; /*!< Attribute stack.       */
 
     GOCA_COORD_SIZE   coordSize;    /*!< BYTE or SHORT or LONG.       */
     GOCA_COORD_ENDIAN coordEndian;  /*!< LE or BE.                    */
