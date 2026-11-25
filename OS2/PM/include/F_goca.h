@@ -86,8 +86,6 @@ struct _GOCA_CTX {
     BOOL     bInArea;     /*!< Inside GBAR..GEAR.                     */
     UCHAR    uAreaFlags;  /*!< GBAR flags byte.                       */
 
-    POINTL   ptlCurPos;   /*!< Cached current position.               */
-
     LINEBUNDLE   lb;      /*!< Cached line bundle.                    */
     CHARBUNDLE   cb;      /*!< Cached character bundle.               */
     MARKERBUNDLE mb;      /*!< Cached marker bundle.                  */

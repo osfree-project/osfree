@@ -539,9 +539,9 @@ static LONG DoRelativeLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
             GocaCallResult("GOCA_EC_INVALID_LENGTH");
             return GOCA_EC_INVALID_LENGTH;
         }
-        GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
-        x = (SHORT)c->ptlCurPos.x;
-        y = (SHORT)c->ptlCurPos.y;
+        GreGetCurrentPosition(c->hdc, &aptl[0]);
+        x = (SHORT)aptl[0].x;
+        y = (SHORT)aptl[0].y;
         off = 0;
     } else {
         /* GRLINE: pointSize-byte start point, then 2 * count. */
@@ -574,7 +574,6 @@ static LONG DoRelativeLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
               (long)aptl[nTotal-1].x, (long)aptl[nTotal-1].y);
 
     GrePolyLine(c->hdc, aptl, (LONG)nTotal);
-    c->ptlCurPos = aptl[nTotal - 1];
 
     GocaCallResult("GOCA_OK (%u pts)", (unsigned)nTotal);
     return GOCA_OK;
@@ -607,8 +606,7 @@ static LONG DoCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     if (bCur) {
         /* GCCHST: no explicit point, string at current pos. */
-        GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
-        ptStart = c->ptlCurPos;
+        GreGetCurrentPosition(c->hdc, &ptStart);
         pStr    = p + 2;
         cch     = len;
     } else {
@@ -633,7 +631,6 @@ static LONG DoCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
     GreSetCurrentPosition(c->hdc, &ptStart);
     GreCharString(c->hdc, (LONG)cch, (PCH)pStr);
-    c->ptlCurPos = ptStart;
 
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
@@ -680,9 +677,9 @@ static LONG DoBox(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
             GocaCallResult("GOCA_EC_INVALID_LENGTH");
             return GOCA_EC_INVALID_LENGTH;
         }
-        GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
-        x1 = c->ptlCurPos.x;
-        y1 = c->ptlCurPos.y;
+        GreGetCurrentPosition(c->hdc, &ptStart);
+        x1 = ptStart.x;
+        y1 = ptStart.y;
 
         off = 4;
         x2 = GocaGetCoord(c, p + off);
@@ -735,9 +732,6 @@ static LONG DoBox(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     if      (bBoundary && bFill) GreBoxBoth    (c->hdc, &bp);
     else if (bBoundary)          GreBoxBoundary(c->hdc, &bp);
     else if (bFill)              GreBoxInterior(c->hdc, &bp);
-
-    c->ptlCurPos.x = x2;
-    c->ptlCurPos.y = y2;
 
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
@@ -922,8 +916,7 @@ static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
             return GOCA_EC_INVALID_LENGTH;
         }
         nPts = len / pointSize + 1;
-        GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
-        aptl[0] = c->ptlCurPos;
+        GreGetCurrentPosition(c->hdc, &aptl[0]);
         for (i = 0; i < nPts - 1; i++) {
             const BYTE *pPt = p + 2 + i * pointSize;
             aptl[i+1].x = GocaGetCoord(c, pPt);
@@ -943,7 +936,6 @@ static LONG DoBezier(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
               (long)aptl[nPts-1].x, (long)aptl[nPts-1].y);
 
     GrePolySpline(c->hdc, aptl, (LONG)nPts);
-    c->ptlCurPos = aptl[nPts - 1];
 
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
@@ -980,8 +972,7 @@ static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
             return GOCA_EC_INVALID_LENGTH;
         }
         nPts = len / pointSize + 1;
-        GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
-        aptl[0] = c->ptlCurPos;
+        GreGetCurrentPosition(c->hdc, &aptl[0]);
         for (i = 0; i < nPts - 1; i++) {
             const BYTE *pPt = p + 2 + i * pointSize;
             aptl[i+1].x = GocaGetCoord(c, pPt);
@@ -1002,7 +993,6 @@ static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
               (long)aptl[nPts-1].x, (long)aptl[nPts-1].y);
 
     GrePolyFillet(c->hdc, aptl, (LONG)nPts);
-    c->ptlCurPos = aptl[nPts - 1];
 
     GocaCallResult("GOCA_OK (%u pts)", (unsigned)nPts);
     return GOCA_OK;
@@ -1307,14 +1297,15 @@ static LONG DoSetPatternRefPoint(GOCA_CTX *c, const BYTE *p, ULONG cb)
  * is set; with DRAWRECT its boundary is stroked via GreBoxBoundary.
  * adx, when present (remaining length == cchString * coordSize), is
  * converted to LONG[] and passed as the per-character increment array.
- * With LEAVEPOS the previous current position is restored after the
- * string; with MOVEPOS the cached position is refreshed from the DC.
+ * With LEAVEPOS the current position read from the DC before the string
+ * is restored afterwards; with MOVEPOS the DC keeps the position reached
+ * at the end of the string.
  * UNDERSCORE/STRIKEOUT are reported in the trace: the cached
  * CHARBUNDLE exposes no character-definition bits in the provided
  * headers.
  *
  * @param [in] c      GOCA context (coordSize, coordEndian, cached
- *                    bundles, current position).
+ *                    bundles).
  * @param [in] p      Pointer to the extended order (0xFE, qualifier,
  *                    SWPUSHORT length, operands).
  * @param [in] cb     Bytes available from p to the end of the stream
@@ -1397,12 +1388,10 @@ static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
             plX[i] = GocaGetCoord(c, pAdx + i * (ULONG)c->coordSize);
     }
 
-    ptOld = c->ptlCurPos;
+    GreGetCurrentPosition(c->hdc, &ptOld);
     if (bGiven) {
         ptStart = ptCorner0;
     } else {
-        GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
-        ptOld   = c->ptlCurPos;
         ptStart = ptOld;
     }
 
@@ -1427,12 +1416,10 @@ static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
         GreBoxBoundary(c->hdc, &bp);
     }
 
-    /* LEAVEPOS: current position unchanged; MOVEPOS: ends at string end */
+    /* LEAVEPOS: restore the position read before the string;
+       MOVEPOS: the DC already holds the position reached at the end. */
     if (fbFlags & GCCHSTE_LEAVEPOS) {
         GreSetCurrentPosition(c->hdc, &ptOld);
-        c->ptlCurPos = ptOld;
-    } else {
-        GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
     }
 
     if (plX) DosFreeMem(plX);
@@ -1449,8 +1436,7 @@ static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
  * @brief Initialize the parser context for server-side use.
  *
  * Sets @c hdc, stream pointers, format from defaults, and pulls live
- * bundles plus the current position from the device. Must be called
- * with a valid Gre* @c hdc.
+ * bundles from the device. Must be called with a valid Gre* @c hdc.
  *
  * @param [out] c    GOCA context to initialize.
  * @param [in]  hdc  Target DC (Gre* handle); NULL for client-side use.
@@ -1471,8 +1457,8 @@ void GocaInit(GOCA_CTX *c, HDC hdc, PBYTE pb, ULONG cb)
 
     GocaTrace(c, "[GOCA] init: %u bytes\n", (unsigned)cb);
 
-    /* Server only: pull live bundles so untouched attributes keep the
-       DC defaults, and seed the current position. Client passes hdc == NULL. */
+       /* Server only: pull live bundles so untouched attributes keep the
+       DC defaults. Client passes hdc == NULL. */
     if (hdc) {
         GreDeviceGetAttributes(hdc, PRIM_LINE,
             LBB_COLOR|LBB_BACK_COLOR|LBB_MIX_MODE|LBB_BACK_MIX_MODE|
@@ -1491,7 +1477,6 @@ void GocaInit(GOCA_CTX *c, HDC hdc, PBYTE pb, ULONG cb)
             ABB_COLOR|ABB_BACK_COLOR|ABB_MIX_MODE|ABB_BACK_MIX_MODE|
             ABB_SET|ABB_SYMBOL|ABB_REF_POINT,
             (PBUNDLE)&c->ab);
-        GreGetCurrentPosition(c->hdc, &c->ptlCurPos);
     }
 
     GocaCallResult("void");
