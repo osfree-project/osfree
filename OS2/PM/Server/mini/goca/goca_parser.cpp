@@ -146,10 +146,14 @@ static POINTL PtsToPtl(GOCA_CTX *c, const BYTE *p)
 
 /*!
  * @def GOCA_MAX_POINTS
+ *
+ * @def GOCA_MAX_POINTS
  * @brief Maximum point count of a single long-format order.
- * LENGTH is one byte (at most 255) and the smallest point is two bytes
- * (GOCA_COORD_BYTE), giving 127 points, plus the prepended current
- * position.
+ * LENGTH is one byte (at most 255). For GOCA_COORD_BYTE the point size
+ * is 2 bytes, giving 127 points plus the prepended current position
+ * (128 total). For GOCA_COORD_SHORT (4 bytes per point) the maximum is
+ * 63 points (64 total). For GOCA_COORD_LONG (8 bytes per point) the
+ * maximum is 31 points (32 total).
  */
 #define GOCA_MAX_POINTS  (255u / 2u + 1u)
 
@@ -177,6 +181,210 @@ static void FillPtlArray(GOCA_CTX *c, const BYTE *pData, ULONG nPts, PPOINTL ppt
 }
 
 /* ======================================================================== */
+/*  Attribute stack                                                         */
+/* ======================================================================== */
+
+/*!
+ * @brief Reserve the next attribute-stack entry.
+ * The entry is zeroed so that unused masks and union members are
+ * deterministic.
+ * @param [in] c  GOCA context.
+ * @return Pointer to the reserved entry, or NULL when the stack is full.
+ * @retval NULL  Stack depth limit reached (GOCA_STACK_DEPTH).
+ */
+static GOCA_STACK_ENTRY *GocaStackPush(GOCA_CTX *c)
+{
+    GOCA_STACK_ENTRY *e;
+
+    if (c->uStackDepth >= GOCA_STACK_DEPTH) {
+        return NULL;
+    }
+    e = &c->aStack[c->uStackDepth++];
+    memset(e, 0, sizeof(*e));
+    return e;
+}
+
+/*!
+@brief Save primitive attributes before a Push-and-Set order changes them.
+Only the primitive types with a non-zero mask are read from the DC.
+A shorthand order passes the same attribute mask for every primitive
+type it affects, so one Pop restores all of them.
+@param [in] c         GOCA context.
+@param [in] usLine    LBB_* mask, 0 to skip the line bundle.
+@param [in] usChar    CBB_* mask, 0 to skip the character bundle.
+@param [in] usMarker  MBB_* mask, 0 to skip the marker bundle.
+@param [in] usArea    ABB_* mask, 0 to skip the area bundle.
+@param [in] usImage   IBB_* mask, 0 to skip the image bundle.
+@return GOCA_OK, or GOCA_EC_STACK_OVERFLOW when the stack is full.
+@retval GOCA_OK                 Attributes saved.
+@retval GOCA_EC_STACK_OVERFLOW  Stack depth limit reached.
+*/
+static LONG GocaPushAttr(GOCA_CTX *c, USHORT usLine, USHORT usChar,
+                         USHORT usMarker, USHORT usArea, USHORT usImage)
+{
+    GOCA_STACK_ENTRY *e;
+
+    GocaCallEnter("L=%04X C=%04X M=%04X A=%04X I=%04X depth=%u",
+                  (unsigned)usLine, (unsigned)usChar, (unsigned)usMarker,
+                  (unsigned)usArea, (unsigned)usImage,
+                  (unsigned)c->uStackDepth);
+
+    e = GocaStackPush(c);
+    if (!e) {
+        GocaCallResult("GOCA_EC_STACK_OVERFLOW");
+        return GOCA_EC_STACK_OVERFLOW;
+    }
+
+    e->uchKind  = GOCA_STACK_ATTR;
+    e->usLine   = usLine;
+    e->usChar   = usChar;
+    e->usMarker = usMarker;
+    e->usArea   = usArea;
+    e->usImage  = usImage;
+
+    if (usLine) {
+        GreDeviceGetAttributes(c->hdc, PRIM_LINE, (ULONG)usLine,
+                               (PBUNDLE)&e->u.bundles.lb);
+    }
+    if (usChar) {
+        GreDeviceGetAttributes(c->hdc, PRIM_CHAR, (ULONG)usChar,
+                               (PBUNDLE)&e->u.bundles.cb);
+    }
+    if (usMarker) {
+        GreDeviceGetAttributes(c->hdc, PRIM_MARKER, (ULONG)usMarker,
+                               (PBUNDLE)&e->u.bundles.mb);
+    }
+    if (usArea) {
+        GreDeviceGetAttributes(c->hdc, PRIM_AREA, (ULONG)usArea,
+                               (PBUNDLE)&e->u.bundles.ab);
+    }
+    if (usImage) {
+        GreDeviceGetAttributes(c->hdc, PRIM_IMAGE, (ULONG)usImage,
+                               (PBUNDLE)&e->u.bundles.ib);
+    }
+
+    GocaCallResult("GOCA_OK (depth=%u)", (unsigned)c->uStackDepth);
+    return GOCA_OK;
+}
+
+/*!
+@brief Save the current position before a Push-and-Set order changes it.
+@param [in] c  GOCA context.
+@return GOCA_OK, or GOCA_EC_STACK_OVERFLOW when the stack is full.
+@retval GOCA_OK                 Position saved.
+@retval GOCA_EC_STACK_OVERFLOW  Stack depth limit reached.
+*/
+static LONG GocaPushCurPos(GOCA_CTX *c)
+{
+    GOCA_STACK_ENTRY *e;
+
+    GocaCallEnter("depth=%u", (unsigned)c->uStackDepth);
+
+    e = GocaStackPush(c);
+    if (!e) {
+        GocaCallResult("GOCA_EC_STACK_OVERFLOW");
+        return GOCA_EC_STACK_OVERFLOW;
+    }
+
+    e->uchKind = GOCA_STACK_CURPOS;
+    GreGetCurrentPosition(c->hdc, &e->u.ptlCurPos);
+
+    GocaCallResult("GOCA_OK (pos=(%ld,%ld) depth=%u)",
+                  (long)e->u.ptlCurPos.x, (long)e->u.ptlCurPos.y,
+                  (unsigned)c->uStackDepth);
+    return GOCA_OK;
+}
+
+/*!
+@brief Save the arc parameters before a Push-and-Set order changes them.
+Arc parameters are a drawing process control, not a primitive bundle
+attribute, but they share the attribute stack.
+@param [in] c  GOCA context.
+@return GOCA_OK, or GOCA_EC_STACK_OVERFLOW when the stack is full.
+@retval GOCA_OK                 Parameters saved.
+@retval GOCA_EC_STACK_OVERFLOW  Stack depth limit reached.
+*/
+static LONG GocaPushArcParams(GOCA_CTX *c)
+{
+    GOCA_STACK_ENTRY *e;
+
+    GocaCallEnter("depth=%u", (unsigned)c->uStackDepth);
+
+    e = GocaStackPush(c);
+    if (!e) {
+        GocaCallResult("GOCA_EC_STACK_OVERFLOW");
+        return GOCA_EC_STACK_OVERFLOW;
+    }
+
+    e->uchKind = GOCA_STACK_ARCPARAMS;
+    GreGetArcParameters(c->hdc, &e->u.ap);
+
+    GocaCallResult("GOCA_OK (P=%ld Q=%ld R=%ld S=%ld depth=%u)",
+                  (long)e->u.ap.lP, (long)e->u.ap.lQ,
+                  (long)e->u.ap.lR, (long)e->u.ap.lS,
+                  (unsigned)c->uStackDepth);
+    return GOCA_OK;
+}
+
+/*!
+@brief Restore one attribute-stack entry (GPOP, X'3F').
+The most recently pushed entry is unstacked and applied to the DC.
+Only the parts recorded by the matching Push are restored. One GPOP
+order restores one entry; a count is expressed by repeating the order.
+@param [in] c  GOCA context.
+@return GOCA_OK.
+@retval GOCA_OK  Entry restored, or the stack was empty.
+*/
+static LONG GocaPop(GOCA_CTX *c)
+{
+    GOCA_STACK_ENTRY *e;
+
+    GocaCallEnter("depth=%u", (unsigned)c->uStackDepth);
+
+    if (c->uStackDepth == 0) {
+        GocaCallResult("GOCA_OK (stack empty)");
+        return GOCA_OK;
+    }
+
+    e = &c->aStack[--c->uStackDepth];
+
+    switch (e->uchKind) {
+    case GOCA_STACK_ATTR:
+        if (e->usLine) {
+            GreDeviceSetAttributes(c->hdc, PRIM_LINE, 0UL, (ULONG)e->usLine,
+                                   (PBUNDLE)&e->u.bundles.lb);
+        }
+        if (e->usChar) {
+            GreDeviceSetAttributes(c->hdc, PRIM_CHAR, 0UL, (ULONG)e->usChar,
+                                   (PBUNDLE)&e->u.bundles.cb);
+        }
+        if (e->usMarker) {
+            GreDeviceSetAttributes(c->hdc, PRIM_MARKER, 0UL, (ULONG)e->usMarker,
+                                   (PBUNDLE)&e->u.bundles.mb);
+        }
+        if (e->usArea) {
+            GreDeviceSetAttributes(c->hdc, PRIM_AREA, 0UL, (ULONG)e->usArea,
+                                   (PBUNDLE)&e->u.bundles.ab);
+        }
+        if (e->usImage) {
+            GreDeviceSetAttributes(c->hdc, PRIM_IMAGE, 0UL, (ULONG)e->usImage,
+                                   (PBUNDLE)&e->u.bundles.ib);
+        }
+        break;
+    case GOCA_STACK_CURPOS:
+        GreSetCurrentPosition(c->hdc, &e->u.ptlCurPos);
+        break;
+    case GOCA_STACK_ARCPARAMS:
+        GreSetArcParameters(c->hdc, &e->u.ap);
+        break;
+    }
+
+    GocaCallResult("GOCA_OK (kind=%u depth=%u)",
+                  (unsigned)e->uchKind, (unsigned)c->uStackDepth);
+    return GOCA_OK;
+}
+
+/* ======================================================================== */
 /*  Long-order handlers                                                     */
 /* ======================================================================== */
 
@@ -185,19 +393,19 @@ static void FillPtlArray(GOCA_CTX *c, const BYTE *pData, ULONG nPts, PPOINTL ppt
  *
  * @param [in] c   GOCA context.
  * @param [in] p   Pointer to the order (code, length, operands).
- * @param [in] cb  Bytes available from p to the end of the stream.
+ * @param [in] bPush    Push to attribute stack.
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
  * @retval GOCA_EC_INVALID_LENGTH Declared length shorter than two
  *                                geometric parameters.
  */
-static LONG DoGSCP(GOCA_CTX *c, const BYTE *p, ULONG cb)
+static LONG DoGSCP(GOCA_CTX *c, const BYTE *p, BOOL bPush)
 {
     POINTL pt;
 
-    GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
+    GocaCallEnter("p=%p", p);
 
-    if (p[1] < 2u * (ULONG)c->coordSize) {
+    if (p[1] != 2u * (ULONG)c->coordSize) {
         GocaCallResult("GOCA_EC_INVALID_LENGTH");
         return GOCA_EC_INVALID_LENGTH;
     }
@@ -205,7 +413,6 @@ static LONG DoGSCP(GOCA_CTX *c, const BYTE *p, ULONG cb)
     GocaTrace(c, "[GOCA]   GSCP: pos=(%ld,%ld)\n",
               (long)pt.x, (long)pt.y);
     GreSetCurrentPosition(c->hdc, &pt);
-    c->ptlCurPos = pt;
 
     GocaCallResult("GOCA_OK (pos=(%ld,%ld))", (long)pt.x, (long)pt.y);
     return GOCA_OK;
@@ -1347,7 +1554,17 @@ LONG GocaParseStream(GOCA_CTX *c)
             case OCODE_GSMP:
                 break;
 
+            case OCODE_GPOP:
+                if (p[1] != 0) { rc = GOCA_EC_RESERVED_NOT_ZERO; break; }
+                rc = GocaPop(c);
+                break;
+
             /* ============ colour (2-byte GSCOL / long GSECOL) ============ */
+            case OCODE_GPSCOL:
+                rc = GocaPushAttr(c, LBB_COLOR, CBB_COLOR, MBB_COLOR,
+                                  ABB_COLOR, IBB_COLOR);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSCOL: {
                 COLOR clr = (COLOR)p[1];
                 GocaCallEnter("GSCOL color=%u", (unsigned)clr);
@@ -1361,6 +1578,11 @@ LONG GocaParseStream(GOCA_CTX *c)
                 break;
             }
 
+            case OCODE_GPSECOL:
+                rc = GocaPushAttr(c, LBB_COLOR, CBB_COLOR, MBB_COLOR,
+                                  ABB_COLOR, IBB_COLOR);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSECOL: {
                 USHORT raw;
                 COLOR  clr;
@@ -1381,6 +1603,11 @@ LONG GocaParseStream(GOCA_CTX *c)
             }
 
             /* ============ mix ============ */
+            case OCODE_GPSMX:
+                rc = GocaPushAttr(c, LBB_MIX_MODE, CBB_MIX_MODE,
+                                  MBB_MIX_MODE, ABB_MIX_MODE, IBB_MIX_MODE);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSMX: {
                 GocaCallEnter("GSMX mix=%u", (unsigned)p[1]);
                 c->lb.usMixMode = c->cb.usMixMode =
@@ -1393,6 +1620,12 @@ LONG GocaParseStream(GOCA_CTX *c)
                 break;
             }
 
+            case OCODE_GPSBMX:
+                rc = GocaPushAttr(c, LBB_BACK_MIX_MODE, CBB_BACK_MIX_MODE,
+                                  MBB_BACK_MIX_MODE, ABB_BACK_MIX_MODE,
+                                  IBB_BACK_MIX_MODE);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSBMX: {
                 GocaCallEnter("GSBMX backmix=%u", (unsigned)p[1]);
                 c->lb.usBackMixMode = c->cb.usBackMixMode =
@@ -1406,6 +1639,10 @@ LONG GocaParseStream(GOCA_CTX *c)
             }
 
             /* ============ line attributes ============ */
+            case OCODE_GPSLT:
+                rc = GocaPushAttr(c, LBB_TYPE, 0, 0, 0, 0);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSLT: {
                 GocaCallEnter("GSLT type=%u", (unsigned)p[1]);
                 c->lb.usType = (USHORT)p[1];
@@ -1414,6 +1651,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 break;
             }
 
+            case OCODE_GPSLW:
+                rc = GocaPushAttr(c, LBB_WIDTH | LBB_GEOM_WIDTH, 0, 0, 0, 0);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSLW: {
                 FIXED fx = MAKEFIXED(p[1], 0);
                 GocaCallEnter("GSLW width=%u", (unsigned)p[1]);
@@ -1425,6 +1666,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 break;
             }
 
+            case OCODE_GPSFLW:
+                rc = GocaPushAttr(c, LBB_WIDTH | LBB_GEOM_WIDTH, 0, 0, 0, 0);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSFLW: {
                 UCHAR ip, fp;
                 FIXED fx;
@@ -1440,6 +1685,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 break;
             }
 
+            case OCODE_GPSLE:
+                rc = GocaPushAttr(c, LBB_END, 0, 0, 0, 0);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSLE: {
                 GocaCallEnter("GSLE end=%u", (unsigned)p[1]);
                 c->lb.usEnd = (USHORT)p[1];
@@ -1448,6 +1697,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 break;
             }
 
+            case OCODE_GPSLJ:
+                rc = GocaPushAttr(c, LBB_JOIN, 0, 0, 0, 0);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSLJ: {
                 GocaCallEnter("GSLJ join=%u", (unsigned)p[1]);
                 c->lb.usJoin = (USHORT)p[1];
@@ -1457,6 +1710,10 @@ LONG GocaParseStream(GOCA_CTX *c)
             }
 
             /* ============ marker attributes ============ */
+            case OCODE_GPSMS:
+                rc = GocaPushAttr(c, 0, 0, MBB_SET, 0, 0);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSMS: {
                 GocaCallEnter("GSMS set=%u", (unsigned)p[1]);
                 c->mb.usSet = (USHORT)p[1];
@@ -1465,6 +1722,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 break;
             }
 
+            case OCODE_GPSMT:
+                rc = GocaPushAttr(c, 0, 0, MBB_SYMBOL, 0, 0);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSMT: {
                 GocaCallEnter("GSMT symbol=%u", (unsigned)p[1]);
                 c->mb.usSymbol = (USHORT)p[1];
@@ -1474,6 +1735,10 @@ LONG GocaParseStream(GOCA_CTX *c)
             }
 
             /* ============ area attributes ============ */
+            case OCODE_GPSPS:
+                rc = GocaPushAttr(c, 0, 0, 0, ABB_SET, 0);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSPS: {
                 GocaCallEnter("GSPS set=%u", (unsigned)p[1]);
                 c->ab.usSet = (USHORT)p[1];
@@ -1482,6 +1747,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 break;
             }
 
+            case OCODE_GPSPT:
+                rc = GocaPushAttr(c, 0, 0, 0, ABB_SYMBOL, 0);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSPT: {
                 GocaCallEnter("GSPT symbol=%u", (unsigned)p[1]);
                 c->ab.usSymbol = (USHORT)p[1];
@@ -1491,6 +1760,10 @@ LONG GocaParseStream(GOCA_CTX *c)
             }
 
             /* ============ char attributes ============ */
+            case OCODE_GPSCS:
+                rc = GocaPushAttr(c, 0, CBB_SET, 0, 0, 0);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSCS: {
                 GocaCallEnter("GSCS lcid=%u", (unsigned)p[1]);
                 c->cb.usSet = (USHORT)p[1];
@@ -1499,6 +1772,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 break;
             }
 
+            case OCODE_GPSCD:
+                rc = GocaPushAttr(c, 0, CBB_DIRECTION, 0, 0, 0);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSCD: {
                 GocaCallEnter("GSCD dir=%u", (unsigned)p[1]);
                 c->cb.usDirection = (USHORT)p[1];
@@ -1507,6 +1784,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 break;
             }
 
+            case OCODE_GPSCR:
+                rc = GocaPushAttr(c, 0, CBB_MODE, 0, 0, 0);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSCR: {
                 GocaCallEnter("GSCR prec=%u", (unsigned)(p[1] & GSCR_PRECISION));
                 c->cb.usPrecision = (USHORT)(p[1] & GSCR_PRECISION);
@@ -1544,8 +1825,11 @@ LONG GocaParseStream(GOCA_CTX *c)
             }
 
             /* ============ long: primitives ============ */
-            case OCODE_GSCP:    rc = DoGSCP(c, p, cbOrder); break;
-
+            case OCODE_GPSCP:
+                rc = GocaPushCurPos(c);
+                if (rc != GOCA_OK) break;
+                /* fall through */
+            case OCODE_GSCP:    rc = DoGSCP(c, p, FALSE); break;
             
             case OCODE_GLINE:   rc = DoLine(c, p, TRUE); break;
             case OCODE_GCLINE:  rc = DoLine(c, p, FALSE);  break;
@@ -1568,9 +1852,25 @@ LONG GocaParseStream(GOCA_CTX *c)
             case OCODE_GCFLT:   rc = DoFillet(c, p, cbOrder, TRUE);  break;
 
             /* ============ long: attributes ============ */
+            case OCODE_GPSAP:
+                rc = GocaPushArcParams(c);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSAP:    rc = DoSetArcParams(c, p, cbOrder); break;
+            case OCODE_GPSCC:
+                rc = GocaPushAttr(c, 0, CBB_BOX, 0, 0, 0);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSCC:    rc = DoSetCharCell(c, p, cbOrder); break;
+            case OCODE_GPSMC:
+                rc = GocaPushAttr(c, 0, 0, MBB_BOX, 0, 0);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSMC:    rc = DoSetMarkerCell(c, p, cbOrder); break;
+            case OCODE_GPSPRP:
+                rc = GocaPushAttr(c, 0, 0, 0, ABB_REF_POINT, 0);
+                if (rc != GOCA_OK) break;
+                /* fall through */
             case OCODE_GSPRP:   rc = DoSetPatternRefPoint(c, p, cbOrder); break;
 
             case OCODE_GBSEG:   /* segment marker; content is replayed by the
@@ -1629,6 +1929,8 @@ const char *GocaErrorName(LONG lError)
     case GOCA_OK:                   return "OK";
     case GOCA_EC_UNALLOCATED_ORDER: return "EC-0001: Unallocated order codes";
     case GOCA_EC_INVALID_LENGTH:    return "EC-0003: Incorrect length specification";
+    case GOCA_EC_RESERVED_NOT_ZERO: return "EC-0002: Reserved byte or bit not zero";
+    case GOCA_EC_STACK_OVERFLOW:    return "EC-0005: Segment stack overflow";
     case GOCA_EC_TRUNCATED_ORDER:   return "EC-0008: Truncated order";
     case GOCA_EC_GBAR_NESTED:       return "EC-6800: A Begin Area order has been executed after another Begin Area order, without an intervening End Area order being executed";
     case GOCA_ERR_NOMEM:  return "out of memory";
@@ -1716,6 +2018,28 @@ const char *GocaOrderName(UCHAR uCode)
     case OCODE_GOPTH:   return "GOPTH";
     case OCODE_GMPTH:   return "GMPTH";
     case OCODE_GSCPTH:  return "GSCPTH";
+        case OCODE_GPOP:     return "GPOP";
+        case OCODE_GPSCOL:   return "GPSCOL";
+        case OCODE_GPSECOL:  return "GPSECOL";
+        case OCODE_GPSMX:    return "GPSMX";
+        case OCODE_GPSBMX:   return "GPSBMX";
+        case OCODE_GPSLT:    return "GPSLT";
+        case OCODE_GPSLW:    return "GPSLW";
+        case OCODE_GPSFLW:   return "GPSFLW";
+        case OCODE_GPSLE:    return "GPSLE";
+        case OCODE_GPSLJ:    return "GPSLJ";
+        case OCODE_GPSMS:    return "GPSMS";
+        case OCODE_GPSMT:    return "GPSMT";
+        case OCODE_GPSPS:    return "GPSPS";
+        case OCODE_GPSPT:    return "GPSPT";
+        case OCODE_GPSCS:    return "GPSCS";
+        case OCODE_GPSCD:    return "GPSCD";
+        case OCODE_GPSCR:    return "GPSCR";
+        case OCODE_GPSCP:    return "GPSCP";
+        case OCODE_GPSAP:    return "GPSAP";
+        case OCODE_GPSCC:    return "GPSCC";
+        case OCODE_GPSMC:    return "GPSMC";
+        case OCODE_GPSPRP:   return "GPSPRP";
     default:            return "?";
     }
 }
