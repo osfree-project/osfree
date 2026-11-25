@@ -18,6 +18,7 @@
    #define INCL_GPIPRIMITIVES
    #define INCL_GPIREGIONS
    #define INCL_GPITRANSFORMS
+
 #endif /* INCL_DDIDEFS */
 
 #endif
@@ -77,6 +78,19 @@ BOOL APIENTRY GpiEndElement(HPS);
 
 #ifdef INCL_GPIPRIMITIVES
 BOOL APIENTRY GpiQueryArcParams(HPS, PARCPARAMS);
+#endif
+
+#ifdef INCL_DDIDEFS /* if only DDI required then enable DDI part of GPI */
+   /* return codes for GpiPtVisible */
+   #define PVIS_ERROR                      0L
+   #define PVIS_INVISIBLE                  1L
+   #define PVIS_VISIBLE                    2L
+   
+   /* return codes for GpiRectVisible */
+   #define RVIS_ERROR                      0L
+   #define RVIS_INVISIBLE                  1L
+   #define RVIS_PARTIAL                    2L
+   #define RVIS_VISIBLE                    3L
 #endif
 
 #ifdef __cplusplus

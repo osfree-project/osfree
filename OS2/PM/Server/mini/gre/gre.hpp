@@ -4,6 +4,9 @@
 
 #include "Fs_config.hpp"
 
+// PPATH not defined. But seems to be PRECTL
+#define PPATH PRECTL
+
 #define INCL_GREALL
 #define INCL_AVIOP
 #define INCL_GRE_HFONT
