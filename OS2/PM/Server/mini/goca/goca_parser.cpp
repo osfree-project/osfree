@@ -396,7 +396,7 @@ static LONG GocaPop(GOCA_CTX *c)
  * @param [in] bPush    Push to attribute stack.
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
- * @retval GOCA_EC_INVALID_LENGTH Declared length shorter than two
+ * @retval GOCA_EC_INVALID_LENGTH Declared length not equal to two
  *                                geometric parameters.
  */
 static LONG DoGSCP(GOCA_CTX *c, const BYTE *p, BOOL bPush)
@@ -1068,11 +1068,11 @@ static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
     ULONG  fracSize = (c->coordSize == GOCA_COORD_BYTE) ? 1u : 2u;
     ULONG  dataLen, rem, off;
     BOOL   bZero;
+    CHARBUNDLE bun;
 
     GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
 
     dataLen = p[1];
-
     off = 2;
     rem = dataLen;
     if (rem < 2u * intSize) {
@@ -1114,31 +1114,29 @@ static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
     }
 
     bZero = (cxInt == 0 && cyInt == 0 && cxFrac == 0 && cyFrac == 0);
-
     if (bZero && !(fbFlags & GSCC_ZEROZERO)) {
         /* setzero=0: a cell size of zero sets drawing default.
-         * GRE exposes no char-box query; the drawing default is taken
-         * from the DC default attribute bundle. */
+         * The drawing default is taken from the DC default attribute
+         * bundle (GreGetDefaultAttributes, PRIM_CHAR / CBB_BOX). */
         CHARBUNDLE cbDef;
         if (GreGetDefaultAttributes(c->hdc, PRIM_CHAR, CBB_BOX,
                                     (PBUNDLE)&cbDef)) {
-            c->cb.sizfxCell = cbDef.sizfxCell;
+            bun.sizfxCell = cbDef.sizfxCell;
         } else {
-            c->cb.sizfxCell.cx = 0;
-            c->cb.sizfxCell.cy = 0;
+            bun.sizfxCell.cx = 0;
+            bun.sizfxCell.cy = 0;
         }
     } else {
         /* setzero=1: a cell size of zero sets to zero;
          * non-zero cell: value as specified. */
-        c->cb.sizfxCell.cx = MAKEFIXED(cxInt, cxFrac);
-        c->cb.sizfxCell.cy = MAKEFIXED(cyInt, cyFrac);
+        bun.sizfxCell.cx = MAKEFIXED(cxInt, cxFrac);
+        bun.sizfxCell.cy = MAKEFIXED(cyInt, cyFrac);
     }
 
     GocaTrace(c, "[GOCA]   GSCC: cell=(%ld.%04X,%ld.%04X) setzero=%u\n",
               (long)cxInt, (unsigned)cxFrac, (long)cyInt, (unsigned)cyFrac,
               (unsigned)((fbFlags & GSCC_ZEROZERO) != 0));
-
-    GreDeviceSetAttributes(c->hdc, PRIM_CHAR, 0UL, CBB_BOX, (PBUNDLE)&c->cb);
+    GreDeviceSetAttributes(c->hdc, PRIM_CHAR, 0UL, CBB_BOX, (PBUNDLE)&bun);
 
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
@@ -1172,11 +1170,11 @@ static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
     ULONG intSize = (ULONG)c->coordSize;
     ULONG dataLen, rem, off;
     BOOL  bZero;
+    MARKERBUNDLE bun;
 
     GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
 
     dataLen = p[1];
-
     off = 2;
     rem = dataLen;
     if (rem < 2u * intSize) {
@@ -1202,24 +1200,22 @@ static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
     }
 
     bZero = (cx == 0 && cy == 0);
-
     if (bZero && !(fbFlags & GSMC_ZEROZERO)) {
         /* setzero=0: a cell size of zero sets drawing default.
          * MARKERBUNDLE: sizfxCell == 0 is the GRE sentinel for the
          * default marker cell (nominal symbol size). */
-        c->mb.sizfxCell.cx = 0;
-        c->mb.sizfxCell.cy = 0;
+        bun.sizfxCell.cx = 0;
+        bun.sizfxCell.cy = 0;
     } else {
         /* Non-zero cell as specified, or zero + setzero=1 (literal zero). */
-        c->mb.sizfxCell.cx = MAKEFIXED(cx, 0);
-        c->mb.sizfxCell.cy = MAKEFIXED(cy, 0);
+        bun.sizfxCell.cx = MAKEFIXED(cx, 0);
+        bun.sizfxCell.cy = MAKEFIXED(cy, 0);
     }
 
     GocaTrace(c, "[GOCA]   GSMC: cell=(%ld,%ld) setzero=%u\n",
               (long)cx, (long)cy,
               (unsigned)((fbFlags & GSMC_ZEROZERO) != 0));
-
-    GreDeviceSetAttributes(c->hdc, PRIM_MARKER, 0UL, MBB_BOX, (PBUNDLE)&c->mb);
+    GreDeviceSetAttributes(c->hdc, PRIM_MARKER, 0UL, MBB_BOX, (PBUNDLE)&bun);
 
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
@@ -1248,6 +1244,7 @@ static LONG DoSetPatternRefPoint(GOCA_CTX *c, const BYTE *p, ULONG cb)
     POINTL pt;
     UCHAR  fbFlags, uchRes;
     ULONG  pointSize = 2u * (ULONG)c->coordSize;
+    AREABUNDLE bun;
 
     GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
 
@@ -1255,7 +1252,6 @@ static LONG DoSetPatternRefPoint(GOCA_CTX *c, const BYTE *p, ULONG cb)
         GocaCallResult("GOCA_EC_INVALID_LENGTH");
         return GOCA_EC_INVALID_LENGTH;
     }
-
     fbFlags = p[2];
     uchRes  = p[3];
     if ((fbFlags & (UCHAR)~(UCHAR)GSPRP_DEFAULT) != 0 || uchRes != 0) {
@@ -1273,9 +1269,8 @@ static LONG DoSetPatternRefPoint(GOCA_CTX *c, const BYTE *p, ULONG cb)
     GocaTrace(c, "[GOCA]   GSPRP: ref=(%ld,%ld) default=%u\n",
               (long)pt.x, (long)pt.y,
               (unsigned)((fbFlags & GSPRP_DEFAULT) != 0));
-
-    c->ab.ptlRefPoint = pt;
-    GreDeviceSetAttributes(c->hdc, PRIM_AREA, 0UL, ABB_REF_POINT, (PBUNDLE)&c->ab);
+    bun.ptlRefPoint = pt;
+    GreDeviceSetAttributes(c->hdc, PRIM_AREA, 0UL, ABB_REF_POINT, (PBUNDLE)&bun);
 
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
@@ -1457,28 +1452,6 @@ void GocaInit(GOCA_CTX *c, HDC hdc, PBYTE pb, ULONG cb)
 
     GocaTrace(c, "[GOCA] init: %u bytes\n", (unsigned)cb);
 
-       /* Server only: pull live bundles so untouched attributes keep the
-       DC defaults. Client passes hdc == NULL. */
-    if (hdc) {
-        GreDeviceGetAttributes(hdc, PRIM_LINE,
-            LBB_COLOR|LBB_BACK_COLOR|LBB_MIX_MODE|LBB_BACK_MIX_MODE|
-            LBB_WIDTH|LBB_GEOM_WIDTH|LBB_TYPE|LBB_END|LBB_JOIN,
-            (PBUNDLE)&c->lb);
-        GreDeviceGetAttributes(hdc, PRIM_CHAR,
-            CBB_COLOR|CBB_BACK_COLOR|CBB_MIX_MODE|CBB_BACK_MIX_MODE|
-            CBB_SET|CBB_MODE|CBB_BOX|CBB_ANGLE|CBB_SHEAR|
-            CBB_DIRECTION|CBB_TEXT_ALIGN|CBB_EXTRA|CBB_BREAK_EXTRA,
-            (PBUNDLE)&c->cb);
-        GreDeviceGetAttributes(hdc, PRIM_MARKER,
-            MBB_COLOR|MBB_BACK_COLOR|MBB_MIX_MODE|MBB_BACK_MIX_MODE|
-            MBB_SET|MBB_SYMBOL|MBB_BOX,
-            (PBUNDLE)&c->mb);
-        GreDeviceGetAttributes(hdc, PRIM_AREA,
-            ABB_COLOR|ABB_BACK_COLOR|ABB_MIX_MODE|ABB_BACK_MIX_MODE|
-            ABB_SET|ABB_SYMBOL|ABB_REF_POINT,
-            (PBUNDLE)&c->ab);
-    }
-
     GocaCallResult("void");
 }
 
@@ -1552,13 +1525,16 @@ LONG GocaParseStream(GOCA_CTX *c)
                 /* fall through */
             case OCODE_GSCOL: {
                 COLOR clr = (COLOR)p[1];
+                LINEBUNDLE   lb;
+                CHARBUNDLE   cb;
+                MARKERBUNDLE mb;
+                AREABUNDLE   ab;
                 GocaCallEnter("GSCOL color=%u", (unsigned)clr);
-                c->lb.lColor = c->cb.lColor = c->mb.lColor =
-                               c->ab.lColor = (LONG)clr;
-                GreDeviceSetAttributes(c->hdc, PRIM_LINE,   0UL, LBB_COLOR, (PBUNDLE)&c->lb);
-                GreDeviceSetAttributes(c->hdc, PRIM_CHAR,   0UL, CBB_COLOR, (PBUNDLE)&c->cb);
-                GreDeviceSetAttributes(c->hdc, PRIM_MARKER, 0UL, MBB_COLOR, (PBUNDLE)&c->mb);
-                GreDeviceSetAttributes(c->hdc, PRIM_AREA,   0UL, ABB_COLOR, (PBUNDLE)&c->ab);
+                lb.lColor = cb.lColor = mb.lColor = ab.lColor = (LONG)clr;
+                GreDeviceSetAttributes(c->hdc, PRIM_LINE,   0UL, LBB_COLOR, (PBUNDLE)&lb);
+                GreDeviceSetAttributes(c->hdc, PRIM_CHAR,   0UL, CBB_COLOR, (PBUNDLE)&cb);
+                GreDeviceSetAttributes(c->hdc, PRIM_MARKER, 0UL, MBB_COLOR, (PBUNDLE)&mb);
+                GreDeviceSetAttributes(c->hdc, PRIM_AREA,   0UL, ABB_COLOR, (PBUNDLE)&ab);
                 GocaCallResult("GOCA_OK");
                 break;
             }
@@ -1571,18 +1547,21 @@ LONG GocaParseStream(GOCA_CTX *c)
             case OCODE_GSECOL: {
                 USHORT raw;
                 COLOR  clr;
+                LINEBUNDLE   lb;
+                CHARBUNDLE   cb;
+                MARKERBUNDLE mb;
+                AREABUNDLE   ab;
                 if (p[1] < 2) { rc = GOCA_EC_INVALID_LENGTH; break; }
                 raw = GocaGetU16(p + 2);
                 GocaCallEnter("GSECOL color=%04X", (unsigned)raw);
                 clr = ((raw & 0xFF00) == 0xFF00)
                       ? (COLOR)(raw & 0x00FF)
                       : (COLOR)raw;
-                c->lb.lColor = c->cb.lColor = c->mb.lColor =
-                               c->ab.lColor = (LONG)clr;
-                GreDeviceSetAttributes(c->hdc, PRIM_LINE,   0UL, LBB_COLOR, (PBUNDLE)&c->lb);
-                GreDeviceSetAttributes(c->hdc, PRIM_CHAR,   0UL, CBB_COLOR, (PBUNDLE)&c->cb);
-                GreDeviceSetAttributes(c->hdc, PRIM_MARKER, 0UL, MBB_COLOR, (PBUNDLE)&c->mb);
-                GreDeviceSetAttributes(c->hdc, PRIM_AREA,   0UL, ABB_COLOR, (PBUNDLE)&c->ab);
+                lb.lColor = cb.lColor = mb.lColor = ab.lColor = (LONG)clr;
+                GreDeviceSetAttributes(c->hdc, PRIM_LINE,   0UL, LBB_COLOR, (PBUNDLE)&lb);
+                GreDeviceSetAttributes(c->hdc, PRIM_CHAR,   0UL, CBB_COLOR, (PBUNDLE)&cb);
+                GreDeviceSetAttributes(c->hdc, PRIM_MARKER, 0UL, MBB_COLOR, (PBUNDLE)&mb);
+                GreDeviceSetAttributes(c->hdc, PRIM_AREA,   0UL, ABB_COLOR, (PBUNDLE)&ab);
                 GocaCallResult("GOCA_OK");
                 break;
             }
@@ -1594,31 +1573,37 @@ LONG GocaParseStream(GOCA_CTX *c)
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSMX: {
+                LINEBUNDLE   lb;
+                CHARBUNDLE   cb;
+                MARKERBUNDLE mb;
+                AREABUNDLE   ab;
                 GocaCallEnter("GSMX mix=%u", (unsigned)p[1]);
-                c->lb.usMixMode = c->cb.usMixMode =
-                c->mb.usMixMode = c->ab.usMixMode = (USHORT)p[1];
-                GreDeviceSetAttributes(c->hdc, PRIM_LINE,   0UL, LBB_MIX_MODE, (PBUNDLE)&c->lb);
-                GreDeviceSetAttributes(c->hdc, PRIM_CHAR,   0UL, CBB_MIX_MODE, (PBUNDLE)&c->cb);
-                GreDeviceSetAttributes(c->hdc, PRIM_MARKER, 0UL, MBB_MIX_MODE, (PBUNDLE)&c->mb);
-                GreDeviceSetAttributes(c->hdc, PRIM_AREA,   0UL, ABB_MIX_MODE, (PBUNDLE)&c->ab);
+                lb.usMixMode = cb.usMixMode = mb.usMixMode = ab.usMixMode = (USHORT)p[1];
+                GreDeviceSetAttributes(c->hdc, PRIM_LINE,   0UL, LBB_MIX_MODE, (PBUNDLE)&lb);
+                GreDeviceSetAttributes(c->hdc, PRIM_CHAR,   0UL, CBB_MIX_MODE, (PBUNDLE)&cb);
+                GreDeviceSetAttributes(c->hdc, PRIM_MARKER, 0UL, MBB_MIX_MODE, (PBUNDLE)&mb);
+                GreDeviceSetAttributes(c->hdc, PRIM_AREA,   0UL, ABB_MIX_MODE, (PBUNDLE)&ab);
                 GocaCallResult("GOCA_OK");
                 break;
             }
-
             case OCODE_GPSBMX:
                 rc = GocaPushAttr(c, LBB_BACK_MIX_MODE, CBB_BACK_MIX_MODE,
                                   MBB_BACK_MIX_MODE, ABB_BACK_MIX_MODE,
                                   IBB_BACK_MIX_MODE);
                 if (rc != GOCA_OK) break;
                 /* fall through */
-            case OCODE_GSBMX: {
+      case OCODE_GSBMX: {
+                LINEBUNDLE   lb;
+                CHARBUNDLE   cb;
+                MARKERBUNDLE mb;
+                AREABUNDLE   ab;
                 GocaCallEnter("GSBMX backmix=%u", (unsigned)p[1]);
-                c->lb.usBackMixMode = c->cb.usBackMixMode =
-                c->mb.usBackMixMode = c->ab.usBackMixMode = (USHORT)p[1];
-                GreDeviceSetAttributes(c->hdc, PRIM_LINE,   0UL, LBB_BACK_MIX_MODE, (PBUNDLE)&c->lb);
-                GreDeviceSetAttributes(c->hdc, PRIM_CHAR,   0UL, CBB_BACK_MIX_MODE, (PBUNDLE)&c->cb);
-                GreDeviceSetAttributes(c->hdc, PRIM_MARKER, 0UL, MBB_BACK_MIX_MODE, (PBUNDLE)&c->mb);
-                GreDeviceSetAttributes(c->hdc, PRIM_AREA,   0UL, ABB_BACK_MIX_MODE, (PBUNDLE)&c->ab);
+                lb.usBackMixMode = cb.usBackMixMode =
+                mb.usBackMixMode = ab.usBackMixMode = (USHORT)p[1];
+                GreDeviceSetAttributes(c->hdc, PRIM_LINE,   0UL, LBB_BACK_MIX_MODE, (PBUNDLE)&lb);
+                GreDeviceSetAttributes(c->hdc, PRIM_CHAR,   0UL, CBB_BACK_MIX_MODE, (PBUNDLE)&cb);
+                GreDeviceSetAttributes(c->hdc, PRIM_MARKER, 0UL, MBB_BACK_MIX_MODE, (PBUNDLE)&mb);
+                GreDeviceSetAttributes(c->hdc, PRIM_AREA,   0UL, ABB_BACK_MIX_MODE, (PBUNDLE)&ab);
                 GocaCallResult("GOCA_OK");
                 break;
             }
@@ -1629,9 +1614,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSLT: {
+                LINEBUNDLE lb;
                 GocaCallEnter("GSLT type=%u", (unsigned)p[1]);
-                c->lb.usType = (USHORT)p[1];
-                GreDeviceSetAttributes(c->hdc, PRIM_LINE, 0UL, LBB_TYPE, (PBUNDLE)&c->lb);
+                lb.usType = (USHORT)p[1];
+                GreDeviceSetAttributes(c->hdc, PRIM_LINE, 0UL, LBB_TYPE, (PBUNDLE)&lb);
                 GocaCallResult("GOCA_OK");
                 break;
             }
@@ -1641,12 +1627,13 @@ LONG GocaParseStream(GOCA_CTX *c)
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSLW: {
+                LINEBUNDLE lb;
                 FIXED fx = MAKEFIXED(p[1], 0);
                 GocaCallEnter("GSLW width=%u", (unsigned)p[1]);
-                c->lb.fxWidth    = fx;
-                c->lb.lGeomWidth = (LONG)p[1];
+                lb.fxWidth    = fx;
+                lb.lGeomWidth = (LONG)p[1];
                 GreDeviceSetAttributes(c->hdc, PRIM_LINE, 0UL,
-                                       LBB_WIDTH | LBB_GEOM_WIDTH, (PBUNDLE)&c->lb);
+                                       LBB_WIDTH | LBB_GEOM_WIDTH, (PBUNDLE)&lb);
                 GocaCallResult("GOCA_OK");
                 break;
             }
@@ -1656,16 +1643,17 @@ LONG GocaParseStream(GOCA_CTX *c)
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSFLW: {
+                LINEBUNDLE lb;
                 UCHAR ip, fp;
                 FIXED fx;
                 if (p[1] < 2) { rc = GOCA_EC_INVALID_LENGTH; break; }
                 ip = p[2]; fp = p[3];
                 GocaCallEnter("GSFLW width=%u.%02X", (unsigned)ip, (unsigned)fp);
                 fx = MAKEFIXED(ip, (ULONG)fp << 8);
-                c->lb.fxWidth    = fx;
-                c->lb.lGeomWidth = (LONG)ip;
+                lb.fxWidth    = fx;
+                lb.lGeomWidth = (LONG)ip;
                 GreDeviceSetAttributes(c->hdc, PRIM_LINE, 0UL,
-                                       LBB_WIDTH | LBB_GEOM_WIDTH, (PBUNDLE)&c->lb);
+                                       LBB_WIDTH | LBB_GEOM_WIDTH, (PBUNDLE)&lb);
                 GocaCallResult("GOCA_OK");
                 break;
             }
@@ -1675,9 +1663,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSLE: {
+                LINEBUNDLE lb;
                 GocaCallEnter("GSLE end=%u", (unsigned)p[1]);
-                c->lb.usEnd = (USHORT)p[1];
-                GreDeviceSetAttributes(c->hdc, PRIM_LINE, 0UL, LBB_END, (PBUNDLE)&c->lb);
+                lb.usEnd = (USHORT)p[1];
+                GreDeviceSetAttributes(c->hdc, PRIM_LINE, 0UL, LBB_END, (PBUNDLE)&lb);
                 GocaCallResult("GOCA_OK");
                 break;
             }
@@ -1687,9 +1676,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSLJ: {
+                LINEBUNDLE lb;
                 GocaCallEnter("GSLJ join=%u", (unsigned)p[1]);
-                c->lb.usJoin = (USHORT)p[1];
-                GreDeviceSetAttributes(c->hdc, PRIM_LINE, 0UL, LBB_JOIN, (PBUNDLE)&c->lb);
+                lb.usJoin = (USHORT)p[1];
+                GreDeviceSetAttributes(c->hdc, PRIM_LINE, 0UL, LBB_JOIN, (PBUNDLE)&lb);
                 GocaCallResult("GOCA_OK");
                 break;
             }
@@ -1700,9 +1690,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSMS: {
+                MARKERBUNDLE mb;
                 GocaCallEnter("GSMS set=%u", (unsigned)p[1]);
-                c->mb.usSet = (USHORT)p[1];
-                GreDeviceSetAttributes(c->hdc, PRIM_MARKER, 0UL, MBB_SET, (PBUNDLE)&c->mb);
+                mb.usSet = (USHORT)p[1];
+                GreDeviceSetAttributes(c->hdc, PRIM_MARKER, 0UL, MBB_SET, (PBUNDLE)&mb);
                 GocaCallResult("GOCA_OK");
                 break;
             }
@@ -1712,9 +1703,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSMT: {
+                MARKERBUNDLE mb;
                 GocaCallEnter("GSMT symbol=%u", (unsigned)p[1]);
-                c->mb.usSymbol = (USHORT)p[1];
-                GreDeviceSetAttributes(c->hdc, PRIM_MARKER, 0UL, MBB_SYMBOL, (PBUNDLE)&c->mb);
+                mb.usSymbol = (USHORT)p[1];
+                GreDeviceSetAttributes(c->hdc, PRIM_MARKER, 0UL, MBB_SYMBOL, (PBUNDLE)&mb);
                 GocaCallResult("GOCA_OK");
                 break;
             }
@@ -1725,9 +1717,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSPS: {
+                AREABUNDLE ab;
                 GocaCallEnter("GSPS set=%u", (unsigned)p[1]);
-                c->ab.usSet = (USHORT)p[1];
-                GreDeviceSetAttributes(c->hdc, PRIM_AREA, 0UL, ABB_SET, (PBUNDLE)&c->ab);
+                ab.usSet = (USHORT)p[1];
+                GreDeviceSetAttributes(c->hdc, PRIM_AREA, 0UL, ABB_SET, (PBUNDLE)&ab);
                 GocaCallResult("GOCA_OK");
                 break;
             }
@@ -1737,9 +1730,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSPT: {
+                AREABUNDLE ab;
                 GocaCallEnter("GSPT symbol=%u", (unsigned)p[1]);
-                c->ab.usSymbol = (USHORT)p[1];
-                GreDeviceSetAttributes(c->hdc, PRIM_AREA, 0UL, ABB_SYMBOL, (PBUNDLE)&c->ab);
+                ab.usSymbol = (USHORT)p[1];
+                GreDeviceSetAttributes(c->hdc, PRIM_AREA, 0UL, ABB_SYMBOL, (PBUNDLE)&ab);
                 GocaCallResult("GOCA_OK");
                 break;
             }
@@ -1750,9 +1744,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSCS: {
+                CHARBUNDLE cb;
                 GocaCallEnter("GSCS lcid=%u", (unsigned)p[1]);
-                c->cb.usSet = (USHORT)p[1];
-                GreDeviceSetAttributes(c->hdc, PRIM_CHAR, 0UL, CBB_SET, (PBUNDLE)&c->cb);
+                cb.usSet = (USHORT)p[1];
+                GreDeviceSetAttributes(c->hdc, PRIM_CHAR, 0UL, CBB_SET, (PBUNDLE)&cb);
                 GocaCallResult("GOCA_OK");
                 break;
             }
@@ -1762,9 +1757,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSCD: {
+                CHARBUNDLE cb;
                 GocaCallEnter("GSCD dir=%u", (unsigned)p[1]);
-                c->cb.usDirection = (USHORT)p[1];
-                GreDeviceSetAttributes(c->hdc, PRIM_CHAR, 0UL, CBB_DIRECTION, (PBUNDLE)&c->cb);
+                cb.usDirection = (USHORT)p[1];
+                GreDeviceSetAttributes(c->hdc, PRIM_CHAR, 0UL, CBB_DIRECTION, (PBUNDLE)&cb);
                 GocaCallResult("GOCA_OK");
                 break;
             }
@@ -1774,9 +1770,10 @@ LONG GocaParseStream(GOCA_CTX *c)
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSCR: {
+                CHARBUNDLE cb;
                 GocaCallEnter("GSCR prec=%u", (unsigned)(p[1] & GSCR_PRECISION));
-                c->cb.usPrecision = (USHORT)(p[1] & GSCR_PRECISION);
-                GreDeviceSetAttributes(c->hdc, PRIM_CHAR, 0UL, CBB_MODE, (PBUNDLE)&c->cb);
+                cb.usPrecision = (USHORT)(p[1] & GSCR_PRECISION);
+                GreDeviceSetAttributes(c->hdc, PRIM_CHAR, 0UL, CBB_MODE, (PBUNDLE)&cb);
                 GocaCallResult("GOCA_OK");
                 break;
             }
