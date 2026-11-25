@@ -86,11 +86,6 @@ struct _GOCA_CTX {
     BOOL     bInArea;     /*!< Inside GBAR..GEAR.                     */
     UCHAR    uAreaFlags;  /*!< GBAR flags byte.                       */
 
-    LINEBUNDLE   lb;      /*!< Cached line bundle.                    */
-    CHARBUNDLE   cb;      /*!< Cached character bundle.               */
-    MARKERBUNDLE mb;      /*!< Cached marker bundle.                  */
-    AREABUNDLE   ab;      /*!< Cached area bundle.                    */
-
     ULONG            uStackDepth;              /*!< Attribute stack depth. */
     GOCA_STACK_ENTRY aStack[GOCA_STACK_DEPTH]; /*!< Attribute stack.       */
 
