@@ -1638,37 +1638,46 @@ LONG GocaParseStream(GOCA_CTX *c)
             }
 
             case OCODE_GPSLW:
-                rc = GocaPushAttr(c, LBB_WIDTH | LBB_GEOM_WIDTH, 0, 0, 0, 0);
+                rc = GocaPushAttr(c, LBB_WIDTH, 0, 0, 0, 0);
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSLW: {
                 LINEBUNDLE lb;
-                FIXED fx = MAKEFIXED(p[1], 0);
+                ULONG flDefs = 0UL;
+                ULONG flAttrs = LBB_WIDTH;
                 GocaCallEnter("GSLW width=%u", (unsigned)p[1]);
-                lb.fxWidth    = fx;
-                lb.lGeomWidth = (LONG)p[1];
-                GreSetAttributes(c->hdc, PRIM_LINE, 0UL,
-                                 LBB_WIDTH | LBB_GEOM_WIDTH, (PBUNDLE)&lb);
+                if (p[1] == 0) {
+                    /* X'00' = drawing default: bit must be in both masks */
+                    flDefs = LBB_WIDTH;
+                    lb.fxWidth = 0; 
+                } else {
+                    lb.fxWidth = MAKEFIXED(p[1], 0);
+                }
+                GreSetAttributes(c->hdc, PRIM_LINE, flDefs, flAttrs, (PBUNDLE)&lb);
                 GocaCallResult("GOCA_OK");
                 break;
             }
 
             case OCODE_GPSFLW:
-                rc = GocaPushAttr(c, LBB_WIDTH | LBB_GEOM_WIDTH, 0, 0, 0, 0);
+                rc = GocaPushAttr(c, LBB_WIDTH, 0, 0, 0, 0);
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSFLW: {
                 LINEBUNDLE lb;
                 UCHAR ip, fp;
-                FIXED fx;
+                ULONG flDefs = 0UL;
+                ULONG flAttrs = LBB_WIDTH;
                 if (p[1] < 2) { rc = GOCA_EC_INVALID_LENGTH; break; }
                 ip = p[2]; fp = p[3];
                 GocaCallEnter("GSFLW width=%u.%02X", (unsigned)ip, (unsigned)fp);
-                fx = MAKEFIXED(ip, (ULONG)fp << 8);
-                lb.fxWidth    = fx;
-                lb.lGeomWidth = (LONG)ip;
-                GreSetAttributes(c->hdc, PRIM_LINE, 0UL,
-                                 LBB_WIDTH | LBB_GEOM_WIDTH, (PBUNDLE)&lb);
+                if (ip == 0 && fp == 0) {
+                    /* X'0000' = drawing default: bit must be in both masks */
+                    flDefs = LBB_WIDTH;
+                    lb.fxWidth = 0;
+                } else {
+                    lb.fxWidth = MAKEFIXED(ip, (ULONG)fp << 8);
+                }
+                GreSetAttributes(c->hdc, PRIM_LINE, flDefs, flAttrs, (PBUNDLE)&lb);
                 GocaCallResult("GOCA_OK");
                 break;
             }
