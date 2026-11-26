@@ -21,7 +21,11 @@
 GPI_PS g_psTable[GPI_MAX_PS];
 
 /*!
- * @brief Bit mask for DCTL_* in ps->ulDrawControl.
+ * @def DCTL_BIT
+ * @brief Compute bit mask for a DCTL_* constant.
+ *
+ * @param [in] c  DCTL constant (1-based).
+ * @return Bit mask for ps->ulDrawControl.
  */
 #define DCTL_BIT(c)  (1UL << ((c) - 1))
 
@@ -46,11 +50,14 @@ static void SrvParseOrder(PGPI_PS ps, const BYTE *pOrder, ULONG cbOrder)
  * @brief Fill FLAG1 / FLAG2 of a GBSEG header from ulInitialSegAttrs.
  *
  * FLAG1 (SC31-6804, p. 102): INVISIBLE, PROPINV, PICK, PROPICK,
- * HILITE, PROPHI, DYNAMIC, FASTCH.
+ *        HILITE, PROPHI, DYNAMIC, FASTCH.
  * FLAG2 (AFPC-0008-03, p. 75): CHAIN (bit 0), APP_NEW (bits 5-6 = 00).
- *
  * Inverted attributes: ATTR_VISIBLE = !FLAG1.INVISIBLE,
  * ATTR_PROP_VISIBLE = !FLAG1.PROPINV, ATTR_CHAINED = !FLAG2.CHAIN.
+ *
+ * @param [in]  ulAttrs  Segment attributes bitmask.
+ * @param [out] pFlag1   Destination for FLAG1 byte.
+ * @param [out] pFlag2   Destination for FLAG2 byte.
  */
 static void SrvBuildGbsegFlags(ULONG ulAttrs, UCHAR *pFlag1, UCHAR *pFlag2)
 {
@@ -76,9 +83,15 @@ static void SrvBuildGbsegFlags(ULONG ulAttrs, UCHAR *pFlag1, UCHAR *pFlag2)
  * If no segment is open, the order is drawn immediately regardless of
  * ulDrawingMode (per PM GPI: DM_RETAIN without an open segment is an
  * error, but there is nothing to retain into — we just draw).
- *
  * An unchained open segment forces DM_RETAIN even when the caller set
  * DM_DRAW / DM_DRAWANDRETAIN.
+ *
+ * @param [in] ps  Target PS entry.
+ * @param [in] p   Order bytes.
+ * @param [in] cb  Order length.
+ * @return TRUE on success, FALSE on bad arguments or GocaAppend failure.
+ * @retval TRUE   Order delivered successfully.
+ * @retval FALSE  Bad arguments or GocaAppend failed.
  */
 static BOOL SrvDeliver(PGPI_PS ps, const BYTE *p, ULONG cb)
 {
@@ -125,6 +138,11 @@ static BOOL SrvDeliver(PGPI_PS ps, const BYTE *p, ULONG cb)
  *
  * Composite: one GPI call may emit multiple GOCA orders.
  * Individual orders are produced by the shared GocaEmit* emitters.
+ *
+ * @param [in] ps          Target PS.
+ * @param [in] lPrimType   Primitive type.
+ * @param [in] flAttrMask  Attribute bitmask.
+ * @param [in] pb          Bundle pointer.
  */
 static void SrvEmitSetAttrs(PGPI_PS ps, LONG lPrimType, ULONG flAttrMask,
                             PBUNDLE pb)
@@ -261,7 +279,9 @@ typedef BOOL (*PFN_SRV_SEG_CB)(PGPI_PS ps, LONG lSegId,
  * @param [in] ps     Target PS.
  * @param [in] pfn    Callback.
  * @param [in] pUser  Opaque pointer passed to the callback.
- * @return TRUE on full traversal, FALSE on corruption.
+ * @return TRUE on full traversal, FALSE on stream corruption.
+ * @retval TRUE   Full traversal completed.
+ * @retval FALSE  Stream corruption detected.
  */
 static BOOL SrvForEachSegment(PGPI_PS ps, PFN_SRV_SEG_CB pfn, PVOID pUser)
 {
@@ -362,6 +382,16 @@ typedef struct _SRV_SEGRANGE {
 
 /*!
  * @brief Callback for NGpiDrawChain: visible, chained, non-dynamic.
+ *
+ * @param [in] ps      Target PS.
+ * @param [in] lSegId  Segment identifier.
+ * @param [in] start   Start offset in pbGoca.
+ * @param [in] end     End offset (exclusive).
+ * @param [in] f1      FLAG1 byte.
+ * @param [in] f2      FLAG2 byte.
+ * @param [in] pUser   Opaque pointer.
+ * @return TRUE to continue iteration.
+ * @retval TRUE  Continue iteration.
  */
 static BOOL SrvCbDrawChain(PGPI_PS ps, LONG lSegId, ULONG start, ULONG end,
                            UCHAR f1, UCHAR f2, PVOID pUser)
@@ -378,6 +408,16 @@ static BOOL SrvCbDrawChain(PGPI_PS ps, LONG lSegId, ULONG start, ULONG end,
 
 /*!
  * @brief Callback for NGpiDrawFrom: same filter as DrawChain + range.
+ *
+ * @param [in] ps      Target PS.
+ * @param [in] lSegId  Segment identifier.
+ * @param [in] start   Start offset in pbGoca.
+ * @param [in] end     End offset (exclusive).
+ * @param [in] f1      FLAG1 byte.
+ * @param [in] f2      FLAG2 byte.
+ * @param [in] pUser   Opaque pointer (SRV_SEGRANGE).
+ * @return TRUE to continue iteration.
+ * @retval TRUE  Continue iteration.
  */
 static BOOL SrvCbDrawFrom(PGPI_PS ps, LONG lSegId, ULONG start, ULONG end,
                           UCHAR f1, UCHAR f2, PVOID pUser)
@@ -395,6 +435,16 @@ static BOOL SrvCbDrawFrom(PGPI_PS ps, LONG lSegId, ULONG start, ULONG end,
 
 /*!
  * @brief Callback for NGpiDrawDynamics: visible, chained, dynamic.
+ *
+ * @param [in] ps      Target PS.
+ * @param [in] lSegId  Segment identifier.
+ * @param [in] start   Start offset in pbGoca.
+ * @param [in] end     End offset (exclusive).
+ * @param [in] f1      FLAG1 byte.
+ * @param [in] f2      FLAG2 byte.
+ * @param [in] pUser   Opaque pointer.
+ * @return TRUE to continue iteration.
+ * @retval TRUE  Continue iteration.
  */
 static BOOL SrvCbDrawDynamics(PGPI_PS ps, LONG lSegId, ULONG start, ULONG end,
                               UCHAR f1, UCHAR f2, PVOID pUser)
@@ -411,6 +461,16 @@ static BOOL SrvCbDrawDynamics(PGPI_PS ps, LONG lSegId, ULONG start, ULONG end,
 
 /*!
  * @brief Callback for NGpiRemoveDynamics: visible, chained, dynamic, in range.
+ *
+ * @param [in] ps      Target PS.
+ * @param [in] lSegId  Segment identifier.
+ * @param [in] start   Start offset in pbGoca.
+ * @param [in] end     End offset (exclusive).
+ * @param [in] f1      FLAG1 byte.
+ * @param [in] f2      FLAG2 byte.
+ * @param [in] pUser   Opaque pointer (SRV_SEGRANGE).
+ * @return TRUE to continue iteration.
+ * @retval TRUE  Continue iteration.
  */
 static BOOL SrvCbRemoveDynamics(PGPI_PS ps, LONG lSegId, ULONG start, ULONG end,
                                 UCHAR f1, UCHAR f2, PVOID pUser)
@@ -435,6 +495,12 @@ static BOOL SrvCbRemoveDynamics(PGPI_PS ps, LONG lSegId, ULONG start, ULONG end,
  *
  * FLAG1 bit 6 = DYNAMIC (SC31-6804); FLAG2 bit 0 = CHAIN (inverted).
  * VISIBLE does not affect chain membership (only DrawChain output).
+ *
+ * @param [in] f1  FLAG1 byte.
+ * @param [in] f2  FLAG2 byte.
+ * @return TRUE if segment is in chain, FALSE otherwise.
+ * @retval TRUE   Segment is in chain.
+ * @retval FALSE  Segment is not in chain.
  */
 static BOOL SrvSegInChain(UCHAR f1, UCHAR f2)
 {
@@ -445,6 +511,7 @@ static BOOL SrvSegInChain(UCHAR f1, UCHAR f2)
 
 /*!
  * @brief Get flags of a segment by id.
+ *
  * @param [in]  ps      Target PS.
  * @param [in]  lSegId  Segment identifier.
  * @param [out] pStart  Start offset (may be NULL).
@@ -452,6 +519,8 @@ static BOOL SrvSegInChain(UCHAR f1, UCHAR f2)
  * @param [out] pF1     FLAG1 byte (may be NULL).
  * @param [out] pF2     FLAG2 byte (may be NULL).
  * @return TRUE if found, FALSE otherwise.
+ * @retval TRUE   Found.
+ * @retval FALSE  Not found.
  */
 static BOOL SrvSegInfo(PGPI_PS ps, LONG lSegId,
                        PULONG pStart, PULONG pEnd,
@@ -469,7 +538,12 @@ static BOOL SrvSegInfo(PGPI_PS ps, LONG lSegId,
 
 /*!
  * @brief Find first (lowest-priority) chained segment.
- * @return TRUE if found; *pStart = offset of its GBSEG.
+ *
+ * @param [in]  ps      Target PS.
+ * @param [out] pStart  Offset of its GBSEG.
+ * @return TRUE if found, FALSE otherwise.
+ * @retval TRUE   Found.
+ * @retval FALSE  Not found.
  */
 static BOOL SrvFindFirstChainSeg(PGPI_PS ps, PULONG pStart)
 {
@@ -488,7 +562,12 @@ static BOOL SrvFindFirstChainSeg(PGPI_PS ps, PULONG pStart)
 
 /*!
  * @brief Find last (highest-priority) chained segment.
- * @return TRUE if found; *pStart = offset of its GBSEG.
+ *
+ * @param [in]  ps      Target PS.
+ * @param [out] pStart  Offset of its GBSEG.
+ * @return TRUE if found, FALSE otherwise.
+ * @retval TRUE   Found.
+ * @retval FALSE  Not found.
  */
 static BOOL SrvFindLastChainSeg(PGPI_PS ps, PULONG pStart)
 {
@@ -518,6 +597,8 @@ static BOOL SrvFindLastChainSeg(PGPI_PS ps, PULONG pStart)
  * @param [in] end        End offset of the range (exclusive).
  * @param [in] insertPos  Offset to insert the range at (pre-cut).
  * @return TRUE on success, FALSE otherwise.
+ * @retval TRUE   Success.
+ * @retval FALSE  Failure.
  */
 static BOOL SrvMoveRange(PGPI_PS ps, ULONG start, ULONG end, ULONG insertPos)
 {
@@ -564,11 +645,17 @@ static BOOL SrvMoveRange(PGPI_PS ps, ULONG start, ULONG end, ULONG insertPos)
 }
 
 /* ======================================================================== */
-/*  Element traversal helpers (Step H)                                      */
+/*  Element traversal helpers                                               */
 /* ======================================================================== */
 
 /*!
  * @brief Offset of the first element in a segment (skip GBSEG header).
+ *
+ * @param [in] ps        Target PS.
+ * @param [in] segStart  Segment start offset.
+ * @param [in] segEnd    Segment end offset.
+ * @return Offset of the first order after GBSEG header, or segStart
+ *         if the header cannot be parsed.
  */
 static ULONG SrvSegBodyStart(PGPI_PS ps, ULONG segStart, ULONG segEnd)
 {
@@ -595,6 +682,8 @@ static ULONG SrvSegBodyStart(PGPI_PS ps, ULONG segStart, ULONG segEnd)
  * @param [out] pBodyEnd    Body end (before GEEL, or == *pEnd).
  * @param [out] pbHasGbel   TRUE if element is a GBEL..GEEL group.
  * @return TRUE if found, FALSE otherwise.
+ * @retval TRUE   Found.
+ * @retval FALSE  Not found.
  */
 static BOOL SrvFindElement(PGPI_PS ps, ULONG segStart, ULONG segEnd,
                            LONG lIndex,
@@ -657,6 +746,11 @@ static BOOL SrvFindElement(PGPI_PS ps, ULONG segStart, ULONG segEnd,
 
 /*!
  * @brief Count elements in a segment.
+ *
+ * @param [in] ps        Target PS.
+ * @param [in] segStart  Segment start offset.
+ * @param [in] segEnd    Segment end offset.
+ * @return Number of elements (single orders + GBEL..GEEL groups).
  */
 static LONG SrvCountElements(PGPI_PS ps, ULONG segStart, ULONG segEnd)
 {
@@ -693,6 +787,14 @@ static LONG SrvCountElements(PGPI_PS ps, ULONG segStart, ULONG segEnd)
 
 /*!
  * @brief Insert bytes into pbGoca at offset @p at.
+ *
+ * @param [in] ps  Target PS.
+ * @param [in] at  Insertion offset.
+ * @param [in] p   Bytes to insert.
+ * @param [in] cb  Number of bytes.
+ * @return TRUE on success, FALSE on error.
+ * @retval TRUE   Success.
+ * @retval FALSE  Failure.
  */
 static BOOL SrvGocaInsertBytes(PGPI_PS ps, ULONG at, const BYTE *p, ULONG cb)
 {
@@ -732,6 +834,8 @@ static BOOL SrvGocaInsertBytes(PGPI_PS ps, ULONG at, const BYTE *p, ULONG cb)
  * @param [in] p        Element bytes.
  * @param [in] cb       Element size.
  * @return TRUE on success, FALSE on error.
+ * @retval TRUE   Success.
+ * @retval FALSE  Failure.
  */
 static BOOL SrvGocaInsertElement(PGPI_PS ps, ULONG segStart, ULONG segEnd,
                                   const BYTE *p, ULONG cb)
