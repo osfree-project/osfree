@@ -43,8 +43,7 @@
  *        (0x0010..0x001F).
  *
  * @param [in]  pRecvobj   Transport connection handle.
- * @param [in]  fnCode     NWin* opcode (with NWIN_SYNC_FLAG on sync
- *                         path).
+ * @param [in]  fnCode     NWin* opcode (with NWIN_SYNC_FLAG on sync path).
  * @param [in]  data       HAB (CreateMsgQueue), HMQ (DestroyMsgQueue);
  *                         unused for PostMsg / GetMsg / DispatchMsg.
  * @param [in]  pArgs      Async payload (WinPostMsg_Args,
@@ -54,7 +53,8 @@
  *                         for NWinGetMsg, 0 otherwise).
  * @return Function-specific result.
  * @retval 0  Failure / FALSE / NULLHANDLE.
- * @retval >0 Success / TRUE / HMQ value / MRESULT.
+ * @retval 1  Success (DestroyMsgQueue, PostMsg, GetMsg).
+ * @retval >1 HMQ value (CreateMsgQueue) or MRESULT (DispatchMsg).
  */
 ULONG Fs_Server::DispatchWinMq(void *pRecvobj, ULONG fnCode, ULONG data,
                                 PBYTE pArgs, ULONG cbArgs,

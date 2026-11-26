@@ -31,10 +31,12 @@
  * @param [in]  cbArgs     Payload size.
  * @param [out] pcbPayload sizeof(WinBeginPaint_Args) for NWinBeginPaint,
  *                         0 otherwise.
- * @return NWinOpenWindowDC: Associated HDC, or 0 (NULLHANDLE) on failure.
- * @retval 0    NULLHANDLE (no HAB, window not found, window not visible,
- *              GreOpenDC failed, or unknown fnCode).
- * @retval !0   Valid HDC on success.
+ * @return Function-specific result (HDC, HPS, or BOOL).
+ * @retval 0    NULLHANDLE / failure (no HAB, window not found, window not
+ *              visible, GreOpenDC / GpiPsCreate failed, bad args, or
+ *              unknown fnCode).
+ * @retval 1    Success (NWinEndPaint).
+ * @retval >1   Valid HDC (NWinOpenWindowDC) or HPS (NWinBeginPaint).
  */
 ULONG Fs_Server::DispatchWinPs(void *pRecvobj, ULONG fnCode, ULONG data,
                                 PBYTE pArgs, ULONG cbArgs,
