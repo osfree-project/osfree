@@ -321,54 +321,35 @@ static void SrvReplaySegment(PGPI_PS ps, ULONG start, ULONG end)
 }
 
 /*!
- * @brief Save current foreground/background mix from the cached line
- *        bundle (GSMX/GSBMX synchronously update all four primitive
- *        bundles, so one cache is sufficient).
+ * @brief Install FM_XOR / BM_LEAVEALONE for all primitives via GPSMX/GPSBMX.
  *
- * @param [in]  ps        Target PS.
- * @param [out] pusFgMix  Saved foreground mix.
- * @param [out] pusBgMix  Saved background mix.
- */
-static void SrvSaveMix(PGPI_PS ps, USHORT *pusFgMix, USHORT *pusBgMix)
-{
-    *pusFgMix = ps->goca.lb.usMixMode;
-    *pusBgMix = ps->goca.lb.usBackMixMode;
-}
-
-/*!
- * @brief Install FM_XOR / BM_LEAVEALONE for all primitives via GSMX/GSBMX.
- *
+ * Each Push-and-Set order saves the current attribute value onto the
+ * segment attribute stack before installing the new value, so no
+ * explicit save/restore of mix state is required in PS.
  * @param [in] ps  Target PS.
  */
 static void SrvEnterDynamicsMix(PGPI_PS ps)
 {
     BYTE buf[2];
-    LONG len;
-
-    len = GocaEmitSetMix(&ps->goca, buf, sizeof(buf), (LONG)FM_XOR);
-    if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
-
-    len = GocaEmitSetBackMix(&ps->goca, buf, sizeof(buf), (LONG)BM_LEAVEALONE);
-    if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
+    buf[0] = OCODE_GPSMX;  buf[1] = (BYTE)FM_XOR;
+    SrvParseOrder(ps, buf, 2);
+    buf[0] = OCODE_GPSBMX; buf[1] = (BYTE)BM_LEAVEALONE;
+    SrvParseOrder(ps, buf, 2);
 }
 
 /*!
- * @brief Restore foreground/background mix saved by SrvSaveMix.
- *
- * @param [in] ps      Target PS.
- * @param [in] usFgMix Saved foreground mix.
- * @param [in] usBgMix Saved background mix.
+ * @brief Restore foreground/background mix by popping from the attribute
+ *        stack.  The two GPOP orders reverse the GPSBMX / GPSMX pushes
+ *        performed by SrvEnterDynamicsMix (LIFO order).
+ * @param [in] ps  Target PS.
  */
-static void SrvLeaveDynamicsMix(PGPI_PS ps, USHORT usFgMix, USHORT usBgMix)
+static void SrvLeaveDynamicsMix(PGPI_PS ps)
 {
     BYTE buf[2];
-    LONG len;
-
-    len = GocaEmitSetMix(&ps->goca, buf, sizeof(buf), (LONG)usFgMix);
-    if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
-
-    len = GocaEmitSetBackMix(&ps->goca, buf, sizeof(buf), (LONG)usBgMix);
-    if (len >= 0) SrvParseOrder(ps, buf, (ULONG)len);
+    buf[0] = OCODE_GPOP; buf[1] = 0;
+    SrvParseOrder(ps, buf, 2);
+    buf[0] = OCODE_GPOP; buf[1] = 0;
+    SrvParseOrder(ps, buf, 2);
 }
 
 /*!
@@ -1912,10 +1893,8 @@ ULONG Fs_Server::DispatchGpi(void *pRecvobj, ULONG ulFnCode, ULONG ulHandle,
     }
 
     case NGpiDrawDynamics: {
-        USHORT usFgMix, usBgMix;
         PGPI_PS ps;
         int ctx;
-
         ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
                              "[PMSERVER] NGpiDrawDynamics(hps=%p)",
                              (void*)hps);
@@ -1929,10 +1908,9 @@ ULONG Fs_Server::DispatchGpi(void *pRecvobj, ULONG ulFnCode, ULONG ulHandle,
                           (long)ps->lOpenSeg);
             DISPATCH_RETURN(GPI_ERROR);
         }
-        SrvSaveMix(ps, &usFgMix, &usBgMix);
         SrvEnterDynamicsMix(ps);
         SrvForEachSegment(ps, SrvCbDrawDynamics, NULL);
-        SrvLeaveDynamicsMix(ps, usFgMix, usBgMix);
+        SrvLeaveDynamicsMix(ps);
         F_DbgCtxExitf(ctx, "1");
         DISPATCH_RETURN(1);
     }
@@ -1940,10 +1918,8 @@ ULONG Fs_Server::DispatchGpi(void *pRecvobj, ULONG ulFnCode, ULONG ulHandle,
     case NGpiRemoveDynamics: {
         LONG lFirst, lLast;
         SRV_SEGRANGE range;
-        USHORT usFgMix, usBgMix;
         PGPI_PS ps;
         int ctx;
-
         ctx = F_DbgCtxEnterf(F_DBG_SEC_DISPATCH, F_DBG_LVL_VERBOSE,
                              "[PMSERVER] NGpiRemoveDynamics(hps=%p, cbArgs=%u)",
                              (void*)hps, (unsigned)cbArgs);
@@ -1965,13 +1941,13 @@ ULONG Fs_Server::DispatchGpi(void *pRecvobj, ULONG ulFnCode, ULONG ulHandle,
         }
         range.lFirst = lFirst;
         range.lLast  = lLast;
-        SrvSaveMix(ps, &usFgMix, &usBgMix);
         SrvEnterDynamicsMix(ps);
         SrvForEachSegment(ps, SrvCbRemoveDynamics, &range);
-        SrvLeaveDynamicsMix(ps, usFgMix, usBgMix);
+        SrvLeaveDynamicsMix(ps);
         F_DbgCtxExitf(ctx, "1 (range %ld..%ld)", (long)lFirst, (long)lLast);
         DISPATCH_RETURN(1);
     }
+
 
     /* ==================================================================== */
     /*  Segment editing                                                     */
