@@ -17,7 +17,7 @@
 
 /* GRE feature set must precede pmddim.h */
 #define INCL_GREALL
-#define INCL_DDIBUNDLES
+//#define INCL_DDIBUNDLES
 #include "pmddi.h"
 
 #ifdef __cplusplus
