@@ -15,7 +15,13 @@
 
 #include <string.h>
 
-/*! @brief Read `cb` bytes from payload and duplicate into a fresh blob. */
+/*!
+ * @brief Read `cb` bytes from payload and duplicate into a fresh blob.
+ * @param [in] p   Pointer to the source bytes.
+ * @param [in] cb  Number of bytes to copy.
+ * @return Pointer to the newly allocated copy, or NULL on failure.
+ * @retval NULL  cb is 0 or DosAllocMem failed.
+ */
 static PBYTE CopyBlob(PBYTE p, ULONG cb)
 {
     PVOID pv = NULL;
@@ -74,7 +80,6 @@ static void SrvEraseWindowRect(HDC hdc, Fs_Wnd *pWnd)
 
 /*!
  * @brief Dispatch NWin* commands in the window lifecycle domain (0x0020..0x005F).
- *
  * @param [in]  pRecvobj   Transport connection handle.
  * @param [in]  fnCode     NWin* opcode (with NWIN_SYNC_FLAG for destroy).
  * @param [in]  data       hwndParent for CreateWindow, hwnd for DestroyWindow.
@@ -82,6 +87,11 @@ static void SrvEraseWindowRect(HDC hdc, Fs_Wnd *pWnd)
  * @param [in]  cbArgs     Payload size.
  * @param [out] pcbPayload Always 0.
  * @return CreateWindow: HWND; ShowWindow / SetWindowPos / DestroyWindow: BOOL.
+ * @retval 0  NULLHANDLE / failure (CreateWindow, ShowWindow, SetWindowPos,
+ *            DestroyWindow, WindowFromID).
+ * @retval 1  Success (ShowWindow, SetWindowPos, DestroyWindow).
+ * @retval >1 HWND of the created window or frame (CreateWindow,
+ *            CreateStdWindow, WindowFromID).
  */
 ULONG Fs_Server::DispatchWinWnd(void *pRecvobj, ULONG fnCode, ULONG data,
                                 PBYTE pArgs, ULONG cbArgs,
