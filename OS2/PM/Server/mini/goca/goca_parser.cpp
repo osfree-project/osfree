@@ -223,6 +223,7 @@ static LONG GocaPushAttr(GOCA_CTX *c, USHORT usLine, USHORT usChar,
                          USHORT usMarker, USHORT usArea, USHORT usImage)
 {
     GOCA_STACK_ENTRY *e;
+    LONG lDefs;
 
     GocaCallEnter("L=%04X C=%04X M=%04X A=%04X I=%04X depth=%u",
                   (unsigned)usLine, (unsigned)usChar, (unsigned)usMarker,
@@ -243,24 +244,29 @@ static LONG GocaPushAttr(GOCA_CTX *c, USHORT usLine, USHORT usChar,
     e->usImage  = usImage;
 
     if (usLine) {
-        GreGetAttributes(c->hdc, PRIM_LINE, (ULONG)usLine,
-                         (PBUNDLE)&e->u.bundles.lb);
+        lDefs = GreGetAttributes(c->hdc, PRIM_LINE, (ULONG)usLine,
+                                 (PBUNDLE)&e->u.bundles.lb);
+        e->usLineDefs = (lDefs == GPI_ALTERROR) ? 0 : (USHORT)(lDefs & usLine);
     }
     if (usChar) {
-        GreGetAttributes(c->hdc, PRIM_CHAR, (ULONG)usChar,
-                         (PBUNDLE)&e->u.bundles.cb);
+        lDefs = GreGetAttributes(c->hdc, PRIM_CHAR, (ULONG)usChar,
+                                 (PBUNDLE)&e->u.bundles.cb);
+        e->usCharDefs = (lDefs == GPI_ALTERROR) ? 0 : (USHORT)(lDefs & usChar);
     }
     if (usMarker) {
-        GreGetAttributes(c->hdc, PRIM_MARKER, (ULONG)usMarker,
-                         (PBUNDLE)&e->u.bundles.mb);
+        lDefs = GreGetAttributes(c->hdc, PRIM_MARKER, (ULONG)usMarker,
+                                 (PBUNDLE)&e->u.bundles.mb);
+        e->usMarkerDefs = (lDefs == GPI_ALTERROR) ? 0 : (USHORT)(lDefs & usMarker);
     }
     if (usArea) {
-        GreGetAttributes(c->hdc, PRIM_AREA, (ULONG)usArea,
-                         (PBUNDLE)&e->u.bundles.ab);
+        lDefs = GreGetAttributes(c->hdc, PRIM_AREA, (ULONG)usArea,
+                                 (PBUNDLE)&e->u.bundles.ab);
+        e->usAreaDefs = (lDefs == GPI_ALTERROR) ? 0 : (USHORT)(lDefs & usArea);
     }
     if (usImage) {
-        GreGetAttributes(c->hdc, PRIM_IMAGE, (ULONG)usImage,
-                         (PBUNDLE)&e->u.bundles.ib);
+        lDefs = GreGetAttributes(c->hdc, PRIM_IMAGE, (ULONG)usImage,
+                                 (PBUNDLE)&e->u.bundles.ib);
+        e->usImageDefs = (lDefs == GPI_ALTERROR) ? 0 : (USHORT)(lDefs & usImage);
     }
 
     GocaCallResult("GOCA_OK (depth=%u)", (unsigned)c->uStackDepth);
@@ -351,23 +357,28 @@ static LONG GocaPop(GOCA_CTX *c)
     switch (e->uchKind) {
     case GOCA_STACK_ATTR:
         if (e->usLine) {
-            GreSetAttributes(c->hdc, PRIM_LINE, 0UL, (ULONG)e->usLine,
+            GreSetAttributes(c->hdc, PRIM_LINE,
+                             (ULONG)e->usLineDefs, (ULONG)e->usLine,
                              (PBUNDLE)&e->u.bundles.lb);
         }
         if (e->usChar) {
-            GreSetAttributes(c->hdc, PRIM_CHAR, 0UL, (ULONG)e->usChar,
+            GreSetAttributes(c->hdc, PRIM_CHAR,
+                             (ULONG)e->usCharDefs, (ULONG)e->usChar,
                              (PBUNDLE)&e->u.bundles.cb);
         }
         if (e->usMarker) {
-            GreSetAttributes(c->hdc, PRIM_MARKER, 0UL, (ULONG)e->usMarker,
+            GreSetAttributes(c->hdc, PRIM_MARKER,
+                             (ULONG)e->usMarkerDefs, (ULONG)e->usMarker,
                              (PBUNDLE)&e->u.bundles.mb);
         }
         if (e->usArea) {
-            GreSetAttributes(c->hdc, PRIM_AREA, 0UL, (ULONG)e->usArea,
+            GreSetAttributes(c->hdc, PRIM_AREA,
+                             (ULONG)e->usAreaDefs, (ULONG)e->usArea,
                              (PBUNDLE)&e->u.bundles.ab);
         }
         if (e->usImage) {
-            GreSetAttributes(c->hdc, PRIM_IMAGE, 0UL, (ULONG)e->usImage,
+            GreSetAttributes(c->hdc, PRIM_IMAGE,
+                             (ULONG)e->usImageDefs, (ULONG)e->usImage,
                              (PBUNDLE)&e->u.bundles.ib);
         }
         break;
