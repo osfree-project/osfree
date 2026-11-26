@@ -25,6 +25,10 @@
 #include "Fs_config.hpp"
 #include "Fs_server.hpp"
 
+/*!
+ * @def DBG_TAG
+ * @brief Debug subsystem tag used by F_DbgPrint in this module.
+ */
 #define DBG_TAG PMSERVER
 
 /*! @brief Server-specific debug configuration.

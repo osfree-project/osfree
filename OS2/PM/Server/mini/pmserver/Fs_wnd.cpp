@@ -169,6 +169,13 @@ void Fs_Wnd::ResetDC()
                SETUPDC_VISRGN | SETUPDC_ORIGIN);
 }
 
+/*!
+ * @brief Store the window title text.
+ *
+ * The caller (NWinCreateWindow) rejects titles longer than the
+ * buffer; this setter only truncates defensively.
+ * @param [in] t  NUL-terminated title string (NULL clears the field).
+ */
 void Fs_Wnd::SetTitle(const char *t)
 {
     if (!t) { m_szTitle[0] = '\0'; return; }
