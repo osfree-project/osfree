@@ -752,85 +752,87 @@ static LONG DoBox(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @brief GPARC (0xE3) / GCPARC (0xA3).
  *
  * Layout (GCPARC): centre x,y, multiplier (FIXED88 or FIXED),
- *              start angle 32-bit, sweep angle 32-bit.
- * GPARC additionally has a start point at the front (skipped here).
+ *          start angle 32-bit, sweep angle 32-bit.
  *
+ * GPARC additionally has a start point at the front.
  * Per pmord.h:
  *   SHORT variant: ORDERS_GCPARC  - FIXED88 multiplier (2 bytes)
  *   LONG  variant: ORDERL_GCPARC  - FIXED   multiplier (4 bytes)
  *   Angles are always LONG (4 bytes) in both variants.
  *   Multiplier and angles follow coordEndian.
  *
- * @param [in] c    GOCA context.
- * @param [in] p    Pointer to the order.
- * @param [in] cb   Bytes available from p to the end of the stream.
- * @param [in] bCur TRUE for GCPARC (no leading start point).
+ * @param [in] c      GOCA context.
+ * @param [in] p      Pointer to the order.
+ * @param [in] bGiven TRUE for GPARC (start point at given position).
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
- * @retval GOCA_EC_INVALID_LENGTH Operand too short for centre/multiplier/angles.
+ * @retval GOCA_EC_INVALID_LENGTH Operand length incorrect.
+ * @retval GOCA_EC_PARC_NEGATIVE_START  Negative START angle.
+ * @retval GOCA_EC_PARC_NEGATIVE_SWEEP  Negative SWEEP angle.
  */
-static LONG DoPartialArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
+static LONG DoPartialArc(GOCA_CTX *c, const BYTE *p, BOOL bGiven)
 {
-    ULONG       len, off, multSize;
+    ULONG       len, off, multSize, expectedLen;
     const BYTE *q;
     POINTL      ptCenter;
     FIXED       fxMult, fxStart, fxSweep;
-    USHORT      rawMult16;
-    ULONG       rawMult32, rawStart, rawSweep;
+    LONG        rawStart, rawSweep;
     ULONG       pointSize = 2u * (ULONG)c->coordSize;
 
-    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
+    GocaCallEnter("p=%p, bGiven=%d", p, (int)bGiven);
 
     len = p[1];
-
     q   = p + 2;
     off = 0;
-    if (!bCur) off += pointSize;            /* GPARC: skip start x,y */
+    multSize = (c->coordSize == GOCA_COORD_LONG) ? 4u : 2u;
 
-    multSize = (c->coordSize == GOCA_COORD_SHORT) ? 2u : 4u;
-
-    if (len < off + pointSize + multSize + 4u + 4u) {
+    /* Exact length check */
+    expectedLen = (bGiven ? 2u * pointSize : pointSize) + multSize + 8u;
+    if (len != expectedLen) {
         GocaCallResult("GOCA_EC_INVALID_LENGTH");
         return GOCA_EC_INVALID_LENGTH;
+    }
+
+    if (bGiven) {
+        /* GPARC: read start point, set current position to draw line from it */
+        POINTL ptStart;
+        ptStart = PtsToPtl(c, q);
+        off += pointSize;
+        GreSetCurrentPosition(c->hdc, &ptStart);
     }
 
     ptCenter = PtsToPtl(c, q + off);
     off += pointSize;
 
-    /* Multiplier: coordEndian, size depends on coordSize */
-    if (c->coordSize == GOCA_COORD_SHORT) {
-        /* FIXED88: 16-bit 8.8, coordEndian */
-        if (c->coordEndian == GOCA_ENDIAN_LE)
-            rawMult16 = (USHORT)(((USHORT)q[off+1] << 8) | q[off]);
-        else
-            rawMult16 = GocaGetU16(q + off);   /* BE via SWPUSHORT */
-        fxMult = (FIXED)((ULONG)rawMult16 << 8);   /* 8.8 -> 16.16 */
-    } else {
-        /* FIXED: 32-bit 16.16, coordEndian */
-        if (c->coordEndian == GOCA_ENDIAN_LE)
-            rawMult32 = ((ULONG)q[off+3] << 24) | ((ULONG)q[off+2] << 16) |
-                        ((ULONG)q[off+1] << 8)  |  (ULONG)q[off];
-        else
-            rawMult32 = GocaGetU32(q + off);   /* BE via SWPULONG */
-        fxMult = (FIXED)rawMult32;
-    }
+    fxMult = GocaGetMult(c, q + off);
     off += multSize;
 
-    /* Angles: always 32-bit, coordEndian */
+    /* Angles: always 32-bit signed, coordEndian */
     if (c->coordEndian == GOCA_ENDIAN_LE) {
-        rawStart = ((ULONG)q[off+3] << 24) | ((ULONG)q[off+2] << 16) |
-                   ((ULONG)q[off+1] << 8)  |  (ULONG)q[off];
-        rawSweep = ((ULONG)q[off+7] << 24) | ((ULONG)q[off+6] << 16) |
-                   ((ULONG)q[off+5] << 8)  |  (ULONG)q[off+4];
+        rawStart = (LONG)(((ULONG)q[off+3] << 24) | ((ULONG)q[off+2] << 16) |
+                          ((ULONG)q[off+1] << 8)  |  (ULONG)q[off]);
+        rawSweep = (LONG)(((ULONG)q[off+7] << 24) | ((ULONG)q[off+6] << 16) |
+                          ((ULONG)q[off+5] << 8)  |  (ULONG)q[off+4]);
     } else {
-        rawStart = GocaGetU32(q + off);
-        rawSweep = GocaGetU32(q + off + 4);
+        rawStart = (LONG)GocaGetU32(q + off);
+        rawSweep = (LONG)GocaGetU32(q + off + 4);
     }
+
+    /* AFPC p. 120: negative angles are drawing process checks */
+    if (rawStart < 0) {
+        GocaCallResult("GOCA_EC_PARC_NEGATIVE_START");
+        return GOCA_EC_PARC_NEGATIVE_START;
+    }
+    if (rawSweep < 0) {
+        GocaCallResult("GOCA_EC_PARC_NEGATIVE_SWEEP");
+        return GOCA_EC_PARC_NEGATIVE_SWEEP;
+    }
+
     fxStart = (FIXED)rawStart;
     fxSweep = (FIXED)rawSweep;
 
     GocaTrace(c, "[GOCA]   %s: c=(%ld,%ld) mult=%08lX start=%08lX sweep=%08lX\n",
-              bCur ? "GCPARC" : "GPARC",
+              bGiven ? "GPARC" : "GCPARC",
               (long)ptCenter.x, (long)ptCenter.y,
               (unsigned long)(ULONG)fxMult,
               (unsigned long)fxStart, (unsigned long)fxSweep);
@@ -1827,11 +1829,13 @@ LONG GocaParseStream(GOCA_CTX *c)
             case OCODE_GSCP:    rc = DoGSCP(c, p, FALSE); break;
             
             case OCODE_GLINE:   rc = DoLine(c, p, TRUE); break;
-            case OCODE_GCLINE:  rc = DoLine(c, p, FALSE);  break;
+            case OCODE_GCLINE:  rc = DoLine(c, p, FALSE); break;
             case OCODE_GMRK:    rc = DoMark(c, p, TRUE); break;
-            case OCODE_GCMRK:   rc = DoMark(c, p, FALSE);  break;
+            case OCODE_GCMRK:   rc = DoMark(c, p, FALSE); break;
             case OCODE_GFARC:   rc = DoFullArc(c, p, TRUE); break;
-            case OCODE_GCFARC:  rc = DoFullArc(c, p, FALSE);  break;
+            case OCODE_GCFARC:  rc = DoFullArc(c, p, FALSE); break;
+            case OCODE_GPARC:   rc = DoPartialArc(c, p, TRUE); break;
+            case OCODE_GCPARC:  rc = DoPartialArc(c, p, FALSE); break;
 
             case OCODE_GRLINE:  rc = DoRelativeLine(c, p, cbOrder, FALSE); break;
             case OCODE_GCRLINE: rc = DoRelativeLine(c, p, cbOrder, TRUE);  break;
@@ -1839,8 +1843,6 @@ LONG GocaParseStream(GOCA_CTX *c)
             case OCODE_GCCHST:  rc = DoCharString(c, p, cbOrder, TRUE);  break;
             case OCODE_GBOX:    rc = DoBox(c, p, cbOrder, FALSE); break;
             case OCODE_GCBOX:   rc = DoBox(c, p, cbOrder, TRUE);  break;
-            case OCODE_GPARC:   rc = DoPartialArc(c, p, cbOrder, FALSE); break;
-            case OCODE_GCPARC:  rc = DoPartialArc(c, p, cbOrder, TRUE);  break;
             case OCODE_GBEZ:    rc = DoBezier(c, p, cbOrder, FALSE); break;
             case OCODE_GCBEZ:   rc = DoBezier(c, p, cbOrder, TRUE);  break;
             case OCODE_GFLT:    rc = DoFillet(c, p, cbOrder, FALSE); break;
