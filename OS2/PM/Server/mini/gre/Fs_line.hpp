@@ -200,4 +200,6 @@ private:
     ULONG    m_hdc;     /*!< Owning DC handle (reserved). */
 };
 
+static LONG __cdecl PolyLine(HDC hdc, PPOINTL paptlPoint, LONG cPoints, PVOID pInstance, ULONG lFunction);
+
 #endif /* FS_LINE_HPP */

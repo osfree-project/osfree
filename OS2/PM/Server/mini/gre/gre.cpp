@@ -1149,7 +1149,7 @@ static DISPATCHER g_tblDriver = {
     /* 0x16 0x4016 */ NULL, // Mandatory
     /* 0x17 0x4017 */ NULL, // Mandatory
     /* 0x18 0x4018 */ NULL, // Mandatory
-    /* 0x19 0x4019 */ (PFN)GrePolyLine, // Mandatory, can chain
+    /* 0x19 0x4019 */ (PFN)PolyLine, // Mandatory, can chain
     /* 0x1A 0x401A */ NULL, // Mandatory
     /* 0x1B 0x401B */ NULL, // Mandatory @todo see desc of Mandatory table
     /* 0x1C 0x401C */ NULL, // Mandatory @todo see desc of Mandatory table

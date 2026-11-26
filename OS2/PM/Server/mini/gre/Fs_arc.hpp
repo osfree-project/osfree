@@ -1334,7 +1334,7 @@ static BOOL __cdecl CookPathCurves(HDC a, PPATH b, PPIPELINEINFO c, PVOID pInsta
  *
  * @note Not found any information yet and not found any driver used it?
  */
-GRE_DRV_10(RenderPath)
+static BOOL __cdecl RenderPath(HDC a, PPATH b,PCURVE c, LONG d, LONG e, LONG f, PSHORTLINE g, LONG h, PVOID pInstance, ULONG lFunction);
 
 /**
  * @brief
@@ -1349,6 +1349,7 @@ GRE_DRV_10(RenderPath)
  *
  * @note Not found any information yet and not found any driver used it?
  */
-GRE_DRV_5 (BoxExclusive)
+static BOOL __cdecl BoxExclusive(HDC a, PBOXPARAMS b, ULONG c, PVOID pInstance, ULONG lFunction);
+
 
 #endif /* FS_ARC_HPP */

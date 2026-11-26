@@ -6,6 +6,8 @@
 
 // PPATH not defined. But seems to be PRECTL
 #define PPATH PRECTL
+// PPIPELINEINFO not defined. Info not found.
+#define PPIPELINEINFO PVOID
 
 #define INCL_GREALL
 #define INCL_AVIOP
