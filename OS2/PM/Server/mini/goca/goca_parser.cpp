@@ -843,55 +843,57 @@ static LONG DoPartialArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
 
 /*!
  * @brief GFARC (0xC7) / GCFARC (0x87).
- *
  * Data layout:
- *   GCFARC: multiplier FIXED88
- *   GFARC:  start x,y, then multiplier FIXED88
+ * GCFARC: multiplier (FIXED88 or FIXED depending on coordSize)
+ * GFARC:  centre x,y, then multiplier
  *
- * Multiplier is FIXED88 (16-bit, 8.8 fixed-point) in both variants,
- * follows coordEndian. Converted to FIXED (16.16) via << 8.
+ * Multiplier size is 2 bytes for BYTE/SHORT, 4 bytes for LONG.
+ * Full Arc is a line primitive; only the boundary is stroked.
  *
- * @param [in] c    GOCA context.
- * @param [in] p    Pointer to the order.
- * @param [in] cb   Bytes available from p to the end of the stream.
- * @param [in] bCur TRUE for GCFARC (centre at current position).
+ * @param [in] c      GOCA context.
+ * @param [in] p      Pointer to the order.
+ * @param [in] bGiven TRUE for GFARC (centre at given position).
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
- * @retval GOCA_EC_INVALID_LENGTH Operand too short for the multiplier.
+ * @retval GOCA_EC_INVALID_LENGTH Operand length incorrect.
  */
-static LONG DoFullArc(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
+static LONG DoFullArc(GOCA_CTX *c, const BYTE *p, BOOL bGiven)
 {
     ULONG       len, off;
     const BYTE *q;
     FIXED       fxMult;
-    USHORT      rawMult;
     ULONG       pointSize = 2u * (ULONG)c->coordSize;
+    ULONG       multSize  = (c->coordSize == GOCA_COORD_LONG) ? 4u : 2u;
 
-    GocaCallEnter("p=%p, cb=%u, bCur=%d", p, (unsigned)cb, (int)bCur);
+    GocaCallEnter("p=%p, bGiven=%d", p, (int)bGiven);
 
     len = p[1];
-
     q   = p + 2;
     off = 0;
-    if (!bCur) off += pointSize;            /* GFARC: skip start x,y */
 
-    if (len < off + 2) {
-        GocaCallResult("GOCA_EC_INVALID_LENGTH");
-        return GOCA_EC_INVALID_LENGTH;
+    if (bGiven) {
+        POINTL ptCenter;
+        if (len != pointSize + multSize) {
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
+        }
+        ptCenter = PtsToPtl(c, q);
+        off += pointSize;
+        GreSetCurrentPosition(c->hdc, &ptCenter);
+        GocaTrace(c, "[GOCA]   GFARC: center=(%ld,%ld)", (long)ptCenter.x, (long)ptCenter.y);
+    } else {
+        if (len != multSize) {
+            GocaCallResult("GOCA_EC_INVALID_LENGTH");
+            return GOCA_EC_INVALID_LENGTH;
+        }
+        GocaTrace(c, "[GOCA]   GCFARC: center=current");
     }
 
-    /* FIXED88 multiplier: 16-bit, coordEndian */
-    if (c->coordEndian == GOCA_ENDIAN_LE)
-        rawMult = (USHORT)(((USHORT)q[off+1] << 8) | q[off]);
-    else
-        rawMult = GocaGetU16(q + off);   /* BE via SWPUSHORT */
+    fxMult = GocaGetMult(c, q + off);
+    GocaTrace(c, " mult=%08lX\n", (unsigned long)(ULONG)fxMult);
 
-    fxMult = (FIXED)((ULONG)rawMult << 8);   /* 8.8 -> 16.16 */
-
-    GocaTrace(c, "[GOCA]   %s: mult=%08lX\n",
-              bCur ? "GCFARC" : "GFARC", (unsigned long)(ULONG)fxMult);
-
-    GreFullArcBoth(c->hdc, fxMult);
+    /* Full Arc is a line primitive (curved line), stroke boundary only */
+    GreFullArcBoundary(c->hdc, fxMult);
 
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
@@ -1828,6 +1830,8 @@ LONG GocaParseStream(GOCA_CTX *c)
             case OCODE_GCLINE:  rc = DoLine(c, p, FALSE);  break;
             case OCODE_GMRK:    rc = DoMark(c, p, TRUE); break;
             case OCODE_GCMRK:   rc = DoMark(c, p, FALSE);  break;
+            case OCODE_GFARC:   rc = DoFullArc(c, p, TRUE); break;
+            case OCODE_GCFARC:  rc = DoFullArc(c, p, FALSE);  break;
 
             case OCODE_GRLINE:  rc = DoRelativeLine(c, p, cbOrder, FALSE); break;
             case OCODE_GCRLINE: rc = DoRelativeLine(c, p, cbOrder, TRUE);  break;
@@ -1837,8 +1841,6 @@ LONG GocaParseStream(GOCA_CTX *c)
             case OCODE_GCBOX:   rc = DoBox(c, p, cbOrder, TRUE);  break;
             case OCODE_GPARC:   rc = DoPartialArc(c, p, cbOrder, FALSE); break;
             case OCODE_GCPARC:  rc = DoPartialArc(c, p, cbOrder, TRUE);  break;
-            case OCODE_GFARC:   rc = DoFullArc(c, p, cbOrder, FALSE); break;
-            case OCODE_GCFARC:  rc = DoFullArc(c, p, cbOrder, TRUE);  break;
             case OCODE_GBEZ:    rc = DoBezier(c, p, cbOrder, FALSE); break;
             case OCODE_GCBEZ:   rc = DoBezier(c, p, cbOrder, TRUE);  break;
             case OCODE_GFLT:    rc = DoFillet(c, p, cbOrder, FALSE); break;

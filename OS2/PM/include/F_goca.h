@@ -50,12 +50,17 @@ Exceeding the limit raises GOCA_EC_STACK_OVERFLOW.
  * applies.
  */
 typedef struct _GOCA_STACK_ENTRY {
-    UCHAR  uchKind;     /*!< GOCA_STACK_* selector.           */
-    USHORT usLine;      /*!< LBB_* mask to restore, 0 = skip. */
-    USHORT usChar;      /*!< CBB_* mask to restore, 0 = skip. */
-    USHORT usMarker;    /*!< MBB_* mask to restore, 0 = skip. */
-    USHORT usArea;      /*!< ABB_* mask to restore, 0 = skip. */
-    USHORT usImage;     /*!< IBB_* mask to restore, 0 = skip. */
+    UCHAR  uchKind;        /*!< GOCA_STACK_* selector.              */
+    USHORT usLine;         /*!< LBB_* mask to restore, 0 = skip.    */
+    USHORT usChar;         /*!< CBB_* mask to restore, 0 = skip.    */
+    USHORT usMarker;       /*!< MBB_* mask to restore, 0 = skip.    */
+    USHORT usArea;         /*!< ABB_* mask to restore, 0 = skip.    */
+    USHORT usImage;        /*!< IBB_* mask to restore, 0 = skip.    */
+    USHORT usLineDefs;     /*!< LBB_* bits that were drawing default. */
+    USHORT usCharDefs;     /*!< CBB_* bits that were drawing default. */
+    USHORT usMarkerDefs;   /*!< MBB_* bits that were drawing default. */
+    USHORT usAreaDefs;     /*!< ABB_* bits that were drawing default. */
+    USHORT usImageDefs;    /*!< IBB_* bits that were drawing default. */
     union {
         struct {
             LINEBUNDLE   lb;   /*!< Saved line attributes.      */
@@ -221,6 +226,42 @@ static inline LONG GocaGetCoord(GOCA_CTX *c, const BYTE *p)
             
     default:
         return 0;
+    }
+}
+
+/*!
+@brief Read a multiplier value from the order stream.
+
+The multiplier format depends on the current coordSize:
+- BYTE or SHORT: 2 bytes, FIXED88 (unsigned 8.8 fixed-point)
+- LONG: 4 bytes, FIXED (signed 16.16 fixed-point)
+
+The value is converted to FIXED (16.16) for use with Gre* functions.
+
+@param [in] c  GOCA context (coordSize, coordEndian).
+@param [in] p  Pointer to the first byte of the multiplier.
+@return The multiplier as a FIXED (16.16) value.
+*/
+static inline FIXED GocaGetMult(GOCA_CTX *c, const BYTE *p)
+{
+    if (c->coordSize == GOCA_COORD_LONG) {
+        /* FIXED: 32-bit signed 16.16, coordEndian */
+        ULONG rawMult32;
+        if (c->coordEndian == GOCA_ENDIAN_LE)
+            rawMult32 = ((ULONG)p[3] << 24) | ((ULONG)p[2] << 16) |
+                        ((ULONG)p[1] << 8)  |  (ULONG)p[0];
+        else
+            rawMult32 = GocaGetU32(p);
+        return (FIXED)rawMult32;
+    } else {
+        /* FIXED88: 16-bit unsigned 8.8, coordEndian */
+        USHORT rawMult16;
+        if (c->coordEndian == GOCA_ENDIAN_LE)
+            rawMult16 = (USHORT)(((USHORT)p[1] << 8) | p[0]);
+        else
+            rawMult16 = GocaGetU16(p);
+        /* Convert 8.8 to 16.16 by shifting left 8 bits */
+        return (FIXED)((ULONG)rawMult16 << 8);
     }
 }
 
