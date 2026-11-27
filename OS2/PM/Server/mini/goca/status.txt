@@ -1,8 +1,9 @@
 ﻿# Аудит и план работ GOCA-парсера
 
-Диалект: **FULL GOCA (PM)**. Поддерживаются все варианты coordsize (BYTE, SHORT, LONG), BE/LE
-AFPC-0008-03 — ПОДМНОЖЕСТВО FULL GOCA, только BE/SHORT
-GDDM — подмножество FULL GOCA, только BYTE/SHORT, BE
+Диалект: **FULL GOCA (PM)**. Поддерживаются все варианты coordSize (BYTE, SHORT, LONG), BE/LE.
+AFPC-0008-03 — ПОДМНОЖЕСТВО FULL GOCA, только BE/SHORT.
+GDDM SC33-0868 — подмножество FULL GOCA, только BYTE/SHORT, BE.
+Контракт движка — EDM2 (Gre*); макросы — pmddim.h; коды приказов и структуры — pmord.h.
 
 ## Состояние после внесённых правок
 
@@ -12,36 +13,36 @@ GDDM — подмножество FULL GOCA, только BYTE/SHORT, BE
 |---|---|
 | **A1 (диспетчер)** | Все 16 Set-обработчиков (`GSCOL`, `GSECOL`, `GSMX`, `GSBMX`, `GSLT`, `GSLW`, `GSFLW`, `GSLE`, `GSLJ`, `GSMS`, `GSMT`, `GSPS`, `GSPT`, `GSCS`, `GSCD`, `GSCR`) переведены на `GreSetAttributes` с голым бандлом |
 | **A1 (установки)** | `DoSetCharCell`, `DoSetMarkerCell`, `DoSetPatternRefPoint` переведены на `GreSetAttributes` |
-| **A1+B1 (Push)** | `GocaPushAttr` использует `GreGetAttributes`, сохраняет маску дефолтов (`lDefs`) в поля `usLineDefs`, `usCharDefs`, `usMarkerDefs`, `usAreaDefs`, `usImageDefs` структуры `GOCA_STACK_ENTRY` |
+| **A1+B1 (Push)** | `GocaPushAttr` использует `GreGetAttributes`, объявлен `LONG lDefs`, проверка `GPI_ALTERROR`, маска сохраняется как `(USHORT)(lDefs & usXxx)` в `usLineDefs`…`usImageDefs` |
 | **B1 (структура)** | `GOCA_STACK_ENTRY` в `F_goca.h` расширена пятью полями `usXxxDefs` |
-| **B2 (Pop)** | `GocaPop` вызывает `GreSetAttributes` с передачей сохранённой маски дефолтов как `flDefsMask`; бит дефолта в обеих масках |
-| **C1 (GFARC/GCFARC)** | `DoFullArc` переписан: читает центр для GFARC, устанавливает CP через `GreSetCurrentPosition`, использует `GocaGetMult`, вызывает `GreFullArcBoundary` (line primitive), проверяет точную длину `!=`, параметр `bGiven` |
-| **C2 (GPARC/GCPARC)** | `DoPartialArc` переписан: параметр `bGiven`, точная длина `!=`, `GocaGetMult`, `multSize=(LONG)?4:2`, чтение начальной точки для GPARC + `GreSetCurrentPosition`, проверка отрицательных углов |
-| **Маркеры (C6 частично)** | `DoMark` исправлен: `GrePolyMarker(&aptl[bGiven], nPts+1)` — контракт `GrePolyMarker`: `cPoints` = общее число маркеров, включая маркер в текущей позиции. GMRK 1 точка рисует маркер, GCMRK `len==0` рисует маркер в CP |
-| **C14 (Длины, часть)** | `DoSetArcParams`: точная длина `!=`; `DoFullArc`/`DoPartialArc`: точные длины; `GSCC`, `GSMC`: строгие формы с контролем остатка; `GPOP`: reserved-байт |
-| **C15 (GSLW/GSFLW)** | Удалено поле `lGeomWidth` и флаг `LBB_GEOM_WIDTH` из бандлов и масок Push/Set. Геометрическая ширина — только для `GSSLW`. В `GSLW`/`GSFLW` добавлен `flDefsMask` для X'00' |
-| **D1 (часть)** | `GSLW`: `p[1]==0` → `flDefs = LBB_WIDTH`; `GSFLW`: `ip==0 && fp==0` → `flDefs = LBB_WIDTH`. Бит дефолта в обеих масках |
-| **Вспомогательное** | `GocaGetMult` в `F_goca.h` — читает мультипликатор FIXED88 (2 байта) для BYTE/SHORT или FIXED (4 байта) для LONG; `GBAR` → `GOCA_EC_GBAR_NESTED` при вложении; маппинг флагов `BA_BOUNDARY`/`BA_WINDING`, сохранение `c->uAreaFlags` |
-| **F_gocaerr.h** | `GocaEcIsRetired` (EC-0002, EC-C202); добавлены EC-0E02…0E05, EC-3400, EC-5E00, EC-C202; коллизия `GOCA_EC_INVALID_DRAW_CONTROL` = `GOCA_EC_INVALID_DESCRIPTOR` (alias); `GocaEcIsDrawingCheck` содержит `GOCA_EC_RELLINE_OUTSIDE_GPS`, `GOCA_EC_PARC_ENDS_OUTSIDE_GPS` |
-| **F2 (часть)** | `GocaOrderName`: добавлены `GPOP`, 21 push-форма, `GBSEG`, `GBEL`/`GEEL`/`GLABL`/`GBPTH`/`GEPTH`/`GCFIG`/`GFPTH`/`GOPTH`/`GMPTH`/`GSCPTH`, `GBIMG`/`GCBIMG`/`GIMD`/`GEIMG`, `GESD`, `VLONG` |
+| **B2 (Pop)** | `GocaPop` вызывает `GreSetAttributes` с передачей `usXxxDefs` как `flDefsMask`; бит дефолта в обеих масках |
+| **C1 (GFARC/GCFARC)** | `DoFullArc(c, p, bGiven)`: `multSize = (LONG)?4:2`; точные длины `!=`; `PtsToPtl` + `GreSetCurrentPosition` для GFARC; `GocaGetMult`; `GreFullArcBoundary`. Диспетчер: `GFARC → TRUE`, `GCFARC → FALSE` |
+| **C2 (GPARC/GCPARC)** | `DoPartialArc(c, p, bGiven)`: `multSize = (LONG)?4:2`; `expectedLen`, проверка `!=`; чтение `ptStart` + `GreSetCurrentPosition` для GPARC; `GocaGetMult`; углы как знаковый `LONG` (LE/BE); проверки `< 0` → `GOCA_EC_PARC_NEGATIVE_START`/`_SWEEP` |
+| **C6 (DoMark)** | `DoMark` исправлен: `GrePolyMarker(c->hdc, &aptl[bGiven], (LONG)(nPts+1))` — контракт `cPoints` = общее число маркеров, включая маркер в CP |
+| **C15 (GSLW/GSFLW)** | `lGeomWidth` удалён из бандлов и масок; `flDefsMask = LBB_WIDTH` при X'00'. Push-маски `GPSLW`/`GPSFLW` синхронны |
+| **C16 (GSMC)** | `DoSetMarkerCell`: `bZero = (cx == 0 \|\| cy == 0)`; при drawing default `flDefsMask = MBB_BOX`; при literal zero — принудительное обнуление обеих компонент |
+| **C24** | Закрыт вместе с C2 (отрицательные углы) |
+| **D1 (часть)** | `GSLW`/`GSFLW`: X'00' → `flDefsMask = LBB_WIDTH`; `GSMC`: X'0000' → `flDefsMask = MBB_BOX` |
+| **Вспомогательное** | `GocaGetMult` в `F_goca.h`; `GBAR` → EC-6800 при вложении; маппинг `BA_BOUNDARY`/`BA_WINDING`, `c->uAreaFlags` сохраняется |
+| **F_gocaerr.h** | `GocaEcIsRetired` (EC-0002, EC-C202); EC-0E02…0E05, EC-3400, EC-5E00, EC-C202; коллизия 0x000A (alias) |
+| **F2 (часть)** | `GocaOrderName`: добавлены `GPOP`, 21 push-форма `GPS*`, `GBSEG`, пути/сегменты, `GBIMG`/`GCBIMG`/`GIMD`/`GEIMG`, `GESD`, `VLONG` |
 
 ### Не выполнено
 
 | Пункт | Что осталось |
 |---|---|
-| **C3–C5** | Текущая позиция: GCCHST (безусловный `GreSetCurrentPosition` для обеих форм), GCHST (ранний возврат при `cch==0` до установки CP), GCBOX (CP не восстанавливается после `GreBox*`) |
-| **C6 (остаток)** | `DoMark` закрыт. Остальное: GCRLINE `len==0` → EC (должен быть No-Op); GRLINE 1 точка → линия вместо перемещения CP; GCCBEZ `len==0` → EC (No-Op); GCBEZ 1 точка → EC вместо перемещения; 3m+1 для Bezier; GCFLT `len==0` → EC (No-Op); GFLT 1 точка |
-| **C14 (остаток)** | Точные длины (`!=`): `GSECOL` (`< 2`), `GSPRP` (`< 2+pointSize`), `GBOX`/`GCBOX` (`<`, оси без контроля остатка) |
-| **C16–C18** | Семантика атрибутов: `DoSetMarkerCell`: `bZero = (cx == 0 && cy == 0)` → нужно `\|\|` и обнуление обеих компонент; `DoSetPatternRefPoint`: `GSPRP_DEFAULT` → жёстко `(0,0)`, нужен `flDefsMask`; `DoSetCharCell`: `GreGetDefaultAttributes` → нужен `flDefsMask` |
-| **C19–C21** | Таблица цветов GOCA↔GPI (0007→CLR_WHITE, 0008→CLR_BLACK, 000A/000B/000E/000F/0010 без констант); `PRIM_IMAGE` отсутствует в shorthand; `GSBMX` включает `PRIM_LINE` |
-| **C22–C26** | `DoRelativeLine` (SHORT-математика, потеря разрядности при LONG); `DoBox` (PM-флаги 0x40/0x20 vs AFP RES=X'2000', проверка осей); `DoVLongCharString` (UNDERSCORE/STRIKEOUT теряются, `CHS_VECTOR` не ставится, `DosAllocMem`); `DoGSCP` (`bPush` не используется); `DoPartialArc`: ручное чтение мультипликатора вместо `GocaGetMult` |
-| **C27–C28** | Обводка дуги/бокса не подчинена `BA_BOUNDARY` из `c->uAreaFlags`; коды возврата `Gre*` не проверяются |
-| **D1 (остаток)** | Все атрибуты кроме `GSLW`/`GSFLW`/стека: `0UL` в `flDefsMask`, X'00' пишется дословно |
-| **D2** | Допустимость приказов в области: проверки нет; `#if 0`-список в начале файла. Вложенный `GBAR` → EC-6800 реализован |
-| **D3** | `GEAR` без `GBAR`: `if (c->bInArea)` без `else` → EC-6000 не формируется; данные `GEAR` не проверяются; `uAreaFlags` не сбрасывается |
-| **D4–D10** | Prolog, GBSEG, границы стека, Pop в области/пути, LCID, standard action, ~40 нереализованных приказов |
-| **E** | `pmddi.h` XFORM 9 полей; `INCL_GREALL` не включает `INCL_DDIMISC`/`INCL_DDIBUNDLES`/`INCL_DDIPATHS`; отсутствующие типы/константы; `pmord.h` `GOPTH` 0xD9; `F_gocaerr.h` — комментарий `GOCA_EC_PATTSYM_UNDEFINED` говорит X'FF' вместо X'10' |
-| **F** | `GocaErrorName`: 8 кодов, отсутствуют `GOCA_EC_PARC_NEGATIVE_START`/`_SWEEP`, `GOCA_EC_GEAR_WITHOUT_GBAR`, `GOCA_EC_ORDER_INVALID_IN_AREA`/`_PATH`; `GocaOrderName`: X'C4'→GFLT (должен быть 0xC5), закомментированы AFP-коды; docstring-и «cached bundles» в `GocaInit`/`GocaParseStream`/`DoVLongCharString` |
+| **C3–C5** | `DoCharString`: безусловный `GreSetCurrentPosition` для GCCHST; ранний возврат до установки CP для GCHST; `DoBox`: CP не восстанавливается после `GreBox*` |
+| **C7–C13** | `DoRelativeLine`: `GCRLINE` `len==0` → EC (должен быть No-Op), `GRLINE` 1 точка → линия вместо перемещения CP; `DoBezier`: `GCCBEZ` `len==0` → EC (No-Op), `GCBEZ`/`GBEZ` 1 точка, проверка 3m+1; `DoFillet`: `GCFLT` `len==0` → EC (No-Op), `GFLT` 1 точка |
+| **C14 (остаток)** | `GSECOL` (`< 2`), `GSPRP` (`< 2+pointSize`), `GBOX`/`GCBOX` (`<`, оси без контроля остатка) |
+| **C17** | `DoSetPatternRefPoint`: при `GSPRP_DEFAULT` жёстко `(0,0)`, нужен `flDefsMask = ABB_REF_POINT` в обеих масках |
+| **C18** | `DoSetCharCell`: drawing default через `GreGetDefaultAttributes` (снимок) вместо `flDefsMask = CBB_BOX` |
+| **C19–C21** | Таблица цветов GOCA↔GPI; `PRIM_IMAGE` отсутствует в shorthand; `GSBMX` включает `PRIM_LINE` |
+| **C22–C23, C25–C26** | `DoRelativeLine` SHORT-математика; `DoBox` PM-флаги vs AFP RES; `DoVLongCharString` UNDERSCORE/STRIKEOUT/`CHS_VECTOR`/`DosAllocMem`; `DoGSCP` параметр `bPush` |
+| **C27–C28** | Обводка дуги/бокса не подчинена `BA_BOUNDARY`; коды возврата `Gre*` не проверяются |
+| **D1 (остаток)** | `GSLT`, `GSLE`, `GSLJ`, `GSMS`, `GSMT`, `GSPS`, `GSPT`, `GSCS`, `GSCD`, `GSCR`, `GSMX`, `GSBMX`, `GSCOL`, `GSECOL` — X'00' не транслируется в `flDefsMask`, пишется дословно в бандл |
+| **D2–D10** | Допустимость приказов в области (частично покрыто драйвером); GEAR без GBAR; prolog; GBSEG; границы стека; Pop в области/пути; LCID; standard action; ~40 нереализованных приказов |
+| **E** | `pmddi.h` XFORM 9 полей; `INCL_GREALL`; отсутствующие типы/константы; `pmord.h` `GOPTH` 0xD9 |
+| **F** | `GocaErrorName`: 8 кодов; `GocaOrderName`: X'C4'→GFLT; docstring-и «cached bundles» |
 
 ---
 
@@ -54,9 +55,9 @@ GDDM — подмножество FULL GOCA, только BYTE/SHORT, BE
 > «Attributes whose flags are set **only in flDefsMask** … are unchanged.»
 > «Attributes whose flags are set only in flAttrsMask are set to the value specified by pAttrs.»
 
-Следствие: для перевода атрибута в default бит маски обязан присутствовать одновременно в третьем и четвёртом аргументах.
+Следствие: бит дефолта обязан присутствовать одновременно в третьем и четвёртом аргументах.
 
-**A2.** `#define INCL_DDIBUNDLES` в `goca_parser.hpp` закомментирован.
+**A2 (опционально).** `#define INCL_DDIBUNDLES` в `goca_parser.hpp` можно удалить.
 
 ---
 
@@ -71,47 +72,38 @@ GDDM — подмножество FULL GOCA, только BYTE/SHORT, BE
 
 ### C1. Заданная точка GFARC — **ЗАВЕРШЕНО**
 
-`DoFullArc` читает центр для GFARC, устанавливает CP, вызывает `GreFullArcBoundary` (line primitive, а не area).
-
-### C2. Заданная точка GPARC — **ВЫПОЛНЕНО ЧАСТИЧНО**
-
-| Дефект | Статус |
-|---|---|
-| Пропуск начальной точки GPARC | **Исправлено** (`GreSetCurrentPosition`) |
-| `multSize` для BYTE давал 4 | **Исправлено** (`LONG ? 4 : 2`) |
-| Проверка `<` вместо `!=` | **Исправлено** (`expectedLen`) |
-| Ручное чтение мультипликатора | **Исправлено** (`GocaGetMult`) |
-| Углы как `ULONG`, знак терялся | **Исправлено** (знаковый `LONG`) |
-| Нет проверки отрицательных углов | **Исправлено** (`GOCA_EC_PARC_NEGATIVE_START`/`_SWEEP`) |
+### C2. Заданная точка GPARC — **ЗАВЕРШЕНО**
 
 ### C3–C5. Текущая позиция — **НЕ ВЫПОЛНЕНО**
 
 | Ордер | Дефект | Основание |
 |---|---|---|
-| **GCCHST (0x83)** | `GreSetCurrentPosition` вызывается безусловно после ветвления, включая `bCur == TRUE` | AFPC p. 92: CP **unchanged** |
+| **GCCHST (0x83)** | `GreSetCurrentPosition` вызывается безусловно после ветвления | AFPC p. 92: CP **unchanged** |
 | **GCHST (0xC3)** | `if (cch == 0) return GOCA_OK;` стоит **до** `GreSetCurrentPosition` | AFPC p. 93: «serves only to move the current position» |
-| **GCBOX (0x80)** | CP не восстанавливается после `GreBox*` | AFPC p. 91: «unchanged (GCBOX)» |
+| **GCBOX (0x80)** | CP не восстанавливается после `GreBox*` | AFPC p. 91: CP **unchanged** |
 
-### C6. Пустые и минимальные операнды — **ЧАСТИЧНО**
+### C6. Пустые и минимальные операнды (маркеры) — **ЗАВЕРШЕНО**
+
+`DoMark`: `GrePolyMarker(c->hdc, &aptl[bGiven], (LONG)(nPts+1))`. Для GMRK 1 точка рисуется 1 маркер в P0; для GCMRK `len==0` рисуется 1 маркер в CP.
+
+### C7–C13. Пустые и минимальные операнды (линии/кривые) — **НЕ ВЫПОЛНЕНО**
 
 | Ордер | Сейчас | Должно | Статус |
 |---|---|---|---|
-| **GMRK** 1 точка | `nPts--` → 0, `cPoints=1` | 1 маркер в P0 | ✓ |
-| **GCMRK** `len==0` | `nPts=0`, `cPoints=1` | 1 маркер в CP | ✓ |
 | **GCLINE** `len==0` | `GrePolyLine(...,0)` — No-Op | No-Op | ✓ |
 | **GLINE** `len==pointSize` | `GreSetCurrentPosition` + `nPts--`→0 | только переместить CP | ✓ |
 | **GCRLINE** `len==0` | EC-0003 | No-Op | ✗ |
-| **GRLINE** `len==pointSize` | `nTotal=1`, `GrePolyLine(aptl,1)` | только переместить CP | ✗ |
+| **GRLINE** `len==pointSize` | `GrePolyLine(aptl,1)` — линия из 1 точки | только переместить CP | ✗ |
 | **GCCBEZ** `len==0` | EC-0003 | No-Op | ✗ |
-| **GCBEZ** 1 точка | EC-0003 | только переместить CP | ✗ |
-| **GBEZ** 1 точка | EC-0003 | только переместить CP | ✗ |
+| **GCBEZ** 1 точка | `GrePolySpline(aptl,2)` | только переместить CP | ✗ |
+| **GBEZ** 1 точка | `len < 2*pointSize` → EC-0003 | только переместить CP | ✗ |
 | **GCFLT** `len==0` | EC-0003 | No-Op | ✗ |
-| **GFLT** 1 точка | EC-0003 | только переместить CP | ✗ |
+| **GFLT** 1 точка | `len < 2*pointSize` → EC-0003 | только переместить CP | ✗ |
 | **GCBEZ/GCCBEZ** | нет проверки 3m+1 | EC-0003 | ✗ |
 
 ### C14. Длины — **ЧАСТИЧНО**
 
-| Ордер | Проверка | Статус |
+| Ордер | Проверка в коде | Статус |
 |---|---|---|
 | GSCP | `!= 2*coordSize` | ✓ |
 | GSAP | `!= 4*paramSize` | ✓ |
@@ -123,23 +115,26 @@ GDDM — подмножество FULL GOCA, только BYTE/SHORT, BE
 | GPOP | `p[1] != 0` | ✓ |
 | GSECOL | `< 2` | ✗ |
 | GSPRP | `< 2+pointSize` | ✗ |
-| GBOX | `< 2`, затем `< 2+2*pointSize`; оси без контроля остатка | ✗ |
-| GCBOX | `< 2`, затем `< 2+pointSize`; оси без контроля остатка | ✗ |
+| GBOX / GCBOX | `<`, оси без контроля остатка | ✗ |
 | GBEZ/GCBEZ/GFLT/GCFLT | кратность + минимум; нет 3m+1 | ✗ |
 
-### C15. Геометрическая ширина — **ЗАВЕРШЕНО**
+### C15. Логическая против геометрической ширины линии — **ЗАВЕРШЕНО**
 
 `GSLW`/`GSFLW`: только `lb.fxWidth`, маска `LBB_WIDTH`. `lGeomWidth` удалён. Геометрическая ширина — отдельный атрибут `GSSLW` (0x15), не реализован (D10).
 
-### C16–C18. Семантика атрибутов — **НЕ ВЫПОЛНЕНО**
+### C16. GSMC: условие нулевой ячейки — **ЗАВЕРШЕНО**
 
-| № | Дефект | Основание |
-|---|---|---|
-| C16 | `bZero = (cx == 0 && cy == 0)` | AFPC p. 152: «if **either or both** of CELLWI or CELLHI are X'0000'» → `\|\|`. При `cx==0, cy!=0` ветка `else` запишет `(0, cy)` вместо `(0,0)` |
-| C17 | `GSPRP_DEFAULT` → `pt.x=0; pt.y=0` | AFPC p. 157: drawing default. Нужен `flDefsMask = ABB_REF_POINT` в обеих масках |
-| C18 | `GreGetDefaultAttributes(PRIM_CHAR, CBB_BOX)` | Фиксирует снимок дефолта. Нужен `flDefsMask = CBB_BOX`, вызов удалить |
+`bZero = (cx == 0 || cy == 0)`; при drawing default `flDefsMask = MBB_BOX`; при literal zero — принудительное обнуление обеих компонент.
 
-### C19. Таблица цветов — **НЕ ВЫПОЛНЕНО**
+### C17. GSPRP при DEFAULT — **НЕ ВЫПОЛНЕНО**
+
+При `GSPRP_DEFAULT` жёстко `pt.x=0; pt.y=0`, `GreSetAttributes(..., 0UL, ABB_REF_POINT, ...)`. Должно быть `flDefsMask = ABB_REF_POINT` в обеих масках, поле не заполнять.
+
+### C18. GSCC default без индирекции — **НЕ ВЫПОЛНЕНО**
+
+`GreGetDefaultAttributes(c->hdc, PRIM_CHAR, CBB_BOX, &cbDef)` + `bun.sizfxCell = cbDef.sizfxCell` + `GreSetAttributes(..., 0UL, CBB_BOX, ...)`. Фиксирует снимок дефолта. Должно быть `flDefsMask = CBB_BOX`, вызов `GreGetDefaultAttributes` удалить.
+
+### C19. Таблица цветов GOCA ≠ GPI — **НЕ ВЫПОЛНЕНО**
 
 | Значение | Сейчас | Требуется |
 |---|---|---|
@@ -154,34 +149,58 @@ GDDM — подмножество FULL GOCA, только BYTE/SHORT, BE
 
 ### C20–C21. Набор примитивов в shorthand — **НЕ ВЫПОЛНЕНО**
 
-| Ордер | Сейчас | Должно |
+| Ордер | AFP набор | Сейчас |
 |---|---|---|
-| GSCOL / GSECOL / GSMX | 4 примитива | 5: + `PRIM_IMAGE` |
-| GSBMX | 4 примитива, включает `PRIM_LINE` | 4: char, image, marker, pattern (без line) |
+| GSCOL / GSECOL / GSMX | 5: char, image, line, marker, pattern | 4 — **image отсутствует** |
+| GSBMX | 4: char, image, marker, pattern | 4, но **включает line** |
 
 ### C22–C28. Прочее — **НЕ ВЫПОЛНЕНО**
 
-| № | Дефект |
-|---|---|
-| C22 | `DoRelativeLine`: `SHORT x, y`, потеря разрядности при LONG |
-| C23 | `DoBox`: `p[2]` как PM-флаги; AFP RES=X'2000'; HAXIS/VAXIS вне 0–32767 |
-| C25 | `DoVLongCharString`: UNDERSCORE/STRIKEOUT теряются; `CHS_VECTOR`; `DosAllocMem`; `cch==0` → DRAWRECT не выполняется |
-| C26 | `DoGSCP`: `bPush` не используется |
-| C27 | Обводка дуги/бокса безусловна, не подчинена `BA_BOUNDARY` |
-| C28 | Коды возврата `Gre*` не проверяются |
+| № | Ордер / функция | Дефект |
+|---|---|---|
+| C22 | `DoRelativeLine` | `SHORT x, y`, потеря разрядности при LONG |
+| C23 | `DoBox` | PM-флаги 0x40/0x20 vs AFP RES=X'2000' |
+| C25 | `DoVLongCharString` | UNDERSCORE/STRIKEOUT теряются; `CHS_VECTOR` не выставляется; `DosAllocMem`; `cch==0` → DRAWRECT не выполняется |
+| C26 | `DoGSCP` | параметр `bPush` в теле не используется |
+| C27 | Обводка дуги/бокса | безусловна, не подчинена `BA_BOUNDARY` |
+| C28 | Коды возврата `Gre*` | не проверяются |
 
 ---
 
 ## D. Отсутствующие архитектурные механизмы — **НЕ ВЫПОЛНЕНО**
 
+### D1. Drawing defaults через `flDefsMask` — **ЧАСТИЧНО**
+
+**Выполнено:** `GSLW`, `GSFLW`, `GSMC`, стек (`GocaPop`).
+
+**Не выполнено:** 14 атрибутных приказов в диспетчере:
+
+| Ордер | Поле | Текущий `flDefsMask` | Требуется |
+|---|---|---|---|
+| GSLT (0x18) | `usType` | `0UL` | `LBB_TYPE` при `p[1]==0` |
+| GSLE (0x1A) | `usEnd` | `0UL` | `LBB_END` при `p[1]==0` |
+| GSLJ (0x1B) | `usJoin` | `0UL` | `LBB_JOIN` при `p[1]==0` |
+| GSMS (0x3C) | `usSet` | `0UL` | `MBB_SET` при `p[1]==0` |
+| GSMT (0x29) | `usSymbol` | `0UL` | `MBB_SYMBOL` при `p[1]==0` |
+| GSPS (0x08) | `usSet` | `0UL` | `ABB_SET` при `p[1]==0` |
+| GSPT (0x28) | `usSymbol` | `0UL` | `ABB_SYMBOL` при `p[1]==0` |
+| GSCS (0x38) | `usSet` | `0UL` | `CBB_SET` при `p[1]==0` |
+| GSCD (0x3A) | `usDirection` | `0UL` | `CBB_DIRECTION` при `p[1]==0` |
+| GSCR (0x39) | `usPrecision` | `0UL` | `CBB_MODE` при `p[1]==0` |
+| GSMX (0x0C) | `usMixMode` | `0UL` | `*_MIX_MODE` при `p[1]==0` |
+| GSBMX (0x0D) | `usBackMixMode` | `0UL` | `*_BACK_MIX_MODE` при `p[1]==0` |
+| GSCOL (0x0A) | `lColor` | `0UL` | `*_COLOR` при `clr==0` |
+| GSECOL (0x26) | `lColor` | `0UL` | `*_COLOR` при `clr==0x0000`/`0xFF00` |
+
+### D2–D10. Остальные механизмы — **НЕ ВЫПОЛНЕНО**
+
 | № | Механизм | Что в коде |
 |---|---|---|
-| D1 | Drawing defaults через `flDefsMask` | Только `GSLW`/`GSFLW`/стек. Остальное: `0UL` в `flDefsMask` |
-| D2 | Допустимость приказов в области | Проверки нет. `#if 0`-список в начале файла. `GBAR` → EC-6800 ✓ |
-| D3 | GEAR без GBAR | `if (c->bInArea)` без `else` → EC-6000 не формируется; данные `GEAR` не проверяются; `uAreaFlags` не сбрасывается |
+| D2 | Допустимость приказов в области | Проверки нет; `#if 0`-список. `GBAR` → EC-6800 ✓ |
+| D3 | GEAR без GBAR | `if (c->bInArea)` без `else` → EC-6000 не формируется |
 | D4 | Prolog | `GEPROL`/`GSGCH` в тривиальной группе; состояние не ведётся |
 | D5 | GBSEG | Пустая метка «replayed by the server» |
-| D6 | Границы стека | Пустой стек `GPOP` → `GOCA_OK`; chained/called не реализованы |
+| D6 | Границы стека | Пустой стек `GPOP` → `GOCA_OK` (задокументировано) |
 | D7 | Pop в области/пути | Ограничения нет |
 | D8 | Разрешение LCID | Байт напрямую; `GreQuerySetIds` не используется |
 | D9 | Standard action | `if (rc != GOCA_OK) return rc;` — фатально для всех кодов |
@@ -197,9 +216,10 @@ GDDM — подмножество FULL GOCA, только BYTE/SHORT, BE
 | E2 | ✗ | `INCL_GREALL` не включает `INCL_DDIMISC`, `INCL_DDIBUNDLES`, `INCL_DDIPATHS` |
 | E3 | ✗ | Отсутствующие типы: `LCID`, `HDEVPAL`, `VIEWPORTSIZE`, `BITMAPFORMAT`, `PALETTEINFO*`, `CHARMETRICS`, `CODEPAGEOBJECT`, `DC_BLOCK`, `DELETERETURN`, `BITBLTPARAMETERS`/`ATTRS`, `NOTIFYTRANSFORMDATA`, `PATH`, `PIPELINEINFO`, `POLYSINFO` |
 | E4 | ✗ | Отсутствующие константы: `INAT_*`, `ATYPE_*`/`GATTR_DEFAULT`, `EA_*`, `SX_*`, `PCTL_*`, `LCID_GRAPHICS_MIN/MAX` |
-| E5 | ◐ | `F_gocaerr.h`: коллизия 0x000A разрешена (alias); EC-0E02…0E05, 3400, 5E00, C202 добавлены; `GocaEcIsRetired` добавлен; `GOCA_EC_RELLINE_OUTSIDE_GPS`/`GOCA_EC_PARC_ENDS_OUTSIDE_GPS` в `GocaEcIsDrawingCheck`. **Осталось:** комментарий `GOCA_EC_PATTSYM_UNDEFINED` говорит «Std: special symbol X'FF'» — по AFPC p. 83/172 стандартный символ = X'10' (Solid fill) |
+| E5 | ◐ | `F_gocaerr.h`: коллизия 0x000A разрешена (alias); EC-0E02…0E05, 3400, 5E00, C202 добавлены; `GocaEcIsRetired` добавлен |
 | E6 | ✗ | `pmord.h`: `OCODE_GOPTH` 0xD9 с `@warning`; X'E5'/X'A5' — пометки «name differs» |
 | E7 | ◐ | `GocaEcIsRetired` существует, но парсер его не применяет (связано с D9) |
+| E8 | ✗ | `pmddim.h`: контракт возврата `GreSetAttributes`/`GreGetAttributes` в заголовке не отражён |
 
 ---
 
@@ -208,14 +228,16 @@ GDDM — подмножество FULL GOCA, только BYTE/SHORT, BE
 | № | Что не так |
 |---|---|
 | F1 | `GocaOrderName`: `case /* X'C4' */ OCODE_GFLT` — метка X'C4' при коде 0xC5 |
-| F2 | `GocaOrderName`: закомментированы `GSCLT`, `GSCA`, `GSCH`, `GECP`, `GSPCOL`, `GBCP`, `GDPT`; нет `GSIA`, `GSTM`/`GSTV`/`GSVW`/`GSSB`, `GSBCOL`/`GSICOL`/`GSBICOL`, `GSFLT`/`GCSFLT`, `GCALLS`, `GBBLT`/`GESCP`, `GCHSTM`/`GCCHSTM`, `GTCHSPA` |
-| F3 | `GocaErrorName`: 8 кодов. Отсутствуют `GOCA_EC_PARC_NEGATIVE_START`/`_SWEEP` (уже возвращаются `DoPartialArc`), `GOCA_EC_GEAR_WITHOUT_GBAR`, `GOCA_EC_ORDER_INVALID_IN_AREA`/`_PATH`, `GOCA_ERR_NOMEM` именован, но не по формату «EC-…» |
+| F2 | `GocaOrderName`: нет GSCLT, GSCA, GSCH, GECP, GSPCOL, GBCP, GDPT, GSPIK, End Segment, GSSLW, GSCE, GSCBE, GSIA, GSTM, GSTV, GSVW, GSSB, GBBLT, GESCP, GCSFLT, GSFLT, GCCHSTM, GCHSTM, GTCHSPA, GSBICOL, GSICOL, GSBCOL |
+| F3 | `GocaErrorName`: 8 кодов. Отсутствуют `GOCA_EC_PARC_NEGATIVE_START`/`_SWEEP`, `GOCA_EC_GEAR_WITHOUT_GBAR`, `GOCA_EC_ORDER_INVALID_IN_AREA`/`_PATH` |
 | F4 | `goca_parser.hpp`, `GocaInit`: «pulls live bundles plus the current position from the device» — кэшей нет |
-| F5 | `goca_parser.cpp`, `GocaInit`: «pulls live bundles from the device» — `GocaInit` делает только `memset` + указатели + `GocaSetFormat` |
+| F5 | `goca_parser.cpp`, `GocaInit`: «pulls live bundles from the device» |
 | F6 | `GocaParseStream` `@param`: «cached bundles» |
 | F7 | `DoVLongCharString`: «the cached CHARBUNDLE exposes no character-definition bits» — биты идут через `flOptions` |
 | F8 | `GOCA_MAX_POINTS`: две строки `@def` в одном блоке |
 | F9 | `F_goca.h`, `GOCA_CTX`: «the four GOCA foreground bundles, which are kept in sync with the DC between orders» — бандлов в контексте нет |
+| F11 | `DoSetCharCell` docstring: «The drawing default is taken from the DC default attribute bundle (GreGetDefaultAttributes…)» — фиксирует дефектную семантику C18 |
+| F13 | Форматирование диспетчера: смешанные табуляции/пробелы в `GBAR`; `case OCODE_GSMT`/`GSPT` — отступ на 3 пробела меньше; push-формы в `GocaOrderName` — двойной отступ |
 
 ---
 
@@ -223,31 +245,30 @@ GDDM — подмножество FULL GOCA, только BYTE/SHORT, BE
 
 | Шаг | Содержание | Зависимость |
 |---|---|---|
-| **1** | **C16** — `DoSetMarkerCell`: `\|\|` вместо `&&`; обнуление обеих компонент в ветке `bZero` | — |
-| **2** | **C17** — `DoSetPatternRefPoint`: `flDefsMask = ABB_REF_POINT` вместо хардкода `(0,0)` | — |
-| **3** | **C18** — `DoSetCharCell`: `flDefsMask = CBB_BOX`, удалить `GreGetDefaultAttributes`; решение 7 | решение 7 |
-| **4** | **C14 (остаток)** — `GSECOL` (`!= 2`), `GSPRP` (`!= 2+pointSize`), `GBOX`/`GCBOX` (точные наборы + контроль остатка осей) | — |
-| **5** | **C3–C5** — убрать безусловный `GreSetCurrentPosition` для GCCHST; перенести установку до `cch==0` для GCHST; `DoBox` — CP по контракту `GreBox*` | — |
-| **6** | **C6 (остаток)** — `GCRLINE`/`GCCBEZ`/`GCFLT` `len==0` → No-Op; `GRLINE`/`GCBEZ`/`GBEZ`/`GFLT` 1 точка → только CP; проверка 3m+1 | — |
-| **7** | **C19–C21** — таблица цветов; `PRIM_IMAGE`; убрать `PRIM_LINE` из `GSBMX` | 1–3, решение 1 |
-| **8** | **C22–C23** — `DoRelativeLine` LONG; `DoBox` RES=X'2000' vs PM-флаги, проверка осей | решение 4 |
-| **9** | **C25–C26** — `DoVLongCharString` UNDERSCORE/STRIKEOUT/`CHS_VECTOR`/фикс. буфер; `DoGSCP` убрать `bPush` | решение 2 |
-| **10** | **C27, C28** — обводка по `BA_BOUNDARY`; коды возврата `Gre*` | — |
-| **11** | **D2, D3** — допустимость приказов в области; `GEAR` без `GBAR` (EC-6000), сброс `uAreaFlags` | 1–3 |
-| **12** | **D5, D6, D7** — GBSEG; границы стека; Pop в области/пути | 11 |
-| **13** | **D4, D8, D9** — prolog; LCID; standard action + `GocaEcIsRetired` + не-фатальный цикл | 12, решение 6 |
-| **14** | **D10** — недостающие приказы | 13, E1 |
-| **15** | **D1 (остаток)** — `flDefsMask` для всех атрибутов | 14 |
-| **16** | **E, F** — заголовки; `GocaErrorName` (+EC-E302/E303); docstring-и | по готовности |
+| **1** | **C17** — `DoSetPatternRefPoint`: `flDefsMask = ABB_REF_POINT` вместо хардкода `(0,0)` | — |
+| **2** | **C18** — `DoSetCharCell`: `flDefsMask = CBB_BOX`, удалить `GreGetDefaultAttributes`; правка F11 | решение 7 |
+| **3** | **C14 (остаток)** — `GSECOL` (`!= 2`), `GSPRP` (`!= 2+pointSize`), `GBOX`/`GCBOX` (точные наборы + контроль остатка осей) | — |
+| **4** | **C3–C5** — убрать безусловный `GreSetCurrentPosition` для GCCHST; перенести установку до `cch==0` для GCHST; CP для GCBOX | — |
+| **5** | **C7–C13** — `GCRLINE`/`GCCBEZ`/`GCFLT` `len==0` → No-Op; `GRLINE`/`GCBEZ`/`GBEZ`/`GFLT` 1 точка → только CP; проверка 3m+1 | — |
+| **6** | **C19–C21** — таблица цветов; `PRIM_IMAGE` в shorthand; убрать `PRIM_LINE` из `GSBMX` | 1–2, решение 1 |
+| **7** | **C22–C23, C25–C26** — `DoRelativeLine` LONG; `DoBox` RES=X'2000' vs PM-флаги; `DoVLongCharString` UNDERSCORE/STRIKEOUT/`CHS_VECTOR`/фикс. буфер; `DoGSCP` убрать `bPush` | решения 2, 4 |
+| **8** | **C27, C28** — обводка по `BA_BOUNDARY`; коды возврата `Gre*` | — |
+| **9** | **D2, D3** — допустимость приказов в области; `GEAR` без `GBAR` (EC-6000) | 1–2 |
+| **10** | **D5, D6, D7** — GBSEG; границы стека; Pop в области/пути | 9 |
+| **11** | **D4, D8, D9** — prolog; LCID; standard action + `GocaEcIsRetired` + не-фатальный цикл | 10, решение 6 |
+| **12** | **D10** — недостающие приказы | 11, E1 |
+| **13** | **D1 (остаток)** — `flDefsMask` для оставшихся 14 атрибутных приказов | 12 |
+| **14** | **E, F** — заголовки; `GocaErrorName` (+EC-E302/E303); docstring-и; форматирование | по готовности |
 
 ---
 
 ## Решения, нужные до кода
 
-1. **Цвета без констант** (Orange, Purple, Mustard, Gray, Brown): RGB-режим логической таблицы (`GreCreateLogColorTable`, `LCOLF_RGB`), ближайший индекс или собственное отображение.
+1. **Цвета без констант GPI** (Orange 0x000A, Purple 0x000B, Mustard 0x000E, Gray 0x000F, Brown 0x0010): RGB-режим логической таблицы (`GreCreateLogColorTable`, `LCOLF_RGB`), ближайший индекс или собственное отображение.
 2. **`adx`** — фиксированный буфер с ограничением `cch` либо сохранение `DosAllocMem`.
 3. **`DoBox`** — флаги PM (0x40/0x20) против AFP RES=X'2000': разделение по диалекту или единая трактовка. Поведение при сброшенных обоих битах.
 4. **`GBOX` CP** — контракт `GreBox*` по CP из `pmddim.h`: `GreBox*` использует CP как первый угол. Для GBOX CP устанавливается в (XPOS0, YPOS0) до вызова. Для GCBOX CP уже на месте — не трогать.
-5. **`GCHSTE` при `cch==0`** — зафиксировано: ранний возврат до DRAWRECT/LEAVEPOS. Если рамка должна рисоваться при пустой строке — пересмотреть.
-6. **Стандартное действие** — `GocaEcIsRetired` + `GocaEcHasStandardAction` из `F_gocaerr.h` не применяются в `GocaParseStream`. Фатальный выход по любому `rc != GOCA_OK`. Требуется решение: для retired-кодов — логировать и пропустить; для кодов со стандартным действием — выполнить действие и продолжить; для drawing process checks — остановиться.
-7. **`GSCC` `bZero`** — четыре компонента через `&&`. Нужно ли «либо/оба» как в `GSMC`, или все четыре? По `pmord.h` `ORDERS_GSCC` содержит `SHORT cxInt, cyInt` + `USHORT cxFract, cyFract` — дробная часть дополняет целую, ноль в целой при ненулевой дробной ≠ ноль ячейки. Оставить `&&` по четырём компонентам.
+5. **`GCHSTE` при `cch==0`** — зафиксировано: ранний возврат до DRAWRECT/LEAVEPOS. Если DRAWRECT при пустой строке должен рисовать рамку — вернуться к пункту.
+6. **EC-0002** — репортировать (PM) или игнорировать (AFP 4-я ред., retired). `GocaEcIsRetired` в `F_gocaerr.h` существует, но парсер его не применяет.
+7. **`GSCC` `bZero`** — четыре компонента через `&&` (`cxInt == 0 && cyInt == 0 && cxFrac == 0 && cyFrac == 0`). Дробная часть дополняет целую, ноль в целой при ненулевой дробной ≠ ноль ячейки. Оставить `&&` по четырём компонентам.
+8. **Обводка границы дуги в области** — подчинить флагу `BOUNDARY` GBAR (AFPC p. 107) или сохранить безусловную обводку как упрощение PM.
