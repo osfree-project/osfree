@@ -122,6 +122,24 @@ static void GocaTrace(GOCA_CTX *c, const char *fmt, ...)
     F_DbgCtxExitf(_goca_ctx, fmt, ##__VA_ARGS__)
 
 
+/*!
+ * @def GOCA_RETURN_ERROR
+ * @brief Logs an error code string and returns the error code.
+ *
+ * Consolidates the error reporting and returning logic into a single 
+ * statement. It stringifies the provided error code macro or enum name 
+ * and passes it to GocaCallResult(), then returns the actual error code.
+ *
+ * @param[in] ec The error code identifier (e.g., GOCA_EC_INVALID_LENGTH).
+ *
+ * @return The evaluated error code.
+ */
+#define GOCA_RETURN_ERROR(ec) \
+    do { \
+        GocaCallResult(#ec); \
+        return (ec); \
+    } while (0)
+
 /* ======================================================================== */
 /*  Small helpers                                                           */
 /* ======================================================================== */
@@ -232,8 +250,7 @@ static LONG GocaPushAttr(GOCA_CTX *c, USHORT usLine, USHORT usChar,
 
     e = GocaStackPush(c);
     if (!e) {
-        GocaCallResult("GOCA_EC_STACK_OVERFLOW");
-        return GOCA_EC_STACK_OVERFLOW;
+        GOCA_RETURN_ERROR(GOCA_EC_STACK_OVERFLOW);
     }
 
     e->uchKind  = GOCA_STACK_ATTR;
@@ -288,8 +305,7 @@ static LONG GocaPushCurPos(GOCA_CTX *c)
 
     e = GocaStackPush(c);
     if (!e) {
-        GocaCallResult("GOCA_EC_STACK_OVERFLOW");
-        return GOCA_EC_STACK_OVERFLOW;
+        GOCA_RETURN_ERROR(GOCA_EC_STACK_OVERFLOW);
     }
 
     e->uchKind = GOCA_STACK_CURPOS;
@@ -318,8 +334,7 @@ static LONG GocaPushArcParams(GOCA_CTX *c)
 
     e = GocaStackPush(c);
     if (!e) {
-        GocaCallResult("GOCA_EC_STACK_OVERFLOW");
-        return GOCA_EC_STACK_OVERFLOW;
+        GOCA_RETURN_ERROR(GOCA_EC_STACK_OVERFLOW);
     }
 
     e->uchKind = GOCA_STACK_ARCPARAMS;
@@ -416,8 +431,7 @@ static LONG DoGSCP(GOCA_CTX *c, const BYTE *p)
     GocaCallEnter("p=%p", p);
 
     if (p[1] != 2u * (ULONG)c->coordSize) {
-        GocaCallResult("GOCA_EC_INVALID_LENGTH");
-        return GOCA_EC_INVALID_LENGTH;
+        GOCA_RETURN_ERROR(GOCA_EC_INVALID_LENGTH);
     }
     pt = PtsToPtl(c, p + 2);
     GocaTrace(c, "[GOCA]   GSCP: pos=(%ld,%ld)\n",
@@ -452,16 +466,14 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, BOOL bGiven)
 
     len = p[1];
     if (len % pointSize) {
-        GocaCallResult("GOCA_EC_INVALID_LENGTH");
-        return GOCA_EC_INVALID_LENGTH;
+        GOCA_RETURN_ERROR(GOCA_EC_INVALID_LENGTH);
     }
 
     nPts = len / pointSize;
     FillPtlArray(c, p + 2, nPts, aptl);
     if (bGiven) {
         if (nPts == 0) {
-            GocaCallResult("GOCA_EC_INVALID_LENGTH");
-            return GOCA_EC_INVALID_LENGTH;
+            GOCA_RETURN_ERROR(GOCA_EC_INVALID_LENGTH);
         }
         GreSetCurrentPosition(c->hdc, &aptl[0]);
         nPts--;
@@ -504,16 +516,14 @@ static LONG DoMark(GOCA_CTX *c, const BYTE *p, BOOL bGiven)
 
     len = p[1];
     if (len % pointSize) {
-        GocaCallResult("GOCA_EC_INVALID_LENGTH");
-        return GOCA_EC_INVALID_LENGTH;
+        GOCA_RETURN_ERROR(GOCA_EC_INVALID_LENGTH);
     }
 
     nPts = len / pointSize;
     FillPtlArray(c, p + 2, nPts, aptl);
     if (bGiven) {
         if (nPts == 0) {
-            GocaCallResult("GOCA_EC_INVALID_LENGTH");
-            return GOCA_EC_INVALID_LENGTH;
+            GOCA_RETURN_ERROR(GOCA_EC_INVALID_LENGTH);
         }
         GreSetCurrentPosition(c->hdc, &aptl[0]);
         nPts--;
@@ -554,8 +564,7 @@ static LONG DoRelativeLine(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
     if (bCur) {
         /* GCRLINE: length is 2 * count. */
         if (len == 0 || (len & 1)) {
-            GocaCallResult("GOCA_EC_INVALID_LENGTH");
-            return GOCA_EC_INVALID_LENGTH;
+            GOCA_RETURN_ERROR(GOCA_EC_INVALID_LENGTH);
         }
         GreGetCurrentPosition(c->hdc, &aptl[0]);
         x = (SHORT)aptl[0].x;
@@ -1099,8 +1108,7 @@ static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
     off = 2;
     rem = dataLen;
     if (rem < 2u * intSize) {
-        GocaCallResult("GOCA_EC_INVALID_LENGTH");
-        return GOCA_EC_INVALID_LENGTH;
+        GOCA_RETURN_ERROR(GOCA_EC_INVALID_LENGTH);
     }
     cxInt = GocaGetCoord(c, p + off); off += intSize; rem -= intSize;
     cyInt = GocaGetCoord(c, p + off); off += intSize; rem -= intSize;
@@ -1127,13 +1135,11 @@ static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
         uchRes  = p[off]; off += 1u;
         rem -= 2u;
         if ((fbFlags & (UCHAR)~(UCHAR)GSCC_ZEROZERO) != 0 || uchRes != 0) {
-            GocaCallResult("GOCA_EC_RESERVED_NOT_ZERO");
-            return GOCA_EC_RESERVED_NOT_ZERO;
+            GOCA_RETURN_ERROR(GOCA_EC_RESERVED_NOT_ZERO);
         }
     }
     if (rem != 0) {
-        GocaCallResult("GOCA_EC_INVALID_LENGTH");
-        return GOCA_EC_INVALID_LENGTH;
+        GOCA_RETURN_ERROR(GOCA_EC_INVALID_LENGTH);
     }
 
     bZero = (cxInt == 0 && cyInt == 0 && cxFrac == 0 && cyFrac == 0);
@@ -1202,8 +1208,7 @@ static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p)
     off = 2;
     rem = dataLen;
     if (rem < 2u * intSize) {
-        GocaCallResult("GOCA_EC_INVALID_LENGTH");
-        return GOCA_EC_INVALID_LENGTH;
+        GOCA_RETURN_ERROR(GOCA_EC_INVALID_LENGTH);
     }
     cx = GocaGetCoord(c, p + off); off += intSize; rem -= intSize;
     cy = GocaGetCoord(c, p + off); off += intSize; rem -= intSize;
@@ -1214,13 +1219,11 @@ static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p)
         uchRes  = p[off]; off += 1u;
         rem -= 2u;
         if ((fbFlags & (UCHAR)~(UCHAR)GSMC_ZEROZERO) != 0 || uchRes != 0) {
-            GocaCallResult("GOCA_EC_RESERVED_NOT_ZERO");
-            return GOCA_EC_RESERVED_NOT_ZERO;
+            GOCA_RETURN_ERROR(GOCA_EC_RESERVED_NOT_ZERO);
         }
     }
     if (rem != 0) {
-        GocaCallResult("GOCA_EC_INVALID_LENGTH");
-        return GOCA_EC_INVALID_LENGTH;
+        GOCA_RETURN_ERROR(GOCA_EC_INVALID_LENGTH);
     }
 
     /* AFPC p. 152: "if either or both of CELLWI or CELLHI are X'0000'" */
@@ -1286,14 +1289,12 @@ static LONG DoSetPatternRefPoint(GOCA_CTX *c, const BYTE *p, ULONG cb)
     GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
 
     if (p[1] < 2u + pointSize) {
-        GocaCallResult("GOCA_EC_INVALID_LENGTH");
-        return GOCA_EC_INVALID_LENGTH;
+        GOCA_RETURN_ERROR(GOCA_EC_INVALID_LENGTH);
     }
     fbFlags = p[2];
     uchRes  = p[3];
     if ((fbFlags & (UCHAR)~(UCHAR)GSPRP_DEFAULT) != 0 || uchRes != 0) {
-        GocaCallResult("GOCA_EC_RESERVED_NOT_ZERO");
-        return GOCA_EC_RESERVED_NOT_ZERO;
+        GOCA_RETURN_ERROR(GOCA_EC_RESERVED_NOT_ZERO);
     }
 
     pt = PtsToPtl(c, p + 4);
@@ -1370,16 +1371,14 @@ static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
 
     dataLen = GocaGetU16(p + 2);               /* SWPUSHORT, always BE */
     if (dataLen < minData) {
-        GocaCallResult("GOCA_EC_INVALID_LENGTH");
-        return GOCA_EC_INVALID_LENGTH;
+        GOCA_RETURN_ERROR(GOCA_EC_INVALID_LENGTH);
     }
 
     q       = p + 4;
     fbFlags = q[0];
     uchRes  = q[1];
     if ((fbFlags & 0x23u) != 0 || uchRes != 0) {
-        GocaCallResult("GOCA_EC_RESERVED_NOT_ZERO");
-        return GOCA_EC_RESERVED_NOT_ZERO;
+        GOCA_RETURN_ERROR(GOCA_EC_RESERVED_NOT_ZERO);
     }
 
     ptCorner0 = PtsToPtl(c, q + 2);
@@ -1388,13 +1387,11 @@ static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
 
     consumed = minData + (ULONG)cch;
     if (dataLen < consumed) {
-        GocaCallResult("GOCA_EC_INVALID_LENGTH");
-        return GOCA_EC_INVALID_LENGTH;
+        GOCA_RETURN_ERROR(GOCA_EC_INVALID_LENGTH);
     }
     rem = dataLen - consumed;
     if (rem != 0 && rem != (ULONG)cch * (ULONG)c->coordSize) {
-        GocaCallResult("GOCA_EC_INVALID_LENGTH");
-        return GOCA_EC_INVALID_LENGTH;
+        GOCA_RETURN_ERROR(GOCA_EC_INVALID_LENGTH);
     }
     pStr = q + 2 + 2u * pointSize + 2;
 
@@ -1413,8 +1410,7 @@ static LONG DoVLongCharString(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bGiven)
         const BYTE *pAdx = pStr + cch;
         if (DosAllocMem((PPVOID)&plX, (ULONG)cch * sizeof(LONG),
                         PAG_COMMIT | PAG_READ | PAG_WRITE) != 0) {
-            GocaCallResult("GOCA_ERR_NOMEM");
-            return GOCA_ERR_NOMEM;
+            GOCA_RETURN_ERROR(GOCA_ERR_NOMEM);
         }
         for (i = 0; i < cch; i++)
             plX[i] = GocaGetCoord(c, pAdx + i * (ULONG)c->coordSize);
