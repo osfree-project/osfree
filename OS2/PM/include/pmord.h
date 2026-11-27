@@ -173,10 +173,9 @@ typedef struct _SWPULONG {
 #define OCODE_GNOP1    0x00            /* No-operation                */
 
 /*!
-   @brief End Symbol Definition (PM GPI extension).
+   @brief End Symbol Definition (FULL GOCA).
 
-   This order is a Presentation Manager GPI extension and is not part of
-   the AFP GOCA architecture.
+   Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GESD     0xFF            /* End symbol definition       */
 
@@ -235,25 +234,27 @@ typedef struct _ORDER
 #define OCODE_GBAR     0x68            /* Begin area                  */
 
 /*!
-   @brief Close Figure order (PM GPI extension).
+   @brief Close Figure order (FULL GOCA).
 
    Not part of AFP GOCA; area figures are closed implicitly by End Area or
    by a Move Type order.
    @see AFP GOCA Reference, "Areas", page 36.
+
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GCFIG    0x7D            /* Close figure                */
 
 /*!
-   @brief End Element order (PM GPI extension).
+   @brief End Element order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GEEL     0x49            /* End element                 */
 
 /*!
-   @brief End Path order (PM GPI extension).
+   @brief End Path order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GEPTH    0x7F            /* End path                    */
 
@@ -269,9 +270,9 @@ typedef struct _ORDER
 #define OCODE_GEPROL   0x3E            /* End prologue                */
 
 /*!
-   @brief Pop order (PM GPI extension).
+   @brief Pop order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPOP     0x3F            /* Pop                         */
 
@@ -288,9 +289,9 @@ typedef struct _ORDER
 #define OCODE_GSBMX    0x0D            /* Set background mix          */
 
 /*!
-   @brief Push and Set Background Mix order (PM GPI extension).
+   @brief Push and Set Background Mix order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSBMX   0x4D            /* Push & set b/g mix          */
 
@@ -306,9 +307,9 @@ typedef struct _ORDER
 #define OCODE_GSCD     0x3A            /* Set char direction          */
 
 /*!
-   @brief Push and Set Character Direction order (PM GPI extension).
+   @brief Push and Set Character Direction order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSCD    0x7A            /* Push & set char direction   */
 
@@ -324,9 +325,9 @@ typedef struct _ORDER
 #define OCODE_GSCR     0x39            /* Set char precision          */
 
 /*!
-   @brief Push and Set Character Precision order (PM GPI extension).
+   @brief Push and Set Character Precision order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSCR    0x79            /* Push & set char precision   */
 
@@ -342,9 +343,9 @@ typedef struct _ORDER
 #define OCODE_GSCS     0x38            /* Set char set                */
 
 /*!
-   @brief Push and Set Character Set order (PM GPI extension).
+   @brief Push and Set Character Set order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSCS    0x78            /* Push & set char set         */
 
@@ -361,9 +362,9 @@ typedef struct _ORDER
 #define OCODE_GSCOL    0x0A            /* Set color                   */
 
 /*!
-   @brief Push and Set Color order (PM GPI extension).
+   @brief Push and Set Color order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSCOL   0x4A            /* Push & set color            */
 
@@ -380,9 +381,9 @@ typedef struct _ORDER
 #define OCODE_GSLE     0x1A            /* Set line end                */
 
 /*!
-   @brief Push and Set Line End order (PM GPI extension).
+   @brief Push and Set Line End order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSLE    0x5A            /* Push & set line end         */
 
@@ -398,9 +399,9 @@ typedef struct _ORDER
 #define OCODE_GSLJ     0x1B            /* Set line join               */
 
 /*!
-   @brief Push and Set Line Join order (PM GPI extension).
+   @brief Push and Set Line Join order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSLJ    0x5B            /* Push & set line join        */
 
@@ -417,9 +418,9 @@ typedef struct _ORDER
 #define OCODE_GSLT     0x18            /* Set line type               */
 
 /*!
-   @brief Push and Set Line Type order (PM GPI extension).
+   @brief Push and Set Line Type order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSLT    0x58            /* Push & set line type        */
 
@@ -435,9 +436,9 @@ typedef struct _ORDER
 #define OCODE_GSLW     0x19            /* Set line width              */
 
 /*!
-   @brief Push and Set Line Width order (PM GPI extension).
+   @brief Push and Set Line Width order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSLW    0x59            /* Push & set line width       */
 
@@ -455,9 +456,9 @@ typedef struct _ORDER
 #define OCODE_GSMP     0x3B            /* Set marker precision        */
 
 /*!
-   @brief Push and Set Marker Precision order (PM GPI extension).
+   @brief Push and Set Marker Precision order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSMP    0x7B            /* Push & set marker precision */
 
@@ -473,9 +474,9 @@ typedef struct _ORDER
 #define OCODE_GSMS     0x3C            /* Set marker set              */
 
 /*!
-   @brief Push and Set Marker Set order (PM GPI extension).
+   @brief Push and Set Marker Set order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSMS    0x7C            /* Push & set marker set       */
 
@@ -493,9 +494,9 @@ typedef struct _ORDER
 #define OCODE_GSMT     0x29            /* Set marker symbol           */
 
 /*!
-   @brief Push and Set Marker Symbol order (PM GPI extension).
+   @brief Push and Set Marker Symbol order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSMT    0x69            /* Push & set marker symbol    */
 
@@ -512,9 +513,9 @@ typedef struct _ORDER
 #define OCODE_GSMX     0x0C            /* Set mix                     */
 
 /*!
-   @brief Push and Set Mix order (PM GPI extension).
+   @brief Push and Set Mix order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSMX    0x4C            /* Push & set mix              */
 
@@ -531,9 +532,9 @@ typedef struct _ORDER
 #define OCODE_GSPS     0x08            /* Set pattern set             */
 
 /*!
-   @brief Push and Set Pattern Set order (PM GPI extension).
+   @brief Push and Set Pattern Set order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSPS    0x48            /* Push & set pattern set      */
 
@@ -551,9 +552,9 @@ typedef struct _ORDER
 #define OCODE_GSPT     0x28            /* Set pattern symbol          */
 
 /*!
-   @brief Push and Set Pattern Symbol order (PM GPI extension).
+   @brief Push and Set Pattern Symbol order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSPT    0x09            /* Push & set pattern symbol   */
 
@@ -673,17 +674,17 @@ typedef struct _LORDER
 /* Character String Move */
 
 /*!
-   @brief Character String Move at Current Position order (PM GPI extension).
+   @brief Character String Move at Current Position order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GCCHSTM  0xB1            /* char string move at c.p.    */
 #define GCCHSTM_MC     255             /* Max len of string in byte   */
 
 /*!
-   @brief Character String Move at Given Position order (PM GPI extension).
+   @brief Character String Move at Given Position order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GCHSTM   0xF1            /* char string move at g.p.    */
 #define GCHSTM_SMC     251             /* Max len of string (S)       */
@@ -742,9 +743,9 @@ typedef struct _LORDER
 /* Label */
 
 /*!
-   @brief Label order (PM GPI extension).
+   @brief Label order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GLABL    0xD3            /* Label                       */
 
@@ -763,7 +764,7 @@ typedef struct _LORDER
 /*!
    @brief Push and Set Current Position order.
 
-   Not part of AFP GOCA but part of GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSCP    0x61            /* Push and set curr posn      */
 
@@ -908,17 +909,16 @@ typedef struct _LORDER
 /* Set Background Color */
 
 /*!
-   @brief Set Background Color order (PM GPI extension).
+   @brief Set Background Color order (FULL GOCA).
 
-   Not part of AFP GOCA.  AFP GOCA uses only the background-mix attribute
-   (see Set Background Mix, GSBMX).
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GSBCOL   0x25            /* Set background color        */
 
 /*!
-   @brief Push and Set Background Color order (PM GPI extension).
+   @brief Push and Set Background Color order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSBCOL  0x65            /* Push and set b/g color      */
 
@@ -936,9 +936,9 @@ typedef struct _LORDER
 #define OCODE_GSECOL   0x26            /* Set extended color          */
 
 /*!
-   @brief Push and Set Extended Color order (PM GPI extension).
+   @brief Push and Set Extended Color order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSECOL  0x66            /* Push and set ext color      */
 
@@ -971,9 +971,9 @@ typedef struct _LORDER
 #define OCODE_GSCA     0x34            /* Set character angle         */
 
 /*!
-   @brief Push and Set Character Angle order (PM GPI extension).
+   @brief Push and Set Character Angle order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSCA    0x74            /* Push and set char angle     */
 
@@ -990,9 +990,9 @@ typedef struct _LORDER
 #define OCODE_GSCH     0x35            /* Set character shear         */
 
 /*!
-   @brief Push and Set Character Shear order (PM GPI extension).
+   @brief Push and Set Character Shear order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSCH    0x75            /* Push and set char shear     */
 
@@ -1011,16 +1011,16 @@ typedef struct _LORDER
 #define OCODE_GSFLW    0x11            /* Set fractional line width   */
 
 /*!
-   @brief Push and Set Fractional Line Width order (PM GPI extension).
+   @brief Push and Set Fractional Line Width order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSFLW   0x51            /* Push and set frac l width   */
 
 /* Set Pick Identifier */
 
 /*!
-   @brief Set Pick Identifier order (PM GPI extension; tolerated by AFP GOCA).
+   @brief Set Pick Identifier order (FULL GOCA).
 
    Some AFP printers accept this long-format drawing order and process it
    as a No-Op.  It is not formally part of AFP GOCA.
@@ -1030,9 +1030,9 @@ typedef struct _LORDER
 #define OCODE_GSPIK    0x43            /* Set pick identifier         */
 
 /*!
-   @brief Push and Set Pick Identifier order (PM GPI extension).
+   @brief Push and Set Pick Identifier order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSPIK   0x23            /* Push and set pick id        */
 
@@ -1049,7 +1049,7 @@ typedef struct _LORDER
    @see OS/2 Programming Tools and Information v1.2 Presentation Manager Programming Reference Vol. 2, page 27-3
    @see AFP GOCA Reference, "Full Arc (GFARC, GCFARC) Orders", page 107.
    @see AFP GOCA Reference, "Partial Arc (GPARC, GCPARC) Orders", page 119.
-   @note Not part of AFP GOCA. (superseded in AFP GOCA by Partial Arc / Full Arc orders)
+   @note Not part of AFP GOCA but part of FULL GOCA.
 
 */
 #define OCODE_GCARC    0x86            /* Arc at Current Position     */
@@ -1083,7 +1083,7 @@ typedef struct _ORDERL_GCARC
    @see OS/2 Programming Tools and Information v1.2 Presentation Manager Programming Reference Vol. 2, page 27-3
    @see AFP GOCA Reference, "Full Arc (GFARC, GCFARC) Orders", page 107.
    @see AFP GOCA Reference, "Partial Arc (GPARC, GCPARC) Orders", page 119.
-   @note Not part of AFP GOCA. (superseded in AFP GOCA by Partial Arc / Full Arc orders)
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GARC     0xC6            /* Arc at Given Position       */
 
@@ -1114,16 +1114,16 @@ typedef struct _ORDERL_GARC
 /* Begin Element */
 
 /*!
-   @brief Begin Element order (PM GPI extension).
+   @brief Begin Element order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GBEL     0xD2            /* Begin Element               */
 
 #define GBEL_DL        251
 
 /*!
-   @brief Structure for Begin Element order (PM GPI extension).
+   @brief Structure for Begin Element order (FULL GOCA).
 */
 typedef struct _ORDER_GBEL
 {
@@ -1172,14 +1172,14 @@ typedef struct _ORDER_GCBIMG
 /* Begin Path */
 
 /*!
-   @brief Begin Path order (PM GPI extension).
+   @brief Begin Path order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GBPTH    0xD0            /* Begin Path                  */
 
 /*!
-   @brief Structure for Begin Path order (PM GPI extension).
+   @brief Structure for Begin Path order (FULL GOCA).
 */
 typedef struct _ORDER_GBPTH
 {
@@ -1241,7 +1241,7 @@ typedef struct _ORDERL_GCBOX
 } ORDERL_GCBOX;
 
 /*!
-   @brief Box order flag: fill the box interior (PM GPI extension).
+   @brief Box order flag: fill the box interior (FULL GOCA).
 
    @see AFP GOCA Reference, "Box (GBOX, GCBOX) Orders", page 90.
 */
@@ -1255,7 +1255,7 @@ typedef struct _ORDERL_GCBOX
 /* Call Segment */
 
 /*!
-   @brief Call Segment order (PM GPI extension).
+   @brief Call Segment order (FULL GOCA).
 
    AFP GOCA does not support the calling of segments; all segments are
    processed in immediate mode and chained.
@@ -1265,7 +1265,7 @@ typedef struct _ORDERL_GCBOX
 #define OCODE_GCALLS   0x07            /* call segment                */
 
 /*!
-   @brief Structure for Call Segment order (PM GPI extension).
+   @brief Structure for Call Segment order (FULL GOCA).
 */
 typedef struct _ORDER_GCALLS
 {
@@ -1276,14 +1276,14 @@ typedef struct _ORDER_GCALLS
 /* Fill Path */
 
 /*!
-   @brief Fill Path order (PM GPI extension).
+   @brief Fill Path order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GFPTH    0xD7            /* Fill path                   */
 
 /*!
-   @brief Structure for Fill Path order (PM GPI extension).
+   @brief Structure for Fill Path order (FULL GOCA).
 */
 typedef struct _ORDER_GFPTH
 {
@@ -1305,16 +1305,16 @@ typedef struct _ORDER_GFPTH
 #define GFPTH_WINDING   0x40
 
 /*!
-   @brief Fill Path flag: modify path (PM GPI extension).
+   @brief Fill Path flag: modify path (FULL GOCA).
 */
 #define GFPTH_MODIFY    0x20
 
 /* Outline Path */
 
 /*!
-   @brief Outline Path order (PM GPI extension).
+   @brief Outline Path order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 
    Opcode X'D9' per IBM OS/2 PM Reference 64F0277, Chapter 27
    "Graphics Orders" (Outline Path / GOPTH). This file previously had
@@ -1328,7 +1328,7 @@ typedef struct _ORDER_GFPTH
 #define OCODE_GOPTH    0xD9            /* Outline Path                */
 
 /*!
-   @brief Structure for Outline Path order (PM GPI extension).
+   @brief Structure for Outline Path order (FULL GOCA).
 */
 typedef struct _ORDER_GOPTH
 {
@@ -1340,14 +1340,14 @@ typedef struct _ORDER_GOPTH
 /* Modify Path */
 
 /*!
-   @brief Modify Path order (PM GPI extension).
+   @brief Modify Path order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GMPTH 0xD8               /* modify path                 */
 
 /*!
-   @brief Structure for Modify Path order (PM GPI extension).
+   @brief Structure for Modify Path order (FULL GOCA).
 */
 typedef struct _ORDER_GMPTH
 {
@@ -1357,7 +1357,7 @@ typedef struct _ORDER_GMPTH
 } ORDER_GMPTH;
 
 /*!
-   @brief Modify Path mode: stroke (PM GPI extension).
+   @brief Modify Path mode: stroke (FULL GOCA).
 */
 #define GMPTH_STROKE    0x06
 
@@ -1415,14 +1415,14 @@ typedef struct _ORDERL_GCPARC
 /* Set Clip Path */
 
 /*!
-   @brief Set Clip Path order (PM GPI extension).
+   @brief Set Clip Path order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GSCPTH   0xB4            /* Set clip path               */
 
 /*!
-   @brief Structure for Set Clip Path order (PM GPI extension).
+   @brief Structure for Set Clip Path order (FULL GOCA).
 */
 typedef struct _ORDER_GSCPTH
 {
@@ -1444,12 +1444,12 @@ typedef struct _ORDER_GSCPTH
 #define GSCPTH_WINDING   0x40
 
 /*!
-   @brief Set Clip Path flag: reset (PM GPI extension).
+   @brief Set Clip Path flag: reset (FULL GOCA).
 */
 #define GSCPTH_RESET     0x00
 
 /*!
-   @brief Set Clip Path flag: intersect (PM GPI extension).
+   @brief Set Clip Path flag: intersect (FULL GOCA).
 */
 #define GSCPTH_INTERSECT 0x20
 
@@ -1467,9 +1467,9 @@ typedef struct _ORDER_GSCPTH
 #define OCODE_GSAP     0x22            /* Set arc parameters          */
 
 /*!
-   @brief Push and Set Arc Parameters order (PM GPI extension).
+   @brief Push and Set Arc Parameters order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSAP    0x62            /* Push and set arc params     */
 
@@ -1503,7 +1503,7 @@ typedef struct _ORDERL_GSAP
 /* Set Background Indexed Color */
 
 /*!
-   @brief Set Background Indexed Color order (PM GPI extension).
+   @brief Set Background Indexed Color order (FULL GOCA).
 
    X'A7' (LEN, FLAGS, INDEX) 
 
@@ -1514,7 +1514,7 @@ typedef struct _ORDERL_GSAP
 #define OCODE_GSBICOL  0xA7            /* Set b/g indexed color       */
 
 /*!
-   @brief Push and Set Background Indexed Color order (PM GPI extension).
+   @brief Push and Set Background Indexed Color order (FULL GOCA).
 
    X'E7' (LEN, FLAGS, INDEX) 
 
@@ -1525,7 +1525,7 @@ typedef struct _ORDERL_GSAP
 #define OCODE_GPSBICOL 0xE7            /* Push and set b/g ind color  */
 
 /*!
-   @brief Set Indexed Color order (PM GPI extension).
+   @brief Set Indexed Color order (FULL GOCA).
 
    X'A6' (LEN, FLAGS, INDEX) 
 
@@ -1537,7 +1537,7 @@ typedef struct _ORDERL_GSAP
 #define OCODE_GSICOL   0xA6            /* Set indexed color           */
 
 /*!
-   @brief Push and Set Indexed Color order (PM GPI extension).
+   @brief Push and Set Indexed Color order (FULL GOCA).
 
    X'A6' (LEN, FLAGS, INDEX) 
 
@@ -1560,37 +1560,37 @@ typedef struct _ORDER_GSBICOL
 } ORDER_GSBICOL;
 
 /*!
-   @brief Set Indexed Color flag: specify (PM GPI extension).
+   @brief Set Indexed Color flag: specify (FULL GOCA).
 */
 #define SICOL_SPECIFY  0x00
 
 /*!
-   @brief Set Indexed Color flag: special (PM GPI extension).
+   @brief Set Indexed Color flag: special (FULL GOCA).
 */
 #define SICOL_SPECIAL  0x40
 
 /*!
-   @brief Set Indexed Color flag: default (PM GPI extension).
+   @brief Set Indexed Color flag: default (FULL GOCA).
 */
 #define SICOL_DEFAULT  0x80
 
 /*!
-   @brief Set Indexed Color value: black (PM GPI extension).
+   @brief Set Indexed Color value: black (FULL GOCA).
 */
 #define SICOL_BLACK    1
 
 /*!
-   @brief Set Indexed Color value: white (PM GPI extension).
+   @brief Set Indexed Color value: white (FULL GOCA).
 */
 #define SICOL_WHITE    2
 
 /*!
-   @brief Set Indexed Color value: ones (PM GPI extension).
+   @brief Set Indexed Color value: ones (FULL GOCA).
 */
 #define SICOL_ONES     4
 
 /*!
-   @brief Set Indexed Color value: zeroes (PM GPI extension).
+   @brief Set Indexed Color value: zeroes (FULL GOCA).
 */
 #define SICOL_ZEROES   5
 
@@ -1608,9 +1608,9 @@ typedef struct _ORDER_GSBICOL
 #define OCODE_GSCC     0x33            /* Set character cell          */
 
 /*!
-   @brief Push and Set Character Cell order (PM GPI extension).
+   @brief Push and Set Character Cell order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSCC    0x03            /* Push and set char cell      */
 
@@ -1669,9 +1669,9 @@ typedef struct _ORDERL_GSCC
 #define OCODE_GSMC     0x37            /* Set marker cell             */
 
 /*!
-   @brief Push and Set Marker Cell order (PM GPI extension).
+   @brief Push and Set Marker Cell order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSMC    0x77            /* Push and set marker cell    */
 
@@ -1727,9 +1727,9 @@ typedef struct _ORDERL_GSMC
 #define OCODE_GSPRP    0xA0            /* Set pattern ref point       */
 
 /*!
-   @brief Push and Set Pattern Reference Point order (PM GPI extension).
+   @brief Push and Set Pattern Reference Point order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSPRP   0xE0            /* Push and set patt ref pt    */
 
@@ -1772,23 +1772,23 @@ typedef struct _ORDERL_GSPRP
 /* Set Individual Attribute */
 
 /*!
-   @brief Set Individual Attribute order (PM GPI extension).
+   @brief Set Individual Attribute order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GSIA     0x14            /* Set individual attribute    */
 
 /*!
-   @brief Push and Set Individual Attribute order (PM GPI extension).
+   @brief Push and Set Individual Attribute order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSIA    0x54            /* Push and set ind attr       */
 
 #define GSIA_VL 3
 
 /*!
-   @brief Structure for Set Individual Attribute order (PM GPI extension).
+   @brief Structure for Set Individual Attribute order (FULL GOCA).
 */
 typedef struct _ORDER_GSIA
 {
@@ -1799,7 +1799,7 @@ typedef struct _ORDER_GSIA
 } ORDER_GSIA;
 
 /*!
-   @brief Set Individual Attribute type: color (PM GPI extension).
+   @brief Set Individual Attribute type: color (FULL GOCA).
 */
 #define GSIA_COLOR     0x01
 
@@ -1810,17 +1810,17 @@ typedef struct _ORDER_GSIA
 #define GSIA_BCOLOR    0x02
 
 /*!
-   @brief Set Individual Attribute type: mix (PM GPI extension).
+   @brief Set Individual Attribute type: mix (FULL GOCA).
 */
 #define GSIA_MIX       0x03
 
 /*!
-   @brief Set Individual Attribute type: background mix (PM GPI extension).
+   @brief Set Individual Attribute type: background mix (FULL GOCA).
 */
 #define GSIA_BMIX      0x04
 
 /*!
-   @brief Set Individual Attribute primitive type: line (PM GPI extension).
+   @brief Set Individual Attribute primitive type: line (FULL GOCA).
 */
 #define GSIA_LINE      0x01
 
@@ -1843,42 +1843,42 @@ typedef struct _ORDER_GSIA
 #define GSIA_PATTERN   0x04
 
 /*!
-   @brief Set Individual Attribute primitive type: image (PM GPI extension).
+   @brief Set Individual Attribute primitive type: image (FULL GOCA).
 */
 #define GSIA_IMAGE     0x05
 
 /*!
-   @brief Set Individual Attribute flag: specify (PM GPI extension).
+   @brief Set Individual Attribute flag: specify (FULL GOCA).
 */
 #define GSIA_SPECIFY   0x00
 
 /*!
-   @brief Set Individual Attribute flag: special (PM GPI extension).
+   @brief Set Individual Attribute flag: special (FULL GOCA).
 */
 #define GSIA_SPECIAL   0x40
 
 /*!
-   @brief Set Individual Attribute flag: default (PM GPI extension).
+   @brief Set Individual Attribute flag: default (FULL GOCA).
 */
 #define GSIA_DEFAULT   0x80
 
 /*!
-   @brief Set Individual Attribute value: black (PM GPI extension).
+   @brief Set Individual Attribute value: black (FULL GOCA).
 */
 #define GSIA_BLACK     1
 
 /*!
-   @brief Set Individual Attribute value: white (PM GPI extension).
+   @brief Set Individual Attribute value: white (FULL GOCA).
 */
 #define GSIA_WHITE     2
 
 /*!
-   @brief Set Individual Attribute value: ones (PM GPI extension).
+   @brief Set Individual Attribute value: ones (FULL GOCA).
 */
 #define GSIA_ONES      4
 
 /*!
-   @brief Set Individual Attribute value: zeroes (PM GPI extension).
+   @brief Set Individual Attribute value: zeroes (FULL GOCA).
 */
 #define GSIA_ZEROES    5
 
@@ -1886,30 +1886,30 @@ typedef struct _ORDER_GSIA
 /* Set Model /Viewing Transform */
 
 /*!
-   @brief Set Model Transform order (PM GPI extension).
+   @brief Set Model Transform order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GSTM     0x24            /* Set model transform         */
 
 /*!
-   @brief Push and Set Model Transform order (PM GPI extension).
+   @brief Push and Set Model Transform order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSTM    0x64            /* Push and set model tfm      */
 
 /*!
-   @brief Set Viewing Transform order (PM GPI extension).
+   @brief Set Viewing Transform order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GSTV     0x31            /* Set Viewing Transform       */
 
 #define GSTM_ML        16
 
 /*!
-   @brief Structure for Set Model Transform order (PM GPI extension).
+   @brief Structure for Set Model Transform order (FULL GOCA).
 */
 typedef struct _ORDERS_GSTM
 {
@@ -1932,7 +1932,7 @@ typedef struct _ORDERL_GSTM
 } ORDERL_GSTM;
 
 /*!
-   @brief Model Transform matrix element masks (PM GPI extension).
+   @brief Model Transform matrix element masks (FULL GOCA).
 */
 #define GSTM_M11     0x8000
 #define GSTM_M12     0x4000
@@ -1952,62 +1952,62 @@ typedef struct _ORDERL_GSTM
 #define GSTM_M44     0x0001
 
 /*!
-   @brief Model Transform flag: unity (PM GPI extension).
+   @brief Model Transform flag: unity (FULL GOCA).
 */
 #define GSTM_UNITY     0x00
 
 /*!
-   @brief Model Transform flag: after (PM GPI extension).
+   @brief Model Transform flag: after (FULL GOCA).
 */
 #define GSTM_AFTER     0x01
 
 /*!
-   @brief Model Transform flag: before (PM GPI extension).
+   @brief Model Transform flag: before (FULL GOCA).
 */
 #define GSTM_BEFORE    0x02
 
 /*!
-   @brief Model Transform flag: overwrite (PM GPI extension).
+   @brief Model Transform flag: overwrite (FULL GOCA).
 */
 #define GSTM_OVERWRITE 0x03
 
 /*!
-   @brief Viewing Transform flag: overwrite (PM GPI extension).
+   @brief Viewing Transform flag: overwrite (FULL GOCA).
 */
 #define GSTV_OVERWRITE 0x00
 
 /*!
-   @brief Viewing Transform flag: after (PM GPI extension).
+   @brief Viewing Transform flag: after (FULL GOCA).
 */
 #define GSTV_AFTER     0x04
 
 /* Set Segment Boundary, Viewing Window */
 
 /*!
-   @brief Set Segment Boundary order (PM GPI extension).
+   @brief Set Segment Boundary order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GSSB     0x32            /* Set segment boundary        */
 
 /*!
-   @brief Set Viewing Window order (PM GPI extension).
+   @brief Set Viewing Window order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GSVW     0x27            /* Set viewing window          */
 
 /*!
-   @brief Push and Set Viewing Window order (PM GPI extension).
+   @brief Push and Set Viewing Window order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSVW    0x67            /* Push and set view window    */
 
 #define GSSB_ML        4
 
 /*!
-   @brief Structure for Set Segment Boundary order (PM GPI extension).
+   @brief Structure for Set Segment Boundary order (FULL GOCA).
 */
 typedef struct _ORDERS_GSSB
 {
@@ -2028,32 +2028,32 @@ typedef struct _ORDERL_GSSB
 } ORDERL_GSSB;
 
 /*!
-   @brief Segment Boundary mask: X-left (PM GPI extension).
+   @brief Segment Boundary mask: X-left (FULL GOCA).
 */
 #define GSSB_XLEFT     0x20
 
 /*!
-   @brief Segment Boundary mask: X-right (PM GPI extension).
+   @brief Segment Boundary mask: X-right (FULL GOCA).
 */
 #define GSSB_XRIGHT    0x10
 
 /*!
-   @brief Segment Boundary mask: Y-bottom (PM GPI extension).
+   @brief Segment Boundary mask: Y-bottom (FULL GOCA).
 */
 #define GSSB_YBOTTOM   0x08
 
 /*!
-   @brief Segment Boundary mask: Y-top (PM GPI extension).
+   @brief Segment Boundary mask: Y-top (FULL GOCA).
 */
 #define GSSB_YTOP      0x04
 
 /*!
-   @brief Viewing Window flag: intersect (PM GPI extension).
+   @brief Viewing Window flag: intersect (FULL GOCA).
 */
 #define GSVW_INTERSECT 0x00
 
 /*!
-   @brief Viewing Window flag: replace (PM GPI extension).
+   @brief Viewing Window flag: replace (FULL GOCA).
 */
 #define GSVW_REPLACE   0x80
 
@@ -2087,21 +2087,21 @@ typedef struct _ORDER_GSGCH
 /* Set Stroke Line Width */
 
 /*!
-   @brief Set Stroke Line Width order (PM GPI extension).
+   @brief Set Stroke Line Width order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GSSLW    0x15            /* Set stroke line width       */
 
 /*!
-   @brief Push and Set Stroke Line Width order (PM GPI extension).
+   @brief Push and Set Stroke Line Width order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSSLW   0x55            /* Push and set strk l width   */
 
 /*!
-   @brief Structure for Set Stroke Line Width order (PM GPI extension).
+   @brief Structure for Set Stroke Line Width order (FULL GOCA).
 */
 typedef struct _ORDERS_GSSLW
 {
@@ -2122,22 +2122,21 @@ typedef struct _ORDERL_GSSLW
 } ORDERL_GSSLW;
 
 /*!
-   @brief Stroke Line Width flag: default (PM GPI extension).
+   @brief Stroke Line Width flag: default (FULL GOCA).
 */
 #define GSSLW_DEFAULT  0x80
 
 /*!
-   @brief Stroke Line Width flag: specify (PM GPI extension).
+   @brief Stroke Line Width flag: specify (FULL GOCA).
 */
 #define GSSLW_SPECIFY  0x00
 
 /* Sharp Fillet at Current Position */
 
 /*!
-   @brief Sharp Fillet at Current Position order (PM GPI extension).
+   @brief Sharp Fillet at Current Position order (FULL GOCA).
 
-   Not part of AFP GOCA.  AFP GOCA does not support a sharpness parameter
-   for the Fillet order.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 
    @see AFP GOCA Reference, "Fillet", page 26 (Architecture Note on the
         sharpness parameter).
@@ -2145,9 +2144,9 @@ typedef struct _ORDERL_GSSLW
 #define OCODE_GCSFLT   0xA4            /* Sharp fillet at curr pos    */
 
 /*!
-   @brief Sharp Fillet at Given Position order (PM GPI extension).
+   @brief Sharp Fillet at Given Position order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GSFLT    0xE4            /* Sharp fillet at given pos   */
 
@@ -2169,7 +2168,7 @@ typedef struct _ORDERS_GCSFLT
 
 /*!
    @brief 32-bit structure for Sharp Fillet at Current Position order
-          (PM GPI extension).
+          (FULL GOCA).
 */
 typedef struct _ORDERL_GCSFLT
 {
@@ -2180,14 +2179,14 @@ typedef struct _ORDERL_GCSFLT
 /* Bitblt */
 
 /*!
-   @brief Bitblt order (PM GPI extension).
+   @brief Bitblt order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GBBLT    0xD6            /* Bitblt                      */
 
 /*!
-   @brief Structure for Bitblt order (PM GPI extension).
+   @brief Structure for Bitblt order (FULL GOCA).
 */
 typedef struct _ORDERS_GBBLT
 {
@@ -2200,7 +2199,7 @@ typedef struct _ORDERS_GBBLT
 } ORDERS_GBBLT;
 
 /*!
-   @brief 32-bit structure for Bitblt order (PM GPI extension).
+   @brief 32-bit structure for Bitblt order (FULL GOCA).
 */
 typedef struct _ORDERL_GBBLT
 {
@@ -2215,30 +2214,30 @@ typedef struct _ORDERL_GBBLT
 /* Char & break extra */
 
 /*!
-   @brief Set Character Extra order (PM GPI extension).
+   @brief Set Character Extra order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GSCE     0x17            /* Set char extra              */
 
 /*!
-   @brief Push and Set Character Extra order (PM GPI extension).
+   @brief Push and Set Character Extra order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSCE    0x57            /* Push and set char extra     */
 
 /*!
-   @brief Set Character Break Extra order (PM GPI extension).
+   @brief Set Character Break Extra order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GSCBE    0x05            /* Set char break extra        */
 
 /*!
-   @brief Push and Set Character Break Extra order (PM GPI extension).
+   @brief Push and Set Character Break Extra order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GPSCBE   0x45            /* Push and set char break extra */
 
@@ -2256,9 +2255,9 @@ typedef struct _ORDER_GSCBE
 /* Escape */
 
 /*!
-   @brief Escape order (PM GPI extension).
+   @brief Escape order (FULL GOCA).
 
-   Not part of AFP GOCA.
+   @note Not part of AFP GOCA but part of FULL GOCA.
 */
 #define OCODE_GESCP    0xD5            /* Escape                      */
 
@@ -2269,7 +2268,7 @@ typedef struct _ORDER_GSCBE
 #define GESCP_ML       253
 
 /*!
-   @brief Structure for Escape order (PM GPI extension).
+   @brief Structure for Escape order (FULL GOCA).
 */
 typedef struct _ORDER_GESCP
 {
@@ -2279,14 +2278,14 @@ typedef struct _ORDER_GESCP
 } ORDER_GESCP;
 
 /*!
-   @brief Escape order flag: identifier is registered (PM GPI extension).
+   @brief Escape order flag: identifier is registered (FULL GOCA).
 */
 #define GESCP_REG      0x80            /* identifier is registered    */
 
 /* Escape (Bitblt) */
 
 /*!
-   @brief Escape order identifier: Bitblt (PM GPI extension).
+   @brief Escape order identifier: Bitblt (FULL GOCA).
 */
 #define GEBB_REGID     0x02            /* uchIdent - Bitblt           */
 
@@ -2295,7 +2294,7 @@ typedef struct _ORDER_GESCP
 #define GEBB_LMP       29
 
 /*!
-   @brief Structure for Escape (Bitblt) order (PM GPI extension).
+   @brief Structure for Escape (Bitblt) order (FULL GOCA).
 */
 typedef struct _ORDERL_GEBB
 {
@@ -2311,7 +2310,7 @@ typedef struct _ORDERL_GEBB
 /* Escape (Set Pel) */
 
 /*!
-   @brief Escape order identifier: Set Pel (PM GPI extension).
+   @brief Escape order identifier: Set Pel (FULL GOCA).
 */
 #define GEPEL_REGID    0x01            /* uchIdent - Set Pel          */
 
@@ -2320,14 +2319,14 @@ typedef struct _ORDERL_GEBB
 /* Escape (DrawBits) */
 
 /*!
-   @brief Escape order identifier: DrawBits (PM GPI extension).
+   @brief Escape order identifier: DrawBits (FULL GOCA).
 */
 #define GEDB_REGID     0x04          /* uchIdent - DrawBits */
 
 #define ETYPE_GEDB          0x800400D5L
 
 /*!
-   @brief Structure for Escape (DrawBits) order (PM GPI extension).
+   @brief Structure for Escape (DrawBits) order (FULL GOCA).
 */
 typedef struct _ORDERL_GEDB
 {
@@ -2344,14 +2343,14 @@ typedef struct _ORDERL_GEDB
 /* Escape (FloodFill) */
 
 /*!
-   @brief Escape order identifier: FloodFill (PM GPI extension).
+   @brief Escape order identifier: FloodFill (FULL GOCA).
 */
 #define GEFF_REGID     0x03          /* uchIdent - FloodFill */
 
 #define ETYPE_GEFF          0x800300D5L
 
 /*!
-   @brief Structure for Escape (FloodFill) order (PM GPI extension).
+   @brief Structure for Escape (FloodFill) order (FULL GOCA).
 */
 typedef struct _ORDERL_GEFF
 {
@@ -2363,27 +2362,27 @@ typedef struct _ORDERL_GEFF
 /* Element Types for attribute bundles */
 
 /*!
-   @brief Element type: line bundle (PM GPI extension).
+   @brief Element type: line bundle (FULL GOCA).
 */
 #define ETYPE_LINEBUNDLE    0x0000FD01L
 
 /*!
-   @brief Element type: character bundle (PM GPI extension).
+   @brief Element type: character bundle (FULL GOCA).
 */
 #define ETYPE_CHARBUNDLE    0x0000FD02L
 
 /*!
-   @brief Element type: marker bundle (PM GPI extension).
+   @brief Element type: marker bundle (FULL GOCA).
 */
 #define ETYPE_MARKERBUNDLE  0x0000FD03L
 
 /*!
-   @brief Element type: area bundle (PM GPI extension).
+   @brief Element type: area bundle (FULL GOCA).
 */
 #define ETYPE_AREABUNDLE    0x0000FD04L
 
 /*!
-   @brief Element type: image bundle (PM GPI extension).
+   @brief Element type: image bundle (FULL GOCA).
 */
 #define ETYPE_IMAGEBUNDLE   0x0000FD05L
 
@@ -2567,7 +2566,7 @@ typedef struct _ORDERL_GTCHSPA
 #define GEESCP_ML      65533
 
 /*!
-   @brief Structure for Extended Escape order (PM GPI extension).
+   @brief Structure for Extended Escape order (FULL GOCA).
 */
 typedef struct _ORDER_GEESCP
 {
@@ -2579,7 +2578,7 @@ typedef struct _ORDER_GEESCP
 #pragma pack()
 
 
-/* !!!! NEED TO RECHECK !!! */
+/* !!!! NEED TO RECHECK !!! SEEMS NOT DIRECTRLY HANDLED BY PM GPI!! */
 
 /*!
    @brief Begin Segment order (X'70').

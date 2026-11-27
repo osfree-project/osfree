@@ -404,13 +404,12 @@ static LONG GocaPop(GOCA_CTX *c)
  *
  * @param [in] c   GOCA context.
  * @param [in] p   Pointer to the order (code, length, operands).
- * @param [in] bPush    Push to attribute stack.
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
  * @retval GOCA_EC_INVALID_LENGTH Declared length not equal to two
  *                                geometric parameters.
  */
-static LONG DoGSCP(GOCA_CTX *c, const BYTE *p, BOOL bPush)
+static LONG DoGSCP(GOCA_CTX *c, const BYTE *p)
 {
     POINTL pt;
 
@@ -476,16 +475,24 @@ static LONG DoLine(GOCA_CTX *c, const BYTE *p, BOOL bGiven)
 /*!
  * @brief GMRK (0xC2) / GCMRK (0x82).
  *
- * GCMRK operands are pointSize * count; the current position is
- * prepended. GMRK operands are a start point followed by further
- * points. Current position ends at the last point.
+ * Draws one marker at every position of the order. For GMRK the first
+ * position is taken from the operands and becomes the current position
+ * before drawing; at least one point is required. For GCMRK a marker is
+ * drawn at the current position first, then at every operand point; a
+ * zero-length order draws a single marker at the current position.
+ * The current position ends at the centre of the last marker.
+ *
+ * @note GrePolyMarker cPoints is the total number of markers to be
+ *       drawn; the first one is placed at the current position and the
+ *       remaining cPoints-1 are taken from the point array.
  *
  * @param [in] c    GOCA context.
  * @param [in] p    Pointer to the order.
- * @param [in] bGiven TRUE for given position
+ * @param [in] bGiven TRUE for given position.
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
- * @retval GOCA_EC_INVALID_LENGTH Operand length inconsistent with point size.
+ * @retval GOCA_EC_INVALID_LENGTH Operand length inconsistent with point size,
+ *                                or GMRK without points.
  */
 static LONG DoMark(GOCA_CTX *c, const BYTE *p, BOOL bGiven)
 {
@@ -511,7 +518,7 @@ static LONG DoMark(GOCA_CTX *c, const BYTE *p, BOOL bGiven)
         GreSetCurrentPosition(c->hdc, &aptl[0]);
         nPts--;
     }
-    GrePolyMarker(c->hdc, &aptl[bGiven], (LONG)(nPts));
+    GrePolyMarker(c->hdc, &aptl[bGiven], (LONG)(nPts+1));
 
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
@@ -1023,7 +1030,8 @@ static LONG DoFillet(GOCA_CTX *c, const BYTE *p, ULONG cb, BOOL bCur)
  * @param [in] cb  Bytes available from p to the end of the stream.
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                Order processed.
- * @retval GOCA_EC_INVALID_LENGTH Operand shorter than four parameters.
+ * @retval GOCA_EC_INVALID_LENGTH Operand length not equal to four
+ *                                geometric parameters.
  */
 static LONG DoSetArcParams(GOCA_CTX *c, const BYTE *p, ULONG cb)
 {
@@ -1032,7 +1040,7 @@ static LONG DoSetArcParams(GOCA_CTX *c, const BYTE *p, ULONG cb)
 
     GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
 
-    if (p[1] < 4u * paramSize) {
+    if (p[1] != 4u * paramSize) {
         GocaCallResult("GOCA_EC_INVALID_LENGTH");
         return GOCA_EC_INVALID_LENGTH;
     }
@@ -1058,7 +1066,7 @@ static LONG DoSetArcParams(GOCA_CTX *c, const BYTE *p, ULONG cb)
  * cellx/celly: GROSOL; cellxf/cellyf: GUSHORT, optional (1 byte, 1/256,
  * in GDDM 1-byte format); flags/res optional, res required with flags.
  * Reserved flag bits and the res byte must be zero: these fields are a
- * PM GPI extension (pmord.h ORDERS_GSCC / ORDERL_GSCC) and are absent
+ * full GOCA (pmord.h ORDERS_GSCC / ORDERL_GSCC) and are absent
  * from the AFP GOCA syntax of this order.
  * flags.setzero (0x80, GSCC_ZEROZERO):
  *   0 - a cell size of zero sets drawing default;
@@ -1667,7 +1675,7 @@ LONG GocaParseStream(GOCA_CTX *c)
                 UCHAR ip, fp;
                 ULONG flDefs = 0UL;
                 ULONG flAttrs = LBB_WIDTH;
-                if (p[1] < 2) { rc = GOCA_EC_INVALID_LENGTH; break; }
+                if (p[1] != 2) { rc = GOCA_EC_INVALID_LENGTH; break; }
                 ip = p[2]; fp = p[3];
                 GocaCallEnter("GSFLW width=%u.%02X", (unsigned)ip, (unsigned)fp);
                 if (ip == 0 && fp == 0) {
@@ -1835,7 +1843,7 @@ LONG GocaParseStream(GOCA_CTX *c)
                 rc = GocaPushCurPos(c);
                 if (rc != GOCA_OK) break;
                 /* fall through */
-            case OCODE_GSCP:    rc = DoGSCP(c, p, FALSE); break;
+            case OCODE_GSCP:    rc = DoGSCP(c, p); break;
             
             case OCODE_GLINE:   rc = DoLine(c, p, TRUE); break;
             case OCODE_GCLINE:  rc = DoLine(c, p, FALSE); break;
@@ -1985,11 +1993,18 @@ const char *GocaOrderName(UCHAR uCode)
     case /* X'60' */ OCODE_GEAR:    return "GEAR";
     case /* X'68' */ OCODE_GBAR:    return "GBAR";
     case /* X'80' */ OCODE_GCBOX:   return "GCBOX";
+    case /* X'C0' */ OCODE_GBOX:    return "GBOX";
     case /* X'81' */ OCODE_GCLINE:  return "GCLINE";
+    case /* X'C1' */ OCODE_GLINE:   return "GLINE";
     case /* X'82' */ OCODE_GCMRK:   return "GCMRK";
+    case /* X'C2' */ OCODE_GMRK:    return "GMRK";
     case /* X'83' */ OCODE_GCCHST:  return "GCCHST";
+    case /* X'C3' */ OCODE_GCHST:   return "GCHST";
     case /* X'85' */ OCODE_GCFLT:   return "GCFLT";
+    case /* X'C5' */ OCODE_GFLT:    return "GFLT";
     case /* X'87' */ OCODE_GCFARC:  return "GCFARC";
+    case /* X'C7' */ OCODE_GFARC:   return "GFARC";
+
     case /* X'91' */ OCODE_GCBIMG:  return "GCBIMG";
     case /* X'92' */ OCODE_GIMD:    return "GIMD";
     case /* X'93' */ OCODE_GEIMG:   return "GEIMG";
@@ -1998,12 +2013,6 @@ const char *GocaOrderName(UCHAR uCode)
     case /* X'A3' */ OCODE_GCPARC:  return "GCPARC";
     case /* X'A5' */ OCODE_GCBEZ:   return "GCBEZ"; //?? name differs
 //    case /* X'B2' */ OCODE_GSPCOL:  return "GSPCOL"; AFP GOCA
-    case /* X'C0' */ OCODE_GBOX:    return "GBOX";
-    case /* X'C1' */ OCODE_GLINE:   return "GLINE";
-    case /* X'C2' */ OCODE_GMRK:    return "GMRK";
-    case /* X'C3' */ OCODE_GCHST:   return "GCHST";
-    case /* X'C4' */ OCODE_GFLT:    return "GFLT";
-    case /* X'C7' */ OCODE_GFARC:   return "GFARC";
     case /* X'D1' */ OCODE_GBIMG:   return "GBIMG";
 //    case /* X'DE' */ OCODE_GBCP:   return "GBCP"; AFP GOCA
 //    case /* X'DF' */ OCODE_GDPT:   return "GDPT"; AFP GOCA
