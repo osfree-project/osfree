@@ -1180,22 +1180,23 @@ static LONG DoSetCharCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
  *
  * @param [in] c   GOCA context.
  * @param [in] p   Pointer to the order.
- * @param [in] cb  Bytes available from p to the end of the stream.
  * @return GOCA_OK or an exception code.
  * @retval GOCA_OK                   Order processed and MBB_BOX applied.
  * @retval GOCA_EC_INVALID_LENGTH    Operand too short or trailing bytes present.
  * @retval GOCA_EC_RESERVED_NOT_ZERO Reserved flag bits or res byte non-zero.
  */
-static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
+static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p)
 {
-    LONG  cx, cy;
+    LONG cx, cy;
     UCHAR fbFlags = 0, uchRes = 0;
     ULONG intSize = (ULONG)c->coordSize;
     ULONG dataLen, rem, off;
-    BOOL  bZero;
+    BOOL bZero;
     MARKERBUNDLE bun;
+    ULONG flDefs = 0UL;
+    ULONG flAttrs = MBB_BOX;
 
-    GocaCallEnter("p=%p, cb=%u", p, (unsigned)cb);
+    GocaCallEnter("p=%p", p);
 
     dataLen = p[1];
     off = 2;
@@ -1222,23 +1223,36 @@ static LONG DoSetMarkerCell(GOCA_CTX *c, const BYTE *p, ULONG cb)
         return GOCA_EC_INVALID_LENGTH;
     }
 
-    bZero = (cx == 0 && cy == 0);
+    /* AFPC p. 152: "if either or both of CELLWI or CELLHI are X'0000'" */
+    bZero = (cx == 0 || cy == 0);
+    
     if (bZero && !(fbFlags & GSMC_ZEROZERO)) {
-        /* setzero=0: a cell size of zero sets drawing default.
-         * MARKERBUNDLE: sizfxCell == 0 is the GRE sentinel for the
-         * default marker cell (nominal symbol size). */
-        bun.sizfxCell.cx = 0;
-        bun.sizfxCell.cy = 0;
+        /* NOTDEFLT = 0: drawing default.
+         * Set flDefsMask = MBB_BOX (bit in both masks).
+         * The engine will substitute the actual default value. */
+        flDefs = MBB_BOX;
+        /* Field not read when bit is in flDefsMask */
     } else {
-        /* Non-zero cell as specified, or zero + setzero=1 (literal zero). */
-        bun.sizfxCell.cx = MAKEFIXED(cx, 0);
-        bun.sizfxCell.cy = MAKEFIXED(cy, 0);
+        /* NOTDEFLT = 1 (literal zero) OR both components non-zero.
+         * For literal zero: force both components to 0 even if one was non-zero.
+         * For non-zero: use the values as specified. */
+        if (bZero) {
+            /* Force literal zero: both components must be 0 */
+            bun.sizfxCell.cx = 0;
+            bun.sizfxCell.cy = 0;
+        } else {
+            /* Non-zero cell: use specified values */
+            bun.sizfxCell.cx = MAKEFIXED(cx, 0);
+            bun.sizfxCell.cy = MAKEFIXED(cy, 0);
+        }
     }
 
-    GocaTrace(c, "[GOCA]   GSMC: cell=(%ld,%ld) setzero=%u\n",
+    GocaTrace(c, "[GOCA]   GSMC: cell=(%ld,%ld) setzero=%u flDefs=%04X\n",
               (long)cx, (long)cy,
-              (unsigned)((fbFlags & GSMC_ZEROZERO) != 0));
-    GreSetAttributes(c->hdc, PRIM_MARKER, 0UL, MBB_BOX, (PBUNDLE)&bun);
+              (unsigned)((fbFlags & GSMC_ZEROZERO) != 0),
+              (unsigned)flDefs);
+    
+    GreSetAttributes(c->hdc, PRIM_MARKER, flDefs, flAttrs, (PBUNDLE)&bun);
 
     GocaCallResult("GOCA_OK");
     return GOCA_OK;
@@ -1871,16 +1885,19 @@ LONG GocaParseStream(GOCA_CTX *c)
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSAP:    rc = DoSetArcParams(c, p, cbOrder); break;
+
             case OCODE_GPSCC:
                 rc = GocaPushAttr(c, 0, CBB_BOX, 0, 0, 0);
                 if (rc != GOCA_OK) break;
                 /* fall through */
             case OCODE_GSCC:    rc = DoSetCharCell(c, p, cbOrder); break;
+
             case OCODE_GPSMC:
                 rc = GocaPushAttr(c, 0, 0, MBB_BOX, 0, 0);
                 if (rc != GOCA_OK) break;
                 /* fall through */
-            case OCODE_GSMC:    rc = DoSetMarkerCell(c, p, cbOrder); break;
+            case OCODE_GSMC:    rc = DoSetMarkerCell(c, p); break;
+
             case OCODE_GPSPRP:
                 rc = GocaPushAttr(c, 0, 0, 0, ABB_REF_POINT, 0);
                 if (rc != GOCA_OK) break;
