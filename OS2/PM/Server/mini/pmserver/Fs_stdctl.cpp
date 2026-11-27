@@ -26,7 +26,10 @@
 #include <string.h>
 
 // @todo Make via SV_CYTITLEBAR!
-/*! @brief Title bar height in pels (fallback for SV_CYTITLEBAR). */
+/*!
+ * @def F_TITLEBAR_HEIGHT
+ * @brief Title bar height in pels (fallback for SV_CYTITLEBAR).
+ */
 #define F_TITLEBAR_HEIGHT 20L
 
 /*!
